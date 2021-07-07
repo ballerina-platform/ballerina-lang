@@ -15,13 +15,14 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -31,6 +32,7 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,7 +51,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node)
             throws LSCompletionException {
-        
+
 
         if (this.onExpressionContext(context, node)) {
             List<LSCompletionItem> completionItems = this.getExpressionContextCompletions(context);
@@ -74,10 +76,15 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.expressionCompletions(ctx));
+        Optional<TypeSymbol> contextType = ctx.getContextType();
+        if (contextType.isPresent() && contextType.get().kind() == SymbolKind.CLASS) {
+            completionItems.add(this.getImplicitNewCompletionItem((ClassSymbol) contextType.get(), ctx));
+        }
 
-        return this.expressionCompletions(ctx);
+        return completionItems;
     }
-    
+
     private boolean onExpressionContext(BallerinaCompletionContext context, ObjectFieldNode node) {
         int cursor = context.getCursorPositionInTree();
         Optional<Token> equalsToken = node.equalsToken();

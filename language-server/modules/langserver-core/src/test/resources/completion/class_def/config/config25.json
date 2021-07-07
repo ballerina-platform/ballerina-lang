@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 6,
-    "character": 28
+    "line": 3,
+    "character": 42
   },
-  "source": "expression_context/source/object_constructor_expr_ctx_source9.bal",
+  "source": "class_def/source/source25.bal",
   "items": [
     {
       "label": "module1",
@@ -87,7 +87,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "insertText": "value2",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,7 +101,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value as value2 ;\n"
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -430,18 +430,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunctionWithReturn1()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "testFunctionWithReturn1",
-      "insertText": "testFunctionWithReturn1()",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -456,57 +449,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunctionWithReturn2()",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "testFunctionWithReturn2",
-      "insertText": "testFunctionWithReturn2()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testObjectConstructor()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "testObjectConstructor",
-      "insertText": "testObjectConstructor()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "constructor",
-      "kind": "Variable",
-      "detail": "object {public int field1;}",
-      "sortText": "AB",
-      "insertText": "constructor",
+      "label": "Person",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "Person",
       "insertTextFormat": "Snippet"
     },
     {
@@ -566,11 +513,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new()",
+      "label": "new(int field1, int field2)",
       "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
+        }
+      },
       "sortText": "E",
-      "insertText": "new()",
-      "insertTextFormat": "Snippet"
+      "insertText": "new(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

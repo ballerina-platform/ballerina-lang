@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 3,
-    "character": 38
+    "character": 46
   },
-  "source": "variable-declaration/source/var_def_ctx_source8.bal",
+  "source": "class_def/source/source26.bal",
   "items": [
     {
       "label": "module1",
