@@ -1,15 +1,13 @@
 package org.wso2.ballerinalang.compiler.nballerina;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
-import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.MapValue;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -27,13 +25,16 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.function.Function;
 
+
 /**
  * Call nBallerina backend.
  */
 public class NBallerinaCaller {
     private  final PrintStream console = System.out;
     private static final CompilerContext.Key<NBallerinaCaller> NBALLERINA = new CompilerContext.Key<>();
+    private final ModuleGen modGenerator;
     private String nBal;
+
 
     public static NBallerinaCaller getInstance(CompilerContext context) {
         NBallerinaCaller nbalCaller = context.get(NBALLERINA);
@@ -46,6 +47,7 @@ public class NBallerinaCaller {
     private NBallerinaCaller(CompilerContext context) {
         context.put(NBALLERINA, this);
         CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
+        this.modGenerator = ModuleGen.getInstance(context);
         this.nBal = compilerOptions.get(CompilerOptionName.NBALLERINA);
     }
 
@@ -53,12 +55,14 @@ public class NBallerinaCaller {
         if (nBal == null) {
             return false;
         }
+
         File path = new File(nBal);
         try {
             URLClassLoader cl = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) () -> {
                 URLClassLoader cl1;
                 try {
-                    cl1 = new URLClassLoader(new URL[]{path.toURI().toURL()});
+                    cl1 = new URLClassLoader(new URL[]{path.toURI().toURL()},
+                            ClassLoader.getSystemClassLoader());
                 } catch (SecurityException e) {
                     throw new BallerinaException("Security error getting classloader", e);
                 } catch (MalformedURLException e) {
@@ -66,12 +70,26 @@ public class NBallerinaCaller {
             }
                 return cl1;
             });
+
+
             Class<?> c = cl.loadClass("wso2.nballerina$0046nback.0_1_0.nback");
-            Method m = c.getMethod("compileModule", Strand.class, BObject.class, Boolean.TYPE,
-                    Object.class, Boolean.TYPE);
+            //Method m = c.getMethod("compileModule", Strand.class, BObject.class, Boolean.TYPE,
+            //       Object.class, Boolean.TYPE);
+            Method m = c.getMethod("testReturn", Strand.class, MapValue.class, Boolean.TYPE);
+
+            Class<?> config = cl.loadClass("wso2.nballerina.0_1_0.$ConfigurationMapper");
+            Method configMethod = config.getMethod("$configureInit", String[].class,
+                    Path[].class, String.class, String.class);
+
+            configMethod.invoke(null, new String[]{}, new Path[0], null, null);
+
+            modGenerator.genMod(pkgNode);
+
+            Scheduler scheduler = new Scheduler(false);
+
             Function<Object[], Object> func = objects -> {
                 try {
-                    return m.invoke(null, objects[0], null, objects[2], objects[3], objects[4]);
+                    return m.invoke(null, objects[0], ModuleGen.tempVal, true);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
                     throw new BallerinaException("Error invoking nBallerina backend", targetException);
@@ -80,15 +98,7 @@ public class NBallerinaCaller {
                 }
             };
 
-            Class<?> config = cl.loadClass("wso2.nballerina$0046nback.0_1_0.$ConfigurationMapper");
-            Method configMethod = config.getMethod("$configureInit", String[].class,
-                    Path[].class, String.class, String.class);
-            TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
-            configMethod.invoke(null, new String[]{}, configurationDetails.paths,
-                    configurationDetails.secret, configurationDetails.configContent);
-            Scheduler scheduler = new Scheduler(false);
-
-            final FutureValue out = scheduler.schedule(new Object[5], func, null, null, null,
+            final FutureValue out = scheduler.schedule(new Object[3], func, null, null, null,
                     PredefinedTypes.TYPE_ANY, null, null);
             scheduler.start();
 
@@ -103,14 +113,17 @@ public class NBallerinaCaller {
                     throw new BallerinaException("Error calling scheduler", t);
                 }
             }
+
         } catch (ClassNotFoundException | NoSuchMethodException
                 | IllegalAccessException e) {
             throw new BallerinaException("Error invoking nBallerina backend", e);
         } catch (InvocationTargetException e) {
             throw new BallerinaException("Error invoking nBallerina config", e.getTargetException());
         }
+
         console.println("nbal active");
+
+
         return true;
     }
 }
-

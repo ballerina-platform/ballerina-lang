@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
@@ -56,6 +57,10 @@ public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFu
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

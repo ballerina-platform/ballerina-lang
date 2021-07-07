@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecationAttributeNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.LinkedList;
@@ -61,6 +62,11 @@ public class BLangMarkDownDeprecationDocumentation extends BLangExpression
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

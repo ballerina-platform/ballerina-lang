@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.FailStatementNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -53,6 +54,11 @@ public class BLangFail extends BLangStatement implements FailStatementNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

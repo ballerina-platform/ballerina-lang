@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.ExprFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 /**
@@ -34,6 +35,10 @@ public class BLangExprFunctionBody extends BLangFunctionBody implements ExprFunc
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

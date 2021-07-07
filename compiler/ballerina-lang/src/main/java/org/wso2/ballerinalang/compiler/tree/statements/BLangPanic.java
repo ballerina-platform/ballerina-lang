@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.PanicNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -43,6 +44,11 @@ public class BLangPanic extends BLangStatement implements PanicNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

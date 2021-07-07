@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.FunctionBodyNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 /**
@@ -32,4 +33,5 @@ public abstract class BLangFunctionBody extends BLangNode implements FunctionBod
      * We need to keep a reference to the function body's scope here.
      */
     public Scope scope;
+    public abstract Object accept(ModuleGen visitor);
 }

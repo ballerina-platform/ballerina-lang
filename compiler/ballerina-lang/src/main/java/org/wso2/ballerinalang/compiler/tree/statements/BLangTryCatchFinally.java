@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.TryCatchFinallyNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -63,6 +64,11 @@ public class BLangTryCatchFinally extends BLangStatement implements TryCatchFina
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WaitExpressionNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
@@ -43,6 +44,11 @@ public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -77,6 +78,11 @@ public class BLangCompoundAssignment extends BLangStatement implements CompoundA
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

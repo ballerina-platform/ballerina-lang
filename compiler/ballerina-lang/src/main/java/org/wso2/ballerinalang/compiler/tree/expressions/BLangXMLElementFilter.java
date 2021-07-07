@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.XMLElementFilter;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -62,6 +63,11 @@ public class BLangXMLElementFilter extends BLangExpression implements XMLElement
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

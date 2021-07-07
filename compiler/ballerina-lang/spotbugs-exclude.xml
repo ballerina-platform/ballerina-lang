@@ -23,6 +23,9 @@
         <Package name="org.wso2.ballerinalang.compiler.codegen" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.nballerina" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen" />
     </Match>
     <Match>

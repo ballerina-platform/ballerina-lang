@@ -17,8 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
@@ -64,7 +62,7 @@ public class BLangBinaryExpr extends BLangExpression implements BinaryExpression
     }
 
     @Override
-    public BMap<BString, Object> accept(ModuleGen visitor) {
+    public Object accept(ModuleGen visitor) {
         return visitor.visit(this);
     }
 

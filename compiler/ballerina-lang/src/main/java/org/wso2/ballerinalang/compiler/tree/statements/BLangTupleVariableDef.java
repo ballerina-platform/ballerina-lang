@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 
@@ -40,6 +41,11 @@ public class BLangTupleVariableDef extends BLangStatement implements VariableDef
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

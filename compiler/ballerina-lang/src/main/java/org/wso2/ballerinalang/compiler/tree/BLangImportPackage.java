@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 
 import java.util.ArrayList;
@@ -77,6 +78,10 @@ public class BLangImportPackage extends BLangNode implements ImportPackageNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

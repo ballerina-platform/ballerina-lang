@@ -21,6 +21,7 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ExternalFunctionBodyNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,10 @@ public class BLangExternalFunctionBody extends BLangFunctionBody implements Exte
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override
