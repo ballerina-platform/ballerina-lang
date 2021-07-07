@@ -40,7 +40,7 @@ import java.util.Map;
 
 
 /**
- * Lower the AST to BIR.
+ * Lower the AST to nBallerina Module.
  *
  * @since 0.980.0
  */
@@ -52,7 +52,6 @@ public class ModuleGen {
 
     //private ModGenEnv env;
 
-    //private BIROptimizer birOptimizer;
     //Module modBir = new Module("wso2", "nballerina.bir", "0.1.0");
     Module modFront = new Module("wso2", "nballerina.front", "0.1.0");
     static BMap<BString, Object> tempVal;
