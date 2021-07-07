@@ -17,6 +17,7 @@
 import configStructuredTypes.imported_records;
 import configStructuredTypes.open_records;
 import configStructuredTypes.util;
+import configStructuredTypes.default_value_records as def_records;
 
 public function main() {
     testRecords();
@@ -32,6 +33,8 @@ public function main() {
 
     open_records:testOpenRecords();
     open_records:testRestFields();
+
+    def_records:testDefaultValues();
     
     util:print("Tests passed");
 }

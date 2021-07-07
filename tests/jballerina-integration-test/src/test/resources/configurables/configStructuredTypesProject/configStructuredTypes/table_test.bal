@@ -21,6 +21,7 @@ import ballerina/test;
 configurable table<Engineer> & readonly engineerTable = ?;
 configurable table<Lecturer> & readonly lecturerTable = ?;
 configurable table<Lawyer> & readonly lawyerTable = ?;
+configurable StaffTable staffTable = ?;
 
 // From non-default module
 configurable table<type_defs:Student> & readonly studentTable = ?;
@@ -30,6 +31,7 @@ configurable table<type_defs:Officer & readonly> & readonly officerTable1 = ?;
 configurable table<type_defs:Employee & readonly> & readonly employeeTable1 = ?;
 configurable table<type_defs:Lecturer> & readonly lecturerTable2 = ?;
 configurable table<type_defs:Lawyer> & readonly lawyerTable2 = ?;
+configurable type_defs:StaffTable staffTable1 = ?;
 
 // Complex records
 configurable table<type_defs:Person> & readonly personTable = ?;
@@ -38,6 +40,7 @@ configurable table<type_defs:Person> & readonly personTable = ?;
 configurable table<configLib:Manager> & readonly managerTable = ?;
 configurable table<configLib:Teacher> & readonly teacherTable = ?;
 configurable table<configLib:Farmer> & readonly farmerTable = ?;
+configurable configLib:StaffTable staffTable2 = ?;
 
 public function testTables() {
     test:assertEquals(engineerTable.toString(), "[{\"name\":\"hinduja\",\"id\":100},{\"name\":\"riyafa\",\"id\":105}]");
@@ -52,4 +55,11 @@ public function testTables() {
     test:assertEquals(personTable.toString(), "[{\"name\":\"riyafa\",\"id\":13," + 
         "\"address\":{\"city\":\"Canberra\",\"country\":{\"name\":\"Australia\"}}},{\"name\":\"gabilan\"," + 
         "\"id\":14,\"address\":{\"city\":\"Paris\",\"country\":{\"name\":\"France\"}}}]");
+
+    test:assertEquals(staffTable.toString(), "[{\"id\":222,\"name\":\"Default\",\"salary\":34000.0}," + 
+    "{\"id\":333,\"name\":\"Jane\",\"salary\":45000.0}]");
+    test:assertEquals(staffTable1.toString(), "[{\"id\":444,\"name\":\"Default\",\"salary\":56000.0}," + 
+    "{\"id\":555,\"name\":\"Mary\",\"salary\":67000.0}]");
+    test:assertEquals(staffTable2.toString(), "[{\"id\":666,\"name\":\"Default\",\"salary\":78000.0}," + 
+    "{\"id\":777,\"name\":\"Amy\",\"salary\":89000.0}]");
 }

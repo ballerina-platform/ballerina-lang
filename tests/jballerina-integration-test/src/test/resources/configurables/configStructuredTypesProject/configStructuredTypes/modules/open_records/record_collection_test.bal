@@ -40,27 +40,27 @@ function testRecordCollection() {
     "{\"arrVal\":[10,20],\"intVal\":40,\"stringVal\":\"str\",\"floatVal\":13.57,\"mapVal\":{\"m\":\"mmm\",\"n\":68}," + 
     "\"mapArr\":[{\"y\":\"yyy\",\"x\":24}]}]");
 
-    test:assertEquals(ownerArr.toString(), "[{\"arrVal\":[4.5,6.7],\"intVal\":11,\"stringVal\":\"def\"," + 
-    "\"floatVal\":99.77,\"id\":102,\"mapVal\":{\"c\":\"c\",\"d\":456},\"mapArr\":[{\"a\":\"a\",\"b\":789}]}," + 
-    "{\"arrVal\":[8.9,0.1],\"intVal\":33,\"stringVal\":\"ghi\",\"floatVal\":88.44,\"id\":103," + 
-    "\"mapVal\":{\"e\":\"e\",\"f\":789},\"mapArr\":[{\"g\":\"g\",\"h\":876}]}]");
+    test:assertEquals(ownerArr.toString(), "[{\"id\":102,\"arrVal\":[4.5,6.7],\"intVal\":11,\"stringVal\":\"def\"," +
+    "\"floatVal\":99.77,\"mapVal\":{\"c\":\"c\",\"d\":456},\"mapArr\":[{\"a\":\"a\",\"b\":789}]},{\"id\":103," +
+    "\"arrVal\":[8.9,0.1],\"intVal\":33,\"stringVal\":\"ghi\",\"floatVal\":88.44,\"mapVal\":{\"e\":\"e\"," +
+    "\"f\":789},\"mapArr\":[{\"g\":\"g\",\"h\":876}]}]");
     test:assertEquals(ownerTable.toString(), "[{\"id\":104,\"arrVal\":[\"4\",\"6\"],\"intVal\":65," + 
     "\"stringVal\":\"val\",\"floatVal\":9.12,\"mapVal\":{\"c\":\"ccc\",\"d\":43}," + 
     "\"mapArr\":[{\"i\":\"iii\",\"j\":21}]},{\"id\":105,\"arrVal\":[10,20],\"intVal\":40,\"stringVal\":\"str\"," + 
     "\"floatVal\":13.57,\"mapVal\":{\"m\":\"mmm\",\"n\":68},\"mapArr\":[{\"y\":\"yyy\",\"x\":24}]}]");
 
-    test:assertEquals(memberArr.toString(), "[{\"arrVal\":[4.5,6.7],\"intVal\":11,\"stringVal\":\"def\"," + 
-    "\"floatVal\":99.77,\"id\":102,\"mapVal\":{\"c\":\"c\",\"d\":456},\"mapArr\":[{\"a\":\"a\",\"b\":789}]}," + 
-    "{\"arrVal\":[8.9,0.1],\"intVal\":33,\"stringVal\":\"ghi\",\"floatVal\":88.44,\"id\":103," + 
+    test:assertEquals(memberArr.toString(), "[{\"id\":102,\"arrVal\":[4.5,6.7],\"intVal\":11,\"stringVal\":\"def\"," +
+    "\"floatVal\":99.77,\"mapVal\":{\"c\":\"c\",\"d\":456},\"mapArr\":[{\"a\":\"a\",\"b\":789}]}," +
+    "{\"id\":103,\"arrVal\":[8.9,0.1],\"intVal\":33,\"stringVal\":\"ghi\",\"floatVal\":88.44," +
     "\"mapVal\":{\"e\":\"e\",\"f\":789},\"mapArr\":[{\"g\":\"g\",\"h\":876}]}]");
     test:assertEquals(memberTable.toString(), "[{\"id\":104,\"arrVal\":[\"4\",\"6\"],\"intVal\":65," + 
     "\"stringVal\":\"val\",\"floatVal\":9.12,\"mapVal\":{\"c\":\"ccc\",\"d\":43}," + 
     "\"mapArr\":[{\"i\":\"iii\",\"j\":21}]},{\"id\":105,\"arrVal\":[10,20],\"intVal\":40,\"stringVal\":\"str\"," + 
     "\"floatVal\":13.57,\"mapVal\":{\"m\":\"mmm\",\"n\":68},\"mapArr\":[{\"y\":\"yyy\",\"x\":24}]}]");
 
-    test:assertEquals(anonRecordArr.toString(), "[{\"arrVal\":[4.5,6.7],\"intVal\":11,\"stringVal\":\"def\"," + 
-    "\"floatVal\":99.77,\"id\":127,\"mapVal\":{\"c\":\"c\",\"d\":456},\"mapArr\":[{\"a\":\"a\",\"b\":789}]}," + 
-    "{\"arrVal\":[8.9,0.1],\"intVal\":33,\"stringVal\":\"ghi\",\"floatVal\":88.44,\"id\":128," + 
+    test:assertEquals(anonRecordArr.toString(), "[{\"id\":127,\"arrVal\":[4.5,6.7],\"intVal\":11," +
+    "\"stringVal\":\"def\",\"floatVal\":99.77,\"mapVal\":{\"c\":\"c\",\"d\":456},\"mapArr\":[{\"a\":\"a\"," +
+    "\"b\":789}]},{\"id\":128,\"arrVal\":[8.9,0.1],\"intVal\":33,\"stringVal\":\"ghi\",\"floatVal\":88.44," +
     "\"mapVal\":{\"e\":\"e\",\"f\":789},\"mapArr\":[{\"g\":\"g\",\"h\":876}]}]");
     test:assertEquals(anonRecordTable.toString(), "[{\"id\":129,\"arrVal\":[\"4\",\"6\"],\"intVal\":65," + 
     "\"stringVal\":\"val\",\"floatVal\":9.12,\"mapVal\":{\"c\":\"ccc\",\"d\":43}," + 

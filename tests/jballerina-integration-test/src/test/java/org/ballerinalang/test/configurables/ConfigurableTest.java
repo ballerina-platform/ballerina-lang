@@ -174,7 +174,8 @@ public class ConfigurableTest extends BaseTest {
         String configFilePaths = Paths.get(testFileLocation, project, "Config_records.toml") +
                 File.pathSeparator + Paths.get(testFileLocation, project, "Config_maps.toml") +
                 File.pathSeparator + Paths.get(testFileLocation, project, "Config_open_records.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_tables.toml");
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_tables.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, project, "Config_default_values.toml");
         executeBalCommand("/" + project, "configStructuredTypes",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
     }
@@ -213,17 +214,6 @@ public class ConfigurableTest extends BaseTest {
         errorLeecher3.waitForText(5000);
         errorLeecher4.waitForText(5000);
         errorLeecher5.waitForText(5000);
-    }
-
-    @Test
-    public void testInvalidDefaultableField() throws BallerinaTestException {
-        LogLeecher errorLog = new LogLeecher("error: [Config.toml:(1:1,3:17)] defaultable readonly record field " +
-                                                     "'name' in configurable variable'employees' is not supported",
-                                             ERROR);
-        LogLeecher errorLocationLog = new LogLeecher("\tat testOrg/main:0.1.0(main.bal:25)", ERROR);
-        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLog, errorLocationLog}, testFileLocation + "/invalidDefaultable");
-        errorLog.waitForText(5000);
     }
 
     private void executeBalCommand(String projectPath, String packageName,

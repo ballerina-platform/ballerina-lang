@@ -219,23 +219,7 @@ public class ConfigValueCreator {
             Object objectValue = retrieveValue(value, variableName + "." + fieldName, field.getFieldType());
             initialValueEntries.put(fieldName, objectValue);
         }
-        if (type.getTag() == TypeTags.RECORD_TYPE_TAG && type.isReadOnly()) {
-            return createReadOnlyFieldRecord(initialValueEntries, recordType);
-        }
         return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
-    }
-
-    private BMap<BString, Object> createReadOnlyFieldRecord(Map<String, Object> initialValueEntries,
-                                                            RecordType recordType) {
-        MappingInitialValueEntry.KeyValueEntry[] initialValues =
-                new MappingInitialValueEntry.KeyValueEntry[initialValueEntries.size()];
-        int count = 0;
-        for (Map.Entry<String, Object> value : initialValueEntries.entrySet()) {
-            initialValues[count] = new MappingInitialValueEntry.KeyValueEntry(StringUtils.fromString(value.getKey())
-                    , value.getValue());
-            count++;
-        }
-        return ValueCreator.createMapValue(recordType, initialValues);
     }
 
     private BTable<BString, Object> retrieveTableValue(TomlNode tomlValue, String variableName, Type type) {

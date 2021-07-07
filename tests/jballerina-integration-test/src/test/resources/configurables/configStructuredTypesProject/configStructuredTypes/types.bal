@@ -42,3 +42,11 @@ type Address record {|
 |};
 
 type Subject map<string>;
+
+type Staff record {|
+    readonly int id;
+    readonly string name = "Default";
+    readonly float salary?;
+|};
+
+type StaffTable table<Staff> key(id);

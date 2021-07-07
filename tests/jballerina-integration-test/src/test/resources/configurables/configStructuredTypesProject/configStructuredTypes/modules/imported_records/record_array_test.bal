@@ -22,13 +22,13 @@ configurable (type_defs:Person & readonly)[] & readonly personArray1 = ?;
 configurable type_defs:PersonArray[] & readonly personArray2 = ?;
 
 public function testArrays() {
-    test:assertEquals(personArray.toString(), "[{\"address\":{\"city\":\"Abu Dhabi\",\"country\":{\"name\":\"UAE\"}}," + 
-        "\"name\":\"waruna\",\"id\":111},{\"address\":{\"city\":\"Mumbai\",\"country\":{\"name\":\"India\"}}," + 
-        "\"name\":\"manu\",\"id\":122}]");
-    test:assertEquals(personArray1.toString(), "[{\"address\":{\"city\":\"New York\",\"country\":{\"name\":\"USA\"}}," + 
-        "\"name\":\"manu\",\"id\":800},{\"address\":{\"city\":\"London\",\"country\":{\"name\":\"UK\"}}," + 
-        "\"name\":\"hinduja\",\"id\":801}]");
-    test:assertEquals(personArray2.toString(), "[{\"address\":{\"city\":\"New York\",\"country\":{\"name\":\"USA\"}}," + 
-        "\"name\":\"riyafa\",\"id\":1000},{\"address\":{\"city\":\"London\",\"country\":{\"name\":\"UK\"}}," + 
-        "\"name\":\"waruna\",\"id\":1001}]");
+    test:assertEquals(personArray.toString(), "[{\"name\":\"waruna\",\"id\":111,\"address\":{\"city\":\"Abu Dhabi\"," +
+    "\"country\":{\"name\":\"UAE\"}}},{\"name\":\"manu\",\"id\":122,\"address\":{\"city\":\"Mumbai\"," +
+    "\"country\":{\"name\":\"India\"}}}]");
+    test:assertEquals(personArray1.toString(), "[{\"name\":\"manu\",\"id\":800,\"address\":{\"city\":\"New York\"," +
+    "\"country\":{\"name\":\"USA\"}}},{\"name\":\"hinduja\",\"id\":801,\"address\":{\"city\":\"London\"," +
+    "\"country\":{\"name\":\"UK\"}}}]");
+    test:assertEquals(personArray2.toString(), "[{\"name\":\"riyafa\",\"id\":1000,\"address\":{\"city\":\"New York\"," +
+    "\"country\":{\"name\":\"USA\"}}},{\"name\":\"waruna\",\"id\":1001,\"address\":{\"city\":\"London\"," +
+    "\"country\":{\"name\":\"UK\"}}}]");
 }
