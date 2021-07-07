@@ -38,8 +38,8 @@ public class BString extends BSimpleVariable {
     @Override
     public String computeValue() {
         try {
-            // Add double quote to the beginning and end of the computed string value.
-            return SYMBOL_DOUBLE_QUOTE.concat(getStringFrom(jvmValue)).concat(SYMBOL_DOUBLE_QUOTE);
+            // Add double quotes to the beginning and end of the computed string value.
+            return SYMBOL_DOUBLE_QUOTE + getStringFrom(jvmValue) + SYMBOL_DOUBLE_QUOTE;
         } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }
