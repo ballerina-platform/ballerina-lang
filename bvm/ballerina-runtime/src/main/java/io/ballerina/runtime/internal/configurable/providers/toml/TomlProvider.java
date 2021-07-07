@@ -72,7 +72,6 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.is
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED;
@@ -741,7 +740,6 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateRequiredField(Map<String, TopLevelNode> initialValueEntries, RecordType recordType,
                                        String variableName, TomlNode tomlNode) {
-        boolean containOnlyReadonly = recordType.getTag() == TypeTags.RECORD_TYPE_TAG && recordType.isReadOnly();
         for (Map.Entry<String, Field> field : recordType.getFields().entrySet()) {
             String fieldName = field.getKey();
             long flag = field.getValue().getFlags();
@@ -749,13 +747,6 @@ public class TomlProvider implements ConfigProvider {
                 invalidTomlLines.add(tomlNode.location().lineRange());
                 throw new ConfigException(CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED, getLineRange(tomlNode), fieldName,
                                           recordType.toString(), variableName);
-            }
-            // remove after fixing #28966
-            if (containOnlyReadonly && !SymbolFlags.isFlagOn(flag, SymbolFlags.OPTIONAL) && !SymbolFlags.isFlagOn(flag,
-                    SymbolFlags.REQUIRED) && initialValueEntries.get(fieldName) == null) {
-                invalidTomlLines.add(tomlNode.location().lineRange());
-                throw new ConfigException(CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED, getLineRange(tomlNode), fieldName
-                        , variableName);
             }
         }
     }

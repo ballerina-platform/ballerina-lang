@@ -1,0 +1,136 @@
+[configStructuredTypes.type_defs]
+num2 = 2
+num3 = 3
+word4 = "word 4"
+
+[testOrg.configLib.mod1]
+num4 = 4
+word5 = "word 5"
+symbol2 = "@"
+symbol3 = "#"
+
+[configStructuredTypes.default_value_records]
+word2 = "word 2"
+
+[configStructuredTypes.default_value_records.words]
+word6 = "word 6"
+
+[configStructuredTypes.default_value_records.numbers]
+num5 = 5
+
+[configStructuredTypes.default_value_records.symbols]
+symbol4 = "$"
+
+[[configStructuredTypes.default_value_records.wordArr]]
+word6 = "word 7"
+
+[[configStructuredTypes.default_value_records.wordArr]]
+word1 = "word 10"
+word2 = "word 20"
+word3 = "word 30"
+word4 = "word 40"
+word5 = "word 50"
+word6 = "word 60"
+
+[[configStructuredTypes.default_value_records.numberArr]]
+num5 = 6
+
+[[configStructuredTypes.default_value_records.numberArr]]
+num1 = 10
+num2 = 20
+num3 = 30
+num4 = 40
+num5 = 50
+
+[[configStructuredTypes.default_value_records.symbolArr]]
+symbol4 = "%"
+
+[[configStructuredTypes.default_value_records.symbolArr]]
+symbol1 = "^"
+symbol2 = "&"
+symbol3 = "*"
+symbol4 = "-"
+
+[[configStructuredTypes.default_value_records.wordTable]]
+word6 = "word 7"
+
+[[configStructuredTypes.default_value_records.wordTable]]
+word1 = "word 10"
+word2 = "word 20"
+word3 = "word 30"
+word4 = "word 40"
+word5 = "word 50"
+word6 = "word 60"
+
+[[configStructuredTypes.default_value_records.numberTable]]
+num5 = 6
+
+[[configStructuredTypes.default_value_records.numberTable]]
+num1 = 10
+num2 = 20
+num3 = 30
+num4 = 40
+num5 = 50
+
+[[configStructuredTypes.default_value_records.symbolTable]]
+symbol4 = "%"
+
+[[configStructuredTypes.default_value_records.symbolTable]]
+symbol1 = "^"
+symbol2 = "&"
+symbol3 = "*"
+symbol4 = "-"
+
+[configStructuredTypes.default_value_records.wordMap]
+entry1.word6 = "word 6"
+entry2.word1 = "word 11"
+entry2.word2 = "word 22"
+entry2.word3 = "word 33"
+entry2.word4 = "word 44"
+entry2.word5 = "word 55"
+entry2.word6 = "word 66"
+
+[configStructuredTypes.default_value_records.numberMap]
+entry1.num5 = 55
+entry2.num1 = 11
+entry2.num2 = 22
+entry2.num3 = 33
+entry2.num4 = 44
+entry2.num5 = 55
+
+[configStructuredTypes.default_value_records.symbolMap]
+entry1.symbol4 = "="
+entry2.symbol1 = "+"
+entry2.symbol2 = "|"
+entry2.symbol3 = "}"
+entry2.symbol4 = "?"
+
+[[configStructuredTypes.default_value_records.wordTableMap.map1]]
+word6 = "word 7"
+
+[[configStructuredTypes.default_value_records.wordTableMap.map2]]
+word1 = "word 10"
+word2 = "word 20"
+word3 = "word 30"
+word4 = "word 40"
+word5 = "word 50"
+word6 = "word 60"
+
+[[configStructuredTypes.default_value_records.numberTableMap.map1]]
+num5 = 6
+
+[[configStructuredTypes.default_value_records.numberTableMap.map2]]
+num1 = 10
+num2 = 20
+num3 = 30
+num4 = 40
+num5 = 50
+
+[[configStructuredTypes.default_value_records.symbolTableMap.map1]]
+symbol4 = "%"
+
+[[configStructuredTypes.default_value_records.symbolTableMap.map2]]
+symbol1 = "^"
+symbol2 = "&"
+symbol3 = "*"
+symbol4 = "-"

@@ -126,6 +126,33 @@ name="riyafa"
 place1.city="Matara"
 place3.city="Jaffna"
 
+[[staffTable]]
+id = 222
+salary = 34000.0
+
+[[staffTable]]
+id = 333
+name = "Jane"
+salary = 45000.0
+
+[[staffTable1]]
+id = 444
+salary = 56000.0
+
+[[staffTable1]]
+id = 555
+name = "Mary"
+salary = 67000.0
+
+[[staffTable2]]
+id = 666
+salary = 78000.0
+
+[[staffTable2]]
+id = 777
+name = "Amy"
+salary = 89000.0
+
 [[configStructuredTypes.imported_records.doctorTable]]
 name="hinduja"
 id=100

@@ -26,8 +26,8 @@ configurable type_defs:PlayerMapTable playerMapTable = ?;
 
 public function testRestFields() {
     test:assertEquals(player.toString(), "{\"id\":101,\"teamMate\":{\"id\":102,\"teamMate\":{\"id\":103}}}");
-    test:assertEquals(playerArr.toString(), "[{\"teamMate\":{\"id\":105,\"teamMate\":{\"id\":106}},\"id\":104}," + 
-    "{\"teamMate\":{\"id\":108,\"teamMate\":{\"id\":109}},\"id\":107}]");
+    test:assertEquals(playerArr.toString(), "[{\"id\":104,\"teamMate\":{\"id\":105,\"teamMate\":{\"id\":106}}}," +
+    "{\"id\":107,\"teamMate\":{\"id\":108,\"teamMate\":{\"id\":109}}}]");
     test:assertEquals(playerTable.toString(), "[{\"id\":110,\"teamMate\":{\"id\":111,\"teamMate\":{\"id\":112}}}," + 
     "{\"id\":113,\"teamMate\":{\"id\":114,\"teamMate\":{\"id\":115}}}]");
     test:assertEquals(playerMap.toString(), "{\"entry1\":{\"id\":116,\"teamMate\":{\"id\":117," + 
