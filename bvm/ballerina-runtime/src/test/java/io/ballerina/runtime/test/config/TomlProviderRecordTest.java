@@ -29,8 +29,10 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigValueCreator;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.toml.semantic.ast.TomlNode;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -54,6 +56,7 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 public class TomlProviderRecordTest {
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1.0.0");
+    private static final ConfigValueCreator valueCreator = new ConfigValueCreator();
 
     @Test(dataProvider = "record-data-provider")
     public void testTomlProviderRecords(String variableName, Map<String, Field> fields,
@@ -68,10 +71,10 @@ public class TomlProviderRecordTest {
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("RecordTypeConfig.toml"),
                         configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Assert.assertTrue(configValueMap.get(recordVar) instanceof BMap<?, ?>,
-                "Non-map value received for variable : " + variableName);
-        BMap<?, ?> record = (BMap<?, ?>) configValueMap.get(recordVar);
+        Object recordValue = valueCreator.retrieveValue((TomlNode) configValueMap.get(recordVar), recordVar.variable,
+                recordVar.type);
+        Assert.assertTrue(recordValue instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
+        BMap<?, ?> record = (BMap<?, ?>) recordValue;
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
             BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
             Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
@@ -106,7 +109,8 @@ public class TomlProviderRecordTest {
                 getConfigPath("RestFieldConfig.toml"), Set.of(ROOT_MODULE))));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
-        Object recordValue = configValueMap.get(recordVar);
+        Object recordValue = valueCreator.retrieveValue((TomlNode) configValueMap.get(recordVar), recordVar.variable,
+                recordVar.type);
         Assert.assertTrue(recordValue instanceof BMap<?, ?>, "Non-map value received");
         BMap<?, ?> record = (BMap<?, ?>) recordValue;
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
@@ -144,7 +148,8 @@ public class TomlProviderRecordTest {
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
-        Object recordValue = configValueMap.get(recordVar);
+        Object recordValue = valueCreator.retrieveValue((TomlNode) configValueMap.get(recordVar), recordVar.variable,
+                recordVar.type);
         Assert.assertTrue(recordValue instanceof BMap<?, ?>, "Non-map value received");
         BMap<?, ?> record = (BMap<?, ?>) recordValue;
         Assert.assertEquals(record.getIntValue(fromString("intValue")), (Long) 25L);

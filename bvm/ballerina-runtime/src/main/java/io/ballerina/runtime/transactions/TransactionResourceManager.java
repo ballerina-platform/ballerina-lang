@@ -164,7 +164,8 @@ public class TransactionResourceManager {
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
     public boolean getTransactionManagerEnabled() {
-        VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled");
+        VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled",
+                PredefinedTypes.TYPE_BOOLEAN, false);
         Object keyVal = ConfigMap.get(managerEnabledKey);
         if (isNull(keyVal)) {
             return false;
@@ -179,7 +180,7 @@ public class TransactionResourceManager {
      * @return string log directory name
      */
     private String getTransactionLogDirectory() {
-        VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase");
+        VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase", PredefinedTypes.TYPE_STRING, false);
         Object transactionLogBase = ConfigMap.get(logKey);
         if (isNull(transactionLogBase)) {
             return "transaction_log_dir";

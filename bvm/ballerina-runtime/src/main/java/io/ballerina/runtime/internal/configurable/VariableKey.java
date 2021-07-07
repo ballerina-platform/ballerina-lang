@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.Objects;
@@ -38,12 +37,8 @@ public class VariableKey {
     public final boolean isRequired;
     public final String location;
 
-    public VariableKey(String org, String module, String version, String variable) {
-        this(new Module(org, module, version), variable, PredefinedTypes.TYPE_ANYDATA, null, false);
-    }
-
-    public VariableKey(Module module, String variable) {
-        this(module, variable, PredefinedTypes.TYPE_ANYDATA, null, false);
+    public VariableKey(String org, String module, String version, String variable, Type type) {
+        this(new Module(org, module, version), variable, type, null, false);
     }
 
     public VariableKey(Module module, String variable, Type type, boolean isRequired) {

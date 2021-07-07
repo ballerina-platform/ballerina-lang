@@ -877,8 +877,15 @@ public class Desugar extends BLangNodeVisitor {
         String configVarName = configurableVar.name.getValue();
         BLangLiteral configNameLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
+        BType type = configurableVar.getBType();
+        BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
 
-        return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = type;
+        typedescExpr.setBType(typedescType);
+
+        return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral,
+                typedescExpr));
     }
 
     private List<BLangVariable> desugarGlobalVariables(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {

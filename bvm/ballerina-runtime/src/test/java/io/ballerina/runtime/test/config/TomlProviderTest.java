@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
@@ -40,6 +41,7 @@ import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigValueCreator;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
@@ -47,6 +49,7 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
+import io.ballerina.toml.semantic.ast.TomlNode;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -66,6 +69,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
+import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM_UNION;
 
 /**
  * Test cases for toml configuration related implementations.
@@ -75,6 +79,7 @@ public class TomlProviderTest {
     private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1.0.0");
     private final Module subModule = new Module("rootOrg", "test_module.util.foo", "1.0.0");
     private final Module importedModule = new Module("myOrg", "mod12", "1.0.0");
+    private static final ConfigValueCreator valueCreator = new ConfigValueCreator();
 
     @Test(dataProvider = "arrays-data-provider")
     public void testConfigurableArrays(VariableKey arrayKey,
@@ -87,9 +92,10 @@ public class TomlProviderTest {
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ArrayConfig.toml"),
                         configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-        Assert.assertTrue(configValueMap.get(arrayKey) instanceof BArray,
-                "Non-array value received for variable : " + arrayKey.variable);
-        Object[] configuredArrayValues = arrayGetFunction.apply((BArray) configValueMap.get(arrayKey));
+        Object value = valueCreator.retrieveValue((TomlNode) configValueMap.get(arrayKey), arrayKey.variable,
+                arrayKey.type);
+        Assert.assertTrue(value instanceof BArray, "Non-array value received for variable : " + arrayKey.variable);
+        Object[] configuredArrayValues = arrayGetFunction.apply((BArray) value);
         for (int i = 0; i < configuredArrayValues.length; i++) {
             Assert.assertEquals(configuredArrayValues[i], expectedArray[i]);
         }
@@ -155,9 +161,11 @@ public class TomlProviderTest {
                                                                 configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
-        Assert.assertTrue(configValueMap.get(tableVar) instanceof BTable<?, ?>, "Non-table value received for " +
+        Object value = valueCreator.retrieveValue((TomlNode) configValueMap.get(tableVar), tableVar.variable,
+                tableVar.type);
+        Assert.assertTrue(value instanceof BTable<?, ?>, "Non-table value received for " +
                 "variable : " + variableName);
-        BTable<?, ?> table = (BTable<?, ?>) configValueMap.get(tableVar);
+        BTable<?, ?> table = (BTable<?, ?>) value;
 
         for (Map<String, Object> tableEntry : expectedValues) {
             Object keyValue = tableEntry.get(key);
@@ -513,7 +521,8 @@ public class TomlProviderTest {
         Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
-        Object bValue = variableKeyObjectMap.get(intArr);
+        Object bValue = valueCreator.retrieveValue((TomlNode) variableKeyObjectMap.get(intArr), intArr.variable,
+                intArr.type);
         Assert.assertTrue(bValue instanceof BArray);
         BArray bArray = (BArray) bValue;
         Assert.assertTrue(bArray.get(0) instanceof BArray);
@@ -550,7 +559,8 @@ public class TomlProviderTest {
                 ".toml"), Set.of(ROOT_MODULE)));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog, providers);
         Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
-        Object bValue = variableKeyObjectMap.get(tableVar);
+        Object bValue = valueCreator.retrieveValue((TomlNode) variableKeyObjectMap.get(tableVar), tableVar.variable,
+                tableVar.type);
         Assert.assertTrue(bValue instanceof BTable);
         BTable<?, ?> bTable = (BTable<?, ?>) bValue;
         BMap<?, ?>  bmap = (BMap<?, ?> ) bTable.get("abc");
@@ -623,36 +633,37 @@ public class TomlProviderTest {
     @Test
     public void testTomlProviderWithString() {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(ROOT_MODULE, "intVar", TYPE_INT, true),
-                new VariableKey(ROOT_MODULE, "stringVar", TYPE_STRING, true),
-                new VariableKey(ROOT_MODULE, "stringArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(TYPE_STRING), 0, false), true),
-                new VariableKey(ROOT_MODULE, "booleanArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true),
-        };
-        configVarMap.put(ROOT_MODULE, keys);
+        VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(ROOT_MODULE, "stringVar", TYPE_STRING, true);
+        VariableKey stringArr = new VariableKey(ROOT_MODULE, "stringArr", new BIntersectionType(ROOT_MODULE,
+                new BType[]{}, TypeCreator.createArrayType(TYPE_STRING), 0, false), true);
+        VariableKey booleanArr = new VariableKey(ROOT_MODULE, "booleanArr", new BIntersectionType(ROOT_MODULE,
+                new BType[]{}, TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true);
+        configVarMap.put(ROOT_MODULE, new VariableKey[]{intVar, stringVar, stringArr, booleanArr});
         String tomlContent = "[rootOrg.test_module] intVar = 33 stringVar = \"xyz\" " +
                 "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
         ConfigResolver configResolver = new ConfigResolver(configVarMap, new RuntimeDiagnosticLog(),
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
-        Assert.assertTrue(configValueMap.get(keys[0]) instanceof Long,
-                "Value received for variable : " + keys[0].variable + " is not 'Long'");
-        Assert.assertTrue(configValueMap.get(keys[1]) instanceof BString,
-                "Value received for variable : " + keys[1].variable + " is not 'BString'");
-        Assert.assertTrue(configValueMap.get(keys[2]) instanceof BArray,
-                "Value received for variable : " + keys[2].variable + " is not 'Array'");
-        Assert.assertTrue(configValueMap.get(keys[3]) instanceof BArray,
-                "Value received for variable : " + keys[3].variable + " is not 'Array'");
+        Assert.assertTrue(configValueMap.get(intVar) instanceof Long,
+                "Value received for variable : " + intVar.variable + " is not 'Long'");
+        Assert.assertEquals(((Long) configValueMap.get(intVar)).intValue(), 33);
 
-        Assert.assertEquals(((Long) configValueMap.get(keys[0])).intValue(), 33);
-        Assert.assertEquals(((BString) configValueMap.get(keys[1])).getValue(), "xyz");
-        Assert.assertEquals(((BArray) configValueMap.get(keys[2])).getStringArray(),
-                new String[]{"aa", "bb", "cc"});
-        Assert.assertEquals(((BArray) configValueMap.get(keys[3])).getBooleanArray(),
-                new boolean[]{false, true, true, false});
+        Assert.assertTrue(configValueMap.get(stringVar) instanceof BString,
+                "Value received for variable : " + stringVar.variable + " is not 'BString'");
+        Assert.assertEquals(((BString) configValueMap.get(stringVar)).getValue(), "xyz");
+
+        Object bValue = valueCreator.retrieveValue((TomlNode) configValueMap.get(stringArr),
+                stringArr.variable, stringArr.type);
+        Assert.assertTrue(bValue instanceof BArray, "Value received for variable : " + stringArr.variable + " is not " +
+                "'Array'");
+        Assert.assertEquals(((BArray) bValue).getStringArray(), new String[]{"aa", "bb", "cc"});
+
+        bValue = valueCreator.retrieveValue((TomlNode) configValueMap.get(booleanArr), booleanArr.variable,
+                booleanArr.type);
+        Assert.assertTrue(bValue instanceof BArray, "Value received for variable : " + booleanArr + " is not 'Array'");
+        Assert.assertEquals(((BArray) bValue).getBooleanArray(), new boolean[]{false, true, true, false});
     }
 
     @Test(dataProvider = "map-data-provider")
@@ -668,9 +679,10 @@ public class TomlProviderTest {
                         configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
-        Object obj = configValueMap.get(mapVar);
-        Assert.assertTrue(obj instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
-        BMap<?, ?> mapValue = (BMap<?, ?>) obj;
+        Object value = valueCreator.retrieveValue((TomlNode) configValueMap.get(mapVar), mapVar.variable,
+                mapVar.type);
+        Assert.assertTrue(value instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
+        BMap<?, ?> mapValue = (BMap<?, ?>) value;
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
             BString fieldName = fromString(expectedField.getKey());
             Assert.assertEquals((mapValue.get(fieldName)), expectedField.getValue());
@@ -699,8 +711,9 @@ public class TomlProviderTest {
                                                                    "UnionTypeConfig.toml"), configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
-        Object obj = configValueMap.get(unionVar);
-        Assert.assertEquals(expectedValues, obj);
+        Object value = valueCreator.retrieveValue((TomlNode) configValueMap.get(unionVar), unionVar.variable,
+                unionVar.type);
+        Assert.assertEquals(expectedValues, value);
     }
 
     @DataProvider(name = "union-data-provider")
@@ -748,6 +761,8 @@ public class TomlProviderTest {
                                                                                          fromString("Riyafa")),
                                                         ValueCreator.createKeyFieldEntry(fromString("age"), 10L),
                                                 })},
+                // Enum value given with toml
+                {"color", COLOR_ENUM_UNION, StringUtils.fromString("RED")},
         };
     }
 
@@ -770,9 +785,10 @@ public class TomlProviderTest {
                                                                    "UnionTypeConfig.toml"),
                                                                                         configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-        Assert.assertTrue(configValueMap.get(recordVar) instanceof BMap<?, ?>,
-                          "Non-map value received for variable : " + variableName);
-        BMap<?, ?> record = (BMap<?, ?>) configValueMap.get(recordVar);
+        Object bValue = valueCreator.retrieveValue((TomlNode) configValueMap.get(recordVar), recordVar.variable,
+                recordVar.type);
+        Assert.assertTrue(bValue instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
+        BMap<?, ?> record = (BMap<?, ?>) bValue;
         Map<String, Object> expectedValues =  Map.ofEntries(Map.entry("name", fromString("Manu")), Map.entry("age",
                                                                                                              12L));
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
@@ -803,11 +819,11 @@ public class TomlProviderTest {
                 new ConfigResolver(configVarMap, diagnosticLog,
                                    List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("UnionTypeConfig.toml"),
                                                                 configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Object bValue = valueCreator.retrieveValue((TomlNode) configResolver.resolveConfigs().get(tableVar),
+                tableVar.variable, tableVar.type);
 
-        Assert.assertTrue(configValueMap.get(tableVar) instanceof BTable<?, ?>, "Non-table value received for " +
-                "variable : " + variableName);
-        BTable<?, ?> table = (BTable<?, ?>) configValueMap.get(tableVar);
+        Assert.assertTrue(bValue instanceof BTable<?, ?>, "Non-table value received for variable : " + variableName);
+        BTable<?, ?> table = (BTable<?, ?>) bValue;
 
         Map<String, Object>[] expectedValues = new Map[]{
                 Map.ofEntries(Map.entry("name", fromString("Nadeeshan")), Map.entry("age", 11L)),
@@ -851,9 +867,11 @@ public class TomlProviderTest {
 
     private void validateRecordValues(Map<String, Field> fields, Map<String, Object> expectedValues, Object record,
                                       VariableKey variableKey) {
-        Assert.assertTrue(record instanceof BMap<?, ?>,
+        Object bValue = valueCreator.retrieveValue((TomlNode) record, variableKey.variable,
+                variableKey.type);
+        Assert.assertTrue(bValue instanceof BMap<?, ?>,
                 "Non-map value received for variable : " + variableKey.variable);
-        BMap<?, ?> recordValue = (BMap<?, ?>) record;
+        BMap<?, ?> recordValue = (BMap<?, ?>) bValue;
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
             BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
             Assert.assertEquals((recordValue.get(fieldName)), expectedField.getValue());
