@@ -31,26 +31,13 @@ function getValue(string content, boolean round) returns float {
     return 1.1;
 }
 
-# Descriptions
-service / on new http:Listener(8080) {
-
-    # Get greeting
-    #
-    # + id - Parameter Description  
-    # + name - Name of person
-    # + return - Return Greeting
-    resource function get greeting/[int id]/[string...name]() returns string {
-        return "Hello, " + name;
-    }
-}
-
-# Description  
+# A service to obtain a greeting message
 service / on new http:Listener(8080) {
 
     #  Given the name of a person, this will return the greeting to be used
     #
     # + name - Name of person
-    # + return - Greeting to be used
+    # + return - Greeting message to be used
     resource function get greeting/[string name]() returns string {
         return "Hello, " + name;
     }

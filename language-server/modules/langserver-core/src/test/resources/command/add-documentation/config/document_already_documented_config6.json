@@ -2,12 +2,12 @@
   "arguments": {
     "node.range": {
       "start": {
-        "line": 33,
-        "character": 0
+        "line": 36,
+        "character": 4
       },
       "end": {
-        "line": 43,
-        "character": 1
+        "line": 42,
+        "character": 5
       }
     }
   },
@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 33,
-                    "character": 0
+                    "line": 36,
+                    "character": 4
                   },
                   "end": {
-                    "line": 33,
-                    "character": 40
+                    "line": 39,
+                    "character": 44
                   }
                 },
-                "newText": "# A service to obtain a greeting message"
+                "newText": "# Given the name of a person, this will return the greeting to be used\n    #\n    # + name - Name of person\n    # + return - Greeting message to be used"
               }
             ]
           }
