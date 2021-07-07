@@ -112,12 +112,6 @@ public class Symbols {
     }
 
     public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,
-                                                           PackageID pkgID, BType type, BSymbol owner,
-                                                           Location pos, SymbolOrigin origin) {
-        return createAnnotationSymbol(flags, points, name, name, pkgID, type, owner, pos, origin);
-    }
-
-    public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,
                                                            Name origName, PackageID pkgID, BType type, BSymbol owner,
                                                            Location pos, SymbolOrigin origin) {
         BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, origName, flags, points, pkgID, type, owner,

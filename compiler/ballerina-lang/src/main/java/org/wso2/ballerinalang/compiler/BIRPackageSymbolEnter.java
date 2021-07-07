@@ -612,6 +612,7 @@ public class BIRPackageSymbolEnter {
 
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getStringCPEntryValue(dataInStream);
+        String originalName = getStringCPEntryValue(dataInStream);
 
         var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
@@ -628,6 +629,7 @@ public class BIRPackageSymbolEnter {
         BType annotationType = readBType(dataInStream);
 
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
+                                                                            names.fromString(originalName),
                                                                             this.env.pkgSymbol.pkgID, null,
                                                                             this.env.pkgSymbol, pos, toOrigin(origin));
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
