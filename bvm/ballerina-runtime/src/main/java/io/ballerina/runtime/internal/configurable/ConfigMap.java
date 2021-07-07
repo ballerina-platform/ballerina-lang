@@ -18,6 +18,9 @@
 
 package io.ballerina.runtime.internal.configurable;
 
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigValueCreator;
+import io.ballerina.toml.semantic.ast.TomlNode;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,11 +31,16 @@ import java.util.Map;
  */
 public class ConfigMap {
     private static Map<VariableKey, Object> configurableMap = new HashMap<>();
+    private static ConfigValueCreator valueCreator = new ConfigValueCreator();
 
     private ConfigMap(){}
 
     public static Object get(VariableKey key) {
-        return configurableMap.get(key);
+        Object value = configurableMap.get(key);
+        if (value instanceof TomlNode) {
+            return valueCreator.retrieveValue((TomlNode) value, key.variable, key.type);
+        }
+        return value;
     }
 
     public static boolean containsKey(VariableKey key) {

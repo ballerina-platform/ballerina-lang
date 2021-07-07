@@ -24,12 +24,9 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
@@ -177,7 +174,7 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
+    public Optional<Object> getAsArrayAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
@@ -187,7 +184,7 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
+    public Optional<Object> getAsRecordAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
@@ -196,13 +193,13 @@ public class CliProvider implements ConfigProvider {
         throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
-    public Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key) {
+    public Optional<Object> getAsMapAndMark(Module module, VariableKey key) {
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
-    public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
+    public Optional<Object> getAsTableAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();

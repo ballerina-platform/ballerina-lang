@@ -23,7 +23,8 @@ import ballerina/jballerina.java;
 # + versionNumber - version number
 # + configVarName - configuration variable name
 # + return - Boolean value
-public function hasConfigurableValue(string orgName, string moduleName, string versionNumber, string configVarName)
+public function hasConfigurableValue(string orgName, string moduleName, string versionNumber, string configVarName,
+typedesc<Type> t)
 returns boolean = @java:Method {
     'class: "org.ballerinalang.langlib.internal.Configurable",
     name: "hasConfigurableValue"
@@ -36,7 +37,8 @@ returns boolean = @java:Method {
 # + versionNumber - version number
 # + configVarName - configuration variable name
 # + return - Configured value of the key
-public function getConfigurableValue(string orgName, string moduleName, string versionNumber, string configVarName)
+public function getConfigurableValue(string orgName, string moduleName, string versionNumber, string configVarName,
+typedesc<Type> t)
 returns anydata = @java:Method {
     'class: "org.ballerinalang.langlib.internal.Configurable",
     name: "getConfigurableValue"
