@@ -67,31 +67,29 @@ public class PackageAnalyzerPlugin extends CompilerPlugin {
                 // Add package modules to `packageModules` list
                 for (ModuleId moduleId : compilationAnalysisContext.currentPackage().moduleIds()) {
                     Module module = compilationAnalysisContext.currentPackage().module(moduleId);
-                    if (module.isDefaultModule()) {
-                        packageModules.add(module.moduleName().moduleNamePart());
-                    } else {
-                        packageModules
-                                .add(module.descriptor().org().value() + '.' + module.moduleName().moduleNamePart());
-                    }
+                    packageModules.add(module.moduleName().toString());
                 }
 
                 for (String exportedModule : exportedModules) {
-                    for (String pkgModule : packageModules) {
-                        if (exportedModule.equals(pkgModule)) {
-                            break;
-                        }
-                        // Find the location in BallerinaToml to report diagnostic
+                    if (!exportModuleExists(exportedModule, packageModules)) {
                         TomlNodeLocation location = getExportValueNodeLocation(compilationAnalysisContext,
                                                                                exportedModule);
-                        // if exported module is not a module in the current package
                         reportTomlDiagnostic(compilationAnalysisContext, location, null,
-                                             "exported module '" + exportedModule
-                                                     + "' is not a module of the package",
+                                             "exported module '" + exportedModule + "' is not a module of the package",
                                              DiagnosticSeverity.ERROR);
                     }
                 }
             });
         }
+    }
+
+    private static boolean exportModuleExists(String exportedModule, List<String> packageModules) {
+        for (String pkgModule : packageModules) {
+            if (exportedModule.equals(pkgModule)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static TomlNodeLocation getExportValueNodeLocation(CompilationAnalysisContext compilationAnalysisContext,
