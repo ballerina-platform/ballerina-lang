@@ -1530,19 +1530,15 @@ public class JvmInstructionGen {
         var sourceValue = typeTestIns.rhsOp.variableDcl;
         BType sourceType = sourceValue.type;
         BType targetType = typeTestIns.type;
-        if (targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType)) {
+        if (canOptimizeNilCheck(sourceType, targetType) ||
+                canOptimizeNilUnionCheck(sourceType, targetType)) {
             handleNilUnionType(typeTestIns);
             return;
         }
-        if (isValidUnionType(sourceValue.type)) {
-            if (canOptimizeNilType((BUnionType) sourceType, targetType)) {
-                handleNilUnionType(typeTestIns);
-                return;
-            }
-            if (canOptimizeErrorType((BUnionType) sourceType, targetType)) {
-                handleErrorUnionType(typeTestIns);
-                return;
-            }
+        if (canOptimizeErrorCheck(sourceType, targetType) ||
+                canOptimizeErrorUnionCheck(sourceType, targetType)) {
+            handleErrorUnionType(typeTestIns);
+            return;
         }
         this.loadVar(sourceValue);
         jvmTypeGen.loadType(this.mv, targetType);
@@ -1552,35 +1548,56 @@ public class JvmInstructionGen {
         this.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    private boolean canOptimizeNilType(BUnionType sourceType, BType type) {
-        BType mainType = null;
-        BType otherType = null;
+    private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
+        return targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType);
+    }
+
+    private boolean canOptimizeNilUnionCheck(BType sourceType, BType type) {
+        if (!isValidUnionType(sourceType)) {
+            return false;
+        }
         boolean foundNil = false;
-        for (BType bType : sourceType.getMemberTypes()) {
+        BType otherType = null;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
             if (bType.tag == TypeTags.NIL) {
-                mainType = bType;
                 foundNil = true;
             } else {
                 otherType = bType;
             }
         }
-        return foundNil && (type.equals(mainType) || type.equals(otherType));
+        return foundNil && type.equals(otherType);
     }
 
-    private boolean canOptimizeErrorType(BUnionType sourceType, BType type) {
+    private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
+        if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
+            return false;
+        }
         BType errorType = null;
-        BType otherType = null;
         int foundError = 0;
-        for (BType bType : sourceType.getMemberTypes()) {
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
             if (bType.tag == TypeTags.ERROR) {
                 foundError++;
                 errorType = bType;
+            }
+        }
+        return (foundError == 1 && types.isAssignable(errorType, targetType)) || (foundError > 0 && "error".equals(
+                targetType.tsymbol.name.value));
+    }
+
+    private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
+        if (!isValidUnionType(sourceType)) {
+            return false;
+        }
+        BType otherType = null;
+        int foundError = 0;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
+            if (bType.tag == TypeTags.ERROR) {
+                foundError++;
             } else {
                 otherType = bType;
             }
         }
-        return foundError == 1 && ((types.isAssignable(errorType, type) && type.tag == TypeTags.ERROR) ||
-                type.equals(otherType));
+        return foundError == 1 && targetType.equals(otherType);
     }
 
     private boolean isValidUnionType(BType rhsType) {
