@@ -212,8 +212,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OBJECT_CONS_MEMBER_WITHOUT_META =
             { ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE };
 
-    private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD = { ParserRuleContext.OBJECT_MEMBER_VISIBILITY_QUAL,
-            ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY };
+    private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD =
+            { ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY,
+                    ParserRuleContext.OBJECT_MEMBER_VISIBILITY_QUAL };
 
     private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY =
             { ParserRuleContext.OBJECT_FIELD_START, ParserRuleContext.OBJECT_METHOD_START };
