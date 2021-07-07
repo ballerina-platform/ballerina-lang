@@ -517,6 +517,30 @@ type Person2 record {
     int age;
 };
 
+function testCloneWithTypeTupleToJSON() {
+    [string, string, string] tupleValue1 = ["Mohan", "single", "LK2014"];
+    json|error jsonValue1 = tupleValue1.cloneWithType();
+
+    assert(jsonValue1 is error, false);
+
+    json[] tempVal = [];
+    if (jsonValue1 is json) {
+        tempVal.push(jsonValue1);
+    }
+    assert(tempVal[0] is json, true);
+    assert(tempVal[0] is json[], true);
+
+    [string, string, xml] tupleValue2 = ["Mohan", "single"];
+    json|error jsonValue2 = tupleValue2.cloneWithType();
+
+     if (jsonValue2 is error) {
+         error a = jsonValue2;
+         assert(a.message(), "{ballerina/lang.typedesc}ConversionError");
+         assert(<string> checkpanic a.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
+     }
+}
+
 function testCloneWithTypeJsonRec1() {
     Person2  p = {name: "N", age: 3};
     json|error ss = p.cloneWithType(json);
@@ -1456,14 +1480,14 @@ function testToStringOnCycles() {
 }
 
 function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+    if (expected == actual) {
+        return;
     }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+     panic error(reason);
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////

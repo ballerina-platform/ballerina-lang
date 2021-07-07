@@ -278,6 +278,11 @@ function testRuntimeIsTypeForSelectivelyImmutableBasicTypes() {
     assertFalse(h is readonly);
     assertTrue(i is readonly);
 
+    [int, string|xml, int...] q = [1, ""];
+    [int, string|xml, int...] r = q.cloneReadOnly();
+    assertTrue(r is json);
+    assertFalse(q is json);
+
     map<string> j = {a: "a", b: "b"};
     any|error k = j;
     any|error l = j.cloneReadOnly();

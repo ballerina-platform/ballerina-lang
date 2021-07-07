@@ -328,15 +328,6 @@ public class StampInbuiltFunctionNegativeTest {
     }
     
     @Test
-    public void stampTupleToJSON() {
-        BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToJSON");
-        BValue error = results[0];
-        Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'[string,string,string]' value cannot be converted to 'json'");
-    }
-    
-    @Test
     public void stampTupleToXML() {
         BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToXML");
         BValue error = results[0];

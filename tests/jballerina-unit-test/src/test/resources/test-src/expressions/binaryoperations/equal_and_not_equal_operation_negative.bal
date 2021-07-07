@@ -66,18 +66,6 @@ function checkEqualityOfRecordsOfIncompatibleTypes() returns boolean {
     return b && e1 == p1 && !(e1 != p1);
 }
 
-function checkEqualityWithJsonForIncompatibleType() returns boolean {
-    [string, int] t = ["Hi", 1];
-    json j = "Hi 1";
-    boolean bool1 = t == j && t != j;
-
-    [string, int][] e = [["Hi", 1]];
-    j = "Hi 1";
-    boolean bool2 = e == j && e != j;
-
-    return bool1 && bool2;
-}
-
 function checkEqualityWithJsonRecordMapForIncompatibleType() returns boolean {
     json a = { name: "Em" };
     map<boolean> b = {};
