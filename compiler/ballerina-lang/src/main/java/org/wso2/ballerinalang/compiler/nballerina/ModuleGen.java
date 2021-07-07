@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -30,9 +31,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.HashMap;
@@ -102,12 +107,13 @@ public class ModuleGen {
     }
 
     public Object visit(BLangStatementExpression statementExpression) {
-        return statementExpression.stmt.accept(this);
-        //return statementExpression.expr.accept(this);
+        statementExpression.stmt.accept(this);
+        statementExpression.expr.accept(this);
+        return null;
     }
 
     public BMap<BString, Object> visit(BLangReturn astReturnStmt) {
-        BMap<BString, Object> exp = (BMap<BString, Object>) astReturnStmt.expr.accept(this);
+        Object exp = astReturnStmt.expr.accept(this);
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
         mapInitialValueEntries.put("returnExpr", exp);
 
@@ -115,6 +121,39 @@ public class ModuleGen {
                 mapInitialValueEntries);
         ModuleGen.tempVal = x;
         return x;
+    }
+
+    public Object visit(BLangIf bLangIf) {
+        Object expr = bLangIf.expr.accept(this);
+        Object ifTrue = bLangIf.body.accept(this);
+        Object ifFalse =bLangIf.elseStmt.accept(this);
+
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("condition", expr);
+        mapInitialValueEntries.put("ifTrue", ifTrue);
+        mapInitialValueEntries.put("ifFalse", ifFalse);
+
+        return ValueCreator.createRecordValue(modFront, "IfElseStmt",
+                mapInitialValueEntries);
+    }
+
+    public Object visit(BLangWhile bLangWhile) {
+        Object exp =  bLangWhile.expr.accept(this);
+        Object bodyStmts = bLangWhile.body.accept(this);
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("condition", exp);
+        mapInitialValueEntries.put("body", bodyStmts);
+
+        return ValueCreator.createRecordValue(modFront, "WhileStmt",
+                mapInitialValueEntries);
+    }
+
+    public Object visit(BLangBreak bLangBreak){
+        return new BmpStringValue("break");
+    }
+
+    public Object visit(BLangContinue bLangContinue){
+        return new BmpStringValue("continue");
     }
 
     public Object visit(BLangImportPackage bLangImportPackage) {
@@ -147,4 +186,5 @@ public class ModuleGen {
 
         return ValueCreator.createRecordValue(modFront, "SimpleConstExpr", mapInitialValueEntries);
     }
+    
 }

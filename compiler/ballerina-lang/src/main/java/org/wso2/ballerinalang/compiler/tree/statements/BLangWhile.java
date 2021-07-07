@@ -81,7 +81,7 @@ public class BLangWhile extends BLangStatement implements WhileNode {
 
     @Override
     public Object accept(ModuleGen visitor) {
-        return null;
+        return visitor.visit(this);
     }
 
     @Override
