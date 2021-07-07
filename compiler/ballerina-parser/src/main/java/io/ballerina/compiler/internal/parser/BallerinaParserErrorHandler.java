@@ -119,7 +119,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF, ParserRuleContext.DOC_STRING,
-            ParserRuleContext.ANNOTATIONS, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA };
+            ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = { ParserRuleContext.EOF,
             ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER };
@@ -178,7 +178,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.RECORD_BODY_END, ParserRuleContext.RECORD_FIELD };
 
     private static final ParserRuleContext[] RECORD_FIELD_START =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD };
+            { ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, ParserRuleContext.ASTERISK, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] RECORD_FIELD_WITHOUT_METADATA =
             { ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD };
@@ -199,12 +199,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] CLASS_MEMBER_START =
-            { ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK,
-                    ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE };
+            { ParserRuleContext.ASTERISK, ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE,
+                    ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] OBJECT_MEMBER_START =
-            { ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS, ParserRuleContext.OBJECT_FUNC_OR_FIELD,
-                    ParserRuleContext.CLOSE_BRACE };
+            { ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.DOC_STRING,
+                    ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META =
             { ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.ASTERISK, ParserRuleContext.CLOSE_BRACE };
@@ -313,7 +313,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.REQUIRED_PARAM };
 
     private static final ParserRuleContext[] PARAMETER_START =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PARAMETER_START_WITHOUT_ANNOTATION };
+            { ParserRuleContext.PARAMETER_START_WITHOUT_ANNOTATION, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] PARAMETER_START_WITHOUT_ANNOTATION =
             { ParserRuleContext.TYPE_DESC_IN_PARAM, ParserRuleContext.ASTERISK };
@@ -529,7 +529,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ALTERNATE_WAIT_EXPR_LIST_END, ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] ENUM_MEMBER_START =
-            { ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS, ParserRuleContext.ENUM_MEMBER_NAME };
+            { ParserRuleContext.ENUM_MEMBER_NAME, ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] ENUM_MEMBER_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.ENUM_MEMBER_END };
