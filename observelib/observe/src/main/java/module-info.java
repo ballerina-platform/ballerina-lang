@@ -1,5 +1,5 @@
 module io.ballerina.observability {
-    requires gson;
+    requires com.google.gson;
     requires io.ballerina.lang;
     requires io.ballerina.runtime;
     requires io.ballerina.config;
