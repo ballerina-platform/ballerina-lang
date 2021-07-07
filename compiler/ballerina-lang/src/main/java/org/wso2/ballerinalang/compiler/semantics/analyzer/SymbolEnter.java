@@ -1475,6 +1475,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
+        typeDefSymbol.originalName = names.originalNameFromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
@@ -4383,10 +4384,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private Name getFuncSymbolOriginalName(BLangFunction funcNode) {
-        if (funcNode.receiver != null) {
-            return names.fromString(Symbols.getAttachedFuncSymbolName(
-                    funcNode.receiver.getBType().tsymbol.name.value, funcNode.name.originalValue));
-        }
         return names.originalNameFromIdNode(funcNode.name);
     }
 

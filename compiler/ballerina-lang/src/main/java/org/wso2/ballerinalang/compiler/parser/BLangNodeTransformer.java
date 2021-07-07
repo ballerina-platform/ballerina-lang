@@ -1576,6 +1576,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             workerName = missingNodesHelper.getNextMissingNodeName(packageID);
         }
 
+        String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
             workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
@@ -1657,7 +1658,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
-                .with(workerName, workerNamePos)
+                .with(workerOriginalName, workerNamePos)
                 .isDeclaredWithVar()
                 .isWorkerVar()
                 .setExpression(bLInvocation)
