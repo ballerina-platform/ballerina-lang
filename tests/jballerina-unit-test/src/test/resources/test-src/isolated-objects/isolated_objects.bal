@@ -825,6 +825,22 @@ isolated class IsolatedClassWithQueryExpTransfer {
             };
         }
     }
+
+    function f4(int[][] arr, int[] a, int[] b) {
+        lock {
+            int[][] x = [];
+
+            self.arrs = from int[] item in x
+                            join var item2 in arr.clone() on item equals a.clone()
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
+
+            self.arrs = from int[] item in x
+                            join var item2 in arr.clone() on b.cloneReadOnly() equals a.clone()
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
+        }
+    }
 }
 
 function assertTrue(any|error actual) {

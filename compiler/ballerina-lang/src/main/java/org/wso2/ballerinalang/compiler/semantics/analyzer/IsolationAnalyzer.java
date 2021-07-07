@@ -832,6 +832,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv joinEnv = joinClause.env;
         analyzeNode((BLangNode) joinClause.getVariableDefinitionNode(), joinEnv);
         analyzeNode(joinClause.collection, joinEnv);
+        analyzeNode((BLangNode) joinClause.onClause, joinEnv);
     }
 
     @Override

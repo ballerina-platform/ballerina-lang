@@ -808,4 +808,20 @@ isolated class IsolatedClassWithInvalidQueryExpTransfer {
             return from var item in x select item.clone();
         }
     }
+
+    function f5(int[][] arr, int[] a, int[] b) {
+        lock {
+            int[][] x = [];
+
+            self.arrs = from int[] item in x
+                            join var item2 in arr.clone() on item equals a
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
+
+            self.arrs = from int[] item in x
+                            join var item2 in arr.clone() on b equals a
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
+        }
+    }
 }
