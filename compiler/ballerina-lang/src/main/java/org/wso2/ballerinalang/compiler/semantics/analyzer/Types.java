@@ -5452,37 +5452,6 @@ public class Types {
         return true;
     }
 
-    public BType getErrorTypes(BType bType) {
-        if (bType == null) {
-            return symTable.semanticError;
-        }
-
-        BType errorType = symTable.semanticError;
-
-        int tag = bType.tag;
-        if (tag == TypeTags.ERROR) {
-            errorType = bType;
-        } else if (tag == TypeTags.READONLY) {
-            errorType = symTable.errorType;
-        } else if (tag == TypeTags.UNION) {
-            LinkedHashSet<BType> errTypes = new LinkedHashSet<>();
-            Set<BType> memTypes = ((BUnionType) bType).getMemberTypes();
-            for (BType memType : memTypes) {
-                BType memErrType = getErrorTypes(memType);
-
-                if (memErrType != symTable.semanticError) {
-                    errTypes.add(memErrType);
-                }
-            }
-
-            if (!errTypes.isEmpty()) {
-                errorType = errTypes.size() == 1 ? errTypes.iterator().next() : BUnionType.create(null, errTypes);
-            }
-        }
-
-        return errorType;
-    }
-
     private boolean isIsolated(BType type) {
         return Symbols.isFlagOn(type.flags, Flags.ISOLATED);
     }

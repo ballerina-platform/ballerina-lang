@@ -4903,36 +4903,6 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr checkedExpr) {
         checkWithinQueryExpr = isWithinQuery();
         visitCheckAndCheckPanicExpr(checkedExpr);
-
-        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
-        if (equivalentErrorTypeList == null || equivalentErrorTypeList.isEmpty() || env.enclInvokable != null ||
-                this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
-            // If this is within a function or at module-level, no further analysis is required.
-            return;
-        }
-
-        if (env.enclType != null) {
-            dlog.error(checkedExpr.pos, DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
-            return;
-        }
-
-        // We reach here for class/object constructor field initializer expressions.
-        BAttachedFunction initializerFunc = ((BObjectTypeSymbol) env.enclEnv.node.getBType().tsymbol).initializerFunc;
-
-        if (initializerFunc == null) {
-            dlog.error(checkedExpr.pos,
-                       DiagnosticErrorCode
-                               .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
-            return;
-        }
-
-        BType exprErrorTypes = types.getErrorTypes(checkedExpr.expr.getBType());
-        BType initMethodReturnType = initializerFunc.type.retType;
-        if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
-            dlog.error(checkedExpr.pos, DiagnosticErrorCode
-                    .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
-                    initMethodReturnType, exprErrorTypes);
-        }
     }
 
     @Override
