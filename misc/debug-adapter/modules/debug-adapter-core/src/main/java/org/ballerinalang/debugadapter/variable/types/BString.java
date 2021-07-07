@@ -29,6 +29,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
  */
 public class BString extends BSimpleVariable {
 
+    private static final String SYMBOL_DOUBLE_QUOTE = "\"";
+
     public BString(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.STRING, value);
     }
@@ -36,7 +38,8 @@ public class BString extends BSimpleVariable {
     @Override
     public String computeValue() {
         try {
-            return getStringFrom(jvmValue);
+            // Add double quote to the beginning and end of the computed string value.
+            return SYMBOL_DOUBLE_QUOTE.concat(getStringFrom(jvmValue)).concat(SYMBOL_DOUBLE_QUOTE);
         } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }
