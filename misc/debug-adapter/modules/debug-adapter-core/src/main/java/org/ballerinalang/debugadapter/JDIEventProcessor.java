@@ -371,13 +371,13 @@ public class JDIEventProcessor {
                 Value evaluatorResult = evaluator.evaluate(expression);
                 String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();
                 return condition.equalsIgnoreCase(CONDITION_TRUE);
-            } catch (JdiProxyException e) {
-                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
-                        "at line: %d, due to an internal error", lineNumber));
-                return false;
             } catch (EvaluationException e) {
                 context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
                         "at line: %d, due to: %s%s", lineNumber, System.lineSeparator(), e.getMessage()));
+                return false;
+            } catch (Exception e) {
+                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
+                        "at line: %d, due to an internal error", lineNumber));
                 return false;
             }
         });
