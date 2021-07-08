@@ -33,12 +33,19 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 @Test
 public class ObjectConstructorTest {
 
-    private CompileResult compiledConstructedObjects;
+    private CompileResult compiledConstructedObjects, closures;
 
     @BeforeClass
     public void setup() {
         compiledConstructedObjects = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_expression.bal");
+        closures = BCompileUtil.compile(
+                "test-src/expressions/object/object_closures.bal");
+    }
+
+    @Test
+    public void testObjectClosures() {
+        BRunUtil.invoke(closures, "foo");
     }
 
     @Test
@@ -135,5 +142,6 @@ public class ObjectConstructorTest {
     @AfterClass
     public void tearDown() {
         compiledConstructedObjects = null;
+        closures = null;
     }
 }

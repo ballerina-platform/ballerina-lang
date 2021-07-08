@@ -325,11 +325,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
 
-            if (kind == NodeKind.CLASS_DEFN &&
-                    ((BLangClassDefinition) pkgLevelNode).flagSet.contains(Flag.OBJECT_CTOR)) {
+            if (kind == NodeKind.CLASS_DEFN && ((BLangClassDefinition) pkgLevelNode).isObjectContructorDecl) {
                 // This is a class defined for an object-constructor-expression (OCE). This will be analyzed when
-                // visiting the OCE in the type checker.
-                // This is a temporary workaround until we fix
+                // visiting the OCE in the type checker. This is a temporary workaround until we fix
                 // https://github.com/ballerina-platform/ballerina-lang/issues/27009
                 continue;
             }
@@ -567,7 +565,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-        visit(objectConstructorExpression.typeInit);
+//        visit(objectConstructorExpression.typeInit);
     }
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition) {

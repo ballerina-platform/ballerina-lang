@@ -226,8 +226,10 @@ public class BIREmitter {
         funcString += emitLBreaks(1);
         funcString += emitBasicBlocks(func.basicBlocks, tabs + 1);
         funcString += emitLBreaks(1);
-        funcString += emitErrorEntries(func.errorTable, tabs + 1);
-        funcString += emitLBreaks(1);
+        if (!func.errorTable.isEmpty()) {
+            funcString += emitErrorEntries(func.errorTable, tabs + 1);
+            funcString += emitLBreaks(1);
+        }
         funcString += emitTabs(tabs);
         funcString += "}";
         return funcString;

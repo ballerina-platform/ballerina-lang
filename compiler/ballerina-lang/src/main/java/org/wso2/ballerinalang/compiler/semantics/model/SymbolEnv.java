@@ -151,6 +151,15 @@ public class SymbolEnv {
         return objectEnv;
     }
 
+    public static SymbolEnv createObjectConstructorObjectEnv(BLangClassDefinition node, Scope scope, SymbolEnv env) {
+        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
+        objectEnv.enclEnv = env.enclEnv != null ? env.enclEnv.createClone() : null;
+        objectEnv.enclPkg = env.enclPkg;
+        objectEnv.envCount = env.envCount + 1;
+        objectEnv.enclInvokable = env.enclInvokable;
+        return objectEnv;
+    }
+
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
         SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
