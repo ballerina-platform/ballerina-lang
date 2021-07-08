@@ -2279,7 +2279,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
                                              BInvokableSymbol symbol, boolean expectsIsolation) {
-        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED_PARAM)) { // TODO: 2021-07-08 check isolated?
+        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED)) {
             for (BLangExpression restArg : restArgs) {
                 analyzeNode(restArg, env);
             }
