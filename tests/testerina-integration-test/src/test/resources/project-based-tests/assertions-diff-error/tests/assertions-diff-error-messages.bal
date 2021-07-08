@@ -41,38 +41,33 @@ type Movie record {
 
 @test:Config {}
 function testAssertStringValues() {
-    error? err = trap test:assertEquals("hello user","hello userr");
+    error? err = trap test:assertEquals("hello userr","hello user");
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
-    "actual \n \n @@ -1,1 +1,1 @@ \n \n -hello" +
-    " userr\n+hello user\n"));
+    test:assertTrue(result.message().toString().endsWith("--- actual\n+++ expected \n \n @@ -1,1 +1,1 @@ \n \n -hello userr\n+hello user\n"));
 }
 
 @test:Config {}
 function testAssertLongStringValues() {
     string value1 = "Ballerina is an open source programming language and platform for cloud-era application " +
-    "programmers.\nSequence diagrams " + "have been everyone’s favorite tool to describe how distributed & " +
-    "conccurrent programs work.";
+    "programmers.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & conccurrent programs work.";
     string value2 = "Ballerina is an open source programming language and platform for cloud-era application " +
-    "programmersss.\nSequence diagrams " + "have been everyone’s favorite tool to describe how distributed & " +
-    "concurrent programs work.";
+    "programmersss.\nSequence diagrams have been everyone’s favorite tool to describe how distributed & concurrent programs work.";
     error? err = trap test:assertEquals(value1, value2);
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
-    "actual \n \n @@ -1,4 +1,4 @@ \n \n  Ballerina is an open source " +
-    "programming language and platform for cloud-era appl\n-ication programmersss." +
-    "\n+ication programmers.\n Sequence diagrams have been everyone’s " +
-    "favorite tool to describe how distributed\n- & concurrent programs work.\n" +
-    "+ & conccurrent programs work.\n"));
+    test:assertTrue(result.message().toString().endsWith("--- actual\n+++ " +
+    "expected \n \n @@ -1,4 +1,4 @@ \n \n  Ballerina is an open source " +
+    "programming language and platform for cloud-era appl\n-ication programmers." +
+    "\n+ication programmersss.\n Sequence diagrams have been everyone’s " +
+    "favorite tool to describe how distributed\n- & conccurrent programs work.\n" +
+    "+ & concurrent programs work.\n"));
 }
 
 @test:Config {}
 function testAssertMultipleLinesString() {
     error? err = trap test:assertEquals("hello user\nWelcome to Ballerina","hello userr\nWelcome to Ballerina");
     error result = <error>err;
-    test:assertTrue(result.message().toString().endsWith("--- expected\n+++ " +
-    "actual \n \n @@ -1,2 +1,2 @@ \n \n -hello userr\n+hello user\n Welcome to " +
-    "Ballerina\n"));
+    test:assertTrue(result.message().toString().endsWith("--- actual\n+++ expected \n \n @@ -1,2 +1,2 @@ \n \n " +
+    "-hello user\n+hello userr\n Welcome to Ballerina\n"));
 }
 
 @test:Config {}

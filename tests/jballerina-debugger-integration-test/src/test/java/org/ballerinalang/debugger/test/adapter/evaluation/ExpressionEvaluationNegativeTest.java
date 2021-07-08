@@ -224,7 +224,12 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void rangeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // inclusive range expressions
+        debugTestRunner.assertEvaluationError(context, String.format("%s...%s", INT_VAR, FLOAT_VAR),
+                "operator '...' not defined for 'int' and 'float'.");
+        // exclusive range expressions
+        debugTestRunner.assertEvaluationError(context, String.format("%s..<%s", INT_VAR, STRING_VAR),
+                "operator '..<' not defined for 'int' and 'string'.");
     }
 
     @Override

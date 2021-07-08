@@ -20,6 +20,7 @@ package org.ballerinalang.test.object;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -31,7 +32,10 @@ public class ObjectFunctionCodeAnalysisTest {
     public void testObjectFunctionReturnValidation() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/structs/object-function-code-analysis-negative.bal");
-        BAssertUtil.validateError(compileResult, 0, "this function must return a result", 5, 3);
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        BAssertUtil.validateHint(compileResult, 0, "unnecessary condition: expression will always evaluate to 'true'",
+                9, 16);
+        BAssertUtil.validateError(compileResult, 1, "this function must return a result", 17, 3);
     }
 
 }

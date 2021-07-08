@@ -2,3 +2,6 @@
 org = "intg_tests"
 name = "object_mocking"
 version = "0.0.0"
+
+[[platform.java11.dependency]]
+path = "./libs/interops.jar"

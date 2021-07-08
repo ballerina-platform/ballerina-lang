@@ -1,0 +1,6 @@
+[test_module.util.foo]
+a = "value a"
+b = "value b"
+
+[rootOrg.test_module.util.foo]
+c = "value c"

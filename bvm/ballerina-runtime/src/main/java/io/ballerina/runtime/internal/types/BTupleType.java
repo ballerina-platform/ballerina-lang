@@ -44,8 +44,9 @@ public class BTupleType extends BType implements TupleType {
     private boolean readonly;
     private IntersectionType immutableType;
     public boolean isCyclic = false;
-    private boolean resolving = false;
-    public boolean resolvingReadonly = false;
+    private boolean resolving;
+    private boolean resolvingReadonly;
+    private String cachedToString;
 
     /**
      * Create a {@code BTupleType} which represents the tuple type.
@@ -182,19 +183,27 @@ public class BTupleType extends BType implements TupleType {
     @Override
     public String toString() {
         // This logic is added to prevent duplicate recursive calls to toString
-        if (this.resolving) {
-            if (this.typeName != null) {
-                return getQualifiedName(this.typeName);
+        if (resolving) {
+            if (typeName != null) {
+                return getQualifiedName(typeName);
             }
             return "...";
         }
-        this.resolving = true;
 
+        resolving = true;
+        computeStringRepresentation();
+        resolving = false;
+        return cachedToString;
+    }
+
+    private void computeStringRepresentation() {
+        if (cachedToString != null) {
+            return;
+        }
         String stringRep = "[" + tupleTypes.stream().map(Type::toString).collect(Collectors.joining(","))
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
-        this.resolving = false;
-        return readonly ? stringRep + " & readonly" : stringRep;
+        cachedToString = readonly ? stringRep + " & readonly" : stringRep;
     }
 
     @Override

@@ -21,6 +21,8 @@ package org.ballerinalang.debugadapter;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Source;
 
+import java.util.Optional;
+
 /**
  * Information about ballerina breakpoint (Properties).
  *
@@ -28,32 +30,38 @@ import org.eclipse.lsp4j.debug.Source;
  */
 public class BalBreakpoint {
 
-    private Integer line;
-    private Source source;
+    private final Source source;
+    private final int line;
     private String condition;
+    private String logMessage;
+
+    public BalBreakpoint(Source source, int line) {
+        this.source = source;
+        this.line = line;
+    }
 
     public Integer getLine() {
         return line;
-    }
-
-    public void setLine(Integer line) {
-        this.line = line;
     }
 
     public Source getSource() {
         return source;
     }
 
-    public void setSource(Source source) {
-        this.source = source;
-    }
-
-    public String getCondition() {
-        return condition;
+    public Optional<String> getCondition() {
+        return Optional.ofNullable(condition);
     }
 
     public void setCondition(String condition) {
         this.condition = condition;
+    }
+
+    public Optional<String> getLogMessage() {
+        return Optional.ofNullable(logMessage);
+    }
+
+    public void setLogMessage(String logMessage) {
+        this.logMessage = logMessage;
     }
 
     public Breakpoint getAsDAPBreakpoint() {

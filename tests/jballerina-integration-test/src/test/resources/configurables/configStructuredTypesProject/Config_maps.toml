@@ -1,0 +1,483 @@
+[user]
+name = "Hinduja"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[numbers]
+one = 1
+two = 2
+three = 3
+four = 4
+
+[fractions]
+quarter = 0.25
+half = 0.5
+three_quarter = 0.75
+
+[bits]
+on = true
+off = false
+
+[numberSet]
+set1 = [1,11,111]
+set2 = [2,22,222]
+set3 = [3,33,333]
+
+[stringSet]
+set1 = [["a","aa"],["b","bb"]]
+set2 = [["c","cc"],["d","dd"]]
+set3 = [["e","ee"],["f","ff"]]
+
+[engineerMap]
+engineer1.id = 11
+engineer1.name = "Anne"
+engineer2.id = 22
+engineer2.name = "Bob"
+engineer3.id = 33
+engineer3.name = "Charles"
+
+[lecturerMap]
+lecturer1.name = "Richard Feynman"
+lecturer1.department1.name = "Physics"
+lecturer1.department3.name = "Science"
+lecturer2.name = "Michael Sandel"
+lecturer2.department1.name = "Justice"
+lecturer2.department2.name = "Ethics"
+lecturer2.department3.name = "Law"
+
+[readonlyEngineerMap]
+engineer1.id = 11
+engineer1.name = "Anne"
+engineer2.id = 22
+engineer2.name = "Bob"
+engineer3.id = 33
+engineer3.name = "Charles"
+
+[readonlyLecturerMap]
+lecturer1.name = "Richard Feynman"
+lecturer1.department1.name = "Physics"
+lecturer1.department3.name = "Science"
+lecturer2.name = "Michael Sandel"
+lecturer2.department1.name = "Justice"
+lecturer2.department2.name = "Ethics"
+lecturer2.department3.name = "Law"
+
+[subjects]
+Maths.name = "Mathematics"
+Maths.grade = "grade 8"
+Maths.instructor = "Jane Doe"
+Science.name = "Science & Technology"
+Science.grade = "grade 9"
+Science.instructor = "John Doe"
+English.name = "English Language"
+English.grade = "grade 11"
+English.instructor = "Jane Doe"
+
+[[departments.department1]]
+name = "Civil Engineering"
+
+[[departments.department2]]
+name = "Computer Science"
+
+[[departments.department3]]
+name = "Electronical Engineering"
+
+[[intMapArr]]
+int1 = 34
+int2 = 78
+
+[[intMapArr]]
+int3 = 17
+int4 = 92
+
+[[stringMapArr]]
+arr1 = ["hhh", "ggg"]
+arr2 = ["aaa", "bbb"]
+
+[[stringMapArr]]
+arr1 = ["lll", "mmm"]
+arr2 = ["nnn", "ooo"]
+
+[[engineerMapArr]]
+p1.id = 55
+p1.name = "Jack"
+p2.id = 88
+p2.name = "Jill"
+
+[[engineerMapArr]]
+p1.id = 66
+p1.name = "John"
+p2.id = 77
+p2.name = "Jim"
+
+[[stringMapTable]]
+name = "Tom"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[stringMapTable]]
+name = "Harry"
+occupation = "Student"
+city = "Kandy"
+
+[[readonlyTable]]
+name = "James"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[readonlyTable]]
+name = "Trevor"
+occupation = "Student"
+city = "Kandy"
+
+[[stringMapArrTable]]
+names = ["Tom", "Jerry"]
+subjects = ["Maths", "Science", "Arts"]
+
+[[stringMapArrTable]]
+cities = ["Colombo", "Galle"]
+fruits = ["Apple", "Grapes"]
+
+[[engineerMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[engineerMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[readonlyEngineerMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[readonlyEngineerMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[intMap]
+ten = 10
+eleven = 11
+twelve = 12
+
+[studentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[readonlyStudentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[[studentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[studentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[readonlyStudentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[readonlyStudentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[libIntMap]
+fourteen = 14
+fifteen = 15
+sixteen = 16
+
+[managerMap]
+m1.name="hinduja"
+m1.id=111
+m2.name="waruna"
+m2.id=222
+
+[readonlyManagerMap]
+m1.name="manu"
+m1.id=333
+m2.name="riyafa"
+m2.id=444
+
+[[managerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[managerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"
+
+[[readonlyManagerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[readonlyManagerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"
+
+
+[configStructuredTypes.imported_records.user]
+name = "Hinduja"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[configStructuredTypes.imported_records.numbers]
+one = 1
+two = 2
+three = 3
+four = 4
+
+[configStructuredTypes.imported_records.fractions]
+quarter = 0.25
+half = 0.5
+three_quarter = 0.75
+
+[configStructuredTypes.imported_records.bits]
+on = true
+off = false
+
+[configStructuredTypes.imported_records.numberSet]
+set1 = [1,11,111]
+set2 = [2,22,222]
+set3 = [3,33,333]
+
+[configStructuredTypes.imported_records.stringSet]
+set1 = [["a","aa"],["b","bb"]]
+set2 = [["c","cc"],["d","dd"]]
+set3 = [["e","ee"],["f","ff"]]
+
+[configStructuredTypes.imported_records.doctorMap]
+doctor1.id = 11
+doctor1.name = "Anne"
+doctor2.id = 22
+doctor2.name = "Bob"
+doctor3.id = 33
+doctor3.name = "Charles"
+
+[configStructuredTypes.imported_records.readonlyDoctorMap]
+doctor1.id = 11
+doctor1.name = "Anne"
+doctor2.id = 22
+doctor2.name = "Bob"
+doctor3.id = 33
+doctor3.name = "Charles"
+
+[configStructuredTypes.imported_records.subjects]
+Maths.name = "Mathematics"
+Maths.grade = "grade 8"
+Maths.instructor = "Jane Doe"
+Science.name = "Science & Technology"
+Science.grade = "grade 9"
+Science.instructor = "John Doe"
+English.name = "English Language"
+English.grade = "grade 11"
+English.instructor = "Jane Doe"
+
+[[configStructuredTypes.imported_records.departments.department1]]
+name = "Civil Engineering"
+
+[[configStructuredTypes.imported_records.departments.department2]]
+name = "Computer Science"
+
+[[configStructuredTypes.imported_records.departments.department3]]
+name = "Electronical Engineering"
+
+[[configStructuredTypes.imported_records.intMapArr]]
+int1 = 34
+int2 = 78
+
+[[configStructuredTypes.imported_records.intMapArr]]
+int3 = 17
+int4 = 92
+
+[[configStructuredTypes.imported_records.stringMapArr]]
+arr1 = ["hhh", "ggg"]
+arr2 = ["aaa", "bbb"]
+
+[[configStructuredTypes.imported_records.stringMapArr]]
+arr1 = ["lll", "mmm"]
+arr2 = ["nnn", "ooo"]
+
+[[configStructuredTypes.imported_records.doctorMapArr]]
+p1.id = 55
+p1.name = "Jack"
+p2.id = 88
+p2.name = "Jill"
+
+[[configStructuredTypes.imported_records.doctorMapArr]]
+p1.id = 66
+p1.name = "John"
+p2.id = 77
+p2.name = "Jim"
+
+
+[[configStructuredTypes.imported_records.stringMapTable]]
+name = "Tom"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[configStructuredTypes.imported_records.stringMapTable]]
+name = "Harry"
+occupation = "Student"
+city = "Kandy"
+
+[[configStructuredTypes.imported_records.readonlyTable]]
+name = "James"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[[configStructuredTypes.imported_records.readonlyTable]]
+name = "Trevor"
+occupation = "Student"
+city = "Kandy"
+
+[[configStructuredTypes.imported_records.stringMapArrTable]]
+names = ["Tom", "Jerry"]
+subjects = ["Maths", "Science", "Arts"]
+
+[[configStructuredTypes.imported_records.stringMapArrTable]]
+cities = ["Colombo", "Galle"]
+fruits = ["Apple", "Grapes"]
+
+[[configStructuredTypes.imported_records.doctorMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.imported_records.doctorMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[configStructuredTypes.imported_records.readonlyDoctorMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.imported_records.readonlyDoctorMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[configStructuredTypes.imported_records.intMap]
+ten = 10
+eleven = 11
+twelve = 12
+
+[configStructuredTypes.imported_records.studentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[configStructuredTypes.imported_records.readonlyStudentMap]
+student1.id = 11
+student1.name = "Anne"
+student2.id = 22
+student2.name = "Bob"
+student3.id = 33
+student3.name = "Charles"
+
+[[configStructuredTypes.imported_records.studentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.imported_records.studentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[[configStructuredTypes.imported_records.readonlyStudentMapTable]]
+p1.id = 10
+p1.name = "Anna"
+p2.id = 20
+p2.name = "Elsa"
+
+[[configStructuredTypes.imported_records.readonlyStudentMapTable]]
+p1.id = 30
+p1.name = "Diana"
+p2.id = 40
+p2.name = "Belle"
+
+[configStructuredTypes.imported_records.libIntMap]
+fourteen = 14
+fifteen = 15
+sixteen = 16
+
+[configStructuredTypes.imported_records.managerMap]
+m1.name="hinduja"
+m1.id=111
+m2.name="waruna"
+m2.id=222
+
+[configStructuredTypes.imported_records.readonlyManagerMap]
+m1.name="manu"
+m1.id=333
+m2.name="riyafa"
+m2.id=444
+
+[[configStructuredTypes.imported_records.managerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[configStructuredTypes.imported_records.managerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"
+
+[[configStructuredTypes.imported_records.readonlyManagerMapTable]]
+m1.id = 55
+m1.name = "Jack"
+m2.id = 88
+m2.name = "Jill"
+
+[[configStructuredTypes.imported_records.readonlyManagerMapTable]]
+m1.id = 66
+m1.name = "John"
+m2.id = 77
+m2.name = "Jim"
