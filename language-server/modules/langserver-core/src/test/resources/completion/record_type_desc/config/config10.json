@@ -1,40 +1,43 @@
 {
   "position": {
-    "line": 16,
+    "line": 7,
     "character": 6
   },
-  "source": "class_def/source/source19.bal",
+  "source": "record_type_desc/source/source10.bal",
   "items": [
     {
-      "label": "testClass",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "AK",
-      "insertText": "testClass",
+      "label": "T5",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AM",
+      "insertText": "T5",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testClass2",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "AK",
-      "insertText": "testClass2",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "BM",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "AK",
-      "insertText": "testObject",
+      "label": "TR1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AM",
+      "insertText": "TR1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testClassWithReadOnly",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "AK",
-      "insertText": "testClassWithReadOnly",
+      "label": "TestType2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AM",
+      "insertText": "TestType2",
       "insertTextFormat": "Snippet"
     },
     {
