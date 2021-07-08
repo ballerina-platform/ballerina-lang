@@ -95,3 +95,62 @@ isolated function func() {
         }[] d = [check f2(), check f2()]; // error.
     };
 }
+
+class Bar {
+    function a = function () returns error? {
+        // OK, since it is enclosed in the function, and not directly used in the default value.
+        int q = check int:fromString("invalid");
+    };
+    int b = check int:fromString("invalid"); // error.
+    int[]|error c = check f1(); // error.
+    string[] d = ["", check f3()]; // error.
+
+    function init() returns MyError? {
+    }
+}
+
+function f4() returns MyError|object { function a; int b; int c; } {
+    var v = object {
+                function a = function () returns error? {
+                    // OK, since it is enclosed in the function, and not directly used in the default value.
+                    int q = check int:fromString("invalid");
+                    object { function a; int b; int c; } r = check f2();
+                };
+                int b = check int:fromString("invalid"); // error.
+                int c = 0;
+
+                function init() returns MyError? {
+                    if self.b > 1 {
+                        return error("error!");
+                    }
+                }
+    };
+    return v;
+}
+
+type MyErrorTwo distinct error;
+
+var ob = object {
+    any|error a = check f1(); // error.
+    object {
+        function a;
+        int b;
+        int c;
+    } b = check f2(); // OK.
+    string c = check f3(); // error.
+
+    function init() returns MyError|MyErrorTwo? {
+    }
+};
+
+function func2() returns error? {
+    var ob2 = object {
+        any|error a = check f2(); // error.
+
+        function init() returns MyErrorTwo? {
+        }
+    };
+
+    any v = check ob;
+    any w = check ob2;
+}

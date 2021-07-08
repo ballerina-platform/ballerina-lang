@@ -835,6 +835,21 @@ public class ObjectTest {
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 89, 27);
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 95, 18);
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 95, 30);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 104, 13);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 105, 21);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found '(error|MyError)'", 106, 23);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 119, 25);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected '(MyError|MyErrorTwo)?', found 'error'", 134, 19);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected '(MyError|MyErrorTwo)?', found '(error|MyError)" +
+                "'", 140, 16);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyErrorTwo?', found 'MyError'", 148, 23);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
