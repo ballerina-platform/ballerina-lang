@@ -1926,10 +1926,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.varAssignment = variableStore;
     }
 
-    private boolean isSelfVar(BSymbol symbol) {
-        return Names.SELF.equals(symbol.name);
-    }
-
     @Override
     public void visit(BLangPackageVarRef astPackageVarRefExpr) {
         boolean variableStore = this.varAssignment;
