@@ -170,10 +170,10 @@ public class PackageCompilation {
 
     private void compileModulesInternal() {
         List<Diagnostic> diagnostics = new ArrayList<>();
+        // add resolution diagnostics
+        diagnostics.addAll(packageResolution.diagnosticResult().allDiagnostics);
         // add manifest diagnostics
         diagnostics.addAll(packageContext().manifest().diagnostics().allDiagnostics);
-        // add resolution diagnostics
-        diagnostics.addAll(packageResolution.diagnostics());
         // add compilation diagnostics
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);

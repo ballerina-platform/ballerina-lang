@@ -25,6 +25,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.exceptions.InvalidBalaException;
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyVersionKind;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
@@ -63,6 +64,7 @@ public class PackageResolution {
     private final ModuleResolver moduleResolver;
     private final PackageDependencyGraphBuilder depGraphBuilder;
     private final List<Diagnostic> diagnosticList;
+    private DiagnosticResult diagnosticResult;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
@@ -135,8 +137,11 @@ public class PackageResolution {
         return topologicallySortedModuleList;
     }
 
-    List<Diagnostic> diagnostics() {
-        return this.diagnosticList;
+    public DiagnosticResult diagnosticResult() {
+        if (this.diagnosticResult == null) {
+            this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
+        }
+        return diagnosticResult;
     }
 
     void reportDiagnostic(String message, String diagnosticErrorCode, DiagnosticSeverity severity, Location location,
@@ -146,6 +151,7 @@ public class PackageResolution {
         var packageDiagnostic = new PackageResolutionDiagnostic(diagnostic, moduleDescriptor,
                                                                 rootPackageContext.project());
         this.diagnosticList.add(packageDiagnostic);
+        this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
 
     /**

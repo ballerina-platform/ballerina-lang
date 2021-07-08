@@ -152,7 +152,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<Diagnostic> diagnostics = new ArrayList<>();
         // add package resolution diagnostics
-        diagnostics.addAll(this.packageContext.getResolution().diagnostics());
+        diagnostics.addAll(this.packageContext.getResolution().diagnosticResult().allDiagnostics);
         // add ballerina toml diagnostics
         diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
         // add compilation diagnostics
