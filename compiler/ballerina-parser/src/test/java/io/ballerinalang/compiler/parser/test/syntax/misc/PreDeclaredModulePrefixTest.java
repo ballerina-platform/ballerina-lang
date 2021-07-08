@@ -34,7 +34,7 @@ public class PreDeclaredModulePrefixTest extends AbstractMiscTest {
 
     // Recovery tests
 
-    @Test
+    @Test(enabled = false)
     public void testImportWithPredefinedPrefixNegetive() {
         testFile("predeclared-module-prefix/predeclared-module-prefix_02.bal",
                 "predeclared-module-prefix/predeclared-module-prefix_assert_02.json");

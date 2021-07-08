@@ -149,7 +149,7 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global\\ v\\ \\\"\\ ar'", 5, 12);
     }
 
-    @Test(description = "Test wrong character in identifier literal")
+    @Test(description = "Test wrong character in identifier literal", enabled = false)
     public void testIdentifierLiteralWithWrongCharacter() {
         CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/literals/identifierliteral" +
                 "/identifier-literal-wrong-character-negative.bal");
@@ -162,7 +162,7 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'global\\ v\\ ar'", 4, 12);
     }
 
-    @Test(description = "Tests quoted identifier literal containing invalid special characters")
+    @Test(description = "Tests quoted identifier literal containing invalid special characters", enabled = false)
     public void testInvalidILSpecialChar() {
         CompileResult resultNeg =
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_special_char.bal");

@@ -136,7 +136,7 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_09.bal", "class-def/class_def_assert_09.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNestedObjectRecovery() {
         testFile("class-def/class_def_source_10.bal", "class-def/class_def_assert_10.json");
     }
@@ -146,7 +146,7 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
         testFile("class-def/class_def_source_13.bal", "class-def/class_def_assert_13.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDuplicateClientQualifiers() {
         testFile("class-def/class_def_source_18.bal", "class-def/class_def_assert_18.json");
         testFile("class-def/class_def_source_35.bal", "class-def/class_def_assert_35.json");

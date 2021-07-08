@@ -135,7 +135,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
                 leadingMinutiae.get(1).invalidTokenMinutiaeNode().get().invalidToken().kind());
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFindTokenInsideMinutiaeSimple() {
         String text = "import ballerina/http;\n" +
                 "import ballerina/lang.'object as lang;\n" +

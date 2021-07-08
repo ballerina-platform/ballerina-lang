@@ -49,7 +49,7 @@ public class ListConstructorTest extends AbstractExpressionsTest {
         test("[ a, b + c ", "list-constructor/list_constructor_assert_05.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testListWithMissingOpenBracket() {
         test("]", "list-constructor/list_constructor_assert_06.json");
     }

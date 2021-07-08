@@ -150,7 +150,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b where select d", "query-expr/query_expr_assert_24.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testQueryLetClauseWithMissingLetKeyword() {
         test("from int a in b int c = d select e", "query-expr/query_expr_assert_25.json");
         test("from int a in b @A{} int c = d select e", "query-expr/query_expr_assert_26.json");
@@ -202,7 +202,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
                 "query-expr/query_expr_assert_38.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testQueryWithOrderByClauseRecovery() {
         test("from int a in b order by select c", "query-expr/query_expr_assert_42.json");
         test("from int a in b order c select d", "query-expr/query_expr_assert_43.json");
