@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaKeywordsProvider;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
@@ -50,8 +49,13 @@ public class BallerinaSymbol implements Symbol {
     private String escapedName;
 
     protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
+        this(name, symbolKind, symbol, context, false);
+    }
+
+    protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context,
+                              boolean replaceOriginalName) {
         this.name = name;
-        this.escapedName = symbol.getOriginalName().getValue();
+        this.escapedName = replaceOriginalName ? name : symbol.getOriginalName().getValue();
         this.symbolKind = symbolKind;
         this.context = context;
 
@@ -71,18 +75,18 @@ public class BallerinaSymbol implements Symbol {
     public Optional<String> getName() {
         // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
         // escaped.
-        if (this.escapedName != null) {
+        if (this.escapedName != null && !this.escapedName.isBlank()) {
             return Optional.of(this.escapedName);
         }
-        if (getModule().isPresent()) {
-            ModuleID moduleID = getModule().get().id();
-            if (moduleID.moduleName().startsWith("lang.") && moduleID.orgName().startsWith("ballerina")) {
-                this.escapedName = this.name;
-                return Optional.ofNullable(this.escapedName);
-            }
-        }
-        this.escapedName = escapeReservedKeyword(this.name);
-        return Optional.ofNullable(this.escapedName);
+//        if (getModule().isPresent()) {
+//            ModuleID moduleID = getModule().get().id();
+//            if (moduleID.moduleName().startsWith("lang.") && moduleID.orgName().startsWith("ballerina")) {
+//                this.escapedName = this.name;
+//                return Optional.ofNullable(this.escapedName);
+//            }
+//        }
+//        this.escapedName = escapeReservedKeyword(this.name);
+        return Optional.ofNullable(this.name);
     }
 
     @Override
@@ -224,5 +228,13 @@ public class BallerinaSymbol implements Symbol {
          * @return {@link BallerinaSymbol} built
          */
         public abstract BallerinaSymbol build();
+
+        /**
+         * Build the Ballerina Symbol.
+         *
+         * @param  replaceOriginalName     whether to replace the original name or not
+         * @return {@link BallerinaSymbol} built
+         */
+//        public abstract BallerinaSymbol build(boolean replaceOriginalName);
     }
 }
