@@ -1980,12 +1980,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean isolatedFunctionCall = isIsolated(symbol.type.flags);
 
         if (isolatedFunctionCall) {
-            if (!expectsIsolation) {
-                analyzeArgs(requiredArgs, restArgs);
-                return;
-            }
-
-            analyzeArgIsolatedness(requiredArgs, restArgs, symbol);
+            analyzeArgIsolatedness(invocationExpr, requiredArgs, restArgs, symbol, expectsIsolation);
             return;
         }
 
@@ -2080,8 +2075,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         this.inferredIsolated = prevInferredIsolatedness && this.inferredIsolated;
     }
 
-    private void analyzeArgIsolatedness(List<BLangExpression> requiredArgs, List<BLangExpression> restArgs,
-                                        BInvokableSymbol symbol) {
+    private void analyzeArgIsolatedness(BLangInvocation invocationExpr, List<BLangExpression> requiredArgs,
+                                        List<BLangExpression> restArgs, BInvokableSymbol symbol,
+                                        boolean expectsIsolation) {
         List<BVarSymbol> params = symbol.params;
         int paramsCount = params.size();
 
@@ -2101,9 +2097,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-                    if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                        dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                    }
+                    handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                   arg.getBType(), arg.pos);
 
                     continue;
                 }
@@ -2123,9 +2118,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-                    if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                        dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                    }
+                    handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                   arg.getBType(), arg.pos);
                 }
             }
             return;
@@ -2146,9 +2140,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-            if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                           arg.getBType(), arg.pos);
         }
 
         if (restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR) {
@@ -2169,7 +2162,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                 analyzeAndSetArrowFuncFlagForIsolatedParamArg(varArg);
 
-                analyzeVarArgIsolatedness(varArg, varArgPos);
+                analyzeVarArgIsolatedness(invocationExpr, varArg, varArgPos, expectsIsolation);
                 return;
             }
 
@@ -2199,15 +2192,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     BType type = memberTypes.get(tupleIndex);
 
+                    BLangExpression arg = null;
                     if (listConstrVarArg) {
-                        BLangExpression arg = listConstructorExpr.exprs.get(tupleIndex);
+                        arg = listConstructorExpr.exprs.get(tupleIndex);
                         analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
                         type = arg.getBType();
                     }
 
-                    if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                        dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                    }
+                    handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                   type, varArgPos);
                     tupleIndex++;
                 }
 
@@ -2233,15 +2226,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (tupleIndex < memberTypeCount) {
                     for (int i = tupleIndex; i < memberTypeCount; i++) {
                         BType type = memberTypes.get(i);
+                        BLangExpression arg = null;
                         if (listConstrVarArg) {
-                            BLangExpression arg = listConstructorExpr.exprs.get(i);
+                            arg = listConstructorExpr.exprs.get(i);
                             analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
                             type = arg.getBType();
                         }
 
-                        if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                            dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                        }
+                        handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                       type, varArgPos);
                     }
                 }
 
@@ -2251,9 +2244,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         BLangExpression arg = exprs.get(i);
                         analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-                        if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                            dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                        }
+                        handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                       arg.getBType(), varArgPos);
                     }
                     return;
                 }
@@ -2263,9 +2255,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                if (!Symbols.isFlagOn(tupleRestType.flags, Flags.ISOLATED)) {
-                    dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                }
+                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
+                                                               tupleRestType, varArgPos);
 
                 return;
             }
@@ -2279,11 +2270,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         // Args for rest param provided as both individual args and vararg.
-        analyzeRestArgsForRestParam(restArgs, symbol);
+        analyzeRestArgsForRestParam(invocationExpr, restArgs, symbol, expectsIsolation);
     }
 
-    private void analyzeRestArgsForRestParam(List<BLangExpression> restArgs, BInvokableSymbol symbol) {
-        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED_PARAM)) {
+    private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
+                                             BInvokableSymbol symbol, boolean expectsIsolation) {
+        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED_PARAM)) { // TODO: 2021-07-08 check isolated?
             for (BLangExpression restArg : restArgs) {
                 analyzeNode(restArg, env);
             }
@@ -2301,48 +2293,77 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (int i = 0; i < (lastArgIsVarArg ? size - 1 : size); i++) {
             BLangExpression arg = restArgs.get(i);
-            if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                           arg.getBType(), arg.pos);
         }
 
         if (lastArgIsVarArg) {
-            analyzeVarArgIsolatedness((BLangRestArgsExpression) lastArg, lastArg.pos);
+            analyzeVarArgIsolatedness(invocationExpr, (BLangRestArgsExpression) lastArg, lastArg.pos, expectsIsolation);
         }
     }
 
-    private void analyzeVarArgIsolatedness(BLangRestArgsExpression restArgsExpression, Location pos) {
+    private void analyzeVarArgIsolatedness(BLangInvocation invocationExpr, BLangRestArgsExpression restArgsExpression,
+                                           Location pos, boolean expectsIsolation) {
+        BInvokableSymbol symbol = (BInvokableSymbol) invocationExpr.symbol;
         BLangExpression expr = restArgsExpression.expr;
         if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
             for (BLangExpression expression : ((BLangListConstructorExpr) expr).exprs) {
                 analyzeAndSetArrowFuncFlagForIsolatedParamArg(expression);
 
-                if (!Symbols.isFlagOn(expression.getBType().flags, Flags.ISOLATED)) {
-                    dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                }
+                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, expression, expectsIsolation,
+                                                               expression.getBType(), pos);
             }
             return;
         }
 
         BType varArgType = restArgsExpression.getBType();
         if (varArgType.tag == TypeTags.ARRAY) {
-            if (!Symbols.isFlagOn(((BArrayType) varArgType).eType.flags, Flags.ISOLATED)) {
-                dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
+                                                           ((BArrayType) varArgType).eType, pos);
             return;
         }
 
         BTupleType tupleType = (BTupleType) varArgType;
 
         for (BType type : tupleType.tupleTypes) {
-            if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
+                                                           type, pos);
         }
 
         BType restType = tupleType.restType;
-        if (restType != null && !Symbols.isFlagOn(restType.flags, Flags.ISOLATED)) {
+        if (restType != null) {
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation, restType, pos);
+        }
+    }
+
+    private void handleNonExplicitlyIsolatedArgForIsolatedParam(BLangInvocation invocationExpr, BLangExpression expr,
+                                                                boolean expectsIsolation, BType type, Location pos) {
+        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
+            return;
+        }
+
+        this.inferredIsolated = false;
+
+        if (expectsIsolation) {
             dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+            return;
+        }
+
+        if (expr != null) {
+            NodeKind kind = expr.getKind();
+            if (kind == NodeKind.LAMBDA) {
+                markFunctionDependentlyIsolatedOnFunction(env.enclInvokable,
+                                                          ((BLangLambdaFunction) expr).function.symbol);
+            } else if (kind == NodeKind.ARROW_EXPR) {
+                markFunctionDependentlyIsolatedOnFunction(env.enclInvokable,
+                                                          ((BLangArrowFunction) expr).function.symbol);
+            }
+        } else {
+            markDependsOnIsolationNonInferableConstructs();
+        }
+
+        if (inLockStatement) {
+            copyInLockInfoStack.peek().nonIsolatedInvocations.add(invocationExpr);
         }
     }
 
