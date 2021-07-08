@@ -37,6 +37,11 @@ import java.io.PrintStream;
  */
 public class ObjectTest {
 
+    private static final String INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION =
+            "cannot use 'check' in the default expression of a record field";
+    private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
+            "cannot use 'check' in an object field initializer of an object with no 'init' method";
+
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-simple-struct.bal");
@@ -806,5 +811,30 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 3, "no implementation found for the method 'toString' " +
                         "of class 'StackFrameImpl'",
                 58, 1);
+    }
+
+    @Test
+    public void testInvalidUsageOfCheckInObjectFieldInitializer() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_field_initializer_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 22, 13);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 23, 21);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 24, 23);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION, 37, 29);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 40, 21);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 57, 19);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 62, 11);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 63, 16);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION, 74, 21);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION, 75, 21);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION, 75, 42);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 79, 23);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION, 85, 21);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION, 86, 21);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION, 86, 42);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 89, 27);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 95, 18);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 95, 30);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 }
