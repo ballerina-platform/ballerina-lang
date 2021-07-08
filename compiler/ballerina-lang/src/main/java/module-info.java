@@ -2,7 +2,7 @@ module io.ballerina.lang {
     uses io.ballerina.projects.plugins.CompilerPlugin;
     requires java.compiler;
     requires toml4j;
-    requires gson;
+    requires com.google.gson;
     requires java.xml;
     requires org.objectweb.asm;
     requires io.ballerina.runtime;
