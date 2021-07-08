@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DebugHitListener extends TimerTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugHitListener.class);
-    TestDAPClientConnector connector;
+    private final TestDAPClientConnector connector;
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
     private boolean debugHitFound;
@@ -47,8 +47,6 @@ public class DebugHitListener extends TimerTask {
     public DebugHitListener(TestDAPClientConnector connector) {
         this.connector = connector;
         this.debugHitFound = false;
-        this.debugHitContext = null;
-        this.debugHitpoint = null;
     }
 
     public StoppedEventArguments getDebugHitContext() {

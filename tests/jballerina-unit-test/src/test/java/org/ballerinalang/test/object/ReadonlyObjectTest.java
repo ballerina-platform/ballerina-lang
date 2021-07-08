@@ -49,7 +49,8 @@ public class ReadonlyObjectTest {
                 "testReadOnlyObjectsForImmutableIntersections2",
                 "testReadOnlyServiceClass",
                 "testReadOnlyClassIntersectionWithMismatchedQualifiersRuntimeNegative",
-                "testReadOnlyClassIntersectionWithValidQualifiers"
+                "testReadOnlyClassIntersectionWithValidQualifiers",
+                "testRecursiveObjectArrayReadonlyClone"
         };
     }
 

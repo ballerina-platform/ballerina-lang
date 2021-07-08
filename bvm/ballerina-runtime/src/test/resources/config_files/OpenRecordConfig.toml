@@ -1,0 +1,5 @@
+[recordVar]
+intValue = 25
+floatValue = 25.54
+stringValue = "test"
+booleanValue = true

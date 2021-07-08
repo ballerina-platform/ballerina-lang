@@ -176,11 +176,9 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "paths", "[L" + PATH + ";");
         mv.visitVarInsn(ALOAD, configDetailsIndex);
-        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "secret", "L" + STRING_VALUE + ";");
-        mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "configContent", "L" + STRING_VALUE + ";");
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT,
-                String.format("([L%s;[L%s;L%s;L%s;)V", STRING_VALUE, PATH, STRING_VALUE, STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, String.format("([L%s;[L%s;L%s;)V", STRING_VALUE
+                , PATH, STRING_VALUE), false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

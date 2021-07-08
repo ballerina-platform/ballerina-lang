@@ -23,24 +23,6 @@ function testQuery() returns error?{
     i = 7;
 }
 
-function loopAlterNotAllowed() {
-    int[] arr = [1, 2, 3];
-    foreach var item in arr {
-        do {
-            fail error("");
-        } on fail error varName {
-            continue;
-        }
-    }
-
-   foreach var item in arr {
-        transaction {
-            error? er =  commit;
-            break;
-        }
-   }
-}
-
 function getError() returns error {
     error err = error("Custom Error");
     return err;

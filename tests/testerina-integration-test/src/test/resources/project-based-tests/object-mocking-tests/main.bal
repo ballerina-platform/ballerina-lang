@@ -15,8 +15,11 @@
 // under the License.
 
 import object_mocking.TestHttpClient;
+import ballerina/jballerina.java;
 
 TestHttpClient:HttpClient clientEndpoint = new ("http://realurl.com");
+
+PersonObj pObj = new ("John", "Doe");
 
 function doGet() returns string {
     string result = clientEndpoint->get("/path1");
@@ -35,4 +38,24 @@ function doGetRepeat() returns string {
 
 function getClientUrl() returns string {
     return clientEndpoint.url;
+}
+
+function getPerson(string id, typedesc<int|string> td) returns int|string {
+    return pObj.getValue(id, td);
+}
+
+public class PersonObj {
+    string fname;
+    string lname;
+
+    public function init(string fname, string lname) {
+        self.fname = fname;
+        self.lname = lname;
+    }
+
+    function name() returns string => self.fname + " " + self.lname;
+
+    public function getValue(string id, typedesc<int|string> td) returns td = @java:Method {
+        'class: "org.ballerinalang.testerina.utils.ObjectMockTestInterop"
+    } external;
 }
