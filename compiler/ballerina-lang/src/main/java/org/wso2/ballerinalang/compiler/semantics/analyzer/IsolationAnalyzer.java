@@ -264,6 +264,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Responsible for performing isolation analysis.
  *
@@ -288,6 +290,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
     private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
+    private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -1615,6 +1618,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        createTempSymbolIfNonExistent(bLangArrowFunction);
         analyzeNode(bLangArrowFunction.body, arrowFunctionEnv);
     }
 
@@ -2356,7 +2360,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                                           ((BLangLambdaFunction) expr).function.symbol);
             } else if (kind == NodeKind.ARROW_EXPR) {
                 markFunctionDependentlyIsolatedOnFunction(env.enclInvokable,
-                                                          ((BLangArrowFunction) expr).function.symbol);
+                                                          createTempSymbolIfNonExistent((BLangArrowFunction) expr));
             }
         } else {
             markDependsOnIsolationNonInferableConstructs();
@@ -2376,8 +2380,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (enclInvokable == null) {
             // TODO: 14/11/20 This feels hack-y but cannot think of a different approach without a class variable
             // maintaining isolated-ness.
-            if (env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY ||
-                    env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR) {
+            if (isNotInArrowFunctionBody(env)) {
                 return false;
             }
             return isIsolated(((BLangArrowFunction) env.enclEnv.node).funcType.flags);
@@ -3188,22 +3191,28 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void markDependsOnIsolationNonInferableConstructs() {
         BLangInvokableNode enclInvokable = env.enclInvokable;
+        BInvokableSymbol enclInvokableSymbol;
+
         if (enclInvokable == null) {
-            return;
-        }
-
-        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
-
-        if (enclInvokable.getKind() == NodeKind.FUNCTION && ((BLangFunction) enclInvokable).attachedFunction) {
-            BSymbol owner = enclInvokableSymbol.owner;
-
-            if (this.isolationInferenceInfoMap.containsKey(owner)) {
-                this.isolationInferenceInfoMap.get(owner).dependsOnlyOnInferableConstructs = false;
+            if (isNotInArrowFunctionBody(env)) {
+                return;
             }
-        }
 
-        if (!this.isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
-            return;
+            enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
+        } else {
+            enclInvokableSymbol = enclInvokable.symbol;
+
+            if (enclInvokable.getKind() == NodeKind.FUNCTION && ((BLangFunction) enclInvokable).attachedFunction) {
+                BSymbol owner = enclInvokableSymbol.owner;
+
+                if (this.isolationInferenceInfoMap.containsKey(owner)) {
+                    this.isolationInferenceInfoMap.get(owner).dependsOnlyOnInferableConstructs = false;
+                }
+            }
+
+            if (!this.isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+                return;
+            }
         }
 
         this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnInferableConstructs = false;
@@ -3232,16 +3241,27 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private void markFunctionDependentlyIsolatedOnFunction(BLangInvokableNode enclInvokable, BInvokableSymbol symbol) {
-        if (enclInvokable == null) {
-            return;
-        }
+        BInvokableSymbol enclInvokableSymbol;
 
-        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
-        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
-            return;
+        if (enclInvokable == null) {
+            if (isNotInArrowFunctionBody(env)) {
+                return;
+            }
+
+            enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
+        } else {
+            enclInvokableSymbol = enclInvokable.symbol;
+
+            if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+                return;
+            }
         }
 
         isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
+    }
+
+    private boolean isNotInArrowFunctionBody(SymbolEnv env) {
+        return env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY || env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR;
     }
 
     private void markInitMethodDependentlyIsolatedOnVar(BLangInvokableNode initMethod, BSymbol symbol) {
@@ -3259,13 +3279,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private void markFunctionDependentlyIsolatedOnVar(BLangInvokableNode enclInvokable, BSymbol symbol) {
+        BInvokableSymbol enclInvokableSymbol;
         if (enclInvokable == null) {
-            return;
-        }
+            if (isNotInArrowFunctionBody(env)) {
+                return;
+            }
 
-        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
-        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
-            return;
+            enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
+        } else {
+            enclInvokableSymbol = enclInvokable.symbol;
+
+            if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+                return;
+            }
         }
 
         isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnVariablesAndClasses.add(symbol);
@@ -3504,6 +3530,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         this.isolationInferenceInfoMap.clear();
+        this.arrowFunctionTempSymbolMap.clear();
     }
 
     private boolean inferVariableOrClassIsolation(Set<BType> publiclyExposedObjectTypes,
@@ -3802,6 +3829,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE;
     }
 
+    private BInvokableSymbol createTempSymbolIfNonExistent(BLangArrowFunction bLangArrowFunction) {
+        if (arrowFunctionTempSymbolMap.containsKey(bLangArrowFunction)) {
+            return arrowFunctionTempSymbolMap.get(bLangArrowFunction);
+        }
+
+        TemporaryArrowFunctionSymbol symbol = new TemporaryArrowFunctionSymbol(bLangArrowFunction);
+        this.arrowFunctionTempSymbolMap.put(bLangArrowFunction, symbol);
+        this.isolationInferenceInfoMap.put(symbol, new IsolationInferenceInfo());
+        return symbol;
+    }
+
     /**
      * For lock statements with restricted var usage, invalid transfers and non-isolated invocations should result in
      * compilation errors. This class holds potentially erroneous expression per lock statement, and the protected
@@ -3863,6 +3901,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         CLASS,
         VARIABLE,
         FUNCTION
+    }
+
+    private class TemporaryArrowFunctionSymbol extends BInvokableSymbol {
+        TemporaryArrowFunctionSymbol(BLangArrowFunction fn) {
+            super(SymTag.FUNCTION, 0, Names.EMPTY, env.enclPkg.symbol.pkgID, fn.funcType, env.enclEnv.enclVarSym,
+                    null, VIRTUAL);
+            this.kind = SymbolKind.FUNCTION;
+        }
     }
 
     private static class BPubliclyExposedInferableTypeCollector implements TypeVisitor {
