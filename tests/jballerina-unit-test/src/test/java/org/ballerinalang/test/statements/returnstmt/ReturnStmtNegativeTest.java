@@ -87,43 +87,43 @@ public class ReturnStmtNegativeTest {
     public void testMissingReturnStatement1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-stmt-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 7, 1);
     }
 
     @Test(description = "Test missing return")
     public void testMissingReturnStatement2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-stmt-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 9, 1);
     }
 
     @Test(description = "Test missing return")
     public void testMissingReturnInNestedIf1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-nested-if-1.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 12, 1);
     }
 
     @Test(description = "Test missing return")
     public void testMissingReturnInNestedIf2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-nested-if-2.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 14, 1);
     }
 
     @Test(description = "Test missing return")
     public void testMissingReturnInNestedIf3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-nested-if-3.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 18, 1);
     }
 
     @Test(description = "Test missing return")
     public void testMissingReturnForkJoin1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-forkjoin-1.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
-        BAssertUtil.validateError(result, 1, "this function must return a result", 4, 32);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 6, 9);
+        BAssertUtil.validateError(result, 1, "this function must return a result", 12, 1);
     }
 
     @Test
@@ -131,17 +131,17 @@ public class ReturnStmtNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt" +
                                                             "/missing_return_after_loops_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 17, 1);
-        BAssertUtil.validateError(result, 1, "this function must return a result", 23, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 21, 1);
+        BAssertUtil.validateError(result, 1, "this function must return a result", 29, 1);
     }
 
     @Test(description = "Test missing return")
     public void testMissingReturnForkJoin2() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/missing-return-forkjoin-2.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
-        BAssertUtil.validateError(result, 1, "this function must return a result", 4, 32);
-        BAssertUtil.validateError(result, 2, "this function must return a result", 8, 32);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 6, 9);
+        BAssertUtil.validateError(result, 1, "this function must return a result", 10, 9);
+        BAssertUtil.validateError(result, 2, "this function must return a result", 12, 1);
     }
 
     @Test(description = "Test unreachable return statement")

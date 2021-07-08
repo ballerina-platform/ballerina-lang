@@ -74,13 +74,13 @@ public class AssertionDiffEvaluator {
      * @return BString
      */
     public static BString getStringDiff(BString actual, BString expected) {
-        List<String> expectedValueList = getValueList(expected.toString());
+        List<String> actualValueList = getValueList(actual.toString());
         List<String> difference = null;
         String output = "\n";
         try {
-            Patch<String> patch = DiffUtils.diff(expectedValueList, getValueList(actual.toString()));
-            difference = UnifiedDiffUtils.generateUnifiedDiff("expected", "actual",
-                    expectedValueList, patch, MAX_ARG_LENGTH);
+            Patch<String> patch = DiffUtils.diff(actualValueList, getValueList(expected.toString()));
+            difference = UnifiedDiffUtils.generateUnifiedDiff("actual", "expected",
+                    actualValueList, patch, MAX_ARG_LENGTH);
         } catch (DiffException e) {
             output = "\nWarning: Could not generate diff.";
         }

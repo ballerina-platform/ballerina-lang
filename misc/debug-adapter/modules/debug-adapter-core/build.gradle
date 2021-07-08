@@ -23,13 +23,13 @@ dependencies {
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug:0.12.0'
     implementation 'com.github.zafarkhaja:java-semver:0.9.0'
-    implementation 'commons-io:commons-io:2.6'
+    implementation 'commons-io:commons-io:2.7'
 
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:0.12.0'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
     dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc.debug:0.12.0'
     dependency 'com.github.zafarkhaja:java-semver:0.9.0'
-    dependency 'commons-io:commons-io:2.6'
+    dependency 'commons-io:commons-io:2.7'
 }
 
 task createZip(type: Zip) {

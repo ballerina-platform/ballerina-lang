@@ -35,7 +35,9 @@ import io.ballerina.projects.util.ProjectConstants;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +57,9 @@ public class RunCommand implements BLauncherCmd {
     private final PrintStream errStream;
     private Path projectPath;
     private boolean exitWhenFinish;
+
+    private static final PathMatcher JAR_EXTENSION_MATCHER =
+            FileSystems.getDefault().getPathMatcher("glob:**.jar");
 
     @CommandLine.Parameters(description = "Program arguments")
     private List<String> argList = new ArrayList<>();
@@ -80,8 +85,10 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
-    private static final String runCmd = "bal run [--experimental] [--offline]\n" +
-            "                  [<executable-jar | ballerina-file | package-path>] [-- program-args...]";
+    private static final String runCmd =
+            "bal run [--debug <port>] <executable-jar> \n" +
+            "    bal run [--experimental] [--offline]\n" +
+            "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -113,6 +120,12 @@ public class RunCommand implements BLauncherCmd {
         if (!argList.isEmpty()) {
             if (!argList.get(0).equals("--")) { // project path provided
                 this.projectPath = Paths.get(argList.get(0));
+                if (RunCommand.JAR_EXTENSION_MATCHER.matches(this.projectPath)) {
+                    CommandUtil.printError(this.errStream, "unsupported option(s) provided for jar execution",
+                            runCmd, true);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
                 if (argList.size() > 1 && !argList.get(1).equals("--")) {
                     CommandUtil.printError(this.errStream,
                             "unmatched command argument found: " + argList.get(1), runCmd, false);
@@ -182,7 +195,8 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal run [--offline] [<balfile> | <project-path> | executable-jar]\n" +
+        out.append("  bal run [--debug <port>] <executable-jar>\n");
+        out.append("  bal run [--offline] [<balfile> | <project-path>]\n" +
                 "[--] [args...] \n");
     }
 

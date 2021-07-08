@@ -79,7 +79,7 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
-public class TestBuildProject {
+public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     private final String dummyContent = "function foo() {\n}";
 
@@ -947,6 +947,16 @@ public class TestBuildProject {
                         .packageInstance().packageName().toString().equals("package_dep")).findFirst().get();
         Assert.assertEquals(packageDepNew.packageInstance().packageVersion().toString(), "0.1.1");
         Assert.assertEquals(newCompilation.diagnosticResult().diagnosticCount(), 1);
+
+        // Set the old version again
+        project.currentPackage().dependenciesToml()
+                .get().modify().withContent("" +
+                "[[dependency]]\n" +
+                "org = \"foo\"\n" +
+                "name = \"package_dep\"\n" +
+                "version = \"0.1.0\"\n").apply();
+        PackageCompilation newCompilation2 = project.currentPackage().getCompilation();
+        Assert.assertEquals(newCompilation2.diagnosticResult().diagnosticCount(), 0);
     }
 
     @Test(description = "tests if other documents can be edited ie. Dependencies.toml, Package.md")

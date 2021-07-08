@@ -70,6 +70,7 @@ public class InteropValidator {
     }
 
     public void validate(ModuleId moduleId, CompilerBackend compilerBackend, BLangPackage bLangPackage) {
+        dlog.setCurrentPackageId(bLangPackage.packageID);
         validateModulePackages(moduleId, compilerBackend, bLangPackage);
         validateTestPackages(moduleId, compilerBackend, bLangPackage);
     }

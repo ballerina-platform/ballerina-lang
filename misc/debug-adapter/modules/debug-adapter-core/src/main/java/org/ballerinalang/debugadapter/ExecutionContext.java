@@ -45,6 +45,7 @@ public class ExecutionContext {
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
         this.projectCache = new DebugProjectCache();
+        this.lastInstruction = DebugInstruction.CONTINUE;
     }
 
     public Optional<Process> getLaunchedProcess() {
@@ -69,6 +70,10 @@ public class ExecutionContext {
 
     public VirtualMachineProxyImpl getDebuggeeVM() {
         return debuggeeVM;
+    }
+
+    public DebugOutputLogger getOutputLogger() {
+        return getAdapter().getOutputLogger();
     }
 
     public void setDebuggeeVM(VirtualMachineProxyImpl debuggeeVM) {

@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -97,6 +98,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     @Override
     public void visit(BLangNumericLiteral literal) {
         this.result = new BLangConstantValue(literal.value, literal.getBType());
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        this.result = ((BConstantSymbol) constRef.symbol).value;
     }
 
     @Override
