@@ -1,0 +1,37 @@
+{
+  "line": 8,
+  "character": 8,
+  "expected": [
+    {
+      "title": "Implement all",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "                       function getId() returns int {\n                       }\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "                       function getName() returns string {\n                       }\n"
+        }
+      ]
+    }
+  ]
+}

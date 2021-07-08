@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.value;
+
 const MSG = "Const Message";
 
 function errorMatchPattern1(any|error e) returns string {
@@ -274,6 +276,121 @@ function errorMatchPattern15(error x) returns string {
         }
         error("Error Two", data=[11, {a: "A", b: "B"}]) => {
             return "Matched with Error Two";
+        }
+    }
+
+    return "Default";
+}
+
+function testErrorMatchPattern16() {
+    any|error err1 = error("Error");
+    assertEquals("message:Error cause:No Cause details:{}", errorMatchPattern16(err1));
+
+    any|error err2 = error("Error", error("Invalid Op"));
+    assertEquals("message:Error cause:Invalid Op details:{}", errorMatchPattern16(err2));
+
+    any|error err3 = error("Error", error("Invalid Op"), code1 = 12);
+    assertEquals("message:Error cause:Invalid Op details:{\"code1\":12}", errorMatchPattern16(err3));
+
+    any|error err4 = error("Error", code1 = 12, code2 = {a: "A", b: [1, 2]});
+    assertEquals("message:Error cause:No Cause details:{\"code1\":12,\"code2\":{\"a\":\"A\",\"b\":1 2}}",
+    errorMatchPattern16(err4));
+
+    any|error err5 = error("Error", code1 = {a: "A", b: [1, 2]});
+    assertEquals("message:Error cause:No Cause details:{\"a\":\"A\",\"rest\":{\"b\":1 2}}",
+    errorMatchPattern17(err5));
+
+    any|error err6 = error("Error", code1 = [12, "A", 10.5, 1]);
+    assertEquals("message:Error cause:No Cause details:{\"a\":12,\"rest\":[\"A\",10.5,1]}",
+    errorMatchPattern18(err6));
+
+    any|error err7 = error("Error", error("Invalid Op"), code1 = [12, "A", 10.5, 1], code2 = {a: "A", b: [1, 2]});
+    assertEquals("message:Error cause:Invalid Op details:{\"a\":12 A 10.5 1,\"rest\":{\"code2\":{\"a\":\"A\",\"b\":1 2}}}",
+    errorMatchPattern19(err7));
+}
+
+function errorMatchPattern16(any|error x) returns string {
+    match x {
+        error(var m, var c, code1 = var d, code2 = var e) => {
+            string m2 = m;
+            error? c2 = c;
+            value:Cloneable code1 = d;
+            value:Cloneable code2 = e;
+            map<any|error> details = {};
+            if !(code1 is ()) {
+                details["code1"] = code1;
+            }
+            if !(code2 is ()) {
+                details["code2"] = code2;
+            }
+            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                   + " details:" + details.toString();
+        }
+    }
+
+    return "Default";
+}
+
+function errorMatchPattern17(any|error x) returns string {
+    match x {
+        error(var m, var c, code1 = {a:var d, ...var e}) => {
+            string m2 = m;
+            error? c2 = c;
+            value:Cloneable x1 = d;
+            value:Cloneable x2 = e;
+            map<any|error> details = {};
+            if !(x1 is ()) {
+                details["a"] = x1;
+            }
+            if !(x2 is ()) {
+                details["rest"] = x2;
+            }
+            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                   + " details:" + details.toString();
+        }
+    }
+
+    return "Default";
+}
+
+function errorMatchPattern18(any|error x) returns string {
+    match x {
+        error(var m, var c, code1 = [var d, ...var e]) => {
+            string m2 = m;
+            error? c2 = c;
+            value:Cloneable x1 = d;
+            value:Cloneable x2 = e;
+            map<any|error> details = {};
+            if !(x1 is ()) {
+                details["a"] = x1;
+            }
+            if !(x2 is ()) {
+                details["rest"] = x2;
+            }
+            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                   + " details:" + details.toString();
+        }
+    }
+
+    return "Default";
+}
+
+function errorMatchPattern19(any|error x) returns string {
+    match x {
+        error(var m, var c, code1 = var d, ...var e) => {
+            string m2 = m;
+            error? c2 = c;
+            value:Cloneable x1 = d;
+            value:Cloneable x2 = e;
+            map<any|error> details = {};
+            if !(x1 is ()) {
+                details["a"] = x1;
+            }
+            if !(x2 is ()) {
+                details["rest"] = x2;
+            }
+            return "message:"+ m2 + " cause:" + (c2 is () ? "No Cause" : c2.message())
+                   + " details:" + details.toString();
         }
     }
 
