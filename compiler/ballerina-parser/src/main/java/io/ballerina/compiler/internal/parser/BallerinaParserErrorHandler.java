@@ -649,7 +649,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.NAMED_ARG_MATCH_PATTERN, ParserRuleContext.REST_MATCH_PATTERN };
 
     private static final ParserRuleContext[] ORDER_KEY_LIST_END =
-            { ParserRuleContext.COMMA, ParserRuleContext.ORDER_CLAUSE_END };
+            { ParserRuleContext.ORDER_CLAUSE_END, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER =
             { ParserRuleContext.LIST_BINDING_PATTERN_MEMBER, ParserRuleContext.LIST_CONSTRUCTOR_FIRST_MEMBER };
