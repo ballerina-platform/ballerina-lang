@@ -31,6 +31,8 @@ import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigurationException;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
@@ -446,8 +448,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             response.setNamedVariables(dapVariable.getNamedVariables());
             response.setVariablesReference(dapVariable.getVariablesReference());
             return CompletableFuture.completedFuture(response);
+        } catch (EvaluationException e) {
+            context.getOutputLogger().sendErrorOutput(e.getMessage());
+            return CompletableFuture.completedFuture(response);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
             return CompletableFuture.completedFuture(response);
         }
     }
