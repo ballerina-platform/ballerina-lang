@@ -454,6 +454,133 @@ function testFunctionsAccessingModuleLevelVarsIsolatedInference() {
     assertFalse(publicFuncAccessingNonIsolatedVar is isolated function ());
 }
 
+function isolatedConcat(string s) {
+
+}
+
+string m = "";
+
+function nonIsolatedConcat(string s) {
+    m += s;
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam1() {
+    string[] numbers = ["one", "two", "three"];
+    numbers.forEach((s) => isolatedConcat(s));
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam2() {
+    string[] numbers = ["one", "two", "three"];
+    numbers.forEach((s) => nonIsolatedConcat(s));
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam3() {
+    string[] numbers = ["one", "two", "three"];
+    numbers.forEach(function(string s) {
+        isolatedConcat(s);
+    });
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam4() {
+    string[] numbers = ["one", "two", "three"];
+    numbers.forEach(function(string s) {
+        nonIsolatedConcat(s);
+    });
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam5() {
+    string[][] numbers = [["one", "two"], ["three"]];
+    numbers.forEach(s => s.forEach(t => nonIsolatedConcat(t)));
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam6() {
+    string[][] numbers = [["one", "two"], ["three"]];
+    numbers.forEach(s => s.forEach(t => isolatedConcat(t)));
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam7() {
+    string[][] numbers = [["one", "two"], ["three"]];
+    numbers.forEach(function (string[] s) {
+        s.forEach(function (string t) {
+            boolean b = true;
+            _ = b ? isolatedConcat(t) : "";
+        });
+    });
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam8() {
+    string[][] numbers = [["one", "two"], ["three"]];
+    numbers.forEach(function (string[] s) {
+        s.forEach(function (string t) {
+            boolean b = true;
+            _ = b ? nonIsolatedConcat(t) : isolatedConcat(t);
+        });
+    });
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam9() {
+    int[] x = [1, 2];
+    int[] y = [];
+    x.forEach(i => y.push(i));
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam10() {
+    int[] x = [1, 2];
+    int[] y = [];
+    x.forEach(function (int i) {
+        y.push(i);
+    });
+}
+
+int[] isolatedIntArr = [];
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam11() {
+    int[] x = [1, 2];
+    x.forEach(function (int i) {
+        lock {
+            isolatedIntArr.push(i);
+        }
+    });
+}
+
+int[] nonIsolatedIntArr = [];
+
+int[] nonIsolatedIntArrCopy = nonIsolatedIntArr;
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam12() {
+    int[] x = [1, 2];
+    x.forEach(function (int i) {
+        lock {
+            nonIsolatedIntArr.push(i);
+        }
+    });
+}
+
+function functionCallingFunctionWithIsolatedParamAnnotatedParam13() {
+    int[] x = [1, 2];
+    x.forEach(function (int i) {
+        nonIsolatedIntArr.push(i);
+    });
+}
+
+function testFunctionCallingFunctionWithIsolatedParamAnnotatedParam() {
+    assertTrue(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam1 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam2 is isolated function);
+    assertTrue(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam3 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam4 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam5 is isolated function);
+    assertTrue(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam6 is isolated function);
+    assertTrue(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam7 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam8 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam9 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam10 is isolated function);
+    assertTrue(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam11 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam12 is isolated function);
+    assertFalse(<any>functionCallingFunctionWithIsolatedParamAnnotatedParam13 is isolated function);
+    assertTrue(<any> isolatedConcat is isolated function);
+    assertFalse(<any> nonIsolatedConcat is isolated function);
+}
+
 class ListenerTwo {
 
     public function attach(service object {} s, string|string[]? name = ()) returns error?  {
