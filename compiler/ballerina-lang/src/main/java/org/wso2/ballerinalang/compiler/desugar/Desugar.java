@@ -1010,7 +1010,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
-        result = rewriteExpr(objectConstructorExpression.typeInit);
+//        objectConstructorExpression.classNode = rewrite(objectConstructorExpression.classNode, env);
+//        result = rewriteExpr(objectConstructorExpression.typeInit);
+//        this.semanticAnalyzer.analyzeNode(objectConstructorExpression.typeInit, env);
+//        result = rewriteExpr(objectConstructorExpression.typeInit);
     }
 
     @Override
