@@ -1,5 +1,6 @@
 class TestStudent {
     @test:Config
+    @annot2
     
 }
 
