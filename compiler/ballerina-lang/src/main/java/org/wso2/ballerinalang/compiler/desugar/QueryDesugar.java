@@ -1303,31 +1303,37 @@ public class QueryDesugar extends BLangNodeVisitor {
     // ---- Visitor methods to replace frame access and mark closure variables ---- //
     @Override
     public void visit(BLangLambdaFunction lambda) {
-        BLangFunction function = lambda.function;
+        lambda.function.accept(this);
+        env.enclPkg.lambdaFunctions.add(lambda);
+    }
+
+    @Override
+    public void visit(BLangFunction function) {
         if (function.flagSet.contains(Flag.QUERY_LAMBDA)) {
             currentFrameSymbol = function.requiredParams.get(0).symbol;
             identifiers = new HashMap<>();
             currentQueryLambdaBody = (BLangBlockFunctionBody) function.getBody();
-            List<BLangStatement> stmts = new ArrayList<>(currentQueryLambdaBody.getStatements());
-            stmts.forEach(stmt -> stmt.accept(this));
+            currentQueryLambdaBody.accept(this);
             currentFrameSymbol = null;
             identifiers = null;
             currentQueryLambdaBody = null;
         } else {
             boolean prevWithinLambdaFunc = withinLambdaFunc;
             withinLambdaFunc = true;
-            if (function.getBody().getKind() == NodeKind.EXPR_FUNCTION_BODY) {
-                // module-level anonymous function has an expr function body.
-                BLangExprFunctionBody anonLambdaBody = (BLangExprFunctionBody) function.getBody();
-                anonLambdaBody.expr.accept(this);
-            } else {
-                BLangBlockFunctionBody anonLambdaBody = (BLangBlockFunctionBody) function.getBody();
-                List<BLangStatement> stmts = new ArrayList<>(anonLambdaBody.getStatements());
-                stmts.forEach(stmt -> stmt.accept(this));
-            }
+            function.getBody().accept(this);
             withinLambdaFunc = prevWithinLambdaFunc;
         }
-        env.enclPkg.lambdaFunctions.add(lambda);
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        List<BLangStatement> stmts = new ArrayList<>(body.getStatements());
+        stmts.forEach(stmt -> stmt.accept(this));
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody exprBody) {
+        exprBody.expr.accept(this);
     }
 
     @Override

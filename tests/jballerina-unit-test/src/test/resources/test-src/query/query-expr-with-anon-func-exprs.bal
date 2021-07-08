@@ -405,6 +405,29 @@ var globalFn6 = from var person in personList
                     };
                 };
 
+(function () returns string)[] globalFn7 = messageFunc1("John");
+string hello = "Hello ";
+
+function messageFunc1(string name) returns (function () returns string)[] {
+    var res = from var empFunc in (from var {firstName, lastName, dept} in employeeList
+              select function () returns string => hello + name + " in " + dept)
+              select empFunc;
+
+    return res;
+}
+
+(function () returns string)[] globalFn8 = messageFunc2("John");
+
+function messageFunc2(string name) returns (function () returns string)[] {
+    var res = from var person in personList
+              from var {firstName, lastName, dept} in employeeList
+              order by firstName, dept descending
+              limit 4
+              select function () returns string => hello + name + " in " + dept;
+
+    return res;
+}
+
 function testGlobalQueryWithAnonFuncExpr() {
     var fn1 = globalFn1;
     assertEqual(fn1.length(), 3);
@@ -472,6 +495,36 @@ function testGlobalQueryWithAnonFuncExpr() {
     f6b = f6a();
     personName = f6b();
     assertEqual(personName, "John David");
+
+    assertEqual(3, globalFn7.length());
+    function () returns string f7 = globalFn7[0];
+    string msg = f7();
+    assertEqual(msg, "Hello John in Engineering");
+
+    f7 = globalFn7[1];
+    msg = f7();
+    assertEqual(msg, "Hello John in HR");
+
+    f7 = globalFn7[2];
+    msg = f7();
+    assertEqual(msg, "Hello John in Operations");
+
+    assertEqual(4, globalFn8.length());
+    f7 = globalFn8[0];
+    msg = f7();
+    assertEqual(msg, "Hello John in Operations");
+
+    f7 = globalFn8[1];
+    msg = f7();
+    assertEqual(msg, "Hello John in Operations");
+
+    f7 = globalFn8[2];
+    msg = f7();
+    assertEqual(msg, "Hello John in Operations");
+
+    f7 = globalFn8[3];
+    msg = f7();
+    assertEqual(msg, "Hello John in Engineering");
 }
 
 function assertEqual(any actual, any expected) {
