@@ -5705,7 +5705,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             }
         }
-        // Iterate through parent nodes until a function node is met to find if the variable is used inside
         // a transaction block to mark it as a closure, blocks inside transactions are desugared into functions later.
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
@@ -8161,15 +8160,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private void markTypeAsIsolated(BType actualType) {
         actualType.flags |= Flags.ISOLATED;
         actualType.tsymbol.flags |= Flags.ISOLATED;
-    }
-
-    private boolean isObjectConstructorExpr(BLangTypeInit cIExpr, BType actualType) {
-        return cIExpr.getType() != null && Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS);
-    }
-
-    private BLangClassDefinition getClassDefinitionForObjectConstructorExpr(BLangTypeInit cIExpr, SymbolEnv env) {
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) cIExpr.getType();
-        return env.enclPkg.objectCtorsMap.get(userDefinedType.symbol);
     }
 
     private void handleObjectConstrExprForReadOnly(

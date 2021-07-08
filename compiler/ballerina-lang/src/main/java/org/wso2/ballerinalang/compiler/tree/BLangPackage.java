@@ -76,7 +76,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     // Queue to maintain lambda functions so that we can visit all lambdas at the end of the semantic phase
     public Queue<BLangLambdaFunction> lambdaFunctions = new ArrayDeque<>();
     public List<BLangClassDefinition> classDefinitions;
-    public Map<BSymbol, BLangClassDefinition> objectCtorsMap;
 
     // Hold global variable dependencies identified in DataflowAnalyzer.
     public Map<BSymbol, Set<BVarSymbol>> globalVariableDependencies;
@@ -104,7 +103,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.typeDefinitions = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.classDefinitions = new ArrayList<>();
-        this.objectCtorsMap = new HashMap<>();
 
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
@@ -270,11 +268,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     public void addClassDefinition(BLangClassDefinition classDefNode) {
-        if (classDefNode.flagSet.contains(Flags.OBJECT_CTOR)) {
-            if (this.objectCtorsMap.isEmpty()) {
-                System.out.println("KRV EMPTY");
-            }
-        }
         this.topLevelNodes.add(classDefNode);
         this.classDefinitions.add(classDefNode);
     }

@@ -780,7 +780,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (flags.contains(Flag.OBJECT_CTOR)) {
-            env.enclPkg.objectCtorsMap.put(tSymbol, classDefinition);
             typeFlags |= Flags.OBJECT_CTOR;
         }
 
