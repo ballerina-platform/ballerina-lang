@@ -1521,6 +1521,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
             }
+            definedType.flags |= Flags.DISTINCT;
         }
 
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
