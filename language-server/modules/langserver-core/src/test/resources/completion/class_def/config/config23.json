@@ -78,12 +78,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "resource function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "resource|function",
+      "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "init function",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "init|function",
       "insertText": "function init(${1:any arg}) {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "TestClass",
       "insertTextFormat": "Snippet"
     },
     {
@@ -103,14 +120,6 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass",
       "insertTextFormat": "Snippet"
     },
     {
