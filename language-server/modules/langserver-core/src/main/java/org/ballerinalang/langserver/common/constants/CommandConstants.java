@@ -98,7 +98,7 @@ public class CommandConstants {
 
     public static final String CREATE_INITIALIZER_TITLE = "Create initializer";
 
-    public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
+    public static final String PULL_MOD_TITLE = "Pull missing module(s)";
 
     public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '%s'";
 

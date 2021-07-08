@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
@@ -33,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 /**
@@ -44,46 +46,39 @@ import java.util.regex.Matcher;
 public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Pull Module";
-
-    private static final String UNRESOLVED_MODULE = "cannot resolve module";
+    private static final int MISSING_MODULE_NAME_INDEX = 0;
 
     @Override
     public boolean isEnabled(LanguageServerContext serverContext) {
-        //TODO: disabled since offline is yet to be supported through project api
-        return false;
+        return true;
     }
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNRESOLVED_MODULE))) {
+        if (!DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
-        String diagnosticMessage = diagnostic.message();
-        String uri = context.fileUri();
-        CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, uri);
+        Optional<String> moduleName = positionDetails.diagnosticProperty(MISSING_MODULE_NAME_INDEX);
+        if (moduleName.isEmpty()) {
+            return Collections.emptyList();
+        }
+        CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri());
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        Matcher matcher = CommandConstants.UNRESOLVED_MODULE_PATTERN.matcher(
-                diagnosticMessage.toLowerCase(Locale.ROOT)
-        );
-        if (matcher.find() && matcher.groupCount() > 0) {
-            List<Object> args = new ArrayList<>();
-            String pkgName = matcher.group(1).trim();
-            String version = getVersion(context, pkgName, matcher);
-            args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, pkgName + version));
-            args.add(uriArg);
-            String commandTitle = CommandConstants.PULL_MOD_TITLE;
+        List<Object> args = new ArrayList<>();
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, moduleName.get()));
+        args.add(uriArg);
 
-            CodeAction action = new CodeAction(commandTitle);
-            action.setKind(CodeActionKind.QuickFix);
-            action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
-            action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
-            return Collections.singletonList(action);
-        }
-        return Collections.emptyList();
+        String commandTitle = CommandConstants.PULL_MOD_TITLE;
+        CodeAction action = new CodeAction(commandTitle);
+        action.setKind(CodeActionKind.QuickFix);
+        action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
+        action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
+        return Collections.singletonList(action);
+
     }
 
     @Override
