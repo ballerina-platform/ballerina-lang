@@ -30,6 +30,7 @@ import org.eclipse.lsp4j.debug.EvaluateArguments;
 import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
+import org.eclipse.lsp4j.debug.OutputEventArgumentsCategory;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
@@ -313,8 +314,7 @@ public class DebugTestRunner {
      * @param kind    debug option to be used to continue the debuggee execution.
      * @throws BallerinaTestException if an error occurs when resuming program.
      */
-    public void resumeProgram(StoppedEventArguments context, DebugResumeKind kind)
-        throws BallerinaTestException {
+    public void resumeProgram(StoppedEventArguments context, DebugResumeKind kind) throws BallerinaTestException {
 
         if (kind == DebugResumeKind.NEXT_BREAKPOINT) {
             ContinueArguments continueArgs = new ContinueArguments();
@@ -452,8 +452,7 @@ public class DebugTestRunner {
             ScopesResponse scopesResp = hitListener.getConnector().getRequestManager().scopes(scopeArgs);
             variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
             VariablesResponse variableResp = hitListener.getConnector().getRequestManager().variables(variableArgs);
-            Arrays.stream(variableResp.getVariables())
-                .forEach(variable -> variables.put(variable.getName(), variable));
+            Arrays.stream(variableResp.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit variables", e);
@@ -588,14 +587,36 @@ public class DebugTestRunner {
     public void assertEvaluationError(StoppedEventArguments context, String expression, String errorMessage)
             throws BallerinaTestException {
         Variable result = evaluateExpression(context, expression);
-        switch (assertionMode) {
-            case HARD_ASSERT:
+        if (assertionMode == AssertionMode.HARD_ASSERT) {
+            if (result.getType() == null) {
+                Pair<String, OutputEventArguments> output = waitForDebugOutput(2000);
+                String errorOutput = output.getLeft();
+                if (errorOutput.endsWith(System.lineSeparator())) {
+                    errorOutput = errorOutput.replaceAll(System.lineSeparator() + "$", "");
+                }
+                Assert.assertNull(result.getValue());
+                Assert.assertNull(result.getType());
+                Assert.assertEquals(output.getRight().getCategory(), OutputEventArgumentsCategory.STDERR);
+                Assert.assertEquals(errorOutput, errorMessage);
+            } else {
+                Assert.assertEquals(result.getType(), "error");
                 Assert.assertEquals(result.getValue(), errorMessage);
-                Assert.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
-                return;
-            case SOFT_ASSERT:
+            }
+        } else if (assertionMode == AssertionMode.SOFT_ASSERT) {
+            if (result.getType() == null) {
+                Pair<String, OutputEventArguments> output = waitForDebugOutput(2000);
+                String errorOutput = output.getLeft();
+                if (errorOutput.endsWith(System.lineSeparator())) {
+                    errorOutput = errorOutput.replaceAll(System.lineSeparator() + "$", "");
+                }
+                softAsserter.assertNull(result.getValue());
+                softAsserter.assertNull(result.getType());
+                softAsserter.assertEquals(output.getRight().getCategory(), OutputEventArgumentsCategory.STDERR);
+                softAsserter.assertEquals(errorOutput, errorMessage);
+            } else {
+                softAsserter.assertEquals(result.getType(), "error");
                 softAsserter.assertEquals(result.getValue(), errorMessage);
-                softAsserter.assertTrue(result.getType().equals("string") || result.getType().equals("error"));
+            }
         }
     }
 
@@ -652,7 +673,9 @@ public class DebugTestRunner {
             Variable result = new Variable();
             result.setName("Result");
             result.setType(evaluateResp.getType());
-            result.setValue(evaluateResp.getResult());
+            if (evaluateResp.getResult() != null) {
+                result.setValue(evaluateResp.getResult());
+            }
             result.setNamedVariables(evaluateResp.getNamedVariables());
             result.setIndexedVariables(evaluateResp.getIndexedVariables());
             result.setVariablesReference(evaluateResp.getVariablesReference());
