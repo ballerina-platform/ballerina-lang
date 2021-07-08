@@ -44,7 +44,7 @@ public class NilLiteralTest extends AbstractExpressionsTest {
 
     // Recovery test
 
-    @Test
+    @Test(enabled = false)
     public void testNilLiteralWithMissingOpenParenthesis() {
         test(")", "basic-literals/nil_literal_assert_09.json");
         testFile("basic-literals/nil_literal_source_05.bal", "basic-literals/nil_literal_assert_10.json");

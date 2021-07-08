@@ -71,7 +71,7 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("a ? b :", "conditional-expr/conditional_expr_assert_09.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testConditionalWithMissingColon() {
         test("a ? (b)  c", "conditional-expr/conditional_expr_assert_10.json");
     }
@@ -81,7 +81,7 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("a ?  : c", "conditional-expr/conditional_expr_assert_11.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testConditionalWithMissingQuestionMark() {
         test("a  b:d : d", "conditional-expr/conditional_expr_assert_12.json");
         test("a  (b) : c", "conditional-expr/conditional_expr_assert_13.json");

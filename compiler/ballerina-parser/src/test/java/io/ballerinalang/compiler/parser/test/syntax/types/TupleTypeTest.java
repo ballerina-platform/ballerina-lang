@@ -50,7 +50,7 @@ public class TupleTypeTest extends AbstractTypesTest {
 
     // Recovery test
 
-    @Test
+    @Test(enabled = false)
     public void testLocalLevelInValidTupleTypes() {
         testTopLevelNode("tuple-type/tuple_type_source_04.bal", "tuple-type/tuple_type_assert_04.json");
     }

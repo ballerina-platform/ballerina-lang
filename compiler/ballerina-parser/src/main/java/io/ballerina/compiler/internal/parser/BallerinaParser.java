@@ -6319,9 +6319,9 @@ public class BallerinaParser extends AbstractParser {
 
                 ParserRuleContext recoveryCtx;
                 if (context == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER) {
-                    recoveryCtx = ParserRuleContext.OBJECT_MEMBER_START;
+                    recoveryCtx = ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER_START;
                 } else {
-                    recoveryCtx = ParserRuleContext.CLASS_MEMBER_START;
+                    recoveryCtx = ParserRuleContext.CLASS_MEMBER_OR_OBJECT_MEMBER_START;
                 }
 
                 Solution solution = recover(peek(), recoveryCtx);
@@ -6383,7 +6383,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
             case IDENTIFIER_TOKEN:
-                if (isObjectFieldStart()) {
+                if (isObjectFieldStart() || nextToken.isMissing()) {
                     return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                 }
                 // Else fall through

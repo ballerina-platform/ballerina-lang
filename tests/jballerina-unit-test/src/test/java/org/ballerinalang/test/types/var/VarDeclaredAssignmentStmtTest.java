@@ -153,7 +153,7 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "initializer required for variables declared with var", 2, 5);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(enabled = false)
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 5);

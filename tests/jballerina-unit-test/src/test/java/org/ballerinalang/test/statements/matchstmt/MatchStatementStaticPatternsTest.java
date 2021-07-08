@@ -350,7 +350,7 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(returns[0].stringValue(), "no-match");
     }
 
-    @Test(description = "Test pattern will not be matched")
+    @Test(description = "Test pattern will not be matched", enabled = false)
     public void testPatternNotMatchedSemanticsNegative() {
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 3);
         int i = -1;

@@ -62,7 +62,7 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, 6, "incompatible types: expected 'string', found 'int'", 39, 31);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(enabled = false)
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         int i = 0;
@@ -81,7 +81,7 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, i++, "invalid token '}'", 20, 29);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(enabled = false)
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
         int i = 0;

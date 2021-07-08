@@ -51,12 +51,12 @@ public class TableTypeTest extends AbstractTypesTest {
 
     // Recovery tests
 
-    @Test
+    @Test(enabled = false)
     public void testInValidLocalLevelTableTypes() {
         testTopLevelNode("table-type/table_type_source_08.bal", "table-type/table_type_assert_08.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testInValidModuleLevelTableTypes() {
         testFile("table-type/table_type_source_09.bal", "table-type/table_type_assert_09.json");
     }
