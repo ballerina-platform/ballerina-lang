@@ -26,7 +26,7 @@ dependencies {
     implementation project(':toml-parser')
 }
 
-ext.moduleName = 'org.ballerinalang.pkg.analyzer'
+ext.moduleName = 'org.ballerinalang.pkg.toml.semntic.analyzer'
 
 compileJava {
     doFirst {

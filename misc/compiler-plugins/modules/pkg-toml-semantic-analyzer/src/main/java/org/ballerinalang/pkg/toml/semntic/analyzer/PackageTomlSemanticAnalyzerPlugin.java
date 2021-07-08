@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.pkg.analyzer;
+package org.ballerinalang.pkg.toml.semntic.analyzer;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -42,22 +42,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code PackageAnalyzerPlugin} adds diagnostics after compilation phase.
+ * {@code PackageTomlSemanticAnalyzerPlugin} analyzes package toml semantics.
  *
  * @since 2.0.0
  */
-public class PackageAnalyzerPlugin extends CompilerPlugin {
+public class PackageTomlSemanticAnalyzerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new PackageAnalyzer());
+        pluginContext.addCodeAnalyzer(new PackageTomlSemanticAnalyzer());
     }
 
     /**
-     * A sample {@code PackageAnalyzer} that adds diagnostics after compilation phase.
+     * {@code PackageTomlSemanticAnalyzer} analyzes package toml semantics
+     * and adds diagnostics after compilation phase.
      *
      * @since 2.0.0
      */
-    public static class PackageAnalyzer extends CodeAnalyzer {
+    public static class PackageTomlSemanticAnalyzer extends CodeAnalyzer {
         @Override
         public void init(CodeAnalysisContext analysisContext) {
             analysisContext.addCompilationAnalysisTask(compilationAnalysisContext -> {
@@ -71,7 +72,7 @@ public class PackageAnalyzerPlugin extends CompilerPlugin {
                 }
 
                 for (String exportedModule : exportedModules) {
-                    if (!exportModuleExists(exportedModule, packageModules)) {
+                    if (!packageModules.contains(exportedModule)) {
                         TomlNodeLocation location = getExportValueNodeLocation(compilationAnalysisContext,
                                                                                exportedModule);
                         reportTomlDiagnostic(compilationAnalysisContext, location, null,
@@ -81,15 +82,6 @@ public class PackageAnalyzerPlugin extends CompilerPlugin {
                 }
             });
         }
-    }
-
-    private static boolean exportModuleExists(String exportedModule, List<String> packageModules) {
-        for (String pkgModule : packageModules) {
-            if (exportedModule.equals(pkgModule)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static TomlNodeLocation getExportValueNodeLocation(CompilationAnalysisContext compilationAnalysisContext,
