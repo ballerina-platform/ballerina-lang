@@ -119,6 +119,8 @@ public class RecordDefNegativeTest {
                 67, 42);
         BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
                 68, 16);
+        BAssertUtil.validateError(compileResult, i++, "cannot use 'check' in an object field initializer of an object" +
+                " with no 'init' method", 70, 27);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 }

@@ -66,5 +66,8 @@ isolated function func() {
             int b = check int:fromString("invalid"); // error.
             int c = check int:fromString(check f3()); // error.
         |} b = check f2(); // error.
+        object {} rec2 = object {
+            any|error a = check f1(); // error.
+        };
     |} rec2 = {a: 1};
 }
