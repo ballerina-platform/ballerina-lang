@@ -35,6 +35,7 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -176,7 +177,7 @@ public class JDIEventProcessor {
         // the condition evaluation.
         context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
         context.getEventManager().breakpointRequests().forEach(BreakpointRequest::disable);
-        CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, event.thread());
+        CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, event.thread(), lineNumber);
         try {
             Boolean result = resultFuture.get(5000, TimeUnit.MILLISECONDS);
             if (result) {
@@ -354,7 +355,8 @@ public class JDIEventProcessor {
      * @param threadReference suspended thread reference, which should be used to get the top stack frame
      * @return result of the given breakpoint condition (logical expression).
      */
-    private CompletableFuture<Boolean> evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
+    private CompletableFuture<Boolean> evaluateBreakpointCondition(String expression, ThreadReference threadReference,
+                                                                   int lineNumber) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads()
@@ -369,8 +371,13 @@ public class JDIEventProcessor {
                 Value evaluatorResult = evaluator.evaluate(expression);
                 String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();
                 return condition.equalsIgnoreCase(CONDITION_TRUE);
-            } catch (JdiProxyException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (EvaluationException e) {
+                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
+                        "at line: %d, due to: %s%s", lineNumber, System.lineSeparator(), e.getMessage()));
+                return false;
+            } catch (Exception e) {
+                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
+                        "at line: %d, due to an internal error", lineNumber));
                 return false;
             }
         });
