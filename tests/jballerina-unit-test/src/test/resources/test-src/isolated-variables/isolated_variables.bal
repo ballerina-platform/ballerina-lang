@@ -112,7 +112,7 @@ function testValidTransferOutInLockAccessingIsolatedVar() {
 
 isolated int[][] isolatedStacks = [];
 
-isolated function testInvalidTransferInUpdatingIsolatedVar(int[] n) {
+isolated function testValidTransferInUpdatingIsolatedVar(int[] n) {
     lock {
         isolatedStacks.push(n.cloneReadOnly());
     }
