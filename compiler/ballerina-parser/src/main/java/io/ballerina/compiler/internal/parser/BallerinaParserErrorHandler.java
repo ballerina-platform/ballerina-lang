@@ -595,10 +595,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN, ParserRuleContext.SLASH_LT_TOKEN };
 
     private static final ParserRuleContext[] MATCH_PATTERN_LIST_MEMBER_RHS =
-            { ParserRuleContext.PIPE, ParserRuleContext.MATCH_PATTERN_END };
+            { ParserRuleContext.MATCH_PATTERN_END, ParserRuleContext.PIPE };
 
     private static final ParserRuleContext[] OPTIONAL_MATCH_GUARD =
-            { ParserRuleContext.IF_KEYWORD, ParserRuleContext.RIGHT_DOUBLE_ARROW };
+            { ParserRuleContext.RIGHT_DOUBLE_ARROW, ParserRuleContext.IF_KEYWORD };
 
     private static final ParserRuleContext[] MATCH_PATTERN_START = { ParserRuleContext.CONSTANT_EXPRESSION,
             ParserRuleContext.VAR_KEYWORD, ParserRuleContext.LIST_MATCH_PATTERN,
