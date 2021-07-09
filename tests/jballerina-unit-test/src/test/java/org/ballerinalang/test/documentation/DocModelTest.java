@@ -649,7 +649,7 @@ public class DocModelTest {
 
         Assert.assertTrue(inlineRecordReturnFunc.isPresent());
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.category,
-                "inline_closed_record");
+                "inline_record");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 3);
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).name,
                 "latitude");
@@ -671,7 +671,7 @@ public class DocModelTest {
                 record.name.equals("SubscriptionVerificationSuccess")).findAny();
         Assert.assertTrue(subVeriSucRec.isPresent());
         Assert.assertNull(subVeriSucRec.get().inclusionType);
-        Assert.assertEquals(subVeriSucRec.get().fields.size(), 3);
+        Assert.assertEquals(subVeriSucRec.get().fields.size(), 5);
 
         Assert.assertEquals(subVeriSucRec.get().fields.get(0).name, "headers");
         Assert.assertEquals(subVeriSucRec.get().fields.get(0).description,
@@ -702,9 +702,22 @@ public class DocModelTest {
         Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).orgName, "test_org");
         Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).moduleName, "docerina_project");
         Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).version, "1.0.0");
-
         Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(1).name, "Person");
         Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(1).category, "classes");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).name, "clienthttpSettings");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(3).type.isIntersectionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.size(), 2);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).name, "ClientHttp2Settings");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).category, "records");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).orgName, "test_org");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(1).name, "readonly");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(1).category, "builtin");
+
+        Assert.assertTrue(subVeriSucRec.get().fields.get(4).type.isRestParam);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(4).type.elementType.name, "string");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(4).type.elementType.category, "builtin");
     }
 
     @Test(description = "Test private record parameter")
@@ -716,7 +729,7 @@ public class DocModelTest {
         Assert.assertEquals(inlineRecordReturnFunc.get().parameters.size(), 2);
         Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).name, "prvtRecord");
         Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.category, "inline_record");
-        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.size(), 3);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.size(), 5);
         Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).name, "headers");
         Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).description,
                 "Additional headers to be included in the `http:Response`");

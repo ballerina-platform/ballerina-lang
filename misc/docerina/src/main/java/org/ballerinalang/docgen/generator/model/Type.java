@@ -64,7 +64,6 @@ import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.Generator;
-import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.types.FunctionType;
 import org.ballerinalang.docgen.generator.model.types.ObjectType;
@@ -125,7 +124,7 @@ public class Type {
     @Expose
     public Type constraint;
 
-    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
+    private static final Logger log = LoggerFactory.getLogger(Type.class);
 
     private static final String CATEGORY_NOT_FOUND = "not_found";
     private static final String CATEGORY_INLINE_RECORD = "inline_record";
@@ -140,7 +139,7 @@ public class Type {
             SimpleNameReferenceNode simpleNameReferenceNode = (SimpleNameReferenceNode) node;
             type.name = simpleNameReferenceNode.name().text();
             type.category = "reference";
-            Optional<Symbol> symbol = null;
+            Optional<Symbol> symbol = Optional.empty();
             try {
                 symbol = semanticModel.symbol(node);
             } catch (NullPointerException nullException) {
@@ -151,7 +150,7 @@ public class Type {
             if (symbol != null && symbol.isPresent()) {
                 if (symbol.get() instanceof TypeReferenceTypeSymbol &&
                         !Type.isPublic(((TypeReferenceTypeSymbol) symbol.get()).definition())) {
-                    type = fromSemanticSymbol(symbol.get(), null, null, false);
+                    type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false);
                 } else {
                     resolveSymbolMetaData(type, symbol.get());
                 }
@@ -163,7 +162,7 @@ public class Type {
             type.moduleName = qualifiedNameReferenceNode.modulePrefix().text();
             type.category = "reference";
             type.name = qualifiedNameReferenceNode.identifier().text();
-            Optional<Symbol> symbol = null;
+            Optional<Symbol> symbol = Optional.empty();
             try {
                 symbol = semanticModel.symbol(node);
             } catch (NullPointerException nullException) {
@@ -174,7 +173,7 @@ public class Type {
             if (symbol != null && symbol.isPresent()) {
                 if (symbol.get() instanceof TypeReferenceTypeSymbol &&
                         !Type.isPublic(((TypeReferenceTypeSymbol) symbol.get()).definition())) {
-                    type = fromSemanticSymbol(symbol.get(), null, null, false);
+                    type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, false);
                 } else {
                     resolveSymbolMetaData(type, symbol.get());
                 }
@@ -182,7 +181,7 @@ public class Type {
                 type.generateUserDefinedTypeLink = false;
             }
         } else if (node instanceof TypeReferenceNode) {
-            Optional<Symbol> symbol = null;
+            Optional<Symbol> symbol = Optional.empty();
             try {
                 symbol = semanticModel.symbol(node);
             } catch (NullPointerException nullException) {
@@ -191,7 +190,7 @@ public class Type {
                 }
             }
             if (symbol != null && symbol.isPresent()) {
-                type = fromSemanticSymbol(symbol.get(), null, null, true);
+                type = fromSemanticSymbol(symbol.get(), Optional.empty(), null, true);
             }
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
@@ -238,7 +237,8 @@ public class Type {
                 restField.elementType = fromNode(recordNode.recordRestDescriptor().get(), semanticModel);
                 fields.add(restField);
             }
-            type.category = (recordNode.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN) ?
+            type.category = (recordNode.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN) &&
+                    recordNode.recordRestDescriptor().isEmpty() ?
                     CATEGORY_INLINE_CLOSED_RECORD : CATEGORY_INLINE_RECORD;
             type.memberTypes = fields;
         } else if (node instanceof StreamTypeDescriptorNode) {
@@ -361,9 +361,18 @@ public class Type {
                 Type recField = new Type();
                 recField.name = name;
                 recField.description = documentation.isPresent() ? documentation.get().parameterMap().get(name) : "";
-                Type elemType = fromSemanticSymbol(field.typeDescriptor(), documentation, parentTypeRefSymbol,
+                recField.elementType = fromSemanticSymbol(field.typeDescriptor(), documentation, parentTypeRefSymbol,
                         isTypeInclusion);
-                recField.elementType = elemType;
+                recordType.memberTypes.add(recField);
+            });
+            recordTypeSymbol.restTypeDescriptor().ifPresent(typeSymbol -> {
+                Type restField = new Type();
+                restField.isRestParam = true;
+                restField.elementType = fromSemanticSymbol(typeSymbol, documentation, parentTypeRefSymbol,
+                        isTypeInclusion);
+                restField.description = Generator.REST_FIELD_DESCRIPTION;
+                Type recField = new Type();
+                recField.elementType = restField;
                 recordType.memberTypes.add(recField);
             });
             recordType.category = CATEGORY_INLINE_RECORD;
@@ -422,7 +431,8 @@ public class Type {
             MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) symbol;
             type.name = "map";
             type.category = "map";
-            type.constraint = fromSemanticSymbol(mapTypeSymbol.typeParam(), documentation, parentTypeRefSymbol, isTypeInclusion);
+            type.constraint = fromSemanticSymbol(mapTypeSymbol.typeParam(), documentation, parentTypeRefSymbol,
+                    isTypeInclusion);
         } else if (symbol instanceof UnionTypeSymbol) {
             UnionTypeSymbol unionSymbol = (UnionTypeSymbol) symbol;
             type.isAnonymousUnionType = true;
@@ -430,12 +440,19 @@ public class Type {
             unionSymbol.memberTypeDescriptors().forEach(typeSymbol -> unionMembers.add(fromSemanticSymbol(typeSymbol,
                     documentation, parentTypeRefSymbol, isTypeInclusion)));
             type.memberTypes = unionMembers;
+        } else if (symbol instanceof IntersectionTypeSymbol) {
+            IntersectionTypeSymbol intersectionSymbol = (IntersectionTypeSymbol) symbol;
+            type.isIntersectionType = true;
+            List<Type> intersectionMembers = new ArrayList<>();
+            intersectionSymbol.memberTypeDescriptors().forEach(typeSymbol -> intersectionMembers.add(
+                    fromSemanticSymbol(typeSymbol, documentation, parentTypeRefSymbol, isTypeInclusion)));
+            type.memberTypes = intersectionMembers;
         } else if (symbol instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
             type.isArrayType = true;
             type.arrayDimensions = 1;
-            type.elementType = fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor(), documentation, parentTypeRefSymbol,
-                    isTypeInclusion);
+            type.elementType = fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor(), documentation,
+                    parentTypeRefSymbol, isTypeInclusion);
         } else if (symbol instanceof TypeSymbol) {
             type.category = "builtin";
             type.name = ((TypeSymbol) symbol).signature();

@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Represent documentation for FunctionType.
  *
- * @since 2.0
+ * @since 2.0.0
  */
 public class FunctionType extends Type {
 
