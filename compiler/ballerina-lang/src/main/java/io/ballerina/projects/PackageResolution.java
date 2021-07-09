@@ -30,7 +30,7 @@ import io.ballerina.projects.internal.DependencyVersionKind;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
-import io.ballerina.projects.internal.PackageResolutionDiagnostic;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -148,8 +148,7 @@ public class PackageResolution {
                           ModuleDescriptor moduleDescriptor) {
         var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
         var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
-        var packageDiagnostic = new PackageResolutionDiagnostic(diagnostic, moduleDescriptor,
-                                                                rootPackageContext.project());
+        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
         this.diagnosticList.add(packageDiagnostic);
         this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
