@@ -64,10 +64,11 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         Eg:
         (1). object {
                 i<cursor>
+                table<Country> <cursor>
             }
          Return from here, since the sorting will be handled by the parent.
          */
-        return CompletionUtil.route(context, node.parent());
+        return CompletionUtil.route(context, node.typeName());
     }
 
     private List<LSCompletionItem> getExpressionContextCompletions(BallerinaCompletionContext ctx) {
