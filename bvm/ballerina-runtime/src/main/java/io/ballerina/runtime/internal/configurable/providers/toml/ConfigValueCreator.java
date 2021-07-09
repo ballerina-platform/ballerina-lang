@@ -60,53 +60,53 @@ import java.util.Map;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
 
 /**
- * Value creator for structured configurable values.
+ * Value creator to create values for structured configurable values from TOML nodes.
  *
  * @since 2.0.0
  */
 public class ConfigValueCreator {
 
-    public Object retrieveValue(TomlNode tomlValue, String variableName, Type type) {
+    public Object createValue(TomlNode tomlValue, String variableName, Type type) {
         if (isPrimitiveType(type.getTag())) {
-            return retrievePrimitiveValue(tomlValue, type);
+            return createPrimitiveValue(tomlValue, type);
         }
-        return retrieveStructuredValue(tomlValue, variableName, type);
+        return createStructuredValue(tomlValue, variableName, type);
     }
 
-    private Object retrievePrimitiveValue(TomlNode tomlValue, Type type) {
+    private Object createPrimitiveValue(TomlNode tomlValue, Type type) {
         TomlValueNode value = ((TomlKeyValueNode) tomlValue).value();
         return getBalValue(type, value);
     }
 
-    private Object retrieveStructuredValue(TomlNode tomlValue, String variableName, Type type) {
+    private Object createStructuredValue(TomlNode tomlValue, String variableName, Type type) {
         switch (type.getTag()) {
             case TypeTags.ARRAY_TAG:
-                return retrieveArrayValue(tomlValue, variableName, (ArrayType) type);
+                return createArrayValue(tomlValue, variableName, (ArrayType) type);
             case TypeTags.RECORD_TYPE_TAG:
-                return retrieveRecordValue(tomlValue, variableName, type);
+                return createRecordValue(tomlValue, variableName, type);
             case TypeTags.MAP_TAG:
-                return retrieveMapValue(tomlValue, variableName, (MapType) type);
+                return createMapValue(tomlValue, variableName, (MapType) type);
             case TypeTags.TABLE_TAG:
-                return retrieveTableValue(tomlValue, variableName, type);
+                return createTableValue(tomlValue, variableName, type);
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    return retrieveRecordValue(tomlValue, variableName, type);
+                    return createRecordValue(tomlValue, variableName, type);
                 }
                 if (effectiveType.getTag() == TypeTags.TABLE_TAG) {
-                    return retrieveTableValue(tomlValue, variableName, type);
+                    return createTableValue(tomlValue, variableName, type);
                 }
-                return retrieveValue(tomlValue, variableName, effectiveType);
+                return createValue(tomlValue, variableName, effectiveType);
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
-                return retrieveUnionValue(tomlValue, variableName, (BUnionType) type);
+                return createUnionValue(tomlValue, variableName, (BUnionType) type);
             default:
                 //this branch will not be executed
                 return null;
         }
     }
 
-    private BArray retrieveArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
+    private BArray createArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
         if (isPrimitiveType(elementType.getTag())) {
             tomlValue = ((TomlKeyValueNode) tomlValue).value();
@@ -152,7 +152,7 @@ public class ConfigValueCreator {
         int arraySize = tableNodeList.size();
         ListInitialValueEntry.ExpressionEntry[] entries = new ListInitialValueEntry.ExpressionEntry[arraySize];
         for (int i = 0; i < arraySize; i++) {
-            Object value = retrieveValue(tableNodeList.get(i), variableName, elementType);
+            Object value = createValue(tableNodeList.get(i), variableName, elementType);
             entries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         return new ArrayValueImpl(arrayType, entries.length, entries);
@@ -189,7 +189,7 @@ public class ConfigValueCreator {
                     break;
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.UNION_TAG:
-                    balValue = retrieveUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
+                    balValue = createUnionValue(tomlValueNode, variableName, (BUnionType) elementType);
                     break;
                 default:
                     balValue = getBalValue(elementType, arrayList.get(i));
@@ -199,7 +199,7 @@ public class ConfigValueCreator {
         return arrayEntries;
     }
 
-    private BMap<BString, Object> retrieveRecordValue(TomlNode tomlNode, String variableName, Type type) {
+    private BMap<BString, Object> createRecordValue(TomlNode tomlNode, String variableName, Type type) {
         RecordType recordType;
         String recordName;
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -218,13 +218,13 @@ public class ConfigValueCreator {
             if (field == null) {
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Object objectValue = retrieveValue(value, variableName + "." + fieldName, field.getFieldType());
+            Object objectValue = createValue(value, variableName + "." + fieldName, field.getFieldType());
             initialValueEntries.put(fieldName, objectValue);
         }
         return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
     }
 
-    private BTable<BString, Object> retrieveTableValue(TomlNode tomlValue, String variableName, Type type) {
+    private BTable<BString, Object> createTableValue(TomlNode tomlValue, String variableName, Type type) {
         TableType tableType;
         Type constraintType;
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
@@ -245,7 +245,7 @@ public class ConfigValueCreator {
         ListInitialValueEntry.ExpressionEntry[] tableEntries = new ListInitialValueEntry.ExpressionEntry[tableSize];
         String[] keys = tableType.getFieldNames();
         for (int i = 0; i < tableSize; i++) {
-            Object value = retrieveValue(tableNodeList.get(i), variableName, constraintType);
+            Object value = createValue(tableNodeList.get(i), variableName, constraintType);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =
@@ -272,7 +272,7 @@ public class ConfigValueCreator {
         }
     }
 
-    private BMap<BString, Object> retrieveMapValue(TomlNode tomlValue, String variableName, MapType mapType) {
+    private BMap<BString, Object> createMapValue(TomlNode tomlValue, String variableName, MapType mapType) {
         TomlTableNode tomlTableValue = (TomlTableNode) tomlValue;
         MappingInitialValueEntry.KeyValueEntry[] keyValueEntries =
                 new MappingInitialValueEntry.KeyValueEntry[tomlTableValue.entries().size()];
@@ -280,7 +280,7 @@ public class ConfigValueCreator {
         for (Map.Entry<String, TopLevelNode> field : tomlTableValue.entries().entrySet()) {
             String fieldName = field.getKey();
             Object value =
-                    retrieveValue(field.getValue(), variableName + "." + fieldName, mapType.getConstrainedType());
+                    createValue(field.getValue(), variableName + "." + fieldName, mapType.getConstrainedType());
             keyValueEntries[count] =
                     new MappingInitialValueEntry.KeyValueEntry(StringUtils.fromString(fieldName), value);
             count++;
@@ -290,7 +290,7 @@ public class ConfigValueCreator {
     }
 
 
-    private Object retrieveUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
+    private Object createUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>());
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
@@ -302,6 +302,6 @@ public class ConfigValueCreator {
         if (isPrimitiveType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return balValue;
         }
-        return retrieveStructuredValue(tomlValue, variableName, type);
+        return createStructuredValue(tomlValue, variableName, type);
     }
 }

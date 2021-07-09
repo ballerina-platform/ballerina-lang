@@ -38,7 +38,7 @@ public class ConfigMap {
     public static Object get(VariableKey key) {
         Object value = configurableMap.get(key);
         if (value instanceof TomlNode) {
-            return valueCreator.retrieveValue((TomlNode) value, key.variable, key.type);
+            return valueCreator.createValue((TomlNode) value, key.variable, key.type);
         }
         return value;
     }
