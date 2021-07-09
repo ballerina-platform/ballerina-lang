@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry|transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,6 +249,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -257,14 +265,6 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -639,11 +639,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.hierarchy.module4",
+      "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "insertText": "module4",
+      "insertText": "module2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -657,7 +657,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.hierarchy.module4;\n"
+          "newText": "import lsproject.module2;\n"
         }
       ]
     },
@@ -685,11 +685,11 @@
       ]
     },
     {
-      "label": "lsproject.module2",
+      "label": "lsproject.hierarchy.module4",
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "insertText": "module2",
+      "insertText": "module4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -703,24 +703,9 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module2;\n"
+          "newText": "import lsproject.hierarchy.module4;\n"
         }
       ]
-    },
-    {
-      "label": "testImports()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testImports",
-      "insertText": "testImports()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "testFunction()",
@@ -750,6 +735,21 @@
       "sortText": "C",
       "filterText": "testFunction4",
       "insertText": "testFunction4()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testImports()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testImports",
+      "insertText": "testImports()",
       "insertTextFormat": "Snippet"
     },
     {

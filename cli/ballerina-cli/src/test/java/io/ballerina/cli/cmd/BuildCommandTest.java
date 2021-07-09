@@ -740,6 +740,23 @@ public class BuildCommandTest extends BaseCommandTest {
                 getOutput("build-empty-nondefault-module.txt"));
     }
 
+    @Test(description = "Build a package with an invalid user name")
+    public void testBuildWithInvalidOrgName() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithEmptyBallerinaToml");
+        System.setProperty("user.dir", projectPath.toString());
+        System.setProperty("user.name", "$org");
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertTrue(buildLog.contains("_org/validProjectWithEmptyBallerinaToml:0.1.0"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("_org")
+                                  .resolve("validProjectWithEmptyBallerinaToml").resolve("0.1.0").resolve("java11")
+                                  .resolve("_org-validProjectWithEmptyBallerinaToml-0.1.0.jar").toFile().exists());
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
