@@ -262,7 +262,7 @@
       }
     },
     {
-      "label": "map(function () func)",
+      "label": "'map(function () func)",
       "kind": "Function",
       "detail": "xml<xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>>",
       "documentation": {
@@ -272,8 +272,8 @@
         }
       },
       "sortText": "D",
-      "filterText": "map",
-      "insertText": "map(${1})",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

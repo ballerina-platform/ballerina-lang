@@ -368,7 +368,7 @@
       }
     },
     {
-      "label": "map(function () func)",
+      "label": "'map(function () func)",
       "kind": "Function",
       "detail": "(any|error)[]",
       "documentation": {
@@ -378,8 +378,8 @@
         }
       },
       "sortText": "D",
-      "filterText": "map",
-      "insertText": "map(${1})",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

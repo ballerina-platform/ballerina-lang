@@ -194,7 +194,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)",
+      "label": "'map(function () func)",
       "kind": "Function",
       "detail": "table<any|error> key<never>",
       "documentation": {
@@ -204,8 +204,8 @@
         }
       },
       "sortText": "D",
-      "filterText": "map",
-      "insertText": "map(${1})",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
