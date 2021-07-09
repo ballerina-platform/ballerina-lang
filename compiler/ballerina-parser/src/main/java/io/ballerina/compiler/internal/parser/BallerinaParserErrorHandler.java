@@ -291,7 +291,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.SPECIFIC_FIELD,
-            ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS, ParserRuleContext.READONLY_KEYWORD };
+            ParserRuleContext.ELLIPSIS, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.READONLY_KEYWORD };
 
     private static final ParserRuleContext[] SPECIFIC_FIELD =
             { ParserRuleContext.MAPPING_FIELD_NAME, ParserRuleContext.STRING_LITERAL_TOKEN };
