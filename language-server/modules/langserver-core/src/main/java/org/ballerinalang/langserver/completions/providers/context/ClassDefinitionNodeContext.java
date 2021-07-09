@@ -15,9 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -55,8 +59,7 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     public boolean onPreValidation(BallerinaCompletionContext context, ClassDefinitionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token classKeyword = node.classKeyword();
-
-        // class <cursor>. added +1 in order to keep at least one space after the class keyword
+        
         return !classKeyword.isMissing() && cursor > classKeyword.textRange().endOffset()
                 && cursor <= node.closeBrace().textRange().startOffset();
     }
@@ -75,20 +78,25 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
 
     private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context,
                                                            ClassDefinitionNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            return this.getCompletionItemList(typesInModule, context);
+        }
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
+        // Here we do not add the function keyword as type descriptor completion items add it.
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
-        if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node)) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
-        }
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
         if (ClassDefinitionNodeContextUtil.onSuggestInitFunction(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
         }

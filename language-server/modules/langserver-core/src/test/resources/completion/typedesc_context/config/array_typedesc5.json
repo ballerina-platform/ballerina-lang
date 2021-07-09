@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry|transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,22 +249,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "TestRecord",
+      "label": "TEST_CONST",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "N",
+      "insertText": "TEST_CONST",
       "insertTextFormat": "Snippet"
     },
     {
@@ -276,11 +265,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TEST_CONST",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "N",
-      "insertText": "TEST_CONST",
+      "label": "TestRecord",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "TestRecord",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

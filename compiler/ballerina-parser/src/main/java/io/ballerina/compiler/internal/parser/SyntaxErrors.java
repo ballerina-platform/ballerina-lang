@@ -565,6 +565,23 @@ public class SyntaxErrors {
     }
 
     /**
+     * Update the all nodes inside {@code STNodeList} with a given diagnostic.
+     *
+     * @param nodeList  the STNodeList to be updated
+     * @param errorCode the invalid node
+     * @return updated STNodeList as a STNode
+     */
+    public static STNode updateAllNodesInNodeListWithDiagnostic(STNodeList nodeList, DiagnosticErrorCode errorCode) {
+        List<STNode> newList = new ArrayList<>();
+        for (int i = 0; i < nodeList.size(); i++) {
+            STNode updatedNode = addDiagnostic(nodeList.get(i), errorCode);
+            newList.add(updatedNode);
+        }
+
+        return STNodeFactory.createNodeList(newList);
+    }
+
+    /**
      * Clone the given {@code STNode} with the invalid node as leading minutiae.
      *
      * @param toClone     the node to be cloned
