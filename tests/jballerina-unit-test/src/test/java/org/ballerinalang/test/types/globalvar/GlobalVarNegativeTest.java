@@ -101,8 +101,7 @@ public class GlobalVarNegativeTest {
                 "record field type '(json & readonly)' of field 'person1.jsonField' is not supported", 71, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person2 & " +
                 "readonly)'\n\t" +
-                "union member type '(json & readonly)' is not supported\n\t" +
-                "record field type '(json & readonly)' of field 'person2.jsonField' is not supported", 72, 1);
+                "union member type '(json & readonly)' is not supported", 72, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person3 & " +
                 "readonly)'\n\t" +
                 "array element type 'json & readonly' is not supported", 73, 1);

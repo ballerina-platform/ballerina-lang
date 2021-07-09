@@ -72,4 +72,18 @@ public class QuotedIdentifierTest {
         validateError(result, index++, "redeclared symbol 'error'", 45, 106);
         assertEquals(result.getErrorCount(), index);
     }
+
+    @Test(dataProvider = "functionsWithSelfAsIdentifier")
+    public void testSelfAsIdentifier(String function) {
+        CompileResult result = BCompileUtil.compile("test-src/identifiers/self_as_identifier.bal");
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "functionsWithSelfAsIdentifier")
+    public  Object[] functionsWithSelfAsIdentifier() {
+        return new String[] {
+                "testFuncWithSelfAsParamName",
+                "testSelfAsIdentifier"
+        };
+    }
 }

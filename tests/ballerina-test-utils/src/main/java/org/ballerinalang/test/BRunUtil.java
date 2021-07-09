@@ -1316,7 +1316,11 @@ public class BRunUtil {
     }
 
     public static String runMain(CompileResult compileResult, String... args) {
-        ExitDetails exitDetails = run(compileResult, args);
+        return runMain(compileResult, new ArrayList<>(), args);
+    }
+
+    public static String runMain(CompileResult compileResult, List<String> javaOpts, String... args) {
+        ExitDetails exitDetails = run(compileResult, javaOpts, args);
         if (exitDetails.exitCode != 0) {
             throw new RuntimeException(exitDetails.errorOutput);
         }
@@ -1324,6 +1328,10 @@ public class BRunUtil {
     }
 
     public static ExitDetails run(CompileResult compileResult, String... args) {
+        return run(compileResult, new ArrayList<>(), args);
+    }
+
+    public static ExitDetails run(CompileResult compileResult, List<String> javaOpts, String... args) {
         PackageManifest packageManifest = compileResult.packageManifest();
         String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
@@ -1333,11 +1341,15 @@ public class BRunUtil {
 
         try {
             final List<String> actualArgs = new ArrayList<>();
-            actualArgs.add(0, "java");
-            actualArgs.add(1, "-cp");
+            int index = 0;
+            actualArgs.add(index++, "java");
+            for (int i = 0; i < javaOpts.size(); i++) {
+                actualArgs.add(index++, javaOpts.get(i));
+            }
+            actualArgs.add(index++, "-cp");
             String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
-            actualArgs.add(2, classPath);
-            actualArgs.add(3, initClassName);
+            actualArgs.add(index++, classPath);
+            actualArgs.add(index++, initClassName);
             actualArgs.addAll(Arrays.asList(args));
 
             final Runtime runtime = Runtime.getRuntime();

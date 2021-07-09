@@ -19,10 +19,9 @@ package org.ballerinalang.langserver.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,7 +32,6 @@ import java.util.List;
 public class ServiceBodyTest extends CompletionTest {
 
     @Override
-    @Test(groups = {"broken"})
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
         super.test(config, configPath);
     }
@@ -51,6 +49,6 @@ public class ServiceBodyTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("config3.json");
+        return Arrays.asList("config1.json", "config2.json", "config3.json");
     }
 }

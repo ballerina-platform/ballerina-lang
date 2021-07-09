@@ -458,7 +458,7 @@ public class ObjectTest {
     public void testNonMatchingAttachedFunction() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_attached_func_def_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "this function must return a result", 12, 5);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 14, 5);
     }
 
     @Test(description = "Negative test to test initializing objects with only interface functions")
