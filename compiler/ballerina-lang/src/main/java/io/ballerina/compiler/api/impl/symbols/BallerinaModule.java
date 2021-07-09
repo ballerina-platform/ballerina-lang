@@ -68,7 +68,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private ModuleID id;
 
     protected BallerinaModule(CompilerContext context, String name, BPackageSymbol packageSymbol) {
-        super(name, SymbolKind.MODULE, packageSymbol, context);
+        super(name, SymbolKind.MODULE, packageSymbol, context, true);
         this.packageSymbol = packageSymbol;
     }
 
