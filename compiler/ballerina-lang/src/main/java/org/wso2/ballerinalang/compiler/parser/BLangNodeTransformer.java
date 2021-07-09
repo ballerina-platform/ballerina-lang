@@ -3054,7 +3054,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 if (child.kind() == SyntaxKind.REST_PARAM) {
                     functionTypeNode.restParam = (BLangSimpleVariable) param;
                 } else {
-                    functionTypeNode.params.add((BLangVariable) param);
+                    functionTypeNode.params.add((BLangSimpleVariable) param);
                 }
             }
 

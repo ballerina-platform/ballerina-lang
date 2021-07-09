@@ -240,7 +240,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, pkgEnv);
 
         for (BLangFunction bLangFunction : pkgNode.functions) {
-            if (!(bLangFunction.getKind() == NodeKind.FUNCTION && bLangFunction.flagSet.contains(Flag.LAMBDA))) {
+            if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
                 rewrite(bLangFunction, pkgEnv);
             }
         }
