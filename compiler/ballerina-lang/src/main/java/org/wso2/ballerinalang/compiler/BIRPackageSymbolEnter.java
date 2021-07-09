@@ -455,6 +455,7 @@ public class BIRPackageSymbolEnter {
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
         Location pos = readPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
+        String typeDefOrigName = getStringCPEntryValue(dataInStream);
 
         var flags = dataInStream.readLong();
         boolean isLabel = dataInStream.readByte() == 1;
@@ -486,6 +487,7 @@ public class BIRPackageSymbolEnter {
         defineMarkDownDocAttachment(symbol, docBytes);
 
         symbol.name = names.fromString(typeDefName);
+        symbol.originalName = names.fromString(typeDefOrigName);
         symbol.type = type;
         symbol.pkgID = this.env.pkgSymbol.pkgID;
         symbol.flags = flags;
