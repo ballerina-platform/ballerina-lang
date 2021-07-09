@@ -419,14 +419,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
         // Define function nodes.
-        pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
+        for (BLangFunction bLangFunction : pkgNode.functions) {
+            if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
+                defineNode(bLangFunction, pkgEnv);
+            }
+        }
 
         // Define annotation nodes.
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
         for (BLangVariable variable : pkgNode.globalVars) {
-            if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
-                setTypeFromLambdaExpr(variable);
+            if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA) {
+                defineNode(((BLangLambdaFunction) variable.expr).function, pkgEnv);
+                if (variable.isDeclaredWithVar) {
+                    setTypeFromLambdaExpr(variable);
+                }
             }
             defineNode(variable, pkgEnv);
         }
@@ -4349,18 +4356,21 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (varSymbol.name == Names.EMPTY) {
             return varSymbol;
         }
-        boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
-                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
-                flagSet.contains(Flag.INCLUDED);
-
+        boolean isMemberOfFunc = (flagSet.contains(Flag.REQUIRED_PARAM) || flagSet.contains(Flag.DEFAULTABLE_PARAM) ||
+                                 flagSet.contains(Flag.REST_PARAM) || flagSet.contains(Flag.INCLUDED));
+        boolean considerAsMemberSymbol;
+        if (isMemberOfFunc) {
+            considerAsMemberSymbol = env.enclEnv.enclInvokable == null;
+        } else {
+            considerAsMemberSymbol = flagSet.contains(Flag.FIELD);
+        }
         if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol) ||
                 !considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
             varSymbol.state = DiagnosticState.REDECLARED;
         }
-        if (varSymbol.name != Names.EMPTY) {
-            enclScope.define(varSymbol.name, varSymbol);
-        }
+
+        enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
     }
 
