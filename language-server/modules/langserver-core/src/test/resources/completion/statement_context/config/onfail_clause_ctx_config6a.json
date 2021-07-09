@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry|transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -253,8 +253,16 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(on)|(fail)",
+      "filterText": "on|fail",
       "insertText": "on fail ${1:var} ${2:varName} {\n\t${3}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -266,14 +274,6 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -648,19 +648,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "varToMatch",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "varToMatch",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "animals",
       "kind": "Variable",
       "detail": "string[]",
       "sortText": "B",
       "insertText": "animals",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "varToMatch",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "varToMatch",
       "insertTextFormat": "Snippet"
     },
     {
