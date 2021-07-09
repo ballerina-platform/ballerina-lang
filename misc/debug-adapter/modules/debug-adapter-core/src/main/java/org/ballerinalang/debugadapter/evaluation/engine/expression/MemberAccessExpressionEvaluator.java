@@ -33,6 +33,7 @@ import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.ballerinalang.debugadapter.variable.types.BXmlItem;
 
 import java.util.ArrayList;
@@ -88,16 +89,16 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                 case STRING: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Expected key type `" + BVariableType.INT.getString() + "`; found '" +
-                                        keyVar.getBType() + "'"));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.INT.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
                     int strLength = containerVar.getDapVariable().getValue().length();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= strLength) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "String index out of range: index=" + index + ", size=" + strLength));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INDEX_OUT_OF_RANGE_ERROR
+                                .getString(), containerVar.getBType().getString(), index, strLength));
                     }
                     String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
                     return VMUtils.make(context, substring);
@@ -108,16 +109,16 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                 case ARRAY: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Expected key type `" + BVariableType.INT.getString() + "`; found '" +
-                                        keyVar.getBType() + "'"));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.INT.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
                     int childSize = ((BCompoundVariable) containerVar).getChildrenCount();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= childSize) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "String index out of range: index=" + index + ", size=" + childSize));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INDEX_OUT_OF_RANGE_ERROR
+                                .getString(), containerVar.getBType().getString(), index, childSize));
                     }
                     Value child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
@@ -129,15 +130,16 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                 case JSON: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.STRING && keyVar.getBType() != BVariableType.NIL) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Expected key type `" + BVariableType.STRING.getString() + "`; found '" +
-                                        keyVar.getBType().getString() + "'"));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.STRING.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
                     }
                     if (keyVar.getBType() == BVariableType.NIL) {
                         return new BExpressionValue(context, null);
                     }
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
+                        keyString = VariableUtils.removeRedundantQuotes(keyString);
                         Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
@@ -152,17 +154,17 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                 case XML: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Expected key type `" + BVariableType.INT.getString() + "`; found '" +
-                                        keyVar.getBType() + "'"));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.INT.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
                     int childCount = getXmlChildVarCount(containerVar);
 
                     // Validates for IndexOutOfRange errors.
                     if (index < 0) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "String index out of range: index=" + index + ", size=" + childCount));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INDEX_OUT_OF_RANGE_ERROR
+                                .getString(), containerVar.getBType().getString(), index, childCount));
                     } else if (index >= childCount) {
                         List<String> argTypeNames = new ArrayList<>();
                         argTypeNames.add(EvaluationUtils.JAVA_STRING_CLASS);
@@ -199,7 +201,7 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                 }
                 default: {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Type `" + containerVar.getBType().getString() + "' does not support member access."));
+                            "type `" + containerVar.getBType().getString() + "' does not support member access."));
                 }
             }
         } catch (DebugVariableException e) {
