@@ -61,6 +61,8 @@ public class EvaluationUtils {
     public static final String B_BITWISE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "bitwise_operations";
     public static final String B_SHIFT_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "shift_operations";
     public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
+    public static final String B_RANGE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "range_operations";
+    public static final String B_UTILS_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "utils";
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
@@ -115,6 +117,7 @@ public class EvaluationUtils {
     public static final String B_UNARY_MINUS_METHOD = "unaryMinus";
     public static final String B_UNARY_INVERT_METHOD = "unaryInvert";
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
+    public static final String B_GET_TRAP_RESULT_METHOD = "getTrapResult";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";
@@ -129,6 +132,7 @@ public class EvaluationUtils {
     public static final String STRING_TO_XML_METHOD = "stringToXml";
     public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
     public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
+    public static final String CREATE_INT_RANGE_METHOD = "createIntRange";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";

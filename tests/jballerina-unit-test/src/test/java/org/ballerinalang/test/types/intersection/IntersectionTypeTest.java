@@ -136,6 +136,16 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testSingleErrorIntersectionWithReadOnly() {
+        BRunUtil.invoke(errorIntersectionResults, "testSingleErrorIntersectionWithReadOnly");
+    }
+
+    @Test
+    public void testMultipleErrorIntersectionWithReadOnly() {
+        BRunUtil.invoke(errorIntersectionResults, "testMultipleErrorIntersectionWithReadOnly");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 
@@ -173,6 +183,16 @@ public class IntersectionTypeTest {
                 "invalid intersection type 'E & ErrorX': no intersection", 82, 22);
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 82, 26);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 92, 39);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 93, 48);
+        validateError(result, index++, "error constructor does not accept additional detail args 'c' when error " +
+                "detail type 'record {| int code; anydata...; |}' contains individual field descriptors", 93, 60);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 94, 47);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 95, 47);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 96, 47);
+        validateError(result, index++, "error constructor does not accept additional detail args 'oth' when error " +
+                "detail type 'record {| boolean fatal?; int code; int...; |}' contains individual field descriptors",
+                96, 59);
 
         assertEquals(result.getErrorCount(), index);
     }

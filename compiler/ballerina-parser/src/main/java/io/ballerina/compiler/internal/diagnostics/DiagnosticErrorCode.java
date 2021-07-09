@@ -238,9 +238,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
     ERROR_MISSING_FIELD_NAME("BCE0522", "error.missing.field.name"),
     ERROR_MISSING_BUILTIN_TYPE("BCE0523", "error.missing.builtin.type"),
-    ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0524",
-            "error.metadata.not.attached.to.a.top.level.construct"),
-    ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER("BCE0525", "error.metadata.not.attached.to.a.object.member"),
+    ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT("BCE0524", "error.annotation.not.attached.to.a.construct"),
+    ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT("BCE0525", "error.documentation.not.attached.to.a.construct"),
+    ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -331,6 +331,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor"),
     ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL("BCE673", "error.configurable.var.implicitly.final"),
     ERROR_LOCAL_CONST_DECL_NOT_ALLOWED("BCE674", "error.local.const.decl.not.allowed"),
+    ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE("BCE675",
+            "error.field.initialization.not.allowed.in.object.type"),
     ;
 
     String diagnosticId;

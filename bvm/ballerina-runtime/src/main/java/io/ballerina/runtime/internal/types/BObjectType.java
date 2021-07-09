@@ -47,6 +47,9 @@ public class BObjectType extends BStructureType implements ObjectType {
     protected IntersectionType immutableType;
     public BTypeIdSet typeIdSet;
 
+    private String cachedToString;
+    private boolean resolving;
+
     /**
      * Create a {@code BObjectType} which represents the user defined struct type.
      *
@@ -95,25 +98,34 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.generatedInitializer = generatedInitializer;
     }
 
-    public String toString() {
-        String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
-                typeName : pkg.getName() + ":" + typeName;
-
-        if (!typeName.contains("$anon")) {
-            return name;
+    public void computeStringRepresentation() {
+        if (cachedToString != null) {
+            return;
         }
-
+        final String name = (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ?
+                typeName : pkg.getName() + ":" + typeName;
+        if (!typeName.contains("$anon")) {
+            cachedToString = name;
+            return;
+        }
         StringJoiner sj = new StringJoiner(",\n\t", name + " {\n\t", "\n}");
-
         for (Entry<String, Field> field : getFields().entrySet()) {
             sj.add(field.getKey() + " : " + field.getValue().getFieldType());
         }
-
         for (MethodType func : methodTypes) {
             sj.add(func.toString());
         }
+        cachedToString = sj.toString();
+    }
 
-        return sj.toString();
+    public String toString() {
+        if (resolving) {
+            return "";
+        }
+        resolving = true;
+        computeStringRepresentation();
+        resolving = false;
+        return cachedToString;
     }
 
     @Override

@@ -46,24 +46,22 @@ public class ConditionalBreakpointTest extends BaseTestCase {
 
     @Test
     public void testConditionalBreakpointScenarios() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 29));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 34, "y == 3"));
-        debugTestRunner.addBreakPoint(
-                new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 44, "capital == \"London\""));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 47, "x == 5"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 48, "x == 10"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 49, "x != 100"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 51, "e1 === e2"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 52, "e1 !== e3"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 53, "x > 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 54, "x >= 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 55, "y < 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 56, "y <= 0"));
-        debugTestRunner.addBreakPoint(
-                new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 57, "x > 0 && z > 0"));
-        debugTestRunner.addBreakPoint(
-                new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 58, "x > 0 || z > 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 59, "x is int"));
+        String filePath = debugTestRunner.testEntryFilePath;
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 29));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 34, "y == 3", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 44, "capital == \"London\"", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 47, "x == 5", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 48, "x == 10", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 49, "x != 100", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 51, "e1 === e2", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 52, "e1 !== e3", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 53, "x > 0", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 54, "x >= 0", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 55, "y < 0", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 56, "y <= 0", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 57, "x > 0 && z > 0", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 58, "x > 0 || z > 0", null));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 59, "x is int", null));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);

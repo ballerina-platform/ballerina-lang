@@ -321,9 +321,10 @@ public class ObjectMock {
 
         for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
-                if (attachedFunction.getType().getReturnParameterType() instanceof UnionType) {
+                Type srcReturnParameterType = attachedFunction.getType().getReturnParameterType();
+                if (srcReturnParameterType instanceof UnionType) {
                     List<Type> memberTypes =
-                            ((UnionType) attachedFunction.getType().getReturnParameterType()).getMemberTypes();
+                            ((UnionType) srcReturnParameterType).getMemberTypes();
                     for (Type memberType : memberTypes) {
                         if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
                             Type bObjectType = ((ParameterizedType) memberType).getParamValueType();
@@ -337,7 +338,13 @@ public class ObjectMock {
                         }
                     }
                 } else {
-                    return TypeChecker.checkIsType(returnVal, attachedFunction.getType().getReturnParameterType());
+                    if (srcReturnParameterType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                        Type bObjectType = ((ParameterizedType) srcReturnParameterType).getParamValueType();
+                        if (TypeChecker.checkIsType(returnVal, bObjectType)) {
+                            return true;
+                        }
+                    }
+                    return TypeChecker.checkIsType(returnVal, srcReturnParameterType);
                 }
             }
         }

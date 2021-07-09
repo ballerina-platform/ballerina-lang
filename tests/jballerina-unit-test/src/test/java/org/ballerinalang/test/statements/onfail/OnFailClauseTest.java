@@ -60,11 +60,9 @@ public class OnFailClauseTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/onfail/on-fail-clause-negative-v2.bal");
 
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
         BAssertUtil.validateError(negativeResult, 0, "unreachable code", 21, 9);
         BAssertUtil.validateError(negativeResult, 1, "unreachable code", 23, 5);
-        BAssertUtil.validateError(negativeResult, 2, "continue not allowed here", 32, 13);
-        BAssertUtil.validateError(negativeResult, 3, "break not allowed here", 39, 13);
     }
 
     @AfterClass

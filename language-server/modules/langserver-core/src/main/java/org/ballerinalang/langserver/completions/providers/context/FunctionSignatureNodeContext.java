@@ -70,12 +70,6 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
             }
         } else if (this.withinParameterContext(context, node)) {
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-            // skip the node kind, REQUIRED_PARAM because that maps to the variable name
-            if (nodeAtCursor.kind() == SyntaxKind.REQUIRED_PARAM) {
-                return completionItems;
-            }
-
             if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 /*
                 Covers the Following
@@ -89,7 +83,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 /*
                 Covers the Following
                 (1) function(<cursor>)
-                (2) function(T<cursor>)
+                (2) function(T arg1,<cursor>)
                  */
                 completionItems.addAll(this.getTypeDescContextItems(context));
             }

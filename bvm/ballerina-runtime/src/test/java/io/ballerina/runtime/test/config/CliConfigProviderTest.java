@@ -97,4 +97,22 @@ public class CliConfigProviderTest {
                         PredefinedTypes.TYPE_STRING, StringUtils.fromString("=abc~!@#$%^&*()_+=-210|}{?>\\=<")}
         };
     }
+
+    @Test
+    public void testMultipleArgumentPrefixForModuleConfig() {
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        VariableKey a = new VariableKey(ROOT_MODULE, "a", PredefinedTypes.TYPE_STRING, true);
+        VariableKey b = new VariableKey(ROOT_MODULE, "b", PredefinedTypes.TYPE_STRING, true);
+        VariableKey c = new VariableKey(ROOT_MODULE, "c", PredefinedTypes.TYPE_STRING, true);
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{a, b, c})), diagnosticLog,
+                        List.of(new CliProvider(ROOT_MODULE,
+                                new String[]{"-Ca=aaa", "-CrootMod.b=bbb", "-CrootOrg.rootMod.c=ccc"})));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(configValueMap.get(a), StringUtils.fromString("aaa"));
+        Assert.assertEquals(configValueMap.get(b), StringUtils.fromString("bbb"));
+        Assert.assertEquals(configValueMap.get(c), StringUtils.fromString("ccc"));
+    }
 }

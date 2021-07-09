@@ -111,3 +111,12 @@ function testUnmatchedPatternAgainstClosedRecord(Person person) {
         }
     }
 }
+
+function testReachabilityAfterUnmatchedPattern(Person person) {
+    match person {
+        var {x, ...rest} => { // pattern will not be matched
+        }
+        var {id, name, ...rest} => {
+        }
+    }
+}

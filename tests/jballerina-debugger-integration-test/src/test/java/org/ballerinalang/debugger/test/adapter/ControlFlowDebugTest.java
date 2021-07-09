@@ -168,7 +168,7 @@ public class ControlFlowDebugTest extends BaseTestCase {
 
         // Variable visibility test for lambda child variables
         Map<String, Variable> lamdaChildVariables = debugTestRunner.fetchChildVariables(variables.get("v09_animals"));
-        debugTestRunner.assertVariable(lamdaChildVariables, "a", "ANT", "string");
+        debugTestRunner.assertVariable(lamdaChildVariables, "a", "\"ANT\"", "string");
 
         // Variable visibility test for Asynchronous function call (Non-blocking calls)
         debugTestRunner.assertVariable(variables, "v10_future", "future<int>", "future");

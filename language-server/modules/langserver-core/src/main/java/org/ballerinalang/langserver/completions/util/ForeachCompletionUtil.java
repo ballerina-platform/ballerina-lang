@@ -24,6 +24,8 @@ import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -44,6 +46,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -183,8 +186,17 @@ public class ForeachCompletionUtil {
         TypeSymbol rawType = CommonUtil.getRawType(symbol);
         switch (rawType.typeKind()) {
             case STRING:
+                type = "string:Char";
+                break;
             case XML:
-                type = CommonUtil.getModifiedTypeName(ctx, rawType);
+                Optional<TypeSymbol> xmlTypeParam = ((XMLTypeSymbol) symbol).typeParameter();
+                //TODO: Refactor this specific fix after #31251
+                if (xmlTypeParam.isEmpty() || (xmlTypeParam.get().typeKind() == TypeDescKind.UNION &&
+                        ((UnionTypeSymbol) xmlTypeParam.get()).memberTypeDescriptors().size() == 4)) {
+                    type = CommonUtil.getModifiedTypeName(ctx, rawType);
+                    break;
+                }
+                type = CommonUtil.getModifiedTypeName(ctx, xmlTypeParam.get());
                 break;
             case ARRAY:
                 type = CommonUtil.getModifiedTypeName(ctx, ((ArrayTypeSymbol) rawType).memberTypeDescriptor());
