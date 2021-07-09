@@ -79,8 +79,6 @@ import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.generator.model.types.FunctionType;
 import org.ballerinalang.docgen.generator.model.types.ObjectType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
