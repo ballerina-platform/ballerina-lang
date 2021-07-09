@@ -172,7 +172,7 @@ public class ProjectUtils {
      * @return organization name
      */
     public static String guessOrgName() {
-        String guessOrgName = System.getProperty(USER_NAME).toLowerCase(Locale.getDefault());
+        String guessOrgName = System.getProperty(USER_NAME);
         if (guessOrgName == null) {
             guessOrgName = "my_org";
         } else {
@@ -180,7 +180,7 @@ public class ProjectUtils {
                 guessOrgName =  guessOrgName.replaceAll("[^a-zA-Z0-9_]", "_");
             }
         }
-        return guessOrgName;
+        return guessOrgName.toLowerCase(Locale.getDefault());
     }
 
     /**
