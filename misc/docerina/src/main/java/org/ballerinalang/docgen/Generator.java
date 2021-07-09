@@ -522,8 +522,10 @@ public class Generator {
                             type.elementType, "")).collect(Collectors.toList()));
 
             List<Variable> returnParameters = new ArrayList<>();
-            returnParameters.add(new Variable(EMPTY_STRING, functionType.returnType.description,
-                    functionType.returnType.isDeprecated, functionType.returnType));
+            if (functionType.returnType != null) {
+                returnParameters.add(new Variable(EMPTY_STRING, functionType.returnType.description,
+                        functionType.returnType.isDeprecated, functionType.returnType));
+            }
 
             Function function = new Function(functionType.name, functionType.description, functionType.isRemote,
                     functionType.isExtern, functionType.isDeprecated, functionType.isIsolated, parameters,
