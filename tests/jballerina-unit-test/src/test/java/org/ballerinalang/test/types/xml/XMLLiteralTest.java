@@ -188,7 +188,7 @@ public class XMLLiteralTest {
                 "'xml:Comment', found 'xml<xml<xml<xml:Comment>>>'", 118, 22);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'xml:ProcessingInstruction', found 'xml<xml<xml<xml:ProcessingInstruction>>>'", 120, 36);
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +"" +
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'xml:Text', found 'xml'", 122, 19);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'xml:Text', found 'xml<xml>'", 124, 19);
