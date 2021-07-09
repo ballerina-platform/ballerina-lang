@@ -24,6 +24,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.packaging.PackerinaTestUtils;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -49,9 +50,9 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance = new BMainInstance(balServer);
 
         // Build and push config Lib project.
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-configLib-any-0.1.0.bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-configLib-any-0.1.0.bala to " +
-                                                        "'local' repository.", ERROR);
+        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-configLib-java11-0.1.0.bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-configLib-java11-0.1.0.bala " +
+                "to 'local' repository.", ERROR);
         bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
                               testFileLocation + "/configLibProject");
         buildLeecher.waitForText(5000);
@@ -168,17 +169,6 @@ public class ConfigurableTest extends BaseTest {
         executeBalCommand("/recordModuleProject", "main", null);
     }
 
-    @Test()
-    public void testConfigurableRecordsAndRecordTables() throws BallerinaTestException {
-        String project = "configStructuredTypesProject";
-        String configFilePaths = Paths.get(testFileLocation, project, "Config_records.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_maps.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_open_records.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_tables.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_default_values.toml");
-        executeBalCommand("/" + project, "configStructuredTypes",
-                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
-    }
 
     @Test()
     public void testConfigurableUnionTypes() throws BallerinaTestException {
@@ -222,6 +212,24 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain(testFileLocation + projectPath, packageName, null, new String[]{}, envProperties, null,
                 new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
+    }
+
+    @Test(dataProvider = "structured-project-provider")
+    public void testStructuredTypeConfigurable(String packageName, String configFile) throws BallerinaTestException {
+        executeBalCommand("/configStructuredTypesProject", packageName,
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFile))));
+    }
+
+    @DataProvider(name = "structured-project-provider")
+    public Object[] structuredDataProvider() {
+        return new String[][]{
+                {"configRecordType", "Config_records.toml"},
+                {"configOpenRecord", "Config_open_records.toml"},
+                {"defaultValuesRecord", "Config_default_values.toml"},
+                {"configRecordArray", "Config_record_arrays.toml"},
+                {"configTableType", "Config_tables.toml"},
+                {"configMapType", "Config_maps.toml"}
+        };
     }
 
     /**

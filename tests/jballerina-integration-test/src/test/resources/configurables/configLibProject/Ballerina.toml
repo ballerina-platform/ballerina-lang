@@ -2,7 +2,7 @@
 org = "testOrg"
 name = "configLib"
 version = "0.1.0"
-export = ["configLib", "configLib.mod1"]
+export = ["configLib", "configLib.mod1", "configLib.util"]
 
 [build-options]
 observabilityIncluded = true
