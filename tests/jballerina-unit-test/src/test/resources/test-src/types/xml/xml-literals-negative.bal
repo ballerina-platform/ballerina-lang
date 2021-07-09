@@ -110,3 +110,16 @@ function testIncompatibleTypesInTemplates() {
     error err = error("xml error");
     xml c = xml `text1 text2 ${b} ${err}`;
 }
+
+function testXMLIncompatibleValueAssignment() {
+    xml<xml<xml:Element>> e1 = xml `<foo>100</foo><bar>200</bar>`;
+    xml:Element e2 = e1;
+    xml<xml<xml<'xml:Comment>>> c1 = xml `<!--some comment--><!--some comment-->`;
+    xml:Comment c2 = c1;
+    xml<xml<xml<'xml:ProcessingInstruction>>> p1 = xml `<?foo?><?faa?>`;
+    xml:ProcessingInstruction p2 = p1;
+    xml x1 = xml `<e/>/`;
+    xml:Text t1 = x1;
+    xml<xml> x2 = xml `<elem/>`;
+    xml:Text t2 = x2;
+}
