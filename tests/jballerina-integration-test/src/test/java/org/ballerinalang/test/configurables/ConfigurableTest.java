@@ -169,10 +169,14 @@ public class ConfigurableTest extends BaseTest {
         executeBalCommand("/recordModuleProject", "main", null);
     }
 
-
     @Test()
     public void testConfigurableUnionTypes() throws BallerinaTestException {
         executeBalCommand("/configUnionTypesProject", "configUnionTypes", null);
+    }
+
+    @Test
+    public void testMultipleTomlModuleSections() throws BallerinaTestException {
+        executeBalCommand("/multipleTomlModuleSectionsProject", "test_module", null);
     }
 
     /** Negative test cases. */
