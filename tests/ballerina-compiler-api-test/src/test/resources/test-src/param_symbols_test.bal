@@ -59,3 +59,9 @@ type Grades record {
     int physics;
     int chemistry;
 };
+
+type bar function(string, int) returns boolean;
+
+type Obj object {
+    function(string, string) barObj;
+};
