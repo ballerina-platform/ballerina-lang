@@ -155,8 +155,6 @@ public class BIRBinaryWriter {
             buf.writeByte(birGlobalVar.kind.getValue());
             // Name
             buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
-            // Original name
-            buf.writeInt(addStringCPEntry(birGlobalVar.originalName.value));
             // Flags
             buf.writeLong(birGlobalVar.flags);
             // Origin
@@ -273,7 +271,6 @@ public class BIRBinaryWriter {
             birbuf.writeByte(localVar.kind.getValue());
             writeType(birbuf, localVar.type);
             birbuf.writeInt(addStringCPEntry(localVar.name.value));
-            birbuf.writeInt(addStringCPEntry(localVar.originalName.value));
             // skip compiler added vars and only write metaVarName for user added vars
             if (localVar.kind.equals(VarKind.ARG)) {
                 birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
@@ -318,7 +315,6 @@ public class BIRBinaryWriter {
 
         for (BIRNode.BIRVariableDcl var : birFunction.dependentGlobalVars) {
             buf.writeInt(addStringCPEntry(var.name.value));
-            buf.writeInt(addStringCPEntry(var.originalName.value));
         }
     }
 
@@ -366,8 +362,6 @@ public class BIRBinaryWriter {
     private void writeConstant(ByteBuf buf, BIRTypeWriter typeWriter, BIRNode.BIRConstant birConstant) {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birConstant.name.value));
-        // Constant original name CP Index
-        buf.writeInt(addStringCPEntry(birConstant.originalName.value));
         buf.writeLong(birConstant.flags);
         buf.writeByte(birConstant.origin.value());
         writePosition(buf, birConstant.pos);
