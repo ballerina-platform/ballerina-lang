@@ -198,9 +198,11 @@ function testFuncWithDefaultByteValue() {
 
 function testDefaultByteValueInFunctionPointers() {
     function (byte b = 5) returns byte fp = funcWithDefaultByteValue;
-
     test:assertEquals(fp(15), 15);
     test:assertEquals(fp(funcWithDefaultByteValue()), 10);
+
+    //TODO : Enable this after merge #31589
+    //test:assertEquals(fp(), 5);
 }
 
 function funcWithDefaultByteValue(byte b = 10) returns byte {
