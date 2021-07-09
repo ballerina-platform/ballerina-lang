@@ -708,6 +708,7 @@ public class ASTBuilderUtil {
         node.pos = pos;
         if (value != null) {
             node.setValue(value);
+            node.setOriginalValue(value);
         }
         return node;
     }
