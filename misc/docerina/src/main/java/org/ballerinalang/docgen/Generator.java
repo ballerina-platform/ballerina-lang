@@ -95,7 +95,7 @@ public class Generator {
 
     private static final String EMPTY_STRING = "";
     private static final String RETURN_PARAM_NAME = "return";
-    private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
+    public static final String REST_FIELD_DESCRIPTION = "Rest field";
 
     /**
      * Generate/Set the module constructs model(docerina model) when the syntax tree for the module is given.
@@ -574,7 +574,7 @@ public class Generator {
         boolean isClosed = (recordTypeDesc.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
         if (recordTypeDesc.recordRestDescriptor().isPresent()) {
             isClosed = false;
-            DefaultableVariable restVariable = new DefaultableVariable("", "Rest field",
+            DefaultableVariable restVariable = new DefaultableVariable("", REST_FIELD_DESCRIPTION,
                     false, Type.fromNode(recordTypeDesc.recordRestDescriptor().get(), semanticModel), "");
             fields.add(restVariable);
         }
@@ -793,5 +793,4 @@ public class Generator {
         doc.append(markdownCodeBlockNode.endBacktick().toString());
         return doc.toString();
     }
-
 }

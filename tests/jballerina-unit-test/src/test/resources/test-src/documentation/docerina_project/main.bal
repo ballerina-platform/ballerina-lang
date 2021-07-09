@@ -9,6 +9,8 @@ type CommonResponse record {|
     map<string|string[]> headers?;
     ClientHttp2Settings settings;
     DistObj|Person timeLow;
+    readonly ClientHttp2Settings clienthttpSettings;
+    string...;
 |};
 
 # Record representing the subscription / unsubscription intent verification success.
