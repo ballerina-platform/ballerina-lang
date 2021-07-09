@@ -192,15 +192,15 @@ function foo7(string s, float b = 1.1, FooObject o = new("default", 100)) return
 }
 
 function testFuncWithDefaultByteValue() {
-    byte b = funcWithDefaultByteValue();
-    test:assertEquals(b, 10);
+    test:assertEquals(funcWithDefaultByteValue(), 10);
+    test:assertEquals(funcWithDefaultByteValue(15), 15);
 }
 
 function testDefaultByteValueInFunctionPointers() {
-    function (byte) returns byte fp = funcWithDefaultByteValue;
-    byte b = fp(15);
+    function (byte b = 5) returns byte fp = funcWithDefaultByteValue;
 
-    test:assertEquals(b, 15);
+    test:assertEquals(fp(15), 15);
+    test:assertEquals(fp(funcWithDefaultByteValue()), 10);
 }
 
 function funcWithDefaultByteValue(byte b = 10) returns byte {
