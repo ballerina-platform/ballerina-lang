@@ -354,6 +354,27 @@ function testQueryWithNestedLambdaFunctions() {
     f5 = fn3[2];
     nm = f5();
     assertEqual(nm, "John David");
+
+    var fn4 = from var empFunc in (from var {firstName, lastName, dept} in employeeList
+                                   select function () returns string {
+                                       var grades = from var i in ["A", "B", "C"]
+                                                    select i;
+                                       return firstName + "'s grades:" + grades.toString();
+                                   })
+              select empFunc;
+
+    assertEqual(3, fn4.length());
+    function () returns string f6 = fn4[0];
+    string empGrades = f6();
+    assertEqual(empGrades, "Alex's grades:[\"A\",\"B\",\"C\"]");
+
+    f6 = fn4[1];
+    empGrades = f6();
+    assertEqual(empGrades, "John's grades:[\"A\",\"B\",\"C\"]");
+
+    f6 = fn4[2];
+    empGrades = f6();
+    assertEqual(empGrades, "Alex's grades:[\"A\",\"B\",\"C\"]");
 }
 
 function foo() returns int {
@@ -427,6 +448,14 @@ function messageFunc2(string name) returns (function () returns string)[] {
 
     return res;
 }
+
+var globalFn9 = from var empFunc in (from var {firstName, lastName, dept} in employeeList
+                                     select function () returns string {
+                                         var grades = from var i in ["A", "B", "C"]
+                                                      select i;
+                                         return firstName + "'s grades:" + grades.toString();
+                                     })
+                select empFunc;
 
 function testGlobalQueryWithAnonFuncExpr() {
     var fn1 = globalFn1;
@@ -525,6 +554,19 @@ function testGlobalQueryWithAnonFuncExpr() {
     f7 = globalFn8[3];
     msg = f7();
     assertEqual(msg, "Hello John in Engineering");
+
+    assertEqual(3, globalFn9.length());
+    function () returns string f8 = globalFn9[0];
+    string empGrades = f8();
+    assertEqual(empGrades, "Alex's grades:[\"A\",\"B\",\"C\"]");
+
+    f8 = globalFn9[1];
+    empGrades = f8();
+    assertEqual(empGrades, "John's grades:[\"A\",\"B\",\"C\"]");
+
+    f8 = globalFn9[2];
+    empGrades = f8();
+    assertEqual(empGrades, "Alex's grades:[\"A\",\"B\",\"C\"]");
 }
 
 function assertEqual(any actual, any expected) {

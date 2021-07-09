@@ -1310,13 +1310,16 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction function) {
         if (function.flagSet.contains(Flag.QUERY_LAMBDA)) {
+            BLangBlockFunctionBody prevQueryLambdaBody = currentQueryLambdaBody;
+            BVarSymbol prevFrameSymbol = currentFrameSymbol;
+            Map<String, BSymbol> prevIdentifiers = identifiers;
             currentFrameSymbol = function.requiredParams.get(0).symbol;
             identifiers = new HashMap<>();
             currentQueryLambdaBody = (BLangBlockFunctionBody) function.getBody();
             currentQueryLambdaBody.accept(this);
-            currentFrameSymbol = null;
-            identifiers = null;
-            currentQueryLambdaBody = null;
+            currentFrameSymbol = prevFrameSymbol;
+            identifiers = prevIdentifiers;
+            currentQueryLambdaBody = prevQueryLambdaBody;
         } else {
             boolean prevWithinLambdaFunc = withinLambdaFunc;
             withinLambdaFunc = true;
