@@ -2294,8 +2294,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (nextToken.kind == SyntaxKind.SEMICOLON_TOKEN) {
             // Semicolon at the start of a statement is a special case. This is equivalent to an empty
             // statement. So assume the fix for this is a REMOVE operation and continue from the next token.
-            Result result = seekMatchInSubTree(ParserRuleContext.STATEMENT, lookahead + 1, currentDepth, isEntryPoint);
-            result.fixes.push(new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString()));
+            Result result = seekMatchInSubTree(ParserRuleContext.STATEMENT, lookahead + 1, currentDepth + 1,
+                    isEntryPoint);
+            result.pushFix(new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString(),
+                    currentDepth + 1));
             return getFinalResult(currentMatches, result);
         }
 

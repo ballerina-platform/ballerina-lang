@@ -140,13 +140,13 @@ public abstract class AbstractParserErrorHandler {
         // If best match is INSERT fix followed by immediate REMOVE fix,
         // then it could be repeated next time coming to the error handler.
         // Therefore in such case, set the solution to immediate REMOVE fix.
-        if (sol.action != Action.INSERT || bestMatch.fixes.size() < 2) {
+        if (sol.action != Action.INSERT || bestMatch.fixesSize() < 2) {
             return;
         }
 
-        Solution firstFix = bestMatch.fixes.pop();
-        Solution secondFix = bestMatch.fixes.peek();
-        bestMatch.fixes.push(firstFix);
+        Solution firstFix = bestMatch.popFix();
+        Solution secondFix = bestMatch.peekFix();
+        bestMatch.pushFix(firstFix);
 
         if (secondFix.action == Action.REMOVE && secondFix.depth == 1) {
             bestMatch.solution = secondFix;
@@ -366,7 +366,7 @@ public abstract class AbstractParserErrorHandler {
 
         // If there is only one 'best' match, then return it. If there are more than one
         // 'best' match, then we need to do a tie-break. For that, pick the path with the
-        // lowest number of fixes. If it again results in more than one match, then return
+        // lowest number of removeFixes. If it again results in more than one match, then return
         // the based on the precedence (order of occurrence).
         List<Result> bestMatches = results[bestMatchIndex];
         Result bestMatch = bestMatches.get(0);
@@ -376,19 +376,19 @@ public abstract class AbstractParserErrorHandler {
 
             // If a tie is found, give priority to the one that 'insert'.
             // If that is also a tie, then give priority to the order.
-            int currentMatchFixesSize = currentMatch.fixes.size();
-            int bestmatchFixesSize = bestMatch.fixes.size();
-            if (currentMatchFixesSize == bestmatchFixesSize) {
-                // If both are zero continue;
-                if (bestmatchFixesSize == 0) {
-                    continue;
-                }
-                Solution currentSol = bestMatch.fixes.peek();
-                Solution foundSol = currentMatch.fixes.peek();
+            int currentMatchRemoveFixes = currentMatch.removeFixes;
+            int bestMatchRemoveFixes = bestMatch.removeFixes;
+            if (bestMatchRemoveFixes == 0) {
+                break;
+            }
+
+            if (currentMatchRemoveFixes == bestMatchRemoveFixes) {
+                Solution currentSol = bestMatch.peekFix();
+                Solution foundSol = currentMatch.peekFix();
                 if (currentSol.action == Action.REMOVE && foundSol.action == Action.INSERT) {
                     bestMatch = currentMatch;
                 }
-            } else if (currentMatchFixesSize < bestmatchFixesSize) {
+            } else if (currentMatchRemoveFixes < bestMatchRemoveFixes) {
                 bestMatch = currentMatch;
             }
         }
@@ -441,7 +441,7 @@ public abstract class AbstractParserErrorHandler {
         // i.e: do not increment the match count by 1;
 
         if (isEntryPoint) {
-            fixedPathResult.solution = fixedPathResult.fixes.peek();
+            fixedPathResult.solution = fixedPathResult.peekFix();
         } else {
             fixedPathResult.solution =
                     new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
@@ -469,7 +469,8 @@ public abstract class AbstractParserErrorHandler {
      * Pick the solution with the longest matching sequence.
      * </li>
      * <li>
-     * If there's a tie, then check for the solution which requires the lowest number of 'fixes'.
+     * If there's a tie, number of fixes will also be the same.
+     * Hence, check for the solution which requires the lowest number of 'removeFixes'.
      * </li>
      * <li>
      * If there's a tie, then give priority for the 'insertion' as that doesn't require removing
@@ -502,29 +503,29 @@ public abstract class AbstractParserErrorHandler {
         if (insertionResult.matches == 0 && deletionResult.matches == 0) {
             action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx),
                     currentCtx.toString(), currentDepth);
-            insertionResult.fixes.push(action);
+            insertionResult.pushFix(action);
             fixedPathResult = insertionResult;
         } else if (insertionResult.matches == deletionResult.matches) {
-            if (insertionResult.fixes.size() <= deletionResult.fixes.size()) {
+            if (insertionResult.removeFixes <= deletionResult.removeFixes) {
                 action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx),
                         currentCtx.toString(), currentDepth);
-                insertionResult.fixes.push(action);
+                insertionResult.pushFix(action);
                 fixedPathResult = insertionResult;
             } else {
                 STToken token = this.tokenReader.peek(lookahead);
                 action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString(), currentDepth);
-                deletionResult.fixes.push(action);
+                deletionResult.pushFix(action);
                 fixedPathResult = deletionResult;
             }
         } else if (insertionResult.matches > deletionResult.matches) {
             action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString(),
                     currentDepth);
-            insertionResult.fixes.push(action);
+            insertionResult.pushFix(action);
             fixedPathResult = insertionResult;
         } else {
             STToken token = this.tokenReader.peek(lookahead);
             action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString(), currentDepth);
-            deletionResult.fixes.push(action);
+            deletionResult.pushFix(action);
             fixedPathResult = deletionResult;
         }
         return fixedPathResult;
@@ -562,36 +563,6 @@ public abstract class AbstractParserErrorHandler {
         @Override
         public String toString() {
             return action.toString() + "'" + tokenText + "'";
-        }
-    }
-
-    /**
-     * Represent a result of a token-sequence-search in a sub-tree. The result will contain the fixes required to
-     * traverse in that sub-tree, and the number of matching tokens it found, without the fixed tokens.
-     */
-    public static class Result {
-
-        /**
-         * Number of tokens with successful matches.
-         */
-        protected int matches;
-
-        /**
-         * List of solutions to recover from the error.
-         */
-        protected ArrayDeque<Solution> fixes;
-
-        /**
-         * Represent the end solution to be applied to the next immediate token, to recover from the error.
-         * If the solution is to insert/remove next immediate token, then this is equivalent to the
-         * <code>fixes.peek()</code>. Else, if the solution is to insert/remove a token that is not the
-         * immediate next token, then this will have a solution with {@link Action#KEEP} as the action.
-         */
-        protected Solution solution;
-
-        public Result(ArrayDeque<Solution> fixes, int matches) {
-            this.fixes = fixes;
-            this.matches = matches;
         }
     }
 
