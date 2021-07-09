@@ -153,85 +153,85 @@ id = 777
 name = "Amy"
 salary = 89000.0
 
-[[configStructuredTypes.imported_records.doctorTable]]
+[[configTableType.imported_records.doctorTable]]
 name="hinduja"
 id=100
 
-[[configStructuredTypes.imported_records.doctorTable]]
+[[configTableType.imported_records.doctorTable]]
 name="riyafa"
 id=105
 
-[[configStructuredTypes.imported_records.studentTable]]
+[[configTableType.imported_records.studentTable]]
 name="manu"
 id=100
 
-[[configStructuredTypes.imported_records.studentTable]]
+[[configTableType.imported_records.studentTable]]
 name="riyafa"
 id=105
 
-[[configStructuredTypes.imported_records.employeeTable]]
+[[configTableType.imported_records.employeeTable]]
 name="hinduja"
 id=102
 
-[[configStructuredTypes.imported_records.employeeTable]]
+[[configTableType.imported_records.employeeTable]]
 name="manu"
 id=100
 
-[[configStructuredTypes.imported_records.employeeTable1]]
+[[configTableType.imported_records.employeeTable1]]
 name="gabilan"
 id=2
 
-[[configStructuredTypes.imported_records.employeeTable1]]
+[[configTableType.imported_records.employeeTable1]]
 name="riyafa"
 id=3
 
-[[configStructuredTypes.imported_records.officerTable]]
+[[configTableType.imported_records.officerTable]]
 name="hinduja"
 id=102
 
-[[configStructuredTypes.imported_records.officerTable]]
+[[configTableType.imported_records.officerTable]]
 name="manu"
 id=100
 
-[[configStructuredTypes.imported_records.officerTable1]]
+[[configTableType.imported_records.officerTable1]]
 name="hinduja"
 id=7
 
-[[configStructuredTypes.imported_records.officerTable1]]
+[[configTableType.imported_records.officerTable1]]
 name="waruna"
 id=8
 
-[[configStructuredTypes.imported_records.managerTable]]
+[[configTableType.imported_records.managerTable]]
 name="gabilan"
 id=101
 
-[[configStructuredTypes.imported_records.managerTable]]
+[[configTableType.imported_records.managerTable]]
 name="riyafa"
 id=102
 
-[[configStructuredTypes.imported_records.teacherTable]]
+[[configTableType.imported_records.teacherTable]]
 name="gabilan"
 id=66
 
-[[configStructuredTypes.imported_records.teacherTable]]
+[[configTableType.imported_records.teacherTable]]
 name="riyafa"
 id=77
 
-[[configStructuredTypes.imported_records.farmerTable]]
+[[configTableType.imported_records.farmerTable]]
 name="riyafa"
 id=555
 
-[[configStructuredTypes.imported_records.farmerTable]]
+[[configTableType.imported_records.farmerTable]]
 name="hinduja"
 id=666
 
-[[configStructuredTypes.imported_records.personTable]]
+[[configTableType.imported_records.personTable]]
 name = "gabilan"
 id = 133
 address.city="Berlin"
 address.country.name="Germany"
 
-[[configStructuredTypes.imported_records.personTable]]
+[[configTableType.imported_records.personTable]]
 name = "riyafa"
 id = 144
 address.city="Madrid"

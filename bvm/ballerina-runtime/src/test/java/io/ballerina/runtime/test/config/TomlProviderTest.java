@@ -144,63 +144,6 @@ public class TomlProviderTest {
         };
     }
 
-    @Test(dataProvider = "table-data-provider")
-    public void testTomlProviderTables(String variableName, Map<String, Field> fields, String key, Map<String,
-            Object>[] expectedValues) {
-        RecordType type =
-                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
-        TableType tableType = TypeCreator.createTableType(type, new String[]{key}, true);
-        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
-                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
-        VariableKey tableVar = new VariableKey(ROOT_MODULE, variableName, intersectionType, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
-        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver =
-                new ConfigResolver(configVarMap, diagnosticLog,
-                                   List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("TableTypeConfig.toml"),
-                                                                configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Object value = valueCreator.retrieveValue((TomlNode) configValueMap.get(tableVar), tableVar.variable,
-                tableVar.type);
-        Assert.assertTrue(value instanceof BTable<?, ?>, "Non-table value received for " +
-                "variable : " + variableName);
-        BTable<?, ?> table = (BTable<?, ?>) value;
-
-        for (Map<String, Object> tableEntry : expectedValues) {
-            Object keyValue = tableEntry.get(key);
-            Assert.assertTrue(table.containsKey(keyValue), "The key '" + key + "'is not found in table");
-            BMap<?, ?> record = (BMap<?, ?>) table.get(keyValue);
-            for (Map.Entry<String, Object> expectedField : tableEntry.entrySet()) {
-                BString fieldName = fromString(fields.get(expectedField.getKey()).getFieldName());
-                Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
-            }
-        }
-    }
-
-    @DataProvider(name = "table-data-provider")
-    public Object[][] tableDataProvider() {
-        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Field nameReadOnly = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.READONLY);
-        Field age = TypeCreator.createField(TYPE_INT, "age", SymbolFlags.OPTIONAL);
-        return new Object[][]{
-                {"requiredFieldTable", Map.ofEntries(Map.entry("name", name)), "name",
-                        new Map[]{Map.ofEntries(Map.entry("name", fromString("AAA"))),
-                                Map.ofEntries(Map.entry("name", fromString("BBB"))),
-                                Map.ofEntries(Map.entry("name", fromString("CCC")))}},
-                {"readonlyFieldTable", Map.ofEntries(Map.entry("name", nameReadOnly)), "name",
-                        new Map[]{Map.ofEntries(Map.entry("name", fromString("Tom"))),
-                                Map.ofEntries(Map.entry("name", fromString("Daniel"))),
-                                Map.ofEntries(Map.entry("name", fromString("Emma")))}},
-                {"optionalFieldTable", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)), "name",
-                        new Map[]{
-                                Map.ofEntries(Map.entry("name", fromString("Ann")), Map.entry("age", 21L)),
-                                Map.ofEntries(Map.entry("name", fromString("Bob"))),
-                                Map.ofEntries(Map.entry("name", fromString("Charlie")), Map.entry("age",
-                                        23L))}},
-        };
-    }
-
     @Test(dataProvider = "multi-module-data-provider")
     public void testTomlProviderWithMultipleModules(Map<Module, VariableKey[]> variableMap,
                                                     Map<VariableKey, Object> expectedValues,
@@ -534,45 +477,6 @@ public class TomlProviderTest {
         Assert.assertEquals(bArray2.get(0), 11L);
         Assert.assertEquals(bArray2.get(1), 22L);
         Assert.assertEquals(bArray2.get(2), 33L);
-    }
-
-    @Test()
-    public void testComplexTableValue() {
-        ArrayType arrayElementType = TypeCreator.createArrayType(TYPE_STRING, true);
-        BType elementType =
-                new BIntersectionType(ROOT_MODULE, new Type[]{arrayElementType, PredefinedTypes.TYPE_READONLY},
-                                                  arrayElementType, 0, true);
-        ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
-        Field intArr = TypeCreator.createField(arrayType, "array", SymbolFlags.REQUIRED);
-        Field name = TypeCreator.createField(TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("array", intArr));
-        RecordType type =
-                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
-        TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
-        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
-                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
-
-        VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", intersectionType, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
-        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        List<ConfigProvider> providers = List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ComplexTableType" +
-                ".toml"), Set.of(ROOT_MODULE)));
-        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog, providers);
-        Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
-        Object bValue = valueCreator.retrieveValue((TomlNode) variableKeyObjectMap.get(tableVar), tableVar.variable,
-                tableVar.type);
-        Assert.assertTrue(bValue instanceof BTable);
-        BTable<?, ?> bTable = (BTable<?, ?>) bValue;
-        BMap<?, ?>  bmap = (BMap<?, ?> ) bTable.get("abc");
-        Assert.assertEquals(((BString) bmap.get(fromString("name"))).getValue(), "abc");
-        Assert.assertTrue(bmap.get(fromString("array")) instanceof BArray);
-        BArray bArray = (BArray) bmap.get(fromString("array"));
-        BArray bArray1 = (BArray) bArray.get(0);
-        BArray bArray2 = (BArray) bArray.get(1);
-        Assert.assertEquals(bArray1.get(0).toString(), "a");
-        Assert.assertEquals(bArray1.get(1).toString(), "b");
-        Assert.assertEquals(bArray2.get(0).toString(), "c");
-        Assert.assertEquals(bArray2.get(1).toString(), "d");
     }
 
     @Test

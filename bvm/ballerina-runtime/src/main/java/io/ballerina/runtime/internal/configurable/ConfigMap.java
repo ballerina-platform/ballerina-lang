@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class ConfigMap {
     private static Map<VariableKey, Object> configurableMap = new HashMap<>();
-    private static ConfigValueCreator valueCreator = new ConfigValueCreator();
+    private static final ConfigValueCreator valueCreator = new ConfigValueCreator();
 
     private ConfigMap(){}
 
