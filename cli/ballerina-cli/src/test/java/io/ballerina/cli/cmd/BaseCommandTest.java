@@ -41,7 +41,7 @@ import java.nio.file.Path;
  *
  * @since 2.0.0
  */
-public abstract class BaseCommandTest extends PowerMockTestCase {
+public abstract class BaseCommandTest {
     protected Path tmpDir;
     private ByteArrayOutputStream console;
     protected PrintStream printStream;
@@ -108,7 +108,7 @@ public abstract class BaseCommandTest extends PowerMockTestCase {
     }
 
     @AfterClass (alwaysRun = true)
-    public void cleanup() throws IOException {
+    public void cleanup() {
         ProjectUtils.deleteDirectory(this.tmpDir);
     }
 }
