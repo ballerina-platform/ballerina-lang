@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -41,6 +42,9 @@ public class ObjectTest {
             "cannot use 'check' in the default expression of a record field";
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
+
+    private CompileResult checkInInitializerResult = BCompileUtil.compile(
+            "test-src/object/object_field_initializer_with_check.bal");
 
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
@@ -815,7 +819,7 @@ public class ObjectTest {
 
     @Test
     public void testInvalidUsageOfCheckInObjectFieldInitializer() {
-        CompileResult result = BCompileUtil.compile("test-src/object/object_field_initializer_negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/object/object_field_initializer_with_check_negative.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 22, 13);
         BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 23, 21);
@@ -851,5 +855,21 @@ public class ObjectTest {
         BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
                 " with the return type of the 'init' method: expected 'MyErrorTwo?', found 'MyError'", 148, 23);
         Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test(dataProvider = "checkInObjectFieldInitializerTests")
+    public void testValidUsageOfCheckInObjectFieldInitializer(String funcName) {
+        BRunUtil.invoke(checkInInitializerResult, funcName);
+    }
+
+    @DataProvider
+    private Object[][] checkInObjectFieldInitializerTests() {
+        return new Object[][] {
+            { "testCheckInObjectFieldInitializer1" },
+            { "testCheckInObjectFieldInitializer2" },
+            { "testCheckInObjectFieldInitializer3" },
+            { "testCheckInObjectFieldInitializer4" },
+            { "testCheckInObjectFieldInitializer5" }
+        };
     }
 }
