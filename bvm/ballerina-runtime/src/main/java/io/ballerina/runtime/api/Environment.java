@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -107,7 +108,7 @@ public class Environment {
      * @param value value to be store in the strand
      */
     public void setStrandLocal(String key, Object value) {
-        strand.setProperty(key, value);
+        strand.getProperties().put(key, value);
     }
 
     /**
@@ -117,6 +118,15 @@ public class Environment {
      * @return value stored in the strand.
      */
     public Object getStrandLocal(String key) {
-        return strand.getProperty(key);
+        return strand.getProperties().get(key);
+    }
+
+    /**
+     * Gets the stored properties of the strand.
+     *
+     * @return stored properties.
+     */
+    public Map<String, Object> getStrandLocals() {
+        return strand.getProperties();
     }
 }
