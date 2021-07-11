@@ -25,11 +25,11 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.lang.reflect.Array;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -45,6 +45,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private final boolean readonly;
     protected IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
     public BTypeIdSet typeIdSet;
 
     private String cachedToString;
@@ -134,13 +135,23 @@ public class BObjectType extends BStructureType implements ObjectType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 
     public void setTypeIdSet(BTypeIdSet typeIdSet) {

@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -18,10 +18,10 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
+ * {@code ReferenceType} represents a reference type in Ballerina runtime.
+ * These includes structs, connectors, array types, xml, json etc.
  *
  * @since 2.0.0
  */
-public interface AnyType extends Type, SelectivelyImmutableReferenceType {
-
+public interface ReferenceType extends Type {
 }
