@@ -38,6 +38,7 @@ import io.ballerina.compiler.internal.parser.tree.STIndexedExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STIntersectionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STListConstructorExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STMappingConstructorExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STMetadataNode;
 import io.ballerina.compiler.internal.parser.tree.STMissingToken;
 import io.ballerina.compiler.internal.parser.tree.STNamedArgumentNode;
 import io.ballerina.compiler.internal.parser.tree.STNilLiteralNode;
@@ -262,10 +263,8 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    STNode moduleVarDecl = createMissingSimpleVarDecl(metadata);
-                    moduleVarDecl = SyntaxErrors.addDiagnostic(moduleVarDecl, 
-                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT);
-                    return moduleVarDecl;
+                    metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
+                    return createMissingSimpleVarDecl(metadata);
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -318,6 +317,20 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseTopLevelNode(metadata, publicQualifier);
+    }
+
+    private STNode addMissingConstructDiagnostic(STMetadataNode metadata) {
+        STNode docString = metadata.documentationString;
+        if (docString != null) {
+            docString = SyntaxErrors.addDiagnostic(docString,
+                    DiagnosticErrorCode.ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT);
+        }
+
+        STNodeList annotList = (STNodeList) metadata.annotations;
+        STNode annotations = SyntaxErrors.updateAllNodesInNodeListWithDiagnostic(annotList,
+                DiagnosticErrorCode.ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT);
+
+        return STNodeFactory.createMetadataNode(docString, annotations);
     }
 
     /**
@@ -4598,14 +4611,12 @@ public class BallerinaParser extends AbstractParser {
 
         simpleNameRef = modifyNodeWithInvalidTokenList(qualifiers, simpleNameRef);
 
-        STNode objectField = STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
-                simpleNameRef, identifier, emptyNode, emptyNode, semicolon);
-
         if (metadata != null) {
-            objectField = SyntaxErrors.addDiagnostic(objectField,
-                    DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+            metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
         }
-        return objectField;
+
+        return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
+                simpleNameRef, identifier, emptyNode, emptyNode, semicolon);
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {

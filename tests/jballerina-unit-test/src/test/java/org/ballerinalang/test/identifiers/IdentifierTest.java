@@ -73,6 +73,20 @@ public class IdentifierTest {
         assertEquals(result.getErrorCount(), index);
     }
 
+    @Test(dataProvider = "functionsWithSelfAsIdentifier")
+    public void testSelfAsIdentifier(String function) {
+        CompileResult result = BCompileUtil.compile("test-src/identifiers/self_as_identifier.bal");
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "functionsWithSelfAsIdentifier")
+    public  Object[] functionsWithSelfAsIdentifier() {
+        return new String[] {
+                "testFuncWithSelfAsParamName",
+                "testSelfAsIdentifier"
+        };
+    }
+
     @Test(description = "Test underscore as quoted identifier negative cases")
     public void testUnderscoreAsQuotedIdentifierNegative() {
         CompileResult result =

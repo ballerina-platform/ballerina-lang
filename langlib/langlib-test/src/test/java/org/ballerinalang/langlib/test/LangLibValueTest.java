@@ -330,6 +330,7 @@ public class LangLibValueTest {
                 {"testCloneWithTypeDecimalToIntNegative"},
                 { "testCloneWithTypeDecimalToByte"},
                 { "testCloneWithTypeDecimalToIntSubType"},
+                { "testCloneWithTypeImmutableStructuredTypes"},
         };
     }
 

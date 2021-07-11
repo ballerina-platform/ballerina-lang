@@ -42,5 +42,4 @@ public class CustomFunctionTest {
         // Checking duplicate parameter definition in a function starting at 35st column
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 35);
     }
-
 }

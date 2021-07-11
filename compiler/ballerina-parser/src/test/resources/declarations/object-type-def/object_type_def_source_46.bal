@@ -3,5 +3,6 @@ type MYOBJECT object {
 };
 
 type MYOBJECT object {
-    # Doc comment
+    # Doc line1
+    # Doc line2
     };
