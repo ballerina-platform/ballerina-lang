@@ -1,0 +1,24 @@
+{
+  "line": 2,
+  "character": 16,
+  "expected": [
+    {
+      "title": "Add do and on-fail clauses",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 8
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "do {\n\t        int i = check checkError();\n        } on fail var e {\n        \t\n        }\n"
+        }
+      ]
+    }
+  ]
+}
