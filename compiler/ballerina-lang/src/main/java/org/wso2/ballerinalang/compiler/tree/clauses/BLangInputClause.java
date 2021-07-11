@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 import org.ballerinalang.model.clauses.InputClauseNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -68,4 +69,8 @@ public abstract class BLangInputClause extends BLangNode implements InputClauseN
         this.variableDefinitionNode = variableDefinitionNode;
     }
 
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
+    }
 }

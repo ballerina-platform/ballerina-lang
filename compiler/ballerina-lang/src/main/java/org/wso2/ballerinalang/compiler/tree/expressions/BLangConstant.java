@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.statements.ConstantNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -111,6 +112,11 @@ public class BLangConstant extends BLangVariable implements ConstantNode, TypeDe
     public String toString() {
         return (typeNode == null ? String.valueOf(type) : String.valueOf(typeNode)) + " " + symbol.name.value +
                 " = " + String.valueOf(expr);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     @Override

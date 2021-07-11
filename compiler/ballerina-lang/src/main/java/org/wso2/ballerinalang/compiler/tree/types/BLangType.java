@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.EnumSet;
@@ -43,5 +44,10 @@ public abstract class BLangType extends BLangNode implements TypeNode {
     @Override
     public boolean isGrouped() {
         return grouped;
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 }

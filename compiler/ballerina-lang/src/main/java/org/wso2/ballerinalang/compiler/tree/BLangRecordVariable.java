@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.RecordVariableNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -84,6 +85,11 @@ public class BLangRecordVariable extends BLangVariable implements RecordVariable
         return String.valueOf(type) + " {" + variableList.stream()
                 .map(BLangRecordVariableKeyValue::toString)
                 .collect(Collectors.joining(",")) + "} = " + this.expr;
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
     }
 
     /**

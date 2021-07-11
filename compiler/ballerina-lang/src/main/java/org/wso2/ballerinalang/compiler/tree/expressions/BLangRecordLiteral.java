@@ -131,6 +131,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         }
 
         @Override
+        public Object accept(ModuleGen visitor) {
+            return visitor.visit(this);
+        }
+
+        @Override
         public String toString() {
             return key + ((valueExpr != null) ? ": " + valueExpr : "");
         }
@@ -186,6 +191,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         }
 
         @Override
+        public Object accept(ModuleGen visitor) {
+            return visitor.visit(this);
+        }
+
+        @Override
         public String toString() {
             return "..." + expr;
         }
@@ -222,6 +232,11 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public Object accept(ModuleGen visitor) {
+            return visitor.visit(this);
         }
 
         @Override

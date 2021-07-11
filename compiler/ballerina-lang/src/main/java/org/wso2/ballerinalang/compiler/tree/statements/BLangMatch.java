@@ -129,6 +129,11 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         // flag to set the last pattern clause
         public boolean isLastPattern;
+
+        @Override
+        public Object accept(ModuleGen visitor) {
+            return visitor.visit(this);
+        }
     }
 
     /**

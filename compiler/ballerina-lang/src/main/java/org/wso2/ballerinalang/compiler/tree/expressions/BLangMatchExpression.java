@@ -101,7 +101,12 @@ public class BLangMatchExpression extends BLangExpression implements MatchExpres
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
-        
+
+        @Override
+        public Object accept(ModuleGen visitor) {
+            return visitor.visit(this);
+        }
+
         @Override
         public String toString() {
             return variable + " => " + expr.toString();

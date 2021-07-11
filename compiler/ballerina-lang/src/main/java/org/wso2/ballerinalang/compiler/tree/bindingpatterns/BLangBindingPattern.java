@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
 import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -30,4 +31,9 @@ import java.util.Map;
 public abstract class BLangBindingPattern extends BLangNode implements BindingPatternNode {
 
     public Map<String, BVarSymbol> declaredVars = new HashMap<>();
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
+    }
 }

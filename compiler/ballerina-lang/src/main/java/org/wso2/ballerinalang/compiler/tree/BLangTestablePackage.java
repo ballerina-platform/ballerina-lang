@@ -17,6 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,4 +38,8 @@ public class BLangTestablePackage extends BLangPackage {
         this.mockFunctionNamesMap.put(id, function);
     }
 
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
+    }
 }

@@ -52,6 +52,9 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
     public BType expectedType;
 
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
-    public abstract Object accept(ModuleGen visitor);
 
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return visitor.visit(this);
+    }
 }
