@@ -103,6 +103,12 @@ public class ModuleGen {
     }
 
     public Object visit(BLangFunction astFunc) {
+        String name = astFunc.name.toString();
+
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("name", new BmpStringValue(name));
+        BMap<BString, Object> x = ValueCreator.createRecordValue(modFront, "FunctionDef",
+                mapInitialValueEntries);
         return astFunc.body.accept(this);
     }
     
