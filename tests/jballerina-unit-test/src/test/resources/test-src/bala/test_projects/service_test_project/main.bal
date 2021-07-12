@@ -15,4 +15,7 @@ public service class Service {
     resource function get foo/bar(int i, string j) returns string {
         return i.toString() + j;
     }
+
+    remote function getRemoteCounter(int num, decimal value, string msg = "test message") {
+    }
 }

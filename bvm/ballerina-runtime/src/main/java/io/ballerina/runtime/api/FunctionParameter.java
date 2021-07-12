@@ -15,21 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.api.FunctionParameter;
+package io.ballerina.runtime.api;
 
 /**
- * {@code ResourceFunctionType} represents a resource function in Ballerina.
+ * {@code {@link FunctionParameter} represents the parameter of a function in ballerina.
  *
  * @since 2.0
  */
-public interface ResourceMethodType extends MethodType {
-    @Deprecated
-    String[] getParamNames();
-    String getAccessor();
-    String[] getResourcePath();
-    @Deprecated
-    Boolean[] getParamDefaultability();
-    FunctionParameter[] getParameters();
+public class FunctionParameter {
+    public final String name;
+    public final boolean isDefault;
+
+    public FunctionParameter(String name, Boolean isDefault) {
+        this.name = name;
+        this.isDefault = isDefault;
+    }
 }
