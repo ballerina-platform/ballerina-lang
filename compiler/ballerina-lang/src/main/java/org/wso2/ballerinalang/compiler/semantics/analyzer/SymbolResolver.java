@@ -2168,7 +2168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
-    public Set<BVarSymbol> getConfigVarSymbols(BPackageSymbol packageSymbol) {
+    public Set<BVarSymbol> getConfigVarSymbolsIncludingImportedModules(BPackageSymbol packageSymbol) {
         Set<BVarSymbol> configVars = new HashSet<>();
         populateConfigurableVars(packageSymbol, configVars);
         if (!packageSymbol.imports.isEmpty()) {
@@ -2181,8 +2181,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
         for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
-            if (entry.symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(entry.symbol.flags, Flags.CONFIGURABLE)) {
-                configVars.add((BVarSymbol) entry.symbol);
+            BSymbol symbol = entry.symbol;
+            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                configVars.add((BVarSymbol) symbol);
             }
         }
     }

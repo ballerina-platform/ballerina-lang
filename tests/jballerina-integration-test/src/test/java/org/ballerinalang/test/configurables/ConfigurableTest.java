@@ -224,10 +224,12 @@ public class ConfigurableTest extends BaseTest {
                 new LogLeecher[]{errorLog}, projectPath + "/subModuleClash");
         errorLog.waitForText(5000);
 
-        errorLog = new LogLeecher("[main.bal:(19:26,19:30)] configurable variable name 'test' creates an ambiguity " +
+        errorLog = new LogLeecher("[main.bal:(20:26,20:30)] configurable variable name 'test' creates an ambiguity " +
                 "with module 'testOrg/test:0.1.0'", ERROR);
         compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
                 "testOrg-test-any-0.1.0");
+        compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "tests").toString(),
+                "testOrg2-test-any-0.1.0");
         bMainInstance.runMain("build", new String[]{"-c", "main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
         errorLog.waitForText(5000);
