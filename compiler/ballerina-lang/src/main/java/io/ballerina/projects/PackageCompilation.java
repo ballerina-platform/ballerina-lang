@@ -170,14 +170,19 @@ public class PackageCompilation {
 
     private void compileModulesInternal() {
         List<Diagnostic> diagnostics = new ArrayList<>();
+        // add resolution diagnostics
+        diagnostics.addAll(packageResolution.diagnosticResult().allDiagnostics);
+        // add manifest diagnostics
+        diagnostics.addAll(packageContext().manifest().diagnostics().allDiagnostics);
+        // add compilation diagnostics
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                 diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
+        // add plugin diagnostics
         runPluginCodeAnalysis(diagnostics);
-        addOtherDiagnostics(diagnostics);
         diagnosticResult = new DefaultDiagnosticResult(diagnostics);
     }
 
@@ -191,11 +196,6 @@ public class PackageCompilation {
                 this.pluginDiagnostics.addAll(pluginDiagnostics);
             }
         }
-    }
-
-    private void addOtherDiagnostics(List<Diagnostic> diagnostics) {
-        DiagnosticResult diagnosticResult = packageContext().manifest().diagnostics();
-        diagnostics.addAll(diagnosticResult.allDiagnostics);
     }
 
     private void setCompilerPluginManager(CompilerPluginManager compilerPluginManager) {

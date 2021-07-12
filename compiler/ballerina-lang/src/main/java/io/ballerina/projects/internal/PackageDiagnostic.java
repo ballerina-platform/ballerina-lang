@@ -44,10 +44,10 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  * @since 2.0.0
  */
 public class PackageDiagnostic extends Diagnostic {
-    private Diagnostic diagnostic;
-    private Location location;
-    private Project project;
-    private ModuleDescriptor moduleDescriptor;
+    protected Diagnostic diagnostic;
+    protected Location location;
+    protected Project project;
+    protected ModuleDescriptor moduleDescriptor;
 
 
     public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
