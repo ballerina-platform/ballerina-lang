@@ -60,6 +60,12 @@ public function testAlternateWaitTwiceOnTwoFutures() {
     assertError(r1);
 }
 
+function testFutureEqualityNegative() {
+    future<int> f1 = start calculate(2, 3);
+    future f2 = start calculate(2, 3);
+    test:assertFalse(f1 === f2);
+}
+
 function calculate(int a, int b) returns int {
     return a*b;
 }

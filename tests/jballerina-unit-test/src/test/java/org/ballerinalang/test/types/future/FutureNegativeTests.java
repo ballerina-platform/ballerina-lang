@@ -88,6 +88,11 @@ public class FutureNegativeTests {
         Assert.assertTrue(set.contains("multiple waits on the same future is not allowed {}"));
     }
 
+    @Test
+    public void testFutureEqualityNegative() {
+        BRunUtil.invoke(result, "testFutureEqualityNegative");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

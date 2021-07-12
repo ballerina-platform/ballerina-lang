@@ -69,7 +69,7 @@ public class BFutureType extends BType implements FutureType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BTableType)) {
+        if (!super.equals(obj) || !(obj instanceof BFutureType)) {
             return false;
         }
 
