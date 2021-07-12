@@ -158,7 +158,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // table variable test
         debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee> (entries = 3)", "table");
         // stream variable test
-        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
+        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error?>", "stream");
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
