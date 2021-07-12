@@ -755,7 +755,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-        valueType.setBType(symResolver.resolveTypeNode(valueType, env));
+//        BType type = symResolver.resolveTypeNode(valueType, env);
+//        valueType.setBType(symResolver.resolveTypeNode(valueType, env));
     }
 
     @Override
