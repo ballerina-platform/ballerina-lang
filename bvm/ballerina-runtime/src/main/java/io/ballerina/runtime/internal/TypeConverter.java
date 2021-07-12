@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -48,9 +49,11 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
@@ -236,13 +239,13 @@ public class TypeConverter {
     }
 
     // TODO: return only the first matching type
-    public static List<Type> getConvertibleTypes(Object inputValue, Type targetType) {
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType) {
         return getConvertibleTypes(inputValue, targetType, new ArrayList<>());
     }
 
-    public static List<Type> getConvertibleTypes(Object inputValue, Type targetType,
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType,
                                                   List<TypeValuePair> unresolvedValues) {
-        List<Type> convertibleTypes = new ArrayList<>();
+        Set<Type> convertibleTypes = new LinkedHashSet<>();
 
         int targetTypeTag = targetType.getTag();
 
@@ -250,7 +253,7 @@ public class TypeConverter {
             case TypeTags.UNION_TAG:
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     if (TypeChecker.getType(inputValue) == memType) {
-                        return List.of(memType);
+                        return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
@@ -284,6 +287,18 @@ public class TypeConverter {
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
                 convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, unresolvedValues));
+                break;
+            case TypeTags.FINITE_TYPE_TAG:
+                for (Object valueSpaceItem : ((BFiniteType) targetType).valueSpace) {
+                    Type inputValueType = TypeChecker.getType(inputValue);
+                    Type valueSpaceItemType = TypeChecker.getType(valueSpaceItem);
+                    if (inputValue == valueSpaceItem) {
+                        return Set.of(inputValueType);
+                    }
+                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem)) {
+                        convertibleTypes.add(valueSpaceItemType);
+                    }
+                }
                 break;
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
@@ -428,8 +443,11 @@ public class TypeConverter {
         }
         ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
+        Set<Type> convertibleTypes;
         for (int i = 0; i < source.size(); i++) {
-            if (getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues).size() != 1) {
+            Type sourceElementType = TypeChecker.getType(source.get(i));
+            convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues);
+            if (convertibleTypes.size() != 1 && !convertibleTypes.contains(sourceElementType)) {
                 return false;
             }
         }

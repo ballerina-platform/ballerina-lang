@@ -2227,7 +2227,7 @@ public class TypeChecker {
         }
     }
     public static boolean isNumericType(Type type) {
-        return type.getTag() < TypeTags.STRING_TAG;
+        return type.getTag() < TypeTags.STRING_TAG || TypeTags.isIntegerTypeTag(type.getTag());
     }
 
     private static boolean checkIsLikeAnydataType(Object sourceValue, Type sourceType,
@@ -2377,20 +2377,26 @@ public class TypeChecker {
                         return true;
                     }
 
-                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
+                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG &&
+                            targetTypeElementType.getTag() != TypeTags.FINITE_TYPE_TAG) {
                         return false;
                     }
 
-                    List<Type> targetNumericTypes = new ArrayList<>();
-                    for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                        if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                            targetNumericTypes.add(memType);
+                    if (targetTypeElementType.getTag() == TypeTags.UNION_TAG) {
+                        List<Type> targetNumericTypes = new ArrayList<>();
+                        for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                            if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                                targetNumericTypes.add(memType);
+                            }
+                        }
+                        if (targetNumericTypes.size() > 1) {
+                            return false;
                         }
                     }
-                    return targetNumericTypes.size() == 1;
                 }
 
-                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {
+                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG &&
+                        !TypeTags.isIntegerTypeTag(targetTypeElementType.getTag())) {
                     return false;
                 }
             }

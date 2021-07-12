@@ -771,6 +771,49 @@ function testCloneWithTypeDecimalToIntNegative() {
     assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
 }
 
+function checkDecimalToIntError(any|error result) {
+    assert(result is error, true);
+    error err = <error>result;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
+}
+
+type IntSubtypeArray1 int:Signed32[];
+type IntSubtypeArray2 int:Unsigned16[];
+function testCloneWithTypeIntSubTypeArray() {
+    float[] a = [1.25, 3.46, 7.52];
+    int:Signed32[]|error b = a.cloneWithType(IntSubtypeArray1);
+    assert(b is error, false);
+    assert(checkpanic b, [1, 3, 8]);
+
+    decimal[] d = [12.763445, 23.4578923, 31.674895374];
+    int:Unsigned16[]|error e = d.cloneWithType(IntSubtypeArray2);
+    assert(e is error, false);
+    assert(checkpanic e, [13, 23, 32]);
+}
+
+function testCloneWithTypeIntArrayToUnionArray() {
+    int[] x = [1, 2, 3];
+
+    (int|float)[]|error a = x.cloneWithType();
+    assert(a is error, false);
+    assert(checkpanic a, [1, 2, 3]);
+
+    (float|string)[]|error c = x.cloneWithType();
+    assert(c is error, false);
+    assert(checkpanic c, [1.0, 2.0, 3.0]);
+
+    (byte|float)[]|error e = x.cloneWithType();
+    assert(e is error, true);
+    error err = <error> e;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '(byte|float)[]'");
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
@@ -967,6 +1010,141 @@ function testCloneWithTypeImmutableStructuredTypes() {
     record {| Person3 & readonly value; |} p2 = <record {| Person3 & readonly value; |}>tab2.iterator().next();
     Person3 person4 = p2["value"];
     assert(person4.id, 14);
+}
+
+type IntOneOrTwo 1|2;
+type IntTwoOrThree 2|3;
+type IntThreeOrFour 3|4;
+type FloatOneOrTwo 1.0|2.0;
+type FloatTwoOrThree 2.0|3.0;
+type FloatThreeOrFour 3.0|4.0;
+type IntOneOrFloatTwo 1|2.0;
+type IntTwoOrFloatTwo 2|2.0;
+
+function testCloneWithTypeWithFiniteType() {
+    int x = 2;
+    float y = 2.0;
+
+    IntOneOrTwo|error a = x.cloneWithType();
+    assert(a is IntOneOrTwo, true);
+    IntOneOrTwo b = checkpanic a;
+    assert(b, 2);
+
+    FloatOneOrTwo|error c = x.cloneWithType();
+    assert(c is error, false);
+    FloatOneOrTwo d = checkpanic c;
+    assert(d, 2.0);
+
+    IntTwoOrFloatTwo|error e = x.cloneWithType();
+    assert(e is error, false);
+    IntTwoOrFloatTwo f = checkpanic e;
+    assert(f, 2);
+
+    IntTwoOrFloatTwo|error g = y.cloneWithType();
+    assert(g is error, false);
+    IntTwoOrFloatTwo h = checkpanic g;
+    assert(h, 2.0);
+}
+
+function testCloneWithTypeWithUnionOfFiniteType() {
+    int x = 3;
+
+    (IntTwoOrThree|IntThreeOrFour)|error a = x.cloneWithType();
+    assert(a is error, false);
+    IntTwoOrThree|IntThreeOrFour b = checkpanic a;
+    assert(b, 3);
+
+    (FloatTwoOrThree|FloatThreeOrFour)|error c = x.cloneWithType();
+    assert(c is error, false);
+    FloatTwoOrThree|FloatThreeOrFour d = checkpanic c;
+    assert(d, 3.0);
+
+    int y = 2;
+    (IntOneOrFloatTwo|IntTwoOrThree)|error e = y.cloneWithType();
+    assert(e is error, false);
+    IntOneOrFloatTwo|IntTwoOrThree f = checkpanic e;
+    assert(f, 2);
+}
+
+function testCloneWithTypeWithFiniteArrayTypeFromIntArray() {
+    int[] x = [1, 2];
+    IntOneOrTwo[]|error a = x.cloneWithType();
+    assert(a is IntOneOrTwo[], true);
+    assert(a is error, false);
+
+    IntOneOrTwo[] b = checkpanic a;
+    assert(b[0], 1);
+    assert(b[1], 2);
+
+    int[] y = [3, 4];
+    FloatThreeOrFour[]|error c = y.cloneWithType();
+    assert(c is error, false);
+    FloatThreeOrFour[] d = checkpanic c;
+    assert(d, [3.0, 4.0]);
+}
+
+function testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray() {
+    int[] x = [1, 2, 3];
+    (IntOneOrTwo|IntTwoOrThree)[]|error a = x.cloneWithType();
+    assert(a is error, false);
+
+    (IntOneOrTwo|IntTwoOrThree)[] b = checkpanic a;
+    assert(b, [1,2,3]);
+
+    float[] y = [3.0, 4.0];
+    (IntTwoOrThree|FloatThreeOrFour)[]|error c = y.cloneWithType();
+    assert(c is error, false);
+    (IntTwoOrThree|FloatThreeOrFour)[] d = checkpanic c;
+    assert(d, [3.0, 4.0]);
+}
+
+function testCloneWithTypeWithUnionTypeArrayFromIntArray() {
+    int[] x = [1, 2, 3];
+
+    (string|IntOneOrTwo|IntTwoOrThree)[]|error a = x.cloneWithType();
+    assert(a is error, false);
+    (string|IntOneOrTwo|IntTwoOrThree)[] b = checkpanic a;
+    assert(b, [1,2,3]);
+
+    int[] y = [3, 4];
+
+    (float|FloatThreeOrFour)[]|error c = y.cloneWithType();
+    assert(c is error, false);
+    (float|FloatThreeOrFour)[] d = checkpanic c;
+    assert(d, [3.0, 4.0]);
+
+    (IntThreeOrFour|FloatThreeOrFour)[]|error e = y.cloneWithType();
+    assert(e is error, false);
+    (IntThreeOrFour|FloatThreeOrFour)[] f = checkpanic e;
+    assert(f, [3, 4]);
+}
+
+function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
+    int[] x = [1, 2, 3, 4];
+
+    IntTwoOrThree[]|error a = x.cloneWithType();
+    assert(a is error, true);
+
+    error err = <error> a;
+    var message = err.detail()["message"];
+    string messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int[]' value cannot be converted to 'IntTwoOrThree[]'");
+
+    (IntTwoOrThree|IntThreeOrFour)[]|error c = x.cloneWithType();
+    assert(c is error, true);
+    err = <error> c;
+    message = err.detail()["message"];
+    messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int[]' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)[]'");
+
+    int[] y = [3, 4];
+
+    IntThreeOrFour[]|FloatThreeOrFour[]|error f = y.cloneWithType();
+    assert(f is error, true);
+    err = <error> f;
+    message = err.detail()["message"];
+    messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
