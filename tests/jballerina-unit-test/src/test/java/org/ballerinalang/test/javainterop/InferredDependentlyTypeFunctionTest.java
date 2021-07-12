@@ -175,16 +175,10 @@ public class InferredDependentlyTypeFunctionTest {
                 " return type does not depend on", 173, 49);
         validateError(negativeResult, index++, "cannot use an inferred typedesc default with a parameter on which the" +
                 " return type does not depend on", 174, 49);
-        validateError(negativeResult, index++, "cannot use an inferred typedesc default with a parameter on which the" +
-                " return type does not depend on", 176, 34);
-        validateError(negativeResult, index++, "cannot use an inferred typedesc default with a parameter on which the" +
-                " return type does not depend on", 177, 34);
-        validateError(negativeResult, index++, "cannot use an inferred typedesc default with a parameter on which the" +
-                " return type does not depend on", 178, 46);
-        validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
-                "typedesc default", 180, 1);
-        validateError(negativeResult, index++, "unknown type 't'", 180, 63);
-        validateError(negativeResult, index++, "unknown type 'td'", 180, 65);
+        validateError(negativeResult, index++, "incompatible types: expected 'function (typedesc<(any|error)>," +
+                "typedesc<boolean>) returns ((t|td))', found 'function (typedesc<(any|error)>," +
+                "typedesc<boolean>) returns ((int|string))'", 180, 74);
+
         validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 185, 44);
         validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 186, 52);
         Assert.assertEquals(index, negativeResult.getErrorCount());
