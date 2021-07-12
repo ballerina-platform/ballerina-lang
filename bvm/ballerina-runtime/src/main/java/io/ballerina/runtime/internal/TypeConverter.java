@@ -292,7 +292,7 @@ public class TypeConverter {
                 for (Object valueSpaceItem : ((BFiniteType) targetType).valueSpace) {
                     Type inputValueType = TypeChecker.getType(inputValue);
                     Type valueSpaceItemType = TypeChecker.getType(valueSpaceItem);
-                    if (inputValue == valueSpaceItem && inputValueType.getTag() == valueSpaceItemType.getTag()) {
+                    if (inputValue == valueSpaceItem) {
                         return Set.of(inputValueType);
                     }
                     if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem)) {
@@ -443,8 +443,11 @@ public class TypeConverter {
         }
         ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
+        Set<Type> convertibleTypes;
         for (int i = 0; i < source.size(); i++) {
-            if (getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues).size() != 1) {
+            Type sourceElementType = TypeChecker.getType(source.get(i));
+            convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues);
+            if (convertibleTypes.size() != 1 && !convertibleTypes.contains(sourceElementType)) {
                 return false;
             }
         }
