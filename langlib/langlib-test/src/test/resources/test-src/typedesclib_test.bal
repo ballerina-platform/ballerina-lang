@@ -40,10 +40,10 @@ public function testGeTypeIds() {
     assertSingleTypeId(k, ["Error", "MyOtherError"]);
 
     k = ErrorAndMyOtherErrorD.typeIds();
-    assertSingleTypeId(k, ["Error", "MyOtherError", "ErrorAndMyOtherErrorD", "Error"]);
+    assertSingleTypeId(k, ["Error", "MyOtherError", "ErrorAndMyOtherErrorD"]);
 
     k = ErrorAndMyOtherErrorD.typeIds(true);
-    assertSingleTypeId(k, ["Error", "MyOtherError", "ErrorAndMyOtherErrorD"]);
+    assertSingleTypeId(k, ["ErrorAndMyOtherErrorD"]);
 
 }
 

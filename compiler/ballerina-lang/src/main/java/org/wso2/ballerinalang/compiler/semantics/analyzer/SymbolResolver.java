@@ -2113,7 +2113,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner);
     }
 
-    private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
+    private void defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
         BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
 
         for (BField field : detailRecord.fields.values()) {
@@ -2129,7 +2129,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                                                 detailRecordTypeNode,
                                                                                                 env);
         detailRecordTypeDefinition.pos = pos;
-        return detailRecordTypeDefinition;
     }
 
     private BIntersectionType defineErrorIntersectionType(IntersectableReferenceType effectiveType,

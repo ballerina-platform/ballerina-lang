@@ -73,12 +73,14 @@ public class TypeIds {
         }
 
         ArrayList<Object> objects = new ArrayList<>();
-        for (TypeId id : typeIdSet.getIds()) {
-            if (primaryOnly && !id.isPrimary()) {
-                continue;
+        if (typeIdSet != null) {
+            for (TypeId id : typeIdSet.getIds()) {
+                if (primaryOnly && !id.isPrimary()) {
+                    continue;
+                }
+                Object moduleId = createModuleId(id.getPkg());
+                objects.add(createTypeId(moduleId, id.getName()));
             }
-            Object moduleId = createModuleId(id.getPkg());
-            objects.add(createTypeId(moduleId, id.getName()));
         }
 
         BArray arrayValue = ValueCreator.createArrayValue(objects.toArray(new Object[]{}), typeIdArrayType);
@@ -99,8 +101,29 @@ public class TypeIds {
     private static BMap<BString, Object> createTypeId(Object moduleId, String name) {
         HashMap<String, Object> map = new HashMap<>();
         map.put("moduleId", moduleId);
-        map.put("localId", StringUtils.fromString(name));
+        map.put("localId", processLocalId(name));
 
         return ValueCreator.createReadonlyRecordValue(BALLERINA_TYPEDESC_PKG_ID, TYPE_ID_TYPE_SIG, map);
+    }
+
+    // Compiler generate integer values for local-id when it's anonymous
+    private static Object processLocalId(String localId) {
+        boolean isNumber = true;
+        for (char c : localId.toCharArray()) {
+            if (c < '0' || c > '9') {
+                isNumber = false;
+                break;
+            }
+        }
+
+        if (isNumber) {
+            try {
+                return Long.parseLong(localId);
+            } catch (NumberFormatException e) {
+                // Ignore, the local-id must be user provided identifier.
+            }
+        }
+
+        return StringUtils.fromString(localId);
     }
 }
