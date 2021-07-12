@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
@@ -45,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -84,6 +87,8 @@ import static org.objectweb.asm.Opcodes.IFGT;
 import static org.objectweb.asm.Opcodes.IFLE;
 import static org.objectweb.asm.Opcodes.IFLT;
 import static org.objectweb.asm.Opcodes.IFNE;
+import static org.objectweb.asm.Opcodes.IFNONNULL;
+import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.IF_ICMPEQ;
 import static org.objectweb.asm.Opcodes.IF_ICMPGE;
 import static org.objectweb.asm.Opcodes.IF_ICMPGT;
@@ -179,6 +184,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  */
 public class JvmInstructionGen {
 
+    public static final String TO_UNSIGNED_LONG = "toUnsignedLong";
     //this anytype is currently set from package gen class
     static BType anyType;
     private final MethodVisitor mv;
@@ -191,10 +197,12 @@ public class JvmInstructionGen {
     private final JvmBStringConstantsGen stringConstantsGen;
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
+    private final Types types;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                             JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector) {
+                             JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector,
+                             CompilerContext compilerContext) {
         this.mv = mv;
         this.indexMap = indexMap;
         this.currentPackage = currentPackage;
@@ -205,6 +213,7 @@ public class JvmInstructionGen {
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
         this.stringConstantsGen = stringConstantsGen;
+        types = Types.getInstance(compilerContext);
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -326,16 +335,16 @@ public class JvmInstructionGen {
             case TypeTags.UNSIGNED8_INT:
                 mv.visitInsn(L2I);
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedLong", "(B)J", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, TO_UNSIGNED_LONG, "(B)J", false);
                 return;
             case TypeTags.UNSIGNED16_INT:
                 mv.visitInsn(L2I);
                 mv.visitInsn(I2S);
-                mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, "toUnsignedLong", "(S)J", false);
+                mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, TO_UNSIGNED_LONG, "(S)J", false);
                 return;
             case TypeTags.UNSIGNED32_INT:
                 mv.visitInsn(L2I);
-                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
         }
     }
 
@@ -1008,13 +1017,13 @@ public class JvmInstructionGen {
 
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             if (opType1Tag == TypeTags.BYTE) {
-                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
             }
 
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             if (opType2Tag == TypeTags.BYTE) {
-                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
             }
 
@@ -1519,8 +1528,15 @@ public class JvmInstructionGen {
 
     void generateTypeTestIns(BIRNonTerminator.TypeTest typeTestIns) {
         var sourceValue = typeTestIns.rhsOp.variableDcl;
+        BType sourceType = sourceValue.type;
         BType targetType = typeTestIns.type;
-        if (canOptimizeType(sourceValue, targetType)) {
+        if (canOptimizeNilCheck(sourceType, targetType) ||
+                canOptimizeNilUnionCheck(sourceType, targetType)) {
+            handleNilUnionType(typeTestIns);
+            return;
+        }
+        if (canOptimizeErrorCheck(sourceType, targetType) ||
+                canOptimizeErrorUnionCheck(sourceType, targetType)) {
             handleErrorUnionType(typeTestIns);
             return;
         }
@@ -1532,6 +1548,86 @@ public class JvmInstructionGen {
         this.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
+    private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
+        return targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType);
+    }
+
+    private boolean canOptimizeNilUnionCheck(BType sourceType, BType type) {
+        if (!isValidUnionType(sourceType)) {
+            return false;
+        }
+        boolean foundNil = false;
+        BType otherType = null;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
+            if (bType.tag == TypeTags.NIL) {
+                foundNil = true;
+            } else {
+                otherType = bType;
+            }
+        }
+        return foundNil && type.equals(otherType);
+    }
+
+    private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
+        if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
+            return false;
+        }
+        BType errorType = null;
+        int foundError = 0;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
+            if (bType.tag == TypeTags.ERROR) {
+                foundError++;
+                errorType = bType;
+            }
+        }
+        return (foundError == 1 && types.isAssignable(errorType, targetType)) || (foundError > 0 && "error".equals(
+                targetType.tsymbol.name.value));
+    }
+
+    private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
+        if (!isValidUnionType(sourceType)) {
+            return false;
+        }
+        BType otherType = null;
+        int foundError = 0;
+        for (BType bType : ((BUnionType) sourceType).getMemberTypes()) {
+            if (bType.tag == TypeTags.ERROR) {
+                foundError++;
+            } else {
+                otherType = bType;
+            }
+        }
+        return foundError == 1 && targetType.equals(otherType);
+    }
+
+    private boolean isValidUnionType(BType rhsType) {
+        if (rhsType.tag != TypeTags.UNION) {
+            return false;
+        }
+        return ((BUnionType) rhsType).getMemberTypes().size() == 2;
+    }
+
+    private void handleNilUnionType(BIRNonTerminator.TypeTest typeTestIns) {
+        loadVar(typeTestIns.rhsOp.variableDcl);
+        Label ifLabel = new Label();
+        if (typeTestIns.type.tag == TypeTags.NIL) {
+            mv.visitJumpInsn(IFNONNULL, ifLabel);
+        } else {
+            mv.visitJumpInsn(IFNULL, ifLabel);
+        }
+        loadBoolean(ifLabel);
+        storeToVar(typeTestIns.lhsOp.variableDcl);
+    }
+
+    private void loadBoolean(Label ifLabel) {
+        mv.visitInsn(ICONST_1);
+        Label gotoLabel = new Label();
+        mv.visitJumpInsn(GOTO, gotoLabel);
+        mv.visitLabel(ifLabel);
+        mv.visitInsn(ICONST_0);
+        mv.visitLabel(gotoLabel);
+    }
+
     private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         loadVar(typeTestIns.rhsOp.variableDcl);
         mv.visitTypeInsn(INSTANCEOF, BERROR);
@@ -1541,38 +1637,10 @@ public class JvmInstructionGen {
         storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
-    private boolean canOptimizeType(BIRNode.BIRVariableDcl rhsVar, BType type) {
-        BType rhsType = rhsVar.type;
-        if (rhsType.tag != TypeTags.UNION) {
-            return false;
-        }
-        var unionMemberTypes = ((BUnionType) rhsType).getMemberTypes();
-        if (unionMemberTypes.size() != 2) {
-            return false;
-        }
-        BType errorType = null;
-        BType otherType = null;
-        int foundError = 0;
-        for (BType bType : unionMemberTypes) {
-            if (bType.tag == TypeTags.ERROR) {
-                errorType = bType;
-                foundError++;
-            } else {
-                otherType = bType;
-            }
-        }
-        return foundError == 1 && (type.equals(errorType) || type.equals(otherType));
-    }
-
     private void generateNegateBoolean() {
         Label ifLabel = new Label();
         mv.visitJumpInsn(IFNE, ifLabel);
-        mv.visitInsn(ICONST_1);
-        Label gotoLabel = new Label();
-        mv.visitJumpInsn(GOTO, gotoLabel);
-        mv.visitLabel(ifLabel);
-        mv.visitInsn(ICONST_0);
-        mv.visitLabel(gotoLabel);
+        loadBoolean(ifLabel);
     }
 
     void generateIsLikeIns(BIRNonTerminator.IsLike isLike) {
