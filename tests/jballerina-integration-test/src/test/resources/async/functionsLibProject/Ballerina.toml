@@ -1,0 +1,8 @@
+[package]
+org = "testOrg"
+name = "functionsLib"
+version = "0.1.0"
+export = ["functionsLib", "functionsLib.mod1"]
+
+[build-options]
+observabilityIncluded = true
