@@ -44,7 +44,7 @@ dependencies {
     testCompile project(':ballerina-lang')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':project-api-test-artifact:logging-file-appender-plugin')
-    testRuntime project(':compiler-plugins:pkg-toml-semantic-analyzer')
+    testRuntime project(':compiler-plugins:package-semantic-analyzer')
 
     compilerPluginJar project(':project-api-test-artifact:event-logger-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
@@ -53,7 +53,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:function-node-analyzer-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:bad-sad-compiler-plugin')
-    compilerPluginJar project(':compiler-plugins:pkg-toml-semantic-analyzer')
+    compilerPluginJar project(':compiler-plugins:package-semantic-analyzer')
 
     testRuntime project(":ballerina-lang-test")
     balRt project(':ballerina-rt')

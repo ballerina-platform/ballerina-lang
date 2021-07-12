@@ -119,7 +119,7 @@ dependencies {
     docerina project(':docerina-gradle-plugin')
     dist project(':ballerina-shell:shell-core')
     dist project(':ballerina-shell:shell-cli')
-    dist project(':compiler-plugins:pkg-toml-semantic-analyzer')
+    dist project(':compiler-plugins:package-semantic-analyzer')
 
     datamapperLib project(':ballerinalang-data-mapper')
 

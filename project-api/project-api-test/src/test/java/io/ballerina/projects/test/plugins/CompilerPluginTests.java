@@ -147,7 +147,7 @@ public class CompilerPluginTests {
         Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
     }
 
-    @Test(description = "Test `pkg-toml-semantic-analyzer` compiler plugin by checking invalid export "
+    @Test(description = "Test `package-semantic-analyzer` compiler plugin by checking invalid export "
             + "modules in `Ballerina.toml`")
     public void testPkgInvalidExportedModule() {
         Package currentPackage = loadPackage("package_invalid_exported_modules");
@@ -162,7 +162,7 @@ public class CompilerPluginTests {
                 + "exported module 'xyz' is not a module of the package");
     }
 
-    @Test(description = "Test `pkg-toml-semantic-analyzer` compiler plugin by checking valid export "
+    @Test(description = "Test `package-toml-semantic-analyzer` compiler plugin by checking valid export "
             + "modules in `Ballerina.toml`")
     public void testPkgValidExportedModule() {
         Package currentPackage = loadPackage("package_valid_exported_modules");

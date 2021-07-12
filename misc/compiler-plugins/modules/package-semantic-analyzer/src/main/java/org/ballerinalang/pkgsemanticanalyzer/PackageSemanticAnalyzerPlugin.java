@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.pkg.toml.semntic.analyzer;
+package org.ballerinalang.pkgsemanticanalyzer;
 
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
@@ -42,23 +42,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code PackageTomlSemanticAnalyzerPlugin} analyzes package toml semantics.
+ * {@code PackageSemanticAnalyzerPlugin} analyzes package semantics after compilation phase.
  *
  * @since 2.0.0
  */
-public class PackageTomlSemanticAnalyzerPlugin extends CompilerPlugin {
+public class PackageSemanticAnalyzerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new PackageTomlSemanticAnalyzer());
+        pluginContext.addCodeAnalyzer(new PackageSemanticAnalyzer());
     }
 
     /**
-     * {@code PackageTomlSemanticAnalyzer} analyzes package toml semantics
-     * and adds diagnostics after compilation phase.
+     * {@code PackageSemanticAnalyzer} analyzes package semantics and adds diagnostics after compilation phase.
      *
      * @since 2.0.0
      */
-    public static class PackageTomlSemanticAnalyzer extends CodeAnalyzer {
+    public static class PackageSemanticAnalyzer extends CodeAnalyzer {
         @Override
         public void init(CodeAnalysisContext analysisContext) {
             analysisContext.addCompilationAnalysisTask(compilationAnalysisContext -> {
