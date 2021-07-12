@@ -26,7 +26,7 @@ import java.io.IOException;
  * @since 0.982.0
  */
 public class RenameTest extends AbstractRenameTest {
-    
+
     @Test(description = "Test Rename", dataProvider = "testDataProvider")
     public void test(String resultJsonPath, String varName) throws IOException {
         super.performTest(resultJsonPath, varName);
@@ -41,7 +41,6 @@ public class RenameTest extends AbstractRenameTest {
     protected String sourceRoot() {
         return "single";
     }
-
 
     @DataProvider
     public Object[][] testDataProvider() {
@@ -59,7 +58,8 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_within_service3.json", "baz"},
                 {"rename_enum.json", "Color"},
                 {"rename_enum_member.json", "DARK_RED"},
-                
+                {"rename_to_keyword1.json", "int"},
+
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},
         };
