@@ -139,6 +139,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String J_INIT_FRAME_NAME = "$init$";
+    private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
 
     public JBallerinaDebugServer() {
@@ -422,6 +423,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         EvaluateResponse response = new EvaluateResponse();
         // If the execution manager is not active, sends null response.
         if (executionManager == null || !executionManager.isActive()) {
+            return CompletableFuture.completedFuture(response);
+        }
+        // Evaluate arguments context becomes `variables` when we do a `Copy Value` from VS Code, and
+        // evaluate arguments context becomes `repl` when we evaluate expressions from VS Code.
+        // If evaluate arguments context is equal to `variables`, then respond with expression as it is without
+        // evaluation process.
+        if (args.getContext().equals(EVAL_ARGS_CONTEXT_VARIABLES)) {
+            response.setResult(args.getExpression());
             return CompletableFuture.completedFuture(response);
         }
         try {
