@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.FunctionParameter;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.Type;
@@ -29,14 +30,12 @@ import java.util.StringJoiner;
  * @since 2.0
  */
 public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
-    final String[] paramNames;
-    final Boolean[] paramDefaultability;
+    public final FunctionParameter[] parameters;
 
-    public BRemoteMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, String[] paramNames,
-                             Boolean[] paramDefaultability) {
+    public BRemoteMethodType(String funcName, BObjectType parent, BFunctionType type, long flags,
+                             FunctionParameter[] parameters) {
         super(funcName, parent, type, flags);
-        this.paramNames = paramNames;
-        this.paramDefaultability = paramDefaultability;
+        this.parameters = parameters;
     }
 
     @Override
@@ -50,16 +49,11 @@ public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BRemoteMethodType(funcName, parentObjectType, type, flags, paramNames, paramDefaultability);
+        return new BRemoteMethodType(funcName, parentObjectType, type, flags, parameters);
     }
 
     @Override
-    public String[] getParamNames() {
-        return paramNames;
-    }
-
-    @Override
-    public Boolean[] getParamDefaultability() {
-        return paramDefaultability;
+    public FunctionParameter[] getParameters() {
+        return parameters;
     }
 }

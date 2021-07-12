@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
+import io.ballerina.runtime.api.FunctionParameter;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -64,11 +65,11 @@ public class Values {
         if (remoteType == null) {
             return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, 0), 0);
         }
-        String[] paramNames = remoteType.getParamNames();
-        int len = paramNames.length;
+        FunctionParameter[] parameters = remoteType.getParameters();
+        int len = parameters.length;
         BString[] params = new BString[len];
         for (int i = 0; i < len; i++) {
-            params[i] = StringUtils.fromString(paramNames[i]);
+            params[i] = StringUtils.fromString(parameters[i].name);
         }
         return ValueCreator.createArrayValue(params);
     }
@@ -78,11 +79,11 @@ public class Values {
         if (remoteType == null) {
             return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_BOOLEAN, 0), 0);
         }
-        Boolean[] paramDefaultability = remoteType.getParamDefaultability();
-        int len = paramDefaultability.length;
+        FunctionParameter[] parameters = remoteType.getParameters();
+        int len = parameters.length;
         boolean[] values = new boolean[len];
         for (int i = 0; i < len; i++) {
-            values[i] = paramDefaultability[i];
+            values[i] = parameters[i].isDefault;
         }
         return ValueCreator.createArrayValue(values);
     }

@@ -134,6 +134,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
@@ -1350,37 +1351,33 @@ public class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
 
-        List<BVarSymbol> params = attachedFunc.symbol.params;
-        mv.visitLdcInsn((long) params.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol paramSymbol = params.get(i);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.name.value);
-            mv.visitInsn(AASTORE);
-        }
-
-        mv.visitLdcInsn((long) params.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, BOOLEAN_VALUE);
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol paramSymbol = params.get(i);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.isDefaultable);
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                    String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-            mv.visitInsn(AASTORE);
-        }
+        loadFunctionParameters(mv, attachedFunc.symbol.params);
 
         mv.visitMethodInsn(INVOKESPECIAL, REMOTE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;J[L%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
-                        STRING_VALUE, BOOLEAN_VALUE), false);
+                String.format("(L%s;L%s;L%s;J[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
+                        FUNCTION_PARAMETER), false);
 
+    }
+
+    private void loadFunctionParameters(MethodVisitor mv, List<BVarSymbol> params) {
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(paramSymbol.name.value);
+            mv.visitLdcInsn(paramSymbol.isDefaultable);
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
+                    false);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;)V",
+                    STRING_VALUE, BOOLEAN_VALUE), false);
+            mv.visitInsn(AASTORE);
+        }
     }
 
     private void createResourceFunction(MethodVisitor mv, BResourceFunction resourceFunction,
@@ -1422,38 +1419,11 @@ public class JvmTypeGen {
             mv.visitInsn(AASTORE);
         }
 
-        List<BVarSymbol> params = resourceFunction.symbol.params;
-        mv.visitLdcInsn((long) params.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol paramSymbol = params.get(i);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.name.value);
-            mv.visitInsn(AASTORE);
-        }
-
-        mv.visitLdcInsn((long) params.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, BOOLEAN_VALUE);
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol paramSymbol = params.get(i);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.isDefaultable);
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                    String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-            mv.visitInsn(AASTORE);
-        }
+        loadFunctionParameters(mv, resourceFunction.symbol.params);
 
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;[L%s;)V",
-                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE,
-                        BOOLEAN_VALUE),
-                false);
+                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
+                        STRING_VALUE, STRING_VALUE, FUNCTION_PARAMETER), false);
     }
 
     // -------------------------------------------------------
