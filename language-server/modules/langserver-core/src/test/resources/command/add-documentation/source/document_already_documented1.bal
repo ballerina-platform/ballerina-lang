@@ -30,3 +30,15 @@ public class Encryptor {
 function getValue(string content, boolean round) returns float {
     return 1.1;
 }
+
+# A service to obtain a greeting message
+service / on new http:Listener(8080) {
+
+    #  Given the name of a person, this will return the greeting to be used
+    #
+    # + name - Name of person
+    # + return - Greeting message to be used
+    resource function get greeting/[string name]() returns string {
+        return "Hello, " + name;
+    }
+}
