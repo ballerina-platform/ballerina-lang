@@ -204,7 +204,7 @@ function testErrorWithUnderscore() returns [string, map<string|readonly>] {
     string reason;
     map<string|readonly> detail;
 
-    error(reason, ... _) = errWithMap;
+    error(reason) = errWithMap;
     error(_, ... detail) = errWithMap;
 
     return [reason, detail];
@@ -215,7 +215,7 @@ type SampleError error;
 function testDefaultErrorRefBindingPattern() returns string {
     SampleError e = error("the reason");
     string reason;
-    error(reason, ... _) = e;
+    error(reason) = e;
     return reason;
 }
 
