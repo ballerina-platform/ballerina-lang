@@ -31,11 +31,14 @@ public class Construct {
     public Type inclusionType = null;
     @Expose
     public boolean isReadOnly;
-    @Expose
-    public String builtInVersion;
+
     public Construct(String name, String description, boolean isDeprecated) {
         this.name = name;
         this.description = description;
         this.isDeprecated = isDeprecated;
+    }
+
+    public Construct(Type inclusionType) {
+        this.inclusionType = inclusionType;
     }
 }

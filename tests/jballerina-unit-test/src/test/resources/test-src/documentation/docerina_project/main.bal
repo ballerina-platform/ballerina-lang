@@ -1,11 +1,29 @@
 import docerina_project.world as prj;
 import ballerina/lang.'int as ints;
 
-public isolated function inlineRecordReturn() returns record {|
-    string latitude;
-    decimal longitude;
-    json...;
-|} {
+# Record representing the common-response to be returned.
+#
+# + headers - Additional headers to be included in the `http:Response`
+# + settings - Content to be included in the `http:Response` body
+type CommonResponse record {|
+    map<string|string[]> headers?;
+    ClientHttp2Settings settings;
+    DistObj|Person timeLow;
+    readonly ClientHttp2Settings clienthttpSettings;
+    string...;
+|};
+
+# Record representing the subscription / unsubscription intent verification success.
+public type SubscriptionVerificationSuccess record {
+    *CommonResponse;
+};
+
+public isolated function inlineRecordReturn(CommonResponse prvtRecord, SubscriptionVerificationSuccess publicRecord)
+    returns record {|
+        string latitude;
+        decimal longitude;
+        json...;
+    |} {
 }
 
 # Anydata type apram

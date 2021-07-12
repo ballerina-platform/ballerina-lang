@@ -28,4 +28,8 @@ public class DefaultableVariable extends Variable {
         super(name, description, isDeprecated, type);
         this.defaultValue = defaultValue;
     }
+
+    public DefaultableVariable(Type inclusionType) {
+        super(inclusionType);
+    }
 }

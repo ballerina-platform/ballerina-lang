@@ -26,6 +26,7 @@ import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.Record;
+import org.ballerinalang.docgen.generator.model.types.FunctionType;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -436,10 +437,11 @@ public class DocModelTest {
         Optional<BType> valuer = testModule.types.stream()
                 .filter(bType -> bType.name.equals("Valuer")).findAny();
         Assert.assertTrue(valuer.isPresent(), "Valuer function type not found");
-        Assert.assertTrue(valuer.get().memberTypes.get(0).isLambda);
-        Assert.assertTrue(valuer.get().memberTypes.get(0).isIsolated);
-        Assert.assertEquals(valuer.get().memberTypes.get(0).returnType.name, "anydata");
-        Assert.assertEquals(valuer.get().memberTypes.get(0).returnType.category, "builtin");
+        Assert.assertTrue(valuer.get().memberTypes.get(0) instanceof FunctionType);
+        Assert.assertTrue(((FunctionType) valuer.get().memberTypes.get(0)).isLambda);
+        Assert.assertTrue(((FunctionType) valuer.get().memberTypes.get(0)).isIsolated);
+        Assert.assertEquals(((FunctionType) valuer.get().memberTypes.get(0)).returnType.name, "anydata");
+        Assert.assertEquals(((FunctionType) valuer.get().memberTypes.get(0)).returnType.category, "builtin");
     }
 
     @Test(description = "Test included record parameter ")
@@ -483,7 +485,6 @@ public class DocModelTest {
         Assert.assertTrue(cityRec.isPresent(), "City record not found");
         Assert.assertEquals(cityRec.get().fields.size(), 2);
 
-        Assert.assertEquals(cityRec.get().fields.get(0).name, "Coordinates");
         Assert.assertNotNull(cityRec.get().fields.get(0).inclusionType);
         Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.name, "Coordinates");
         Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.moduleName, "docerina_project");
@@ -547,6 +548,7 @@ public class DocModelTest {
         Assert.assertEquals(studentA.get().methods.get(0).inclusionType.moduleName, "docerina_project");
         Assert.assertEquals(studentA.get().methods.get(0).inclusionType.version, "1.0.0");
         Assert.assertEquals(studentA.get().methods.get(0).inclusionType.category, "objectTypes");
+        Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).name, "middleName");
         Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).type.name, "string");
         Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).type.category, "builtin");
         Assert.assertEquals(studentA.get().methods.get(0).returnParameters.get(0).type.name, "string");
@@ -647,7 +649,7 @@ public class DocModelTest {
 
         Assert.assertTrue(inlineRecordReturnFunc.isPresent());
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.category,
-                "inline_closed_record");
+                "inline_record");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 3);
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).name,
                 "latitude");
@@ -661,5 +663,94 @@ public class DocModelTest {
                 .elementType.isRestParam);
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
                 .elementType.elementType.name, "json");
+    }
+
+    @Test(description = "Test private record inclusion")
+    public void testPrivateRecordInclusion() {
+        Optional<Record> subVeriSucRec = testModule.records.stream().filter(record ->
+                record.name.equals("SubscriptionVerificationSuccess")).findAny();
+        Assert.assertTrue(subVeriSucRec.isPresent());
+        Assert.assertNull(subVeriSucRec.get().inclusionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.size(), 5);
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).name, "headers");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).description,
+                "Additional headers to be included in the `http:Response`");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.category, "map");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(0).type.constraint.isAnonymousUnionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(0).name, "string");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(0).category, "builtin");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(1).isArrayType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(1).elementType.name,
+                "string");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(1).elementType.category,
+                "builtin");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).name, "settings");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).description,
+                "Content to be included in the `http:Response` body");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).type.category, "records");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).type.name, "ClientHttp2Settings");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).type.memberTypes.size(), 0);
+        Assert.assertTrue(subVeriSucRec.get().fields.get(1).type.isPublic);
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).name, "timeLow");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(2).type.isAnonymousUnionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.size(), 2);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).name, "DistObj");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).category, "objectTypes");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).orgName, "test_org");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).moduleName, "docerina_project");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).version, "1.0.0");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(1).name, "Person");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(1).category, "classes");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).name, "clienthttpSettings");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(3).type.isIntersectionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.size(), 2);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).name, "ClientHttp2Settings");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).category, "records");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).orgName, "test_org");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(1).name, "readonly");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(1).category, "builtin");
+
+        Assert.assertTrue(subVeriSucRec.get().fields.get(4).type.isRestParam);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(4).type.elementType.name, "string");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(4).type.elementType.category, "builtin");
+    }
+
+    @Test(description = "Test private record parameter")
+    public void testPrivateRecordParameter() {
+        Optional<Function> inlineRecordReturnFunc = testModule.functions.stream()
+                .filter(bType -> bType.name.equals("inlineRecordReturn")).findAny();
+
+        Assert.assertTrue(inlineRecordReturnFunc.isPresent());
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.size(), 2);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).name, "prvtRecord");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.category, "inline_record");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.size(), 5);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).name, "headers");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).description,
+                "Additional headers to be included in the `http:Response`");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                category, "map");
+        Assert.assertTrue(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.isAnonymousUnionType);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.memberTypes.get(0).name, "string");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.memberTypes.get(0).category, "builtin");
+        Assert.assertTrue(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.memberTypes.get(1).isArrayType);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                        constraint.memberTypes.get(1).elementType.name,
+                "string");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                        constraint.memberTypes.get(1).elementType.category,
+                "builtin");
+
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(1).name, "publicRecord");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(1).type.memberTypes.size(), 0);
     }
 }

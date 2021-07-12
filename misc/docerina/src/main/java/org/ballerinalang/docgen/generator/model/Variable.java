@@ -28,4 +28,8 @@ public class Variable extends Construct {
         super(name, description, isDeprecated);
         this.type = type;
     }
+
+    public Variable(Type inclusionType) {
+        super(inclusionType);
+    }
 }
