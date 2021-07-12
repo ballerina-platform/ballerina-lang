@@ -3,7 +3,7 @@
   "character": 16,
   "expected": [
     {
-      "title": "Add do and on-fail clauses",
+      "title": "Add do statement and on fail clause",
       "edits": [
         {
           "range": {
