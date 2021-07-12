@@ -49,10 +49,16 @@ type J [int, map<J>];
 type K string|int|K[];
 type K map<K>|string|K[]|int;
 
-type L [int, L[2]];
+type T [XNil, "text1", xInt, L[1]];
+const xInt = 1;
+type L [int, L[2], T[1]];
 type M [int, L[]];
+
+type N [int, N[2]];
+type N int|N[];
 
 function testFillerValueCyclicTuple() {
     M a = [1];
     L b = [1];
+    T c = ["nil"];
 }

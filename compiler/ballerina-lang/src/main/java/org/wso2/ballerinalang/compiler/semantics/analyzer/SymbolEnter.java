@@ -1144,7 +1144,18 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             defineAllUnresolvedCyclicTypesInScope(env);
-            unresolvedTypes.forEach(type -> defineNode(type, env));
+
+            Set<BLangIdentifier> reDeclaredCyclicTypeDef = new HashSet<>();
+            for (BLangNode unresolvedTypeNode : unresolvedTypes) {
+                if (unresolvedTypeNode.getKind() != NodeKind.TYPE_DEFINITION) {
+                    defineNode(unresolvedTypeNode, env);
+                }
+                // Prevent defining re-declared nodes
+                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) unresolvedTypeNode;
+                if (reDeclaredCyclicTypeDef.add(typeDefNode.name)) {
+                    defineNode(unresolvedTypeNode, env);
+                }
+            }
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
@@ -1676,7 +1687,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private BType createSymbolAndDefineInScope(BLangTypeDefinition typeDef, SymbolEnv env) {
+    private BType defineSymbolForCyclicTypeDefinition(BLangTypeDefinition typeDef, SymbolEnv env) {
         Name newTypeDefName = names.fromIdNode(typeDef.name);
         BTypeSymbol typeDefSymbol;
         BType newTypeNode;
@@ -1701,19 +1712,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         return newTypeNode;
     }
 
-    private BType defineSymbolsForCyclicTypeDefinitions(BLangTypeDefinition typeDef, SymbolEnv env) {
-        BType newTypeNode;
-        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
-        if (foundSym != symTable.notFoundSymbol) {
-            newTypeNode = foundSym.type;
-            return newTypeNode;
-        }
-        return createSymbolAndDefineInScope(typeDef, env);
-    }
-
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
-        //define symbols in main scope
-        BType newTypeNode = defineSymbolsForCyclicTypeDefinitions(typeDef, env);
+        // Get cyclic type reference from main scope
+        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(typeDef.name));
+        BType newTypeNode = foundSym.type;
 
         // Resolver only manages to resolve members as they are defined as user defined types.
         // Since we defined the symbols, the user defined types get resolved.
@@ -1757,7 +1759,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangNode unresolvedNode : unresolvedTypes) {
             if (unresolvedNode.getKind() == NodeKind.TYPE_DEFINITION && 
                     ((BLangTypeDefinition) unresolvedNode).hasCyclicReference) {
-                createSymbolAndDefineInScope((BLangTypeDefinition) unresolvedNode, env);
+                defineSymbolForCyclicTypeDefinition((BLangTypeDefinition) unresolvedNode, env);
             }
         }
         this.env = prevEnv;
