@@ -132,7 +132,7 @@ public class CommonUtil {
     public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
     public static final String BALLERINA_HOME;
-    
+
     public static final boolean COMPILE_OFFLINE;
 
     public static final String BALLERINA_CMD;
@@ -153,7 +153,7 @@ public class CommonUtil {
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
-        String onlineCompilation  = System.getProperty("ls.compilation.online");
+        String onlineCompilation = System.getProperty("ls.compilation.online");
         COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
@@ -1000,8 +1000,14 @@ public class CommonUtil {
         if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
             return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
         }
-        return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
-                ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
+            }
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 
     /**
