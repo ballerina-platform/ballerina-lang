@@ -632,6 +632,11 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (obj instanceof XmlItem) {
             return this.children.size() == 1 && this.children.get(0).equals(obj);
         }
+
+        if (this.children.isEmpty() && obj instanceof XmlText &&
+                ((XmlText) obj).type == PredefinedTypes.TYPE_XML_NEVER) {
+            return true;
+        }
         return false;
     }
 

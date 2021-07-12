@@ -884,6 +884,47 @@ function testReferenceEqualityXml() {
     true);
 }
 
+function testXmlNeverAndXmlSequenceEquality() {
+    xml a = xml ``;
+    xml<xml:Element> h = xml ``;
+    xml<xml:Comment> i = xml ``;
+    xml<xml:ProcessingInstruction> j = xml ``;
+    xml<xml:Text> k = xml ``;
+    xml:Text l = xml ``;
+    xml<never> b = xml ``;
+    xml c = 'xml:concat();
+    xml<never> d = <xml<never>> c;
+    xml<xml:Element> f = xml `<ele></ele>`;
+    xml e = f/*;
+
+    xml m = xml `<authors><name>Enid Blyton</name></authors>`;
+    xml n = m.filter(function (xml x2) returns boolean {
+        xml elements = (x2/*).elements();
+        return (elements/*).toString() == "Anne North";
+    });
+
+    assert(a == b, true);
+    assert(a != c, false);
+    assert(b == c, true);
+    assert(c == d, true);
+    assert(b == d, true);
+    assert(d != b, false);
+    assert(a == h, true);
+    assert(h != a, false);
+    assert(a == i, true);
+    assert(a == j, true);
+    assert(a == k, true);
+    assert(a == l, true);
+    assert(b == h, true);
+    assert(h != b, false);
+    assert(b == i, true);
+    assert(b == j, true);
+    assert(b == k, true);
+    assert(b == l, true);
+    assert(e != b, false);
+    assert(n == b, true);
+}
+
 function testSimpleXmlNegative() returns boolean {
     xml x1 = xml `<book>The Lot World</book>`;
     xml x2 = xml `<book>The Lost World</book>`;
