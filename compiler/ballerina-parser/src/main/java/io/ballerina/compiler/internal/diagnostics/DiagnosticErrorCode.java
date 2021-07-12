@@ -238,9 +238,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
     ERROR_MISSING_FIELD_NAME("BCE0522", "error.missing.field.name"),
     ERROR_MISSING_BUILTIN_TYPE("BCE0523", "error.missing.builtin.type"),
-    ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0524",
-            "error.metadata.not.attached.to.a.top.level.construct"),
-    ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER("BCE0525", "error.metadata.not.attached.to.a.object.member"),
+    ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT("BCE0524", "error.annotation.not.attached.to.a.construct"),
+    ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT("BCE0525", "error.documentation.not.attached.to.a.construct"),
     ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
 
     // Invalid nodes
@@ -324,7 +323,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INCOMPLETE_QUOTED_IDENTIFIER("BCE665", "error.incomplete.quoted.identifier"),
     ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD("BCE666",
             "error.inclusive.record.type.cannot.contain.rest.field"),
-    ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED("BCE667", "error.complex.variable.must.be.initialized"),
+    ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED("BCE667", "error.variable.decl.having.bp.must.be.initialized"),
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
     ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),

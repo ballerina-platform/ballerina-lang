@@ -99,7 +99,34 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // strings
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
+                "string index out of range: index=-1, size=5");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[100]", EvaluationExceptionKind.PREFIX +
+                "string index out of range: index=100, size=5");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[\"undefined\"]",
+                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
+                        "'stringVar[\"undefined\"]'");
+        // lists
+        debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
+                "array index out of range: index=-1, size=4");
+        debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[100]", EvaluationExceptionKind.PREFIX +
+                "array index out of range: index=100, size=4");
+        debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[\"undefined\"]",
+                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
+                        "'arrayVar[\"undefined\"]'");
+        // maps
+        debugTestRunner.assertEvaluationError(context, MAP_VAR + "[1]", EvaluationExceptionKind.PREFIX +
+                "expected key type 'string'; found 'int' in 'mapVar[1]'");
+        // JSON
+        debugTestRunner.assertEvaluationError(context, JSON_VAR + "[1]", EvaluationExceptionKind.PREFIX +
+                "expected key type 'string'; found 'int' in 'jsonVar[1]'");
+        // XML
+        debugTestRunner.assertEvaluationError(context, XML_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
+                "xml index out of range: index=-1, size=2");
+        debugTestRunner.assertEvaluationError(context, XML_VAR + "[\"undefined\"]",
+                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
+                        "'xmlVar[\"undefined\"]'");
     }
 
     @Override
@@ -224,7 +251,12 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void rangeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // inclusive range expressions
+        debugTestRunner.assertEvaluationError(context, String.format("%s...%s", INT_VAR, FLOAT_VAR),
+                "operator '...' not defined for 'int' and 'float'.");
+        // exclusive range expressions
+        debugTestRunner.assertEvaluationError(context, String.format("%s..<%s", INT_VAR, STRING_VAR),
+                "operator '..<' not defined for 'int' and 'string'.");
     }
 
     @Override

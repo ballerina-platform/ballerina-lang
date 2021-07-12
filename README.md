@@ -1,4 +1,4 @@
-  [![Build](https://github.com/ballerina-platform/ballerina-lang/workflows/Ballerina%20daily%20build/badge.svg)](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/daily_build.yml)
+  [![Ballerina daily build](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/daily_build.yml/badge.svg)](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/daily_build.yml)
   [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)

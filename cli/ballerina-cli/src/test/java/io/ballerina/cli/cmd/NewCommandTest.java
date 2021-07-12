@@ -156,7 +156,7 @@ public class NewCommandTest extends BaseCommandTest {
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
 
         String expectedTomlContent = "[package]\n" +
-                "org = \"" + System.getProperty("user.name") + "\"\n" +
+                "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
                 "name = \"lib_sample\"\n" +
                 "version = \"0.1.0\"\n" +
                 "\n" +

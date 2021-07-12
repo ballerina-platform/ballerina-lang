@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 7,
+    "character": 14
+  },
+  "source": "record_type_desc/source/source12.bal",
+  "items": [
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

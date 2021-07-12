@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry|transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,6 +249,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -257,14 +265,6 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -639,27 +639,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "b",
+      "label": "value4",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
-      "insertText": "b",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
+      "insertText": "value4",
       "insertTextFormat": "Snippet"
     },
     {
@@ -668,6 +652,14 @@
       "detail": "int",
       "sortText": "B",
       "insertText": "value2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -688,14 +680,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "value4",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value4",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "testFunction()",
@@ -730,6 +714,22 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "worker",

@@ -153,8 +153,8 @@ public class MatchStructuredPatternsTest {
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 124, 9);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 142, 5);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 149, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, "this function must return a result", 153, 1);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 157, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, "this function must return a result", 159, 1);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 165, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 166, 9);
         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 167, 9);

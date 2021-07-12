@@ -8,6 +8,10 @@ function testObjectConstructor() {
     };
 }
 
-function testFunctionWithReturn() returns int {
+function testFunctionWithReturn2() returns int {
     return 12;
+}
+
+function testFunctionWithReturn1() returns string {
+    return "Hello World!";
 }
