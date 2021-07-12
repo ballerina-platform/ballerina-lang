@@ -7,7 +7,7 @@ function simpleQuery(jdbc:Client jdbcClient) {
     // Select the rows in the database table via the query remote operation.
     // The result is returned as a stream and the elements of the stream can
     // be either a record or an error.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         jdbcClient->query("Select * from Customers");
 
     // If there is any error during the execution of the SQL query or
@@ -31,7 +31,7 @@ function simpleQuery(jdbc:Client jdbcClient) {
 function countRows(jdbc:Client jdbcClient) {
     io:println("------ Start Count Total Rows -------");
     // The result of the count operation is provided as a record stream.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         jdbcClient->query("Select count(*) as total from Customers");
 
     // Since the above count query will return only a single row,
@@ -74,12 +74,12 @@ function typedQuery(jdbc:Client jdbcClient) {
     io:println("------ Start Query With Type Description -------");
     // The result is returned as a Customer record stream and the elements
     // of the stream can be either a Customer record or an error.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         jdbcClient->query("Select * from Customers", Customer);
 
     // Cast the generic record type to the Customer stream type.
-    stream<Customer, sql:Error> customerStream =
-        <stream<Customer, sql:Error>>resultStream;
+    stream<Customer, sql:Error?> customerStream =
+        <stream<Customer, sql:Error?>>resultStream;
 
     // Iterate the customer stream.
     error? e = customerStream.forEach(function(Customer customer) {

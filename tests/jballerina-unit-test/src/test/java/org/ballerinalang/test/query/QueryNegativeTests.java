@@ -74,7 +74,7 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection",
                 416, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', " +
-                        "found 'stream<record {| int a; |},error>'", 421, 12);
+                        "found 'stream<record {| int a; |},error?>'", 421, 12);
         validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
         validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
         validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);

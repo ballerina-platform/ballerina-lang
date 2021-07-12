@@ -34,7 +34,7 @@ function queryBinaryType(jdbc:Client jdbcClient) {
     // The name and type of the attributes within the record from the
     // `resultStream` will be automatically identified based on the column
     // name and type of the query result.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         jdbcClient->query("Select * from BINARY_TYPES");
 
     io:println("Result 1:");
@@ -50,8 +50,8 @@ function queryBinaryType(jdbc:Client jdbcClient) {
     // Since the `rowType` is provided as a `BinaryType`, the `resultStream` will
     // have `BinaryType` records.
     resultStream = jdbcClient->query("Select * from BINARY_TYPES", BinaryType);
-    stream<BinaryType, sql:Error> binaryResultStream
-    = <stream<BinaryType, sql:Error>>resultStream;
+    stream<BinaryType, sql:Error?> binaryResultStream
+    = <stream<BinaryType, sql:Error?>>resultStream;
 
     io:println("Result 2:");
     // Iterate the `binaryResultStream`.
@@ -71,7 +71,7 @@ function queryArrayType(jdbc:Client jdbcClient) {
     // The name and type of the attributes within the record from the `
     // resultStream` will be automatically identified based on the column
     // name and type of the query result.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         jdbcClient->query("Select * from ARRAY_TYPES");
 
     io:println("Result 1:");
@@ -87,8 +87,8 @@ function queryArrayType(jdbc:Client jdbcClient) {
     // Since the `rowType` is provided as an `ArrayType`, the `resultStream` will
     // have `ArrayType` records.
     resultStream = jdbcClient->query("Select * from ARRAY_TYPES", ArrayType);
-    stream<ArrayType, sql:Error> arrayResultStream =
-        <stream<ArrayType, sql:Error>>resultStream;
+    stream<ArrayType, sql:Error?> arrayResultStream =
+        <stream<ArrayType, sql:Error?>>resultStream;
 
     io:println("Result 2:");
     // Iterate the `arrayResultStream`.
@@ -107,7 +107,7 @@ function queryDateTimeType(jdbc:Client jdbcClient) {
     // The name and type of the attributes within the record from
     // the `resultStream` will be automatically identified based on the
     // column name and type of the query result.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         jdbcClient->query("Select * from DATE_TIME_TYPES");
 
     io:println("Result 1:");
@@ -126,8 +126,8 @@ function queryDateTimeType(jdbc:Client jdbcClient) {
     // string, and int types in Ballerina.
     resultStream = jdbcClient->query("Select * from DATE_TIME_TYPES",
         DateTimeType);
-    stream<DateTimeType, sql:Error> dateResultStream =
-        <stream<DateTimeType, sql:Error>>resultStream;
+    stream<DateTimeType, sql:Error?> dateResultStream =
+        <stream<DateTimeType, sql:Error?>>resultStream;
 
     io:println("Result 2:");
     // Iterate the `dateResultStream`.

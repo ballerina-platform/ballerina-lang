@@ -13,7 +13,7 @@
   },
   {
     "description": "Define Odd number generation stream.",
-    "code": "var oddNumberStream = new stream<int, error>(oddGen);"
+    "code": "var oddNumberStream = new stream<int, error?>(oddGen);"
   },
   {
     "description": "Get the next value from the stream.",

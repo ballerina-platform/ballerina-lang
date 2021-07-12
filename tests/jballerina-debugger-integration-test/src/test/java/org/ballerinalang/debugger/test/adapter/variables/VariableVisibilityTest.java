@@ -276,7 +276,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "tableWithoutKeyVar", "table<Employee> (entries = 3)", "table");
 
         // stream variable visibility test
-        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error>", "stream");
+        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error?>", "stream");
 
         // variables with quoted identifiers visibility test
         debugTestRunner.assertVariable(localVariables, " /:@[`{~π_var", "\"IL with special characters in var\"",

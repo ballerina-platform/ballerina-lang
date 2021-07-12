@@ -82,15 +82,15 @@ public class InferredDependentlyTypeFunctionTest {
                 BCompileUtil.compile("test-src/javainterop/inferred_dependently_typed_func_signature_negative.bal");
         int index = 0;
         validateError(negativeResult, index++, "incompatible type for parameter 'rowType' with inferred " +
-                "typedesc value: expected 'typedesc<record {| int...; |}>', found 'typedesc<OpenRecord>'", 20, 37);
+                "typedesc value: expected 'typedesc<record {| int...; |}>', found 'typedesc<OpenRecord>'", 20, 38);
         validateError(negativeResult, index++, "incompatible types: expected 'typedesc<record {| int...; |}>', found " +
-                "'typedesc<OpenRecord>'", 21, 48);
+                "'typedesc<OpenRecord>'", 21, 49);
         validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
                 "typedesc default", 28, 1);
         validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
                 "typedesc default", 32, 5);
-        validateError(negativeResult, index++, "incompatible types: expected 'stream<record {| int x; |},error>', " +
-                "found 'stream<OpenRecord,error>'", 40, 43);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<record {| int x; |},error?>', " +
+                "found 'stream<OpenRecord,error?>'", 40, 44);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 42, 51);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 44, 46);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 46, 52);

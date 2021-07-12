@@ -110,7 +110,7 @@ public function main() {
 }
 
 function checkData(jdbc:Client jdbcClient) {
-     stream<record{}, error> resultStream =
+     stream<record{}, error?> resultStream =
         jdbcClient->query("Select * from Customers");
 
      io:println("\nData in Customers table:");

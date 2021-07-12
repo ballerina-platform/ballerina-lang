@@ -417,7 +417,7 @@ public function testInvalidInputType() {
                 select 1;
 }
 
-function testIncompatibleSelectType(stream<string, error> clientStream) returns error? {
+function testIncompatibleSelectType(stream<string, error?> clientStream) returns error? {
     return from string num in clientStream select {a: 1};
 }
 

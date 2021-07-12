@@ -129,10 +129,10 @@ function checkData(mysql:Client sqlClient) {
     if (retCall is sql:ProcedureCallResult) {
         io:println("Call stored procedure `InsertStudent` is successful.");
         // Process the returned result stream.
-        stream<record{}, sql:Error>? result = retCall.queryResult;
+        stream<record{}, sql:Error?>? result = retCall.queryResult;
         if (!(result is ())) {
-            stream<Student, sql:Error> studentStream = 
-                                    <stream<Student, sql:Error>> result;
+            stream<Student, sql:Error?> studentStream =
+                                    <stream<Student, sql:Error?>> result;
             sql:Error? e = studentStream.forEach(function(Student student) {
                                 io:println("Student details: ", student);
                            });

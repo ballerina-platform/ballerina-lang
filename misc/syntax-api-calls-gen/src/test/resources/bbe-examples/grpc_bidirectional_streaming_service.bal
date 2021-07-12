@@ -7,7 +7,7 @@ map<grpc:Caller> consMap = {};
 service Chat on new grpc:Listener(9090) {
 
     resource function  chat(grpc:Caller caller,
-                                stream<ChatMessage, error> clientStream) {
+                                stream<ChatMessage, error?> clientStream) {
         log:printInfo(string `${caller.getId()} connected to chat`);
         consMap[caller.getId().toString()] = <@untainted>caller;
         //Read and process each message in the client stream
