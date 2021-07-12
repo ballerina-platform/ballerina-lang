@@ -4312,7 +4312,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (env.enclInvokable != null || env.node.getKind() == NodeKind.ARROW_EXPR) {
+        if (this.nonErrorLoggingCheck) {
+            BLangFunction funcNode = bLangLambdaFunction.function;
+            BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
+                                                                       names.fromIdNode(funcNode.name),
+                                                                       env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                                                       funcNode.hasBody(), funcNode.pos, VIRTUAL);
+            funcSymbol.scope = new Scope(funcSymbol);
+            SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+            invokableEnv.scope = funcSymbol.scope;
+            symbolEnter.defineInvokableSymbolParams(bLangLambdaFunction.function, funcSymbol, invokableEnv);
+            funcNode.setBType(funcSymbol.type);
+        } else if (env.enclInvokable != null || env.node.getKind() == NodeKind.ARROW_EXPR) {
             symbolEnter.defineNode(bLangLambdaFunction.function, env);
         }
         bLangLambdaFunction.setBType(bLangLambdaFunction.function.getBType());

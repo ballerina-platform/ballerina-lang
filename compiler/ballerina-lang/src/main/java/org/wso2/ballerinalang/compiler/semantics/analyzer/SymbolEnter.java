@@ -4194,7 +4194,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         symResolver.markParameterizedType(bInvokableType, allConstituentTypes);
     }
 
-    private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
+    void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
                                              SymbolEnv invokableEnv) {
         List<BVarSymbol> paramSymbols = defineParametersOfFunction(invokableNode, invokableEnv);
         if (!invokableNode.desugaredReturnType) {
@@ -4213,10 +4213,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BInvokableTypeSymbol functionTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                                     invokableSymbol.flags,
-                                                                                    env.enclPkg.symbol.pkgID,
+                                                                                    invokableEnv.enclPkg.symbol.pkgID,
                                                                                     invokableSymbol.type,
-                                                                                    env.scope.owner, invokableNode.pos,
-                                                                                    SOURCE);
+                                                                                    invokableEnv.scope.owner,
+                                                                                    invokableNode.pos, SOURCE);
         functionTypeSymbol.params = invokableSymbol.params == null ? null : new ArrayList<>(invokableSymbol.params);
         functionTypeSymbol.returnType = invokableSymbol.retType;
 
