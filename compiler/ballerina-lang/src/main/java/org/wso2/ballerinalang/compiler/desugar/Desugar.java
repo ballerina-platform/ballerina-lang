@@ -771,6 +771,22 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        Map<String, String> map = new HashMap<String, String>();
+        for (int i = 0; i < pkgNode.constants.size(); i++) {
+            String nextKey = pkgNode.constants.get(i).toString();
+            String keyOwner = pkgNode.constants.get(i).symbol.owner.toString();
+            if (map.containsKey(nextKey)) {
+                if (map.get(nextKey) == keyOwner) {
+                    pkgNode.constants.remove(i);
+                    i -= 1;
+                } else {
+                    map.put(nextKey, keyOwner);
+                }
+            } else {
+                map.put(nextKey, keyOwner);
+            }
+        }
+
         pkgNode.globalVars = desugarGlobalVariables(pkgNode, initFnBody);
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));

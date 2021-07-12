@@ -190,6 +190,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -321,6 +322,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
+            if (kind == NodeKind.TYPE_DEFINITION) {
+                BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) pkgLevelNode;
+                if (bLangTypeDefinition.symbol instanceof BEnumSymbol) {
+                    List<String> enumElements = new ArrayList<String>();
+                    BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  bLangTypeDefinition.typeNode;
+                    for (int j = 0; j < bLangUnionTypeNode.memberTypeNodes.size(); j++) {
+                        BLangUserDefinedType next = (BLangUserDefinedType) bLangUnionTypeNode.memberTypeNodes.get(j);
+                        if (enumElements.contains(next.toString())) {
+                            dlog.error(next.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, next.toString());
+                        } else {
+                            enumElements.add(next.toString());
+                        }
+                    }
+                }
+            }
             analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
         }
 
