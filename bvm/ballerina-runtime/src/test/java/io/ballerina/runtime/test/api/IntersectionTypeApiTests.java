@@ -52,7 +52,7 @@ public class IntersectionTypeApiTests {
                 new BIntersectionType(module, new BType[]{}, arrayType, 0, true);
         Assert.assertEquals(bIntersectionType1.getTag(), TypeTags.INTERSECTION_TAG);
         Assert.assertEquals(bIntersectionType1.getEffectiveType(), arrayType);
-        Assert.assertEquals(bIntersectionType1.getIntersectionType(), bIntersectionType1);
+        Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType1);
     }
 
 }
