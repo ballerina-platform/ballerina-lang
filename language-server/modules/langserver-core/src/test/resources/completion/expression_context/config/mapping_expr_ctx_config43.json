@@ -17,7 +17,7 @@
     {
       "label": "endLine",
       "kind": "Field",
-      "detail": "(record {| Position startLine; Position endLine; |}).endLine",
+      "detail": "Range.endLine",
       "sortText": "G",
       "insertText": "endLine: ${1:{line: 0, offset: 0}}",
       "insertTextFormat": "Snippet"
@@ -25,15 +25,15 @@
     {
       "label": "startLine",
       "kind": "Field",
-      "detail": "(record {| Position startLine; Position endLine; |}).startLine",
+      "detail": "Range.startLine",
       "sortText": "G",
       "insertText": "startLine: ${2:{line: 0, offset: 0}}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| Position startLine; Position endLine; |} Required Fields",
+      "label": "Fill Range Required Fields",
       "kind": "Property",
-      "detail": "record {| Position startLine; Position endLine; |}",
+      "detail": "Range",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "endLine: {line: 0, offset: 0},\nstartLine: {line: 0, offset: 0}",

@@ -17,7 +17,7 @@
     {
       "label": "address",
       "kind": "Field",
-      "detail": "(record {| string name; int age; Address address; |}).address",
+      "detail": "Person.address",
       "sortText": "G",
       "insertText": "address: {\n\tstreet: \"${1}\",\n\tcity: \"${2}\",\n\tpostalCode: \"${3}\"\n}",
       "insertTextFormat": "Snippet"
@@ -25,7 +25,7 @@
     {
       "label": "name",
       "kind": "Field",
-      "detail": "(record {| string name; int age; Address address; |}).name",
+      "detail": "Person.name",
       "sortText": "G",
       "insertText": "name: \"${2}\"",
       "insertTextFormat": "Snippet"
@@ -33,15 +33,15 @@
     {
       "label": "age",
       "kind": "Field",
-      "detail": "(record {| string name; int age; Address address; |}).age",
+      "detail": "Person.age",
       "sortText": "G",
       "insertText": "age: ${3:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| string name; int age; Address address; |} Required Fields",
+      "label": "Fill Person Required Fields",
       "kind": "Property",
-      "detail": "record {| string name; int age; Address address; |}",
+      "detail": "Person",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "address: {street: \"\", city: \"\", postalCode: \"\"},\nname: \"\",\nage: 0",

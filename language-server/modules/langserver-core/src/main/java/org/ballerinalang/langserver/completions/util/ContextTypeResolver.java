@@ -106,6 +106,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     private final PositionedOperationContext context;
     private final List<Node> visitedNodes = new ArrayList<>();
+    private TypeSymbol broaderTypeSymbol;
+    private boolean isBroaderTypeSymbolSet = false;
 
     public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
@@ -470,6 +472,10 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     private TypeSymbol getRawContextType(TypeSymbol typeSymbol) {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        if (!this.isBroaderTypeSymbolSet) {
+            broaderTypeSymbol = typeSymbol;
+            isBroaderTypeSymbolSet = true;
+        }
         switch (rawType.typeKind()) {
             case MAP:
                 return ((MapTypeSymbol) rawType).typeParam();
@@ -548,5 +554,18 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         return Optional.of(parameterSymbols.get().get(argIndex).typeDescriptor());
+    }
+
+    /**
+     * Returns the broader or original type symbol of the resolved type symbol for a given context.
+     *
+     * @return
+     */
+    public Optional<TypeSymbol> getBroaderTypeSymbol() {
+        if (isBroaderTypeSymbolSet) {
+            return Optional.ofNullable(broaderTypeSymbol);
+        } else {
+            return Optional.empty();
+        }
     }
 }
