@@ -15,12 +15,14 @@
  */
 package org.ballerinalang.langserver.codelenses;
 
+import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
 import org.ballerinalang.langserver.commons.codelenses.spi.LSCodeLensesProvider;
 import org.eclipse.lsp4j.CodeLens;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +33,6 @@ import java.util.List;
  * @since 0.984.0
  */
 public class CodeLensUtil {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeLensUtil.class);
 
     /**
      * Compile and get code lenses.
@@ -39,7 +40,7 @@ public class CodeLensUtil {
      * @param codeLensContext LSContext
      * @return a list of code lenses
      */
-    public static List<CodeLens> getCodeLenses(DocumentServiceContext codeLensContext) {
+    public static List<CodeLens> getCodeLenses(DocumentServiceContext codeLensContext, TextDocumentIdentifier txtDoc) {
         List<CodeLens> lenses = new ArrayList<>();
         List<LSCodeLensesProvider> providers = LSCodeLensesProviderHolder
                 .getInstance(codeLensContext.languageServercontext()).getProviders();
@@ -47,7 +48,9 @@ public class CodeLensUtil {
             try {
                 lenses.addAll(provider.getLenses(codeLensContext));
             } catch (LSCodeLensesProviderException e) {
-                LOGGER.error("Error while retrieving lenses from: " + provider.getName());
+                LSClientLogger clientLogger = LSClientLogger.getInstance(codeLensContext.languageServercontext());
+                clientLogger.logError(LSContextOperation.TXT_CODE_LENS,
+                        "Error while retrieving lenses from: " + provider.getName(), e, txtDoc, (Position) null);
             }
         }
         return lenses;

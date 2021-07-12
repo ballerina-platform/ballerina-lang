@@ -122,6 +122,20 @@ public class LSClientLogger {
             this.languageClient.logMessage(new MessageParams(MessageType.Info, message));
         }
     }
+    
+    /**
+     * Logs an info message through the LSP protocol.
+     *
+     * @param message log message
+     */
+    public void logMessage(String message) {
+        if (!this.isInitializedOnce) {
+            return;
+        }
+        if (this.languageClient != null) {
+            this.languageClient.logMessage(new MessageParams(MessageType.Log, message));
+        }
+    }
 
     /**
      * Sends a telemetry event to the client. Though this is doesn't do any logging directly, sending telemetry events
