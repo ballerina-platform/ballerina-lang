@@ -1,4 +1,4 @@
-[configStructuredTypes.open_records.product]
+[configOpenRecord.product]
 intVal = 22
 floatVal = 22.33
 stringVal = "abc"
@@ -6,11 +6,11 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[[configStructuredTypes.open_records.product.mapArr]]
+[[configOpenRecord.product.mapArr]]
 c = "c"
 d = 456
 
-[[configStructuredTypes.open_records.productArr]]
+[[configOpenRecord.productArr]]
 intVal = 11
 floatVal = 99.77
 stringVal = "def"
@@ -18,11 +18,11 @@ arrVal = [4.5, 6.7]
 mapVal.c = "c"
 mapVal.d = 456
 
-[[configStructuredTypes.open_records.productArr.mapArr]]
+[[configOpenRecord.productArr.mapArr]]
 a = "a"
 b = 789
 
-[[configStructuredTypes.open_records.productArr]]
+[[configOpenRecord.productArr]]
 intVal = 33
 floatVal = 88.44
 stringVal = "ghi"
@@ -30,11 +30,11 @@ arrVal = [8.9, 0.1]
 mapVal.e = "e"
 mapVal.f = 789
 
-[[configStructuredTypes.open_records.productArr.mapArr]]
+[[configOpenRecord.productArr.mapArr]]
 g = "g"
 h = 876
 
-[[configStructuredTypes.open_records.productTable]]
+[[configOpenRecord.productTable]]
 intVal = 65
 floatVal = 9.12
 stringVal = "val"
@@ -42,11 +42,11 @@ arrVal = ["4", "6"]
 mapVal.c = "ccc"
 mapVal.d = 43
 
-[[configStructuredTypes.open_records.productTable.mapArr]]
+[[configOpenRecord.productTable.mapArr]]
 i = "iii"
 j = 21
 
-[[configStructuredTypes.open_records.productTable]]
+[[configOpenRecord.productTable]]
 intVal = 40
 floatVal = 13.57
 stringVal = "str"
@@ -54,11 +54,11 @@ arrVal = [10, 20]
 mapVal.m = "mmm"
 mapVal.n = 68
 
-[[configStructuredTypes.open_records.productTable.mapArr]]
+[[configOpenRecord.productTable.mapArr]]
 y = "yyy"
 x = 24
 
-[configStructuredTypes.open_records.productMap.entry1]
+[configOpenRecord.productMap.entry1]
 intVal = 22
 floatVal = 22.33
 stringVal = "abc"
@@ -66,11 +66,11 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[[configStructuredTypes.open_records.productMap.entry2.mapArr]]
+[[configOpenRecord.productMap.entry2.mapArr]]
 c = "c"
 d = 456
 
-[[configStructuredTypes.open_records.productMapTable.entry1]]
+[[configOpenRecord.productMapTable.entry1]]
 intVal = 100
 floatVal = 103.507
 stringVal = "string"
@@ -78,11 +78,11 @@ arrVal = [100, 200]
 mapVal.m = "value"
 mapVal.n = 608
 
-[[configStructuredTypes.open_records.productMapTable.entry1.mapArr]]
+[[configOpenRecord.productMapTable.entry1.mapArr]]
 y = "test"
 x = 204
 
-[configStructuredTypes.open_records.owner]
+[configOpenRecord.owner]
 id = 101
 intVal = 22
 floatVal = 22.33
@@ -91,11 +91,11 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[[configStructuredTypes.open_records.owner.mapArr]]
+[[configOpenRecord.owner.mapArr]]
 c = "c"
 d = 456
 
-[[configStructuredTypes.open_records.ownerArr]]
+[[configOpenRecord.ownerArr]]
 id = 102
 intVal = 11
 floatVal = 99.77
@@ -104,11 +104,11 @@ arrVal = [4.5, 6.7]
 mapVal.c = "c"
 mapVal.d = 456
 
-[[configStructuredTypes.open_records.ownerArr.mapArr]]
+[[configOpenRecord.ownerArr.mapArr]]
 a = "a"
 b = 789
 
-[[configStructuredTypes.open_records.ownerArr]]
+[[configOpenRecord.ownerArr]]
 id = 103
 intVal = 33
 floatVal = 88.44
@@ -117,11 +117,11 @@ arrVal = [8.9, 0.1]
 mapVal.e = "e"
 mapVal.f = 789
 
-[[configStructuredTypes.open_records.ownerArr.mapArr]]
+[[configOpenRecord.ownerArr.mapArr]]
 g = "g"
 h = 876
 
-[[configStructuredTypes.open_records.ownerTable]]
+[[configOpenRecord.ownerTable]]
 id = 104
 intVal = 65
 floatVal = 9.12
@@ -130,11 +130,11 @@ arrVal = ["4", "6"]
 mapVal.c = "ccc"
 mapVal.d = 43
 
-[[configStructuredTypes.open_records.ownerTable.mapArr]]
+[[configOpenRecord.ownerTable.mapArr]]
 i = "iii"
 j = 21
 
-[[configStructuredTypes.open_records.ownerTable]]
+[[configOpenRecord.ownerTable]]
 id = 105
 intVal = 40
 floatVal = 13.57
@@ -143,11 +143,11 @@ arrVal = [10, 20]
 mapVal.m = "mmm"
 mapVal.n = 68
 
-[[configStructuredTypes.open_records.ownerTable.mapArr]]
+[[configOpenRecord.ownerTable.mapArr]]
 y = "yyy"
 x = 24
 
-[configStructuredTypes.open_records.ownerMap.entry1]
+[configOpenRecord.ownerMap.entry1]
 id  = 106
 intVal = 22
 floatVal = 22.33
@@ -156,14 +156,14 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[configStructuredTypes.open_records.ownerMap.entry2]
+[configOpenRecord.ownerMap.entry2]
 id = 107
 
-[[configStructuredTypes.open_records.ownerMap.entry2.mapArr]]
+[[configOpenRecord.ownerMap.entry2.mapArr]]
 c = "c"
 d = 456
 
-[[configStructuredTypes.open_records.ownerMapTable.entry1]]
+[[configOpenRecord.ownerMapTable.entry1]]
 id = 108
 intVal = 100
 floatVal = 103.507
@@ -172,11 +172,11 @@ arrVal = [100, 200]
 mapVal.m = "value"
 mapVal.n = 608
 
-[[configStructuredTypes.open_records.ownerMapTable.entry1.mapArr]]
+[[configOpenRecord.ownerMapTable.entry1.mapArr]]
 y = "test"
 x = 204
 
-[configStructuredTypes.open_records.member]
+[configOpenRecord.member]
 id = 101
 intVal = 22
 floatVal = 22.33
@@ -185,11 +185,11 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[[configStructuredTypes.open_records.member.mapArr]]
+[[configOpenRecord.member.mapArr]]
 c = "c"
 d = 456
 
-[[configStructuredTypes.open_records.memberArr]]
+[[configOpenRecord.memberArr]]
 id = 102
 intVal = 11
 floatVal = 99.77
@@ -198,11 +198,11 @@ arrVal = [4.5, 6.7]
 mapVal.c = "c"
 mapVal.d = 456
 
-[[configStructuredTypes.open_records.memberArr.mapArr]]
+[[configOpenRecord.memberArr.mapArr]]
 a = "a"
 b = 789
 
-[[configStructuredTypes.open_records.memberArr]]
+[[configOpenRecord.memberArr]]
 id = 103
 intVal = 33
 floatVal = 88.44
@@ -211,11 +211,11 @@ arrVal = [8.9, 0.1]
 mapVal.e = "e"
 mapVal.f = 789
 
-[[configStructuredTypes.open_records.memberArr.mapArr]]
+[[configOpenRecord.memberArr.mapArr]]
 g = "g"
 h = 876
 
-[[configStructuredTypes.open_records.memberTable]]
+[[configOpenRecord.memberTable]]
 id = 104
 intVal = 65
 floatVal = 9.12
@@ -224,11 +224,11 @@ arrVal = ["4", "6"]
 mapVal.c = "ccc"
 mapVal.d = 43
 
-[[configStructuredTypes.open_records.memberTable.mapArr]]
+[[configOpenRecord.memberTable.mapArr]]
 i = "iii"
 j = 21
 
-[[configStructuredTypes.open_records.memberTable]]
+[[configOpenRecord.memberTable]]
 id = 105
 intVal = 40
 floatVal = 13.57
@@ -237,11 +237,11 @@ arrVal = [10, 20]
 mapVal.m = "mmm"
 mapVal.n = 68
 
-[[configStructuredTypes.open_records.memberTable.mapArr]]
+[[configOpenRecord.memberTable.mapArr]]
 y = "yyy"
 x = 24
 
-[configStructuredTypes.open_records.memberMap.entry1]
+[configOpenRecord.memberMap.entry1]
 id  = 106
 intVal = 22
 floatVal = 22.33
@@ -250,14 +250,14 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[configStructuredTypes.open_records.memberMap.entry2]
+[configOpenRecord.memberMap.entry2]
 id = 107
 
-[[configStructuredTypes.open_records.memberMap.entry2.mapArr]]
+[[configOpenRecord.memberMap.entry2.mapArr]]
 c = "c"
 d = 456
 
-[[configStructuredTypes.open_records.memberMapTable.entry1]]
+[[configOpenRecord.memberMapTable.entry1]]
 id = 108
 intVal = 100
 floatVal = 103.507
@@ -266,52 +266,11 @@ arrVal = [100, 200]
 mapVal.m = "value"
 mapVal.n = 608
 
-[[configStructuredTypes.open_records.memberMapTable.entry1.mapArr]]
+[[configOpenRecord.memberMapTable.entry1.mapArr]]
 y = "test"
 x = 204
 
-[configStructuredTypes.open_records.player]
-id = 101
-teamMate.id = 102
-teamMate.teamMate.id = 103
-
-[[configStructuredTypes.open_records.playerArr]]
-id = 104
-teamMate.id = 105
-teamMate.teamMate.id = 106
-
-[[configStructuredTypes.open_records.playerArr]]
-id = 107
-teamMate.id = 108
-teamMate.teamMate.id = 109
-
-[[configStructuredTypes.open_records.playerTable]]
-id = 110
-teamMate.id = 111
-teamMate.teamMate.id = 112
-
-[[configStructuredTypes.open_records.playerTable]]
-id = 113
-teamMate.id = 114
-teamMate.teamMate.id = 115
-
-[configStructuredTypes.open_records.playerMap.entry1]
-id = 116
-teamMate.id = 117
-teamMate.teamMate.id = 118
-
-[configStructuredTypes.open_records.playerMap.entry2]
-id = 119
-
-[[configStructuredTypes.open_records.playerMapTable.entry1]]
-id = 120
-
-[[configStructuredTypes.open_records.playerMapTable.entry1]]
-id = 121
-teamMate.id = 122
-teamMate.teamMate.id = 123
-
-[configStructuredTypes.open_records.anonRecord]
+[configOpenRecord.anonRecord]
 id = 123
 intVal = 22
 floatVal = 22.33
@@ -320,11 +279,11 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[[configStructuredTypes.open_records.anonRecord.mapArr]]
+[[configOpenRecord.anonRecord.mapArr]]
 c = "c"
 d = 456
 
-[configStructuredTypes.open_records.anonRecordMap.entry1]
+[configOpenRecord.anonRecordMap.entry1]
 id  = 124
 intVal = 22
 floatVal = 22.33
@@ -333,14 +292,14 @@ arrVal = [1,2,3]
 mapVal.a = "a"
 mapVal.b = 123
 
-[configStructuredTypes.open_records.anonRecordMap.entry2]
+[configOpenRecord.anonRecordMap.entry2]
 id = 125
 
-[[configStructuredTypes.open_records.anonRecordMap.entry2.mapArr]]
+[[configOpenRecord.anonRecordMap.entry2.mapArr]]
 c = "c"
 d = 456
 
-[[configStructuredTypes.open_records.anonRecordMapTable.entry1]]
+[[configOpenRecord.anonRecordMapTable.entry1]]
 id = 126
 intVal = 100
 floatVal = 103.507
@@ -349,11 +308,11 @@ arrVal = [100, 200]
 mapVal.m = "value"
 mapVal.n = 608
 
-[[configStructuredTypes.open_records.anonRecordMapTable.entry1.mapArr]]
+[[configOpenRecord.anonRecordMapTable.entry1.mapArr]]
 y = "test"
 x = 204
 
-[[configStructuredTypes.open_records.anonRecordArr]]
+[[configOpenRecord.anonRecordArr]]
 id = 127
 intVal = 11
 floatVal = 99.77
@@ -362,11 +321,11 @@ arrVal = [4.5, 6.7]
 mapVal.c = "c"
 mapVal.d = 456
 
-[[configStructuredTypes.open_records.anonRecordArr.mapArr]]
+[[configOpenRecord.anonRecordArr.mapArr]]
 a = "a"
 b = 789
 
-[[configStructuredTypes.open_records.anonRecordArr]]
+[[configOpenRecord.anonRecordArr]]
 id = 128
 intVal = 33
 floatVal = 88.44
@@ -375,11 +334,11 @@ arrVal = [8.9, 0.1]
 mapVal.e = "e"
 mapVal.f = 789
 
-[[configStructuredTypes.open_records.anonRecordArr.mapArr]]
+[[configOpenRecord.anonRecordArr.mapArr]]
 g = "g"
 h = 876
 
-[[configStructuredTypes.open_records.anonRecordTable]]
+[[configOpenRecord.anonRecordTable]]
 id = 129
 intVal = 65
 floatVal = 9.12
@@ -388,11 +347,11 @@ arrVal = ["4", "6"]
 mapVal.c = "ccc"
 mapVal.d = 43
 
-[[configStructuredTypes.open_records.anonRecordTable.mapArr]]
+[[configOpenRecord.anonRecordTable.mapArr]]
 i = "iii"
 j = 21
 
-[[configStructuredTypes.open_records.anonRecordTable]]
+[[configOpenRecord.anonRecordTable]]
 id = 130
 intVal = 40
 floatVal = 13.57
@@ -401,6 +360,71 @@ arrVal = [10, 20]
 mapVal.m = "mmm"
 mapVal.n = 68
 
-[[configStructuredTypes.open_records.anonRecordTable.mapArr]]
+[[configOpenRecord.anonRecordTable.mapArr]]
 y = "yyy"
 x = 24
+
+[configOpenRecord.rest_fields.intRest]
+id = 11
+age = 26
+
+[configOpenRecord.rest_fields.floatRest]
+height = 161.5
+weight = 62.3
+
+[configOpenRecord.rest_fields.stringRest]
+name = "Hinduja"
+city = "Colombo"
+
+[configOpenRecord.rest_fields.booleanRest]
+isBoolean = true
+isByte = false
+
+[configOpenRecord.rest_fields.anyRest]
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[configOpenRecord.rest_fields.player]
+id = 101
+teamMate.id = 102
+teamMate.teamMate.id = 103
+
+[[configOpenRecord.rest_fields.playerArr]]
+id = 104
+teamMate.id = 105
+teamMate.teamMate.id = 106
+
+[[configOpenRecord.rest_fields.playerArr]]
+id = 107
+teamMate.id = 108
+teamMate.teamMate.id = 109
+
+[[configOpenRecord.rest_fields.playerTable]]
+id = 110
+teamMate.id = 111
+teamMate.teamMate.id = 112
+
+[[configOpenRecord.rest_fields.playerTable]]
+id = 113
+teamMate.id = 114
+teamMate.teamMate.id = 115
+
+[configOpenRecord.rest_fields.playerMap.entry1]
+id = 116
+teamMate.id = 117
+teamMate.teamMate.id = 118
+
+[configOpenRecord.rest_fields.playerMap.entry2]
+id = 119
+
+[[configOpenRecord.rest_fields.playerMapTable.entry1]]
+id = 120
+
+[[configOpenRecord.rest_fields.playerMapTable.entry1]]
+id = 121
+teamMate.id = 122
+teamMate.teamMate.id = 123
