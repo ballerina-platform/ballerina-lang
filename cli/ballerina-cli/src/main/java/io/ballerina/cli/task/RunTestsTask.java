@@ -76,6 +76,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.USER_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
@@ -478,6 +479,8 @@ public class RunTestsTask implements Task {
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
+        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
+        cmdArgs.add("-XX:HeapDumpPath=" + USER_DIR);
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 
