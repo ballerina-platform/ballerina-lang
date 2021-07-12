@@ -1304,7 +1304,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambda) {
         lambda.function.accept(this);
-        env.enclPkg.lambdaFunctions.add(lambda);
+        lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
     }
 
     @Override

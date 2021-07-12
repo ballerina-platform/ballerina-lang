@@ -75,7 +75,7 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'map<json>', found '(json|map<json>|error)'",
                       106, 20);
         validateError(negativeResult, i++, "invalid operation: type 'Foo?' does not support field access", 131, 14);
-        validateError(negativeResult, i++, "invalid operation: type 'Baz?' does not support field access", 134, 16);
+        validateError(negativeResult, i++, "function invocation on type 'Foo' is not supported", 134, 19);
         validateError(negativeResult, i, "invalid operation: type 'Foo[]' does not support field access", 138, 9);
     }
 

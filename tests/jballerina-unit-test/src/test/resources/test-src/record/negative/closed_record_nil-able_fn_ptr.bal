@@ -25,10 +25,12 @@ function testNilableFuncPtrInvocation() {
     bob.getName = function (string fname, string lname) returns string {
         return fname + " " + lname;
     };
-    string? x = bob.getName(bob.fname, bob.lname);
+    (function (string, string) returns string)? fp = bob.getName;
+    string? x = fp(bob.fname, bob.lname);
 }
 
 function testNilableFuncPtrInvocation2() {
     Person bob = {fname:"bob", lname:"white"};
-    string? x = bob.getName(bob.fname, bob.lname);
+    (function (string, string) returns string)? fp = bob.getName;
+    string? x = fp(bob.fname, bob.lname);
 }
