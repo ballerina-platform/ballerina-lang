@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/jballerina.java;
+import ballerina/test;
 
 int GLB = 0;
 
@@ -188,6 +189,24 @@ function testDefaultObject() returns [[string, int], [string, int]] {
 
 function foo7(string s, float b = 1.1, FooObject o = new("default", 100)) returns [string, float, FooObject] {
     return [s, b, o];
+}
+
+function testFuncWithDefaultByteValue() {
+    test:assertEquals(funcWithDefaultByteValue(), 10);
+    test:assertEquals(funcWithDefaultByteValue(15), 15);
+}
+
+function testDefaultByteValueInFunctionPointers() {
+    function (byte b = 5) returns byte fp = funcWithDefaultByteValue;
+    test:assertEquals(fp(15), 15);
+    test:assertEquals(fp(funcWithDefaultByteValue()), 10);
+
+    //TODO : Enable this after merge #31589
+    //test:assertEquals(fp(), 5);
+}
+
+function funcWithDefaultByteValue(byte b = 10) returns byte {
+    return b;
 }
 
 function testFuncWithAsyncDefaultParamExpression() returns string {
