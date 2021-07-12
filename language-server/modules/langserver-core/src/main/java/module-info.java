@@ -26,7 +26,7 @@ module io.ballerina.language.server.core {
     requires jsr305;
     requires toml4j;
     requires io.ballerina.tools.api;
-    requires gson;
+    requires com.google.gson;
     requires com.google.common;
     requires io.ballerina.diagram.util;
     requires io.ballerina.syntaxapicallsgen;

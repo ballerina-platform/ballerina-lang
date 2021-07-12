@@ -3,7 +3,7 @@ module io.ballerina.docerina {
     requires org.apache.commons.lang3;
     requires io.ballerina.lang;
     requires io.ballerina.config;
-    requires gson;
+    requires com.google.gson;
     requires org.apache.commons.io;
     requires slf4j.api;
     requires org.commonmark;
