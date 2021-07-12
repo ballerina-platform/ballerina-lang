@@ -3,7 +3,7 @@
   "character": 16,
   "expected": [
     {
-      "title": "Create on-fail clause",
+      "title": "Create on fail clause",
       "edits": [
         {
           "range": {

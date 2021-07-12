@@ -132,7 +132,7 @@ public class CommandConstants {
     
     public static final String CONVERT_FUNCTION_TO_PUBLIC = "Convert to public function";
     
-    public static final String CREATE_ON_FAIL_CLAUSE = "Create on-fail clause";
+    public static final String CREATE_ON_FAIL_CLAUSE = "Create on fail clause";
 
-    public static final String CREATE_ON_FAIL_WITH_DO = "Add do and on-fail clauses";
+    public static final String CREATE_ON_FAIL_WITH_DO = "Add do statement and on fail clause";
 }

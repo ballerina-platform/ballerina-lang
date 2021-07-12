@@ -19,6 +19,7 @@ import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.DoStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -32,7 +33,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,31 +58,32 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         }
 
         CheckExpressionNode checkExpressionNode = (CheckExpressionNode) positionDetails.matchedNode();
-        List<TextEdit> edits = new ArrayList<>();
-
+        
         if (isDoStmtNodePresent(positionDetails.matchedNode())) {
             DoStatementNode doStatementNode = getDoStatementNode(checkExpressionNode);
             LinePosition doStmtLinePosition = doStatementNode.lineRange().endLine();
-            Position onFailPositionLine1 = new Position(doStmtLinePosition.line(), doStmtLinePosition.offset());
+            Position onFailPosLine = new Position(doStmtLinePosition.line(), doStmtLinePosition.offset());
             
-            String spaces = getLineSpace(doStmtLinePosition.offset() - 1);
+            String spaces = " ".repeat(doStmtLinePosition.offset() - 1);
             String editText = " on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                 + CommonUtil.LINE_SEPARATOR + spaces + "}";
-            edits.add(new TextEdit(new Range(onFailPositionLine1, onFailPositionLine1), editText));
+            List<TextEdit> edits = Arrays.asList(new TextEdit(new Range(onFailPosLine, onFailPosLine), editText));
             String commandTitle = CommandConstants.CREATE_ON_FAIL_CLAUSE;
             List<CodeAction> codeActions =
                     Arrays.asList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
             return codeActions;
         } else {
-            LinePosition linePosition = checkExpressionNode.parent().lineRange().startLine();
+            VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) checkExpressionNode.parent();
+            LinePosition linePosition = variableDeclarationNode.lineRange().startLine();
             Position positionDo = new Position(linePosition.line(), linePosition.offset());
-            Position positionCheckLineStart = new Position(linePosition.line() + 1, 0);
-            String spaces = getLineSpace(linePosition.offset());
-            String insideDoStatement = checkExpressionNode.parent().toString();
+            Position posCheckLineStart = new Position(linePosition.line() + 1, 0);
+            
+            String spaces = " ".repeat(linePosition.offset());
+            String insideDoStatement = variableDeclarationNode.toString();
             String editTextDo = "do {" + CommonUtil.LINE_SEPARATOR + "\t" + insideDoStatement 
                     + spaces + "} on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                     + CommonUtil.LINE_SEPARATOR + spaces + "}" + CommonUtil.LINE_SEPARATOR;
-            edits.add(new TextEdit(new Range(positionDo, positionCheckLineStart), editTextDo));
+            List<TextEdit> edits = Arrays.asList(new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo));
             String commandTitle = CommandConstants.CREATE_ON_FAIL_WITH_DO;
             List<CodeAction> codeActions =
                     Arrays.asList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
@@ -106,14 +107,6 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         } else {
             return getDoStatementNode(node.parent());
         }
-    }
-    
-    private String getLineSpace (int num) {
-        String spaces = "";
-        for (int s = 0; s < num; s++) {
-            spaces += " ";
-        }
-        return spaces;
     }
 
     @Override
