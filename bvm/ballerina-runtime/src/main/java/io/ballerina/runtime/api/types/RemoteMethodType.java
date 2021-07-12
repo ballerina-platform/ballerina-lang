@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.api.types;
 
+import io.ballerina.runtime.api.FunctionParameter;
+
 /**
  * {@code {@link RemoteMethodType }} represents remote function type in ballerina.
  *
@@ -28,7 +30,5 @@ public interface RemoteMethodType extends MethodType {
 
     FunctionType getType();
 
-    String[] getParamNames();
-
-    Boolean[] getParamDefaultability();
+    FunctionParameter[] getParameters();
 }
