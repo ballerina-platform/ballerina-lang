@@ -70,10 +70,10 @@ public class BindgenMvnResolver {
         } else {
             mvnRepository = Paths.get(projectRoot.toString(), TARGET_DIR, MVN_REPO);
         }
+        outStream.println("\nResolving maven dependencies...");
         Dependency dependency = resolveDependency(groupId, artifactId, version, mvnRepository.toString());
         handleDependency(groupId, artifactId, version, mvnRepository.toString(), projectRoot, null);
         if (resolve) {
-            outStream.println("\nResolving maven dependencies...");
             dependencyTraversal(dependency, mvnRepository.toString(), projectRoot);
             if (projectRoot != null) {
                 outStream.println("\nUpdated the Ballerina.toml file with new platform libraries.");
@@ -138,7 +138,7 @@ public class BindgenMvnResolver {
                         }
                     }
                 }
-                fileWriter.write("\n\n");
+                fileWriter.write("\n");
                 if (parent != null) {
                     fileWriter.write("# transitive dependency of " + parent + "\n");
                 }
@@ -149,7 +149,7 @@ public class BindgenMvnResolver {
                 }
                 fileWriter.write("groupId = \"" + groupId + "\"\n");
                 fileWriter.write("artifactId = \"" + artifactId + "\"\n");
-                fileWriter.write("version = \"" + version + "\"");
+                fileWriter.write("version = \"" + version + "\"\n");
             }
         } catch (IOException e) {
             throw new BindgenException("error: unable to update the Ballerina.toml file: " + e.getMessage(), e);
