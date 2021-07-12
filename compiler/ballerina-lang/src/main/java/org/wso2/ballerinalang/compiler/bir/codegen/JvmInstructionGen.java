@@ -1553,7 +1553,7 @@ public class JvmInstructionGen {
     }
 
     private boolean canOptimizeNilUnionCheck(BType sourceType, BType type) {
-        if (!isValidUnionType(sourceType)) {
+        if (isInValidUnionType(sourceType)) {
             return false;
         }
         boolean foundNil = false;
@@ -1585,7 +1585,7 @@ public class JvmInstructionGen {
     }
 
     private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
-        if (!isValidUnionType(sourceType)) {
+        if (isInValidUnionType(sourceType)) {
             return false;
         }
         BType otherType = null;
@@ -1600,11 +1600,11 @@ public class JvmInstructionGen {
         return foundError == 1 && targetType.equals(otherType);
     }
 
-    private boolean isValidUnionType(BType rhsType) {
+    private boolean isInValidUnionType(BType rhsType) {
         if (rhsType.tag != TypeTags.UNION) {
-            return false;
+            return true;
         }
-        return ((BUnionType) rhsType).getMemberTypes().size() == 2;
+        return ((BUnionType) rhsType).getMemberTypes().size() != 2;
     }
 
     private void handleNilUnionType(BIRNonTerminator.TypeTest typeTestIns) {
