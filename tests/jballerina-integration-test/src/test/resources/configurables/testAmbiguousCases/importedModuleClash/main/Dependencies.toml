@@ -3,3 +3,9 @@ org = "testOrg"
 name = "test"
 version = "0.1.0"
 repository = "local"
+
+[[dependency]]
+org = "testOrg2"
+name = "test"
+version = "0.1.0"
+repository = "local"

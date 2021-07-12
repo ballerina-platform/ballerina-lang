@@ -14,12 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testOrg/test;
-import testOrg2/test as mod;
+configurable string key = ?;
 
-configurable map<string> test = ?;
-
-public function main() {
-    string keyResult = test:getKey();
-    keyResult = mod:getKey();
+public function getKey() returns string {
+    return key;
 }
