@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -73,7 +74,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -142,6 +142,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTEGER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTABLE_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
@@ -1981,9 +1982,14 @@ public class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(bType));
 
         loadReadonlyFlag(mv, bType);
-
+        String effectiveTypeClass;
+        if (bType.effectiveType instanceof IntersectableReferenceType) {
+            effectiveTypeClass = INTERSECTABLE_REFERENCE_TYPE;
+        } else {
+            effectiveTypeClass = TYPE;
+        }
         mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;[L%s;L%s;IZ)V", MODULE, TYPE, TYPE), false);
+                           String.format("(L%s;[L%s;L%s;IZ)V", MODULE, TYPE, effectiveTypeClass), false);
     }
 
     /**

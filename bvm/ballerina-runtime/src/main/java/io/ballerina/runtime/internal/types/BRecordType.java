@@ -36,6 +36,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * {@code BRecordType} represents a user defined record type in Ballerina.
@@ -49,6 +50,7 @@ public class BRecordType extends BStructureType implements RecordType {
     public int typeFlags;
     private final boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -151,13 +153,23 @@ public class BRecordType extends BStructureType implements RecordType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 
     public boolean isSealed() {

@@ -26,6 +26,8 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 
+import java.util.Optional;
+
 /**
  * {@code BTableType} represents tabular data in Ballerina.
  *
@@ -39,6 +41,7 @@ public class BTableType extends BType implements TableType {
 
     private final boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
 
     public BTableType(Type constraint, String[] fieldNames, boolean readonly) {
         this(constraint, readonly);
@@ -135,12 +138,22 @@ public class BTableType extends BType implements TableType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }
