@@ -109,7 +109,8 @@ public class ModuleErrorVariableTest {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_error_var_decl.bal");
         int index = 0;
-        validateError(compileResult, index++, "complex variable must be initialized", 23, 66);
+        validateError(compileResult, index++, "variable declaration having binding pattern must be initialized",
+                23, 66);
         assertEquals(compileResult.getErrorCount(), index);
     }
 }

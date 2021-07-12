@@ -3829,10 +3829,10 @@ public class Desugar extends BLangNodeVisitor {
                 ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(true));
         blockStmt.addStatement(failureResult);
 
-        List<BType> memberTupleTypes = ((BTupleType) varRef.getBType()).getTupleTypes();
+        List<BType> memberTupleTypes = ((BTupleType) listBindingPattern.getBType()).getTupleTypes();
         List<BLangBindingPattern> bindingPatterns = listBindingPattern.bindingPatterns;
 
-        BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", varRef.getBType(), varRef, pos);
+        BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", listBindingPattern.getBType(), varRef, pos);
         BLangSimpleVarRef tempCastVarRef = ASTBuilderUtil.createVariableRef(pos,
                 tempCastVarDef.var.symbol);
         blockStmt.addStatement(tempCastVarDef);
@@ -4477,6 +4477,7 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangMatchPattern> matchPatterns = listMatchPattern.matchPatterns;
 
         BLangSimpleVariableDef tempCastVarDef = createVarDef("$castTemp$", listMatchPattern.getBType(), varRef, pos);
+        BLangSimpleVarRef tempCastVarRef = ASTBuilderUtil.createVariableRef(pos, tempCastVarDef.var.symbol);
         blockStmt.addStatement(tempCastVarDef);
         BLangExpression condition = createConditionForListMemberPattern(0, matchPatterns.get(0),
                 tempCastVarDef, blockStmt, memberTupleTypes.get(0), pos);
@@ -4498,7 +4499,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef restMatchPatternVarRef =
                     declaredVarDef.get(restMatchPattern.getIdentifier().getValue());
             matchStmtsForPattern.add(ASTBuilderUtil.createAssignmentStmt(pos, restMatchPatternVarRef,
-                    createLangLibInvocationNode("slice", varRef,
+                    createLangLibInvocationNode("slice", tempCastVarRef,
                             new ArrayList<>(Arrays.asList(new BLangLiteral((long) matchPatterns.size(),
                                     symTable.intType))), null, pos)));
         }
@@ -4872,6 +4873,10 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(matchPatternPos, tempVarDef.var.symbol);
 
             BLangExpression varCheckCondition = createConditionForNamedArgBindingPattern(bindingPattern, tempVarRef);
+            BLangExpression typeCheckCondition = createIsLikeExpression(matchPatternPos, tempVarRef,
+                    bindingPattern.getBType());
+            varCheckCondition = ASTBuilderUtil.createBinaryExpr(pos, typeCheckCondition,
+                    varCheckCondition, symTable.booleanType, OperatorKind.AND, null);
             if (i == 0) {
                 condition = varCheckCondition;
                 continue;

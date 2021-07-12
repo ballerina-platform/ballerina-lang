@@ -226,7 +226,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry|transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -267,6 +267,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -275,14 +283,6 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -657,6 +657,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "res",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "B",
+      "insertText": "res",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "main()",
       "kind": "Function",
       "detail": "()",
@@ -669,14 +677,6 @@
       "sortText": "C",
       "filterText": "main",
       "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "res",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "B",
-      "insertText": "res",
       "insertTextFormat": "Snippet"
     },
     {

@@ -175,7 +175,7 @@ public class StringUtils {
             return ((BString) value).getValue();
         }
 
-        if (type.getTag() < TypeTags.JSON_TAG) {
+        if (type.getTag() < TypeTags.NULL_TAG) {
             return String.valueOf(value);
         }
 
@@ -246,7 +246,7 @@ public class StringUtils {
             }
         }
 
-        if (type.getTag() < TypeTags.JSON_TAG) {
+        if (type.getTag() < TypeTags.NULL_TAG) {
             return String.valueOf(value);
         }
 
@@ -360,7 +360,7 @@ public class StringUtils {
         if (type.getTag() == TypeTags.STRING_TAG) {
             return stringToJson((BString) value);
         }
-        if (type.getTag() < TypeTags.JSON_TAG) {
+        if (type.getTag() < TypeTags.NULL_TAG) {
             return String.valueOf(value);
         }
 

@@ -78,7 +78,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        // Where to insert the edit: Depends on if a return statement alredy available or not
+        // Where to insert the edit: Depends on if a return statement already available or not
         Position start;
         Position end;
         if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {

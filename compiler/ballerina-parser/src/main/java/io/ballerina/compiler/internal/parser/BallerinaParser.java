@@ -38,6 +38,7 @@ import io.ballerina.compiler.internal.parser.tree.STIndexedExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STIntersectionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STListConstructorExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STMappingConstructorExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STMetadataNode;
 import io.ballerina.compiler.internal.parser.tree.STMissingToken;
 import io.ballerina.compiler.internal.parser.tree.STNamedArgumentNode;
 import io.ballerina.compiler.internal.parser.tree.STNilLiteralNode;
@@ -262,10 +263,8 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    STNode moduleVarDecl = createMissingSimpleVarDecl(metadata);
-                    moduleVarDecl = SyntaxErrors.addDiagnostic(moduleVarDecl, 
-                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT);
-                    return moduleVarDecl;
+                    metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
+                    return createMissingSimpleVarDecl(metadata);
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -318,6 +317,20 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseTopLevelNode(metadata, publicQualifier);
+    }
+
+    private STNode addMissingConstructDiagnostic(STMetadataNode metadata) {
+        STNode docString = metadata.documentationString;
+        if (docString != null) {
+            docString = SyntaxErrors.addDiagnostic(docString,
+                    DiagnosticErrorCode.ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT);
+        }
+
+        STNodeList annotList = (STNodeList) metadata.annotations;
+        STNode annotations = SyntaxErrors.updateAllNodesInNodeListWithDiagnostic(annotList,
+                DiagnosticErrorCode.ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT);
+
+        return STNodeFactory.createMetadataNode(docString, annotations);
     }
 
     /**
@@ -707,10 +720,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse import prefix declaration.
      * <p>
-     * <code>import-prefix-decl := as import-prefix
-     * <br/>
-     * import-prefix := a identifier | _
-     * </code>
+     * <code>import-prefix-decl := as import-prefix</code>
      *
      * @return Parsed node
      */
@@ -750,13 +760,23 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse import prefix.
+     * <p>
+     * <code>
+     * import-prefix := module-prefix | _
+     * <br/>
+     * module-prefix := identifier | predeclared-prefix
+     * </code>
      *
      * @return Parsed node
      */
     private STNode parseImportPrefix() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            return consume();
+            STToken identifier = consume();
+            if (isUnderscoreToken(identifier)) {
+                return getUnderscoreKeyword(identifier);
+            }
+            return identifier;
         } else if (isPredeclaredPrefix(nextToken.kind)) {
             STToken preDeclaredPrefix = consume();
             return STNodeFactory.createIdentifierToken(preDeclaredPrefix.text(), preDeclaredPrefix.leadingMinutiae(),
@@ -4426,11 +4446,9 @@ public class BallerinaParser extends AbstractParser {
 
         if (!hasVarInit) {
             SyntaxKind bindingPatternKind = ((STTypedBindingPatternNode) typedBindingPattern).bindingPattern.kind;
-            boolean hasComplexBP = bindingPatternKind != SyntaxKind.CAPTURE_BINDING_PATTERN &&
-                    bindingPatternKind != SyntaxKind.WILDCARD_BINDING_PATTERN;
-            if (hasComplexBP) {
+            if (bindingPatternKind != SyntaxKind.CAPTURE_BINDING_PATTERN) {
                 assign = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.EQUAL_TOKEN,
-                        DiagnosticErrorCode.ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED);
+                        DiagnosticErrorCode.ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED);
                 STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
                 expr = STNodeFactory.createSimpleNameReferenceNode(identifier);
             }
@@ -4593,14 +4611,12 @@ public class BallerinaParser extends AbstractParser {
 
         simpleNameRef = modifyNodeWithInvalidTokenList(qualifiers, simpleNameRef);
 
-        STNode objectField = STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
-                simpleNameRef, identifier, emptyNode, emptyNode, semicolon);
-
         if (metadata != null) {
-            objectField = SyntaxErrors.addDiagnostic(objectField,
-                    DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+            metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
         }
-        return objectField;
+
+        return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
+                simpleNameRef, identifier, emptyNode, emptyNode, semicolon);
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
@@ -4707,6 +4723,10 @@ public class BallerinaParser extends AbstractParser {
             lvExpr = getBindingPattern(lvExpr);
         }
 
+        if (isWildcardBP(lvExpr)) {
+            lvExpr = getWildcardBindingPattern(lvExpr);
+        }
+        
         boolean lvExprValid = isValidLVExpr(lvExpr);
         if (!lvExprValid) {
             // Create a missing simple variable reference and attach the invalid lvExpr as minutiae
@@ -4761,6 +4781,7 @@ public class BallerinaParser extends AbstractParser {
             case LIST_BINDING_PATTERN:
             case MAPPING_BINDING_PATTERN:
             case ERROR_BINDING_PATTERN:
+            case WILDCARD_BINDING_PATTERN:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVMemberExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -10106,6 +10127,11 @@ public class BallerinaParser extends AbstractParser {
     private STNode getKeyKeyword(STToken token) {
         return STNodeFactory.createToken(SyntaxKind.KEY_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
                 token.diagnostics());
+    }
+
+    private STToken getUnderscoreKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.UNDERSCORE_KEYWORD, token.leadingMinutiae(),
+                token.trailingMinutiae(), token.diagnostics());
     }
 
     /**
@@ -17110,12 +17136,15 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode getWildcardBindingPattern(STNode identifier) {
+        STNode underscore;
         switch (identifier.kind) {
             case SIMPLE_NAME_REFERENCE:
                 STNode varName = ((STSimpleNameReferenceNode) identifier).name;
-                return STNodeFactory.createWildcardBindingPatternNode(varName);
+                underscore = getUnderscoreKeyword((STToken) varName);
+                return STNodeFactory.createWildcardBindingPatternNode(underscore);
             case IDENTIFIER_TOKEN:
-                return STNodeFactory.createWildcardBindingPatternNode(identifier);
+                underscore = getUnderscoreKeyword((STToken) identifier);
+                return STNodeFactory.createWildcardBindingPatternNode(underscore);
             default:
                 throw new IllegalStateException();
         }
@@ -17431,7 +17460,9 @@ public class BallerinaParser extends AbstractParser {
         STNode secondNameRef = STNodeFactory.createSimpleNameReferenceNode(secondIdentifier);
         if (isWildcardBP(secondIdentifier)) {
             // { foo:_
-            return getWildcardBindingPattern(secondIdentifier);
+            STNode wildcardBP = getWildcardBindingPattern(secondIdentifier);
+            STNode nameRef = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            return STNodeFactory.createFieldBindingPatternFullNode(nameRef, colon, wildcardBP);
         }
 
         // Reach here for something like: "{foo:bar". This could be anything.
