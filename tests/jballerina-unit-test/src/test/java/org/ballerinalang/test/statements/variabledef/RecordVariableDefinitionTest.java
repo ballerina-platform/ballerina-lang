@@ -324,7 +324,9 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 152, 31);
         BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 157, 19);
+                "'_' is a keyword, and may not be used as an identifier", 157, 20);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "'_' is a keyword, and may not be used as an identifier", 157, 30);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'XY', " +
