@@ -1149,6 +1149,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BLangNode unresolvedTypeNode : unresolvedTypes) {
                 if (unresolvedTypeNode.getKind() != NodeKind.TYPE_DEFINITION) {
                     defineNode(unresolvedTypeNode, env);
+                    continue;
                 }
                 // Prevent defining re-declared nodes
                 BLangTypeDefinition typeDefNode = (BLangTypeDefinition) unresolvedTypeNode;
