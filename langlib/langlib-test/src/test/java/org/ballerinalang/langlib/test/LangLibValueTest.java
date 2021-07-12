@@ -343,6 +343,11 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
     }
 
+    @Test
+    public void testDestructuredNamedArgs() {
+        BRunUtil.invokeFunction(compileResult, "testDestructuredNamedArgs");
+    }
+
     @DataProvider(name = "fromJsonWithTypeFunctions")
     public Object[][] fromJsonWithTypeFunctions() {
         return new Object[][] {
