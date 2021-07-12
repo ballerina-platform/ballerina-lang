@@ -77,6 +77,7 @@ public class ProjectPathsTest {
     @Test
     public void testPackageRoot() {
         // test package root of build project
+        Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
                 .resolve(ProjectConstants.BALLERINA_TOML)), buildProjectPath);
         Assert.assertEquals(ProjectPaths.packageRoot(buildProjectPath
