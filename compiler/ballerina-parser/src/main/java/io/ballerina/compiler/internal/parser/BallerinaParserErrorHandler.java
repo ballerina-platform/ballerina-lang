@@ -73,7 +73,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
     private static final ParserRuleContext[] EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.EXTERNAL_KEYWORD };
+            { ParserRuleContext.EXTERNAL_KEYWORD, ParserRuleContext.ANNOTATIONS };
 
     /**
      * ANNON_FUNC--> When a anonymous function is possible.
