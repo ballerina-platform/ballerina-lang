@@ -372,7 +372,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextOperation.TXT_CODE_LENS, this.serverContext);
 
             try {
-                lenses = CodeLensUtil.getCodeLenses(codeLensContext);
+                lenses = CodeLensUtil.getCodeLenses(codeLensContext, params.getTextDocument());
                 return lenses;
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Lens", e);
