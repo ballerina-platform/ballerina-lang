@@ -130,7 +130,7 @@ public class TestBalaWriter {
 
             Assert.assertFalse(packageJson.getExport().isEmpty());
             Assert.assertEquals(packageJson.getExport().get(0), "winery");
-            Assert.assertEquals(packageJson.getExport().get(1), "winery.service");
+            Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
             Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
