@@ -429,7 +429,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         // evaluate arguments context becomes `repl` when we evaluate expressions from VS Code.
         // If evaluate arguments context is equal to `variables`, then respond with expression as it is without
         // evaluation process.
-        if (args.getContext().equals(EVAL_ARGS_CONTEXT_VARIABLES)) {
+        if (args.getContext() != null && args.getContext().equals(EVAL_ARGS_CONTEXT_VARIABLES)) {
             response.setResult(args.getExpression());
             return CompletableFuture.completedFuture(response);
         }
