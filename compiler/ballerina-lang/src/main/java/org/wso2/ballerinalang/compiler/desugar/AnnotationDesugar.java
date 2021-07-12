@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -55,9 +56,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -65,8 +66,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -801,18 +802,6 @@ public class AnnotationDesugar {
         return funcInvocation;
     }
 
-    private int calculateIndex(List<BLangStatement> statements, BLangService service) {
-        for (int i = 0; i < statements.size(); i++) {
-            BLangStatement stmt = statements.get(i);
-            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
-                    ((BLangServiceConstructorExpr) ((BLangAssignment) stmt).expr).serviceNode == service) {
-                return i;
-            }
-        }
-        return statements.size();
-    }
-
     private int calculateIndex(List<BLangStatement> statements, BTypeSymbol symbol) {
         for (int i = 0; i < statements.size(); i++) {
             BLangStatement stmt = statements.get(i);
@@ -822,14 +811,32 @@ public class AnnotationDesugar {
             }
 
             BLangExpression expr = ((BLangAssignment) stmt).expr;
-            NodeKind kind = expr.getKind();
-
-            if ((kind == NodeKind.TYPE_INIT_EXPR || kind == NodeKind.OBJECT_CTOR_EXPRESSION) &&
-                    expr.getBType().tsymbol == symbol) {
+            if ((desugar.isMappingOrObjectConstructorOrObjInit(expr))
+                    && isMappingOrObjectCtorOrObjInitWithSymbol(expr, symbol)) {
                 return i;
             }
         }
         return statements.size();
+    }
+
+    private boolean isMappingOrObjectCtorOrObjInitWithSymbol(BLangExpression expr, BTypeSymbol symbol) {
+        if (expr.getKind() == NodeKind.CHECK_EXPR) {
+            return isMappingOrObjectCtorOrObjInitWithSymbol(((BLangCheckedExpr) expr).expr, symbol);
+        } else if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            return isMappingOrObjectCtorOrObjInitWithSymbol(((BLangTypeConversionExpr) expr).expr, symbol);
+        }
+        return hasTypeSymbol(symbol, expr.getBType());
+    }
+
+    private boolean hasTypeSymbol(BTypeSymbol symbol, BType bType) {
+        if (bType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (hasTypeSymbol(symbol, memberType)) {
+                    return true;
+                }
+            }
+        }
+        return bType.tsymbol == symbol;
     }
 
     private List<BLangSimpleVariable> getParams(BLangFunction function) {
