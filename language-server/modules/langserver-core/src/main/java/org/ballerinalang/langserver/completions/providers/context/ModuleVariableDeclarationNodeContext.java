@@ -43,7 +43,8 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class ModuleVariableDeclarationNodeContext extends NodeWithRHSInitializerProvider<ModuleVariableDeclarationNode> {
+public class ModuleVariableDeclarationNodeContext extends
+        NodeWithRHSInitializerProvider<ModuleVariableDeclarationNode> {
     public ModuleVariableDeclarationNodeContext() {
         super(ModuleVariableDeclarationNode.class);
     }

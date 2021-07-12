@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.completions.providers.context.NodeWithRHSInitializerProvider;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
