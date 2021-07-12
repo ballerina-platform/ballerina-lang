@@ -811,7 +811,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         classDefinition.setPrecedence(this.typePrecedence++);
-        if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
+        if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol, false)) {
             env.scope.define(tSymbol.name, tSymbol);
         }
         env.scope.define(tSymbol.name, tSymbol);
@@ -2032,7 +2032,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             constantSymbol.flags |= Flags.DEPRECATED;
         }
         // Add the symbol to the enclosing scope.
-        if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol)) {
+        if (!symResolver.checkForUniqueSymbol(constant.name.pos, env, constantSymbol, true)) {
             return;
         }
 
@@ -4099,14 +4099,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineSymbol(Location pos, BSymbol symbol) {
         symbol.scope = new Scope(symbol);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, false)) {
             env.scope.define(symbol.name, symbol);
         }
     }
 
     public void defineSymbol(Location pos, BSymbol symbol, SymbolEnv env) {
         symbol.scope = new Scope(symbol);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, false)) {
             env.scope.define(symbol.name, symbol);
         }
     }
@@ -4148,7 +4148,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineSymbolWithCurrentEnvOwner(Location pos, BSymbol symbol) {
         symbol.scope = new Scope(env.scope.owner);
-        if (symResolver.checkForUniqueSymbol(pos, env, symbol)) {
+        if (symResolver.checkForUniqueSymbol(pos, env, symbol, false)) {
             env.scope.define(symbol.name, symbol);
         }
     }
@@ -4163,7 +4163,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 flagSet.contains(Flag.INCLUDED);
 
         if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol) ||
-                !considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+                !considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol, false)) {
             varSymbol.type = symTable.semanticError;
             varSymbol.state = DiagnosticState.REDECLARED;
         }

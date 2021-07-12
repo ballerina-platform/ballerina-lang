@@ -172,7 +172,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.unifier = new Unifier();
     }
 
-    public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
+    public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol, boolean isEnum) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;
         int expSymTag = symbol.tag;
@@ -215,8 +215,19 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
-
-            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            if (isEnum) {
+                BConstantSymbol symbolTypeConst = (BConstantSymbol) symbol;
+                BConstantSymbol foundSymConst = (BConstantSymbol) foundSym;
+                String symbolType = symbolTypeConst.type.toString();
+                String foundSymType = foundSymConst.type.toString();
+                String symbolLiteralType = symbolTypeConst.literalType.toString();
+                String foundLiteralSymType = foundSymConst.literalType.toString();
+                if ((!symbolType.equals(foundSymType)) || (!symbolLiteralType.equals(foundLiteralSymType))) {
+                    dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+                }
+            } else {
+                dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            }
             return false;
         }
 
