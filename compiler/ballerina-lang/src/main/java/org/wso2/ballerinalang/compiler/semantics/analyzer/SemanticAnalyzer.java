@@ -737,15 +737,26 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         SymbolEnv funcEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) functionTypeNode.symbol;
+        BInvokableType invokableType = (BInvokableType) invokableTypeSymbol.type;
         for (BLangVariable param : functionTypeNode.params) {
             analyzeDef(param, funcEnv);
         }
         if (functionTypeNode.restParam != null) {
             analyzeDef(functionTypeNode.restParam.typeNode, funcEnv);
+            invokableType.restType = functionTypeNode.restParam.getBType();
+            invokableTypeSymbol.restParam = functionTypeNode.restParam.symbol;
         }
         if (functionTypeNode.returnTypeNode != null) {
             analyzeDef(functionTypeNode.returnTypeNode, funcEnv);
+            invokableType.retType = functionTypeNode.returnTypeNode.getBType();
+            invokableTypeSymbol.returnType = functionTypeNode.returnTypeNode.getBType();
         }
+        invokableTypeSymbol.params = functionTypeNode.params.stream().map(paramSym -> paramSym.symbol)
+                .collect(Collectors.toList());
+
+        invokableType.paramTypes = functionTypeNode.params.stream().map(BLangNode::getBType)
+                                    .collect(Collectors.toList());
         functionTypeNode.analyzed = true;
     }
 
@@ -755,8 +766,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangValueType valueType) {
-//        BType type = symResolver.resolveTypeNode(valueType, env);
-//        valueType.setBType(symResolver.resolveTypeNode(valueType, env));
+        if (valueType.getBType() == null) {
+            valueType.setBType(symResolver.resolveTypeNode(valueType, env));
+        }
     }
 
     @Override
