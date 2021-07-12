@@ -6,11 +6,30 @@
   "source": "expression_context/source/typecast_expr_ctx_source2.bal",
   "items": [
     {
+      "label": "'error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
+      },
+      "sortText": "L",
+      "insertText": "'error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ErrorName",
       "kind": "Event",
       "detail": "Error",
       "sortText": "L",
       "insertText": "ErrorName",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -22,14 +41,6 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -185,29 +196,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -227,6 +215,52 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -273,29 +307,6 @@
             }
           },
           "newText": "import ballerina/lang.value as value3 ;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },

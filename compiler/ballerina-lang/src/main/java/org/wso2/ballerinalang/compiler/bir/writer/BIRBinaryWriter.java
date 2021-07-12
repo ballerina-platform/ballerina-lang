@@ -172,6 +172,8 @@ public class BIRBinaryWriter {
         writePosition(buf, typeDef.pos);
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.internalName.value));
+        // Type original-name CP Index
+        buf.writeInt(addStringCPEntry(typeDef.originalName.value));
         // Flags
         buf.writeLong(typeDef.flags);
         buf.writeByte(typeDef.isLabel ? 1 : 0);
@@ -195,6 +197,8 @@ public class BIRBinaryWriter {
         writePosition(buf, birFunction.pos);
         // Function name CP Index
         buf.writeInt(addStringCPEntry(birFunction.name.value));
+        // Function original name CP Index
+        buf.writeInt(addStringCPEntry(birFunction.originalName.value));
         // Function worker name CP Index
         buf.writeInt(addStringCPEntry(birFunction.workerName.value));
         // Flags
@@ -332,6 +336,8 @@ public class BIRBinaryWriter {
                                  BIRNode.BIRAnnotation birAnnotation) {
         // Annotation name CP Index
         buf.writeInt(addStringCPEntry(birAnnotation.name.value));
+        // Annotation original name CP Index
+        buf.writeInt(addStringCPEntry(birAnnotation.originalName.value));
 
         buf.writeLong(birAnnotation.flags);
         buf.writeByte(birAnnotation.origin.value());

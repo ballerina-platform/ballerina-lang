@@ -14,29 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -56,6 +33,52 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -102,29 +125,6 @@
             }
           },
           "newText": "import ballerina/lang.value as value3 ;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -430,18 +430,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getInt()",
-      "kind": "Function",
-      "detail": "int",
+      "label": "'error",
+      "kind": "Event",
+      "detail": "Error",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
       },
-      "sortText": "C",
-      "filterText": "getInt",
-      "insertText": "getInt()",
+      "sortText": "L",
+      "insertText": "'error",
       "insertTextFormat": "Snippet"
     },
     {
@@ -450,48 +446,6 @@
       "detail": "$CompilationError$",
       "sortText": "B",
       "insertText": "testMap",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getField()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "getField",
-      "insertText": "getField()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -518,6 +472,48 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getInt()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "getInt",
+      "insertText": "getInt()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "doTask()",
       "kind": "Function",
       "detail": "()",
@@ -530,6 +526,21 @@
       "sortText": "C",
       "filterText": "doTask",
       "insertText": "doTask()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getField()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "getField",
+      "insertText": "getField()",
       "insertTextFormat": "Snippet"
     },
     {

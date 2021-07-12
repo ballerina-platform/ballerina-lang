@@ -6,11 +6,22 @@
   "source": "typedesc_context/source/future_typedesc1.bal",
   "items": [
     {
-      "label": "TestMap1",
+      "label": "'error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
+      },
+      "sortText": "ABL",
+      "insertText": "'error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "ABN",
-      "insertText": "TestMap1",
+      "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -25,19 +36,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap2",
+      "label": "TestMap1",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "ABN",
-      "insertText": "TestMap2",
+      "insertText": "TestMap1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
+      "label": "TEST_CONST",
       "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "ABN",
-      "insertText": "Thread",
+      "detail": "Singleton",
+      "sortText": "AD",
+      "insertText": "TEST_CONST",
       "insertTextFormat": "Snippet"
     },
     {
@@ -49,19 +60,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "ABN",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "ABN",
       "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TEST_CONST",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "AD",
-      "insertText": "TEST_CONST",
       "insertTextFormat": "Snippet"
     },
     {
@@ -209,29 +220,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "ACE",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -251,6 +239,52 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "ACE",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "ACE",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -297,29 +331,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "ACE",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },

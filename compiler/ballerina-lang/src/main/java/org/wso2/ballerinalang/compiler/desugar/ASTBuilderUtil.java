@@ -151,8 +151,9 @@ public class ASTBuilderUtil {
     }
 
     static void defineVariable(BLangSimpleVariable variable, BSymbol targetSymbol, Names names) {
-        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), targetSymbol.pkgID, variable.getBType(),
-                                         targetSymbol, variable.pos, VIRTUAL);
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name),
+                                         names.originalNameFromIdNode(variable.name),
+                                         targetSymbol.pkgID, variable.getBType(), targetSymbol, variable.pos, VIRTUAL);
         targetSymbol.scope.define(variable.symbol.name, variable.symbol);
     }
 
@@ -707,6 +708,7 @@ public class ASTBuilderUtil {
         node.pos = pos;
         if (value != null) {
             node.setValue(value);
+            node.setOriginalValue(value);
         }
         return node;
     }
@@ -819,9 +821,9 @@ public class ASTBuilderUtil {
 
     public static BInvokableSymbol duplicateInvokableSymbol(BInvokableSymbol invokableSymbol) {
         BInvokableSymbol dupFuncSymbol =
-                Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.pkgID,
-                                             invokableSymbol.type, invokableSymbol.owner, invokableSymbol.bodyExist,
-                                             invokableSymbol.pos, invokableSymbol.origin);
+                Symbols.createFunctionSymbol(invokableSymbol.flags, invokableSymbol.name, invokableSymbol.originalName,
+                                             invokableSymbol.pkgID, invokableSymbol.type, invokableSymbol.owner,
+                                             invokableSymbol.bodyExist, invokableSymbol.pos, invokableSymbol.origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
         dupFuncSymbol.retType = invokableSymbol.retType;
         dupFuncSymbol.restParam = invokableSymbol.restParam;
@@ -861,7 +863,7 @@ public class ASTBuilderUtil {
                                                                       PackageID newPkgID,
                                                                       Location location,
                                                                       SymbolOrigin origin) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newPkgID,
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newName, newPkgID,
                                                                       null, owner, invokableSymbol.bodyExist,
                                                                       location, origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;

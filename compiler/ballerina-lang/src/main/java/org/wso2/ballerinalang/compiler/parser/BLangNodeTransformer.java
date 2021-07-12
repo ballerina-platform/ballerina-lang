@@ -1580,6 +1580,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             workerName = missingNodesHelper.getNextMissingNodeName(packageID);
         }
 
+        String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
             workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
@@ -1661,7 +1662,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
-                .with(workerName, workerNamePos)
+                .with(workerOriginalName, workerNamePos)
                 .isDeclaredWithVar()
                 .isWorkerVar()
                 .setExpression(bLInvocation)
@@ -5156,12 +5157,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1)));
-            bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
             bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
+        bLIdentifer.originalValue = value;
         bLIdentifer.pos = pos;
         if (ws != null) {
             bLIdentifer.addWS(ws);

@@ -36,7 +36,12 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     public BTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                        Location pos, SymbolOrigin origin) {
-        super(symTag, flags, name, pkgID, type, owner, pos, origin);
+        this(symTag, flags, name, name, pkgID, type, owner, pos, origin);
+    }
+
+    public BTypeSymbol(int symTag, long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
+                       Location pos, SymbolOrigin origin) {
+        super(symTag, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.isLabel = false;
     }
 

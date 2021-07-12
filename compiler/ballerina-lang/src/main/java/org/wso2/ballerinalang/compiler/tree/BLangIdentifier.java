@@ -40,6 +40,11 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
     }
 
     @Override
+    public void setOriginalValue(String value) {
+        this.originalValue = value;
+    }
+
+    @Override
     public boolean isLiteral() {
         return isLiteral;
     }

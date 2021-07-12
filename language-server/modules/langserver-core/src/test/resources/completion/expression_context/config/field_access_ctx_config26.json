@@ -229,7 +229,7 @@
       }
     },
     {
-      "label": "join(string... strs)",
+      "label": "'join(string... strs)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -239,8 +239,8 @@
         }
       },
       "sortText": "D",
-      "filterText": "join",
-      "insertText": "join(${1})",
+      "filterText": "'join",
+      "insertText": "'join(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

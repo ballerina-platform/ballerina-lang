@@ -50,29 +50,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -92,6 +69,52 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -138,29 +161,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -485,6 +485,57 @@
       }
     },
     {
+      "label": "var2",
+      "kind": "Variable",
+      "detail": "[string, int, boolean]",
+      "sortText": "B",
+      "insertText": "var2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "string|int|boolean",
+      "sortText": "B",
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var4",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "var4",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "p",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
+      },
+      "sortText": "L",
+      "insertText": "'error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "var5",
       "kind": "Variable",
       "detail": "string",
@@ -504,51 +555,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "string|int|boolean",
-      "sortText": "B",
-      "insertText": "var1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var2",
-      "kind": "Variable",
-      "detail": "[string, int, boolean]",
-      "sortText": "B",
-      "insertText": "var2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "i",
       "kind": "Variable",
       "detail": "string|int|boolean",
       "sortText": "B",
       "insertText": "i",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var4",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "var4",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "p",
       "insertTextFormat": "Snippet"
     },
     {

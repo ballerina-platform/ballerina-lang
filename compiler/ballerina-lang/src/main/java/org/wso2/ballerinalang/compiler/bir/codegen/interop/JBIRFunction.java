@@ -28,9 +28,9 @@ public class JBIRFunction extends BIRNode.BIRFunction {
 
 
     public JBIRFunction(BIRFunction birFunction) {
-        super(birFunction.pos, birFunction.name, birFunction.flags, birFunction.origin, birFunction.type,
-              birFunction.requiredParams, birFunction.receiver, birFunction.restParam, birFunction.argsCount,
-              birFunction.localVars, birFunction.returnVariable,
+        super(birFunction.pos, birFunction.name, birFunction.originalName, birFunction.flags, birFunction.origin,
+              birFunction.type, birFunction.requiredParams, birFunction.receiver, birFunction.restParam,
+              birFunction.argsCount, birFunction.localVars, birFunction.returnVariable,
               birFunction.parameters, birFunction.basicBlocks, birFunction.errorTable, birFunction.workerName,
               birFunction.workerChannels, birFunction.annotAttachments,
               birFunction.returnTypeAnnots, birFunction.dependentGlobalVars);

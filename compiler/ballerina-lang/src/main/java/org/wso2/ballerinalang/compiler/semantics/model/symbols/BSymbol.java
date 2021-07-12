@@ -41,6 +41,7 @@ public class BSymbol implements Symbol {
     public int tag;
     public long flags;
     public Name name;
+    public Name originalName;
     public PackageID pkgID;
     public SymbolKind kind;
     public BType type;
@@ -62,6 +63,21 @@ public class BSymbol implements Symbol {
         this.tag = tag;
         this.flags = flags;
         this.name = name;
+        this.originalName = name;
+        this.pkgID = pkgID;
+        this.type = type;
+        this.owner = owner;
+        this.pos = location;
+        this.origin = origin;
+    }
+
+    public BSymbol(int tag, long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
+                   Location location,
+                   SymbolOrigin origin) {
+        this.tag = tag;
+        this.flags = flags;
+        this.name = name;
+        this.originalName = originalName;
         this.pkgID = pkgID;
         this.type = type;
         this.owner = owner;
@@ -76,6 +92,11 @@ public class BSymbol implements Symbol {
     @Override
     public Name getName() {
         return name;
+    }
+
+    @Override
+    public Name getOriginalName() {
+        return originalName.getValue() != null ? originalName : name;
     }
 
     @Override

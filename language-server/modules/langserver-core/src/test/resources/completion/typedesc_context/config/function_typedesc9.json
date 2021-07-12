@@ -6,6 +6,17 @@
   "source": "typedesc_context/source/function_typedesc9.bal",
   "items": [
     {
+      "label": "'error",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
+      },
+      "sortText": "BL",
+      "insertText": "'error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -33,6 +44,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TEST_CONST",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "D",
+      "insertText": "TEST_CONST",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -46,22 +73,6 @@
       "detail": "Map",
       "sortText": "BN",
       "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "BN",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TEST_CONST",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "D",
-      "insertText": "TEST_CONST",
       "insertTextFormat": "Snippet"
     },
     {
@@ -209,29 +220,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -251,6 +239,52 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -297,29 +331,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },

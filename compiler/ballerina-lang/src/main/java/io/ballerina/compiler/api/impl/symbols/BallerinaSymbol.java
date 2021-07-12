@@ -50,7 +50,13 @@ public class BallerinaSymbol implements Symbol {
     private String escapedName;
 
     protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
+        this(name, symbolKind, symbol, context, false);
+    }
+
+    protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context,
+                              boolean replaceOriginalName) {
         this.name = name;
+        this.escapedName = replaceOriginalName ? name : symbol.getOriginalName().getValue();
         this.symbolKind = symbolKind;
         this.context = context;
 
@@ -70,18 +76,18 @@ public class BallerinaSymbol implements Symbol {
     public Optional<String> getName() {
         // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
         // escaped.
-        if (this.escapedName != null) {
-            return Optional.of(this.escapedName);
-        }
         if (getModule().isPresent()) {
             ModuleID moduleID = getModule().get().id();
             if (moduleID.moduleName().startsWith("lang.") && moduleID.orgName().startsWith("ballerina")) {
-                this.escapedName = this.name;
                 return Optional.ofNullable(this.escapedName);
             }
         }
-        this.escapedName = escapeReservedKeyword(this.name);
-        return Optional.ofNullable(this.escapedName);
+
+        if (isReservedKeyword(this.name)) {
+            return Optional.ofNullable(this.escapedName);
+        }
+
+        return Optional.ofNullable(this.name);
     }
 
     @Override
@@ -182,6 +188,10 @@ public class BallerinaSymbol implements Symbol {
         return loc1.get().lineRange().equals(loc2.get().lineRange());
     }
 
+    public boolean isReservedKeyword(String value) {
+        return BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value);
+    }
+
     public String escapeReservedKeyword(String value) {
         if (BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value)) {
             return "'" + value;
@@ -223,5 +233,13 @@ public class BallerinaSymbol implements Symbol {
          * @return {@link BallerinaSymbol} built
          */
         public abstract BallerinaSymbol build();
+
+        /**
+         * Build the Ballerina Symbol.
+         *
+         * @param  replaceOriginalName     whether to replace the original name or not
+         * @return {@link BallerinaSymbol} built
+         */
+//        public abstract BallerinaSymbol build(boolean replaceOriginalName);
     }
 }

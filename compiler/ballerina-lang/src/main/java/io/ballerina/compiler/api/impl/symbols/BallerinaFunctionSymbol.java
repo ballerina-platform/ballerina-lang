@@ -49,8 +49,8 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
 
     protected BallerinaFunctionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
                                       FunctionTypeSymbol typeDescriptor, BInvokableSymbol invokableSymbol,
-                                      CompilerContext context) {
-        super(name, SymbolKind.FUNCTION, invokableSymbol, context);
+                                      CompilerContext context, boolean replaceOriginalName) {
+        super(name, SymbolKind.FUNCTION, invokableSymbol, context, replaceOriginalName);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(invokableSymbol);
@@ -102,6 +102,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected FunctionTypeSymbol typeDescriptor;
+        protected boolean replaceOriginalName = false;
 
         public FunctionSymbolBuilder(String name, BInvokableSymbol bSymbol, CompilerContext context) {
             this(name, SymbolKind.FUNCTION, bSymbol, context);
@@ -131,10 +132,16 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
             return this;
         }
 
+        public FunctionSymbolBuilder setReplaceOriginalName(boolean replaceOriginalName) {
+            this.replaceOriginalName = replaceOriginalName;
+            return this;
+        }
+
         @Override
         public BallerinaFunctionSymbol build() {
             return new BallerinaFunctionSymbol(this.name, this.qualifiers, this.annots,
-                                               this.typeDescriptor, (BInvokableSymbol) this.bSymbol, this.context);
+                                               this.typeDescriptor, (BInvokableSymbol) this.bSymbol,
+                                               this.context, this.replaceOriginalName);
         }
     }
 }

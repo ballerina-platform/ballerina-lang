@@ -50,29 +50,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -92,6 +69,52 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -138,29 +161,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -466,28 +466,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "STRING_VAL_TWO",
-      "kind": "Variable",
-      "detail": "string value two",
+      "label": "'error",
+      "kind": "Event",
+      "detail": "Error",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
       },
-      "sortText": "B",
-      "insertText": "STRING_VAL_TWO",
+      "sortText": "L",
+      "insertText": "'error",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
+      "label": "TR1",
       "kind": "Struct",
       "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
       "sortText": "M",
-      "insertText": "StrandData",
+      "insertText": "TR1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -505,11 +499,36 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TR1",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "STRING_VAL_TWO",
+      "kind": "Variable",
+      "detail": "string value two",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "STRING_VAL_TWO",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "T5",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "M",
-      "insertText": "TR1",
+      "insertText": "T5",
       "insertTextFormat": "Snippet"
     },
     {
@@ -525,14 +544,6 @@
       "sortText": "C",
       "filterText": "helloFunction",
       "insertText": "helloFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "T5",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "T5",
       "insertTextFormat": "Snippet"
     },
     {

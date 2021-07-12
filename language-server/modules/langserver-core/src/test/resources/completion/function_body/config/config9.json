@@ -42,29 +42,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -84,6 +61,75 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -130,52 +176,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -481,18 +481,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getInt()",
-      "kind": "Function",
-      "detail": "int",
+      "label": "'error",
+      "kind": "Event",
+      "detail": "Error",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
+        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
       },
-      "sortText": "AC",
-      "filterText": "getInt",
-      "insertText": "getInt()",
+      "sortText": "N",
+      "insertText": "'error",
       "insertTextFormat": "Snippet"
     },
     {
@@ -515,6 +511,37 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "mInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "mInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "arg2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "arg2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getInt()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getInt",
+      "insertText": "getInt()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "func2(string arg1, int arg2)",
       "kind": "Function",
       "detail": "int",
@@ -534,19 +561,11 @@
       }
     },
     {
-      "label": "mInt",
+      "label": "gInt",
       "kind": "Variable",
       "detail": "int",
       "sortText": "AB",
-      "insertText": "mInt",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "arg2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "arg2",
+      "insertText": "gInt",
       "insertTextFormat": "Snippet"
     },
     {
@@ -555,14 +574,6 @@
       "detail": "Union",
       "sortText": "P",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "gInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "gInt",
       "insertTextFormat": "Snippet"
     },
     {

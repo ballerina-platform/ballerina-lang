@@ -140,7 +140,7 @@ public class LangLibrary {
 
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib) {
         for (Map.Entry<String, BInvokableSymbol> entry : langLib.entrySet()) {
-            FunctionSymbol method = symbolFactory.createFunctionSymbol(entry.getValue(), entry.getKey());
+            FunctionSymbol method = symbolFactory.createFunctionSymbol(entry.getValue(), entry.getKey(), false);
             list.add(method);
         }
     }
