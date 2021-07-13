@@ -97,9 +97,7 @@ public class SyntaxErrors {
         switch (currentCtx) {
             case EXTERNAL_FUNC_BODY:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
-            case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
-            case FUNC_BODY:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
@@ -107,12 +105,8 @@ public class SyntaxErrors {
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
             case IDENT_AFTER_OBJECT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
-            case VAR_DECL_STMT_RHS:
-            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case IMPORT_SUB_VERSION:
-            case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
-            case ATTACH_POINT_IDENT:
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_ATTACH_POINT_NAME;
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -122,9 +116,6 @@ public class SyntaxErrors {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-            case CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META:
-            case OBJECT_CONS_MEMBER_WITHOUT_META:
-            case RECORD_FIELD_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
             case ARRAY_TYPE_DESCRIPTOR:
@@ -135,9 +126,7 @@ public class SyntaxErrors {
             case FIELD_ACCESS_IDENTIFIER:
             case CLASS_NAME:
             case FUNC_NAME:
-            case FUNCTION_KEYWORD_RHS:
             case VARIABLE_NAME:
-            case TYPE_NAME_OR_VAR_NAME:
             case IMPORT_MODULE_NAME:
             case IMPORT_ORG_OR_MODULE_NAME:
             case IMPORT_PREFIX:
@@ -154,12 +143,9 @@ public class SyntaxErrors {
             case FIELD_BINDING_PATTERN_NAME:
             case XML_ATOMIC_NAME_IDENTIFIER:
             case MAPPING_FIELD_NAME:
-            case MAPPING_FIELD:
-            case ANNOT_DECL_OPTIONAL_TYPE:
             case WORKER_NAME:
             case NAMED_WORKERS:
             case ANNOTATION_TAG:
-            case CONST_DECL_TYPE:
             case AFTER_PARAMETER_TYPE:
             case MODULE_ENUM_NAME:
             case ENUM_MEMBER_NAME:
@@ -175,10 +161,7 @@ public class SyntaxErrors {
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
-            case BINDING_PATTERN_OR_EXPR_RHS:
-            case BINDING_PATTERN_OR_VAR_REF_RHS:
             case NAMED_ARG_BINDING_PATTERN:
-            case TYPE_DESC_RHS_OR_BP_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -187,18 +170,12 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case STRING_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            case ARRAY_LENGTH:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case SIGNED_INT_OR_FLOAT_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case HEX_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_INTEGER_LITERAL;
-            case CONSTANT_EXPRESSION:
-                return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            case CONSTANT_EXPRESSION_START:
-            case XML_NAMESPACE_PREFIX_DECL:
             case OBJECT_FIELD_RHS:
-            case OPTIONAL_FIELD_INITIALIZER:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
             case ERROR_MATCH_PATTERN:
@@ -209,12 +186,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_FLOATING_POINT_LITERAL;
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
-            case ENUM_MEMBER_RHS:
-            case ENUM_MEMBER_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
-            case MATCH_PATTERN_LIST_MEMBER_RHS:
-            case OPTIONAL_MATCH_GUARD:
-                return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
             case XML_COMMENT_CONTENT:
             case XML_PI_DATA:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_TEXT_CONTENT;
@@ -231,8 +203,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_BITWISE_AND_TOKEN;
             case EQUAL_OR_RIGHT_ARROW:
             case ASSIGN_OP:
-            case STMT_START_WITH_EXPR_RHS:
-            case CONST_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case BINARY_OPERATOR:
             case UNARY_OPERATOR:
@@ -242,8 +212,6 @@ public class SyntaxErrors {
             case PLUS_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_BINARY_OPERATOR;
             case CLOSE_BRACE:
-            case RECORD_BODY_END:
-            case RECORD_FIELD_OR_RECORD_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
             case CLOSE_PARENTHESIS:
             case ARG_LIST_CLOSE_PAREN:
@@ -253,33 +221,25 @@ public class SyntaxErrors {
             case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACE:
-            case TRANSACTION_STMT_RHS_OR_TYPE_REF:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
-            case ERROR_CONSTRUCTOR_RHS:
-            case ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
             case OBJECT_FIELD_RHS:
-            case EXPR_STMT_RHS:
-            case ATTACH_POINT_END:
-            case FIELD_DESCRIPTOR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case ASTERISK:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_PIPE_TOKEN;
             case CLOSED_RECORD_BODY_START:
-            case RECORD_BODY_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_PIPE_TOKEN;
             case ELLIPSIS:
                 return DiagnosticErrorCode.ERROR_MISSING_ELLIPSIS_TOKEN;
             case QUESTION_MARK:
                 return DiagnosticErrorCode.ERROR_MISSING_QUESTION_MARK_TOKEN;
             case CLOSE_BRACKET:
-            case MEMBER_ACCESS_KEY_EXPR_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
             case DOT:
                 return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
@@ -369,7 +329,6 @@ public class SyntaxErrors {
             case FUNCTION_IDENT:
             case OPTIONAL_PEER_WORKER:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-            case TYPE_DESC_WITHOUT_ISOLATED:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
@@ -398,7 +357,6 @@ public class SyntaxErrors {
             case AS_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
             case ON_KEYWORD:
-            case ANNOT_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
             case FINAL_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FINAL_KEYWORD;

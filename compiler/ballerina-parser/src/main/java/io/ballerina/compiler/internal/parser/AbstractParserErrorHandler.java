@@ -66,6 +66,8 @@ public abstract class AbstractParserErrorHandler {
 
     protected abstract SyntaxKind getExpectedTokenKind(ParserRuleContext context);
 
+    protected abstract Solution getShortestInsertSolution(ParserRuleContext context);
+
     /*
      * -------------- Error recovering --------------
      */
@@ -75,17 +77,18 @@ public abstract class AbstractParserErrorHandler {
      * to the next token, in order to recover. This method will search for the most
      * optimal action, that will result the parser to proceed the farthest distance.
      *
-     * @param nextToken  Next token of the input where the error occurred
-     * @param currentCtx Current parser context
-     * @param args       Arguments that requires to continue parsing from the given parser context
+     * @param currentCtx  Current parser context
+     * @param nextToken   Next token of the input where the error occurred
+     * @param insertsOnly Whether in the inserts only mode
      * @return The action needs to be taken for the next token, in order to recover
      */
-    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, Object... args) {
+    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, boolean insertsOnly) {
         // Assumption: always comes here after a peek()
-
-        if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-            SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
-            Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
+        if (insertsOnly) {
+            ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
+            this.ctxStack = getCtxStackSnapshot();
+            Solution fix = getShortestInsertSolution(currentCtx);
+            this.ctxStack = tempCtxStack;
             applyFix(currentCtx, fix);
             return fix;
         }

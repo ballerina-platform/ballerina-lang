@@ -243,6 +243,12 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     @Override
+    protected Solution getShortestInsertSolution(ParserRuleContext ctx) {
+        SyntaxKind expectedTokenKind = getExpectedTokenKind(ctx);
+        return new Solution(Action.INSERT, ctx, expectedTokenKind, ctx.toString());
+    }
+
+    @Override
     protected SyntaxKind getExpectedTokenKind(ParserRuleContext context) {
         switch (context) {
             case LT_TOKEN:
