@@ -1582,7 +1582,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLFunction.defaultWorkerName.originalValue = workerName;
+            bLFunction.defaultWorkerName.setOriginalValue(workerName);
             workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
 
@@ -2454,6 +2454,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangIdentifier createIgnoreIdentifier(Node node) {
         BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         ignore.value = Names.IGNORE.value;
+        ignore.setOriginalValue(Names.IGNORE.value);
         ignore.pos = getPosition(node);
         return ignore;
     }
@@ -5162,7 +5163,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
-        bLIdentifer.originalValue = value;
+        bLIdentifer.setOriginalValue(value);
         bLIdentifer.pos = pos;
         if (ws != null) {
             bLIdentifer.addWS(ws);
