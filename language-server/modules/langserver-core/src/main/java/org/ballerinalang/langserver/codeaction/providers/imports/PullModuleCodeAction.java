@@ -78,33 +78,10 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return Collections.singletonList(action);
-
     }
 
     @Override
     public String getName() {
         return NAME;
-    }
-
-    private static String getVersion(CodeActionContext context, String pkgName, Matcher matcher) {
-        // TODO: Fix when version info is available through project api
-//        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-//        String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) : "";
-//        int aliasIndex = version.indexOf(" as ");
-//        if (aliasIndex > 0) {
-//            version = version.substring(0, aliasIndex);
-//        }
-//        if (compilerContext != null && version.isEmpty()) {
-//            // If no version in source, try reading Ballerina.toml dependencies
-//            ManifestProcessor manifestProcessor = ManifestProcessor.getInstance(compilerContext);
-//            Manifest manifest = manifestProcessor.getManifest();
-//            List<Dependency> dependencies = manifest.getDependencies();
-//            version = dependencies.stream()
-//                    .filter(d -> d.getModuleID().equals(pkgName))
-//                    .findAny().map(d -> ":" + d.getMetadata().getVersion()).orElse(version);
-//        }
-//        return version;
-
-        return "";
     }
 }

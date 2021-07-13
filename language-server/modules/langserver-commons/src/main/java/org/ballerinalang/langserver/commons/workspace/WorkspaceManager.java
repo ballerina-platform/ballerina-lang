@@ -139,4 +139,6 @@ public interface WorkspaceManager {
      * @throws WorkspaceDocumentException when project or document not found
      */
     void didChangeWatched(Path filePath, FileEvent fileEvent) throws WorkspaceDocumentException;
+    
+    void reloadProject(Path filePath);
 }

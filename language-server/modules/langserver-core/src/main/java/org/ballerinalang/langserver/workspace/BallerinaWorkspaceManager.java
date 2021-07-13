@@ -282,7 +282,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             updateBalDocument(filePath, params.getContentChanges().get(0).getText(), projectPair, false);
         }
     }
-
+    
     /**
      * The file change notification is sent from the client to the server to signal changes to watched files.
      *
@@ -350,6 +350,29 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else {
             handleWatchedModuleChange(filePath, fileEvent, projectPair);
         }
+    }
+
+    @Override
+    public void reloadProject(Path filePath) {
+        Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
+        Optional<Document> doc = projectPairOpt.flatMap(projectPair -> document(filePath, projectPair.project()));
+        if (doc.isEmpty()) {
+//            clientLogger.logError(LSContextOperation.RELOAD_PROJECT,
+//                    "Unable to find document to reload: " + filePath.toString(),
+//                    new WorkspaceDocumentException("Unable to find document to reload project"),
+//                    new TextDocumentIdentifier(filePath.toUri().toString())
+//            );
+            return;
+        }
+
+        Lock lock = projectPairOpt.get().lockAndGet();
+        try {
+            Document updatedDoc = doc.get().modify().withContent(doc.get().syntaxTree().toSourceCode()).apply();
+            projectPairOpt.get().setProject(updatedDoc.module().project());
+        } finally {
+            lock.unlock();
+        }
+//        reloadProject(projectPairOpt.get(), filePath, LSContextOperation.RELOAD_PROJECT.getName());
     }
 
     private Optional<ProjectPair> projectOfWatchedFileChange(Path filePath, FileEvent fileEvent,
