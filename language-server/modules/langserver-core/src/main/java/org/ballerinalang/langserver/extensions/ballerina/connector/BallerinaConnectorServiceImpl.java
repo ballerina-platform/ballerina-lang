@@ -143,13 +143,12 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     }
 
     private Path resolveBalaPath(String org, String pkgName, String version) throws LSConnectorException {
-        // TODO this is to reset offline flag modified in BuildProject#load and SingleFileProject#load
-        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(false));
         Environment environment = EnvironmentBuilder.buildDefault();
 
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
         PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
-        ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT);
+        ResolutionRequest resolutionRequest = ResolutionRequest
+                .from(packageDescriptor, PackageDependencyScope.DEFAULT, false);
 
         PackageResolver packageResolver = environment.getService(PackageResolver.class);
         List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
