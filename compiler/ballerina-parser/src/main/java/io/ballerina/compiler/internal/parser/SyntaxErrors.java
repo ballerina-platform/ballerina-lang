@@ -102,6 +102,7 @@ public class SyntaxErrors {
             case FUNC_BODY:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case FUNC_DEF:
+            case FUNC_DEF_START:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
@@ -550,8 +551,8 @@ public class SyntaxErrors {
             case THIRD_CLASS_TYPE_QUALIFIER:
             case FOURTH_CLASS_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
-            case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
-            case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
+            case FUNC_DEF_FIRST_QUALIFIER:
+            case FUNC_DEF_SECOND_QUALIFIER:
             case FUNC_TYPE_FIRST_QUALIFIER:
             case FUNC_TYPE_SECOND_QUALIFIER:
             case OBJECT_METHOD_FIRST_QUALIFIER:

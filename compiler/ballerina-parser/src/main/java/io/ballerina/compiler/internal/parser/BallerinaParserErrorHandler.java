@@ -122,21 +122,20 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = { ParserRuleContext.EOF,
-            ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER };
+            ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, ParserRuleContext.PUBLIC_KEYWORD };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
-            { ParserRuleContext.EOF, ParserRuleContext.MODULE_CLASS_DEFINITION,
-                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.SERVICE_DECL,
-                    ParserRuleContext.MODULE_VAR_DECL, ParserRuleContext.LISTENER_DECL,
-                    ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, ParserRuleContext.CONSTANT_DECL,
+            { ParserRuleContext.EOF, ParserRuleContext.MODULE_CLASS_DEFINITION, ParserRuleContext.FUNC_DEF,
+                    ParserRuleContext.MODULE_VAR_DECL, ParserRuleContext.SERVICE_DECL, ParserRuleContext.LISTENER_DECL,
+                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.CONSTANT_DECL,
                     ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION,
                     ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
 
-    private static final ParserRuleContext[] TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_TYPE_FIRST_QUALIFIER };
+    private static final ParserRuleContext[] FUNC_DEF_START =
+            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_DEF_FIRST_QUALIFIER };
 
-    private static final ParserRuleContext[] FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.FUNC_DEF_OR_TYPE_SECOND_QUALIFIER };
+    private static final ParserRuleContext[] FUNC_DEF_WITHOUT_FIRST_QUALIFIER =
+            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_DEF_SECOND_QUALIFIER};
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -223,16 +222,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.FINAL_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_METHOD_START =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_FIRST_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF, ParserRuleContext.OBJECT_METHOD_FIRST_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_FIRST_QUALIFIER =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_SECOND_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF, ParserRuleContext.OBJECT_METHOD_SECOND_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_SECOND_QUALIFIER =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_THIRD_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF, ParserRuleContext.OBJECT_METHOD_THIRD_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_METHOD_WITHOUT_THIRD_QUALIFIER =
-            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.OBJECT_METHOD_FOURTH_QUALIFIER };
+            { ParserRuleContext.FUNC_DEF, ParserRuleContext.OBJECT_METHOD_FOURTH_QUALIFIER };
 
     private static final ParserRuleContext[] OBJECT_TYPE_START =
             { ParserRuleContext.OBJECT_KEYWORD, ParserRuleContext.FIRST_OBJECT_TYPE_QUALIFIER };
@@ -336,7 +335,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD };
 
     private static final ParserRuleContext[] ANNOT_DECL_OPTIONAL_TYPE =
-            { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.ANNOTATION_TAG };
+            { ParserRuleContext.ANNOTATION_TAG, ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER };
 
     private static final ParserRuleContext[] CONST_DECL_TYPE =
             { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.VARIABLE_NAME };
@@ -409,7 +408,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.FUNC_NAME, ParserRuleContext.FUNC_TYPE_FUNC_KEYWORD_RHS };
 
     private static final ParserRuleContext[] FUNC_TYPE_FUNC_KEYWORD_RHS_START =
-            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.FUNC_TYPE_DESC_END };
+            { ParserRuleContext.FUNC_TYPE_DESC_END, ParserRuleContext.OPEN_PARENTHESIS };
 
     private static final ParserRuleContext[] TYPE_DESC_RHS = { ParserRuleContext.END_OF_TYPE_DESC,
             ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.PIPE,
@@ -461,8 +460,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] BINDING_PATTERN =
-            { ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER, ParserRuleContext.LIST_BINDING_PATTERN,
-                    ParserRuleContext.MAPPING_BINDING_PATTERN, ParserRuleContext.ERROR_BINDING_PATTERN };
+            { ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER, ParserRuleContext.MAPPING_BINDING_PATTERN,
+                    ParserRuleContext.LIST_BINDING_PATTERN, ParserRuleContext.ERROR_BINDING_PATTERN };
 
     private static final ParserRuleContext[] LIST_BINDING_PATTERNS_START =
             { ParserRuleContext.LIST_BINDING_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
@@ -800,6 +799,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] PARAM_RHS =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.REST_PARAM_RHS };
 
+    private static final ParserRuleContext[] ANNOTATION_DECL_START =
+            { ParserRuleContext.ANNOTATION_KEYWORD, ParserRuleContext.CONST_KEYWORD };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -1127,8 +1129,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                             nextToken.kind == SyntaxKind.REMOTE_KEYWORD ||
                             nextToken.kind == SyntaxKind.RESOURCE_KEYWORD;
                     break;
-                case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
-                case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
+                case FUNC_DEF_FIRST_QUALIFIER:
+                case FUNC_DEF_SECOND_QUALIFIER:
                 case FUNC_TYPE_FIRST_QUALIFIER:
                 case FUNC_TYPE_SECOND_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.ISOLATED_KEYWORD ||
@@ -1482,7 +1484,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_WITHOUT_FIRST_QUALIFIER:
             case OBJECT_METHOD_WITHOUT_SECOND_QUALIFIER:
             case OBJECT_METHOD_WITHOUT_THIRD_QUALIFIER:
-            case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
             case JOIN_CLAUSE_START:
             case INTERMEDIATE_CLAUSE_START:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
@@ -1526,7 +1527,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_DEF_WITHOUT_FIRST_QUALIFIER:
             case CLASS_DEF_WITHOUT_SECOND_QUALIFIER:
             case CLASS_DEF_WITHOUT_THIRD_QUALIFIER:
-            case FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER:
+            case FUNC_DEF_START:
+            case FUNC_DEF_WITHOUT_FIRST_QUALIFIER:
             case FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL:
             case MODULE_VAR_DECL_START:
             case MODULE_VAR_WITHOUT_FIRST_QUAL:
@@ -1539,6 +1541,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ASSIGNMENT_STMT_RHS:
             case PARAM_START:
             case PARAM_RHS:
+            case ANNOTATION_DECL_START:
                 return true;
             default:
                 return false;
@@ -1558,11 +1561,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
                 alternativeRules = TOP_LEVEL_NODE_WITHOUT_METADATA;
                 break;
-            case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
-                alternativeRules = TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC;
+            case FUNC_DEF_START:
+                alternativeRules = FUNC_DEF_START;
                 break;
-            case FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER:
-                alternativeRules = FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER;
+            case FUNC_DEF_WITHOUT_FIRST_QUALIFIER:
+                alternativeRules = FUNC_DEF_WITHOUT_FIRST_QUALIFIER;
                 break;
             case FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL:
                 alternativeRules = FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL;
@@ -1875,6 +1878,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case PARAM_RHS:
                 alternativeRules = PARAM_RHS;
+                break;
+            case ANNOTATION_DECL_START:
+                alternativeRules = ANNOTATION_DECL_START;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2566,14 +2572,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             case COMP_UNIT:
                 return ParserRuleContext.TOP_LEVEL_NODE;
-            case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
-                return ParserRuleContext.FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER;
-            case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
-                return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
+            case FUNC_DEF:
+                return ParserRuleContext.FUNC_DEF_START;
+            case FUNC_DEF_FIRST_QUALIFIER:
+                return ParserRuleContext.FUNC_DEF_WITHOUT_FIRST_QUALIFIER;
             case FUNC_TYPE_FIRST_QUALIFIER:
                 return ParserRuleContext.FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL;
             case FUNC_TYPE_SECOND_QUALIFIER:
-            case FUNC_DEF:
+            case FUNC_DEF_SECOND_QUALIFIER:
             case FUNC_DEF_OR_FUNC_TYPE:
                 return ParserRuleContext.FUNCTION_KEYWORD;
             case ANON_FUNC_EXPRESSION:
@@ -2619,8 +2625,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_NAME:
             case PARAMETER_NAME_RHS:
                 return getNextRuleForVarName();
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
-                return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
             case REQUIRED_PARAM:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
@@ -2865,7 +2869,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case REMOTE_IDENT:
                 return ParserRuleContext.FUNCTION_IDENT;
             case ANNOTATION_DECL:
-                return ParserRuleContext.ANNOTATION_KEYWORD;
+                return ParserRuleContext.ANNOTATION_DECL_START;
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XMLNS_KEYWORD;
             case CONSTANT_EXPRESSION:
@@ -3273,7 +3277,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_THIRD_QUALIFIER:
                 return ParserRuleContext.OBJECT_METHOD_WITHOUT_THIRD_QUALIFIER;
             case OBJECT_METHOD_FOURTH_QUALIFIER:
-                return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
+                return ParserRuleContext.FUNC_DEF;
             case MODULE_VAR_DECL:
                 return ParserRuleContext.MODULE_VAR_DECL_START;
             case MODULE_VAR_FIRST_QUAL:
@@ -3339,6 +3343,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;
             case CONST_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ANNOTATION_DECL) {
+                    return ParserRuleContext.ANNOTATION_KEYWORD;
+                }
                 return ParserRuleContext.CONST_DECL_TYPE;
             case TYPEOF_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
@@ -3392,6 +3400,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.OPEN_PARENTHESIS;
                 } else if (parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
                     return ParserRuleContext.FUNC_TYPE_FUNC_KEYWORD_RHS_START;
+                } else if (parentCtx == ParserRuleContext.FUNC_DEF) {
+                    return ParserRuleContext.FUNC_NAME;
                 }
                 return ParserRuleContext.FUNCTION_KEYWORD_RHS;
             case RETURNS_KEYWORD:
@@ -5072,6 +5082,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_BODY:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEF:
+            case FUNC_DEF_START:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
@@ -5524,8 +5535,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case THIRD_CLASS_TYPE_QUALIFIER:
             case FOURTH_CLASS_TYPE_QUALIFIER:
                 return SyntaxKind.CLASS_KEYWORD;
-            case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
-            case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
+            case FUNC_DEF_FIRST_QUALIFIER:
+            case FUNC_DEF_SECOND_QUALIFIER:
             case FUNC_TYPE_FIRST_QUALIFIER:
             case FUNC_TYPE_SECOND_QUALIFIER:
             case OBJECT_METHOD_FIRST_QUALIFIER:

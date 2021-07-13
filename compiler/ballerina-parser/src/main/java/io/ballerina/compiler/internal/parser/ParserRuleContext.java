@@ -32,10 +32,11 @@ public enum ParserRuleContext {
     TOP_LEVEL_NODE_WITHOUT_METADATA("top-level-node-without-metadata"),
     TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
     FUNC_DEF("func-def"),
+    FUNC_DEF_START("function-def-start"),
     FUNC_DEF_OR_FUNC_TYPE("func-def-or-func-type"),
-    FUNC_DEF_OR_TYPE_FIRST_QUALIFIER("func-def-or-type-first-qualifier"),
-    FUNC_DEF_OR_TYPE_SECOND_QUALIFIER("func-def-or-type-second-qualifier"),
-    FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER("func-def-or-type-without-first-qualifier"),
+    FUNC_DEF_FIRST_QUALIFIER("func-def-or-type-first-qualifier"),
+    FUNC_DEF_SECOND_QUALIFIER("func-def-or-type-second-qualifier"),
+    FUNC_DEF_WITHOUT_FIRST_QUALIFIER("func-def-or-type-without-first-qualifier"),
     PARAM_LIST("parameters"),
     PARAMETER_START("parameter-start"),
     PARAMETER_START_WITHOUT_ANNOTATION("parameter-start-without-annotation"),
@@ -684,7 +685,6 @@ public enum ParserRuleContext {
     ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
-    TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
     MAP_TYPE_OR_TYPE_REF("map-type-or-type-ref"),
     OBJECT_TYPE_OR_TYPE_REF("object-type-or-type-ref"),
     STREAM_TYPE_OR_TYPE_REF("stream-type-or-type-ref"),
@@ -706,6 +706,7 @@ public enum ParserRuleContext {
     LIST_BINDING_PATTERN_RHS("list-binding-pattern-rhs"),
     TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
     ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
+    ANNOTATION_DECL_START("annotation-declaration-start"),
     ;
 
     private String value;
