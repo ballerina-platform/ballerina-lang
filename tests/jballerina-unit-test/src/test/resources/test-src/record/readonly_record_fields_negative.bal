@@ -276,3 +276,11 @@ function testTypeReadOnlynessNegativeWithNonReadOnlyFieldsViaInclusion() {
 function tryAuthenticate() returns Unauthorized? {
     return {headers: {"h1": "v1"}, body: [1, 2, 3], valid: false};
 }
+
+type RecordWithReadOnlyFields record {|
+    readonly int[] x;
+    readonly string y;
+|};
+
+RecordWithReadOnlyFields & readonly r1 = {x: []};
+readonly & RecordWithReadOnlyFields & readonly r2 = 1;

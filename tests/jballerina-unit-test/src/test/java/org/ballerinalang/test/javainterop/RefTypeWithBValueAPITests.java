@@ -425,7 +425,7 @@ public class RefTypeWithBValueAPITests {
 
     public static io.ballerina.runtime.api.values.BArray getJsonArray() {
         io.ballerina.runtime.api.values.BArray array = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
-        array.add(0, (Object) "John");
+        array.add(0, (Object) StringUtils.fromString("John"));
         return array;
     }
 

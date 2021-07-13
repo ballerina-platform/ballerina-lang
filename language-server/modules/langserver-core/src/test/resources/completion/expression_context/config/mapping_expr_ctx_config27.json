@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -42,7 +42,7 @@
       "label": "Fill record {| string name; int age; Address address; |} Required Fields",
       "kind": "Property",
       "detail": "record {| string name; int age; Address address; |}",
-      "sortText": "Q",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "address: {street: \"\", city: \"\", postalCode: \"\"},\nname: \"\",\nage: 0",
       "insertTextFormat": "Snippet"

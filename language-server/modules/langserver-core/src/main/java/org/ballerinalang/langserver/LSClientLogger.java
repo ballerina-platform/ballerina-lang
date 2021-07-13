@@ -122,6 +122,20 @@ public class LSClientLogger {
             this.languageClient.logMessage(new MessageParams(MessageType.Info, message));
         }
     }
+    
+    /**
+     * Logs an info message through the LSP protocol.
+     *
+     * @param message log message
+     */
+    public void logMessage(String message) {
+        if (!this.isInitializedOnce) {
+            return;
+        }
+        if (this.languageClient != null) {
+            this.languageClient.logMessage(new MessageParams(MessageType.Log, message));
+        }
+    }
 
     /**
      * Sends a telemetry event to the client. Though this is doesn't do any logging directly, sending telemetry events
@@ -145,7 +159,7 @@ public class LSClientLogger {
         if (identifier != null) {
             result.append("uri: '").append(identifier.getUri().replaceFirst("file://", "")).append("'");
         }
-        if (position != null && position[0] != null) {
+        if (position != null && position.length > 0 && position[0] != null) {
             if (position.length == 2) {
                 // Range
                 result.append(", [").append(position[0].getLine() + 1)

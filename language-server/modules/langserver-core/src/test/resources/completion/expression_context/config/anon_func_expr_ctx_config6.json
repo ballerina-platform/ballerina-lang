@@ -6,6 +6,20 @@
   "source": "expression_context/source/anon_func_expr_ctx_source6.bal",
   "items": [
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "E",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
       "detail": "1",
@@ -34,33 +48,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ENUM1_FIELD1",
-      "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
+      "label": "TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
       "sortText": "E",
-      "insertText": "ENUM1_FIELD1",
+      "insertText": "TestEnum1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BL",
+      "sortText": "BM",
       "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestEnum1",
-      "kind": "Enum",
-      "detail": "enum",
-      "sortText": "E",
-      "insertText": "TestEnum1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -89,7 +89,7 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BL",
+      "sortText": "BM",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -97,7 +97,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BL",
+      "sortText": "BM",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -105,7 +105,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BM",
+      "sortText": "BN",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -113,7 +113,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
-      "sortText": "BM",
+      "sortText": "BN",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -129,7 +129,7 @@
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "BQ",
+      "sortText": "BL",
       "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
@@ -137,7 +137,7 @@
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "BQ",
+      "sortText": "BL",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },

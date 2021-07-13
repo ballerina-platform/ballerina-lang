@@ -155,4 +155,30 @@ public class RunCommandTest extends BaseCommandTest {
         // No assertions required since the command will fail upon expected behavior
         runCommand.execute();
     }
+
+    @Test(description = "Run a jar file")
+    public void testRunJarFile() {
+        Path projectPath = this.testResources.resolve("jar-file");
+        System.setProperty("user.dir", this.testResources.resolve("jar-file").toString());
+
+        // Run build command to generate jar file
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        buildCommand.execute();
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("foo.jar").toFile().exists());
+
+        // Try to run the har file
+        Path tempFile = projectPath.resolve("foo.jar");
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+
+        String args = "--offline";
+        new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
+                .parse(projectPath.toString(), args, tempFile.toString());
+
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0)
+                    .contains("unsupported option(s) provided for jar execution"));
+        }
+    }
 }

@@ -1005,7 +1005,7 @@ public class Types {
                     }
                     return isAssignable(source, target.constraint, unresolvedTypes);
                 }
-                return isAssignable(source.constraint, target.constraint, unresolvedTypes);
+                return isAssignable(source.constraint, target, unresolvedTypes);
             }
             return true;
         }
@@ -1013,8 +1013,12 @@ public class Types {
             BXMLType source = (BXMLType) sourceType;
             if (targetTag == TypeTags.XML_TEXT) {
                 if (source.constraint != null) {
-                    return source.constraint.tag == TypeTags.NEVER ||
-                            source.constraint.tag == TypeTags.XML_TEXT;
+                    if (source.constraint.tag == TypeTags.NEVER ||
+                            source.constraint.tag == TypeTags.XML_TEXT) {
+                        return true;
+                    } else {
+                        return isAssignable(source.constraint, targetType, unresolvedTypes);
+                    }
                 }
                 return false;
             }
@@ -1908,6 +1912,8 @@ public class Types {
 
     public BErrorType getErrorType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
+            member = getEffectiveTypeForIntersection(member);
+
             if (member.tag == TypeTags.ERROR) {
                 return (BErrorType) member;
             } else if (member.tag == TypeTags.UNION) {
@@ -4858,15 +4864,20 @@ public class Types {
     public BType getSafeType(BType type, boolean liftNil, boolean liftError) {
         // Since JSON, ANY and ANYDATA by default contain null, we need to create a new respective type which
         // is not-nullable.
-        switch (type.tag) {
-            case TypeTags.JSON:
-                return new BJSONType((BJSONType) type, false);
-            case TypeTags.ANY:
-                return new BAnyType(type.tag, type.tsymbol, false);
-            case TypeTags.ANYDATA:
-                return new BAnydataType((BAnydataType) type, false);
-            case TypeTags.READONLY:
-                return new BReadonlyType(type.tag, type.tsymbol, false);
+        if (liftNil) {
+            switch (type.tag) {
+                case TypeTags.JSON:
+                    return new BJSONType((BJSONType) type, false);
+                case TypeTags.ANY:
+                    return new BAnyType(type.tag, type.tsymbol, false);
+                case TypeTags.ANYDATA:
+                    return new BAnydataType((BAnydataType) type, false);
+                case TypeTags.READONLY:
+                    if (liftError) {
+                        return symTable.anyAndReadonly;
+                    }
+                    return new BReadonlyType(type.tag, type.tsymbol, false);
+            }
         }
 
         if (type.tag != TypeTags.UNION) {
@@ -4882,12 +4893,24 @@ public class Types {
         }
 
         if (liftError) {
-            errorLiftedType.remove(symTable.errorType);
+            LinkedHashSet<BType> bTypes = new LinkedHashSet<>();
+            for (BType t : errorLiftedType.getMemberTypes()) {
+                if (t.tag != TypeTags.ERROR) {
+                    bTypes.add(t);
+                }
+            }
+            memTypes = bTypes;
+            errorLiftedType = BUnionType.create(null, memTypes);
         }
 
         if (errorLiftedType.getMemberTypes().size() == 1) {
             return errorLiftedType.getMemberTypes().toArray(new BType[0])[0];
         }
+
+        if (errorLiftedType.getMemberTypes().size() == 0) {
+            return symTable.semanticError;
+        }
+
         return errorLiftedType;
     }
 

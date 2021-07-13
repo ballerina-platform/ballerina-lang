@@ -61,6 +61,7 @@ public class MatchStmtMappingMatchPatternNegativeTest {
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 91, 9);
         BAssertUtil.validateWarning(warningResult, i++, unreachablePattern, 98, 9);
         BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 110, 9);
+        BAssertUtil.validateWarning(warningResult, i++, patternNotMatched, 117, 9);
         Assert.assertEquals(warningResult.getWarnCount(), i);
     }
 

@@ -256,7 +256,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
-        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName,
+        BIRPackage birPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
                 astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
 
         astPkg.symbol.bir = birPkg; //TODO try to remove this
@@ -268,8 +268,8 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.symbol.birPackageFile = new BIRPackageFile(new BIRBinaryWriter(birPkg).serialize());
 
         if (astPkg.hasTestablePackage()) {
-            BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.name,
-                                                astPkg.packageID.version, astPkg.packageID.sourceFileName);
+            BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
+                    astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
             this.env = new BIRGenEnv(testBirPkg);
             astPkg.accept(this);
             astPkg.getTestablePkgs().forEach(testPkg -> {
@@ -1130,7 +1130,9 @@ public class BIRGen extends BLangNodeVisitor {
         // Visit condition expression
         this.env.enclBB = onFailBB;
         failNode.exprStmt.accept(this);
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB);
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(failNode.pos, this.env.enclOnFailEndBB);
+        }
 
         // Statements after fail expression are unreachable, hence ignored
         BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
@@ -1914,22 +1916,14 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclFunc.localVars.add(tempVarDcl);
             BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
-            BIRVariableDcl varDecl;
-            if (isSelfVar(varSymbol)) {
-                varDecl = getSelf(varSymbol);
-            } else {
-                varDecl = this.env.symbolVarMap.get(varSymbol);
-            }
+            BIRVariableDcl varDecl = this.env.symbolVarMap.get(varSymbol);;
+
             BIROperand fromVarRef = new BIROperand(varDecl);
 
             setScopeAndEmit(new Move(astVarRefExpr.pos, fromVarRef, tempVarRef));
             this.env.targetOperand = tempVarRef;
         }
         this.varAssignment = variableStore;
-    }
-
-    private boolean isSelfVar(BSymbol symbol) {
-        return Names.SELF.equals(symbol.name);
     }
 
     @Override
@@ -2026,7 +2020,9 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock nextBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(nextBB);
         env.enclBasicBlocks.add(nextBB);
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB);
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(trapExpr.pos, nextBB);
+        }
 
         env.enclFunc.errorTable.add(new BIRNode.BIRErrorEntry(trappedBlocks.get(0),
                 trappedBlocks.get(trappedBlocks.size() - 1), env.targetOperand, nextBB));

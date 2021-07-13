@@ -59,64 +59,8 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "ABL",
+      "sortText": "ABM",
       "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "ABL",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "ABL",
-      "insertText": "TestRecord2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "ABM",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "ABM",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "ABK",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorOne",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "ABQ",
-      "insertText": "ErrorOne",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorTwo",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "ABQ",
-      "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
     {
@@ -142,19 +86,67 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "ABM",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "ABM",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "ABN",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "ABK",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "ABL",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "ABL",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "ABK",
       "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "ABK",
-      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -177,6 +169,14 @@
       },
       "sortText": "ABK",
       "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "ABK",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     }
   ]

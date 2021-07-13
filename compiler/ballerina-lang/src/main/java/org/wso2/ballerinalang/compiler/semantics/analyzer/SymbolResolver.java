@@ -313,7 +313,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean hasSameOwner(BSymbol symbol, BSymbol foundSym) {
         // check whether the given symbol owner is same as found symbol's owner
-        if (foundSym.owner == symbol.owner) {
+        if (foundSym.owner == symbol.owner ||
+                //TODO: remove this, once #26284, #30688 are fixed
+                (foundSym.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                foundSym.pkgID.equals(symbol.pkgID)) {
             return true;
         } else if (Symbols.isFlagOn(symbol.owner.flags, Flags.LAMBDA) &&
                 ((foundSym.owner.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE)) {
@@ -2007,11 +2011,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             return symTable.semanticError;
         }
 
-        if (isErrorIntersection) {
+        if (isErrorIntersection && !isAlreadyExistingType) {
             BType detailType = ((BErrorType) potentialIntersectionType).detailType;
-            if (isAlreadyExistingType) {
-                potentialIntersectionType = types.createErrorType(detailType, potentialIntersectionType.flags, env);
-            }
 
             boolean existingErrorDetailType = false;
             if (detailType.tsymbol != null) {
@@ -2025,7 +2026,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                                           constituentBTypes, existingErrorDetailType, env);
         }
 
-        if (types.isInherentlyImmutableType(potentialIntersectionType)) {
+        if (types.isInherentlyImmutableType(potentialIntersectionType) ||
+                (Symbols.isFlagOn(potentialIntersectionType.flags, Flags.READONLY) &&
+                        // For objects, a new type has to be created.
+                        !types.isSubTypeOfBaseType(potentialIntersectionType, TypeTags.OBJECT))) {
             return potentialIntersectionType;
         }
 

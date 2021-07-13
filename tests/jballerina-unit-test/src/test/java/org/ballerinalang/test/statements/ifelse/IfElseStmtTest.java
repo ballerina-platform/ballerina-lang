@@ -248,7 +248,7 @@ public class IfElseStmtTest {
     @Test()
     public void ifStmtNegativeTest() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
-        BAssertUtil.validateError(negativeResult, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(negativeResult, 0, "this function must return a result", 7, 1);
     }
 
     @Test()

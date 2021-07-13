@@ -191,7 +191,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         // TODO: Can we get this filter to a common place
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol ||
-                        symbol.kind() == SymbolKind.PARAMETER)
+                        symbol.kind() == SymbolKind.PARAMETER || symbol.kind() == SymbolKind.PATH_PARAMETER)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         return completionItems;
