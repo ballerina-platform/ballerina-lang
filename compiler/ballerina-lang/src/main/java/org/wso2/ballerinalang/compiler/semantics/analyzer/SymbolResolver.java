@@ -2110,7 +2110,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!isAlreadyDefinedDetailType && intersectionErrorType.detailType.tag == TypeTags.RECORD) {
             defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType, pos, pkgEnv);
         }
-        return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner);
+        return createIntersectionErrorType(intersectionErrorType, constituentBTypes, pkgId, owner, pos);
     }
 
     private void defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
@@ -2131,19 +2131,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         detailRecordTypeDefinition.pos = pos;
     }
 
-    private BIntersectionType defineErrorIntersectionType(IntersectableReferenceType effectiveType,
+    private BIntersectionType createIntersectionErrorType(IntersectableReferenceType effectiveType,
                                                           LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
-                                                          BSymbol owner) {
+                                                          BSymbol owner, Location pos) {
 
-        BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
-                                                                      Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                      Names.EMPTY, pkgId, null, owner,
-                                                                      symTable.builtinPos, VIRTUAL);
+        BTypeSymbol intersectionTypeSymbol =
+                Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
+                        pkgId, null, owner, pos, VIRTUAL);
 
-        BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,
-                                                                   effectiveType);
+        BIntersectionType intersectionType =
+                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType);
         intersectionTypeSymbol.type = intersectionType;
-
         return intersectionType;
     }
 

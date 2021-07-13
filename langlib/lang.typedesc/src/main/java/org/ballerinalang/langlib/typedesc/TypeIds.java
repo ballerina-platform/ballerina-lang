@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
 
@@ -58,19 +59,7 @@ public class TypeIds {
 
     public static Object typeIds(BTypedesc t, boolean primaryOnly) {
         Type describingType = t.getDescribingType();
-        BTypeIdSet typeIdSet;
-        switch (describingType.getTag()) {
-            case TypeTags.ERROR_TAG:
-                BErrorType errorType = (BErrorType) describingType;
-                typeIdSet = errorType.typeIdSet;
-                break;
-            case TypeTags.OBJECT_TYPE_TAG:
-                BObjectType objectType = (BObjectType) describingType;
-                typeIdSet = objectType.typeIdSet;
-                break;
-            default:
-                typeIdSet = new BTypeIdSet();
-        }
+        BTypeIdSet typeIdSet = getTypeIdSetForType(describingType);
 
         ArrayList<Object> objects = new ArrayList<>();
         if (typeIdSet != null) {
@@ -86,6 +75,26 @@ public class TypeIds {
         BArray arrayValue = ValueCreator.createArrayValue(objects.toArray(new Object[]{}), typeIdArrayType);
         arrayValue.freezeDirect();
         return arrayValue;
+    }
+
+    private static BTypeIdSet getTypeIdSetForType(Type describingType) {
+        BTypeIdSet typeIdSet;
+        switch (describingType.getTag()) {
+            case TypeTags.ERROR_TAG:
+                BErrorType errorType = (BErrorType) describingType;
+                typeIdSet = errorType.typeIdSet;
+                break;
+            case TypeTags.OBJECT_TYPE_TAG:
+                BObjectType objectType = (BObjectType) describingType;
+                typeIdSet = objectType.typeIdSet;
+                break;
+            case TypeTags.INTERSECTION_TAG:
+                BIntersectionType intersectionType = (BIntersectionType) describingType;
+                return getTypeIdSetForType(intersectionType.getEffectiveType());
+            default:
+                typeIdSet = new BTypeIdSet();
+        }
+        return typeIdSet;
     }
 
     private static BMap<BString, Object> createModuleId(Module mod) {
