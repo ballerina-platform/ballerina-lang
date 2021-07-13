@@ -15,9 +15,9 @@
 // under the License.
 
 import ballerina/test;
+import defaultValuesRecord.type_defs;
 import testOrg/configLib.mod1 as configLib;
 import testOrg/configLib.util;
-import defaultValuesRecord.type_defs;
 
 final string word1 = "word 1";
 
@@ -32,30 +32,39 @@ type Words record {|
     string word6;
 |};
 
+type WordsContainer record {|
+    Words words;
+|};
+
 // Defaultable records
 configurable Words words = ?;
 configurable type_defs:Numbers numbers = ?;
 configurable configLib:Symbols symbols = ?;
+configurable WordsContainer container = ?;
 
 // Array of defaultable records
 configurable Words[] wordArr = ?;
 configurable type_defs:Numbers[] numberArr = ?;
 configurable configLib:Symbols[] symbolArr = ?;
+configurable WordsContainer[] containerArr = ?;
 
 // Defaultable record tables
 configurable table<Words> wordTable = ?;
 configurable table<type_defs:Numbers> numberTable = ?;
 configurable table<configLib:Symbols> symbolTable = ?;
+configurable table<WordsContainer> containerTable = ?;
 
 // Map of defaultable records
 configurable map<Words> wordMap = ?;
 configurable map<type_defs:Numbers> numberMap = ?;
 configurable map<configLib:Symbols> symbolMap = ?;
+configurable map<WordsContainer> containerMap = ?;
 
 // Map of table with defaultable records
 configurable map<table<Words>> wordTableMap = ?;
 configurable map<table<type_defs:Numbers>> numberTableMap = ?;
 configurable map<table<configLib:Symbols>> symbolTableMap = ?;
+configurable map<table<WordsContainer>> containerTableMap = ?;
 
 function testDefaultValues() {
     test:assertEquals(words.toString(), "{\"word1\":\"word 1\",\"word2\":\"word 2\",\"word3\":\"word 3\"," + 
@@ -95,16 +104,38 @@ function testDefaultValues() {
     test:assertEquals(symbolTableMap.toString(), "{\"map1\":[{\"symbol1\":\"!\",\"symbol2\":\"@\",\"symbol3\":\"#\"," + 
     "\"symbol4\":\"%\"}],\"map2\":[{\"symbol1\":\"^\",\"symbol2\":\"&\",\"symbol3\":\"*\",\"symbol4\":\"-\"}]}");
 
+    test:assertEquals(container.toString(), "{\"words\":{\"word1\":\"word 1\",\"word2\":\"word 2\"," +
+    "\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 6\"}}");
+    test:assertEquals(containerArr.toString(), "[{\"words\":{\"word1\":\"word 1\",\"word2\":\"word 2\"," +
+    "\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 7\"}}," +
+    "{\"words\":{\"word1\":\"word 10\",\"word2\":\"word 20\",\"word3\":\"word 30\",\"word4\":\"word 40\"," +
+    "\"word5\":\"word 50\",\"word6\":\"word 60\"}}]");
+    test:assertEquals(containerTable.toString(), "[{\"words\":{\"word1\":\"word 1\",\"word2\":\"word 2\"," +
+    "\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 7\"}}," +
+    "{\"words\":{\"word1\":\"word 10\",\"word2\":\"word 20\",\"word3\":\"word 30\",\"word4\":\"word 40\"," +
+    "\"word5\":\"word 50\",\"word6\":\"word 60\"}}]");
+    test:assertEquals(containerMap.toString(), "{\"entry1\":{\"words\":{\"word1\":\"word 1\",\"word2\":\"word 2\"," +
+    "\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 6\"}}," +
+    "\"entry2\":{\"words\":{\"word1\":\"word 11\",\"word2\":\"word 22\",\"word3\":\"word 33\",\"word4\":\"word 44\"," +
+    "\"word5\":\"word 55\",\"word6\":\"word 66\"}}}");
+    test:assertEquals(containerTableMap.toString(), "{\"map1\":[{\"words\":{\"word1\":\"word 1\"," +
+    "\"word2\":\"word 2\",\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 7\"}}]," +
+    "\"map2\":[{\"words\":{\"word1\":\"word 10\",\"word2\":\"word 20\",\"word3\":\"word 30\",\"word4\":\"word 40\"," +
+    "\"word5\":\"word 50\",\"word6\":\"word 60\"}}]}");
+
     util:testTableIterator(wordTable);
     util:testTableIterator(numberTable);
     util:testTableIterator(symbolTable);
+    util:testTableIterator(containerTable);
 
     util:testMapIterator(wordMap, 2);
     util:testMapIterator(numberMap, 2);
     util:testMapIterator(symbolMap, 2);
+    util:testMapIterator(containerMap, 2);
     util:testMapIterator(wordTableMap, 2);
     util:testMapIterator(numberTableMap, 2);
     util:testMapIterator(symbolTableMap, 2);
+    util:testMapIterator(containerTableMap, 2);
 }
 
 isolated function getWord() returns string {

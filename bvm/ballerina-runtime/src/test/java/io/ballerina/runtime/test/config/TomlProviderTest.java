@@ -34,8 +34,8 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
+import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigValueCreator;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
@@ -43,7 +43,6 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
-import io.ballerina.toml.semantic.ast.TomlNode;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -73,7 +72,6 @@ public class TomlProviderTest {
     private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1.0.0");
     private final Module subModule = new Module("rootOrg", "test_module.util.foo", "1.0.0");
     private final Module importedModule = new Module("myOrg", "mod12", "1.0.0");
-    private static final ConfigValueCreator valueCreator = new ConfigValueCreator();
 
     @Test(dataProvider = "arrays-data-provider")
     public void testConfigurableArrays(VariableKey arrayKey,
@@ -85,9 +83,8 @@ public class TomlProviderTest {
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ArrayConfig.toml"),
                         configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-        Object value = valueCreator.createValue((TomlNode) configValueMap.get(arrayKey), arrayKey.variable,
-                arrayKey.type);
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object value = configValueMap.get(arrayKey).getValue();
         Assert.assertTrue(value instanceof BArray, "Non-array value received for variable : " + arrayKey.variable);
         Object[] configuredArrayValues = arrayGetFunction.apply((BArray) value);
         for (int i = 0; i < configuredArrayValues.length; i++) {
@@ -144,11 +141,11 @@ public class TomlProviderTest {
                                                     List<ConfigProvider> providers) {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
 
         for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
             VariableKey key = keyEntry.getKey();
-            Object value = configValueMap.get(key);
+            Object value = configValueMap.get(key).getValue();
             Assert.assertNotNull(value, "value not found for variable : " + key.variable);
             Assert.assertEquals(value, keyEntry.getValue());
         }
@@ -455,11 +452,10 @@ public class TomlProviderTest {
         List<ConfigProvider> providers = List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
                 "MultiDimentionalArray.toml"), Set.of(ROOT_MODULE)));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog, providers);
-        Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> variableKeyObjectMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
-        Object bValue = valueCreator.createValue((TomlNode) variableKeyObjectMap.get(intArr), intArr.variable,
-                intArr.type);
+        Object bValue = variableKeyObjectMap.get(intArr).getValue();
         Assert.assertTrue(bValue instanceof BArray);
         BArray bArray = (BArray) bValue;
         Assert.assertTrue(bArray.get(0) instanceof BArray);
@@ -490,11 +486,11 @@ public class TomlProviderTest {
                        "ConfigClashingModule6.toml"), Set.of(ROOT_MODULE, clashingModule3)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
 
         for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
             VariableKey key = keyEntry.getKey();
-            Object value = configValueMap.get(key);
+            Object value = configValueMap.get(key).getValue();
             Assert.assertNotNull(value, "value not found for variable : " + key.variable);
             Assert.assertEquals(value, keyEntry.getValue());
         }
@@ -518,11 +514,11 @@ public class TomlProviderTest {
                 Set.of(subModule, clashingModule3)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog, providers);
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
 
         for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
             VariableKey key = keyEntry.getKey();
-            Object value = configValueMap.get(key);
+            Object value = configValueMap.get(key).getValue();
             Assert.assertNotNull(value, "value not found for variable : " + key.variable);
             Assert.assertEquals(value, keyEntry.getValue());
         }
@@ -542,24 +538,24 @@ public class TomlProviderTest {
                 "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
         ConfigResolver configResolver = new ConfigResolver(configVarMap, new RuntimeDiagnosticLog(),
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
 
-        Assert.assertTrue(configValueMap.get(intVar) instanceof Long,
-                "Value received for variable : " + intVar.variable + " is not 'Long'");
-        Assert.assertEquals(((Long) configValueMap.get(intVar)).intValue(), 33);
+        Object configValue = configValueMap.get(intVar).getValue();
+        Assert.assertTrue(configValue instanceof Long, "Value received for variable : " + intVar.variable + " is not " +
+                "'Long'");
+        Assert.assertEquals(((Long) configValue).intValue(), 33);
 
-        Assert.assertTrue(configValueMap.get(stringVar) instanceof BString,
+        Object bValue = configValueMap.get(stringVar).getValue();
+        Assert.assertTrue(bValue instanceof BString,
                 "Value received for variable : " + stringVar.variable + " is not 'BString'");
-        Assert.assertEquals(((BString) configValueMap.get(stringVar)).getValue(), "xyz");
+        Assert.assertEquals(((BString) bValue).getValue(), "xyz");
 
-        Object bValue = valueCreator.createValue((TomlNode) configValueMap.get(stringArr),
-                stringArr.variable, stringArr.type);
+        bValue = configValueMap.get(stringArr).getValue();
         Assert.assertTrue(bValue instanceof BArray, "Value received for variable : " + stringArr.variable + " is not " +
                 "'Array'");
         Assert.assertEquals(((BArray) bValue).getStringArray(), new String[]{"aa", "bb", "cc"});
 
-        bValue = valueCreator.createValue((TomlNode) configValueMap.get(booleanArr), booleanArr.variable,
-                booleanArr.type);
+        bValue = configValueMap.get(booleanArr).getValue();
         Assert.assertTrue(bValue instanceof BArray, "Value received for variable : " + booleanArr + " is not 'Array'");
         Assert.assertEquals(((BArray) bValue).getBooleanArray(), new boolean[]{false, true, true, false});
     }
@@ -575,10 +571,9 @@ public class TomlProviderTest {
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("MapTypeConfig.toml"),
                         configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
 
-        Object value = valueCreator.createValue((TomlNode) configValueMap.get(mapVar), mapVar.variable,
-                mapVar.type);
+        Object value = configValueMap.get(mapVar).getValue();
         Assert.assertTrue(value instanceof BMap<?, ?>, "Non-map value received for variable : " + variableName);
         BMap<?, ?> mapValue = (BMap<?, ?>) value;
         for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
@@ -607,10 +602,9 @@ public class TomlProviderTest {
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                                                            List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
                                                                    "UnionTypeConfig.toml"), configVarMap.keySet())));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
 
-        Object value = valueCreator.createValue((TomlNode) configValueMap.get(unionVar), unionVar.variable,
-                unionVar.type);
+        Object value = configValueMap.get(unionVar).getValue();
         Assert.assertEquals(expectedValues, value);
     }
 

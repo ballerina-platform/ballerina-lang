@@ -31,11 +31,9 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BDecimal;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
+import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
@@ -173,16 +171,16 @@ public class TomlProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<Long> getAsIntAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsIntAndMark(Module module, VariableKey key) {
         Object value = getPrimitiveTomlValue(module, key);
         if (value == null) {
             return Optional.empty();
         }
-        return Optional.of((Long) value);
+        return getTomlConfigValue(value, key);
     }
 
     @Override
-    public Optional<Integer> getAsByteAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsByteAndMark(Module module, VariableKey key) {
         TomlNode valueNode = getBasicTomlValue(module, key);
         if (valueNode != null) {
             int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
@@ -191,82 +189,82 @@ public class TomlProvider implements ConfigProvider {
                 throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(valueNode),
                                           key.variable, byteValue);
             }
-            return Optional.of(byteValue);
+            return getTomlConfigValue(byteValue, key);
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<BString> getAsStringAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsStringAndMark(Module module, VariableKey key) {
         Object value = getPrimitiveTomlValue(module, key);
         if (value == null) {
             return Optional.empty();
         }
         String stringVal = (String) value;
-        return Optional.of(StringUtils.fromString(stringVal));
+        return getTomlConfigValue(StringUtils.fromString(stringVal), key);
     }
 
     @Override
-    public Optional<Double> getAsFloatAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsFloatAndMark(Module module, VariableKey key) {
         Object value = getPrimitiveTomlValue(module, key);
         if (value == null) {
             return Optional.empty();
         }
-        return Optional.of((double) value);
+        return getTomlConfigValue(value, key);
     }
 
     @Override
-    public Optional<Boolean> getAsBooleanAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsBooleanAndMark(Module module, VariableKey key) {
         Object value = getPrimitiveTomlValue(module, key);
         if (value == null) {
             return Optional.empty();
         }
-        return Optional.of((boolean) value);
+        return getTomlConfigValue(value, key);
     }
 
     @Override
-    public Optional<BDecimal> getAsDecimalAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsDecimalAndMark(Module module, VariableKey key) {
         Object value = getPrimitiveTomlValue(module, key);
         if (value == null) {
             return Optional.empty();
         }
-        return Optional.of(ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) value)));
+        return getTomlConfigValue(ValueCreator.createDecimalValue(BigDecimal.valueOf((Double) value)), key);
     }
 
     @Override
-    public Optional<Object> getAsArrayAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsArrayAndMark(Module module, VariableKey key) {
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
             if (moduleNode.entries().containsKey(key.variable)) {
                 TomlNode tomlValue = moduleNode.entries().get(key.variable);
                 validateArrayValue(tomlValue, key.variable, (ArrayType) effectiveType);
-                return Optional.of(tomlValue);
+                return getTomlConfigValue(tomlValue, key);
             }
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<Object> getAsRecordAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsRecordAndMark(Module module, VariableKey key) {
         for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
             if (moduleNode.entries().containsKey(key.variable)) {
                 TomlNode tomlValue = moduleNode.entries().get(key.variable);
                 validateRecordValue(tomlValue, key.variable, key.type);
-                return Optional.of(tomlValue);
+                return getTomlConfigValue(tomlValue, key);
             }
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<Object> getAsMapAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsMapAndMark(Module module, VariableKey key) {
         String variableName = key.variable;
         MapType effectiveType = (MapType) ((IntersectionType) key.type).getEffectiveType();
         for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
             if (moduleNode.entries().containsKey(variableName)) {
                 TomlNode tomlValue = moduleNode.entries().get(variableName);
                 validateMapValue(tomlValue, variableName, effectiveType);
-                return Optional.of(tomlValue);
+                return getTomlConfigValue(tomlValue, key);
             }
         }
         return Optional.empty();
@@ -327,33 +325,33 @@ public class TomlProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<Object> getAsTableAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsTableAndMark(Module module, VariableKey key) {
         TableType tableType = (TableType) ((BIntersectionType) key.type).getEffectiveType();
         for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
             if (moduleNode.entries().containsKey(key.variable)) {
                 TomlNode tomlValue = moduleNode.entries().get(key.variable);
                 validateTableValue(tomlValue, key.variable, tableType);
-                return Optional.of(tomlValue);
+                return getTomlConfigValue(tomlValue, key);
             }
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<Object> getAsUnionAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key) {
         for (TomlTableNode moduleNode : getModuleTomlNodes(module, key)) {
             if (moduleNode.entries().containsKey(key.variable)) {
                 TomlNode tomlValue = moduleNode.entries().get(key.variable);
                 BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
                 validateUnionValue(tomlValue, key.variable, unionType);
-                return Optional.of(tomlValue);
+                return getTomlConfigValue(tomlValue, key);
             }
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<BXml> getAsXmlAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key) {
         // This will throw error if user has configured xml variable in the toml
         getPrimitiveTomlValue(module, key);
         return Optional.empty();
@@ -806,5 +804,9 @@ public class TomlProvider implements ConfigProvider {
             moduleNodeMap.put(module, tomlTableNodes);
         }
         return tomlTableNodes;
+    }
+
+    private Optional<ConfigValue> getTomlConfigValue(Object value, VariableKey key) {
+        return Optional.of(new TomlConfigValue(value, key.type));
     }
 }

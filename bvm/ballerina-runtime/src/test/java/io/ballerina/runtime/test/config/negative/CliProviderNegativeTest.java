@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
+import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
@@ -139,14 +140,14 @@ public class CliProviderNegativeTest {
         ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
-        Map<VariableKey, Object> varKeyValueMap =  configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> varKeyValueMap =  configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getWarningCount(), 2);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
                             "warning: [myorg.mod.z=27.5] unused command line argument");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
                             "warning: [myorg.mod.y=apple] unused command line argument");
-        Assert.assertEquals(varKeyValueMap.get(x), 123L);
+        Assert.assertEquals(varKeyValueMap.get(x).getValue(), 123L);
     }
 
     @Test
@@ -165,13 +166,13 @@ public class CliProviderNegativeTest {
         ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(rootModule, args)));
-        Map<VariableKey, Object> varKeyValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> varKeyValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
                 "variable 'testOrg/a.b:c' clashes with variable 'a/b:c'. Please provide the command line argument as " +
                 "'[-CtestOrg.a.b.c=<value>]'");
-        Assert.assertEquals(varKeyValueMap.get(validKey), StringUtils.fromString("apple"));
+        Assert.assertEquals(varKeyValueMap.get(validKey).getValue(), StringUtils.fromString("apple"));
     }
 
 

@@ -18,9 +18,6 @@
 package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.values.BDecimal;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 
 import java.util.Optional;
@@ -38,28 +35,28 @@ public interface ConfigProvider {
 
     boolean hasConfigs();
 
-    Optional<Long> getAsIntAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsIntAndMark(Module module, VariableKey key);
 
-    Optional<Integer> getAsByteAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsByteAndMark(Module module, VariableKey key);
 
-    Optional<Boolean> getAsBooleanAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsBooleanAndMark(Module module, VariableKey key);
 
-    Optional<Double> getAsFloatAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsFloatAndMark(Module module, VariableKey key);
 
-    Optional<BDecimal> getAsDecimalAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsDecimalAndMark(Module module, VariableKey key);
 
-    Optional<BString> getAsStringAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsStringAndMark(Module module, VariableKey key);
 
-    Optional<Object> getAsArrayAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsArrayAndMark(Module module, VariableKey key);
 
-    Optional<Object> getAsRecordAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsRecordAndMark(Module module, VariableKey key);
 
-    Optional<Object> getAsMapAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsMapAndMark(Module module, VariableKey key);
 
-    Optional<Object> getAsTableAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsTableAndMark(Module module, VariableKey key);
 
-    Optional<Object> getAsUnionAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key);
 
-    Optional<BXml> getAsXmlAndMark(Module module, VariableKey key);
+    Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key);
 
 }

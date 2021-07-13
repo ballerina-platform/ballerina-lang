@@ -9,6 +9,9 @@ num5 = 5
 [symbols]
 symbol4 = "$"
 
+[container.words]
+word6 = "word 6"
+
 [[wordArr]]
 word6 = "word 7"
 
@@ -39,6 +42,17 @@ symbol2 = "&"
 symbol3 = "*"
 symbol4 = "-"
 
+[[containerArr]]
+words.word6 = "word 7"
+
+[[containerArr]]
+words.word1 = "word 10"
+words.word2 = "word 20"
+words.word3 = "word 30"
+words.word4 = "word 40"
+words.word5 = "word 50"
+words.word6 = "word 60"
+
 [[wordTable]]
 word6 = "word 7"
 
@@ -68,6 +82,17 @@ symbol1 = "^"
 symbol2 = "&"
 symbol3 = "*"
 symbol4 = "-"
+
+[[containerTable]]
+words.word6 = "word 7"
+
+[[containerTable]]
+words.word1 = "word 10"
+words.word2 = "word 20"
+words.word3 = "word 30"
+words.word4 = "word 40"
+words.word5 = "word 50"
+words.word6 = "word 60"
 
 [wordMap]
 entry1.word6 = "word 6"
@@ -92,6 +117,15 @@ entry2.symbol1 = "+"
 entry2.symbol2 = "|"
 entry2.symbol3 = "}"
 entry2.symbol4 = "?"
+
+[containerMap]
+entry1.words.word6 = "word 6"
+entry2.words.word1 = "word 11"
+entry2.words.word2 = "word 22"
+entry2.words.word3 = "word 33"
+entry2.words.word4 = "word 44"
+entry2.words.word5 = "word 55"
+entry2.words.word6 = "word 66"
 
 [[wordTableMap.map1]]
 word6 = "word 7"
@@ -122,6 +156,17 @@ symbol1 = "^"
 symbol2 = "&"
 symbol3 = "*"
 symbol4 = "-"
+
+[[containerTableMap.map1]]
+words.word6 = "word 7"
+
+[[containerTableMap.map2]]
+words.word1 = "word 10"
+words.word2 = "word 20"
+words.word3 = "word 30"
+words.word4 = "word 40"
+words.word5 = "word 50"
+words.word6 = "word 60"
 
 [defaultValuesRecord.type_defs]
 num2 = 2
