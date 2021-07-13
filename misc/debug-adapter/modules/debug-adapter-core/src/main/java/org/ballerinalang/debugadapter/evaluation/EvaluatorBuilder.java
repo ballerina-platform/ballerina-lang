@@ -53,7 +53,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.BinaryExpress
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.FieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.expression.IndexedExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.RangeExpressionEvaluator;
@@ -272,7 +272,7 @@ public class EvaluatorBuilder extends NodeVisitor {
             // Todo - should we disable GC like intellij expression evaluator does?
             keyEvaluators.add(result);
         }
-        result = new IndexedExpressionEvaluator(context, indexedExpressionNode, containerEvaluator, keyEvaluators);
+        result = new MemberAccessExpressionEvaluator(context, indexedExpressionNode, containerEvaluator, keyEvaluators);
     }
 
     @Override

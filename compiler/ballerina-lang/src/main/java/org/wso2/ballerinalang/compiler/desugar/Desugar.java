@@ -7040,7 +7040,9 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         // Collect all the lambda functions.
-        env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+        if (!env.enclPkg.lambdaFunctions.contains(bLangLambdaFunction)) {
+            env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+        }
         result = bLangLambdaFunction;
     }
 
@@ -8464,7 +8466,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol, BLangExpression varargRef) {
         List<BLangExpression> args = new ArrayList<>();
-        Map<String, BLangExpression> namedArgs = new HashMap<>();
+        Map<String, BLangExpression> namedArgs = new LinkedHashMap<>();
         iExpr.requiredArgs.stream()
                 .filter(expr -> expr.getKind() == NodeKind.NAMED_ARGS_EXPR)
                 .forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));

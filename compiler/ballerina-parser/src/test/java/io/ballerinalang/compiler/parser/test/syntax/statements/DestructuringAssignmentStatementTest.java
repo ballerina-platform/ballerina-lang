@@ -50,6 +50,12 @@ public class DestructuringAssignmentStatementTest extends AbstractStatementTest 
                 "destructuring-assignment/error_binding_pattern_assert_02.json");
     }
 
+    @Test
+    public void testWildcardBindingPattern() {
+        testFile("destructuring-assignment/wildcard_binding_pattern_source_01.bal",
+                "destructuring-assignment/wildcard_binding_pattern_assert_01.json");
+    }
+
     // Recovery tests
 
     @Test

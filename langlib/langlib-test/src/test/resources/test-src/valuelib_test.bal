@@ -1804,3 +1804,16 @@ function testXMLWithAngleBrackets() {
     }
     panic error("AssertionError : expected: " + expected + " found: " + exy.toString());
 }
+
+public type KeyVals record {|
+    anydata ...;
+|};
+
+function foo(*KeyVals kvPairs) returns string {
+    return kvPairs.toString();
+}
+
+public function testDestructuredNamedArgs() returns any {
+   string actual =  foo(message = "This is a sample message", a = "foo", b = "bar", c = 100);
+   assertEquality("{\"message\":\"This is a sample message\",\"a\":\"foo\",\"b\":\"bar\",\"c\":100}", actual);
+}

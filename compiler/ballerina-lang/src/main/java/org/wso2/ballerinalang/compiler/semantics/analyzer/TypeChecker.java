@@ -5653,8 +5653,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     protected void markAndRegisterClosureVariable(BSymbol symbol, Location pos, SymbolEnv env) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (symbol.closure == true ||
-                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && env.node.getKind() != NodeKind.ARROW_EXPR) {
+        if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                env.node.getKind() != NodeKind.ARROW_EXPR && env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
+                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA)) {
             return;
         }
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
@@ -5678,7 +5679,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
-            if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+            if (resolvedSymbol != symTable.notFoundSymbol && encInvokable != null &&
+                    !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             }
