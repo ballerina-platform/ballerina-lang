@@ -124,6 +124,7 @@ public class EvaluationUtils {
     public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
     public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
     public static final String CREATE_XML_ITEM = "createXmlItem";
+    public static final String CREATE_XML_VALUE_METHOD = "createXmlValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";

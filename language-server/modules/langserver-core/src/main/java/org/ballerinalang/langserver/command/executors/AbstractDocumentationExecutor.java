@@ -96,24 +96,19 @@ public abstract class AbstractDocumentationExecutor implements LSCommandExecutor
         Optional<Symbol> documentableSymbol = getDocumentableSymbol(node, semanticModel);
 
         boolean isUpdate = false;
-        DocAttachmentInfo docs;
-        Range range;
+        DocAttachmentInfo docs = docAttachmentInfo.get();
+        Optional<Range> docsRange = DocumentationGenerator.getDocsRange(node);
         if (documentableSymbol.isPresent()) {
             Optional<Documentation> documentation = ((Documentable) documentableSymbol.get()).documentation();
-            docs = docAttachmentInfo.get();
-            Optional<Range> docsRange = DocumentationGenerator.getDocsRange(node);
             if (documentation.isPresent()) {
                 docs = docs.mergeDocAttachment(documentation.get());
             }
-
-            if (docsRange.isPresent()) {
-                isUpdate = true;
-                range = docsRange.get();
-            } else {
-                range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
-            }
+        }
+        Range range;
+        if (docsRange.isPresent()) {
+            isUpdate = true;
+            range = docsRange.get();
         } else {
-            docs = docAttachmentInfo.get();
             range = new Range(docs.getDocStartPos(), docs.getDocStartPos());
         }
 

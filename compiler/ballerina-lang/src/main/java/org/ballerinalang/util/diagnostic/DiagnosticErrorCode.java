@@ -454,6 +454,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     FAILED_PREDICATE("BCE3104", "failed.predicate"),
     SYNTAX_ERROR("BCE3105", "syntax.error"),
     INVALID_SHIFT_OPERATOR("BCE3106", "invalid.shift.operator"),
+    UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER("BCE3107", "underscore.not.allowed.as.identifier"),
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("BCE3200", "invalid.stream.constructor"),

@@ -199,7 +199,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry|transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -630,22 +630,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "s",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "s",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "bar",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "bar",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "self",
       "kind": "Variable",
       "detail": "isolated service object {isolated resource function get foo/[string bar] () returns () ;}",
@@ -666,6 +650,22 @@
       "sortText": "C",
       "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "s",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "bar",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "bar",
       "insertTextFormat": "Snippet"
     },
     {
