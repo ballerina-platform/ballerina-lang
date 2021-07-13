@@ -275,8 +275,11 @@ public class VariableUtils {
      *
      * @param variable     parent variable
      * @param childVarName child variable name
+     * @throws DebugVariableException if the parent variable does not contain a child with the given name.
+     * @throws EvaluationException    if the child access is not supported on the given parent variable type.
      */
-    public static Value getChildVarByName(BVariable variable, String childVarName) throws Exception {
+    public static Value getChildVarByName(BVariable variable, String childVarName) throws DebugVariableException,
+            EvaluationException {
         if (variable instanceof IndexedCompoundVariable) {
             return ((IndexedCompoundVariable) variable).getChildByName(childVarName);
         } else if (variable instanceof NamedCompoundVariable) {
