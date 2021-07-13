@@ -206,7 +206,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + ".gender", "\"male\"", "string");
+        // XML optional attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + "?.gender", "\"male\"", "string");
+        // XML optional attribute access on non existing attribute
+        debugTestRunner.assertExpression(context, XML_VAR + "?.name", "()", "nil");
     }
 
     @Override
