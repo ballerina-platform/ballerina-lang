@@ -171,7 +171,6 @@ public class TestCommandTest extends BaseCommandTest {
         try {
             testCommand.execute();
         } catch (BLauncherException e) {
-            System.out.println(projectPath.toString());
             File projectDir = new File(projectPath.toString());
             FileFilter fileFilter = new WildcardFileFilter("java_pid*.hprof");
             Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);

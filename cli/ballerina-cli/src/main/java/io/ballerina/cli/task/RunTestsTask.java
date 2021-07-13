@@ -76,7 +76,6 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static io.ballerina.runtime.internal.util.RuntimeUtils.USER_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
@@ -91,6 +90,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_N
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
  * Task for executing tests.
@@ -480,7 +480,7 @@ public class RunTestsTask implements Task {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
         cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
-        cmdArgs.add("-XX:HeapDumpPath=" + USER_DIR);
+        cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 
