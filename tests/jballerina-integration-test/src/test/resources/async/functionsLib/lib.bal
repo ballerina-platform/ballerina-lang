@@ -14,4 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Empty default module file
+import ballerina/jballerina.java;
+
+public function main() {
+    print("Run the library package to fix code coverage");
+}
+
+function print(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printInternal(stdout1, strValue);
+}
+
+public function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+public function printInternal(handle receiver, handle strValue) = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;

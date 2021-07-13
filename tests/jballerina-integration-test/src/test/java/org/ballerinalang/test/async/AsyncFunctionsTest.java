@@ -40,14 +40,18 @@ public class AsyncFunctionsTest extends BaseTest {
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         // Build and push config Lib project.
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-functionsLib-any-0.1.0.bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-functionsLib-any-0.1.0.bala " +
-                                                        "to 'local' repository.", ERROR);
+        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-functionsLib-java11-0.1.0.bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-functionsLib-java11-0.1.0" +
+                ".bala to 'local' repository.", ERROR);
+        LogLeecher runLeecher = new LogLeecher("Run the library package to fix code coverage");
+        bMainInstance.runMain(testFileLocation + "/", "functionsLib", null, new String[]{}, null, null,
+                new LogLeecher[]{runLeecher});
+        runLeecher.waitForText(5000);
         bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
-                              testFileLocation + "/functionsLibProject");
+                testFileLocation + "/functionsLib");
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
-                              testFileLocation + "/functionsLibProject");
+                testFileLocation + "/functionsLib");
         pushLeecher.waitForText(5000);
     }
 
@@ -55,8 +59,8 @@ public class AsyncFunctionsTest extends BaseTest {
     public void testRunFunctionsFromDifferentPackageAsynchronously() throws BallerinaTestException {
         String testsPassed = "Tests passed";
         LogLeecher logLeecher = new LogLeecher(testsPassed);
-        bMainInstance.runMain(testFileLocation + "/", "asyncFunctionProject", null, new String[]{}, null, null,
-                              new LogLeecher[]{logLeecher});
+        bMainInstance.runMain(testFileLocation + "/", "asyncFunctionPackage", null, new String[]{}, null, null,
+                new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
     }
 }

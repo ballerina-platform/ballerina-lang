@@ -18,7 +18,7 @@
 import ballerina/jballerina.java;
 import ballerina/test;
 import testOrg/functionsLib.mod1 as functionsLib;
-import asyncFunctionProject.mod1;
+import asyncFunctionPackage.mod1;
 
 public function main() {
     testAsyncFunction();
