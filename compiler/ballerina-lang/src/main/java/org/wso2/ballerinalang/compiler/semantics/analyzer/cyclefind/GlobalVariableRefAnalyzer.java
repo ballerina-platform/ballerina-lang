@@ -50,6 +50,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,6 +70,7 @@ public class GlobalVariableRefAnalyzer {
     private final List<List<NodeInfo>> cycles;
     private final List<NodeInfo> dependencyOrder;
     private int curNodeId;
+    private boolean cyclicErrorFound;
 
     public static GlobalVariableRefAnalyzer getInstance(CompilerContext context) {
         GlobalVariableRefAnalyzer refAnalyzer = context.get(REF_ANALYZER_KEY);
@@ -256,8 +258,8 @@ public class GlobalVariableRefAnalyzer {
         }
         sorted.addAll(dependencies);
 
-        if (cycles.stream().anyMatch(cycle -> cycle.size() > 1)) {
-            // Cyclic error found no need to sort.
+        // Cyclic error found no need to sort.
+        if (cyclicErrorFound) {
             return;
         }
 
@@ -293,6 +295,7 @@ public class GlobalVariableRefAnalyzer {
         this.dependencyOrder.clear();
         this.curNodeId = 0;
         this.globalVariablesDependsOn = new HashMap<>();
+        this.cyclicErrorFound = false;
     }
 
     private void pruneDependencyRelations() {
@@ -488,6 +491,7 @@ public class GlobalVariableRefAnalyzer {
 
             if (doesContainAGlobalVar(symbolsOfCycle)) {
                 emitErrorMessage(symbolsOfCycle);
+                this.cyclicErrorFound = true;
             }
         }
     }
@@ -515,7 +519,8 @@ public class GlobalVariableRefAnalyzer {
         List<BSymbol> secondSubList = new ArrayList<>(symbolsOfCycle.subList(splitFrom, len));
         secondSubList.addAll(firstSubList);
 
-        List<BLangIdentifier> names = secondSubList.stream().map(this::getNodeName).collect(Collectors.toList());
+        List<BLangIdentifier> names = secondSubList.stream()
+                .map(this::getNodeName).filter(Objects::nonNull).collect(Collectors.toList());
         dlog.error(firstNode.get().getPosition(), DiagnosticErrorCode.GLOBAL_VARIABLE_CYCLIC_DEFINITION, names);
     }
 
@@ -542,7 +547,7 @@ public class GlobalVariableRefAnalyzer {
                 }
             }
         }
-        throw new IllegalArgumentException("Cannot find topLevelNode: " + symbol);
+        return null;
     }
 
     private BSymbol getSymbol(Node node) {

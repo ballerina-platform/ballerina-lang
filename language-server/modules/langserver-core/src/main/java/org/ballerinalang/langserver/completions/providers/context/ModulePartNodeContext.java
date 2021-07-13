@@ -94,8 +94,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
 
     @Override
-    public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items,
-                     Object... metaData) {
+    public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items) {
         ModulePartNodeContextUtil.sort(items);
     }
 }

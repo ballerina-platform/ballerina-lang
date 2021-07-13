@@ -176,9 +176,11 @@ public class ProjectUtils {
         if (guessOrgName == null) {
             guessOrgName = "my_org";
         } else {
-            guessOrgName = guessOrgName.toLowerCase(Locale.getDefault());
+            if (!validateOrgName(guessOrgName)) {
+                guessOrgName =  guessOrgName.replaceAll("[^a-zA-Z0-9_]", "_");
+            }
         }
-        return guessOrgName;
+        return guessOrgName.toLowerCase(Locale.getDefault());
     }
 
     /**
@@ -189,7 +191,7 @@ public class ProjectUtils {
      */
     public static String guessPkgName(String packageName) {
         if (!validatePackageName(packageName)) {
-            return packageName.replaceAll("[^a-zA-Z0-9_]", "_");
+            return packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
         return packageName;
     }

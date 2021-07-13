@@ -17,3 +17,16 @@
 final string name = "Jack Sparrow";
 
 record {|record {string n = p.n;} r = {};|} nestedRec = {};
+
+// Having a unrelated cycle should not stop re-ordering.
+function f1() {
+    lock {
+        f2();
+    }
+}
+
+function f2() {
+    if false {
+        _ = f1();
+    }
+}

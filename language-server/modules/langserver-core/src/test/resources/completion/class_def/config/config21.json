@@ -9,15 +9,23 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
-      "sortText": "K",
+      "sortText": "BK",
       "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "BK",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "K",
+      "sortText": "BK",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
@@ -28,7 +36,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
-      "sortText": "K",
+      "sortText": "BK",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -39,24 +47,8 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
-      "sortText": "K",
+      "sortText": "BK",
       "insertText": "Response",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "listener1",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "B",
-      "insertText": "listener1",
       "insertTextFormat": "Snippet"
     }
   ]

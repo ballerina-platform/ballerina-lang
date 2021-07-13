@@ -110,7 +110,8 @@ public class ModuleRecordVariableTest {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_record_var_decl.bal");
         int index = 0;
-        validateError(compileResult, index++, "complex variable must be initialized", 22, 33);
+        validateError(compileResult, index++, "variable declaration having binding pattern must be initialized",
+                22, 33);
         assertEquals(compileResult.getErrorCount(), index);
     }
 }

@@ -111,7 +111,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
-    
+
     @Override
     public Optional<TypeSymbol> transform(OptionalFieldAccessExpressionNode node) {
         // First capture the expression and the respective symbols
@@ -120,7 +120,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         if (resolvedType.isPresent() && resolvedType.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
             return SymbolUtil.getTypeDescriptor(resolvedType.get());
         }
-        
+
         Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
         NameReferenceNode fieldName = node.fieldName();
         if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE || typeSymbol.isEmpty()) {

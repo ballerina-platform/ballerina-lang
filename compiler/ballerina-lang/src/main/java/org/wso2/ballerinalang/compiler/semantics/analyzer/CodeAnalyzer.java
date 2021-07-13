@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -32,6 +34,7 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -546,7 +549,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!isNeverOrNilableReturn && !this.statementReturns) {
-                this.dlog.error(funcNode.pos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
+                Location closeBracePos = getEndCharPos(funcNode.pos);
+                this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
         }
@@ -554,6 +558,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
         this.transactionalFuncCheckStack.pop();
+    }
+
+    private Location getEndCharPos(Location pos) {
+        LineRange lineRange = pos.lineRange();
+        LinePosition endLinePos = lineRange.endLine();
+        return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
+                endLinePos.offset() - 1, endLinePos.offset());
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -994,6 +1005,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorMatchPattern(BLangErrorMatchPattern firstErrorMatchPattern,
                                                   BLangErrorMatchPattern secondErrorMatchPattern) {
+        if (firstErrorMatchPattern == null || secondErrorMatchPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorMatchPattern.errorTypeReference,
                 secondErrorMatchPattern.errorTypeReference)) {
             return false;
@@ -1374,6 +1389,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorBindingPatterns(BLangErrorBindingPattern firstErrorBindingPattern,
                                                      BLangErrorBindingPattern secondErrorBindingPattern) {
+        if (firstErrorBindingPattern == null || secondErrorBindingPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorBindingPattern.errorTypeReference,
                 secondErrorBindingPattern.errorTypeReference)) {
             return false;
@@ -1522,7 +1541,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BLangTypeTestExpr secondTypeTest = (BLangTypeTestExpr) secondMatchGuard.expr;
             return ((BLangSimpleVarRef) firstTypeTest.expr).variableName.toString().equals(
                     ((BLangSimpleVarRef) secondTypeTest.expr).variableName.toString()) &&
-                    firstTypeTest.typeNode.getBType().tag == secondTypeTest.typeNode.getBType().tag;
+                    types.isAssignable(firstTypeTest.typeNode.getBType(),
+                            secondTypeTest.typeNode.getBType());
         }
         return false;
     }

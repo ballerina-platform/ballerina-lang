@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -1748,6 +1747,6 @@ public class SnippetGenerator {
     }
 
     private static String generateFilterText(List<String> filters) {
-        return filters.stream().map(filter -> "(" + filter + ")").collect(Collectors.joining(FILTER_TEXT_SEPARATOR));
+        return String.join(FILTER_TEXT_SEPARATOR, filters);
     }
 }

@@ -53,9 +53,10 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.BinaryExpress
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.FieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.expression.IndexedExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.RangeExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.StringTemplateEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.TrapExpressionEvaluator;
@@ -105,6 +106,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Type test expression
  * <li> Type cast expression
  * <li> Trap expression
+ * <li> Range expression
  * </ul>
  * <br>
  * To be Implemented.
@@ -115,7 +117,6 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Error constructor
  * <li> Anonymous function expression
  * <li> Let expression
- * <li> Range expression
  * <li> Checking expression
  * <li> Query expression
  * <li> XML navigation expression
@@ -173,7 +174,15 @@ public class EvaluatorBuilder extends NodeVisitor {
         Evaluator lhsEvaluator = result;
         binaryExpressionNode.rhsExpr().accept(this);
         Evaluator rhsEvaluator = result;
-        result = new BinaryExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
+
+        switch (binaryExpressionNode.operator().kind()) {
+            case ELLIPSIS_TOKEN:
+            case DOUBLE_DOT_LT_TOKEN:
+                result = new RangeExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
+                return;
+            default:
+                result = new BinaryExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
+        }
     }
 
     @Override
@@ -263,7 +272,7 @@ public class EvaluatorBuilder extends NodeVisitor {
             // Todo - should we disable GC like intellij expression evaluator does?
             keyEvaluators.add(result);
         }
-        result = new IndexedExpressionEvaluator(context, indexedExpressionNode, containerEvaluator, keyEvaluators);
+        result = new MemberAccessExpressionEvaluator(context, indexedExpressionNode, containerEvaluator, keyEvaluators);
     }
 
     @Override
@@ -553,7 +562,6 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addRangeExpressionSyntax() {
-        // Todo
     }
 
     private void addNumericalComparisonExpressionSyntax() {

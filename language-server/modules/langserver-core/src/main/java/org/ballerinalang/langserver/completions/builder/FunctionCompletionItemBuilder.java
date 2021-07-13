@@ -72,7 +72,7 @@ public final class FunctionCompletionItemBuilder {
     public static CompletionItem build(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
-        if (functionSymbol != null) {
+        if (functionSymbol != null && functionSymbol.getName().isPresent()) {
             // Override function signature
             String funcName = functionSymbol.getName().get();
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
@@ -148,11 +148,11 @@ public final class FunctionCompletionItemBuilder {
     }
 
     private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
-        FunctionTypeSymbol functionTypeDesc = bSymbol.typeDescriptor();
-        item.setDetail(functionTypeDesc.returnTypeDescriptor().get().signature());
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setKind(CompletionItemKind.Function);
         if (bSymbol != null) {
+            FunctionTypeSymbol functionTypeDesc = bSymbol.typeDescriptor();
+            item.setDetail(functionTypeDesc.returnTypeDescriptor().get().signature());
             List<String> funcArguments = getFuncArguments(bSymbol, ctx);
             if (!funcArguments.isEmpty()) {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");

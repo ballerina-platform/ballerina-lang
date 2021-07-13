@@ -281,6 +281,18 @@ function testCastingToImmutableCyclicTuple() {
     assert(f is MyRecType[], true);
 }
 
+type RTuple [int, RTuple...];
+
+public function recursiveTupleArrayCloneTest() {
+   RTuple[] v = [];
+   any x = v.cloneReadOnly();
+   assertTrue(x is readonly & RTuple[]);
+}
+
+function assertTrue(anydata actual) {
+    assert(true, actual);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
