@@ -21,6 +21,8 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.ArrayList;
@@ -153,10 +155,10 @@ public class VariableUtils {
      * @param value JDI value instance.
      * @return true the given JDI value is a ballerina service variable instance.
      */
-     public static boolean isService(Value value) {
+    public static boolean isService(Value value) {
         try {
             return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
-                (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
+                    (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
         } catch (DebugVariableException e) {
             return false;
         }
@@ -234,7 +236,7 @@ public class VariableUtils {
      * @return the JDI method instance of a any given method which exists in the given JDI object reference.
      */
     public static Optional<Method> getMethod(Value parent, String methodName, String signature)
-        throws DebugVariableException {
+            throws DebugVariableException {
         List<Method> methods = new ArrayList<>();
         if (!(parent instanceof ObjectReference)) {
             return Optional.empty();
@@ -266,5 +268,22 @@ public class VariableUtils {
             str = str.replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
         } while (str.startsWith("\"") || str.endsWith("\""));
         return str;
+    }
+
+    /**
+     * Returns the child variable instance with given name using the parent variable instance.
+     *
+     * @param variable     parent variable
+     * @param childVarName child variable name
+     */
+    public static Value getChildVarByName(BVariable variable, String childVarName) throws Exception {
+        if (variable instanceof IndexedCompoundVariable) {
+            return ((IndexedCompoundVariable) variable).getChildByName(childVarName);
+        } else if (variable instanceof NamedCompoundVariable) {
+            return ((NamedCompoundVariable) variable).getChildByName(childVarName);
+        } else {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                    "Field access is not allowed for Ballerina simple types."));
+        }
     }
 }

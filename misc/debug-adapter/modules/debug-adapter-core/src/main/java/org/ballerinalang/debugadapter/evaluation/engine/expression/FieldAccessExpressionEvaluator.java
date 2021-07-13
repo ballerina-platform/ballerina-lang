@@ -17,23 +17,25 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
-import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
-import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.types.BXmlComment;
 import org.ballerinalang.debugadapter.variable.types.BXmlPi;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
+
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getChildVarByName;
 
 /**
  * Evaluator implementation for field access expressions.
@@ -42,12 +44,14 @@ import org.ballerinalang.debugadapter.variable.types.BXmlText;
  */
 public class FieldAccessExpressionEvaluator extends Evaluator {
 
-    private final FieldAccessExpressionNode syntaxNode;
+    private final ExpressionNode syntaxNode;
     private final Evaluator objectExpressionEvaluator;
+    private String expression;
+    private String fieldName;
     private static final String FIELD_NAME_ATTRIBUTES = "attributes";
 
     public FieldAccessExpressionEvaluator(SuspendedContext context, Evaluator expression,
-                                          FieldAccessExpressionNode fieldAccessExpressionNode) {
+                                          ExpressionNode fieldAccessExpressionNode) {
         super(context);
         this.syntaxNode = fieldAccessExpressionNode;
         this.objectExpressionEvaluator = expression;
@@ -55,6 +59,17 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
+        if (syntaxNode.kind() == SyntaxKind.FIELD_ACCESS) {
+            expression = ((FieldAccessExpressionNode) syntaxNode).expression().toSourceCode().trim();
+            fieldName = ((FieldAccessExpressionNode) syntaxNode).fieldName().toSourceCode().trim();
+        } else if (syntaxNode.kind() == SyntaxKind.OPTIONAL_FIELD_ACCESS) {
+            expression = ((OptionalFieldAccessExpressionNode) syntaxNode).expression().toSourceCode().trim();
+            fieldName = ((OptionalFieldAccessExpressionNode) syntaxNode).fieldName().toSourceCode().trim();
+        } else {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Field " +
+                    "access is not supported on type '" + syntaxNode.kind().stringValue() + "'."));
+        }
+
         // expression is evaluated resulting in a value v
         // if v has basic type error, the result is v
         // otherwise, if v does not have basic type mapping, the result is a new error value
@@ -71,11 +86,10 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Field " +
                         "access is not supported on type '" + resultVar.getBType().getString() + "'."));
             }
-            String fieldName = syntaxNode.fieldName().toSourceCode().trim();
 
             Value fieldValue;
             if (result.getType() == BVariableType.XML) {
-                fieldValue = getXmlAttributeValue(resultVar, fieldName);
+                fieldValue = getXmlAttributeValue(resultVar);
             } else {
                 fieldValue = getChildVarByName(resultVar, fieldName);
             }
@@ -84,14 +98,14 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
             throw e;
         } catch (DebugVariableException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FIELD_NOT_FOUND.getString(),
-                    syntaxNode.fieldName().toSourceCode().trim(), syntaxNode.expression().toSourceCode().trim()));
+                    fieldName, expression));
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
         }
     }
 
-    private Value getXmlAttributeValue(BVariable variable, String fieldName) throws EvaluationException {
+    private Value getXmlAttributeValue(BVariable variable) throws EvaluationException {
         if (variable instanceof BXmlSequence) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_XML_ATTRIBUTE.getString(),
                     "xml sequence"));
@@ -112,18 +126,7 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
             return getChildVarByName(attributesVar, fieldName);
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "Attribute `" + fieldName + "' not found in: '" + syntaxNode.expression() + "'"));
-        }
-    }
-
-    private static Value getChildVarByName(BVariable variable, String childVarName) throws Exception {
-        if (variable instanceof IndexedCompoundVariable) {
-            return ((IndexedCompoundVariable) variable).getChildByName(childVarName);
-        } else if (variable instanceof NamedCompoundVariable) {
-            return ((NamedCompoundVariable) variable).getChildByName(childVarName);
-        } else {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "child variable access is not allowed for Ballerina simple types."));
+                    "Undefined attribute `" + fieldName + "' in: '" + expression + "'"));
         }
     }
 }
