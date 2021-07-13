@@ -37,7 +37,7 @@ dependencies {
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.18'
-    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.google.code.gson:gson:2.8.7'
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')

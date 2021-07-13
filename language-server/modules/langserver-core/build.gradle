@@ -58,34 +58,23 @@ dependencies {
     implementation 'io.netty:netty-buffer'
     implementation 'org.slf4j:slf4j-jdk14'
     implementation 'com.google.code.findbugs:jsr305'
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j'
-    implementation 'com.h2database:h2'
-    implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc'
+    implementation ('org.eclipse.lsp4j:org.eclipse.lsp4j') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    implementation ('org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
     implementation 'org.apache.commons:commons-lang3'
     implementation 'commons-io:commons-io'
-    implementation('io.swagger:swagger-core') {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        exclude group: 'org.yaml', module: 'snakeyaml'
-        exclude group: 'com.fasterxml.jackson.datatype', module: 'jackson-datatype-joda'
-        exclude group: 'io.swagger', module: 'swagger-annotations'
-        exclude group: 'org.slf4j', module: 'slf4j-ext'
-    }
-    implementation('io.swagger.core.v3:swagger-core')
-    implementation 'io.swagger.core.v3:swagger-models:2.1.4'
-    implementation 'io.swagger.parser.v3:swagger-parser-core'
-    implementation('io.swagger.parser.v3:swagger-parser-v2-converter') {
-        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
-        exclude group: 'org.slf4j', module: 'slf4j-ext'
-    }
-    implementation 'com.github.jknack:handlebars:4.0.6'
+    implementation 'com.google.guava:guava:24.1.1-jre'
     implementation 'com.moandjiezana.toml:toml4j'
     
     distributionBala project(path: ':language-server:language-server-stdlib', configuration: 'distributionBala')
 
-    dependency 'com.h2database:h2:1.4.199'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.10.0'
-    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.10.0'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j:0.12.0'
+    dependency 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'
     dependency 'commons-io:commons-io:2.6'
+    dependency 'com.google.guava:guava:24.1.1-jre'
     testCompile 'org.testng:testng'
 }
 
