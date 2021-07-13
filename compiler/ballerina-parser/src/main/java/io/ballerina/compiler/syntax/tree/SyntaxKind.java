@@ -104,6 +104,7 @@ public enum SyntaxKind {
     BY_KEYWORD(249, "by"),
     ASCENDING_KEYWORD(250, "ascending"),
     DESCENDING_KEYWORD(251, "descending"),
+    NOT_IS_KEYWORD(252, "!is"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),

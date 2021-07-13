@@ -1160,8 +1160,22 @@ public class BallerinaLexer extends AbstractLexer {
                     return getSyntaxToken(SyntaxKind.NOT_EQUAL_TOKEN);
                 }
             default:
+                // this is '!is'
+                if (isNotIsToken()) {
+                     return getSyntaxToken(SyntaxKind.NOT_IS_KEYWORD);
+                 }
                 // this is '!'
                 return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+        }
+    }
+
+    private boolean isNotIsToken() {
+        if ((reader.peek() == 'i' && reader.peek(1) == 's') &&
+                !(isIdentifierFollowingChar(reader.peek(2)) || reader.peek(2) == LexerTerminals.BACKSLASH)) {
+            reader.advance(2);
+            return true;
+        } else {
+            return false;
         }
     }
 

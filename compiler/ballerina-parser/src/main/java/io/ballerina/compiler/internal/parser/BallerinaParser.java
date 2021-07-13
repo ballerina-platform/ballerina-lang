@@ -3203,6 +3203,7 @@ public class BallerinaParser extends AbstractParser {
             case GT_EQUAL_TOKEN:
             case LT_EQUAL_TOKEN:
             case IS_KEYWORD:
+            case NOT_IS_KEYWORD:
                 return OperatorPrecedence.BINARY_COMPARE;
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
@@ -5294,6 +5295,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr, isInConditionalExpr);
                 break;
             case IS_KEYWORD:
+            case NOT_IS_KEYWORD:
                 newLhsExpr = parseTypeTestExpression(lhsExpr, isInConditionalExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
@@ -5511,6 +5513,7 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_LT_TOKEN:
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
             case SLASH_ASTERISK_TOKEN:
+            case NOT_IS_KEYWORD:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -8336,7 +8339,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseIsKeyword() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.IS_KEYWORD) {
+        if (token.kind == SyntaxKind.IS_KEYWORD ||
+                token.kind == SyntaxKind.NOT_IS_KEYWORD) {
             return consume();
         } else {
             recover(token, ParserRuleContext.IS_KEYWORD);
