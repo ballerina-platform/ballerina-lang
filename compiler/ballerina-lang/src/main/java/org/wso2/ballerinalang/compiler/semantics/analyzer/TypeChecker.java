@@ -6970,6 +6970,14 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkObjectFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
             fieldAccessExpr.originalType = actualType;
         } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
+
+            // Check if the field accessed is present in the record field set.
+            if (!((BRecordType) varRefType).fields.containsKey(fieldName.getValue())) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.DOES_NOT_HAVE_A_FIELD, varRefType, fieldName);
+                return actualType;
+            }
+
+
             actualType = checkRecordFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
 
             if (actualType != symTable.semanticError) {
