@@ -107,12 +107,12 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Type cast expression
  * <li> Trap expression
  * <li> Range expression
+ * <li> XML attribute access expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
  * <li> New expression
- * <li> XML attribute access expression
  * <li> Annotation access expression
  * <li> Error constructor
  * <li> Anonymous function expression
