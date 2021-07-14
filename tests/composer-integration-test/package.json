@@ -35,7 +35,7 @@
     "react-docgen-typescript-webpack-plugin": "^1.1.0",
     "react-dom": "^16.8.4",
     "react-test-renderer": "^16.8.4",
-    "tree-kill": "^1.2.0",
+    "tree-kill": "^1.2.2",
     "ts-jest": "^24.0.0",
     "ts-loader": "^5.2.1",
     "typescript": "^3.0.1",
