@@ -113,7 +113,7 @@ public class RemotePackageRepository implements PackageRepository {
         // First, Get local versions
         Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(resolutionRequest));
 
-        // If environment is offline we return the local versions
+        // If the resolution request specifies to resolve offline, we return the local version
         if (resolutionRequest.offline()) {
             return new ArrayList<>(packageVersions);
         }
