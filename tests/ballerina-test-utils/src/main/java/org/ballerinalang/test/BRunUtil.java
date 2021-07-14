@@ -1354,7 +1354,7 @@ public class BRunUtil {
                 actualArgs.add(index++, javaOpts.get(i));
             }
             actualArgs.add(index++, "-cp");
-            String classPath = System.getProperty("java.class.path") + classPath;
+            classPath = System.getProperty("java.class.path") + classPath;
             actualArgs.add(index++, classPath);
             actualArgs.add(index++, initClassName);
             actualArgs.addAll(Arrays.asList(args));
