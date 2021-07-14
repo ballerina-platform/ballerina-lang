@@ -8456,7 +8456,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol, BLangExpression varargRef) {
         List<BLangExpression> args = new ArrayList<>();
-        Map<String, BLangExpression> namedArgs = new HashMap<>();
+        Map<String, BLangExpression> namedArgs = new LinkedHashMap<>();
         iExpr.requiredArgs.stream()
                 .filter(expr -> expr.getKind() == NodeKind.NAMED_ARGS_EXPR)
                 .forEach(expr -> namedArgs.put(((NamedArgNode) expr).getName().value, expr));
@@ -9964,10 +9964,24 @@ public class Desugar extends BLangNodeVisitor {
 
     private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
         if (statement.getKind() == NodeKind.ASSIGNMENT) {
-            NodeKind exprKind = ((BLangAssignment) statement).getExpression().getKind();
-            return exprKind == NodeKind.TYPE_INIT_EXPR || exprKind == NodeKind.RECORD_LITERAL_EXPR;
+            return isMappingOrObjectConstructorOrObjInit(((BLangAssignment) statement).getExpression());
         }
         return false;
+    }
+
+    protected boolean isMappingOrObjectConstructorOrObjInit(BLangExpression expression) {
+        switch (expression.getKind()) {
+            case TYPE_INIT_EXPR:
+            case RECORD_LITERAL_EXPR:
+            case OBJECT_CTOR_EXPRESSION:
+                return true;
+            case CHECK_EXPR:
+                return isMappingOrObjectConstructorOrObjInit(((BLangCheckedExpr) expression).expr);
+            case TYPE_CONVERSION_EXPR:
+                return isMappingOrObjectConstructorOrObjInit(((BLangTypeConversionExpr) expression).expr);
+            default:
+                return false;
+        }
     }
 
     /**
