@@ -93,7 +93,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     private BallerinaLanguageServer(LanguageServerContext serverContext) {
         super(serverContext);
-        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, "true");
         this.textService = new BallerinaTextDocumentService(this, workspaceManager, this.serverContext);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManager, this.serverContext);
         this.ballerinaDocumentService = new BallerinaDocumentServiceImpl(workspaceManager, this.serverContext);
