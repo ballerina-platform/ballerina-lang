@@ -43,8 +43,6 @@ public class ProjectLoader {
     }
 
     public static Project loadProject(Path path, BuildOptions buildOptions) {
-        // todo this is an ugly hack to get the offline build working we need to refactor this later
-        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(buildOptions.offlineBuild()));
         return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), buildOptions);
     }
 
