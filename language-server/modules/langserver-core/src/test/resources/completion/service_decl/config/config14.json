@@ -6,6 +6,14 @@
   "source": "service_decl/source/source14.bal",
   "items": [
     {
+      "label": "TestObject",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "B",
+      "insertText": "TestObject",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -14,14 +22,6 @@
       },
       "sortText": "B",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "B",
-      "insertText": "TestObject",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,7 +449,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remote function",
+      "label": "remote function <name>();",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",

@@ -51,7 +51,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remote function",
+      "label": "remote function <name>();",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",

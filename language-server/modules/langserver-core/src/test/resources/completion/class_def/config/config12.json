@@ -51,7 +51,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remote function",
+      "label": "remote function <name>();",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
@@ -116,19 +116,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testClass",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
       "insertText": "testClass",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
