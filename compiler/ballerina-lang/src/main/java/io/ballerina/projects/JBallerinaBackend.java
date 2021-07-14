@@ -151,6 +151,11 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         List<Diagnostic> diagnostics = new ArrayList<>();
+        // add package resolution diagnostics
+        diagnostics.addAll(this.packageContext.getResolution().diagnosticResult().allDiagnostics);
+        // add ballerina toml diagnostics
+        diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
+        // add compilation diagnostics
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             // We can't generate backend code when one of its dependencies have errors.
             if (hasNoErrors(diagnostics)) {
@@ -160,11 +165,8 @@ public class JBallerinaBackend extends CompilerBackend {
                 diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
-
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
-        // add ballerina toml diagnostics
-        diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
@@ -506,8 +508,8 @@ public class JBallerinaBackend extends CompilerBackend {
         try {
             assembleExecutableJar(executableFilePath, manifest, jarLibraries);
         } catch (IOException e) {
-            throw new ProjectException("error while creating the executable jar file for package: " +
-                    this.packageContext.packageName(), e);
+            throw new ProjectException("error while creating the executable jar file for package '" +
+                    this.packageContext.packageName().toString() + "' : " + e.getMessage(), e);
         }
         return executableFilePath;
     }

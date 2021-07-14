@@ -59,6 +59,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.PatternConstants;
@@ -133,6 +134,8 @@ public class CommonUtil {
 
     public static final String BALLERINA_HOME;
 
+    public static final boolean COMPILE_OFFLINE;
+
     public static final String BALLERINA_CMD;
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
@@ -151,6 +154,8 @@ public class CommonUtil {
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
+        String onlineCompilation = System.getProperty("ls.compilation.online");
+        COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
         BALLERINA_KEYWORDS = getBallerinaKeywords();
@@ -308,16 +313,20 @@ public class CommonUtil {
             case INTERSECTION:
                 TypeSymbol effectiveType = ((IntersectionTypeSymbol) rawType).effectiveTypeDescriptor();
                 effectiveType = getRawType(effectiveType);
-                typeString = "()";
-                // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
-                // further checks here.
-                // Get the member type from intersection which is not readonly and get its default value
-                Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
-                        .memberTypeDescriptors().stream()
-                        .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
-                        .findAny();
-                if (memberType.isPresent()) {
-                    typeString = getDefaultValueForType(memberType.get());
+                if (effectiveType.typeKind() == TypeDescKind.INTERSECTION) {
+                    // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
+                    // further checks here. Get the member type from intersection which is not readonly and get its 
+                    // default value
+                    typeString = "()";
+                    Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
+                            .memberTypeDescriptors().stream()
+                            .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
+                            .findAny();
+                    if (memberType.isPresent()) {
+                        typeString = getDefaultValueForType(memberType.get());
+                    }
+                } else {
+                    typeString = getDefaultValueForType(effectiveType);
                 }
                 break;
             case TABLE:
@@ -365,19 +374,27 @@ public class CommonUtil {
      *
      * @param context Language server operation context
      * @param fields  Map of field descriptors
-     * @return {@link List}     List of completion items for the struct fields
+     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
+     * @return {@link List} List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
                                                                        Map<String, RecordFieldSymbol> fields,
-                                                                       TypeSymbol symbol) {
+                                                                       Pair<TypeSymbol, TypeSymbol> symbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
             fieldCounter.getAndIncrement();
             String insertText =
                     getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
-            String detail = symbol.getName().isPresent() ? (symbol.getName().get() + "." + name)
-                    : ("(" + symbol.signature() + ")." + name);
+
+            String detail;
+            if (symbol.getLeft().getName().isPresent()) {
+                detail = getModifiedTypeName(context, symbol.getLeft()) + "." + name;
+            } else if (symbol.getRight().getName().isPresent()) {
+                detail = getModifiedTypeName(context, symbol.getRight()) + "." + name;
+            } else {
+                detail = "(" + symbol.getLeft().signature() + ")." + name;
+            }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
@@ -395,11 +412,12 @@ public class CommonUtil {
      *
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
+     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
                                                               Map<String, RecordFieldSymbol> fields,
-                                                              TypeSymbol symbol) {
+                                                              Pair<TypeSymbol, TypeSymbol> symbol) {
 
         List<String> fieldEntries = new ArrayList<>();
 
@@ -411,7 +429,14 @@ public class CommonUtil {
         }
 
         String label;
-        String detail = symbol.getName().isPresent() ? symbol.getName().get() : symbol.signature();
+        String detail;
+        if (symbol.getLeft().getName().isPresent()) {
+            detail = getModifiedTypeName(context, symbol.getLeft());
+        } else if (symbol.getRight().getName().isPresent()) {
+            detail = getModifiedTypeName(context, symbol.getRight());
+        } else {
+            detail = symbol.getLeft().signature();
+        }
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
@@ -992,8 +1017,14 @@ public class CommonUtil {
         if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
             return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
         }
-        return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
-                ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
+            }
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 
     /**

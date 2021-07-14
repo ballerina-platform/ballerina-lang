@@ -3,19 +3,19 @@ NAME
 
 SYNOPSIS
        bal build
-       bal build <ballerina-file-path> 
+       bal build <ballerina-file-path>
        bal build <ballerina-package-path>
        bal build [--test-report] [--offline] [--experimental] [-o | --output] <output-path> [--dump-build-time]
-                  <ballerina-file-path> 
+                  <ballerina-file-path>
        bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
-                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path> 
+                 [--skip-tests] [--list-conflicted-classes] <ballerina-package-path>
        bal build [-c | --compile] [--offline] [experimental] [--cloud] [--observability-included] [--dump-build-time]
                  [--list-conflicted-classes] [--debug]  [--test-report] [--code-coverage]
                  <ballerina-package-path>
-         
+
 
 DESCRIPTION
-       Compile Ballerina sources and produce the executable JAR file. However, 
+       Compile Ballerina sources and produce the executable JAR file. However,
        if the package does not contain an entry point, it will produce a non-executable
        JAR file, which can be used in another package/program.
 
@@ -38,7 +38,7 @@ OPTIONS
            without generating the executable.
 
        --offline
-            Build offline using the local artifacts without downloading the latest artifacts of 
+            Build offline using the local artifacts without downloading the latest artifacts of
             the dependencies from the remote repository (Ballerina Central).
 
        --skip-tests
@@ -61,11 +61,11 @@ OPTIONS
            Run tests in remote debugging mode only when the '--skip-tests' flag is not used.
 
        --observability-included
-           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina 
+           Include the dependencies and artifacts in the  executable JAR file(s) of a Ballerina
            program that are required to enable the observability functionalities on it.
 
        --cloud
-           Enable cloud artifact generation for cloud providers: (`--cloud=k8s`)for Kubernetes 
+           Enable cloud artifact generation for cloud providers: (`--cloud=k8s`)for Kubernetes
            and (`--cloud=docker`) for Docker.
 
        --list-conflicted-classes
@@ -79,12 +79,12 @@ EXAMPLES
        Build the 'hello' package that has an entry point. This will generate a
         `hello.jar` file in the '<package-root>/target/bin' directory.
           $ bal build
-       
+
        Compile a Ballerina source file and create an executable JAR.
           $ bal build hello.bal
 
        Build the 'hello' library package with '--compile'/'-c' flag. This will
-       generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in 
+       generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in
        the '<package-root>/target/bala' directory.
           $ bal build -c
 

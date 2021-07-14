@@ -325,7 +325,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         QuotedImport quotedImport = importSnippet.getImportedModule();
         QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
 
-        if (importsManager.moduleImported(quotedImport) && importsManager.prefix(quotedImport).equals(quotedPrefix)) {
+        if (importsManager.moduleImported(quotedImport)
+                && importsManager.prefix(quotedImport).equals(quotedPrefix)
+                && importsManager.containsPrefix(quotedPrefix)) {
             // Same module with same prefix. No need to check.
             addDebugDiagnostic("Detected reimport: " + quotedPrefix);
             return;
@@ -541,7 +543,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // Imports with prefixes
         List<String> importStrings = new ArrayList<>();
         for (QuotedIdentifier prefix : importsManager.prefixes()) {
-            importStrings.add(String.format("(%s) %s", prefix, importsManager.getImport(prefix)));
+            String importStatement = String.format("(%s) %s", prefix, importsManager.getImport(prefix));
+            importStrings.add(importStatement);
         }
         return importStrings;
     }
@@ -580,4 +583,5 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     protected PrintStream getErrorStream() {
         return System.err;
     }
+
 }

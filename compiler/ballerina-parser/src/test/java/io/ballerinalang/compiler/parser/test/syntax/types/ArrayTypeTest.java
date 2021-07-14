@@ -128,4 +128,9 @@ public class ArrayTypeTest extends AbstractTypesTest {
     public void testLocalInValidArrayType() {
         testTopLevelNode("array-type/array_type_source_17.bal", "array-type/array_type_assert_17.json");
     }
+
+    @Test
+    public void testInvalidArrayBaseExpression() {
+        testTopLevelNode("array-type/array_type_source_21.bal", "array-type/array_type_assert_21.json");
+    }
 }

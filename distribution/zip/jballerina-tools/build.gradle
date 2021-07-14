@@ -35,9 +35,6 @@ configurations {
     langserverLib {
         transitive false
     }
-    langserverExtLib {
-        transitive false
-    }
     datamapperLib {
         transitive false
     }
@@ -122,6 +119,7 @@ dependencies {
     docerina project(':docerina-gradle-plugin')
     dist project(':ballerina-shell:shell-core')
     dist project(':ballerina-shell:shell-cli')
+    dist project(':compiler-plugins:package-semantic-analyzer')
 
     datamapperLib project(':ballerinalang-data-mapper')
 
@@ -129,8 +127,7 @@ dependencies {
     langserverLib project(':language-server:language-server-stdio-launcher')
     langserverLib project(':language-server:language-server-cli')
     langserverLib project(':language-server:language-server-core')
-
-    langserverExtLib project(':ls-extensions:json-to-record-converter')
+    langserverLib project(':ls-extensions:json-to-record-converter')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')
@@ -365,13 +362,6 @@ def copyLangServerLibsSpec = {
     }
 }
 
-def copyLangServerExtLibsSpec = {
-    path -> copySpec {
-        from configurations.langserverExtLib
-        into(path + 'lib/tools/lang-server-extensions/lib')
-    }
-}
-
 def copyDataMapperLibsSpec = {
     path -> copySpec {
         from configurations.datamapperLib
@@ -439,7 +429,6 @@ task createZip(type: Zip) {
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
-    with copyLangServerExtLibsSpec(basePath)
     with copyDataMapperLibsSpec(basePath)
     with copyLangServerBinSpec(basePath)
     with copyBallerinaZipSpec(basePath)
@@ -465,7 +454,6 @@ task updateBalHome(type: Copy) {
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
-    with copyLangServerExtLibsSpec(installDir)
     with copyDataMapperLibsSpec(installDir)
     with copyLangServerBinSpec(installDir)
     with copyBallerinaZipSpec(installDir)
@@ -493,7 +481,6 @@ task createDistribution(type: Copy) {
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
-    with copyLangServerExtLibsSpec("")
     with copyDataMapperLibsSpec("")
     with copyLangServerBinSpec("")
     with copyBallerinaZipSpec("")

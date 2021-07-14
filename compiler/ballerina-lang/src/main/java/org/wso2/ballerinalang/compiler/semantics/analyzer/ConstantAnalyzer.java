@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -72,6 +73,10 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLiteral literal) {
         // Ignore
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
     }
 
     @Override

@@ -46,6 +46,9 @@ public class BIntersectionType extends BType implements IntersectionType {
     private final boolean readonly;
     private IntersectionType immutableType;
 
+    private String cachedToString;
+    private boolean resolving;
+
     public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType, int typeFlags,
                              boolean readonly) {
         super(null, pkg, Object.class);
@@ -81,6 +84,19 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public String toString() {
+        if (resolving) {
+            return "";
+        }
+        resolving = true;
+        computeStringRepresentation();
+        resolving = false;
+        return cachedToString;
+    }
+
+    private void computeStringRepresentation() {
+        if (cachedToString != null) {
+            return;
+        }
         StringJoiner joiner = new StringJoiner(PADDED_AMPERSAND, OPENING_PARENTHESIS, CLOSING_PARENTHESIS);
 
         for (Type constituentType : this.constituentTypes) {
@@ -91,8 +107,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
             joiner.add(constituentType.toString());
         }
-
-        return joiner.toString();
+        cachedToString = joiner.toString();
     }
 
     @Override

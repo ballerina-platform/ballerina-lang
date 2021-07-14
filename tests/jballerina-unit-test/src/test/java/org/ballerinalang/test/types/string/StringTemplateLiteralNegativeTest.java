@@ -63,10 +63,10 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "unknown type 'He\\llo'", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "invalid record binding pattern with type 'other'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);
-        BAssertUtil.validateError(resultNegative, index++, "complex variable must be initialized", 10, 39);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 39);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token ';" + System.lineSeparator() +
-                "    return s;" + System.lineSeparator() + "}" + System.lineSeparator() + "'", 13, 1);
+        BAssertUtil.validateError(resultNegative, index++,
+                "variable declaration having binding pattern must be initialized", 10, 39);
+        BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
         BAssertUtil.validateError(resultNegative, index, "invalid token '`'", 13, 1);
     }
 
