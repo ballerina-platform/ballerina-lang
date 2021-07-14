@@ -92,6 +92,12 @@ public class TypeNarrower extends BLangNodeVisitor {
         return typeNarrower;
     }
 
+    /**
+     * Add type-narrowed symbols of the parent environments to the the given environment.
+     * Searching for narrowed typed symbol stops when traversal meets the enclosing invokable.
+     *
+     * @param env The environment to which the all upper env type-narrowed symbols are added.
+     */
     public void addHigherEnvTypeNarrowedSymbols(SymbolEnv env) {
 
         Set<Name> varNames = new HashSet<>();
