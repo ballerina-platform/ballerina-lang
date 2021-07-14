@@ -166,18 +166,19 @@ public class IdentifierLiteralTest {
     public void testInvalidILSpecialChar() {
         CompileResult resultNeg =
                 BCompileUtil.compile("test-src/expressions/literals/identifierliteral/invalid_IL_special_char.bal");
-        Assert.assertEquals(resultNeg.getErrorCount(), 11);
-        BAssertUtil.validateError(resultNeg, 0, "missing semicolon token", 18, 14);
-        BAssertUtil.validateError(resultNeg, 1, "missing type desc", 18, 14);
-        BAssertUtil.validateError(resultNeg, 2, "unsupported intersection '$missingNode$_0 & *%_var = '", 18, 14);
-        BAssertUtil.validateError(resultNeg, 3, "missing equal token", 18, 33);
-        BAssertUtil.validateError(resultNeg, 4, "undefined symbol 'value'", 18, 33);
-        BAssertUtil.validateError(resultNeg, 5, "missing binary operator", 18, 38);
-        BAssertUtil.validateError(resultNeg, 6, "missing double quote", 18, 38);
-        BAssertUtil.validateError(resultNeg, 7, "missing semicolon token", 19, 1);
-        BAssertUtil.validateError(resultNeg, 8, "underscore is not allowed here", 19, 12);
-        BAssertUtil.validateError(resultNeg, 9, "missing double quote", 19, 15);
-        BAssertUtil.validateError(resultNeg, 10, "missing semicolon token", 20, 1);
+        Assert.assertEquals(resultNeg.getErrorCount(), 12);
+        BAssertUtil.validateError(resultNeg, 0, "'_' is a keyword, and may not be used as an identifier", 18, 12);
+        BAssertUtil.validateError(resultNeg, 1, "missing semicolon token", 18, 14);
+        BAssertUtil.validateError(resultNeg, 2, "missing type desc", 18, 14);
+        BAssertUtil.validateError(resultNeg, 3, "unsupported intersection '$missingNode$_1 & *%_var = '", 18, 14);
+        BAssertUtil.validateError(resultNeg, 4, "missing equal token", 18, 33);
+        BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'value'", 18, 33);
+        BAssertUtil.validateError(resultNeg, 6, "missing binary operator", 18, 38);
+        BAssertUtil.validateError(resultNeg, 7, "missing double quote", 18, 38);
+        BAssertUtil.validateError(resultNeg, 8, "missing semicolon token", 19, 1);
+        BAssertUtil.validateError(resultNeg, 9, "'_' is a keyword, and may not be used as an identifier", 19, 12);
+        BAssertUtil.validateError(resultNeg, 10, "missing double quote", 19, 15);
+        BAssertUtil.validateError(resultNeg, 11, "missing semicolon token", 20, 1);
     }
 
     @Test(description = "Tests quoted identifier literal containing invalid escape characters")

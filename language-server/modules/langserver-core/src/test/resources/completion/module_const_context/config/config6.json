@@ -9,7 +9,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "P",
+      "sortText": "O",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -250,7 +250,7 @@
           "value": ""
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "insertText": "CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -264,7 +264,7 @@
           "value": ""
         }
       },
-      "sortText": "C",
+      "sortText": "B",
       "insertText": "varName",
       "insertTextFormat": "Snippet"
     }

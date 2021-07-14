@@ -113,7 +113,8 @@ public class DiagnosticsHelper {
             projectRoot = projectRoot.getParent();
         }
         PackageCompilation compilation = workspace.waitAndGetPackageCompilation(context.filePath()).orElseThrow();
-        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(), projectRoot));
+        // We do not send the internal diagnostics
+        diagnosticMap.putAll(toDiagnosticsMap(compilation.diagnosticResult().diagnostics(false), projectRoot));
         return diagnosticMap;
     }
 

@@ -194,15 +194,17 @@
                     {
                       "kind": "OBJECT_FIELD",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER"
-                      ],
                       "children": [
                         {
                           "kind": "METADATA",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "MARKDOWN_DOCUMENTATION",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT"
+                              ],
                               "children": [
                                 {
                                   "kind": "LIST",
@@ -230,7 +232,42 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "Doc comment",
+                                              "value": "Doc line1",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                                      "children": [
+                                        {
+                                          "kind": "HASH_TOKEN",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ],
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "DOCUMENTATION_DESCRIPTION",
+                                              "value": "Doc line2",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",

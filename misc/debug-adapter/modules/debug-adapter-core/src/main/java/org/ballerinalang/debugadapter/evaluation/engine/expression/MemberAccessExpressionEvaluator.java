@@ -23,29 +23,42 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.ballerinalang.debugadapter.variable.types.BXmlItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_XML_VALUE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+
 /**
- * Evaluator implementation for indexed(member access) expressions.
+ * Evaluator implementation for member access expressions.
  *
  * @since 2.0.0
  */
-public class IndexedExpressionEvaluator extends Evaluator {
+public class MemberAccessExpressionEvaluator extends Evaluator {
 
     private final IndexedExpressionNode syntaxNode;
     private final Evaluator containerEvaluator;
     private final List<Evaluator> keyEvaluators;
 
-    public IndexedExpressionEvaluator(SuspendedContext context, IndexedExpressionNode indexedExpressionNode,
-                                      Evaluator containerEvaluator, List<Evaluator> keyEvaluators) {
+    private static final String FIELD_CHILDREN = "children";
+
+    public MemberAccessExpressionEvaluator(SuspendedContext context, IndexedExpressionNode indexedExpressionNode,
+                                           Evaluator containerEvaluator, List<Evaluator> keyEvaluators) {
         super(context);
         this.syntaxNode = indexedExpressionNode;
         this.containerEvaluator = containerEvaluator;
@@ -76,16 +89,16 @@ public class IndexedExpressionEvaluator extends Evaluator {
                 case STRING: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Expected key type `" + BVariableType.INT.getString() + "`; found '" +
-                                        keyVar.getBType() + "'"));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.INT.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
                     int strLength = containerVar.getDapVariable().getValue().length();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= strLength) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "String index out of range: index=" + index + ", size=" + strLength));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INDEX_OUT_OF_RANGE_ERROR
+                                .getString(), containerVar.getBType().getString(), index, strLength));
                     }
                     String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
                     return VMUtils.make(context, substring);
@@ -96,16 +109,16 @@ public class IndexedExpressionEvaluator extends Evaluator {
                 case ARRAY: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.INT) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Expected key type `" + BVariableType.INT.getString() + "`; found '" +
-                                        keyVar.getBType() + "'"));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.INT.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
                     int childSize = ((BCompoundVariable) containerVar).getChildrenCount();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= childSize) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "String index out of range: index=" + index + ", size=" + childSize));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INDEX_OUT_OF_RANGE_ERROR
+                                .getString(), containerVar.getBType().getString(), index, childSize));
                     }
                     Value child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
@@ -117,15 +130,16 @@ public class IndexedExpressionEvaluator extends Evaluator {
                 case JSON: {
                     // Validates key expression result type.
                     if (keyVar.getBType() != BVariableType.STRING && keyVar.getBType() != BVariableType.NIL) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "Expected key type `" + BVariableType.STRING.getString() + "`; found '" +
-                                        keyVar.getBType().getString() + "'"));
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.STRING.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
                     }
                     if (keyVar.getBType() == BVariableType.NIL) {
                         return new BExpressionValue(context, null);
                     }
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
+                        keyString = VariableUtils.removeRedundantQuotes(keyString);
                         Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
@@ -139,28 +153,55 @@ public class IndexedExpressionEvaluator extends Evaluator {
                 // Todo - Enable after new xml changes
                 case XML: {
                     // Validates key expression result type.
-                    // if (keyVar.getBType() != BVariableType.INT) {
-                    //   throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    //                     "Expected key type `" + BVariableType.INT.getString() + "`; found '" +
-                    //                        keyVar.getBType() + "'"));
-                    // }
-                    // int index = Integer.parseInt(keyVar.getDapVariable().getValue());
-                    // int strLength = containerVar.getDapVariable().getValue().length();
-                    // // Validates for IndexOutOfRange errors.
-                    // if (index < 0) {
-                    //    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    //                  "String index out of range: index=" + index + ", size=" + strLength));
-                    // } else if (index >= strLength) {
-                    //      new BXmlText(context, "unknown", EvaluationUtils.make(context, "").getJdiValue());
-                    // }
-                    // String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
-                    // return EvaluationUtils.make(context, substring);
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Type `" + containerVar.getBType().getString() + "' does not support member access."));
+                    if (keyVar.getBType() != BVariableType.INT) {
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_KEY_TYPE_ERROR
+                                        .getString(), BVariableType.INT.getString(), keyVar.getBType().getString(),
+                                syntaxNode.toSourceCode()));
+                    }
+                    int index = Integer.parseInt(keyVar.getDapVariable().getValue());
+                    int childCount = getXmlChildVarCount(containerVar);
+
+                    // Validates for IndexOutOfRange errors.
+                    if (index < 0) {
+                        throw new EvaluationException(String.format(EvaluationExceptionKind.INDEX_OUT_OF_RANGE_ERROR
+                                .getString(), containerVar.getBType().getString(), index, childCount));
+                    } else if (index >= childCount) {
+                        List<String> argTypeNames = new ArrayList<>();
+                        argTypeNames.add(EvaluationUtils.JAVA_STRING_CLASS);
+                        RuntimeStaticMethod createXmlValueMethod = getRuntimeMethod(context, B_VALUE_CREATOR_CLASS,
+                                CREATE_XML_VALUE_METHOD, argTypeNames);
+                        Value emptyXmlStringValue = EvaluationUtils.getAsJString(context, "");
+                        createXmlValueMethod.setArgValues(Collections.singletonList(emptyXmlStringValue));
+                        return new BExpressionValue(context, createXmlValueMethod.invokeSafely());
+                    }
+
+                    try {
+                        Value child;
+                        if (containerVar instanceof BXmlItem) {
+                            Value childrenValue = ((BXmlItem) containerVar).getChildByName(FIELD_CHILDREN);
+                            BVariable childrenVar = VariableFactory.getVariable(context, childrenValue);
+                            if (childrenVar instanceof IndexedCompoundVariable) {
+                                child = ((IndexedCompoundVariable) childrenVar).getChildByIndex(index);
+                            } else if (childrenVar instanceof NamedCompoundVariable) {
+                                child = ((NamedCompoundVariable) childrenVar).getChildByName(String.valueOf(index));
+                            } else {
+                                child = containerVar.getJvmValue();
+                            }
+                        } else if (containerVar instanceof IndexedCompoundVariable) {
+                            child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
+                        } else if (containerVar instanceof NamedCompoundVariable) {
+                            child = ((NamedCompoundVariable) containerVar).getChildByName(String.valueOf(index));
+                        } else {
+                            child = containerVar.getJvmValue();
+                        }
+                        return new BExpressionValue(context, child);
+                    } catch (DebugVariableException e) {
+                        return new BExpressionValue(context, null);
+                    }
                 }
                 default: {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Type `" + containerVar.getBType().getString() + "' does not support member access."));
+                            "type `" + containerVar.getBType().getString() + "' does not support member access."));
                 }
             }
         } catch (DebugVariableException e) {
@@ -170,6 +211,25 @@ public class IndexedExpressionEvaluator extends Evaluator {
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
+        }
+    }
+
+    /**
+     * Returns the child variable count for a given parent XML value.
+     */
+    private int getXmlChildVarCount(BVariable containerVar) {
+        try {
+            if (containerVar instanceof BXmlItem) {
+                Value childrenValue = ((BXmlItem) containerVar).getChildByName(FIELD_CHILDREN);
+                BVariable childrenVar = VariableFactory.getVariable(context, childrenValue);
+                return childrenVar instanceof BCompoundVariable ?
+                        ((BCompoundVariable) childrenVar).getChildrenCount() : 1;
+            } else {
+                return containerVar instanceof BCompoundVariable ?
+                        ((BCompoundVariable) containerVar).getChildrenCount() : 1;
+            }
+        } catch (DebugVariableException e) {
+            return 1;
         }
     }
 }

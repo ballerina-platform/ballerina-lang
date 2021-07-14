@@ -199,7 +199,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry|transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -240,6 +240,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -248,14 +256,6 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -630,11 +630,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "validator1",
+      "label": "validator2",
       "kind": "Variable",
       "detail": "boolean",
       "sortText": "B",
-      "insertText": "validator1",
+      "insertText": "validator2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -657,11 +657,11 @@
       }
     },
     {
-      "label": "validator2",
+      "label": "validator1",
       "kind": "Variable",
       "detail": "boolean",
       "sortText": "B",
-      "insertText": "validator2",
+      "insertText": "validator1",
       "insertTextFormat": "Snippet"
     }
   ]

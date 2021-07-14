@@ -45,17 +45,15 @@ public class ExpressionEvaluator {
     /**
      * Evaluates a given ballerina expression w.r.t. the debug context.
      */
-    public Value evaluate(String expression) {
+    public Value evaluate(String expression) throws EvaluationException {
         try {
             ExpressionNode parsedExpression = expressionValidator.validateAndGetResult(expression);
             Evaluator evaluator = evaluatorBuilder.build(parsedExpression);
             return evaluator.evaluate().getJdiValue();
         } catch (EvaluationException e) {
-            return context.getAttachedVm().mirrorOf(e.getMessage());
+            throw e;
         } catch (Exception e) {
-            String message = EvaluationExceptionKind.PREFIX + "internal error";
-            LOGGER.error(message, e);
-            return context.getAttachedVm().mirrorOf(message);
+            throw new EvaluationException(EvaluationExceptionKind.PREFIX + "internal error");
         }
     }
 }

@@ -35,6 +35,7 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -60,8 +61,6 @@ import java.util.concurrent.TimeoutException;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.CONSOLE;
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * JDI Event processor implementation.
@@ -165,7 +164,7 @@ public class JDIEventProcessor {
         // If there's a non-empty user defined log message and no breakpoint condition, resumes the remote VM
         // after showing the log on the debug console.
         if (!logMessage.isEmpty() && condition.isEmpty()) {
-            context.getAdapter().sendOutput(logMessage, STDOUT);
+            context.getOutputLogger().sendProgramOutput(logMessage);
             context.getDebuggeeVM().resume();
             return;
         }
@@ -178,12 +177,12 @@ public class JDIEventProcessor {
         // the condition evaluation.
         context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
         context.getEventManager().breakpointRequests().forEach(BreakpointRequest::disable);
-        CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, event.thread());
+        CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, event.thread(), lineNumber);
         try {
             Boolean result = resultFuture.get(5000, TimeUnit.MILLISECONDS);
             if (result) {
                 if (!logMessage.isEmpty()) {
-                    context.getAdapter().sendOutput(logMessage, STDOUT);
+                    context.getOutputLogger().sendProgramOutput(logMessage);
                     // As we are disabling all the breakpoint requests before evaluating the user's conditional
                     // expression, need to re-enable all the breakpoints before continuing the remote VM execution.
                     restoreBreakpoints(context.getLastInstruction());
@@ -198,10 +197,10 @@ public class JDIEventProcessor {
                 context.getDebuggeeVM().resume();
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            context.getAdapter().sendOutput(String.format("Warning: Skipping conditional breakpoint at line: %d, " +
-                    "due to timeout while evaluating the condition:'%s'.", lineNumber, condition), CONSOLE);
+            context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint at " +
+                    "line: %d, due to timeout while evaluating the condition:'%s'.", lineNumber, condition));
             if (!logMessage.isEmpty()) {
-                context.getAdapter().sendOutput(logMessage, STDOUT);
+                context.getOutputLogger().sendProgramOutput(logMessage);
                 restoreBreakpoints(context.getLastInstruction());
                 context.getDebuggeeVM().resume();
             } else {
@@ -356,7 +355,8 @@ public class JDIEventProcessor {
      * @param threadReference suspended thread reference, which should be used to get the top stack frame
      * @return result of the given breakpoint condition (logical expression).
      */
-    private CompletableFuture<Boolean> evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
+    private CompletableFuture<Boolean> evaluateBreakpointCondition(String expression, ThreadReference threadReference,
+                                                                   int lineNumber) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads()
@@ -371,8 +371,13 @@ public class JDIEventProcessor {
                 Value evaluatorResult = evaluator.evaluate(expression);
                 String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();
                 return condition.equalsIgnoreCase(CONDITION_TRUE);
-            } catch (JdiProxyException e) {
-                LOGGER.error(e.getMessage(), e);
+            } catch (EvaluationException e) {
+                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
+                        "at line: %d, due to: %s%s", lineNumber, System.lineSeparator(), e.getMessage()));
+                return false;
+            } catch (Exception e) {
+                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
+                        "at line: %d, due to an internal error", lineNumber));
                 return false;
             }
         });
