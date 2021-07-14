@@ -30,6 +30,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -153,9 +154,33 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor, unimplMethod.signature(), context);
         List<TextEdit> edits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
-        String editText = offsetStr + typeName + " {" + LINE_SEPARATOR + offsetStr + "}" + LINE_SEPARATOR;
+
+        String returnStmt = "";
+        if (unimplMethod.typeDescriptor().returnTypeDescriptor().isPresent()) {
+            TypeSymbol returnTypeSymbol = unimplMethod.typeDescriptor().returnTypeDescriptor().get();
+            Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
+            if (returnType.isPresent()) {
+                returnStmt = "return " + CommonUtil.getDefaultValueForType(returnTypeSymbol) +
+                        CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            }
+        }
+        
+        int padding = 4;
+        String paddingStr = StringUtils.repeat(" ", padding);
+        StringBuilder editText = new StringBuilder();
+        editText.append(LINE_SEPARATOR).append(offsetStr).append(typeName).append(" ")
+                .append(CommonKeys.OPEN_BRACE_KEY)
+                .append(LINE_SEPARATOR)
+                .append(offsetStr)
+                .append(paddingStr)
+                .append(returnStmt)
+                .append(LINE_SEPARATOR)
+                .append(offsetStr)
+                .append(CommonKeys.CLOSE_BRACE_KEY)
+                .append(LINE_SEPARATOR);
+        
         Position editPos = CommonUtil.toPosition(editPosition);
-        edits.add(new TextEdit(new Range(editPos, editPos), editText));
+        edits.add(new TextEdit(new Range(editPos, editPos), editText.toString()));
         return edits;
     }
 }
