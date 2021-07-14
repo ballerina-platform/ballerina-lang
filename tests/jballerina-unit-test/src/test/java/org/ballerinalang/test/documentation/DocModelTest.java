@@ -261,9 +261,10 @@ public class DocModelTest {
         Assert.assertEquals(caller.get().remoteMethods.get(0).returnParameters.size(), 1,
                 "Caller client should have one remote method name complete");
         Assert.assertEquals(caller.get().remoteMethods.get(0).returnParameters.get(0).description,
-                "A `grpc:Error` if an error occurs while sending the response or else `()`\n",
-                "Caller client remote method return description should be: " +
-                        "A `grpc:Error` if an error occurs while sending the response or else `()`\n");
+                "A `grpc:Error` if an error occurs while sending the response or else `()`"
+                        + System.lineSeparator(),
+                "Caller client remote method return description should be: A `grpc:Error` if an error " +
+                        "occurs while sending the response or else `()`" + System.lineSeparator());
         Assert.assertTrue(caller.get().remoteMethods.get(0).returnParameters.get(0).type.isAnonymousUnionType,
                 "Caller client remote method return type should be union");
         Assert.assertEquals(caller.get().remoteMethods.get(0).returnParameters.get(0).type.memberTypes.size(), 2,
@@ -286,10 +287,11 @@ public class DocModelTest {
 
         Assert.assertTrue(listener.isPresent(), "Listener not found");
         Assert.assertEquals(listener.get().description, "Represents server listener where one or more " +
-                "services can be registered. so that ballerina program can offer\n" +
-                "service through this listener.\n", "Listener expected description: Represents server " +
-                "listener where one or more services can be registered. so that ballerina program can offer\n" +
-                "service through this listener.\n");
+                "services can be registered. so that ballerina program can offer" + System.lineSeparator() +
+                "service through this listener." + System.lineSeparator(),
+                "Listener expected description: Represents server listener where one or more services can " +
+                        "be registered. so that ballerina program can offer" + System.lineSeparator() +
+                "service through this listener." + System.lineSeparator());
         Assert.assertEquals(listener.get().lifeCycleMethods.size(), 1,
                 "Listener should have one life cycle method");
 
