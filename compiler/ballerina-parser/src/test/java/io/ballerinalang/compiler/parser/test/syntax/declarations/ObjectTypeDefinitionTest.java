@@ -159,7 +159,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
         test("object-type-def/object_type_def_source_40.bal", "object-type-def/object_type_def_assert_40.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testInvalidObjectMethodWithTransactional() {
         test("object-type-def/object_type_def_source_42.bal", "object-type-def/object_type_def_assert_42.json");
     }

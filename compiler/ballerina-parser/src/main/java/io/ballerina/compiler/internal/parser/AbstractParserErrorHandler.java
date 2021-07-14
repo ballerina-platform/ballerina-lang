@@ -506,7 +506,7 @@ public abstract class AbstractParserErrorHandler {
             insertionResult.pushFix(action);
             fixedPathResult = insertionResult;
         } else if (insertionResult.matches == deletionResult.matches) {
-            if (insertionResult.removeFixes <= deletionResult.removeFixes) {
+            if (insertionResult.removeFixes <= deletionResult.removeFixes + 1) {
                 action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx),
                         currentCtx.toString(), currentDepth);
                 insertionResult.pushFix(action);

@@ -125,11 +125,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, ParserRuleContext.PUBLIC_KEYWORD };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
-            { ParserRuleContext.EOF, ParserRuleContext.MODULE_CLASS_DEFINITION, ParserRuleContext.FUNC_DEF,
-                    ParserRuleContext.MODULE_VAR_DECL, ParserRuleContext.SERVICE_DECL, ParserRuleContext.LISTENER_DECL,
-                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.CONSTANT_DECL,
-                    ParserRuleContext.ANNOTATION_DECL, ParserRuleContext.XML_NAMESPACE_DECLARATION,
-                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
+            { ParserRuleContext.EOF, ParserRuleContext.FUNC_DEF, ParserRuleContext.MODULE_VAR_DECL,
+                    ParserRuleContext.MODULE_CLASS_DEFINITION, ParserRuleContext.SERVICE_DECL,
+                    ParserRuleContext.LISTENER_DECL, ParserRuleContext.MODULE_TYPE_DEFINITION,
+                    ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL,
+                    ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.MODULE_ENUM_DECLARATION,
+                    ParserRuleContext.IMPORT_DECL };
 
     private static final ParserRuleContext[] FUNC_DEF_START =
             { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_DEF_FIRST_QUALIFIER };
@@ -663,7 +664,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER, ParserRuleContext.MAPPING_FIELD };
 
     private static final ParserRuleContext[] LISTENERS_LIST_END =
-            { ParserRuleContext.COMMA, ParserRuleContext.OBJECT_CONSTRUCTOR_BLOCK };
+            { ParserRuleContext.OBJECT_CONSTRUCTOR_BLOCK, ParserRuleContext.COMMA};
 
     private static final ParserRuleContext[] FUNC_TYPE_DESC_START =
             { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_TYPE_FIRST_QUALIFIER };

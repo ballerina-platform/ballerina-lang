@@ -6386,6 +6386,14 @@ public class BallerinaParser extends AbstractParser {
                 if (isObjectFieldStart() || nextToken.isMissing()) {
                     return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                 }
+
+                if (isObjectMethodStart(getNextNextToken())) {
+                    // Invalidate identifier before object method or object field start. This is a special case when
+                    // typing a qualifier before an object method or object field start start. ErrorHandler is not able
+                    // to correctly remove the identifier with the `LOOKAHEAD_LIMIT = 4`. Hence, special case this.
+                    addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
+                    return parseObjectMemberWithoutMeta(metadata, qualifiers, recoveryCtx, isObjectTypeDesc);
+                }
                 // Else fall through
             default:
                 if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
@@ -6418,6 +6426,19 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             default:
                 return isModuleVarDeclStart(1);
+        }
+    }
+
+    private boolean isObjectMethodStart(STToken token) {
+        switch (token.kind) {
+            case FUNCTION_KEYWORD:
+            case REMOTE_KEYWORD:
+            case RESOURCE_KEYWORD:
+            case ISOLATED_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
+                return true;
+            default:
+                return false;
         }
     }
     
