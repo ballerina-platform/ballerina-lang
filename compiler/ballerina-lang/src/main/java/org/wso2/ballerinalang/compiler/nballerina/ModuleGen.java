@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
@@ -71,6 +72,8 @@ public class ModuleGen {
     static BMap<BString, Object> tempVal;
     private static UnionType stmtTyp;
     private static UnionType defTyp;
+    private static UnionType typeDescTyp;
+    private static UnionType conTypeDescTyp;
     PrintStream console = System.out;
 
     public static ModuleGen getInstance(CompilerContext context) {
@@ -86,6 +89,8 @@ public class ModuleGen {
         context.put(MOD_GEN, this);
         stmtTyp = getStmtTyp();
         defTyp = getDefTyp();
+        typeDescTyp = getTypeDescTyp();
+        conTypeDescTyp = getConstructorTypDescTyp();
     }
 
     public Object genMod(BLangPackage astPkg) {
@@ -118,22 +123,55 @@ public class ModuleGen {
                 false, 0);
         return TypeCreator.createUnionType(funcDef);
     }
-    public Object visit(BLangPackage astPkg) {
-        ArrayType arrTyp = TypeCreator.createArrayType(defTyp);
-        BArray defs = ValueCreator.createArrayValue(arrTyp);
 
-        astPkg.imports.forEach(impPkg -> impPkg.accept(this));
+    private static UnionType getTypeDescTyp() {
+        RecordType leafTypeDesc = TypeCreator.createRecordType("LeafTypeDesc", modFront, 0,
+                false, 0);
+        RecordType binaryTypeDesc = TypeCreator.createRecordType("BinaryTypeDesc", modFront, 0,
+                false, 0);
+        RecordType constructorTypeDesc = TypeCreator.createRecordType("ConstructorTypeDesc", modFront, 0,
+                false, 0);
+        RecordType typeDescRef = TypeCreator.createRecordType("TypeDescRef", modFront, 0,
+                false, 0);
+        RecordType singletonTypeDesc = TypeCreator.createRecordType("SingletonTypeDesc", modFront, 0,
+                false, 0);
+        return TypeCreator.createUnionType(leafTypeDesc, binaryTypeDesc, constructorTypeDesc,
+                typeDescRef, singletonTypeDesc);
+    }
+
+    private static UnionType getConstructorTypDescTyp() {
+        RecordType listTypeDesc = TypeCreator.createRecordType("ListTypeDesc", modFront, 0,
+                false, 0);
+        RecordType mappingTypeDesc = TypeCreator.createRecordType("MappingTypeDesc", modFront, 0,
+                false, 0);
+        RecordType functionTypeDesc = TypeCreator.createRecordType("FunctionTypeDesc", modFront, 0,
+                false, 0);
+        RecordType errorTypeDesc = TypeCreator.createRecordType("ErrorTypeDesc", modFront, 0,
+                false, 0);
+        return TypeCreator.createUnionType(listTypeDesc, mappingTypeDesc, functionTypeDesc, errorTypeDesc);
+    }
+
+    public Object visit(BLangPackage astPkg) {
+        RecordType impTyp = TypeCreator.createRecordType("ImportDecl", modFront, 0, false, 0);
+        ArrayType impArrTyp = TypeCreator.createArrayType(impTyp);
+        BArray imps = ValueCreator.createArrayValue(impArrTyp);
+
+        ArrayType defArrTyp = TypeCreator.createArrayType(defTyp);
+        BArray defs = ValueCreator.createArrayValue(defArrTyp);
+
+        astPkg.imports.forEach(impPkg -> imps.append(impPkg.accept(this)));
         astPkg.functions.forEach(astFunc -> defs.append(astFunc.accept(this)));
 
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("importDecl", imps.get(0));
         mapInitialValueEntries.put("defs", defs);
         return ValueCreator.createRecordValue(modFront, "ModulePart", mapInitialValueEntries);
     }
 
     public Object visit(BLangFunction astFunc) {
         String name = astFunc.getName().toString();
-        ArrayType arrTyp = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
-        BArray paramNames = ValueCreator.createArrayValue(arrTyp);
+        ArrayType paramArrTyp = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
+        BArray paramNames = ValueCreator.createArrayValue(paramArrTyp);
         astFunc.getParameters().forEach(param -> paramNames.append(new BmpStringValue(param.getName().toString())));
 
         BArray body = (BArray) astFunc.body.accept(this);
@@ -142,20 +180,13 @@ public class ModuleGen {
         //mapPosValues.put("lineNumber", 1);
         //mapPosValues.put("indexInLine", 1);
         //BMap<BString, Object> pos = ValueCreator.createReadonlyRecordValue(modErr, "Position", mapPosValues);
+        ObjectType tempType = TypeCreator.createObjectType("TypeDesc", modFront, 0);
+        ArrayType typDescArrTyp = TypeCreator.createArrayType(tempType);
+        BArray args = ValueCreator.createArrayValue(typDescArrTyp);
 
-        RecordType btd = TypeCreator.createRecordType("SingletonTypeDesc", modFront, 0,
-                false, 0);
-        UnionType typeDesc = TypeCreator.createUnionType(btd);
-        ArrayType arrTyp2 = TypeCreator.createArrayType(typeDesc);
-        BArray args = ValueCreator.createArrayValue(arrTyp2);
-        Map<String, Object> mapSingleTypeDesc = new HashMap<>();
-        //mapSingleTypeDesc.put("value", 4);
-        BMap<BString, Object> ret = ValueCreator.createRecordValue(modFront,
-                "SingletonTypeDesc", mapSingleTypeDesc);
         Map<String, Object> funcTypeDefMap = new HashMap<>();
         funcTypeDefMap.put("args", args);
-        funcTypeDefMap.put("ret", ret);
-        //mapInitialValueEntries.put("pos", pos);
+        funcTypeDefMap.put("ret", new BmpStringValue("int"));
         BMap<BString, Object> td = ValueCreator.createRecordValue(modFront,
                 "FunctionTypeDesc", funcTypeDefMap);
         
@@ -294,6 +325,4 @@ public class ModuleGen {
         console.println("binary expression");
         return ValueCreator.createRecordValue(modFront, "BinaryExpr", mapInitialValueEntries);
     }
-
-    
 }
