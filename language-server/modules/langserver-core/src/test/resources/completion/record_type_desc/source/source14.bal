@@ -4,8 +4,7 @@ const STRING_VAL = "string value";
 const STRING_VAL_TWO = "string value two";
 
 public type T5 record {
-    module1:Client c = 
-    int field1 = 123;
+    int f
 };
 
 function helloFunction() returns string {
@@ -17,15 +16,10 @@ type TR1 record {
     int field2;
 };
 
-int testIntValue = 12;
-
-string testStringValue = "Hello World!";
-
-function testFunctionWithReturn2() returns int {
-    return 12;
-
+public class TestClass {
+    int classField1;
 }
 
-function testFunctionWithReturn1() returns string {
-    return "Hello World!";
-}
+public type TestType1 TestClass;
+
+public type TestType2 TR1;
