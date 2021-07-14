@@ -20,11 +20,14 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -156,6 +159,22 @@ public class TestCommandTest extends BaseCommandTest {
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
+    }
+
+    @Test(description = "Test the heap dump generation for a project with an OOM error")
+    public void testHeapDumpGenerationForOOM() {
+        Path projectPath = this.testResources.resolve("oom-project");
+        System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parse();
+
+        try {
+            testCommand.execute();
+        } catch (BLauncherException e) {
+            File projectDir = new File(projectPath.toString());
+            FileFilter fileFilter = new WildcardFileFilter("java_pid*.hprof");
+            Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);
+        }
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

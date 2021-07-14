@@ -24,11 +24,20 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import io.ballerina.projects.exceptions.InvalidBalaException;
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyVersionKind;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
+import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -54,12 +63,15 @@ public class PackageResolution {
     private final CompilationOptions compilationOptions;
     private final ModuleResolver moduleResolver;
     private final PackageDependencyGraphBuilder depGraphBuilder;
+    private final List<Diagnostic> diagnosticList;
+    private DiagnosticResult diagnosticResult;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
     private PackageResolution(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
+        this.diagnosticList = new ArrayList<>();
         this.compilationOptions = rootPackageContext.compilationOptions();
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
@@ -123,6 +135,22 @@ public class PackageResolution {
 
     List<ModuleContext> topologicallySortedModuleList() {
         return topologicallySortedModuleList;
+    }
+
+    public DiagnosticResult diagnosticResult() {
+        if (this.diagnosticResult == null) {
+            this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
+        }
+        return diagnosticResult;
+    }
+
+    void reportDiagnostic(String message, String diagnosticErrorCode, DiagnosticSeverity severity, Location location,
+                          ModuleDescriptor moduleDescriptor) {
+        var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
+        var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
+        this.diagnosticList.add(packageDiagnostic);
+        this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
 
     /**
@@ -253,8 +281,18 @@ public class PackageResolution {
 
             ImportModuleRequest importModuleRequest = new ImportModuleRequest(packageOrg,
                     moduleLoadRequest.moduleName().toString());
-            moduleResolver.resolve(importModuleRequest, moduleLoadRequest.scope(),
-                                   moduleLoadRequest.dependencyResolvedType());
+            try {
+                moduleResolver.resolve(importModuleRequest, 
+                                       moduleLoadRequest.scope(),
+                                       moduleLoadRequest.dependencyResolvedType());
+            } catch (InvalidBalaException e) {
+                ModuleDescriptor moduleDescriptor = ModuleDescriptor
+                        .from(moduleLoadRequest.moduleName(), rootPackageContext.descriptor());
+                for (Location moduleLoadReqLocation : moduleLoadRequest.locations()) {
+                    reportDiagnostic(e.getMessage(), ProjectDiagnosticErrorCode.INVALID_BALA_FILE.diagnosticId(),
+                                     DiagnosticSeverity.ERROR, moduleLoadReqLocation, moduleDescriptor);
+                }
+            }
         }
     }
 
