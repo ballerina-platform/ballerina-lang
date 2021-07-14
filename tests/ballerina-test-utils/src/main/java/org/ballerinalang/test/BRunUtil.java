@@ -1341,9 +1341,9 @@ public class BRunUtil {
                 packageManifest.version().toString(),
                 MODULE_INIT_CLASS_NAME);
         Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
-        String classpath = "";
+        String classPath = "";
         for (JarLibrary jarLibrary : jarPathRequiredForExecution) {
-            classpath = classpath + File.pathSeparator + jarLibrary.path();
+            classPath = classPath + File.pathSeparator + jarLibrary.path();
         }
 
         try {
