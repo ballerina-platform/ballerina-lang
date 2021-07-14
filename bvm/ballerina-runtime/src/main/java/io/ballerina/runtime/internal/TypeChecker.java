@@ -2469,10 +2469,8 @@ public class TypeChecker {
             }
             return true;
         } else if (sourceType.getTag() == TypeTags.TUPLE_TAG) {
-            ArrayValue source = (ArrayValue) sourceValue;
-            Object[] tupleValues = source.getValues();
-            for (int i = 0; i < ((TupleValueImpl) sourceValue).size(); i++) {
-                if (!checkIsLikeType(tupleValues[i], targetType, unresolvedValues, allowNumericConversion)) {
+            for (Object obj : ((TupleValueImpl) sourceValue).getValues()) {
+                if (!checkIsLikeType(obj, targetType, unresolvedValues, allowNumericConversion)) {
                     return false;
                 }
             }
