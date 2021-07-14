@@ -69,7 +69,18 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Implicit new expressions
+        debugTestRunner.assertEvaluationError(context, "new", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
+                "the equivalent explicit expression by specifying the class descriptor instead."));
+        debugTestRunner.assertEvaluationError(context, "new()", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
+                "the equivalent explicit expression by specifying the class descriptor instead."));
+
+        // New expressions with invalid number of args
+        debugTestRunner.assertEvaluationError(context, "new Location()", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "missing required parameter 'country'."));
+
     }
 
     @Override
@@ -391,9 +402,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         " not supported."));
 
         // unsupported expressions
-        debugTestRunner.assertEvaluationError(context, "new()",
+        debugTestRunner.assertEvaluationError(context, "error(\"name\")",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'new()' - IMPLICIT_NEW_EXPRESSION"));
+                        "'error(\"name\")' - ERROR_CONSTRUCTOR"));
     }
 
     @Override
