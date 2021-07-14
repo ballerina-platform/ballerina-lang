@@ -88,7 +88,10 @@ public class ConfigValueCreator {
                 return createMapValue(tomlValue, (MapType) type);
             case TypeTags.TABLE_TAG:
                 return createTableValue(tomlValue, type);
-            case TypeTags.INTERSECTION_TAG:
+            case TypeTags.ANYDATA_TAG:
+            case TypeTags.UNION_TAG:
+                return createUnionValue(tomlValue, (BUnionType) type);
+            default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     return createRecordValue(tomlValue, type);
@@ -96,13 +99,7 @@ public class ConfigValueCreator {
                 if (effectiveType.getTag() == TypeTags.TABLE_TAG) {
                     return createTableValue(tomlValue, type);
                 }
-                return createValue(tomlValue, effectiveType);
-            case TypeTags.ANYDATA_TAG:
-            case TypeTags.UNION_TAG:
-                return createUnionValue(tomlValue, (BUnionType) type);
-            default:
-                //this branch will not be executed
-                return null;
+                return createStructuredValue(tomlValue, effectiveType);
         }
     }
 
@@ -129,21 +126,7 @@ public class ConfigValueCreator {
             case TypeTags.UNION_TAG:
                 return getUnionValueArray(tomlValue, arrayType, elementType);
             default:
-                Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
-                switch(effectiveType.getTag()) {
-                    case TypeTags.ARRAY_TAG:
-                        tomlValue = ((TomlKeyValueNode) tomlValue).value();
-                        return getPrimitiveArray(tomlValue, arrayType);
-                    case TypeTags.RECORD_TYPE_TAG:
-                    case TypeTags.MAP_TAG:
-                        return getMapValueArray(tomlValue, arrayType, effectiveType);
-                    case TypeTags.ANYDATA_TAG:
-                    case TypeTags.UNION_TAG:
-                        return getUnionValueArray(tomlValue, arrayType, effectiveType);
-                    default:
-                        //this branch will not be executed
-                        return null;
-                }
+                return getNonPrimitiveArray(tomlValue, arrayType, ((IntersectionType) elementType).getEffectiveType());
         }
     }
 
