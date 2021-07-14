@@ -1659,6 +1659,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
                                                 BLangBinaryExpr binaryExpr) {
+        if (!types.isAnydata(lhsType) && !types.isAnydata(rhsType)) {
+            return symTable.notFoundSymbol;
+        }
+
         boolean validEqualityIntersectionExists;
         switch (opKind) {
             case EQUAL:
@@ -1673,7 +1677,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             default:
                 return symTable.notFoundSymbol;
         }
-
 
         if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
