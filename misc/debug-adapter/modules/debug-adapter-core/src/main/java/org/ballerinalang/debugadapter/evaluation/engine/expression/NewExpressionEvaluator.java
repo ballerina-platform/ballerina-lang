@@ -26,6 +26,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -37,6 +38,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_OBJECT_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 
@@ -76,6 +79,8 @@ public class NewExpressionEvaluator extends Evaluator {
             }
 
             String className = ((ExplicitNewExpressionNode) syntaxNode).typeDescriptor().toSourceCode();
+            // Need to decode the class name, since the Ballerina semantic model is based on decoded identifier names.
+            className = IdentifierModifier.decodeIdentifier(className);
             Value value = invokeObjectInitMethod(className);
             return new BExpressionValue(context, value);
         } catch (EvaluationException e) {
@@ -97,22 +102,23 @@ public class NewExpressionEvaluator extends Evaluator {
         }
 
         Optional<MethodSymbol> initMethodRef = classDef.get().initMethod();
-        if (initMethodRef.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    OBJECT_INIT_METHOD_NAME, className));
+        if (initMethodRef.isEmpty() && !argEvaluators.isEmpty()) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                    "too many arguments in call to '" + OBJECT_INIT_METHOD_NAME + "'."));
         }
 
         // Validates user provided args against the `init` method signature.
-        generateNamedArgs(context, OBJECT_INIT_METHOD_NAME, initMethodRef.get().typeDescriptor(), argEvaluators);
-
+        if (initMethodRef.isPresent()) {
+            generateNamedArgs(context, OBJECT_INIT_METHOD_NAME, initMethodRef.get().typeDescriptor(), argEvaluators);
+        }
         List<String> argTypeNames = new ArrayList<>();
         argTypeNames.add(JAVA_STRING_CLASS);
         argTypeNames.add(JAVA_STRING_CLASS);
         argTypeNames.add(JAVA_STRING_CLASS);
         argTypeNames.add(JAVA_STRING_CLASS);
         argTypeNames.add(JAVA_OBJECT_ARRAY_CLASS);
-        RuntimeStaticMethod createObjectMethod = EvaluationUtils.getRuntimeMethod(context,
-                EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS, "createObjectValue", argTypeNames);
+        RuntimeStaticMethod createObjectMethod = EvaluationUtils.getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
+                CREATE_OBJECT_VALUE_METHOD, argTypeNames);
 
         List<Value> argValues = new ArrayList<>();
         argValues.add(EvaluationUtils.getAsJString(context, context.getPackageOrg().orElse("")));
