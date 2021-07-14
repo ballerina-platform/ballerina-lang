@@ -2556,23 +2556,10 @@ public class BallerinaParser extends AbstractParser {
                     reportInvalidQualifierList(qualifiers);
                     return parseSimpleTypeDescriptor();
                 }
-
-                if (!qualifiers.isEmpty()) {
-                    break;
-                }
-
-                nextToken = peek();
-                if (isRecoveryAtFuncBodyEnd(nextToken)) {
-                    // Special case the func-body-block end.
-                    // e.g. function foo() { string str = from <cursor> }
-                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                            DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
-                    return STNodeFactory.createSimpleNameReferenceNode(identifier);
-                }
         }
 
         ParserRuleContext recoveryCtx = getTypeDescRecoveryCtx(qualifiers);
-        Solution solution = recover(nextToken, recoveryCtx);
+        Solution solution = recover(peek(), recoveryCtx);
 
         if (solution.action == Action.KEEP) {
             reportInvalidQualifierList(qualifiers);
@@ -4956,22 +4943,9 @@ public class BallerinaParser extends AbstractParser {
                     return parseSimpleTypeDescriptor();
                 }
 
-                if (isRecoveryAtFuncBodyEnd(nextToken)) {
-                    // Special case the func-body-block end.
-                    // e.g. function foo() { if <cursor> }
-                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                            ParserRuleContext.VARIABLE_REF);
-                    return STNodeFactory.createSimpleNameReferenceNode(identifier);
-                }
-
                 recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION);
                 return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
         }
-    }
-
-    private boolean isRecoveryAtFuncBodyEnd(STToken nextToken) {
-        return this.errorHandler.hasAncestorContext(ParserRuleContext.FUNC_BODY_BLOCK) &&
-                isEndOfFuncBodyBlock(nextToken.kind, false);
     }
 
     private STNode parseQualifiedIdentifierOrExpression(boolean isInConditionalExpr, boolean isRhsExpr) {
@@ -15894,15 +15868,6 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                if (isRecoveryAtFuncBodyEnd(nextToken)) {
-                    // Special case the func-body-block end.
-                    // e.g. function foo() { string str = from var <cursor> }
-                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
-                            DiagnosticErrorCode.ERROR_MISSING_VARIABLE_NAME);
-                    STNode captureBP = STNodeFactory.createCaptureBindingPatternNode(identifier);
-                    return STNodeFactory.createTypedBindingPatternNode(typeDesc, captureBP);
-                }
-                
                 recover(nextToken, ParserRuleContext.TYPED_BINDING_PATTERN_TYPE_RHS);
                 return parseTypedBindingPatternTypeRhs(typeDesc, context, isRoot);
         }

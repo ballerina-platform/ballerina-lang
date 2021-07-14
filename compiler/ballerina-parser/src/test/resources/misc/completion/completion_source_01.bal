@@ -1,11 +1,15 @@
 public isolated service class testClass {
-    public  //<cursor>
+    public 
 }
+
+var a = object {
+    public 
+};
+
+type obj object {
+    public 
+};
 
 function foo() returns int {
     return 12;
-}
-
-function bar() returns string {
-    return "hello world";
 }

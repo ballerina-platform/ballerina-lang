@@ -167,9 +167,4 @@ public class ClassDefinitionTest extends AbstractDeclarationTest {
     public void testErrorsBeforeClass() {
         testFile("class-def/class_def_source_44.bal", "class-def/class_def_assert_44.json");
     }
-
-    @Test
-    public void testIncompleteMemberInsideClass() {
-        testFile("class-def/class_def_source_45.bal", "class-def/class_def_assert_45.json");
-    }
 }
