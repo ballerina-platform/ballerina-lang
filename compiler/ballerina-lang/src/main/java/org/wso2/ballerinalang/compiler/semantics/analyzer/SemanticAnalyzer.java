@@ -2152,6 +2152,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
 
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
+        typeNarrower.addHigherEnvTypeNarrowedSymbols(ifEnv);
 
         this.narrowedTypeInfo = new HashMap<>();
 
@@ -2167,6 +2168,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (ifNode.elseStmt != null) {
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
+            typeNarrower.addHigherEnvTypeNarrowedSymbols(elseEnv);
             analyzeStmt(ifNode.elseStmt, elseEnv);
         }
         this.narrowedTypeInfo = prevNarrowedTypeInfo;
