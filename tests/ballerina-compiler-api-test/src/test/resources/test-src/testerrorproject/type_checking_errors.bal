@@ -19,3 +19,13 @@ function testTypeChecking() {
 
     string s = <string>10;
 }
+
+type R record {|
+    int x;
+    int z?;
+|};
+
+function foo(R r) returns int {
+    int z = r.z;
+    return r.y;
+}

@@ -43,6 +43,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics();
         Object[][] expErrs = getExpectedErrors();
 
+        assertEquals(diagnostics.size(), expErrs.length);
         for (int i = 0; i < expErrs.length; i++) {
             assertDiagnostic(diagnostics.get(i), expErrs[i]);
         }
@@ -69,7 +70,10 @@ public class DiagnosticsTest {
                 {"missing identifier", 21, 8},
                 {"invalid token 'string'", 21, 15},
                 {"incompatible types: expected 'int', found 'string'", 17, 12},
-                {"incompatible types: 'int' cannot be cast to 'string'", 19, 15}
+                {"incompatible types: 'int' cannot be cast to 'string'", 19, 15},
+                {"invalid operation: type 'testorg/testerrorproject:1.0.0:R' does not support field access for " +
+                        "non-required field 'z'", 28, 12},
+                {"invalid operation: type 'testorg/testerrorproject:1.0.0:R' does not have a field 'y'", 29, 11},
         };
     }
 
