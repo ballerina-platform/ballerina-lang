@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "retry|transaction",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,14 +249,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -265,6 +257,14 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -658,18 +658,18 @@
       }
     },
     {
-      "label": "testFunction(function (json) returns boolean|error logic)",
+      "label": "logic(json)",
       "kind": "Function",
-      "detail": "()",
+      "detail": "boolean|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (json) returns boolean|error` logic"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `json`  \n  \n**Return** `boolean|error`   \n  \n"
         }
       },
       "sortText": "C",
-      "filterText": "testFunction",
-      "insertText": "testFunction(${1})",
+      "filterText": "logic",
+      "insertText": "logic(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -696,25 +696,6 @@
       }
     },
     {
-      "label": "logic(json)",
-      "kind": "Function",
-      "detail": "boolean|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `json`  \n  \n**Return** `boolean|error`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "logic",
-      "insertText": "logic(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "valueA",
       "kind": "Variable",
       "detail": "int",
@@ -729,6 +710,25 @@
       "sortText": "B",
       "insertText": "valueB",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction(function (json) returns boolean|error logic)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (json) returns boolean|error` logic"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testFunction",
+      "insertText": "testFunction(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "worker",

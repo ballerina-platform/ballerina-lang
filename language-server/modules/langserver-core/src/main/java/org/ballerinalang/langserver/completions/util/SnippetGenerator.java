@@ -35,7 +35,7 @@ import java.util.stream.IntStream;
  */
 public class SnippetGenerator {
 
-    private static final String FILTER_TEXT_SEPARATOR = "|";
+    private static final String FILTER_TEXT_SEPARATOR = "_";
 
     private SnippetGenerator() {
     }

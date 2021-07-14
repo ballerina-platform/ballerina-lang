@@ -438,54 +438,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "outputPersonList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "outputPersonList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "personList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p1",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p3",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p2",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Customer",
       "kind": "Struct",
       "detail": "Record",
@@ -509,14 +461,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "newAge",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "newAge",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -528,11 +472,67 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "personList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "personList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p2",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p1",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p3",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Person",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "M",
       "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "newAge",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "newAge",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "outputPersonList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "outputPersonList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -604,7 +604,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "on|conflict",
+      "filterText": "on_conflict",
       "insertText": "on conflict ",
       "insertTextFormat": "Snippet"
     }

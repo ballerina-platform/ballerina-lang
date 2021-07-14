@@ -6,14 +6,6 @@
   "source": "service_decl/source/source15.bal",
   "items": [
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "B",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -30,6 +22,14 @@
       "detail": "Object",
       "sortText": "B",
       "insertText": "TestObject",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "B",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -453,7 +453,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "remote|function",
+      "filterText": "remote_function",
       "insertText": "remote function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -462,7 +462,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "resource|function",
+      "filterText": "resource_function",
       "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
