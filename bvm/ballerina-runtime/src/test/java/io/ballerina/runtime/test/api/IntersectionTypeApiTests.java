@@ -38,7 +38,7 @@ public class IntersectionTypeApiTests {
     private static final Module module = new Module("myOrg", "test_module", "1.0.0");
 
     @Test
-    public void createIntersectionTypesWithPrimitives() {
+    public void createIntersectionTypeWithPrimitives() {
         BIntersectionType bIntersectionType =
                 new BIntersectionType(module, new BType[]{}, PredefinedTypes.TYPE_INT, 0, true);
         Assert.assertEquals(bIntersectionType.getTag(), TypeTags.INTERSECTION_TAG);
@@ -46,13 +46,25 @@ public class IntersectionTypeApiTests {
     }
 
     @Test
-    public void createIntersectionTypesWithStructuredTypes() {
+    public void createIntersectionTypeWithStructuredTypes() {
         ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
         BIntersectionType bIntersectionType1 =
                 new BIntersectionType(module, new BType[]{}, arrayType, 0, true);
         Assert.assertEquals(bIntersectionType1.getTag(), TypeTags.INTERSECTION_TAG);
         Assert.assertEquals(bIntersectionType1.getEffectiveType(), arrayType);
         Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType1);
+    }
+
+    @Test
+    public void createIntersectionTypeWithIntersectionType() {
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
+        BIntersectionType bIntersectionType1 =
+                new BIntersectionType(module, new BType[]{}, arrayType, 0, true);
+        BIntersectionType bIntersectionType2 =
+                new BIntersectionType(module, new BType[]{}, bIntersectionType1, 0, true);
+        Assert.assertEquals(bIntersectionType2.getTag(), TypeTags.INTERSECTION_TAG);
+        Assert.assertEquals(bIntersectionType2.getEffectiveType(), bIntersectionType1);
+        Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType2);
     }
 
 }
