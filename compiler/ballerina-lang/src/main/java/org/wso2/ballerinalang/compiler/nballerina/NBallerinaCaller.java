@@ -5,6 +5,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -75,7 +76,8 @@ public class NBallerinaCaller {
             Class<?> c = cl.loadClass("wso2.nballerina$0046nback.0_1_0.nback");
             //Method m = c.getMethod("compileModule", Strand.class, BObject.class, Boolean.TYPE,
             //       Object.class, Boolean.TYPE);
-            Method m = c.getMethod("testReturn", Strand.class, MapValue.class, Boolean.TYPE);
+            Method m = c.getMethod("compileModuleJBal", Strand.class, MapValue.class, Boolean.TYPE,
+                    Object.class, Boolean.TYPE);
 
             Class<?> config = cl.loadClass("wso2.nballerina.0_1_0.$ConfigurationMapper");
             Method configMethod = config.getMethod("$configureInit", String[].class,
@@ -83,13 +85,13 @@ public class NBallerinaCaller {
 
             configMethod.invoke(null, new String[]{}, new Path[0], null, null);
 
-            modGenerator.genMod(pkgNode);
+            Object bir = modGenerator.genMod(pkgNode);
 
             Scheduler scheduler = new Scheduler(false);
 
             Function<Object[], Object> func = objects -> {
                 try {
-                    return m.invoke(null, objects[0], ModuleGen.tempVal, true);
+                    return m.invoke(null, objects[0], bir, true, new BmpStringValue("out.ll"), true);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
                     throw new BallerinaException("Error invoking nBallerina backend", targetException);
@@ -98,7 +100,7 @@ public class NBallerinaCaller {
                 }
             };
 
-            final FutureValue out = scheduler.schedule(new Object[3], func, null, null, null,
+            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
                     PredefinedTypes.TYPE_ANY, null, null);
             scheduler.start();
 
