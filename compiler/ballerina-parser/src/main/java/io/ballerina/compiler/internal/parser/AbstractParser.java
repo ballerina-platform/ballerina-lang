@@ -102,9 +102,9 @@ public abstract class AbstractParser {
         return token;
     }
 
-    protected Solution recover(STToken token, ParserRuleContext currentCtx, boolean insertsOnly) {
-        insertsOnly |= token.kind == SyntaxKind.EOF_TOKEN;
-        Solution sol = this.errorHandler.recover(currentCtx, token, insertsOnly);
+    protected Solution recover(STToken token, ParserRuleContext currentCtx, boolean isCompletion) {
+        isCompletion |= token.kind == SyntaxKind.EOF_TOKEN;
+        Solution sol = this.errorHandler.recover(currentCtx, token, isCompletion);
 
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {

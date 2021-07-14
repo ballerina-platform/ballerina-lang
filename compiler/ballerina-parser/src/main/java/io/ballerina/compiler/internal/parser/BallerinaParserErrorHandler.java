@@ -5473,13 +5473,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     /**
      * Get the shortest insert solution at the given parser rule context. If the parser rule is a terminal,
      * then return the corresponding terminal token kind as the fix. If the parser rule is a production,
-     * then navigate the shortest path and get next available terminal token kind as the fix. 
+     * then navigate the shortest path and get next available terminal token kind as the fix.
      *
      * @param ctx Parser rule context
      * @return Shortest insert solution at the given parser rule
      */
     @Override
-    protected Solution getShortestInsertSolution(ParserRuleContext ctx) {
+    protected Solution getInsertSolution(ParserRuleContext ctx) {
         SyntaxKind kind = getExpectedTokenKind(ctx);
         if (kind != SyntaxKind.NONE) {
             return new Solution(Action.INSERT, ctx, kind, ctx.toString());
@@ -5487,11 +5487,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         
         if (hasAlternativePaths(ctx)) {
             ctx = getShortestAlternative(ctx);
-            return getShortestInsertSolution(ctx);
+            return getInsertSolution(ctx);
         }
         
         ctx = getNextRule(ctx, 1);
-        return getShortestInsertSolution(ctx);
+        return getInsertSolution(ctx);
     }
 
     /**

@@ -66,7 +66,7 @@ public abstract class AbstractParserErrorHandler {
 
     protected abstract SyntaxKind getExpectedTokenKind(ParserRuleContext context);
 
-    protected abstract Solution getShortestInsertSolution(ParserRuleContext context);
+    protected abstract Solution getInsertSolution(ParserRuleContext context);
 
     /*
      * -------------- Error recovering --------------
@@ -77,18 +77,16 @@ public abstract class AbstractParserErrorHandler {
      * to the next token, in order to recover. This method will search for the most
      * optimal action, that will result the parser to proceed the farthest distance.
      *
-     * @param currentCtx  Current parser context
-     * @param nextToken   Next token of the input where the error occurred
-     * @param insertsOnly Whether in the inserts only mode
+     * @param currentCtx   Current parser context
+     * @param nextToken    Next token of the input where the error occurred
+     * @param isCompletion Whether in recovery point is a completion
      * @return The action needs to be taken for the next token, in order to recover
      */
-    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, boolean insertsOnly) {
+    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, boolean isCompletion) {
         // Assumption: always comes here after a peek()
-        if (insertsOnly) {
-            ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
-            this.ctxStack = getCtxStackSnapshot();
-            Solution fix = getShortestInsertSolution(currentCtx);
-            this.ctxStack = tempCtxStack;
+ 
+        if (isCompletion) {
+            Solution fix = getCompletion(currentCtx);
             applyFix(currentCtx, fix);
             return fix;
         }
@@ -154,6 +152,14 @@ public abstract class AbstractParserErrorHandler {
         if (secondFix.action == Action.REMOVE && secondFix.depth == 1) {
             bestMatch.solution = secondFix;
         }
+    }
+
+    private Solution getCompletion(ParserRuleContext context) {
+        ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
+        this.ctxStack = getCtxStackSnapshot();
+        Solution sol = getInsertSolution(context);
+        this.ctxStack = tempCtxStack;
+        return sol;
     }
     
     /**
