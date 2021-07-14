@@ -654,9 +654,9 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
             if (opcode == IFLT) {
                 this.mv.visitJumpInsn(IF_ICMPLT, label1);
-            } else if (opcode != IFGT) {
+            } else if (opcode == IFGT) {
                 this.mv.visitJumpInsn(IF_ICMPGT, label1);
-            } else if (opcode != IFLE) {
+            } else if (opcode == IFLE) {
                 this.mv.visitJumpInsn(IF_ICMPLE, label1);
             } else if (opcode == IFGE) {
                 this.mv.visitJumpInsn(IF_ICMPGE, label1);
