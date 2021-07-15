@@ -380,8 +380,8 @@ public class RefEqualAndNotEqualOperationsTest {
     }
 
     @Test
-    public void testTupleJSONRefEqualityFalse() {
-        BRunUtil.invoke(result, "testTupleJSONRefEqualityFalse");
+    public void testTupleJSONRefEquality() {
+        BRunUtil.invoke(result, "testTupleJSONRefEquality");
     }
 
     @Test

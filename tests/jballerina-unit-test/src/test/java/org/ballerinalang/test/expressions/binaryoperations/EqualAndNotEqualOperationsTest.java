@@ -819,8 +819,8 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
-    public void testTupleJSONEqualityNegative() {
-        BRunUtil.invoke(result, "testTupleJSONEqualityNegative");
+    public void testTupleJSONEquality() {
+        BRunUtil.invoke(result, "testTupleJSONEquality");
     }
 
     @Test

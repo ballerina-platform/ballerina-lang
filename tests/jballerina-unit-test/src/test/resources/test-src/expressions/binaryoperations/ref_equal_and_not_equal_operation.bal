@@ -447,11 +447,39 @@ function testEmptyXMLSequencesRefEquality() returns boolean {
     return z === q;
 }
 
-function testTupleJSONRefEqualityFalse() {
+function testTupleJSONRefEquality() {
     [string, int] t = ["Hi", 1];
     json j = "Hi 1";
     assert(t === j, false);
-    assert(!(j !== t), false);
+    assert(j !== t, true);
+
+    [string, int][] e = [["Hi", 1]];
+    assert(e === j, false);
+    assert(j !== e, true);
+
+    [string, int...] k = ["Hi", 1];
+    assert(k === j, false);
+    assert(j !== k, true);
+
+    j = ["Hi", 1];
+    assert(j === t, false);
+    assert(j === k, false);
+    assert(j === ["Hi", 1], false);
+    json c = <json> t;
+    assert(j === c, false);
+    j = [["Hi", 1]];
+    assert(j === e, false);
+    j = true;
+    [boolean, string|()] l = [true];
+    assert(j !== l, true);
+
+    json d = null;
+    json f = <json> t;
+    json|error b = f.mergeJson(d);
+    assert(b is json, true);
+    if (b is json) {
+        assert( b === f, true);
+    }
 }
 
 function assert(anydata actual, anydata expected) {

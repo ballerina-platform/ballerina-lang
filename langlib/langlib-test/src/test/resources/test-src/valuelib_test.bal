@@ -519,25 +519,63 @@ type Person2 record {
 
 function testCloneWithTypeTupleToJSON() {
     [string, string, string] tupleValue1 = ["Mohan", "single", "LK2014"];
-    json|error jsonValue1 = tupleValue1.cloneWithType();
+    json|error jsonValue = tupleValue1.cloneWithType();
 
-    assert(jsonValue1 is error, false);
-
-    json[] tempVal = [];
-    if (jsonValue1 is json) {
-        tempVal.push(jsonValue1);
-    }
-    assert(tempVal[0] is json, true);
-    assert(tempVal[0] is json[], true);
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
 
     [string, string, xml] tupleValue2 = ["Mohan", "single"];
-    json|error jsonValue2 = tupleValue2.cloneWithType();
-
-     if (jsonValue2 is error) {
-         error a = jsonValue2;
+    jsonValue = tupleValue2.cloneWithType();
+    assert(jsonValue is error, true);
+     if (jsonValue is error) {
+         error a = jsonValue;
          assert(a.message(), "{ballerina/lang.typedesc}ConversionError");
          assert(<string> checkpanic a.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
+     }
+
+     [string, xml|int] tupleValue3 = ["text1", 1];
+     jsonValue = tupleValue3.cloneWithType();
+     assert(jsonValue is error, false);
+     assert(jsonValue is json[], true);
+
+     [string, anydata...] tupleValue4 = [""];
+     jsonValue = tupleValue4.cloneWithType();
+     assert(jsonValue is error, false);
+     assert(jsonValue is json[], true);
+
+     [string, int|xml...] tupleValue5 = ["text"];
+     jsonValue = tupleValue5.cloneWithType();
+     assert(jsonValue is error, false);
+     assert(jsonValue is json[], true);
+
+     [string, int|xml...] tupleValue6 = ["text", xml `text`, 1];
+     jsonValue = tupleValue6.cloneWithType();
+     assert(jsonValue is error, true);
+     if (jsonValue is error) {
+         error a = jsonValue;
+         assert(a.message(), "{ballerina/lang.typedesc}ConversionError");
+         assert(<string> checkpanic a.detail()["message"], "'[string,(int|xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>)...]' value cannot be converted to 'json'");
+     }
+
+     [string, anydata...] tupleValue7 = ["", xml `text`, true];
+     jsonValue = tupleValue7.cloneWithType();
+     assert(jsonValue is error, true);
+     if (jsonValue is error) {
+         error a = jsonValue;
+         assert(a.message(), "{ballerina/lang.typedesc}ConversionError");
+         assert(<string> checkpanic a.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
+     }
+
+     [string, xml|int] tupleValue8 = ["text1", xml `</elem>`];
+     jsonValue = tupleValue8.cloneWithType();
+     assert(jsonValue is error, true);
+     if (jsonValue is error) {
+         error a = jsonValue;
+         assert(a.message(), "{ballerina/lang.typedesc}ConversionError");
+         assert(<string> checkpanic a.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
      }
 }
 
@@ -1521,7 +1559,7 @@ function assert(anydata actual, anydata expected) {
     typedesc<anydata> actT = typeof actual;
     string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-     panic error(reason);
+    panic error(reason);
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
