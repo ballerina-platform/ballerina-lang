@@ -333,3 +333,44 @@ isolated function getArr() returns isolated object {}[] {
         return from var ob in isolatedIsolatedObjArr select ob;
     }
 }
+
+isolated int[] i = [1, 2];
+
+isolated function testIsolationAnalysisWithOnFailStatementNegative() {
+    do {
+
+    } on fail error e {
+        int k = i.pop();
+    }
+
+    anydata l = 1;
+    match l {
+        "1" => {
+            lock {
+                int k = check int:fromString(l.toString()) + i[0];
+            }
+        }
+    } on fail var e {
+        i.push(e.message().length());
+    }
+
+    foreach var item in 1 ..< 2 {
+
+    } on fail error e {
+        i.push(1);
+    }
+
+    int m = 1;
+
+    while m < 2 {
+        m += 1;
+    } on fail error e {
+        i.push(m);
+    }
+
+    lock {
+
+    } on fail error e {
+        i[i.length()] = 1;
+    }
+}

@@ -813,24 +813,33 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         analyzeNode(foreach.collection, env);
         analyzeNode(foreach.body, env);
+
+        BLangOnFailClause onFailClause = foreach.onFailClause;
+        if (onFailClause != null) {
+            analyzeNode(onFailClause, env);
+        }
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        analyzeNode((BLangNode) fromClause.getVariableDefinitionNode(), env);
-        analyzeNode(fromClause.collection, env);
+        SymbolEnv fromEnv = fromClause.env;
+        analyzeNode((BLangNode) fromClause.getVariableDefinitionNode(), fromEnv);
+        analyzeNode(fromClause.collection, fromEnv);
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        analyzeNode((BLangNode) joinClause.getVariableDefinitionNode(), env);
-        analyzeNode(joinClause.collection, env);
+        SymbolEnv joinEnv = joinClause.env;
+        analyzeNode((BLangNode) joinClause.getVariableDefinitionNode(), joinEnv);
+        analyzeNode(joinClause.collection, joinEnv);
+        analyzeNode((BLangNode) joinClause.onClause, joinEnv);
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
+        SymbolEnv letClauseEnv = letClause.env;
         for (BLangLetVariable letVarDeclaration : letClause.letVarDeclarations) {
-            analyzeNode((BLangNode) letVarDeclaration.definitionNode, env);
+            analyzeNode((BLangNode) letVarDeclaration.definitionNode, letClauseEnv);
         }
     }
 
@@ -847,24 +856,25 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
+        SymbolEnv orderByEnv = orderByClause.env;
         for (OrderKeyNode orderKeyNode : orderByClause.orderByKeyList) {
-            analyzeNode((BLangExpression) orderKeyNode.getOrderKey(), env);
+            analyzeNode((BLangExpression) orderKeyNode.getOrderKey(), orderByEnv);
         }
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        analyzeNode(selectClause.expression, env);
+        analyzeNode(selectClause.expression, selectClause.env);
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        analyzeNode(whereClause.expression, env);
+        analyzeNode(whereClause.expression, whereClause.env);
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
-        analyzeNode(doClause.body, env);
+        analyzeNode(doClause.body, doClause.env);
     }
 
     @Override
@@ -886,6 +896,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         analyzeNode(whileNode.expr, env);
         analyzeNode(whileNode.body, env);
+
+        BLangOnFailClause onFailClause = whileNode.onFailClause;
+        if (onFailClause != null) {
+            analyzeNode(onFailClause, env);
+        }
     }
 
     @Override
@@ -899,6 +914,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         PotentiallyInvalidExpressionInfo copyInLockInfo = copyInLockInfoStack.pop();
 
         this.inLockStatement = prevInLockStatement;
+
+        BLangOnFailClause onFailClause = lockNode.onFailClause;
+        if (onFailClause != null) {
+            analyzeNode(onFailClause, env);
+        }
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = copyInLockInfo.accessedRestrictedVars;
         Set<BSymbol> accessedRestrictedVarKeys = accessedRestrictedVars.keySet();

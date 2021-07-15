@@ -153,6 +153,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM(
             "BCE2115", "required.param.not.allowed.after.included.record.param"),
     INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
+    MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE2117", "missing.key.expr.in.member.access.expr"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -453,6 +454,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     FAILED_PREDICATE("BCE3104", "failed.predicate"),
     SYNTAX_ERROR("BCE3105", "syntax.error"),
     INVALID_SHIFT_OPERATOR("BCE3106", "invalid.shift.operator"),
+    UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER("BCE3107", "underscore.not.allowed.as.identifier"),
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("BCE3200", "invalid.stream.constructor"),

@@ -54,7 +54,7 @@ public class FileSystemRepositoryTests {
 
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("hevayo"), PackageName.from("package_a"), null),
-                PackageDependencyScope.DEFAULT
+                PackageDependencyScope.DEFAULT, true
         );
         List<PackageVersion> versions = fileSystemRepository.getPackageVersions(resolutionRequest);
         Assert.assertEquals(versions.size(), 2);

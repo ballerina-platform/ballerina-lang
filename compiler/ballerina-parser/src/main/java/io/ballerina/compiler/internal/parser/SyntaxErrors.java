@@ -122,8 +122,8 @@ public class SyntaxErrors {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-            case CLASS_MEMBER_WITHOUT_METADATA:
-            case OBJECT_MEMBER_WITHOUT_METADATA:
+            case CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META:
+            case OBJECT_CONS_MEMBER_WITHOUT_META:
             case RECORD_FIELD_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
@@ -562,6 +562,23 @@ public class SyntaxErrors {
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
         }
+    }
+
+    /**
+     * Update the all nodes inside {@code STNodeList} with a given diagnostic.
+     *
+     * @param nodeList  the STNodeList to be updated
+     * @param errorCode the invalid node
+     * @return updated STNodeList as a STNode
+     */
+    public static STNode updateAllNodesInNodeListWithDiagnostic(STNodeList nodeList, DiagnosticErrorCode errorCode) {
+        List<STNode> newList = new ArrayList<>();
+        for (int i = 0; i < nodeList.size(); i++) {
+            STNode updatedNode = addDiagnostic(nodeList.get(i), errorCode);
+            newList.add(updatedNode);
+        }
+
+        return STNodeFactory.createNodeList(newList);
     }
 
     /**
