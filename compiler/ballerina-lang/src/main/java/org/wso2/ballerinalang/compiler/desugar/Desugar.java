@@ -771,19 +771,14 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        Map<String, String> map = new HashMap<String, String>();
+        List<String> elements = new ArrayList<String>();
         for (int i = 0; i < pkgNode.constants.size(); i++) {
-            String nextKey = pkgNode.constants.get(i).toString();
-            String keyOwner = pkgNode.constants.get(i).symbol.owner.toString();
-            if (map.containsKey(nextKey)) {
-                if (map.get(nextKey) == keyOwner) {
-                    pkgNode.constants.remove(i);
-                    i -= 1;
-                } else {
-                    map.put(nextKey, keyOwner);
-                }
+            String next = pkgNode.constants.get(i).symbol.name.value;
+            if (elements.contains(next)) {
+                pkgNode.constants.remove(i);
+                i -= 1;
             } else {
-                map.put(nextKey, keyOwner);
+                elements.add(next);
             }
         }
 
@@ -1000,7 +995,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypeDefinition typeDef) {
+    public void visit(BLangTypeDefinition typeDef) { //
         if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             typeDef.typeNode = rewrite(typeDef.typeNode, env);
