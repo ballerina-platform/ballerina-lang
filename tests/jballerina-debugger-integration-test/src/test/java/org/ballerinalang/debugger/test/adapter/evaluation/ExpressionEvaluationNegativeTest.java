@@ -87,7 +87,14 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, XML_VAR + ".name",
+                EvaluationExceptionKind.PREFIX + "Undefined attribute `name' in: 'xmlVar'");
+        debugTestRunner.assertEvaluationError(context, "(xml `xmlString`).name",
+                EvaluationExceptionKind.PREFIX + "Invalid xml attribute access on xml text");
+        debugTestRunner.assertEvaluationError(context, "(xml `<!--I am a comment-->`).name",
+                EvaluationExceptionKind.PREFIX + "Invalid xml attribute access on xml comment");
+        debugTestRunner.assertEvaluationError(context, "(xml `<?target data?>`).name",
+                EvaluationExceptionKind.PREFIX + "Invalid xml attribute access on xml pi");
     }
 
     @Override

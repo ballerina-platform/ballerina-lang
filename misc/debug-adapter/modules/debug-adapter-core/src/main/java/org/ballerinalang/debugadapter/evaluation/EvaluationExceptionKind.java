@@ -38,6 +38,7 @@ public enum EvaluationExceptionKind {
     TYPE_RESOLVING_ERROR("Failed to resolve type: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the current strand instance for executing the method: %s"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),
+    INVALID_XML_ATTRIBUTE("Invalid xml attribute access on %s"),
     TYPE_MISMATCH("Incompatible types: expected `%s`, but found '%s': in '%s'"),
     VARIABLE_EXECUTION_ERROR("Internal error occurred when processing variable: '%s'"),
     BLOCK_EVALUATION("Block expressions/statements are not supported"),

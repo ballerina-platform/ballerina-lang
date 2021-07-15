@@ -109,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1289,9 +1290,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     rhsType = symTable.semanticError;
                 }
 
-                if (variable.flagSet.contains(Flag.LISTENER) && !types.checkListenerCompatibility(rhsType)) {
-                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, LISTENER_NAME, rhsType);
-                    return;
+                if (variable.flagSet.contains(Flag.LISTENER)) {
+                    BType listenerType = getListenerType(rhsType);
+                    if (listenerType == null) {
+                        dlog.error(varRefExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, LISTENER_NAME, rhsType);
+                        return;
+                    }
+                    rhsType = listenerType;
                 }
 
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
@@ -1401,6 +1406,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 validateAnnotationAttachmentCount(errorVariable.annAttachments);
                 break;
+        }
+    }
+
+    private BType getListenerType(BType type) {
+        LinkedHashSet<BType> compatibleTypes = new LinkedHashSet<>();
+        if (type.tag == TypeTags.UNION) {
+            for (BType t : ((BUnionType) type).getMemberTypes()) {
+                if (t.tag == TypeTags.ERROR) {
+                    continue;
+                }
+                if (types.checkListenerCompatibility(t)) {
+                    compatibleTypes.add(t);
+                } else {
+                    return null;
+                }
+            }
+        } else if (types.checkListenerCompatibility(type)) {
+            compatibleTypes.add(type);
+        }
+
+        if (compatibleTypes.isEmpty()) {
+            return null;
+        } else if (compatibleTypes.size() == 1) {
+            return compatibleTypes.iterator().next();
+        } else {
+            return BUnionType.create(null, compatibleTypes);
         }
     }
 
@@ -3319,6 +3350,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangService serviceNode) {
+        addCheckExprToServiceVariable(serviceNode);
         analyzeDef(serviceNode.serviceVariable, env);
         if (serviceNode.serviceNameLiteral != null) {
             typeChecker.checkExpr(serviceNode.serviceNameLiteral, env, symTable.stringType);
@@ -3365,6 +3397,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             serviceSymbol.addListenerType(exprType);
+        }
+    }
+
+    private void addCheckExprToServiceVariable(BLangService serviceNode) {
+        BLangFunction initFunction = serviceNode.serviceClass.initFunction;
+        if (initFunction != null && initFunction.returnTypeNode != null
+                && types.containsErrorType(initFunction.returnTypeNode.getBType())) {
+            BLangCheckedExpr checkedExpr = (BLangCheckedExpr) TreeBuilder.createCheckExpressionNode();
+            checkedExpr.expr = serviceNode.serviceVariable.expr;
+            checkedExpr.setBType(serviceNode.serviceClass.getBType());
+            serviceNode.serviceVariable.expr = checkedExpr;
         }
     }
 

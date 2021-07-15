@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Tests for {@link org.ballerinalang.langserver.completions.providers.context.VariableDeclarationProvider}
+ * Tests for {@link org.ballerinalang.langserver.completions.providers.context.VariableDeclarationNodeContext}
  * completion provider.
  */
 public class VariableDeclarationContextTest extends CompletionTest {
