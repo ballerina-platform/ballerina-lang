@@ -60,6 +60,7 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
                 {"addSingleRecordDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleObjectDocumentation.json", "commonDocumentation.bal"},
                 {"serviceDocumentationWithAnnotations.json", "serviceDocumentationWithAnnotations.bal"},
+                {"addResourceFunctionDocumentation.json", "addResourceFunctionDocumentation.bal"},
                 {"add_single_documentation_with_deprecated1.json", "add_single_documentation_with_deprecated1.bal"},
                 {"add_single_documentation_with_deprecated2.json", "add_single_documentation_with_deprecated2.bal"},
                 // Already documented
@@ -67,6 +68,8 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
                 {"document_already_documented_config2.json", "document_already_documented1.bal"},
                 {"document_already_documented_config3.json", "document_already_documented1.bal"},
                 {"document_already_documented_config4.json", "document_already_documented1.bal"},
+                {"document_already_documented_config5.json", "document_already_documented1.bal"},
+                {"document_already_documented_config6.json", "document_already_documented1.bal"},
         };
     }
 

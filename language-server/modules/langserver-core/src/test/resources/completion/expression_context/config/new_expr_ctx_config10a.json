@@ -6,24 +6,6 @@
   "source": "expression_context/source/new_expr_ctx_source10a.bal",
   "items": [
     {
-      "label": "TestObject1(int field1, int field2)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
-        }
-      },
-      "sortText": "C",
-      "insertText": "TestObject1(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "TestObject2()",
       "kind": "Function",
       "detail": "()",
