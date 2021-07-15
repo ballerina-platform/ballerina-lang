@@ -135,8 +135,12 @@ public class BackgroundTaskService {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             TaskKey taskKey = (TaskKey) o;
             return Objects.equals(packageId, taskKey.packageId) && Objects.equals(taskName, taskKey.taskName);
         }

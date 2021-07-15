@@ -33,9 +33,7 @@ import org.eclipse.lsp4j.Command;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.regex.Matcher;
 
 /**
  * Code Action for pulling a package from central.
