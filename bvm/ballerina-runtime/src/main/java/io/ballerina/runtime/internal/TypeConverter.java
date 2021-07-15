@@ -49,6 +49,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
+import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isSigned8LiteralValue;
@@ -257,6 +259,7 @@ public class TypeConverter {
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
+                resolveAmbiguitiesWithIntAndIntSubtypes(convertibleTypes);
                 break;
             case TypeTags.ARRAY_TAG:
                 if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues)) {
@@ -291,12 +294,11 @@ public class TypeConverter {
             case TypeTags.FINITE_TYPE_TAG:
                 for (Object valueSpaceItem : ((BFiniteType) targetType).valueSpace) {
                     Type inputValueType = TypeChecker.getType(inputValue);
-                    Type valueSpaceItemType = TypeChecker.getType(valueSpaceItem);
                     if (inputValue == valueSpaceItem) {
                         return Set.of(inputValueType);
                     }
                     if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem)) {
-                        convertibleTypes.add(valueSpaceItemType);
+                        convertibleTypes.add(TypeChecker.getType(valueSpaceItem));
                     }
                 }
                 break;
@@ -452,6 +454,38 @@ public class TypeConverter {
             }
         }
         return true;
+    }
+
+    private static void resolveAmbiguitiesWithIntAndIntSubtypes(Set<Type> convertibleTypes) {
+        List<Type> targetIntegerTypes = new ArrayList<>();
+        for (Type type : convertibleTypes) {
+            if (!TypeTags.isIntegerTypeTag(type.getTag()) && type.getTag() != TypeTags.BYTE_TAG) {
+                return;
+            }
+        }
+        targetIntegerTypes.addAll(convertibleTypes);
+        if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT)) {
+            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT);
+            convertibleTypes.removeAll(targetIntegerTypes);
+        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_UNSIGNED_32)) {
+            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_UNSIGNED_32);
+            convertibleTypes.removeAll(targetIntegerTypes);
+        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_SIGNED_32)) {
+            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_SIGNED_32);
+            convertibleTypes.removeAll(targetIntegerTypes);
+        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_UNSIGNED_16)) {
+            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_UNSIGNED_16);
+            convertibleTypes.removeAll(targetIntegerTypes);
+        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_SIGNED_16)) {
+            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_SIGNED_16);
+            convertibleTypes.removeAll(targetIntegerTypes);
+        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_UNSIGNED_8)) {
+            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_UNSIGNED_8);
+            convertibleTypes.removeAll(targetIntegerTypes);
+        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_BYTE)) {
+            targetIntegerTypes.remove(PredefinedTypes.TYPE_BYTE);
+            convertibleTypes.removeAll(targetIntegerTypes);
+        }
     }
 
     static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {

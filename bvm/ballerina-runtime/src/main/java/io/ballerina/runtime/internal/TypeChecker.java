@@ -2377,22 +2377,17 @@ public class TypeChecker {
                         return true;
                     }
 
-                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG &&
-                            targetTypeElementType.getTag() != TypeTags.FINITE_TYPE_TAG) {
+                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
                         return false;
                     }
 
-                    if (targetTypeElementType.getTag() == TypeTags.UNION_TAG) {
-                        List<Type> targetNumericTypes = new ArrayList<>();
-                        for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                            if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                                targetNumericTypes.add(memType);
-                            }
-                        }
-                        if (targetNumericTypes.size() > 1) {
-                            return false;
+                    List<Type> targetNumericTypes = new ArrayList<>();
+                    for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                        if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                            targetNumericTypes.add(memType);
                         }
                     }
+                    return targetNumericTypes.size() == 1;
                 }
 
                 if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG &&
