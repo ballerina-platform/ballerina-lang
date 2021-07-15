@@ -6,11 +6,11 @@
   "source": "service_decl/source/source15.bal",
   "items": [
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
+      "label": "TestObject",
+      "kind": "Interface",
+      "detail": "Object",
       "sortText": "B",
-      "insertText": "Thread",
+      "insertText": "TestObject",
       "insertTextFormat": "Snippet"
     },
     {
@@ -25,11 +25,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
       "sortText": "B",
-      "insertText": "TestObject",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,11 +449,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remote function",
+      "label": "remote function <name>();",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "remote|function",
+      "filterText": "remote_function",
       "insertText": "remote function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -462,7 +462,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "resource|function",
+      "filterText": "resource_function",
       "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
