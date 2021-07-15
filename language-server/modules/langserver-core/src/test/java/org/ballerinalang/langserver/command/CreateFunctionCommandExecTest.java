@@ -46,53 +46,53 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
     public Object[][] createFunctionDataProvider() {
         log.info("Test workspace/executeCommand for command {}", CreateFunctionExecutor.COMMAND);
         return new Object[][]{
-//                {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction1.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
-//                {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
-//                {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
-//                // TODO Doesn't support method creation in objects
-//                // {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
-//                // TODO Doesn't support methods inside services yet
-//                // {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
-//
-//                {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
-//                {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
-//                {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
-//                {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
-//                {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
-//                {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
-//                // TODO Need to fix anonymous records support
-//                // {"createUndefinedFunction13.json", "createUndefinedFunction5.bal"},
-//                {"createUndefinedFunction14.json", "createUndefinedFunction6.bal"},
-//
-//                // Tests functions returning object
-//                {"createUndefinedFunction14.json", "createUndefinedFunction6.bal"},
-//                {"createUndefinedFunction15.json", "createUndefinedFunction6.bal"},
-//                {"createUndefinedFunction16.json", "createUndefinedFunction6.bal"},
-//
-//                {"createUndefinedFunctionInRecord.json", "createUndefinedFunctionInRecord.bal"},
-//                {"createUndefinedFunctionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
-//
-//                {"projectCreateUndefinedFunction1.json", "testproject/main.bal"},
-//                {"projectCreateUndefinedFunction2.json", "testproject/main.bal"},
-//                {"projectCreateUndefinedFunction3.json", "testproject/main.bal"},
-//                {"projectCreateUndefinedFunction4.json", "testproject/main.bal"},
-//                {"projectCreateUndefinedFunction5.json", "testproject/school.bal"},
-//                // Let Expression
-//                {"projectCreateUndefinedFunctionInLet.json", "testproject/school.bal"},
-//                {"projectCreateUndefinedFunctionInLet2.json", "testproject/school.bal"},
-//                {"projectCreateUndefinedFunctionInLet3.json", "testproject/school.bal"},
-//                // Module Alias
-//                {"projectCreateUndefinedFunctionWithModAlias.json", "testproject/modAlias.bal"},
-//                {"projectCreateUndefinedFunctionWithModAlias2.json", "testproject/modAlias.bal"},
-//                {"projectCreateUndefinedFunctionWithLangLib.json", "testproject/langlib.bal"},
-//                
-//                {"create_function_which_returns_record1.json", "create_function_which_returns_record1.bal"},
-//                {"create_function_which_returns_record2.json", "create_function_which_returns_record2.bal"},
-//                {"create_function_with_strands1.json", "create_function_with_strands1.bal"},
-//                {"create_function_with_strands2.json", "create_function_with_strands1.bal"},
-//                {"create_function_with_strands3.json", "create_function_with_strands1.bal"},
-//                {"create_function_with_strands4.json", "create_function_with_strands1.bal"},
+                {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
+                {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
+                // TODO Doesn't support method creation in objects
+                // {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
+                // TODO Doesn't support methods inside services yet
+                // {"createUndefinedFunction6.json", "createUndefinedFunction4.bal"},
+
+                {"createUndefinedFunction7.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction8.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction9.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
+                // TODO Need to fix anonymous records support
+                // {"createUndefinedFunction13.json", "createUndefinedFunction5.bal"},
+                {"createUndefinedFunction14.json", "createUndefinedFunction6.bal"},
+
+                // Tests functions returning object
+                {"createUndefinedFunction14.json", "createUndefinedFunction6.bal"},
+                {"createUndefinedFunction15.json", "createUndefinedFunction6.bal"},
+                {"createUndefinedFunction16.json", "createUndefinedFunction6.bal"},
+
+                {"createUndefinedFunctionInRecord.json", "createUndefinedFunctionInRecord.bal"},
+                {"createUndefinedFunctionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
+
+                {"projectCreateUndefinedFunction1.json", "testproject/main.bal"},
+                {"projectCreateUndefinedFunction2.json", "testproject/main.bal"},
+                {"projectCreateUndefinedFunction3.json", "testproject/main.bal"},
+                {"projectCreateUndefinedFunction4.json", "testproject/main.bal"},
+                {"projectCreateUndefinedFunction5.json", "testproject/school.bal"},
+                // Let Expression
+                {"projectCreateUndefinedFunctionInLet.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunctionInLet2.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunctionInLet3.json", "testproject/school.bal"},
+                // Module Alias
+                {"projectCreateUndefinedFunctionWithModAlias.json", "testproject/modAlias.bal"},
+                {"projectCreateUndefinedFunctionWithModAlias2.json", "testproject/modAlias.bal"},
+                {"projectCreateUndefinedFunctionWithLangLib.json", "testproject/langlib.bal"},
+                
+                {"create_function_which_returns_record1.json", "create_function_which_returns_record1.bal"},
+                {"create_function_which_returns_record2.json", "create_function_which_returns_record2.bal"},
+                {"create_function_with_strands1.json", "create_function_with_strands1.bal"},
+                {"create_function_with_strands2.json", "create_function_with_strands1.bal"},
+                {"create_function_with_strands3.json", "create_function_with_strands1.bal"},
+                {"create_function_with_strands4.json", "create_function_with_strands1.bal"},
         };
     }
 

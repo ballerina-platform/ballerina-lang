@@ -45,12 +45,11 @@ public class ImplementFunctionsTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"temp.json", "temp.bal"},
-//                {"implementFuncObj1.json", "implementFuncObj.bal"},
-//                {"implementFuncObj2.json", "implementFuncObj.bal"},
-//                {"implementFuncObj3.json", "implementFuncObj.bal"},
-//                {"implementFunctionInService1.json", "implementFunctionInService.bal"},
-//                {"implementFuncInObjConstructorExpr1.json", "implementFuncInObjConstructorExpr1.bal"},
+                {"implementFuncObj1.json", "implementFuncObj.bal"},
+                {"implementFuncObj2.json", "implementFuncObj.bal"},
+                {"implementFuncObj3.json", "implementFuncObj.bal"},
+                {"implementFunctionInService1.json", "implementFunctionInService.bal"},
+                {"implementFuncInObjConstructorExpr1.json", "implementFuncInObjConstructorExpr1.bal"},
         };
     }
 }
