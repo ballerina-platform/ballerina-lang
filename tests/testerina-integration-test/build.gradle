@@ -61,7 +61,6 @@ test {
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/src/test/resources/logging.properties"
-    systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
