@@ -198,6 +198,39 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testDistinctErrorIntersectionNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/types/intersection/distinct_error_intersection_negative.bal");
+
+        int index = 0;
+        validateError(result, index++,
+                "incompatible types: expected 'SingleDistinctError2', found 'SingleDistinctError'", 26, 32);
+        validateError(result, index++,
+                "incompatible types: expected 'DoubleDistinctError', found 'SingleDistinctError'", 27, 30);
+        validateError(result, index++,
+                "incompatible types: expected 'SingleDistinctError', found 'DoubleDistinctError'", 28, 10);
+        validateError(result, index++,
+                "incompatible types: expected 'DoubleDistinctError2', found 'DoubleDistinctError'", 29, 32);
+        validateError(result, index++,
+                "incompatible types: expected 'DistinctErrorAndSingleDistinctError', found 'SingleDistinctError'",
+                33, 11);
+        validateError(result, index++,
+                "incompatible types: expected 'DistinctErrorAndSingleDistinctError2', found 'SingleDistinctError'",
+                35, 48);
+        validateError(result, index++,
+                "incompatible types: expected 'DistinctErrorAndSingleDistinctError', " +
+                        "found 'DistinctErrorAndSingleDistinctError2'", 37, 11);
+        validateError(result, index++,
+                "incompatible types: expected 'error<map<ballerina/lang.value:1.0.0:Cloneable>>', " +
+                        "found 'SingleDistinctError'", 39, 31);
+        validateError(result, index++,
+                "incompatible types: expected 'SingleDistinctError', " +
+                        "found 'error<map<ballerina/lang.value:1.0.0:Cloneable>>'", 40, 10);
+
+        assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
     public void testUnsupportedIntersectionNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/types/intersection/unsupported_intersection_negative.bal");

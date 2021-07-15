@@ -1360,9 +1360,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
                                    null, env.scope.owner, errorTypeNode.pos, SOURCE);
 
+        PackageID packageID = env.enclPkg.packageID;
         if (env.node.getKind() != NodeKind.PACKAGE) {
             errorTypeSymbol.name = names.fromString(
-                    anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                    anonymousModelHelper.getNextAnonymousTypeKey(packageID));
             symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, env);
         }
 
@@ -1373,6 +1374,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         markParameterizedType(errorType, detailType);
 
         errorType.typeIdSet = BTypeIdSet.emptySet();
+
+        if (errorTypeNode.isAnonymous && errorTypeNode.flagSet.contains(Flag.DISTINCT)) {
+            errorType.typeIdSet.add(
+                    BTypeIdSet.from(packageID, anonymousModelHelper.getNextAnonymousTypeId(packageID), true));
+        }
 
         resultType = errorType;
     }
@@ -2059,7 +2065,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
             }
 
-            return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
+            return createIntersectionErrorType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
                                           constituentBTypes, existingErrorDetailType, env);
         }
 
@@ -2098,10 +2104,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                 env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BIntersectionType defineIntersectionType(BErrorType intersectionErrorType,
-                                                     Location pos,
-                                                     LinkedHashSet<BType> constituentBTypes,
-                                                     boolean isAlreadyDefinedDetailType, SymbolEnv env) {
+    private BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
+                                                          Location pos,
+                                                          LinkedHashSet<BType> constituentBTypes,
+                                                          boolean isAlreadyDefinedDetailType, SymbolEnv env) {
 
         BSymbol owner = intersectionErrorType.tsymbol.owner;
         PackageID pkgId = intersectionErrorType.tsymbol.pkgID;
