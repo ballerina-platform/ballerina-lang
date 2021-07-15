@@ -1,0 +1,49 @@
+name: Pull Request Build
+
+on: pull_request
+
+jobs:
+    ubuntu-build:
+        name: Build on Ubuntu without Tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v2
+
+            - name: Setup JDK
+              uses: actions/setup-java@v2
+              with:
+                distribution: 'adopt'
+                java-version: 8
+
+            - name: Setup Node
+              uses: actions/setup-node@v2
+              with:
+                  node-version: '8.9'
+
+            - name: Build Ballerina Lang
+              run: ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+
+    windows-build:
+        name: Build on Windows without Tests
+        runs-on: windows-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v2
+
+            - name: Setup JDK
+              uses: actions/setup-java@v2
+              with:
+                  distribution: 'adopt'
+                  java-version: 8
+
+            - name: Setup Node
+              uses: actions/setup-node@v2
+              with:
+                  node-version: '8.9'
+
+            - name: Build Ballerina Lang
+              run: |
+                  git submodule init
+                  git submodule update
+                  ./gradlew.bat build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
