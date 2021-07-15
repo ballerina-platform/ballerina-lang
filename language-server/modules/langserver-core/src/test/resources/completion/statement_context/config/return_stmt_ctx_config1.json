@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "Q",
-      "filterText": "retry|transaction",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,14 +249,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "O",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -265,6 +257,14 @@
       },
       "sortText": "N",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "O",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

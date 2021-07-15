@@ -34,7 +34,6 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -213,15 +212,8 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         completionItems.forEach(lsCItem -> {
-            CompletionItem cItem = lsCItem.getCompletionItem();
-            String sortText;
-            if (SortingUtil.isTypeCompletionItem(lsCItem) || SortingUtil.isModuleCompletionItem(lsCItem)) {
-                sortText = SortingUtil.genSortText(1)
-                        + SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
-            } else {
-                sortText = SortingUtil.genSortText(2);
-            }
-            cItem.setSortText(sortText);
+            String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+            lsCItem.getCompletionItem().setSortText(sortText);
         });
     }
 }

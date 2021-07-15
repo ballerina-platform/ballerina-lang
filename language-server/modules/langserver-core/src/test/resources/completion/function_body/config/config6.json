@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "retry|transaction",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,14 +249,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -265,6 +257,14 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -647,6 +647,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "validator1",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "B",
+      "insertText": "validator1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction(boolean validator1, boolean validator2)",
       "kind": "Function",
       "detail": "()",
@@ -664,14 +672,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "validator1",
-      "kind": "Variable",
-      "detail": "boolean",
-      "sortText": "B",
-      "insertText": "validator1",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "worker",
