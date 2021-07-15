@@ -33,7 +33,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,7 +58,8 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         }
 
         CheckExpressionNode checkExpressionNode = (CheckExpressionNode) positionDetails.matchedNode();
-        
+        List<TextEdit> edits = new ArrayList<>();
+        String commandTitle;
         if (isDoStmtNodePresent(positionDetails.matchedNode())) {
             DoStatementNode doStatementNode = getDoStatementNode(checkExpressionNode);
             LinePosition doStmtLinePosition = doStatementNode.lineRange().endLine();
@@ -67,11 +68,8 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             String spaces = " ".repeat(doStmtLinePosition.offset() - 1);
             String editText = " on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                 + CommonUtil.LINE_SEPARATOR + spaces + "}";
-            List<TextEdit> edits = Arrays.asList(new TextEdit(new Range(onFailPosLine, onFailPosLine), editText));
-            String commandTitle = CommandConstants.CREATE_ON_FAIL_CLAUSE;
-            List<CodeAction> codeActions =
-                    Arrays.asList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
-            return codeActions;
+            edits.add(new TextEdit(new Range(onFailPosLine, onFailPosLine), editText));
+            commandTitle = CommandConstants.CREATE_ON_FAIL_CLAUSE;
         } else {
             VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) checkExpressionNode.parent();
             LinePosition linePosition = variableDeclarationNode.lineRange().startLine();
@@ -83,12 +81,10 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             String editTextDo = "do {" + CommonUtil.LINE_SEPARATOR + "\t" + insideDoStatement 
                     + spaces + "} on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                     + CommonUtil.LINE_SEPARATOR + spaces + "}" + CommonUtil.LINE_SEPARATOR;
-            List<TextEdit> edits = Arrays.asList(new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo));
-            String commandTitle = CommandConstants.CREATE_ON_FAIL_WITH_DO;
-            List<CodeAction> codeActions =
-                    Arrays.asList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
-            return codeActions;
+            edits.add(new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo));
+            commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
         }
+        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }   
     
     private boolean isDoStmtNodePresent (Node node) {

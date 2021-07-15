@@ -134,5 +134,5 @@ public class CommandConstants {
     
     public static final String CREATE_ON_FAIL_CLAUSE = "Create on fail clause";
 
-    public static final String CREATE_ON_FAIL_WITH_DO = "Add do statement and on fail clause";
+    public static final String SURROUND_WITH_DO_ON_FAIL = "Surround with do/on-fail";
 }
