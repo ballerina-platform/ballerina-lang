@@ -454,7 +454,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
         BTypeSymbol errorTSymbol = errorType.tsymbol;
         errorTSymbol.scope = new Scope(errorTSymbol);
-        pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
+
+        if (symResolver.checkForUniqueSymbol(errorTSymbol.pos, pkgEnv, errorTSymbol)) {
+            pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
+        }
 
         SymbolEnv prevEnv = this.env;
         this.env = pkgEnv;
