@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -70,7 +69,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createIdent
  */
 public class TypeDefBuilderHelper {
 
-    public final static String INTERSECTED_ERROR_DETAIL = "$IntersectedErrorDetail$";
+    public static final String INTERSECTED_ERROR_DETAIL = "$IntersectedErrorDetail$";
 
     public static BLangRecordTypeNode createRecordTypeNode(BRecordType recordType, PackageID packageID,
                                                            SymbolTable symTable, Location pos) {
