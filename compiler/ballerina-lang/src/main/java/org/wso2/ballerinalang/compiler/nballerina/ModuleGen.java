@@ -30,8 +30,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -70,7 +68,7 @@ public class ModuleGen {
 
     //private static Module modBir = new Module("wso2", "nballerina.bir", "0.1.0");
     private static final Module modFront = new Module("wso2", "nballerina.front", "0.1.0");
-    //private static final Module modErr = new Module("wso2", "nballerina.err", "0.1.0");
+    private static final Module modErr = new Module("wso2", "nballerina.err", "0.1.0");
     static BMap<BString, Object> tempVal;
     private static UnionType stmtTyp;
     private static UnionType exprTyp;
@@ -124,7 +122,7 @@ public class ModuleGen {
                 false, 0);
         RecordType funcDef = TypeCreator.createRecordType("FunctionDef", modFront, 0,
                 false, 0);
-        return TypeCreator.createUnionType(funcDef);
+        return TypeCreator.createUnionType(funcDef, typeDef);
     }
 
     private static UnionType getExprTyp() {
@@ -203,17 +201,21 @@ public class ModuleGen {
 
         BArray body = (BArray) astFunc.body.accept(this);
 
-        //HashMap<String, Object> mapPosValues = new HashMap<>();
-        //mapPosValues.put("lineNumber", 1);
-        //mapPosValues.put("indexInLine", 1);
-        //BMap<BString, Object> pos = ValueCreator.createReadonlyRecordValue(modErr, "Position", mapPosValues);
+        HashMap<String, Object> mapPosValues = new HashMap<>();
+        mapPosValues.put("lineNumber", astFunc.pos.lineRange().startLine().line());
+        mapPosValues.put("indexInLine", astFunc.pos.textRange().startOffset());
+        BMap<BString, Object> pos = ValueCreator.createReadonlyRecordValue(modErr, "Position", mapPosValues);
+
         ArrayType typDescArrTyp = TypeCreator.createArrayType(typeDescTyp);
         BArray args = ValueCreator.createArrayValue(typDescArrTyp);
-        args.append(new BmpStringValue("boolean"));
+        BArray rets = ValueCreator.createArrayValue(typDescArrTyp);
+        astFunc.getParameters().forEach(param -> args.append(new BmpStringValue(param.type.getKind().typeName())));
+        rets.append(new BmpStringValue(astFunc.getReturnTypeNode().type.getKind().typeName()));
+
 
         Map<String, Object> funcTypeDefMap = new HashMap<>();
         funcTypeDefMap.put("args", args);
-        funcTypeDefMap.put("ret", args.get(0));
+        funcTypeDefMap.put("ret", rets.get(0));
         BMap<BString, Object> td = ValueCreator.createRecordValue(modFront, "FunctionTypeDesc",
                 funcTypeDefMap);
 
@@ -222,7 +224,7 @@ public class ModuleGen {
         mapInitialValueEntries.put("paramNames", paramNames);
         mapInitialValueEntries.put("body", body);
         mapInitialValueEntries.put("typeDesc", td);
-        //mapInitialValueEntries.put("pos", pos);
+        mapInitialValueEntries.put("pos", pos);
         return ValueCreator.createRecordValue(modFront, "FunctionDef", mapInitialValueEntries);
     }
 
@@ -325,19 +327,11 @@ public class ModuleGen {
         return null;
     }
 
-    public Object visit(BLangExprFunctionBody astBody) {
-        return null;
-    }
-
     public Object visit(BLangBlockFunctionBody astBody) {
         ArrayType arrTyp = TypeCreator.createArrayType(stmtTyp);
         BArray stmts = ValueCreator.createArrayValue(arrTyp);
         astBody.getStatements().forEach(stmt -> stmts.append(stmt.accept(this)));
         return stmts;
-    }
-
-    public Object visit(BLangExternalFunctionBody astBody) {
-        return null;
     }
 
     public Object visit(BLangLiteral bLangLiteral) {
