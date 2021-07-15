@@ -87,7 +87,8 @@ public class DebugInstructionTest extends BaseTestCase {
         // Tests STEP_IN instruction on object init() method.
         // debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.STEP_IN);
         // debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 21));
+        // Assert.assertEquals(debugHitInfo.getLeft(), new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath,
+        //        21));
 
         // Tests debug hit inside object init() method.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
