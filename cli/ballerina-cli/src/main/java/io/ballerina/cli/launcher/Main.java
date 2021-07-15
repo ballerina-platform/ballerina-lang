@@ -23,8 +23,6 @@ import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.IOException;

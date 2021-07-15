@@ -35,9 +35,16 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.*;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_CONFIG_PATH;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
