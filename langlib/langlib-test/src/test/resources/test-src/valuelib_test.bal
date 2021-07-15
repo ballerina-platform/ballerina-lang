@@ -671,6 +671,24 @@ function testCloneWithTypeNumeric5() {
     assert(j, <(float|boolean)[]> j2);
 }
 
+function testCloneWithTypeToArrayOfRecord () {
+    X x1 = { a: 21, b: "Alice", c: 1000.5 };
+    X x2 = { a: 25, b: "Michel", c: 1020.5};
+    X[] x = [x1, x2];
+    Y[]|error y = x.cloneWithType();
+    assert(y is error, false);
+    //assert(y, [{"a":21.0,"b":"Alice","c":1000.5},{"a":25.0,"b":"Michel","c":1020.5}]);
+}
+
+function testCloneWithTypeToArrayOfMap () {
+    map<float> m1 = { a: 1.2, b: 2.7 };
+    map<float> m2 = { a: 1.8, b: 2.3 };
+    map<float>[] m = [m1, m2];
+    map<string|int>[]|error res = m.cloneWithType();
+    assert(res is error, false);
+    //assert(res, [{"a": 1, "b": 3}, {"a": 2, "b": 2}]);
+}
+
 type IntMap map<int>;
 type IntOrStringMap map<string|int>;
 function testCloneWithTypeNumeric6() {
@@ -812,6 +830,40 @@ function testCloneWithTypeIntArrayToUnionArray() {
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '(byte|float)[]'");
+
+    float[] y = [10, 20];
+
+    (int|byte)[]|error f = y.cloneWithType();
+    assert(f is error, false);
+    assert(checkpanic f, [10, 20]);
+
+    (byte|int:Signed8|int:Unsigned8)[]|error g = y.cloneWithType();
+    assert(g is error, false);
+    assert(checkpanic g, [10, 20]);
+
+    (int:Signed32|int:Unsigned32|int:Unsigned16)[]|error h = y.cloneWithType();
+    assert(h is error, false);
+    assert(checkpanic h, [10, 20]);
+
+    (int:Signed32|int:Unsigned16)[]|error i = y.cloneWithType();
+    assert(i is error, false);
+    assert(checkpanic i, [10, 20]);
+
+    (int:Signed16|int:Unsigned8)[]|error j = y.cloneWithType();
+    assert(j is error, false);
+    assert(checkpanic j, [10, 20]);
+
+    (int:Signed8|byte)[]|error k = y.cloneWithType();
+    assert(k is error, false);
+    assert(checkpanic k, [10, 20]);
+
+    (int:Signed16|int:Unsigned8|decimal)[]|error m = y.cloneWithType();
+    assert(m is error, true);
+    err = <error> m;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]'");
 }
 
 type StringArray string[];
