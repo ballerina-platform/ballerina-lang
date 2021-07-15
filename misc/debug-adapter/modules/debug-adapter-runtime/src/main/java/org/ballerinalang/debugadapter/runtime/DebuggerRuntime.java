@@ -22,9 +22,11 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -152,9 +154,20 @@ public class DebuggerRuntime {
      * @return Ballerina object instance
      */
     public static Object createObjectValue(String pkgOrg, String pkgName, String pkgVersion, String objectTypeName,
-                                            Object... fieldValues) {
+                                           Object... fieldValues) {
         Module packageId = new Module(pkgOrg, pkgName, pkgVersion);
         return ValueCreator.createObjectValue(packageId, objectTypeName, fieldValues);
+    }
+
+    public static Object getRestArgArray(ArrayType arrayType, BValue... values) {
+        if (values.length == 0) {
+            return ValueCreator.createArrayValue(arrayType);
+        } else if (values.length == 1) {
+            if (values[0].getType().equals(arrayType)) {
+                return values[0];
+            }
+        }
+        return ValueCreator.createArrayValue(values, arrayType);
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {

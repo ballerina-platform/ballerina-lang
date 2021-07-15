@@ -30,6 +30,7 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
@@ -347,6 +348,44 @@ public class EvaluationUtils {
             default:
                 return variable.getJvmValue();
         }
+    }
+
+    /**
+     * Check whether a given value belongs to the given type.
+     *
+     * @param sourceVal value to check the type
+     * @param targetType type to be test against
+     * @return true if the value belongs to the given type, false otherwise
+     */
+    public static boolean checkIsType(SuspendedContext context, Value sourceVal, Value targetType)
+            throws EvaluationException {
+        List<String> methodArgTypeNames = new ArrayList<>();
+        methodArgTypeNames.add(JAVA_OBJECT_CLASS);
+        methodArgTypeNames.add(B_TYPE_CLASS);
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, CHECK_IS_TYPE_METHOD,
+                methodArgTypeNames);
+
+        List<Value> methodArgs = new ArrayList<>();
+        methodArgs.add(sourceVal);
+        methodArgs.add(targetType);
+        method.setArgValues(methodArgs);
+        return Boolean.parseBoolean(new BExpressionValue(context, method.invokeSafely()).getStringValue());
+    }
+
+    /**
+     * Creates a "BUnionType" instance by combining all member types.
+     *
+     * @param resolvedTypes member types
+     * @return a 'BUnionType' instance by combining all its member types
+     */
+    public static Value getUnionTypeFrom(SuspendedContext context, List<Value> resolvedTypes) throws EvaluationException {
+        List<String> methodArgTypeNames = new ArrayList<>();
+        methodArgTypeNames.add(B_TYPE_ARRAY_CLASS);
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS, CREATE_UNION_TYPE_METHOD,
+                methodArgTypeNames);
+        List<Value> methodArgs = new ArrayList<>(resolvedTypes);
+        method.setArgValues(methodArgs);
+        return method.invokeSafely();
     }
 
     /**

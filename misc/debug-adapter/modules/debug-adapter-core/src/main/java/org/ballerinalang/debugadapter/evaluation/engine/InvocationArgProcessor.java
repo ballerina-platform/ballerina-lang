@@ -28,18 +28,26 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getUnionTypeFrom;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
@@ -50,12 +58,17 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ge
 public class InvocationArgProcessor {
 
     public static final String DEFAULTABLE_PARAM_SUFFIX = "[Defaultable]";
+    private static final String ARRAY_TYPE_SUFFIX = "\\[\\]$";
 
     public static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionTypeSymbol
             definition, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
 
         boolean namedArgsFound = false;
         boolean restArgsFound = false;
+        boolean restArgsProcessed = false;
+        Value restArrayType = null;
+        Value restParamType = null;
+        List<Value> restValues = new ArrayList<>();
         List<ParameterSymbol> params = new ArrayList<>();
         Map<String, ParameterSymbol> remainingParams = new HashMap<>();
 
@@ -129,10 +142,12 @@ public class InvocationArgProcessor {
                 }
 
                 String restParamName = null;
+                String restParamTypeName = null;
                 for (Map.Entry<String, ParameterSymbol> entry : remainingParams.entrySet()) {
                     ParameterKind parameterType = entry.getValue().paramKind();
                     if (parameterType == ParameterKind.REST) {
                         restParamName = entry.getKey();
+                        restParamTypeName = entry.getValue().typeDescriptor().typeKind().getName();
                         break;
                     }
                 }
@@ -140,8 +155,18 @@ public class InvocationArgProcessor {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                             "undefined rest parameter."));
                 }
-                restArgsFound = true;
-                argValues.put(restParamName, arg.getValue().evaluate().getJdiValue());
+
+                BExpressionValue argValue = arg.getValue().evaluate();
+                if (!restArgsFound) {
+                    restParamType = resolveType(context, restParamTypeName);
+                    restArrayType = createBArrayType(context, restParamType);
+                    restArgsFound = true;
+                }
+                if (!checkIsType(context, argValue.getJdiValue(), restParamType)) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
+                            restParamTypeName, argValue.getType().getString(), restParamName));
+                }
+                restValues.add(argValue.getJdiValue());
                 remainingParams.remove(restParamName);
             }
         }
@@ -154,9 +179,22 @@ public class InvocationArgProcessor {
                         "missing required parameter '" + paramName + "'."));
             } else if (parameterType == ParameterKind.DEFAULTABLE) {
                 argValues.put(paramName + DEFAULTABLE_PARAM_SUFFIX, VMUtils.make(context, 0).getJdiValue());
+            } else if (parameterType == ParameterKind.REST) {
+                String restParamTypeName = entry.getValue().typeDescriptor().signature();
+                if (restParamTypeName.endsWith(ARRAY_TYPE_SUFFIX)) {
+                    restParamTypeName = restParamTypeName.replaceAll(ARRAY_TYPE_SUFFIX, "");
+                }
+                restParamType = resolveType(context, restParamTypeName);
+                restArrayType = createBArrayType(context, restParamType);
+                argValues.put(REST_ARG_IDENTIFIER, getRestArgArray(context, restArrayType));
+                restArgsProcessed = true;
             }
         }
 
+        if (restArgsFound && !restArgsProcessed) {
+            argValues.put(REST_ARG_IDENTIFIER, getRestArgArray(context, restArrayType, restValues
+                    .toArray(new Value[0])));
+        }
         return argValues;
     }
 
@@ -167,6 +205,10 @@ public class InvocationArgProcessor {
 
         boolean namedArgsFound = false;
         boolean restArgsFound = false;
+        boolean restArgsProcessed = false;
+        Value restArrayType = null;
+        Value restParamType = null;
+        List<Value> restValues = new ArrayList<>();
         List<ParameterNode> params = new ArrayList<>();
         Map<String, ParameterNode> remainingParams = new HashMap<>();
 
@@ -235,10 +277,12 @@ public class InvocationArgProcessor {
                 }
 
                 String restParamName = null;
+                String restParamTypeName = null;
                 for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
                     SyntaxKind parameterType = entry.getValue().kind();
                     if (parameterType == SyntaxKind.REST_PARAM) {
                         restParamName = entry.getKey();
+                        restParamTypeName = ((RestParameterNode) entry.getValue()).typeName().toSourceCode().trim();
                         break;
                     }
                 }
@@ -246,8 +290,18 @@ public class InvocationArgProcessor {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                             "undefined rest parameter."));
                 }
-                restArgsFound = true;
-                argValues.put(restParamName, arg.getValue().evaluate().getJdiValue());
+
+                BExpressionValue argValue = arg.getValue().evaluate();
+                if (!restArgsFound) {
+                    restParamType = resolveType(context, restParamTypeName);
+                    restArrayType = createBArrayType(context, restParamType);
+                    restArgsFound = true;
+                }
+                if (!checkIsType(context, argValue.getJdiValue(), restParamType)) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
+                            restParamTypeName, argValue.getType().getString(), restParamName));
+                }
+                restValues.add(argValue.getJdiValue());
                 remainingParams.remove(restParamName);
             }
         }
@@ -260,10 +314,33 @@ public class InvocationArgProcessor {
                         "missing required parameter '" + paramName + "'."));
             } else if (parameterType == SyntaxKind.DEFAULTABLE_PARAM) {
                 argValues.put(paramName + DEFAULTABLE_PARAM_SUFFIX, VMUtils.make(context, 0).getJdiValue());
+            } else if (parameterType == SyntaxKind.REST_PARAM) {
+                String restParamTypeName = ((RestParameterNode) entry.getValue()).typeName().toSourceCode().trim();
+                restParamType = resolveType(context, restParamTypeName);
+                restArrayType = createBArrayType(context, restParamType);
+                argValues.put(paramName + REST_ARG_IDENTIFIER, getRestArgArray(context, restArrayType));
+                restArgsProcessed = true;
             }
         }
 
+        if (restArgsFound && !restArgsProcessed) {
+            argValues.put(REST_ARG_IDENTIFIER, getRestArgArray(context, restArrayType, restValues
+                    .toArray(new Value[0])));
+        }
         return argValues;
+    }
+
+    private static Value getRestArgArray(SuspendedContext context, Value arrayType, Value... values) throws EvaluationException {
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add("io.ballerina.runtime.api.types.ArrayType");
+        argTypeNames.add("io.ballerina.runtime.api.values.BValue");
+        RuntimeStaticMethod getRestArgArray = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS, "getRestArgArray",
+                argTypeNames);
+        List<Value> argValues = new ArrayList<>();
+        argValues.add(arrayType);
+        argValues.addAll(Arrays.asList(values));
+        getRestArgArray.setArgValues(argValues);
+        return getRestArgArray.invokeSafely();
     }
 
     private static String getParameterName(ParameterNode parameterNode) {
@@ -308,6 +385,22 @@ public class InvocationArgProcessor {
             return ArgType.REST;
         }
         return ArgType.UNKNOWN;
+    }
+
+    public static Value createBArrayType(SuspendedContext context, Value type) throws EvaluationException {
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add("io.ballerina.runtime.api.types.Type");
+        RuntimeStaticMethod createArrayMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,
+                "createArrayType", argTypeNames);
+        List<Value> methodArgs = new ArrayList<>();
+        methodArgs.add(type);
+        createArrayMethod.setArgValues(methodArgs);
+        return createArrayMethod.invokeSafely();
+    }
+
+    private static Value resolveType(SuspendedContext context, String arrayTypeName) throws EvaluationException {
+        List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, arrayTypeName);
+        return resolvedTypes.size() > 1 ? getUnionTypeFrom(context, resolvedTypes) : resolvedTypes.get(0);
     }
 
     private static boolean isPositionalArg(Map.Entry<String, Evaluator> arg) {

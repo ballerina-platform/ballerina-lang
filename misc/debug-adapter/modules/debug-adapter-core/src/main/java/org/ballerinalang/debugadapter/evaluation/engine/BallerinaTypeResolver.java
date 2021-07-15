@@ -38,7 +38,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_UTILS_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CHECK_IS_TYPE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
@@ -69,6 +73,26 @@ public class BallerinaTypeResolver {
             }
         } else {
             resolvedTypes.add(resolveSingleType(context, typeDescriptor.toSourceCode().trim()));
+        }
+        return resolvedTypes;
+    }
+
+    /**
+     * @param context        debug context
+     * @param typeDescriptor type descriptor string
+     * @return a collection of resolved types
+     * @throws EvaluationException if unsupported type(s) found
+     */
+    public static List<Value> resolve(SuspendedContext context, String typeDescriptor) throws EvaluationException {
+        List<Value> resolvedTypes = new ArrayList<>();
+        // If the type is a union, resolves each sub type iteratively.
+        if (typeDescriptor.contains(UNION_TYPE_SEPARATOR_REGEX)) {
+            String[] unionTypes = typeDescriptor.split(UNION_TYPE_SEPARATOR_REGEX);
+            for (String typeName : unionTypes) {
+                resolvedTypes.add(resolveSingleType(context, typeName.trim()));
+            }
+        } else {
+            resolvedTypes.add(resolveSingleType(context, typeDescriptor.trim()));
         }
         return resolvedTypes;
     }
