@@ -1005,7 +1005,7 @@ public class Types {
                     }
                     return isAssignable(source, target.constraint, unresolvedTypes);
                 }
-                return isAssignable(source.constraint, target.constraint, unresolvedTypes);
+                return isAssignable(source.constraint, target, unresolvedTypes);
             }
             return true;
         }
@@ -1013,8 +1013,12 @@ public class Types {
             BXMLType source = (BXMLType) sourceType;
             if (targetTag == TypeTags.XML_TEXT) {
                 if (source.constraint != null) {
-                    return source.constraint.tag == TypeTags.NEVER ||
-                            source.constraint.tag == TypeTags.XML_TEXT;
+                    if (source.constraint.tag == TypeTags.NEVER ||
+                            source.constraint.tag == TypeTags.XML_TEXT) {
+                        return true;
+                    } else {
+                        return isAssignable(source.constraint, targetType, unresolvedTypes);
+                    }
                 }
                 return false;
             }
@@ -1908,6 +1912,8 @@ public class Types {
 
     public BErrorType getErrorType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
+            member = getEffectiveTypeForIntersection(member);
+
             if (member.tag == TypeTags.ERROR) {
                 return (BErrorType) member;
             } else if (member.tag == TypeTags.UNION) {

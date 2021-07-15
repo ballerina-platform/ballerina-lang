@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -23,6 +24,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,6 +42,17 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RecordFieldNode node)
             throws LSCompletionException {
+        if (this.onFieldNameContext(context, node)) {
+            /*
+            Handles the following use-case
+            eg:
+            (1) type test record {
+                    int a<cursor>
+                }
+                At the cursor position, no completions are provided
+             */
+            return Collections.emptyList();
+        }
         if (this.onTypeNameContext(context, node)) {
             /*
             If the type name has a particular resolver implemented, then the completion will be handled by the type
@@ -63,5 +76,12 @@ public class RecordFieldNodeContext extends AbstractCompletionProvider<RecordFie
         int typeStart = node.typeName().textRange().startOffset();
 
         return cursor >= typeStart && cursor <= typeEnd;
+    }
+    
+    private boolean onFieldNameContext(BallerinaCompletionContext context, RecordFieldNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Node typeName = node.typeName();
+        
+        return !typeName.isMissing() && cursor > typeName.textRange().endOffset();
     }
 }

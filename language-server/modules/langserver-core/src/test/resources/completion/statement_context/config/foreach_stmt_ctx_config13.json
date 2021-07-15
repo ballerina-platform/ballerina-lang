@@ -12,8 +12,8 @@
       "documentation": {
         "left": "foreach statement for iterable variable - myStr"
       },
-      "sortText": "Q",
-      "insertText": "foreach string item in myStr {\n\t${1}\n}",
+      "sortText": "R",
+      "insertText": "foreach string:Char item in myStr {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -38,7 +38,7 @@
       "documentation": {
         "left": "foreach i statement for iterable variable - myStr"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach int i in ${1:0}...myStr.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

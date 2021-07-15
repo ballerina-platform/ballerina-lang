@@ -330,6 +330,7 @@ public class LangLibValueTest {
                 {"testCloneWithTypeDecimalToIntNegative"},
                 { "testCloneWithTypeDecimalToByte"},
                 { "testCloneWithTypeDecimalToIntSubType"},
+                { "testCloneWithTypeImmutableStructuredTypes"},
         };
     }
 
@@ -341,6 +342,11 @@ public class LangLibValueTest {
     @Test
     public void testAssigningCloneableToAnyOrError() {
         BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+    }
+
+    @Test
+    public void testDestructuredNamedArgs() {
+        BRunUtil.invokeFunction(compileResult, "testDestructuredNamedArgs");
     }
 
     @DataProvider(name = "fromJsonWithTypeFunctions")

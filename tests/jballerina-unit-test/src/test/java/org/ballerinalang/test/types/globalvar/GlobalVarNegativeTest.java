@@ -82,7 +82,7 @@ public class GlobalVarNegativeTest {
                 18, 19);
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
         BAssertUtil.validateError(result, i++, "invalid type for configurable variable: expected a subtype" +
-                " of 'anydata'", 22, 22);
+                " of 'anydata'", 22, 14);
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
                 "'(json & readonly)'", 31, 1);
@@ -101,8 +101,7 @@ public class GlobalVarNegativeTest {
                 "record field type '(json & readonly)' of field 'person1.jsonField' is not supported", 71, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person2 & " +
                 "readonly)'\n\t" +
-                "union member type '(json & readonly)' is not supported\n\t" +
-                "record field type '(json & readonly)' of field 'person2.jsonField' is not supported", 72, 1);
+                "union member type '(json & readonly)' is not supported", 72, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(Person3 & " +
                 "readonly)'\n\t" +
                 "array element type 'json & readonly' is not supported", 73, 1);

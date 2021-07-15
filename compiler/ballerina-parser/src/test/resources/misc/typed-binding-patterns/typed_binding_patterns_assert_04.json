@@ -581,8 +581,7 @@
                           "kind": "WILDCARD_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "_"
+                              "kind": "UNDERSCORE_KEYWORD"
                             }
                           ]
                         }
@@ -779,7 +778,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {
@@ -883,7 +882,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {
@@ -1005,7 +1004,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {
@@ -1144,7 +1143,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {
@@ -1301,8 +1300,7 @@
                                       "kind": "WILDCARD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "_"
+                                          "kind": "UNDERSCORE_KEYWORD"
                                         }
                                       ]
                                     }
@@ -1326,7 +1324,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {

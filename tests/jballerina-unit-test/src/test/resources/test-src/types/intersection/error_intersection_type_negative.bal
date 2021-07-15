@@ -80,3 +80,18 @@ type CloseDetailWithBuildInDetail2 ErrorX & error;
 
 type E distinct error;
 type EDash distinct (E & ErrorX);
+
+type ErrorIntersectionWithReadOnly readonly & error<record { int code; }> & readonly;
+
+type MyError1 error<record { int code; }>;
+type MyError2 error<record {| boolean fatal?;  int...; |}>;
+
+type MultipleErrorIntersectionWithReadOnly MyError2 & MyError1 & readonly;
+
+function testInvalidArgsForErrorIntersectionWithReadOnly() {
+    ErrorIntersectionWithReadOnly a = error("e1");
+    error<record { int code; }> & readonly b = error("e2", c = 123);
+    MultipleErrorIntersectionWithReadOnly c = error("e3");
+    MultipleErrorIntersectionWithReadOnly d = error("e4", fatal = false);
+    MultipleErrorIntersectionWithReadOnly e = error("e5", oth = false);
+}

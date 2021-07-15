@@ -82,7 +82,7 @@ public class LSPackageLoader {
                 PackageName packageName = PackageName.from(nameComponent);
                 PackageVersion pkgVersion = PackageVersion.from(version);
                 PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT, true);
 
                 Optional<Package> repoPackage = packageRepository.getPackage(request);
                 repoPackage.ifPresent(packages::add);

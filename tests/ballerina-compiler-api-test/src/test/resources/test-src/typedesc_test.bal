@@ -230,3 +230,11 @@ function testUnions() {
     Colour? clr = RED;
     FooUnion fUnion = 10;
 }
+
+type FooReadOnly readonly & record {
+    int a;
+};
+
+function testIntersectionTypeRef(FooObj & readonly f, Foo & readonly g) {
+    FooReadOnly recR = g;
+}

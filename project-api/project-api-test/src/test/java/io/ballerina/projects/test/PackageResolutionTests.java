@@ -50,6 +50,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -312,5 +313,73 @@ public class PackageResolutionTests extends BaseTest {
         List<String> diagnosticMsgs = diagnosticResult.errors().stream()
                 .map(Diagnostic::message).collect(Collectors.toList());
         Assert.assertTrue(diagnosticMsgs.contains("cannot resolve module 'samjs/package_c.mod_c1 as mod_c1'"));
+    }
+
+    @Test(description = "tests resolution with invalid bala dependency")
+    public void testProjectWithInvalidBalaDependency() throws IOException {
+        // package_x --> package_bash/soap
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("invalid")
+                .resolve("bash-soap-any-0.1.0.bala");
+        BCompileUtil.copyBalaToDistRepository(balaPath, "bash", "soap", "0.1.0");
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_x_with_invalid_bala_dep");
+        BuildProject buildProject = BuildProject.load(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6, "Unexpected compilation diagnostics");
+
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        // Check invalid bala diagnostics
+        // TODO: Following logs should be asserted after fixing the diagnostics order issue
+        // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/31082
+        // TODO: 1. ERROR [foo.bal:(1:1,1:18)] invalid bala file:
+        // TODO: 2. ERROR [bar.bal:(3:1,3:18)] invalid bala file:
+        Assert.assertTrue(diagnosticIterator.next().toString().contains("invalid bala file:"));
+        Assert.assertTrue(diagnosticIterator.next().toString().contains("invalid bala file:"));
+        // Check syntax diagnostics
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [bar.bal:(3:1,3:18)] cannot resolve module 'bash/soap'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [bar.bal:(6:1,6:1)] missing semicolon token");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [foo.bal:(1:1,1:18)] cannot resolve module 'bash/soap'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [foo.bal:(5:1,5:1)] missing semicolon token");
+    }
+
+    @Test(description = "tests resolution with invalid transitive bala dependency")
+    public void testProjectWithInvalidTransitiveBalaDependency() throws IOException {
+        // package_hello --> package_zip
+        // package_xx    --> package_hello
+        Path zipBalaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("invalid")
+                .resolve("zip-2020r1-java8-1.0.4.balo");
+        BCompileUtil.copyBalaToDistRepository(zipBalaPath, "hemikak", "zip", "1.0.4");
+        Path helloBalaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("invalid")
+                .resolve("hello-2020r1-any-0.1.0.balo");
+        BCompileUtil.copyBalaToDistRepository(helloBalaPath, "bache", "hello", "0.1.0");
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_xx_with_invalid_transitive_bala_dep");
+        BuildProject buildProject = BuildProject.load(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
+
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        // Check invalid bala diagnostics
+        Assert.assertTrue(diagnosticIterator.next().toString().contains(
+                "ERROR [foo.bal:(1:1,1:20)] invalid bala file:"));
+        // Check syntax diagnostics
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [foo.bal:(1:1,1:20)] cannot resolve module 'bache/hello'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [foo.bal:(4:20,4:39)] undefined function 'zip'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                            "ERROR [foo.bal:(4:20,4:39)] undefined module 'hello'");
     }
 }

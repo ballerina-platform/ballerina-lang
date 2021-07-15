@@ -32,7 +32,6 @@ import java.util.Set;
 public class ModuleInfo {
     private final Set<String> moduleNames = new HashSet<>();
     private final Set<String> orgNames = new HashSet<>();
-    private final Set<String> subModules = new HashSet<>();
 
     private final Set<Module> moduleSet;
     private boolean hasModuleAmbiguity;
@@ -46,10 +45,6 @@ public class ModuleInfo {
             String rootModuleName = rootModule.getName();
             if (rootModuleName.startsWith(entry.getOrg())) {
                 hasModuleAmbiguity = true;
-            }
-            String moduleName = entry.getName();
-            if (moduleName.startsWith(rootModuleName + ".")) {
-                subModules.add(moduleName.replaceFirst(rootModuleName + ".", "").split("\\.")[0]);
             }
             orgNames.add(entry.getOrg());
             Collections.addAll(moduleNames, entry.getName().split("\\."));
@@ -66,10 +61,6 @@ public class ModuleInfo {
 
     boolean containsModule(String nodeName) {
         return moduleNames.contains(nodeName);
-    }
-
-    boolean containsOnlySubModules(Set<String> nodeSet) {
-        return subModules.containsAll(nodeSet);
     }
 
     Module getModuleFromName(String nodeName) {

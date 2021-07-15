@@ -261,7 +261,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean nonErrorLoggingCheck = false;
     private int letCount = 0;
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
-    private Stack<BLangSelectClause> selectClauses;
+    private Stack<BLangNode> queryFinalClauses;
     private boolean checkWithinQueryExpr = false;
     private BLangMissingNodesHelper missingNodesHelper;
     private boolean breakToParallelQueryEnv = false;
@@ -341,7 +341,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-        this.selectClauses = new Stack<>();
+        this.queryFinalClauses = new Stack<>();
         this.queryEnvs = new Stack<>();
         this.prevEnvs = new Stack<>();
         this.unifier = new Unifier();
@@ -4923,15 +4923,15 @@ public class TypeChecker extends BLangNodeVisitor {
         } else {
             queryEnvs.push(env);
         }
-        selectClauses.push(queryExpr.getSelectClause());
+        queryFinalClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
-        BType actualType = resolveQueryType(queryEnvs.peek(), selectClauses.peek().expression,
+        BType actualType = resolveQueryType(queryEnvs.peek(), ((BLangSelectClause) queryFinalClauses.peek()).expression,
                 collectionNode.getBType(), expType, queryExpr);
         actualType = (actualType == symTable.semanticError) ? actualType :
                 types.checkType(queryExpr.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-        selectClauses.pop();
+        queryFinalClauses.pop();
         queryEnvs.pop();
         if (cleanPrevEnvs) {
             prevEnvs.pop();
@@ -4951,7 +4951,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isWithinQuery() {
-        return !queryEnvs.isEmpty() && !selectClauses.isEmpty();
+        return !queryEnvs.isEmpty() && !queryFinalClauses.isEmpty();
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
@@ -5118,15 +5118,15 @@ public class TypeChecker extends BLangNodeVisitor {
             prevEnvs.push(prevEnvs.peek());
         }
         queryEnvs.push(prevEnvs.peek());
-        selectClauses.push(null);
         BLangDoClause doClause = queryAction.getDoClause();
+        queryFinalClauses.push(doClause);
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this));
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeStmt(doClause.body, SymbolEnv.createBlockEnv(doClause.body, queryEnvs.peek()));
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
         resultType = types.checkType(doClause.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-        selectClauses.pop();
+        queryFinalClauses.pop();
         queryEnvs.pop();
         prevEnvs.pop();
     }
@@ -5253,7 +5253,7 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(filterExpression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop());
+        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, queryFinalClauses.peek(), queryEnvs.pop());
         queryEnvs.push(filterEnv);
         return filterEnv;
     }
@@ -5291,18 +5291,24 @@ public class TypeChecker extends BLangNodeVisitor {
         String operatorType = checkedExpr.getKind() == NodeKind.CHECK_EXPR ? "check" : "checkpanic";
         BLangExpression exprWithCheckingKeyword = checkedExpr.expr;
         boolean firstVisit = exprWithCheckingKeyword.getBType() == null;
-        BType typeOfExprWithCheckingKeyword;
+
+        BType checkExprCandidateType;
         if (expType == symTable.noType) {
-            typeOfExprWithCheckingKeyword = symTable.noType;
+            checkExprCandidateType = symTable.noType;
         } else {
-            typeOfExprWithCheckingKeyword = BUnionType.create(null, expType, symTable.errorType);
+            BType exprType = getCandidateType(checkedExpr, expType);
+            if (exprType == symTable.semanticError) {
+                checkExprCandidateType = BUnionType.create(null, expType, symTable.errorType);
+            } else {
+                checkExprCandidateType = addDefaultErrorIfNoErrorComponentFound(expType);
+            }
         }
 
         if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(expType)) {
-            rewriteWithEnsureTypeFunc(checkedExpr, typeOfExprWithCheckingKeyword);
+            rewriteWithEnsureTypeFunc(checkedExpr, checkExprCandidateType);
         }
 
-        BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
+        BType exprType = checkExpr(checkedExpr.expr, env, checkExprCandidateType);
         if (checkedExpr.expr.getKind() == NodeKind.WORKER_RECEIVE) {
             if (firstVisit) {
                 isTypeChecked = false;
@@ -5429,6 +5435,15 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.unmute();
         }
         return rhsType;
+    }
+
+    private BType addDefaultErrorIfNoErrorComponentFound(BType type) {
+        for (BType t : types.getAllTypes(type)) {
+            if (types.isAssignable(t, symTable.errorType)) {
+                return type;
+            }
+        }
+        return BUnionType.create(null, type, symTable.errorType);
     }
 
     @Override
@@ -5634,8 +5649,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     protected void markAndRegisterClosureVariable(BSymbol symbol, Location pos, SymbolEnv env) {
         BLangInvokableNode encInvokable = env.enclInvokable;
-        if (symbol.closure == true ||
-                (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE && env.node.getKind() != NodeKind.ARROW_EXPR) {
+        if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
+                env.node.getKind() != NodeKind.ARROW_EXPR && env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
+                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA)) {
             return;
         }
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
@@ -5659,33 +5675,10 @@ public class TypeChecker extends BLangNodeVisitor {
         if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
             SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
             BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
-            if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+            if (resolvedSymbol != symTable.notFoundSymbol && encInvokable != null &&
+                    !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-            }
-        }
-
-        // Iterate through parent nodes until a function node is met to find if the variable is used inside
-        // a transaction block to mark it as a closure, blocks inside transactions are desugared into functions later.
-        BLangNode node = env.node;
-        SymbolEnv cEnv = env;
-        while (node != null && node.getKind() != NodeKind.FUNCTION) {
-            if (node.getKind() == NodeKind.ON_FAIL) {
-                BLangOnFailClause onFailClause = (BLangOnFailClause) node;
-                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
-                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
-                        SymTag.VARIABLE);
-                if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
-                    onFailClause.possibleClosureSymbols.add(resolvedSymbol);
-                }
-                break;
-            } else {
-                SymbolEnv enclEnv = cEnv.enclEnv;
-                if (enclEnv == null) {
-                    break;
-                }
-                cEnv = enclEnv;
-                node = cEnv.node;
             }
         }
     }

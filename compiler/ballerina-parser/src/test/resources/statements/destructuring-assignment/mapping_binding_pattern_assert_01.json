@@ -663,8 +663,7 @@
                               "kind": "WILDCARD_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "_"
+                                  "kind": "UNDERSCORE_KEYWORD"
                                 }
                               ]
                             }

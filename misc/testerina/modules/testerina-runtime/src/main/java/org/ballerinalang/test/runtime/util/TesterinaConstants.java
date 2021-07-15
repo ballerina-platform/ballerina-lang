@@ -68,4 +68,6 @@ public class TesterinaConstants {
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
 
     public static final String JACOCO_XML_FORMAT = "xml";
+    public static final String DATA_KEY_SEPARATOR = "#";
+    public static final String MODULE_SEPARATOR = ":";
 }
