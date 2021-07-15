@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -654,11 +654,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "numberList",
+      "kind": "Variable",
+      "detail": "int[]",
+      "sortText": "B",
+      "insertText": "numberList",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "breakValue",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
       "insertText": "breakValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "counter",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "counter",
       "insertTextFormat": "Snippet"
     },
     {
@@ -674,22 +690,6 @@
       "sortText": "C",
       "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "counter",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "counter",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "numberList",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "B",
-      "insertText": "numberList",
       "insertTextFormat": "Snippet"
     }
   ]

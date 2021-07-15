@@ -49,7 +49,7 @@ function testArrayWithErrors() returns [string, string, string] {
     foreach var error(reason3) in errorArray {
         result3 += reason3 + ":";
     }
-    foreach DError error(reason4, ..._) in errorArray {
+    foreach DError error(reason4) in errorArray {
         result3 += reason4 + ":";
     }
     return [result1, result2, result3];
@@ -83,7 +83,7 @@ function testMapWithErrors() returns [string, string, string] {
     foreach var error(reason3) in errMap {
         result3 += reason3 + ":";
     }
-    foreach DError error(reason4, ..._) in errMap {
+    foreach DError error(reason4) in errMap {
         result3 += reason4 + ":";
     }
     return [result1, result2, result3];

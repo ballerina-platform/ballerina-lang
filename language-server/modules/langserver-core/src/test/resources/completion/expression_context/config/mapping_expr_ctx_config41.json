@@ -17,15 +17,15 @@
     {
       "label": "rec3Field2",
       "kind": "Field",
-      "detail": "(record {| int rec3Field1; int rec3Field2; anydata...; |}).rec3Field2",
+      "detail": "Rec3.rec3Field2",
       "sortText": "G",
       "insertText": "rec3Field2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int rec3Field1; int rec3Field2; anydata...; |} Required Fields",
+      "label": "Fill Rec3 Required Fields",
       "kind": "Property",
-      "detail": "record {| int rec3Field1; int rec3Field2; anydata...; |}",
+      "detail": "Rec3",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "rec3Field2: 0",

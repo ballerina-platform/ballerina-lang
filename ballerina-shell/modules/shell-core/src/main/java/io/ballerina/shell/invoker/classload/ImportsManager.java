@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,6 +55,11 @@ public class ImportsManager {
     private static final String CLONEABLE_TYPE_DEF = "ballerina/lang.value:0:Cloneable";
     private static final String JAVA_IMPORT_SOURCE = "import ballerina/jballerina.java;";
     private static final ImportDeclarationSnippet JAVA_IMPORT;
+
+    // Special prefixes
+    private static final String JAVA_PREFIX = "\'java";
+
+    private final AtomicBoolean initialized;
 
     /**
      * A import prefix index to import implicit imports.
@@ -78,6 +84,10 @@ public class ImportsManager {
      */
     private final HashMap<QuotedIdentifier, QuotedImport> imports;
     /**
+     * Hashmap to store user imports.
+     */
+    private final HashMap<QuotedIdentifier, QuotedImport> userImports;
+    /**
      * Reverse map to search the imported module.
      */
     private final HashMap<QuotedImport, QuotedIdentifier> reverseImports;
@@ -90,7 +100,9 @@ public class ImportsManager {
     private final Map<QuotedIdentifier, Set<QuotedIdentifier>> usedPrefixes;
 
     public ImportsManager() {
+        this.initialized = new AtomicBoolean(false);
         this.imports = new HashMap<>();
+        this.userImports = new HashMap<>();
         this.reverseImports = new HashMap<>();
         this.usedPrefixes = new HashMap<>();
         storeAnonImplicitPrefixes();
@@ -104,6 +116,7 @@ public class ImportsManager {
         this.imports.clear();
         this.reverseImports.clear();
         this.usedPrefixes.clear();
+        this.userImports.clear();
         storeAnonImplicitPrefixes();
     }
 
@@ -125,10 +138,10 @@ public class ImportsManager {
      * Whether the prefix was previously added.
      *
      * @param prefix Prefix to search.
-     * @return If prefix was added.
+     * @return If prefix was added by the user.
      */
     public boolean containsPrefix(QuotedIdentifier prefix) {
-        return this.imports.containsKey(prefix);
+        return this.userImports.containsKey(prefix);
     }
 
     /**
@@ -178,13 +191,13 @@ public class ImportsManager {
     }
 
     /**
-     * All the prefixes that were added. Prefixes will be quoted.
+     * All the prefixes that were added by the user. Prefixes will be quoted.
      * These are essentially all the imports that are managed.
      *
      * @return Set of prefixes.
      */
     public Set<QuotedIdentifier> prefixes() {
-        return this.imports.keySet();
+        return this.userImports.keySet();
     }
 
     /**
@@ -292,6 +305,7 @@ public class ImportsManager {
     private void storeAnonImplicitPrefixes() {
         storeImport(JAVA_IMPORT);
         storeImportUsages(ANON_SOURCE, List.of(JAVA_IMPORT.getPrefix()));
+        this.initialized.set(true);
     }
 
     /**
@@ -303,5 +317,12 @@ public class ImportsManager {
     private void storeImport(QuotedIdentifier quotedPrefix, QuotedImport moduleName) {
         this.imports.put(quotedPrefix, moduleName);
         this.reverseImports.put(moduleName, quotedPrefix);
+        if (!quotedPrefix.toString().equals(JAVA_PREFIX)) {
+            this.userImports.put(quotedPrefix, moduleName);
+        } else {
+            if (this.initialized.get()) {
+                this.userImports.put(quotedPrefix, moduleName);
+            }
+        }
     }
 }

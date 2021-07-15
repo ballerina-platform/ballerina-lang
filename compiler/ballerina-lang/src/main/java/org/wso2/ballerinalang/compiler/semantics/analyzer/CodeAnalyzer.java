@@ -341,7 +341,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
     }
 
     private void resetFunction() {
@@ -1005,6 +1005,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorMatchPattern(BLangErrorMatchPattern firstErrorMatchPattern,
                                                   BLangErrorMatchPattern secondErrorMatchPattern) {
+        if (firstErrorMatchPattern == null || secondErrorMatchPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorMatchPattern.errorTypeReference,
                 secondErrorMatchPattern.errorTypeReference)) {
             return false;
@@ -1385,6 +1389,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorBindingPatterns(BLangErrorBindingPattern firstErrorBindingPattern,
                                                      BLangErrorBindingPattern secondErrorBindingPattern) {
+        if (firstErrorBindingPattern == null || secondErrorBindingPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorBindingPattern.errorTypeReference,
                 secondErrorBindingPattern.errorTypeReference)) {
             return false;

@@ -111,7 +111,7 @@ var stringValue = "Ballerina";
 var decimalValue = 100.0d;
 var byteValue = <byte>2;
 var floatValue = 2.0;
-json jsonVar = {name:"John", age:20};
+json jsonValue = {name:"John", age:20};
 var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
 // configurable variables

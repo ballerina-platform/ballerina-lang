@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
@@ -38,6 +39,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
@@ -151,6 +153,9 @@ public class CloneWithType {
             case TypeTags.TUPLE_TAG:
                 newValue = convertArray((BArray) value, targetType, unresolvedValues, t);
                 break;
+            case TypeTags.TABLE_TAG:
+                newValue = convertTable((BTable<?, ?>) value, targetType, unresolvedValues, t);
+                break;
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
@@ -177,9 +182,8 @@ public class CloneWithType {
                 int count = 0;
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
                     Object newValue = convert(entry.getValue(), constraintType, unresolvedValues, true, t);
-                    initialValues[count] = ValueCreator
+                    initialValues[count++] = ValueCreator
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
-                    count++;
                 }
                 return ValueCreator.createMapValue(targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
@@ -229,9 +233,8 @@ public class CloneWithType {
         int count = 0;
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, t, restFieldType, targetTypeField, entry);
-            initialValues[count] =
+            initialValues[count++] =
                     ValueCreator.createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
-            count++;
         }
         return (BMap<?, ?>) t.instantiate(Scheduler.getStrand(), initialValues);
     }
@@ -280,6 +283,26 @@ public class CloneWithType {
         }
         // should never reach here
         throw CloneUtils.createConversionError(array, targetType);
+    }
+
+    private static Object convertTable(BTable<?, ?> bTable, Type targetType,
+                                       List<TypeValuePair> unresolvedValues, BTypedesc t) {
+        TableType tableType = (TableType) targetType;
+        Object[] tableValues = new Object[bTable.size()];
+        int count = 0;
+        for (Object tableValue : bTable.values()) {
+            BMap<?, ?> bMap = (BMap<?, ?>) convert(tableValue, tableType.getConstrainedType(), unresolvedValues, t);
+            tableValues[count++] = bMap;
+        }
+        BArray data = ValueCreator.createArrayValue(tableValues,
+                                                    TypeCreator.createArrayType(tableType.getConstrainedType()));
+        BArray fieldNames;
+        if (tableType.getFieldNames() != null) {
+            fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+        } else {
+            fieldNames = ValueCreator.createArrayValue(new BString[0]);
+        }
+        return ValueCreator.createTableValue(tableType, data, fieldNames);
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {

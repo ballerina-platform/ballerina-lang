@@ -186,7 +186,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(globalVariables, "decimalValue", "100.0", "decimal");
         debugTestRunner.assertVariable(globalVariables, "byteValue", "2", "int");
         debugTestRunner.assertVariable(globalVariables, "floatValue", "2.0", "float");
-        debugTestRunner.assertVariable(globalVariables, "jsonVar", "map<json> (size = 2)", "json");
+        debugTestRunner.assertVariable(globalVariables, "jsonValue", "map<json> (size = 2)", "json");
         debugTestRunner.assertVariable(globalVariables, " /:@[`{~π_IL", "\"IL with global var\"", "string");
         debugTestRunner.assertVariable(globalVariables, "port", "9090", "int");
     }

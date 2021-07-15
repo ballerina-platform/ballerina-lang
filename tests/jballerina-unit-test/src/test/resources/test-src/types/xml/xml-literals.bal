@@ -230,6 +230,34 @@ function testXMLWithLeadingWhiteSpace() {
    assert(temp2[1] is 'xml:Text, false);
 }
 
+function testXMLSequenceValueAssignment(){
+    xml<xml<xml<'xml:Element>>> x1 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:Element> x2 = x1;
+    assert(x2.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    xml<xml<'xml:Element>> x3 = x1;
+    assert(x3.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+
+    xml<xml<xml<'xml:Comment>>> x4 = xml `<!--some comment--><!--some comment-->`;
+    xml<'xml:Comment> x5 = x4;
+    assert(x5.toString(), "<!--some comment--><!--some comment-->");
+    xml<xml<'xml:Comment>> x6 = x4;
+    assert(x6.toString(), "<!--some comment--><!--some comment-->");
+
+    xml<xml<xml<'xml:ProcessingInstruction>>> x7 = xml `<?foo?><?faa?>`;
+    xml<'xml:ProcessingInstruction> x8 = x7;
+    assert(x8.toString(), "<?foo ?><?faa ?>");
+    xml<xml<'xml:ProcessingInstruction>> x9 = x7;
+    assert(x9.toString(), "<?foo ?><?faa ?>");
+}
+
+function testXMLTextValueAssignment(){
+    xml<xml<xml<'xml:Text>>> x1 = xml `abcd`;
+    xml:Text x2 = x1;
+    assert(x2.toString(), "abcd");
+    xml<'xml:Text> x3 = x1;
+    assert(x3.toString(), "abcd");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

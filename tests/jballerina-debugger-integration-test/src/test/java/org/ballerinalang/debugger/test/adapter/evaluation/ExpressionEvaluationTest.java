@@ -162,7 +162,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
-        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
+        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 3)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
@@ -179,7 +179,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_08, "2", "int");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 2)", "json");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 3)", "json");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
         // Todo - add test for qualified name references, after adding support
@@ -193,7 +193,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // record fields
         debugTestRunner.assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~π", "20", "int");
         // json fields
-        debugTestRunner.assertExpression(context, JSON_VAR + ".name", "\"John\"", "string");
+        debugTestRunner.assertExpression(context, JSON_VAR + ".name", "\"apple\"", "string");
         // service object fields
         debugTestRunner.assertExpression(context, String.format("%s.i", SERVICE_VAR), "5", "int");
 
@@ -206,7 +206,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + ".gender", "\"male\"", "string");
+        // XML optional attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + "?.gender", "\"male\"", "string");
+        // XML optional attribute access on non existing attribute
+        debugTestRunner.assertExpression(context, XML_VAR + "?.name", "()", "nil");
     }
 
     @Override
@@ -223,13 +228,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // lists
         debugTestRunner.assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
         // maps
-        // debugTestRunner.assertExpression(context, mapVar + "[\"country\"]", "\"Sri Lanka\"", "string");
-        // debugTestRunner.assertExpression(context, mapVar + "[\"undefined\"]", "()", "nil");
+        debugTestRunner.assertExpression(context, MAP_VAR + "[\"country\"]", "\"Sri Lanka\"", "string");
+        debugTestRunner.assertExpression(context, MAP_VAR + "[\"undefined\"]", "()", "nil");
         // json
-        // debugTestRunner.assertExpression(context, jsonVar + "[\"color\"]", "\"red\"", "string");
-        // debugTestRunner.assertExpression(context, jsonVar + "[\"undefined\"]", "()", "nil");
-        // Todo - add following tests after the implementation
-        //  - xml member access
+        debugTestRunner.assertExpression(context, JSON_VAR + "[\"color\"]", "\"red\"", "string");
+        debugTestRunner.assertExpression(context, JSON_VAR + "[\"undefined\"]", "()", "nil");
+        // XML
+        debugTestRunner.assertExpression(context, XML_VAR + "[0]", "<firstname>Praveen</firstname>", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + "[0][0]", "Praveen", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + "[2]", "XMLSequence (size = 0)", "xml");
     }
 
     @Override

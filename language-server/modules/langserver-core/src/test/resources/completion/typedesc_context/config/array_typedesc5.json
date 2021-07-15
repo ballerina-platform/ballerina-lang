@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,6 +249,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestRecord",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "TestRecord",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -260,11 +268,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "TestRecord",
+      "label": "TEST_CONST",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "N",
+      "insertText": "TEST_CONST",
       "insertTextFormat": "Snippet"
     },
     {
@@ -273,14 +281,6 @@
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TEST_CONST",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "N",
-      "insertText": "TEST_CONST",
       "insertTextFormat": "Snippet"
     },
     {

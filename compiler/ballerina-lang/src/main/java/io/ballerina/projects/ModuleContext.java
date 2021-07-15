@@ -175,6 +175,20 @@ class ModuleContext {
         allModuleLoadRequests = new LinkedHashSet<>();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
+            for (ModuleLoadRequest request : docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT)) {
+                if (allModuleLoadRequests.contains(request) && !request.locations().isEmpty()) {
+                    // If module load request already exists, and it's `locations` is not empty
+                    // add `locations` to already existing module load request
+                    for (ModuleLoadRequest allModuleLoadRequest : allModuleLoadRequests) {
+                        if (allModuleLoadRequest.equals(request)) {
+                            allModuleLoadRequest.addAllLocations(request.locations());
+                        }
+                    }
+                } else {
+                    // If module load request does not exists, add it to `allModuleLoadRequests`
+                    allModuleLoadRequests.add(request);
+                }
+            }
             moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleId, PackageDependencyScope.DEFAULT));
         }
 
@@ -355,9 +369,10 @@ class ModuleContext {
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
-        pkgNode.projectKind = moduleContext.project().kind();
-        pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(moduleContext.isExported(),
-                                                                      moduleContext.descriptor());
+        pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(
+                moduleContext.isExported(),
+                moduleContext.descriptor(),
+                moduleContext.project().kind());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files

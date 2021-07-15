@@ -46,6 +46,7 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     @Test
     public void testImportWithPrefix() {
         test("import-decl/import_decl_source_07.bal", "import-decl/import_decl_assert_07.json");
+        test("import-decl/import_decl_source_25.bal", "import-decl/import_decl_assert_25.json");
     }
 
     // Recovery tests
