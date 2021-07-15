@@ -172,7 +172,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.unifier = new Unifier();
     }
 
-    public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol, boolean isEnum) {
+    public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;
         int expSymTag = symbol.tag;
@@ -215,14 +215,20 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
-            if (isEnum) {
-                BConstantSymbol symbolTypeConst = (BConstantSymbol) symbol;
+            if (symbol.kind == SymbolKind.CONSTANT) {
+                BConstantSymbol symbolConst = (BConstantSymbol) symbol;
                 BConstantSymbol foundSymConst = (BConstantSymbol) foundSym;
-                String symbolType = symbolTypeConst.type.toString();
-                String foundSymType = foundSymConst.type.toString();
-                String symbolLiteralType = symbolTypeConst.literalType.toString();
-                String foundLiteralSymType = foundSymConst.literalType.toString();
-                if ((!symbolType.equals(foundSymType)) || (!symbolLiteralType.equals(foundLiteralSymType))) {
+                BLangLiteral symbolTypeLiteral = (BLangLiteral) ((BFiniteType)
+                        symbolConst.type).getValueSpace().iterator().next();
+                String symbolValue = (symbolTypeLiteral.value == null) ?
+                        symbolTypeLiteral.originalValue : String.valueOf(symbolTypeLiteral.value);
+                BLangLiteral foundSymTypeLiteral = (BLangLiteral) ((BFiniteType)
+                        foundSymConst.type).getValueSpace().iterator().next();
+                String foundSymValue = (foundSymTypeLiteral.value == null) ?
+                        foundSymTypeLiteral.originalValue : String.valueOf(foundSymTypeLiteral.value);
+                int symbolLiteralType = symbolConst.literalType.tag;
+                int foundLiteralSymType = foundSymConst.literalType.tag;
+                if ((!symbolValue.equals(foundSymValue)) || (symbolLiteralType != foundLiteralSymType)) {
                     dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
                 }
             } else {
