@@ -82,6 +82,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -486,10 +487,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
 
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
+        Predicate<Symbol> symbolFilter = CommonUtil.getVariableFilterPredicate();
+        symbolFilter = symbolFilter.or(symbol -> symbol.kind() == FUNCTION
+                || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
+                .and(symbol -> !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
-                        symbol.kind() == FUNCTION || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
-                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
+                .filter(symbolFilter)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
@@ -570,7 +573,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     CompletionItem completionItem = FunctionCompletionItemBuilder.buildMethod(methodSymbol, ctx);
                     return new SymbolCompletionItem(ctx, methodSymbol, completionItem);
                 }).forEach(completionItems::add);
-        
+
         return completionItems;
     }
 }
