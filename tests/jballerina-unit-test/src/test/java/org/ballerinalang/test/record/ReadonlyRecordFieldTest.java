@@ -114,6 +114,8 @@ public class ReadonlyRecordFieldTest {
                       269, 19);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'Unauthorized?'", 272, 19);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'Unauthorized?'", 273, 18);
+        validateError(result, index++, "missing non-defaultable required record field 'y'", 285, 42);
+        validateError(result, index++, "incompatible types: expected 'RecordWithReadOnlyFields', found 'int'", 286, 53);
         assertEquals(result.getErrorCount(), index);
     }
 }

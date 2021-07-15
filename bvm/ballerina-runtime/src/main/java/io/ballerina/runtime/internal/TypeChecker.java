@@ -385,7 +385,7 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return TYPE_BYTE;
             }
-        } else if (value instanceof BString || value instanceof String) {
+        } else if (value instanceof BString) {
             return TYPE_STRING;
         } else if (value instanceof Boolean) {
             return TYPE_BOOLEAN;
@@ -599,37 +599,43 @@ public class TypeChecker {
             return isUnionTypeMatch((BUnionType) sourceType, targetType, unresolvedTypes);
         }
 
+        if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG &&
+                (targetTypeTag <= TypeTags.NULL_TAG || targetTypeTag == TypeTags.XML_TEXT_TAG)) {
+            return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
             case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
-            case TypeTags.STRING_TAG:
-                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
-                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-                }
                 return sourceTypeTag == targetTypeTag;
+            case TypeTags.STRING_TAG:
+                return TypeTags.isStringTypeTag(sourceTypeTag);
             case TypeTags.XML_TEXT_TAG:
-                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
-                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-                }
                 if (sourceTypeTag == TypeTags.XML_TAG) {
                     return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
                 }
                 return sourceTypeTag == targetTypeTag;
             case TypeTags.INT_TAG:
-                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
-                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-                }
-                return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.INT_TAG;
+                return sourceTypeTag == TypeTags.INT_TAG || sourceTypeTag == TypeTags.BYTE_TAG ||
+                        (sourceTypeTag >= TypeTags.SIGNED8_INT_TAG && sourceTypeTag <= TypeTags.UNSIGNED32_INT_TAG);
+            case TypeTags.SIGNED16_INT_TAG:
+                return sourceTypeTag == TypeTags.BYTE_TAG ||
+                        (sourceTypeTag >= TypeTags.SIGNED8_INT_TAG && sourceTypeTag <= TypeTags.SIGNED16_INT_TAG);
+            case TypeTags.SIGNED32_INT_TAG:
+                return sourceTypeTag == TypeTags.BYTE_TAG ||
+                        (sourceTypeTag >= TypeTags.SIGNED8_INT_TAG && sourceTypeTag <= TypeTags.SIGNED32_INT_TAG);
+            case TypeTags.UNSIGNED16_INT_TAG:
+                return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG ||
+                        sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG;
+            case TypeTags.UNSIGNED32_INT_TAG:
+                return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG ||
+                        sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG || sourceTypeTag == TypeTags.UNSIGNED32_INT_TAG;
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
@@ -978,7 +984,9 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 Map<String, Field> fieldList = ((BRecordType) constraintType).getFields();
                 return (BField) fieldList.get(fieldName);
-
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((BIntersectionType) constraintType).getEffectiveType();
+                return getTableConstraintField(effectiveType, fieldName);
             case TypeTags.UNION_TAG:
                 BUnionType unionType = (BUnionType) constraintType;
                 List<Type> memTypes = unionType.getMemberTypes();
@@ -1912,7 +1920,7 @@ public class TypeChecker {
 
     private static boolean isMutable(Object value, Type sourceType) {
         // All the value types are immutable
-        if (value == null || sourceType.getTag() < TypeTags.JSON_TAG ||
+        if (value == null || sourceType.getTag() < TypeTags.NULL_TAG ||
                 sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return false;
         }
@@ -1932,18 +1940,19 @@ public class TypeChecker {
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
-        Set<Type> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(type);
+        Set<String> visitedTypeSet = new HashSet<>();
         return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type,
-                                                                                   Set<Type> visitedTypeSet) {
+                                                                                   Set<String> visitedTypeSet) {
         switch (type.getTag()) {
             case TypeTags.NEVER_TAG:
                 return true;
             case TypeTags.RECORD_TYPE_TAG:
-                for (Field field : ((BRecordType) type).getFields().values()) {
+                BRecordType recordType = (BRecordType) type;
+                visitedTypeSet.add(recordType.getName());
+                for (Field field : recordType.getFields().values()) {
                     // skip check for fields with self referencing type and not required fields.
                     if ((SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) ||
                             !SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) &&
@@ -1956,9 +1965,12 @@ public class TypeChecker {
                 return false;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) type;
+                visitedTypeSet.add(tupleType.getName());
                 List<Type> tupleTypes = tupleType.getTupleTypes();
                 for (Type mem : tupleTypes) {
-                    visitedTypeSet.add(mem);
+                    if (!visitedTypeSet.add(mem.getName())) {
+                        continue;
+                    }
                     if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
                         return true;
                     }
@@ -1966,8 +1978,9 @@ public class TypeChecker {
                 return false;
             case TypeTags.ARRAY_TAG:
                 BArrayType arrayType = (BArrayType) type;
+                visitedTypeSet.add(arrayType.getName());
                 Type elemType = arrayType.getElementType();
-                visitedTypeSet.add(elemType);
+                visitedTypeSet.add(elemType.getName());
                 return arrayType.getState() != ArrayState.OPEN &&
                         checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
             default:
@@ -2062,6 +2075,9 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkIsLikeRecordType(sourceValue, (BRecordType) targetType, unresolvedValues,
                         allowNumericConversion);
+            case TypeTags.TABLE_TAG:
+                return checkIsLikeTableType(sourceValue, (BTableType) targetType, unresolvedValues,
+                                            allowNumericConversion);
             case TypeTags.JSON_TAG:
                 return checkIsLikeJSONType(sourceValue, sourceType, (BJsonType) targetType, unresolvedValues,
                                            allowNumericConversion);
@@ -2501,6 +2517,35 @@ public class TypeChecker {
         return true;
     }
 
+    private static boolean checkIsLikeTableType(Object sourceValue, BTableType targetType,
+                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
+        if (!(sourceValue instanceof TableValueImpl)) {
+            return false;
+        }
+        TableValueImpl tableValue = (TableValueImpl) sourceValue;
+        BTableType sourceType = (BTableType) tableValue.getType();
+        if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
+            return false;
+        }
+
+        if (sourceType.getKeyType() != null && !checkIsType(tableValue.getKeyType(), targetType.getKeyType())) {
+            return false;
+        }
+
+        TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+        if (unresolvedValues.contains(typeValuePair)) {
+            return true;
+        }
+
+        Object[] objects = tableValue.values().toArray();
+        for (Object object : objects) {
+            if (!checkIsLikeType(object, targetType.getConstrainedType(), allowNumericConversion)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType) {
         for (Object valueSpaceItem : targetType.valueSpace) {
             // TODO: 8/13/19 Maryam fix for conversion
@@ -2591,7 +2636,7 @@ public class TypeChecker {
     }
 
     private static boolean isSimpleBasicType(Type type) {
-        return type.getTag() < TypeTags.JSON_TAG;
+        return type.getTag() < TypeTags.NULL_TAG;
     }
 
     private static boolean isHandleType(Type type) {

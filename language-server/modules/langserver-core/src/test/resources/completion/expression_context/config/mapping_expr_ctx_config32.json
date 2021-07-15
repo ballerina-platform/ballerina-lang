@@ -9,40 +9,42 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "name",
-      "kind": "Field",
-      "detail": "string",
-      "sortText": "G",
-      "insertText": "name: \"${1}\"",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "age",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "G",
-      "insertText": "age: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "address",
       "kind": "Field",
-      "detail": "Address",
+      "detail": "Person.address",
       "sortText": "G",
       "insertText": "address: {\n\tstreet: \"${1}\",\n\tcity: \"${2}\",\n\tpostalCode: \"${3}\"\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "name",
+      "kind": "Field",
+      "detail": "Person.name",
+      "sortText": "G",
+      "insertText": "name: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "Person.age",
+      "sortText": "G",
+      "insertText": "age: ${3:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Person Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
-      "insertText": "name: \"\",\nage: 0,\naddress: {street: \"\", city: \"\", postalCode: \"\"}",
+      "detail": "Person",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "address: {street: \"\", city: \"\", postalCode: \"\"},\nname: \"\",\nage: 0",
       "insertTextFormat": "Snippet"
     }
   ]

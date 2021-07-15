@@ -15,13 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -48,19 +44,15 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, CheckExpressionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (node.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
                 || node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL
-                || node.parent().kind() == SyntaxKind.MODULE_VAR_DECL) {
+                || node.parent().kind() == SyntaxKind.MODULE_VAR_DECL
+                || node.parent().kind() == SyntaxKind.OBJECT_FIELD) {
             completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
-        } else if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
-            QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(ctx, nameRef);
-            completionItems.addAll(this.getCompletionItemList(expressionContextEntries, ctx));
         } else {
-        /*
-        We add the action keywords in order to support the check action context completions
-         */
+            /*
+            We add the action keywords in order to support the check action context completions
+             */
             completionItems.addAll(this.actionKWCompletions(ctx));
             completionItems.addAll(this.expressionCompletions(ctx));
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.STMT_COMMIT.get()));

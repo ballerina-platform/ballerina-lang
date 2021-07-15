@@ -67,6 +67,8 @@ types:
     seq:
       - id: org_index
         type: s4
+      - id: package_name_index
+        type: s4
       - id: name_index
         type: s4
       - id: version_index

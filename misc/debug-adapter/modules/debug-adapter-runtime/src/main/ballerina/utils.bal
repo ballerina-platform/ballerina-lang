@@ -24,3 +24,7 @@ function getType(any value) returns string|error {
         return result;
     }
 }
+
+function getTrapResult(any|error value) returns any|error {
+    return trap value;
+}

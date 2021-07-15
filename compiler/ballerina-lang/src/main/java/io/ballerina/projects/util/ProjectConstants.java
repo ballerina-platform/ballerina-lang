@@ -74,10 +74,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
 
-    public static final String BALLERINA_VERSION = "ballerina.version";
-    public static final String BALLERINA_PACK_VERSION = "ballerina.packVersion";
-    public static final String PROPERTIES_FILE = "/META-INF/tool.properties";
-
     public static final String TARGET_BALA_DIR_NAME = "bala";
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String DIST_CACHE_DIRECTORY = "repo";
@@ -107,7 +103,6 @@ public class ProjectConstants {
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
 
-    public static final String BALLERINA_OFFLINE_FLAG = "ballerina.offline.flag";
     public static final String BALA_DOCS_DIR = "docs";
     public static final String REPOSITORIES_DIR = "repositories";
     public static final String LOCAL_REPOSITORY_NAME = "local";

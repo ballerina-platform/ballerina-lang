@@ -295,8 +295,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
-    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
-        visitSyntaxNode(parameterizedTypeDescriptorNode);
+    public void visit(MapTypeDescriptorNode mapTypeDescriptorNode) {
+        visitSyntaxNode(mapTypeDescriptorNode);
     }
 
     public void visit(NilLiteralNode nilLiteralNode) {
@@ -375,10 +375,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(keySpecifierNode);
     }
 
-    public void visit(ErrorTypeDescriptorNode errorTypeDescriptorNode) {
-        visitSyntaxNode(errorTypeDescriptorNode);
-    }
-
     public void visit(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
     }
@@ -387,16 +383,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
-    public void visit(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
-        visitSyntaxNode(typedescTypeDescriptorNode);
-    }
-
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
-    }
-
-    public void visit(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
-        visitSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
@@ -825,6 +813,10 @@ public abstract class NodeVisitor {
 
     public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
         visitSyntaxNode(errorConstructorExpressionNode);
+    }
+
+    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     // Tokens

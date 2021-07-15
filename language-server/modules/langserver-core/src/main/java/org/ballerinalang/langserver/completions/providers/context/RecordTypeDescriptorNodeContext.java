@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -25,10 +24,10 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link RecordTypeDescriptorNode} context.
@@ -62,19 +61,29 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            Predicate<Symbol> predicate =
-                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS
-                            || symbol.kind() == SymbolKind.ENUM;
-            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor, predicate);
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            List<Symbol> types = QNameReferenceUtil.getTypesInModule(context,
+                    (QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(this.getCompletionItemList(types, context));
         } else {
-            completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getTypeItems(context));
+            // The readonly keyword also considered as a suggestion and it is suggested via the type-descriptor Items
+            completionItems.addAll(this.getTypeDescContextItems(context));
         }
+        /*
+        Sorting is done depending on the type descriptor context. Any changes to the completion item list, should be
+        handled along with the sorting as well.
+         */
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, RecordTypeDescriptorNode node,
+                     List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsCItem : completionItems) {
+            String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+            lsCItem.getCompletionItem().setSortText(sortText);
+        }
     }
 }

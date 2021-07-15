@@ -29,5 +29,7 @@ public interface TupleType extends Type {
 
     Type getRestType();
 
+    boolean isCyclic();
+
     int getTypeFlags();
 }

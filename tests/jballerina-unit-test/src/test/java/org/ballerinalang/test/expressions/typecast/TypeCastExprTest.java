@@ -228,7 +228,7 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'string' value 'hello' cannot be converted to 'int'");
+        Assert.assertEquals(errorMsg, "'string' value '\"hello\"' cannot be converted to 'int'");
     }
 
     @Test
@@ -237,7 +237,7 @@ public class TypeCastExprTest {
         Assert.assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
         String errorMsg = ((BMap) error.getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'string' value 'hello' cannot be converted to 'float'");
+        Assert.assertEquals(errorMsg, "'string' value '\"hello\"' cannot be converted to 'float'");
     }
 
     @Test(enabled = false) // See https://github.com/ballerina-platform/ballerina-lang/issues/29359
@@ -630,9 +630,26 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
     }
 
+    @Test(dataProvider = "typesTestExpressionTestFunctions")
+    public void testTypeTestsExpression(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
     @Test(dataProvider = "immutableArrayTypesTestFunctions")
     public void testCastOfImmutableArrayTypes(String function) {
         BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "typesTestExpressionTestFunctions")
+    public Object[][] typesTestExpressionTestFunctions() {
+        return new Object[][] {
+                { "testIntSubtypeArrayCasting" },
+                { "testIntSubtypeArrayCastingWithErrors" },
+                { "testCharArrayToStringArray" },
+                { "testMapOfCharToMapOfString" },
+                { "testFiniteTypeArrayToIntArray" },
+                { "testFiniteTypeToStringArray" }
+        };
     }
 
     @DataProvider(name = "immutableArrayTypesTestFunctions")

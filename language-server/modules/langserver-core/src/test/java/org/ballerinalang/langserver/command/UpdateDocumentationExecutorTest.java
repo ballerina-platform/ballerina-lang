@@ -40,8 +40,10 @@ public class UpdateDocumentationExecutorTest extends AbstractCommandExecutionTes
         return new Object[][]{
                 {"updateDocumentationConfig1.json", "updateDocumentationSource1.bal"},
                 {"updateDocumentationConfig2.json", "updateDocumentationSource2.bal"},
+                {"updateDocumentationConfig3.json", "updateDocumentationSource3.bal"},
                 {"updateDocumentationWithDeprecatedConfig1.json", "updateDocumentationWithDeprecatedSource1.bal"},
                 {"updateDocumentationWithDeprecatedConfig2.json", "updateDocumentationWithDeprecatedSource2.bal"},
+                {"updateDocumentationWithDeprecatedConfig3.json", "updateDocumentationWithDeprecatedSource3.bal"},
         };
     }
 

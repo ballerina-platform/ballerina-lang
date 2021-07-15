@@ -734,4 +734,3 @@ function assertEquals(anydata expected, anydata actual) {
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
     panic error(ASSERTION_ERROR_REASON, message = msg);
 }
-

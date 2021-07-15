@@ -22,6 +22,7 @@ import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.exceptions.InvalidBalaException;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -258,7 +259,7 @@ public class ProjectFiles {
         }
 
         if (!isValidBalaFile(balaPath) && !isValidBalaDir(balaPath)) {
-            throw new ProjectException("Invalid bala file: " + balaPath);
+            throw new InvalidBalaException("invalid bala file: " + balaPath);
         }
 
         if (!balaPath.toFile().canRead()) {

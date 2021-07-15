@@ -1,0 +1,23 @@
+[intRest]
+id = 11
+age = 26
+
+[floatRest]
+height = 161.5
+weight = 62.3
+
+[stringRest]
+name = "Hinduja"
+city = "Colombo"
+
+[booleanRest]
+isBoolean = true
+isByte = false
+
+[anydataRest]
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608

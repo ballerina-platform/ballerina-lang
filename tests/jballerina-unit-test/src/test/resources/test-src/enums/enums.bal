@@ -95,6 +95,34 @@ function testEnumAsGlobalRef() {
     assert(status, "OPEN");
 }
 
+public enum Keyword {
+  nil,
+  'boolean,
+  'int,
+  'string,
+  'never,
+  'any,
+  union,
+  intersection
+}
+
+type ApproxType Keyword|ApproxType[];
+
+function testEnumInRecursiveArray() {
+    ApproxType n = "nil";
+    assert(n, "nil");
+
+    Keyword u = "union";
+    assert(u, "union");
+
+    ApproxType b = "'boolean";
+    assert(b, 'boolean);
+
+    Keyword i = "'int";
+    assert(i, "'int");
+}
+
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

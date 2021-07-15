@@ -85,81 +85,79 @@ public class MatchStructuredPatternsTest {
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatchedSemanticsNegative() {
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultSemanticsNegative.getWarnCount(), 15);
         int i = -1;
 
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 33, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 34, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 37, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 38, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 39, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 49, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 50, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 60, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 61, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 62, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 63, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "pattern will not be matched", 65, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "unreachable pattern", 65, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "unreachable pattern", 66, 9);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "unreachable pattern", 67, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 33, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 34, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 37, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 38, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 39, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 49, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 50, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 60, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 61, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 62, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 63, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "pattern will not be matched", 65, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "unreachable pattern", 65, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "unreachable pattern", 66, 9);
+        BAssertUtil.validateWarning(resultSemanticsNegative, ++i, "unreachable pattern", 67, 9);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "unreachable code", 69, 5);
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getWarnCount(), 5);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 35, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 45, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 55, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "unreachable pattern", 57, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "unreachable pattern", 58, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 35, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 45, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 55, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 57, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 58, 9);
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 60, 5);
-
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
     @Test(description = "Test pattern will not be matched 2")
     public void testUnreachablePatterns() {
-        Assert.assertEquals(resultNegative2.getErrorCount(), 23);
+        Assert.assertEquals(resultNegative2.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative2.getWarnCount(), 25);
         int i = -1;
         String unreachablePattern = "unreachable pattern";
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 32, 12);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 34, 9);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 46, 13);
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 47, 13);
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 50, 13);
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 60, 13);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 61, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 67, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 72, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 73, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 74, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 75, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 32, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 34, 9);
+         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 46, 9);
+         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 47, 9);
+         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 50, 9);
+         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 60, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 61, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 67, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 72, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 73, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 74, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 75, 9);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 78, 5);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 92, 35);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 94, 13);
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 95, 13);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 94, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 95, 9);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 99, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 106, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 108, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 110, 9);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-        // BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 121, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 123, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 124, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 106, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 108, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 110, 9);
+         BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 121, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 123, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 124, 9);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 142, 5);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 149, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, "this function must return a result", 153, 1);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 157, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 165, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 166, 9);
-        BAssertUtil.validateError(resultNegative2, ++i, unreachablePattern, 167, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 149, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 157, 9);
+        BAssertUtil.validateError(resultNegative2, ++i, "this function must return a result", 159, 1);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 165, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 166, 9);
+        BAssertUtil.validateWarning(resultNegative2, ++i, unreachablePattern, 167, 9);
         BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 170, 5);
     }
 

@@ -6,6 +6,16 @@
   "source": "expression_context/source/type_test_expression_ctx_source2.bal",
   "items": [
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -17,16 +27,6 @@
       "kind": "TypeParameter",
       "detail": "Union",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -89,6 +89,7 @@
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
@@ -96,6 +97,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -103,6 +105,7 @@
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -110,6 +113,7 @@
       "label": "record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
@@ -117,6 +121,7 @@
       "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
+      "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
@@ -124,7 +129,24 @@
       "label": "object {}",
       "kind": "Snippet",
       "detail": "Snippet",
+      "filterText": "object",
       "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     },
     {

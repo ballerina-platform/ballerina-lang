@@ -79,7 +79,7 @@ public class LangLibValueTest {
 
         BMap<String, BString> arr = (BMap<String, BString>) returns[0];
         assertEquals(arr.get("aNil").stringValue(), "null");
-        assertEquals(arr.get("aString").stringValue(), "aString");
+        assertEquals(arr.get("aString").stringValue(), "\"aString\"");
         assertEquals(arr.get("aNumber").stringValue(), "10");
         assertEquals(arr.get("aFloatNumber").stringValue(), "10.5");
         assertEquals(arr.get("anArray").stringValue(), "[\"hello\", \"world\"]");
@@ -325,7 +325,12 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric7" },
                 { "testCloneWithTypeStringArray" },
                 { "testCloneWithTypeWithInferredArgument" },
-                { "testCloneWithTypeWithImmutableTypes" }
+                { "testCloneWithTypeWithImmutableTypes" },
+                { "testCloneWithTypeDecimalToInt"},
+                {"testCloneWithTypeDecimalToIntNegative"},
+                { "testCloneWithTypeDecimalToByte"},
+                { "testCloneWithTypeDecimalToIntSubType"},
+                { "testCloneWithTypeImmutableStructuredTypes"},
         };
     }
 
@@ -337,6 +342,11 @@ public class LangLibValueTest {
     @Test
     public void testAssigningCloneableToAnyOrError() {
         BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+    }
+
+    @Test
+    public void testDestructuredNamedArgs() {
+        BRunUtil.invokeFunction(compileResult, "testDestructuredNamedArgs");
     }
 
     @DataProvider(name = "fromJsonWithTypeFunctions")
@@ -359,7 +369,8 @@ public class LangLibValueTest {
                 { "testConvertJsonToAmbiguousType" },
                 { "testFromJsonWithTypeWithNullValues" },
                 { "testFromJsonWithTypeWithNullValuesNegative" },
-                { "testFromJsonWithTypeWithInferredArgument" }
+                { "testFromJsonWithTypeWithInferredArgument" },
+                { "testFromJsonWithTypeWithTypeReferences" }
         };
     }
 

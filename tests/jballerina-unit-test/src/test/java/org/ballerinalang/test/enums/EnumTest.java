@@ -61,7 +61,8 @@ public class EnumTest {
         return new Object[][]{
                 {"testBasicEnumSupport"},
                 {"testEnumAsType"},
-                {"testEnumAsGlobalRef"}
+                {"testEnumAsGlobalRef"},
+                {"testEnumInRecursiveArray"},
         };
     }
 

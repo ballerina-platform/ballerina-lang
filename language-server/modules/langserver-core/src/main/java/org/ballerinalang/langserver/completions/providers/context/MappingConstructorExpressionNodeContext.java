@@ -24,12 +24,14 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -45,7 +47,8 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,6 +63,7 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class MappingConstructorExpressionNodeContext extends
         AbstractCompletionProvider<MappingConstructorExpressionNode> {
+
     public MappingConstructorExpressionNodeContext() {
         super(MappingConstructorExpressionNode.class);
     }
@@ -91,13 +95,17 @@ public class MappingConstructorExpressionNodeContext extends
             if (!this.hasReadonlyKW(evalNode)) {
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
             }
-            Optional<RecordTypeSymbol> recordTypeDesc = this.getRecordTypeDesc(context, node);
-            if (recordTypeDesc.isPresent()) {
-                Map<String, RecordFieldSymbol> fields = new LinkedHashMap<>(recordTypeDesc.get().fieldDescriptors());
+            List<Pair<TypeSymbol, TypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
+            for (Pair<TypeSymbol, TypeSymbol> recordTypeSymbol : recordTypeDesc) {
+                RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol.getLeft()));
+                Map<String, RecordFieldSymbol> fields = this.getValidFields(node, rawType);
                 // TODO: Revamp the implementation
-//            completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
-                completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields));
-                completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields));
+                // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
+                completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
+                if (!fields.values().isEmpty()) {
+                    completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields,
+                            recordTypeSymbol));
+                }
                 completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
             }
         }
@@ -142,27 +150,30 @@ public class MappingConstructorExpressionNodeContext extends
         return cursorPosInTree >= openBracketEnd && cursorPosInTree <= closeBracketStart;
     }
 
-    private Optional<RecordTypeSymbol> getRecordTypeDesc(BallerinaCompletionContext context,
-                                                         MappingConstructorExpressionNode node) {
+    private List<Pair<TypeSymbol, TypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
+                                                                  MappingConstructorExpressionNode node) {
         ContextTypeResolver typeResolver = new ContextTypeResolver(context);
         Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
         if (resolvedType.isEmpty()) {
-            return Optional.empty();
+            return Collections.emptyList();
         }
         TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get());
         if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Optional.of((RecordTypeSymbol) rawType);
-        }
-        if (rawType.typeKind() == TypeDescKind.UNION) {
-            List<TypeSymbol> records = ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
-                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD)
-                    .collect(Collectors.toList());
-            if (records.size() == 1) {
-                return Optional.of((RecordTypeSymbol) CommonUtil.getRawType(records.get(0)));
+            Optional<TypeSymbol> broaderType = typeResolver.getBroaderTypeSymbol();
+            if (broaderType.isPresent()) {
+                return Collections.singletonList(Pair.of(rawType, broaderType.get()));
+            } else {
+                return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
             }
         }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD)
+                    .map(typeSymbol -> Pair.of(CommonUtil.getRawType(typeSymbol), typeSymbol))
+                    .collect(Collectors.toList());
+        }
 
-        return Optional.empty();
+        return Collections.emptyList();
     }
 
     private List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
@@ -212,5 +223,20 @@ public class MappingConstructorExpressionNodeContext extends
         return this.getCompletionItemList(moduleContent, context);
     }
 
+    private Map<String, RecordFieldSymbol> getValidFields(MappingConstructorExpressionNode node,
+                                                          RecordTypeSymbol recordTypeSymbol) {
+        List<String> missingFields = node.fields().stream()
+                .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.SPECIFIC_FIELD
+                        && ((SpecificFieldNode) field).fieldName().kind() == SyntaxKind.IDENTIFIER_TOKEN)
+                .map(field -> ((IdentifierToken) ((SpecificFieldNode) field).fieldName()).text())
+                .collect(Collectors.toList());
+        Map<String, RecordFieldSymbol> fieldSymbols = new HashMap<>();
+        recordTypeSymbol.fieldDescriptors().forEach((name, symbol) -> {
+            if (!missingFields.contains(name)) {
+                fieldSymbols.put(name, symbol);
+            }
+        });
 
+        return fieldSymbols;
+    }
 }

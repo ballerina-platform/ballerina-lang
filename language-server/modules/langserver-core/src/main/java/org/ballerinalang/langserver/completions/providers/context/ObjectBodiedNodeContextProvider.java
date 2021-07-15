@@ -15,9 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -45,10 +49,14 @@ public abstract class ObjectBodiedNodeContextProvider<T extends Node> extends Ab
      * @return {@link List} of completion items
      */
     protected List<LSCompletionItem> getBodyContextItems(BallerinaCompletionContext context, Node node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            return this.getCompletionItemList(typesInModule, context);
+        }
+        
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getTypeDescContextItems(context));
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));

@@ -26,18 +26,21 @@ import java.io.File;
  * Ballerina debug point (breakpoint/debug hit point) representation used for integration test scenarios.
  */
 public class BallerinaTestDebugPoint {
-    String filePath;
-    int line;
-    String condition;
+
+    private final String filePath;
+    private final int line;
+    private final String condition;
+    private final String logMessage;
 
     public BallerinaTestDebugPoint(String filePath, int line) {
-        this(filePath, line, null);
+        this(filePath, line, null, null);
     }
 
-    public BallerinaTestDebugPoint(String filePath, int line, String condition) {
+    public BallerinaTestDebugPoint(String filePath, int line, String condition, String logMessage) {
         this.filePath = filePath;
         this.line = line;
         this.condition = condition;
+        this.logMessage = logMessage;
     }
 
     public Source getSource() {
@@ -54,6 +57,7 @@ public class BallerinaTestDebugPoint {
         breakpoint.setLine(line);
         breakpoint.setColumn(0);
         breakpoint.setCondition(condition);
+        breakpoint.setLogMessage(logMessage);
         return breakpoint;
     }
 

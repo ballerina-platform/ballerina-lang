@@ -45,6 +45,33 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -94,37 +121,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ResponseMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
-      },
-      "insertText": "ResponseMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "RequestMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
-      },
-      "insertText": "RequestMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
+      "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
-      "insertText": "TestClass1",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -148,10 +148,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
+      "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
-      "insertText": "Listener",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -164,7 +164,7 @@
     {
       "label": "function1()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -178,7 +178,7 @@
     {
       "label": "function2()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -190,13 +190,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function3(int param1, int param2, float... param3)(int)",
+      "label": "function3(int param1, int param2, float... param3)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Returns** `int`   \n- Return Value Description  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
       "filterText": "function3",
@@ -210,7 +210,7 @@
     {
       "label": "function4(int param1, int param2, string param3, float... param4)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",

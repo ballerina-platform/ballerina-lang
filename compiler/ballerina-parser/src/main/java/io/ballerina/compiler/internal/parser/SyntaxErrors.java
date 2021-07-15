@@ -122,8 +122,8 @@ public class SyntaxErrors {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-            case CLASS_MEMBER_WITHOUT_METADATA:
-            case OBJECT_MEMBER_WITHOUT_METADATA:
+            case CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META:
+            case OBJECT_CONS_MEMBER_WITHOUT_META:
             case RECORD_FIELD_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
@@ -176,6 +176,7 @@ public class SyntaxErrors {
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
+            case BINDING_PATTERN_OR_VAR_REF_RHS:
             case NAMED_ARG_BINDING_PATTERN:
             case TYPE_DESC_RHS_OR_BP_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
@@ -368,6 +369,7 @@ public class SyntaxErrors {
             case FUNCTION_IDENT:
             case OPTIONAL_PEER_WORKER:
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
+            case TYPE_DESC_WITHOUT_ISOLATED:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
@@ -389,6 +391,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
             case OBJECT_KEYWORD:
             case OBJECT_IDENT:
+            case OBJECT_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
@@ -516,14 +519,11 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
             case NAMED_WORKER_DECL:
-            case PARAMETERIZED_TYPE:
+            case MAP_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_MAP_KEYWORD;
-            case FUTURE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_FUTURE_KEYWORD;
-            case TYPEDESC_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_TYPEDESC_KEYWORD;
             case ERROR_KEYWORD:
             case ERROR_BINDING_PATTERN:
+            case PARAMETERIZED_TYPE:
                 return DiagnosticErrorCode.ERROR_MISSING_ERROR_KEYWORD;
             case STREAM_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_STREAM_KEYWORD;
@@ -562,6 +562,23 @@ public class SyntaxErrors {
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
         }
+    }
+
+    /**
+     * Update the all nodes inside {@code STNodeList} with a given diagnostic.
+     *
+     * @param nodeList  the STNodeList to be updated
+     * @param errorCode the invalid node
+     * @return updated STNodeList as a STNode
+     */
+    public static STNode updateAllNodesInNodeListWithDiagnostic(STNodeList nodeList, DiagnosticErrorCode errorCode) {
+        List<STNode> newList = new ArrayList<>();
+        for (int i = 0; i < nodeList.size(); i++) {
+            STNode updatedNode = addDiagnostic(nodeList.get(i), errorCode);
+            newList.add(updatedNode);
+        }
+
+        return STNodeFactory.createNodeList(newList);
     }
 
     /**

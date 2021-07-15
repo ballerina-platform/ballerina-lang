@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -242,45 +243,61 @@ public class MatchStmtListMatchPatternTest {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPattern11");
     }
 
+    @Test(dataProvider = "dataToTestListMatchPatternWithRestPattern", description = "Test list match pattern with " +
+            "rest match pattern")
+    public void testListMatchPatternWithRestPattern(String functionName) {
+        BRunUtil.invoke(restMatchPatternResult, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestListMatchPatternWithRestPattern() {
+        return new Object[]{
+                "testListMatchPatternWithRestPattern12",
+                "testListMatchPatternWithRestPattern13",
+                "testListMatchPatternWithRestPattern14",
+                "testListMatchPatternWithRestPattern15"
+        };
+    }
+
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getWarnCount(), 25);
         int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 23, 9);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 32, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 32, 17);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 40, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 43, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 53, 13);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 32, 17);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 40, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 43, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 53, 13);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 58, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 64, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 69, 5);
         BAssertUtil.validateError(resultNegative, ++i, "all match patterns should contain the same set of variables",
                 71, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 71, 39);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 71, 39);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 71, 39);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 71, 39);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 78, 5);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 86, 22);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 90, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 92, 18);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 94, 18);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 98, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 102, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 110, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 117, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 124, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 131, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 141, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 152, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 164, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 184, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 191, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 197, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 199, 9);
-        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 201, 9);
-
-        Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 86, 22);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 90, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 92, 18);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 94, 18);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 98, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 102, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 110, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 117, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 124, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 131, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 141, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 152, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 164, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 184, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 191, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 197, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 199, 9);
+        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 201, 9);
     }
 
     @Test(description = "test negative semantics")

@@ -32,7 +32,9 @@ public class ToggleDebugCommand extends AbstractCommand {
 
     @Override
     public void run(String... args) {
-        ballerinaShell.toggleDebug();
-        ballerinaShell.outputInfo("Toggled debug mode.");
+        ballerinaShell.outputInfo(String.format(
+                ballerinaShell.toggleDebug()
+                        ? "Toggled debug mode : ON"
+                        : "Toggled debug mode : OFF"));
     }
 }

@@ -28,7 +28,6 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -36,7 +35,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -74,7 +72,7 @@ public final class FunctionCompletionItemBuilder {
     public static CompletionItem build(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
-        if (functionSymbol != null) {
+        if (functionSymbol != null && functionSymbol.getName().isPresent()) {
             // Override function signature
             String funcName = functionSymbol.getName().get();
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
@@ -151,9 +149,10 @@ public final class FunctionCompletionItemBuilder {
 
     private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
         if (bSymbol != null) {
+            FunctionTypeSymbol functionTypeDesc = bSymbol.typeDescriptor();
+            item.setDetail(functionTypeDesc.returnTypeDescriptor().get().signature());
             List<String> funcArguments = getFuncArguments(bSymbol, ctx);
             if (!funcArguments.isEmpty()) {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
@@ -266,7 +265,6 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol == null) {
             return ImmutablePair.of(functionName + "()", functionName + "()");
         }
-        FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
@@ -276,14 +274,6 @@ public final class FunctionCompletionItemBuilder {
         }
         signature.append(")");
         insertText.append(")");
-        Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
-        String initString = "(";
-        String endString = ")";
-
-        if (returnType.isPresent() && returnType.get().typeKind() != TypeDescKind.NIL) {
-            signature.append(initString).append(CommonUtil.getModifiedTypeName(ctx, returnType.get()));
-            signature.append(endString);
-        }
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
@@ -345,7 +335,10 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Whether we skip the first parameter being included as a label in the signature.
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
-     * showing the invocation over package of the langlib with the COLON we show the first param
+     * showing the invocation over package of the langlib with the COLON we show the first param.
+     * 
+     * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
+     * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
      *
      * @param context        context
      * @param functionSymbol invokable symbol

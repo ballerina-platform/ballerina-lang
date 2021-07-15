@@ -103,7 +103,7 @@ function testToJsonStringForNonJsonTypes() {
     result["anAnyData"] = anAnyData.toJsonString();
 
     assert(result["aNil"], "null");
-    assert(result["aString"], "aString");
+    assert(result["aString"], "\"aString\"");
     assert(result["aNumber"], "10");
     assert(result["aFloatNumber"], "10.5");
     assert(result["anStringArray"], "[\"hello\", \"world\"]");
@@ -699,6 +699,78 @@ function testCloneWithTypeNumeric7() {
     assert(a2[2], <decimal> 3);
 }
 
+type ByteArray byte[];
+
+function testCloneWithTypeDecimalToInt() {
+    decimal a = 12.3456;
+    int|error result = a.cloneWithType(int);
+    assert(result is int, true);
+    assert(checkpanic result, 12);
+
+    decimal[] a1 = [1.23, 2.34, 3.45];
+    int[]|error a2e = a1.cloneWithType(IntArray);
+    assert(a2e is int[], true);
+
+    int[] a2 = checkpanic a2e;
+    assert(a2.length(), a1.length());
+    assert(a2[0], 1);
+    assert(a2[1], 2);
+    assert(a2[2], 3);
+}
+
+function testCloneWithTypeDecimalToByte() {
+    decimal a = 12.3456;
+    byte|error result = a.cloneWithType(byte);
+    assert(result is byte, true);
+    assert(checkpanic result, 12);
+
+    decimal[] a1 = [1.23, 2.34, 3.45];
+    byte[]|error a2e = a1.cloneWithType(ByteArray);
+    assert(a2e is byte[], true);
+
+    byte[] a2 = checkpanic a2e;
+    assert(a2.length(), a1.length());
+    assert(a2[0], 1);
+    assert(a2[1], 2);
+    assert(a2[2], 3);
+}
+
+function testCloneWithTypeDecimalToIntSubType() {
+    decimal a = 12.3456;
+    int:Signed32|error result = a.cloneWithType(int:Signed32);
+    assert(result is int:Signed32, true);
+    assert(checkpanic result, 12);
+}
+
+function testCloneWithTypeDecimalToIntNegative() {
+    decimal a = 9223372036854775807.5;
+    int|error result = a.cloneWithType(int);
+    assert(result is error, true);
+    error err = <error>result;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
+
+    decimal[] a1 = [9223372036854775807.5, -9223372036854775807.6];
+    int[]|error a2e = a1.cloneWithType(IntArray);
+    assert(a2e is error, true);
+    err = <error>a2e;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal[]' value cannot be converted to 'int[]'");
+
+    decimal a2 = 0.0 / 0;
+    int|error nan = a2.cloneWithType(int);
+    assert(nan is error, true);
+    err = <error>nan;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina}NumberConversionError");
+    assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
@@ -862,6 +934,39 @@ function testCloneWithTypeWithImmutableTypes() {
    assert(anyDataArray[0], 3);
    assert(anyDataArray[1], 4);
    assert(anyDataArray[2], "foo");
+}
+
+type Person3 record {|
+    string name = "abc";
+    int id;
+|};
+
+type Person4 record {|
+    readonly int id;
+|};
+
+function testCloneWithTypeImmutableStructuredTypes() {
+    map<Person4> m = {a: {id: 11}};
+    map<Person3 & readonly> & readonly personMap = checkpanic m.cloneWithType();
+    Person3 person1 = <Person3>personMap["a"];
+    assert(person1.id, 11);
+
+    Person4[] m1 = [{id: 12}];
+    (Person3 & readonly)[] arr = checkpanic m1.cloneWithType();
+    Person3 person2 = arr[0];
+    assert(person2.id, 12);
+
+    table<Person4> m2 = table [{id: 13}];
+    table<Person3 & readonly> tab = checkpanic m2.cloneWithType();
+    record {| Person3 & readonly value; |} p = <record {| Person3 & readonly value; |}>tab.iterator().next();
+    Person3 person3 = p["value"];
+    assert(person3.id, 13);
+
+    table<Person4> key(id) m3 = table [{id: 14}];
+    table<Person3 & readonly>  key(id) tab2 = checkpanic m3.cloneWithType();
+    record {| Person3 & readonly value; |} p2 = <record {| Person3 & readonly value; |}>tab2.iterator().next();
+    Person3 person4 = p2["value"];
+    assert(person4.id, 14);
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
@@ -1120,6 +1225,17 @@ function testFromJsonWithTypeWithInferredArgument() {
     assert(s is error, true);
 }
 
+type FooBar [StringType...];
+type StringType string;
+
+public function testFromJsonWithTypeWithTypeReferences() {
+   json j = ["foo"];
+   FooBar f = checkpanic j.fromJsonWithType();
+   assert(f is FooBar, true);
+   assert(f is [string...], true);
+   assert(f.toString(), "foo");
+ }
+
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
 function testFromJsonStringWithTypeJson() {
@@ -1144,7 +1260,7 @@ function testFromJsonStringWithTypeJson() {
     assert(result["aNull"] is (), true);
 
     json aStringJson = <json> checkpanic result["aString"];
-    assert(aStringJson.toJsonString(), "aString");
+    assert(aStringJson.toJsonString(), "\"aString\"");
 
     json anArrayJson = <json> checkpanic result["anArray"];
     assert(anArrayJson.toJsonString(), "[\"hello\", \"world\"]");
@@ -1687,4 +1803,17 @@ function testXMLWithAngleBrackets() {
         return;
     }
     panic error("AssertionError : expected: " + expected + " found: " + exy.toString());
+}
+
+public type KeyVals record {|
+    anydata ...;
+|};
+
+function foo(*KeyVals kvPairs) returns string {
+    return kvPairs.toString();
+}
+
+public function testDestructuredNamedArgs() returns any {
+   string actual =  foo(message = "This is a sample message", a = "foo", b = "bar", c = 100);
+   assertEquality("{\"message\":\"This is a sample message\",\"a\":\"foo\",\"b\":\"bar\",\"c\":100}", actual);
 }

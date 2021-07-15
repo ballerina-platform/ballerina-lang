@@ -59,6 +59,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.PatternConstants;
@@ -79,7 +80,6 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -89,7 +89,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -99,6 +98,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -124,8 +124,6 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD
  */
 public class CommonUtil {
 
-    private static final Path TEMP_DIR = Paths.get(System.getProperty("java.io.tmpdir"));
-
     public static final String MD_LINE_SEPARATOR = "  " + System.lineSeparator();
 
     public static final String LINE_SEPARATOR = System.lineSeparator();
@@ -136,6 +134,8 @@ public class CommonUtil {
 
     public static final String BALLERINA_HOME;
 
+    public static final boolean COMPILE_OFFLINE;
+
     public static final String BALLERINA_CMD;
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
@@ -143,8 +143,6 @@ public class CommonUtil {
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
     public static final String SDK_VERSION = System.getProperty("ballerina.version");
-
-    public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
@@ -156,6 +154,8 @@ public class CommonUtil {
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
+        String onlineCompilation = System.getProperty("ls.compilation.online");
+        COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
         BALLERINA_KEYWORDS = getBallerinaKeywords();
@@ -197,12 +197,9 @@ public class CommonUtil {
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName,
                                                         DocumentServiceContext context) {
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
-        Position start = new Position(0, 0);
-        if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
-            int endLine = last.lineRange().endLine().line();
-            start = new Position(endLine, 0);
-        }
+        Optional<ImportDeclarationNode> last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
+        int endLine = last.map(node -> node.lineRange().endLine().line()).orElse(0);
+        Position start = new Position(endLine, 0);
         String importStatement = ItemResolverConstants.IMPORT + " "
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName + SEMI_COLON_SYMBOL_KEY
@@ -225,12 +222,10 @@ public class CommonUtil {
     public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
                                                         DocumentServiceContext context) {
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
-        Position start = new Position(0, 0);
-        if (currentDocImports != null && !currentDocImports.isEmpty()) {
-            ImportDeclarationNode last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
-            int endLine = last.lineRange().endLine().line();
-            start = new Position(endLine, 0);
-        }
+        Optional<ImportDeclarationNode> last = CommonUtil.getLastItem(new ArrayList<>(currentDocImports.keySet()));
+        int endLine = last.map(node -> node.lineRange().endLine().line()).orElse(0);
+        Position start = new Position(endLine, 0);
+
         StringBuilder builder = new StringBuilder(ItemResolverConstants.IMPORT + " "
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName);
@@ -318,16 +313,20 @@ public class CommonUtil {
             case INTERSECTION:
                 TypeSymbol effectiveType = ((IntersectionTypeSymbol) rawType).effectiveTypeDescriptor();
                 effectiveType = getRawType(effectiveType);
-                typeString = "()";
-                // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
-                // further checks here.
-                // Get the member type from intersection which is not readonly and get its default value
-                Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
-                        .memberTypeDescriptors().stream()
-                        .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
-                        .findAny();
-                if (memberType.isPresent()) {
-                    typeString = getDefaultValueForType(memberType.get());
+                if (effectiveType.typeKind() == TypeDescKind.INTERSECTION) {
+                    // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
+                    // further checks here. Get the member type from intersection which is not readonly and get its 
+                    // default value
+                    typeString = "()";
+                    Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
+                            .memberTypeDescriptors().stream()
+                            .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
+                            .findAny();
+                    if (memberType.isPresent()) {
+                        typeString = getDefaultValueForType(memberType.get());
+                    }
+                } else {
+                    typeString = getDefaultValueForType(effectiveType);
                 }
                 break;
             case TABLE:
@@ -375,24 +374,34 @@ public class CommonUtil {
      *
      * @param context Language server operation context
      * @param fields  Map of field descriptors
-     * @return {@link List}     List of completion items for the struct fields
+     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
+     * @return {@link List} List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
-                                                                       Map<String, RecordFieldSymbol> fields) {
+                                                                       Map<String, RecordFieldSymbol> fields,
+                                                                       Pair<TypeSymbol, TypeSymbol> symbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
             fieldCounter.getAndIncrement();
             String insertText =
                     getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
+
+            String detail;
+            if (symbol.getLeft().getName().isPresent()) {
+                detail = getModifiedTypeName(context, symbol.getLeft()) + "." + name;
+            } else if (symbol.getRight().getName().isPresent()) {
+                detail = getModifiedTypeName(context, symbol.getRight()) + "." + name;
+            } else {
+                detail = "(" + symbol.getLeft().signature() + ")." + name;
+            }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
             fieldItem.setLabel(name);
-            fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem));
+            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem, detail));
         });
 
         return completionItems;
@@ -402,49 +411,60 @@ public class CommonUtil {
      * Get the completion item to fill all the struct fields.
      *
      * @param context Language Server Operation Context
-     * @param fields  Map of fields
+     * @param fields  A non empty map of fields
+     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              Map<String, RecordFieldSymbol> fields) {
+                                                              Map<String, RecordFieldSymbol> fields,
+                                                              Pair<TypeSymbol, TypeSymbol> symbol) {
+
         List<String> fieldEntries = new ArrayList<>();
 
-        for (Map.Entry<String, RecordFieldSymbol> fieldSymbolEntry : fields.entrySet()) {
-            String defaultFieldEntry = fieldSymbolEntry.getKey()
-                    + PKG_DELIMITER_KEYWORD + " "
-                    + getDefaultValueForType(fieldSymbolEntry.getValue().typeDescriptor());
-            fieldEntries.add(defaultFieldEntry);
+        Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
+        for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+            if (!entry.getValue().isOptional()) {
+                requiredFields.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        String label;
+        String detail;
+        if (symbol.getLeft().getName().isPresent()) {
+            detail = getModifiedTypeName(context, symbol.getLeft());
+        } else if (symbol.getRight().getName().isPresent()) {
+            detail = getModifiedTypeName(context, symbol.getRight());
+        } else {
+            detail = symbol.getLeft().signature();
+        }
+        if (!requiredFields.isEmpty()) {
+            label = "Fill " + detail + " Required Fields";
+            for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                fieldEntries.add(fieldEntry);
+            }
+        } else {
+            label = "Fill " + detail + " Optional Fields";
+            for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                fieldEntries.add(fieldEntry);
+            }
         }
 
         String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-        String label = "Add All Attributes";
-
         CompletionItem completionItem = new CompletionItem();
+        completionItem.setFilterText("fill");
         completionItem.setLabel(label);
         completionItem.setInsertText(insertText);
-        completionItem.setDetail(ItemResolverConstants.NONE);
+        completionItem.setDetail(detail);
         completionItem.setKind(CompletionItemKind.Property);
         completionItem.setSortText(Priority.PRIORITY110.toString());
 
         return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER);
-    }
-
-    /**
-     * Get the completion Item for the error type.
-     *
-     * @param context LS Operation context
-     * @return {@link LSCompletionItem} generated for error type
-     */
-    @Deprecated
-    public static LSCompletionItem getErrorTypeCompletionItem(BallerinaCompletionContext context) {
-        CompletionItem errorTypeCItem = new CompletionItem();
-        errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
-        errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
-        errorTypeCItem.setDetail(ItemResolverConstants.ERROR);
-        errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        errorTypeCItem.setKind(CompletionItemKind.Event);
-
-        return new StaticCompletionItem(context, errorTypeCItem, StaticCompletionItem.Kind.TYPE);
     }
 
     /**
@@ -464,13 +484,13 @@ public class CommonUtil {
 
         ModuleSymbol moduleSymbol = module.get();
         for (TypeDefinitionSymbol typeDefinitionSymbol : moduleSymbol.typeDefinitions()) {
-            if (typeDefinitionSymbol.getName().get().equals(typeName)) {
+            if (typeDefinitionSymbol.getName().isPresent() && typeDefinitionSymbol.getName().get().equals(typeName)) {
                 return Optional.of(typeDefinitionSymbol.typeDescriptor());
             }
         }
 
         for (ClassSymbol clazz : moduleSymbol.classes()) {
-            if (clazz.getName().get().equals(typeName)) {
+            if (clazz.getName().isPresent() && clazz.getName().get().equals(typeName)) {
                 return Optional.of(clazz);
             }
         }
@@ -503,8 +523,8 @@ public class CommonUtil {
      * @param <T>  List content Type
      * @return Extracted last Item
      */
-    public static <T> T getLastItem(List<T> list) {
-        return (list.size() == 0) ? null : list.get(list.size() - 1);
+    public static <T> Optional<T> getLastItem(List<T> list) {
+        return (list.size() == 0) ? Optional.empty() : Optional.of(list.get(list.size() - 1));
     }
 
     /**
@@ -519,16 +539,6 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether the source is a test source.
-     *
-     * @param relativeFilePath source path relative to the package
-     * @return {@link Boolean}  Whether a test source or not
-     */
-    public static boolean isTestSource(String relativeFilePath) {
-        return relativeFilePath.startsWith("tests" + FILE_SEPARATOR);
-    }
-
-    /**
      * Get the package name components combined.
      *
      * @param importNode {@link ImportDeclarationNode}
@@ -538,18 +548,6 @@ public class CommonUtil {
         return importNode.moduleName().stream()
                 .map(Token::text)
                 .collect(Collectors.joining("."));
-    }
-
-    public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
-        List<String> symbolNameComponents = Arrays.asList(bSymbol.getName().getValue().split("\\."));
-        String symbolName = CommonUtil.getLastItem(symbolNameComponents);
-
-        return symbolName != null && (symbolName.contains(CommonKeys.LT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.GT_SYMBOL_KEY)
-                || symbolName.contains(CommonKeys.DOLLAR_SYMBOL_KEY)
-                || symbolName.equals("main")
-                || symbolName.endsWith(".new")
-                || symbolName.startsWith("0"));
     }
 
     /**
@@ -928,21 +926,6 @@ public class CommonUtil {
     }
 
     /**
-     * Check whether the file is a cached file entry.
-     *
-     * @param fileUri file URI to evaluate
-     * @return whether the file is a cached entry or not
-     */
-    public static boolean isCachedExternalSource(String fileUri) {
-        try {
-            Path path = Paths.get(new URI(fileUri));
-            return path.toAbsolutePath().toString().startsWith(LS_STDLIB_CACHE_DIR.toAbsolutePath().toString());
-        } catch (URISyntaxException e) {
-            return false;
-        }
-    }
-
-    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -973,8 +956,8 @@ public class CommonUtil {
         TextDocument textDocument = syntaxTree.textDocument();
         LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
-        int len = symbolRange.endLine().offset() - symbolRange.startLine().offset();
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, len), true);
+        int end = textDocument.textPositionFrom(symbolRange.endLine());
+        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
     }
 
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
@@ -1034,8 +1017,14 @@ public class CommonUtil {
         if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
             return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
         }
-        return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
-                ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
+            }
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 
     /**
@@ -1285,21 +1274,17 @@ public class CommonUtil {
     /**
      * Check if the symbol is a class symbol with self as the name.
      *
-     * @param symbol  Symbol
-     * @param context PositionedOperationContext
+     * @param symbol               Symbol
+     * @param context              PositionedOperationContext
      * @param enclosedModuleMember ModuleMemberDeclarationNode
      * @return {@link Boolean} whether the symbol is a self class symbol.
      */
     public static boolean isSelfClassSymbol(Symbol symbol, PositionedOperationContext context,
-                                            ModuleMemberDeclarationNode enclosedModuleMember) {
-
+                                            @Nonnull ModuleMemberDeclarationNode enclosedModuleMember) {
         Optional<String> name = symbol.getName();
-
-        if (enclosedModuleMember != null) {
-            if (enclosedModuleMember.kind() != SyntaxKind.CLASS_DEFINITION || symbol.kind() != SymbolKind.VARIABLE
-                    || name.isEmpty() || !name.get().equals(SELF_KW)) {
-                return false;
-            }
+        if (enclosedModuleMember.kind() != SyntaxKind.CLASS_DEFINITION || symbol.kind() != SymbolKind.VARIABLE
+                || name.isEmpty() || !name.get().equals(SELF_KW)) {
+            return false;
         }
 
         Optional<Symbol> memberSymbol = context.workspace().semanticModel(context.filePath())
@@ -1315,7 +1300,7 @@ public class CommonUtil {
         return classSymbol.equals(varTypeSymbol);
     }
 
-   /**
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
@@ -1331,5 +1316,18 @@ public class CommonUtil {
         }
         while (evalNode != null);
         return false;
+    }
+
+    /**
+     * Get the common predicate to filter the types.
+     *
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> typesFilter() {
+        // Specifically remove the error type, since this is covered with langlib suggestion and type builtin types
+        return symbol -> (symbol.kind() == SymbolKind.TYPE_DEFINITION ||
+                symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
+                || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
+                && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
     }
 }

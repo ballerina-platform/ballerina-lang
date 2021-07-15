@@ -32,6 +32,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -186,6 +187,19 @@ public class FunctionsWithDefaultableArguments {
         bValueArray = (BValueArray) returns[1];
         Assert.assertEquals(bValueArray.getRefValue(0).stringValue(), "given");
         Assert.assertEquals(((BInteger) bValueArray.getRefValue(1)).intValue(), 200);
+    }
+
+    @Test(dataProvider = "functionsWithDefaultByteValues")
+    public void testFuncWithDefaultByteParamValues(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsWithDefaultByteValues() {
+        return new String[] {
+                "testFuncWithDefaultByteValue",
+                "testDefaultByteValueInFunctionPointers"
+        };
     }
 
     @Test

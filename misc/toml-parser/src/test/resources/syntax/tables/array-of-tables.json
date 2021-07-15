@@ -882,6 +882,802 @@
               ]
             }
           ]
+        },
+        {
+          "kind": "TABLE_ARRAY",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "fruits"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "apple"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "fruits"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "physical"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": "  "
+                },
+                {
+                  "kind": "COMMENT_MINUTIAE",
+                  "value": "# subtable"
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "color",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "red"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "shape",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "round"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE_ARRAY",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "fruits"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "varieties"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": "  "
+                },
+                {
+                  "kind": "COMMENT_MINUTIAE",
+                  "value": "# nested array of tables"
+                },
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "red delicious"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE_ARRAY",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "fruits"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "varieties"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "granny smith"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE_ARRAY",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "fruits"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "banana"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "TABLE_ARRAY",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "KEY",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "fruits"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "IDENTIFIER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "varieties"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "KEY_VALUE",
+                  "children": [
+                    {
+                      "kind": "KEY",
+                      "children": [
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "value": "name",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "EQUAL_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN"
+                        },
+                        {
+                          "kind": "IDENTIFIER_LITERAL",
+                          "value": "plantain"
+                        },
+                        {
+                          "kind": "DOUBLE_QUOTE_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },

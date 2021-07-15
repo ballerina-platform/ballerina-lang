@@ -6,17 +6,17 @@
   "source": "module_var_context/source/source8.bal",
   "items": [
     {
-      "label": "TestClass1(int field1, int field2)",
+      "label": "Listener(int port)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
         }
       },
       "sortText": "C",
-      "insertText": "TestClass1(${1})",
+      "insertText": "Listener(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -26,7 +26,7 @@
     {
       "label": "Client(string url)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -44,23 +44,22 @@
     {
       "label": "Response()",
       "kind": "Function",
-      "detail": "Function",
       "sortText": "C",
       "insertText": "Response()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener(int port)",
+      "label": "TestClass1(int field1, int field2)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
         }
       },
       "sortText": "C",
-      "insertText": "Listener(${1})",
+      "insertText": "TestClass1(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

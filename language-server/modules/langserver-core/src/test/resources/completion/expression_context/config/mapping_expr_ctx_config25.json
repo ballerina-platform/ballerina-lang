@@ -9,14 +9,15 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "name",
       "kind": "Field",
-      "detail": "record {| string first; string last; anydata...; |} & readonly",
+      "detail": "(record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}).name",
       "sortText": "G",
       "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
@@ -24,16 +25,17 @@
     {
       "label": "salary",
       "kind": "Field",
-      "detail": "int",
+      "detail": "(record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}).salary",
       "sortText": "G",
       "insertText": "salary: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "Fill record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |} Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
+      "detail": "record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}",
+      "sortText": "R",
+      "filterText": "fill",
       "insertText": "name: {first: \"\", last: \"\"},\nsalary: 0",
       "insertTextFormat": "Snippet"
     }

@@ -62,29 +62,38 @@ public class BuildProject extends Project {
         return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
     }
 
-    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
-                                    BuildOptions buildOptions) {
-        PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
-        BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, buildOptions);
-        buildProject.addPackage(packageConfig);
-        return buildProject;
-    }
-
     /**
      * Loads a BuildProject from the provided path.
      *
      * @param projectPath Ballerina project path
-     * @return build project
+     * @return BuildProject instance
      */
     public static BuildProject load(Path projectPath) {
         return load(projectPath, new BuildOptionsBuilder().build());
     }
 
+    /**
+     * Loads a BuildProject from provided path and build options.
+     *
+     * @param projectPath  Ballerina project path
+     * @param buildOptions build options
+     * @return BuildProject instance
+     */
     public static BuildProject load(Path projectPath, BuildOptions buildOptions) {
-        // todo this is an ugly hack to get the offline build working we need to refactor this later
-        System.setProperty(ProjectConstants.BALLERINA_OFFLINE_FLAG, String.valueOf(buildOptions.offlineBuild()));
-
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        return load(environmentBuilder, projectPath, buildOptions);
+    }
+
+    /**
+     * Loads a BuildProject from provided environment builder, path, build options.
+     *
+     * @param environmentBuilder custom environment builder
+     * @param projectPath Ballerina project path
+     * @param buildOptions build options
+     * @return BuildProject instance
+     */
+    public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath,
+                                    BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createBuildProjectConfig(projectPath);
         BuildOptions mergedBuildOptions = ProjectFiles.createBuildOptions(packageConfig, buildOptions, projectPath);
         BuildProject buildProject = new BuildProject(environmentBuilder, projectPath, mergedBuildOptions);

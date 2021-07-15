@@ -33,33 +33,38 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.ConditionalExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.FieldAccessExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.IndexedExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.MethodCallExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.OptionalFieldAccessExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.StringTemplateEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.TypeCastExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.TypeOfExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.TypeTestExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.UnaryExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.XMLTemplateEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.action.RemoteMethodCallActionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.BasicLiteralEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.BinaryExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.FieldAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.RangeExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.SimpleNameReferenceEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.StringTemplateEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.TrapExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeCastExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeOfExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeTestExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.UnaryExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLTemplateEvaluator;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -100,19 +105,19 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Unary expression
  * <li> Type test expression
  * <li> Type cast expression
+ * <li> Trap expression
+ * <li> Range expression
+ * <li> XML attribute access expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
  * <li> New expression
- * <li> XML attribute access expression
  * <li> Annotation access expression
  * <li> Error constructor
  * <li> Anonymous function expression
  * <li> Let expression
- * <li> Range expression
  * <li> Checking expression
- * <li> Trap expression
  * <li> Query expression
  * <li> XML navigation expression
  * </ul>
@@ -169,7 +174,15 @@ public class EvaluatorBuilder extends NodeVisitor {
         Evaluator lhsEvaluator = result;
         binaryExpressionNode.rhsExpr().accept(this);
         Evaluator rhsEvaluator = result;
-        result = new BinaryExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
+
+        switch (binaryExpressionNode.operator().kind()) {
+            case ELLIPSIS_TOKEN:
+            case DOUBLE_DOT_LT_TOKEN:
+                result = new RangeExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
+                return;
+            default:
+                result = new BinaryExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
+        }
     }
 
     @Override
@@ -259,7 +272,7 @@ public class EvaluatorBuilder extends NodeVisitor {
             // Todo - should we disable GC like intellij expression evaluator does?
             keyEvaluators.add(result);
         }
-        result = new IndexedExpressionEvaluator(context, indexedExpressionNode, containerEvaluator, keyEvaluators);
+        result = new MemberAccessExpressionEvaluator(context, indexedExpressionNode, containerEvaluator, keyEvaluators);
     }
 
     @Override
@@ -326,11 +339,32 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(TrapExpressionNode trapExpressionNode) {
+        visitSyntaxNode(trapExpressionNode);
+        trapExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new TrapExpressionEvaluator(context, trapExpressionNode, exprEvaluator);
+    }
+
+    @Override
     public void visit(UnaryExpressionNode unaryExpressionNode) {
         visitSyntaxNode(unaryExpressionNode);
         unaryExpressionNode.expression().accept(this);
         Evaluator subExprEvaluator = result;
         result = new UnaryExpressionEvaluator(context, unaryExpressionNode, subExprEvaluator);
+    }
+
+    public void visit(RemoteMethodCallActionNode methodCallActionNode) {
+        visitSyntaxNode(methodCallActionNode);
+        try {
+            // visits object expression.
+            methodCallActionNode.expression().accept(this);
+            Evaluator expression = result;
+            List<Map.Entry<String, Evaluator>> argEvaluators = processArgs(methodCallActionNode.arguments());
+            result = new RemoteMethodCallActionEvaluator(context, methodCallActionNode, expression, argEvaluators);
+        } catch (EvaluationException e) {
+            builderException = e;
+        }
     }
 
     @Override
@@ -371,6 +405,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void prepareForEvaluation() {
+        // Adds expression syntax.
         addLiteralExpressionSyntax();
         addStringTemplateExpressionSyntax();
         addXmlTemplateExpressionSyntax();
@@ -404,6 +439,9 @@ public class EvaluatorBuilder extends NodeVisitor {
         addQueryExpressionSyntax();
         addXmlNavigationExpressionSyntax();
         addMiscellaneousSyntax();
+
+        // Adds action syntax.
+        addRemoteMethodCallActionSyntax();
     }
 
     private void addLiteralExpressionSyntax() {
@@ -524,7 +562,6 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addRangeExpressionSyntax() {
-        // Todo
     }
 
     private void addNumericalComparisonExpressionSyntax() {
@@ -565,7 +602,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addTrapExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.TRAP_EXPRESSION);
     }
 
     private void addQueryExpressionSyntax() {
@@ -574,6 +611,10 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     private void addXmlNavigationExpressionSyntax() {
         // Todo
+    }
+
+    private void addRemoteMethodCallActionSyntax() {
+        supportedSyntax.add(SyntaxKind.REMOTE_METHOD_CALL_ACTION);
     }
 
     private void addMiscellaneousSyntax() {
@@ -601,8 +642,8 @@ public class EvaluatorBuilder extends NodeVisitor {
         for (FunctionArgumentNode argExprNode : args) {
             argExprNode.accept(this);
             if (result == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
-                        .getString(), argExprNode.toString()));
+                throw new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT.getString(),
+                        argExprNode));
             }
 
             switch (argExprNode.kind()) {
@@ -618,7 +659,7 @@ public class EvaluatorBuilder extends NodeVisitor {
                     break;
                 default:
                     builderException = new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
-                            .getString(), argExprNode.toString()));
+                            .getString(), argExprNode));
                     break;
             }
         }

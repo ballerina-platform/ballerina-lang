@@ -237,7 +237,7 @@ public class PushCommandTest extends BaseCommandTest {
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
-        String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported";
+        String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported.";
         Assert.assertTrue(readOutput().contains(errMsg));
     }
 }

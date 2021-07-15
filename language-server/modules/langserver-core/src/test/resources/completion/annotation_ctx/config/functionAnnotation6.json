@@ -9,32 +9,34 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "foo",
-      "kind": "Field",
-      "detail": "string",
-      "sortText": "G",
-      "insertText": "foo: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "bar",
       "kind": "Field",
-      "detail": "int",
+      "detail": "module1:AnnotationType.bar",
       "sortText": "G",
-      "insertText": "bar: ${2:0}",
+      "insertText": "bar: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "foo",
+      "kind": "Field",
+      "detail": "module1:AnnotationType.foo",
+      "sortText": "G",
+      "insertText": "foo: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill module1:AnnotationType Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
-      "insertText": "foo: \"\",\nbar: 0",
+      "detail": "module1:AnnotationType",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "foo: \"\"",
       "insertTextFormat": "Snippet"
     }
   ]
