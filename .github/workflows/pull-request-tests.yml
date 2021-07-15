@@ -1,0 +1,52 @@
+name: Pull Request Tests (Without Integration Tests)
+
+on: pull_request
+
+jobs:
+    ubuntu-tests:
+        name: Tests on Ubuntu
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v2
+
+            -   name: Setup JDK
+                uses: actions/setup-java@v2
+                with:
+                    distribution: 'adopt'
+                    java-version: 8
+
+            -   name: Setup Node
+                uses: actions/setup-node@v2
+                with:
+                    node-version: '8.9'
+
+            -   name: Build Ballerina Lang
+                run: |
+                    git submodule init
+                    git submodule update
+                    ./gradlew build -x :jballerina-integration-test:test -x :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+
+    windows-build:
+        name: Tests on Windows
+        runs-on: windows-latest
+        steps:
+            -   name: Checkout Repository
+                uses: actions/checkout@v2
+
+            -   name: Setup JDK
+                uses: actions/setup-java@v2
+                with:
+                    distribution: 'adopt'
+                    java-version: 8
+
+            -   name: Setup Node
+                uses: actions/setup-node@v2
+                with:
+                    node-version: '8.9'
+
+            -   name: Build Ballerina Lang
+                run: |
+                    git submodule init
+                    git submodule update
+                    ./gradlew.bat build -Dorg.gradle.parallel=false -x :ballerina-packerina:test -x :ballerina-lang:test -x :ballerina-file:test -x :ballerina-socket:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :plugin-vscode:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon

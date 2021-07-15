@@ -22,7 +22,10 @@ jobs:
                   node-version: '8.9'
 
             - name: Build Ballerina Lang
-              run: ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+              run: |
+                  git submodule init
+                  git submodule update
+                  ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
 
     windows-build:
         name: Build on Windows without Tests
