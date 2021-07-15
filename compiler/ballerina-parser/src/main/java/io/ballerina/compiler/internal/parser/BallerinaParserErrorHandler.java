@@ -5771,8 +5771,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.IS_KEYWORD;
             case TYPEOF_KEYWORD:
                 return SyntaxKind.TYPEOF_KEYWORD;
-            case TYPEOF_EXPRESSION:
-                return SyntaxKind.TYPEOF_KEYWORD;
             case MAP_KEYWORD:
             case MAP_TYPE_DESCRIPTOR:
                 return SyntaxKind.MAP_KEYWORD;

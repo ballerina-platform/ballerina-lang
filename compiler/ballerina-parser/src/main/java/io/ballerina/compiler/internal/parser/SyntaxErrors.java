@@ -104,6 +104,14 @@ public class SyntaxErrors {
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
             case IDENT_AFTER_OBJECT_IDENT:
+            case FUNC_DEF_OR_TYPE_FIRST_QUALIFIER:
+            case FUNC_DEF_OR_TYPE_SECOND_QUALIFIER:
+            case FUNC_TYPE_FIRST_QUALIFIER:
+            case FUNC_TYPE_SECOND_QUALIFIER:
+            case OBJECT_METHOD_FIRST_QUALIFIER:
+            case OBJECT_METHOD_SECOND_QUALIFIER:
+            case OBJECT_METHOD_THIRD_QUALIFIER:
+            case OBJECT_METHOD_FOURTH_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case IMPORT_SUB_VERSION:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
@@ -121,6 +129,8 @@ public class SyntaxErrors {
             case ARRAY_TYPE_DESCRIPTOR:
             case SIMPLE_TYPE_DESC_IDENTIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
+            case TYPE_REFERENCE:
+                return DiagnosticErrorCode.ERROR_MISSING_TYPE_REFERENCE;
             case TYPE_NAME:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case FIELD_ACCESS_IDENTIFIER:
@@ -162,6 +172,10 @@ public class SyntaxErrors {
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
             case NAMED_ARG_BINDING_PATTERN:
+            case MODULE_VAR_FIRST_QUAL:
+            case MODULE_VAR_SECOND_QUAL:
+            case MODULE_VAR_THIRD_QUAL:
+            case OBJECT_MEMBER_VISIBILITY_QUAL:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -190,8 +204,6 @@ public class SyntaxErrors {
             case XML_COMMENT_CONTENT:
             case XML_PI_DATA:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_TEXT_CONTENT;
-            case CLASS_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
             default:
                 return getSeperatorTokenErrorCode(currentCtx);
         }
@@ -267,6 +279,7 @@ public class SyntaxErrors {
             case XML_START_OR_EMPTY_TAG:
             case XML_END_TAG:
             case INFERRED_TYPEDESC_DEFAULT_START_LT:
+            case STREAM_TYPE_PARAM_START_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_LT_TOKEN;
             case SYNC_SEND_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_SYNC_SEND_TOKEN;
@@ -336,6 +349,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_LISTENER_KEYWORD;
             case SERVICE_KEYWORD:
             case SERVICE_IDENT:
+            case SERVICE_DECL_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_SERVICE_KEYWORD;
             case XMLNS_KEYWORD:
             case XML_NAMESPACE_DECLARATION:
@@ -351,6 +365,10 @@ public class SyntaxErrors {
             case OBJECT_KEYWORD:
             case OBJECT_IDENT:
             case OBJECT_TYPE_DESCRIPTOR:
+            case FIRST_OBJECT_CONS_QUALIFIER:
+            case SECOND_OBJECT_CONS_QUALIFIER:
+            case FIRST_OBJECT_TYPE_QUALIFIER:
+            case SECOND_OBJECT_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
@@ -489,8 +507,13 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_READONLY_KEYWORD;
             case DISTINCT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DISTINCT_KEYWORD;
+            case CLASS_KEYWORD:
+            case FIRST_CLASS_TYPE_QUALIFIER:
+            case SECOND_CLASS_TYPE_QUALIFIER:
+            case THIRD_CLASS_TYPE_QUALIFIER:
+            case FOURTH_CLASS_TYPE_QUALIFIER:
+                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
             default:
-                assert false : "Error code not defined";
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }

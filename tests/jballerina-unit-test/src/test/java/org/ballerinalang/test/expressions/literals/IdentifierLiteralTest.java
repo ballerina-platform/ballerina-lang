@@ -169,7 +169,7 @@ public class IdentifierLiteralTest {
         Assert.assertEquals(resultNeg.getErrorCount(), 12);
         BAssertUtil.validateError(resultNeg, 0, "'_' is a keyword, and may not be used as an identifier", 18, 12);
         BAssertUtil.validateError(resultNeg, 1, "missing semicolon token", 18, 14);
-        BAssertUtil.validateError(resultNeg, 2, "missing type desc", 18, 14);
+        BAssertUtil.validateError(resultNeg, 2, "missing type descriptor", 18, 14);
         BAssertUtil.validateError(resultNeg, 3, "unsupported intersection '$missingNode$_1 & *%_var = '", 18, 14);
         BAssertUtil.validateError(resultNeg, 4, "missing equal token", 18, 33);
         BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'value'", 18, 33);
