@@ -52,7 +52,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 
@@ -114,7 +116,7 @@ public class ModuleGen {
                 false, 0);
         FiniteType breakStmt = TypeCreator.createFiniteType("BreakStmt");
         FiniteType continueStmt = TypeCreator.createFiniteType("ContinueStmt");
-        return TypeCreator.createUnionType(whileStmt, returnStmt, breakStmt, continueStmt);
+        return TypeCreator.createUnionType(returnStmt, breakStmt, continueStmt);
     }
 
     private static UnionType getDefTyp() {
@@ -140,8 +142,13 @@ public class ModuleGen {
     }
 
     private static UnionType getTypeDescTyp() {
-
-        FiniteType builtInTypeDesc = TypeCreator.createFiniteType("BuiltInTypeDesc");
+        LinkedHashSet typeSet = new LinkedHashSet();
+        typeSet.addAll(Arrays.asList(new BmpStringValue("any"), new BmpStringValue("boolean"),
+                new BmpStringValue("decimal"), new BmpStringValue("error"), new BmpStringValue("float"),
+                new BmpStringValue("handle"), new BmpStringValue("int"), new BmpStringValue("json"),
+                new BmpStringValue("never"), new BmpStringValue("readonly"), new BmpStringValue("string"),
+                new BmpStringValue("typedesc"), new BmpStringValue("xml"), new BmpStringValue("()")));
+        FiniteType builtInTypeDesc = TypeCreator.createFiniteType("BuiltInTypeDesc", typeSet, 6);
         FiniteType builtinIntSubtypeDesc = TypeCreator.createFiniteType("BuiltinIntSubtypeDesc");
         UnionType leafTypeDesc = TypeCreator.createUnionType(builtInTypeDesc, builtinIntSubtypeDesc);
 
@@ -181,7 +188,9 @@ public class ModuleGen {
         astPkg.functions.forEach(astFunc -> defs.append(astFunc.accept(this)));
 
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("importDecl", imps.get(0));
+        if (imps.size() > 0) {
+            mapInitialValueEntries.put("importDecl", imps.get(0));
+        }
         mapInitialValueEntries.put("defs", defs);
         return ValueCreator.createRecordValue(modFront, "ModulePart", mapInitialValueEntries);
     }
@@ -200,7 +209,7 @@ public class ModuleGen {
         //BMap<BString, Object> pos = ValueCreator.createReadonlyRecordValue(modErr, "Position", mapPosValues);
         ArrayType typDescArrTyp = TypeCreator.createArrayType(typeDescTyp);
         BArray args = ValueCreator.createArrayValue(typDescArrTyp);
-        args.append((Object) new BmpStringValue("boolean"));
+        args.append(new BmpStringValue("boolean"));
 
         Map<String, Object> funcTypeDefMap = new HashMap<>();
         funcTypeDefMap.put("args", args);
@@ -215,6 +224,10 @@ public class ModuleGen {
         mapInitialValueEntries.put("typeDesc", td);
         //mapInitialValueEntries.put("pos", pos);
         return ValueCreator.createRecordValue(modFront, "FunctionDef", mapInitialValueEntries);
+    }
+
+    public Object tempTypeGen() {
+        return new BmpStringValue("boolean");
     }
     
     public Object visit(BLangExpressionStmt exprStmtNode) {

@@ -1,6 +1,8 @@
 package org.wso2.ballerinalang.compiler.nballerina;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
+import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
@@ -83,7 +85,9 @@ public class NBallerinaCaller {
             Method configMethod = config.getMethod("$configureInit", String[].class,
                     Path[].class, String.class, String.class);
 
-            configMethod.invoke(null, new String[]{}, new Path[0], null, null);
+            TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
+            configMethod.invoke(null, new String[]{}, configurationDetails.paths,
+                    configurationDetails.secret, configurationDetails.configContent);
 
             Object bir = modGenerator.genMod(pkgNode);
 
