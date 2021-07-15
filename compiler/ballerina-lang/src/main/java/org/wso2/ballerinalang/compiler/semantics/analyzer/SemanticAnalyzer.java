@@ -883,8 +883,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isSupportedConfigType(BType type, List<String> errors, String varName,
-                                          Set<BType> unresolvedTypes) {
+    private boolean isSupportedConfigType(BType type, List<String> errors, String varName, Set<BType> unresolvedTypes) {
         if (!unresolvedTypes.add(type)) {
             return true;
         }
@@ -906,12 +905,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case RECORD:
                 BRecordType recordType = (BRecordType) type;
-                for (Field field : recordType.getFields().values()) {
-                    BType fieldType = (BType) field.getType();
-                    String fieldName = varName + "." + field.getName();
-                    if (!isSupportedConfigType(fieldType, errors, fieldName, unresolvedTypes)) {
-                        errors.add("record field type '" + fieldType + "' of field '" + fieldName + "' is not" +
-                                " supported");
+                Map<BType, List<String>> fieldTypeMap = getRecordFieldTypes(recordType);
+                for (Map.Entry<BType, List<String>> fieldTypeEntry : fieldTypeMap.entrySet()) {
+                    BType fieldType = fieldTypeEntry.getKey();
+                    String field = varName + "." + fieldTypeEntry.getValue().get(0);
+                    if (!isSupportedConfigType(fieldType, errors, field, unresolvedTypes)) {
+                        for (String fieldName : fieldTypeEntry.getValue()) {
+                            errors.add("record field type '" + fieldType + "' of field '" + varName + "." + fieldName +
+                                    "' is not supported");
+                        }
                     }
                 }
                 break;
@@ -947,6 +949,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         types.isAssignable(type, symTable.xmlType);
         }
         return true;
+    }
+
+    private Map<BType, List<String>> getRecordFieldTypes(BRecordType recordType) {
+        Map<BType, List<String>> fieldMap = new HashMap<>();
+        for (Field field : recordType.getFields().values()) {
+            BType fieldType = (BType) field.getType();
+            String fieldName = field.getName().getValue();
+            if (fieldMap.containsKey(fieldType)) {
+                fieldMap.get(fieldType).add(fieldName);
+            } else {
+                fieldMap.put(fieldType, new ArrayList<>(Arrays.asList(fieldName)));
+            }
+        }
+        return fieldMap;
     }
 
     private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
