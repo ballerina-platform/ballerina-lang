@@ -4323,7 +4323,7 @@ public class TypeChecker extends BLangNodeVisitor {
             invokableEnv.scope = funcSymbol.scope;
             symbolEnter.defineInvokableSymbolParams(bLangLambdaFunction.function, funcSymbol, invokableEnv);
             funcNode.setBType(funcSymbol.type);
-        } else if (env.enclInvokable != null || env.node.getKind() == NodeKind.ARROW_EXPR) {
+        } else if (bLangLambdaFunction.function.symbol == null) {
             symbolEnter.defineNode(bLangLambdaFunction.function, env);
         }
         bLangLambdaFunction.setBType(bLangLambdaFunction.function.getBType());
