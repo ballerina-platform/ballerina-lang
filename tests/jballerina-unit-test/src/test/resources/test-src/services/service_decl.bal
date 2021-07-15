@@ -132,7 +132,11 @@ public annotation ServiceAnnot on service;
 
 @ServiceAnnot
 service S / on lsn {
-    public string magic = "The Somebody Else's Problem field";
+    public string magic;
+
+    function init() returns error? {
+        self.magic = "The Somebody Else's Problem field";
+    }
 
     @RAnnot { val: "anot-val" }  resource function get processRequest() returns json {
         return { output: "Hello" };

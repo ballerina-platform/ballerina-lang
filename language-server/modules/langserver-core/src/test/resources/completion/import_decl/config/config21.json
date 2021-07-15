@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "retry|transaction",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,14 +249,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -265,6 +257,14 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -639,6 +639,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lsproject.hierarchy.module4",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "module4",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.hierarchy.module4;\n"
+        }
+      ]
+    },
+    {
       "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
@@ -681,29 +704,6 @@
             }
           },
           "newText": "import lsproject.module1 as module11 ;\n"
-        }
-      ]
-    },
-    {
-      "label": "lsproject.hierarchy.module4",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "module4",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.hierarchy.module4;\n"
         }
       ]
     },
