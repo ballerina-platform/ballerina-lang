@@ -60,7 +60,7 @@ public enum CompilerOptionName {
 
     LOCK_ENABLED("lockEnabled"),
 
-    EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),
+    EXPERIMENTAL("experimental"),
 
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),
 

@@ -24,7 +24,6 @@ package org.ballerinalang.langserver.completions.util;
 public class ItemResolverConstants {
 
     // Start of Basic Constructs
-    public static final String BUT = "but";
     public static final String RETURN = "return";
     public static final String RETURN_SC = "return;";
     public static final String IF = "if";
@@ -62,7 +61,7 @@ public class ItemResolverConstants {
     public static final String ROLLBACK = "rollback";
 
     public static final String FUNCTION = "function";
-    public static final String FUNCTION_SIGNATURE = "function signature";
+    public static final String FUNCTION_SIGNATURE = "function <name>();";
     public static final String MAIN_FUNCTION = "public main function";
     public static final String SERVICE_HTTP = "service/http";
     public static final String SERVICE = "service";
@@ -100,15 +99,10 @@ public class ItemResolverConstants {
     // Symbol Types Constants
     public static final String ANNOTATION_TYPE = "Annotation";
     public static final String MODULE_TYPE = "Module";
-    public static final String CONSTANT_TYPE = "Constant";
-    public static final String FUNCTION_TYPE = "Function";
     public static final String KEYWORD_TYPE = "Keyword";
     public static final String SNIPPET_TYPE = "Snippet";
     public static final String STATEMENT_TYPE = "Statement";
-    public static final String B_TYPE = "BType";
-    public static final String FIELD_TYPE = "Field";
     public static final String NONE = "none";
-    public static final String BOOLEAN_TYPE = "boolean";
     public static final String OBJECT_TYPE = "type <ObjectName> object";
     public static final String OBJECT_TYPE_DESC = "object {}";
     public static final String RECORD_TYPE = "type <RecordName> record";
@@ -120,7 +114,7 @@ public class ItemResolverConstants {
     public static final String TABLE_TYPE = "type TypeName table<>;";
     public static final String TABLE_WITH_KEY_TYPE = "type TypeName table<> key";
     public static final String STREAM_DEF = "stream<> streamName = new;";
-    public static final String REMOTE_FUNCTION_TYPE = "remote function";
+    public static final String REMOTE_FUNCTION_TYPE = "remote function <name>();";
     public static final String NEW_OBJECT_INITIALIZER_TYPE = "init function";
     public static final String ATTACH_FUNCTION_TYPE = "attach function";
     public static final String DETACH_FUNCTION_TYPE = "detach function";
@@ -150,8 +144,6 @@ public class ItemResolverConstants {
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";
     public static final String UNTAINTED_KEYWORD = "untainted";
-    public static final String TRUE_KEYWORD = "true";
-    public static final String FALSE_KEYWORD = "false";
     public static final String PUBLIC_KEYWORD = "public";
     public static final String ISOLATED_KEYWORD = "isolated";
     public static final String PRIVATE_KEYWORD = "private";

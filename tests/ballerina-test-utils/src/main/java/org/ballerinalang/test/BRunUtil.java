@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test;
 
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -121,6 +123,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1337,7 +1340,11 @@ public class BRunUtil {
                 packageManifest.name().toString(),
                 packageManifest.version().toString(),
                 MODULE_INIT_CLASS_NAME);
-        URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
+        Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
+        String classPath = "";
+        for (JarLibrary jarLibrary : jarPathRequiredForExecution) {
+            classPath = classPath + File.pathSeparator + jarLibrary.path();
+        }
 
         try {
             final List<String> actualArgs = new ArrayList<>();
@@ -1347,7 +1354,7 @@ public class BRunUtil {
                 actualArgs.add(index++, javaOpts.get(i));
             }
             actualArgs.add(index++, "-cp");
-            String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
+            classPath = System.getProperty("java.class.path") + classPath;
             actualArgs.add(index++, classPath);
             actualArgs.add(index++, initClassName);
             actualArgs.addAll(Arrays.asList(args));

@@ -43,7 +43,8 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class ModuleVariableDeclarationNodeContext extends VariableDeclarationProvider<ModuleVariableDeclarationNode> {
+public class ModuleVariableDeclarationNodeContext extends
+        NodeWithRHSInitializerProvider<ModuleVariableDeclarationNode> {
     public ModuleVariableDeclarationNodeContext() {
         super(ModuleVariableDeclarationNode.class);
     }
@@ -93,9 +94,9 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
                      List<LSCompletionItem> completionItems, Object... metaData) {
         ResolvedContext resolvedContext = (ResolvedContext) metaData[0];
         if (resolvedContext == ResolvedContext.INITIALIZER) {
-            // Calls the VariableDeclarationProvider's sorting logic to 
+            // Calls the NodeWithRHSInitializerProvider's sorting logic to 
             // make it consistent throughout the implementation
-            this.sort(context, node, completionItems);
+            super.sort(context, node, completionItems);
             return;
         }
 
