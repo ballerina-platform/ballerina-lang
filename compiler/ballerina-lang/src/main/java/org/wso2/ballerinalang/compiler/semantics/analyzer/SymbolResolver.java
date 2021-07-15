@@ -215,7 +215,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
-            if (symbol.kind == SymbolKind.CONSTANT) {
+            if (symbol.kind == SymbolKind.CONSTANT && symbol.type instanceof BFiniteType) {
                 BConstantSymbol symbolConst = (BConstantSymbol) symbol;
                 BConstantSymbol foundSymConst = (BConstantSymbol) foundSym;
                 BLangLiteral symbolTypeLiteral = (BLangLiteral) ((BFiniteType)
