@@ -139,6 +139,12 @@ public interface WorkspaceManager {
      * @throws WorkspaceDocumentException when project or document not found
      */
     void didChangeWatched(Path filePath, FileEvent fileEvent) throws WorkspaceDocumentException;
-    
-    void reloadProject(Path filePath);
+
+    /**
+     * Refresh the project corresponding to the provided file path. Can be used to reload dependencies and trigger
+     * a recompile without document modifications.
+     *
+     * @param filePath A path of a file in the project
+     */
+    void refreshProject(Path filePath) throws WorkspaceDocumentException;
 }

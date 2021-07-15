@@ -20,7 +20,6 @@ import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.ProjectLoader;
-import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -35,8 +34,8 @@ import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.task.Task;
 import org.ballerinalang.langserver.task.BackgroundTaskService;
+import org.ballerinalang.langserver.task.Task;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
@@ -117,6 +116,9 @@ public class PullModuleExecutor implements LSCommandExecutor {
         return (t instanceof CancellationException);
     }
 
+    /**
+     * Task to perform pull module operation.
+     */
     static class PullModuleTask extends Task {
 
         static final String NAME = "PullModule";
@@ -134,22 +136,25 @@ public class PullModuleExecutor implements LSCommandExecutor {
         @Override
         public void onStart() {
             LSClientLogger.getInstance(context.languageServercontext())
-                    .logTrace("Pulling modules for project: " + sourceRoot.toString());
+                    .logTrace("Started pulling modules for project: " + sourceRoot.toString());
 
+            // Initialize progress notification
             WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
             workDoneProgressCreateParams.setToken(getTaskId());
             context.getLanguageClient().createProgress(workDoneProgressCreateParams);
 
+            // Start progress
             WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-            beginNotification.setTitle("Pulling Modules");
+            beginNotification.setTitle("Pull Module");
+            // TODO: Implement cancellation support in the future
             beginNotification.setCancellable(false);
-            beginNotification.setMessage("Pulling missing ballerina modules");
+            beginNotification.setMessage("pulling missing ballerina modules");
             context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(getTaskId()),
                     Either.forLeft(beginNotification)));
         }
 
         @Override
-        public void execute() {
+        public void execute() throws Exception {
             // Build the project in online mode
             BuildOptions options = new BuildOptionsBuilder().offline(false).build();
             Project project = ProjectLoader.loadProject(sourceRoot, options);
@@ -159,7 +164,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
             Path filePath = CommonUtil.getPathFromURI(fileUri)
                     .orElseThrow(() -> new ProjectException("Couldn't determine the project path"));
             // Reload project
-            context.workspace().reloadProject(filePath);
+            context.workspace().refreshProject(filePath);
 
             DocumentServiceContext documentServiceContext = ContextBuilder.buildBaseContext(fileUri,
                     context.workspace(), LSContextOperation.TXT_DID_CHANGE,
@@ -176,7 +181,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     Either.forLeft(endNotification)));
 
             CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Info,
-                    "Modules pulled successfully!");
+                    "Module(s) pulled successfully!");
 
             LSClientLogger.getInstance(context.languageServercontext())
                     .logTrace("Finished pulling modules for project: " + sourceRoot.toString());

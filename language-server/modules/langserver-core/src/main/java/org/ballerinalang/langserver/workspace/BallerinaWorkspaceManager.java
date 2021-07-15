@@ -353,16 +353,11 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     }
 
     @Override
-    public void reloadProject(Path filePath) {
+    public void refreshProject(Path filePath) throws WorkspaceDocumentException {
         Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
         Optional<Document> doc = projectPairOpt.flatMap(projectPair -> document(filePath, projectPair.project()));
         if (doc.isEmpty()) {
-//            clientLogger.logError(LSContextOperation.RELOAD_PROJECT,
-//                    "Unable to find document to reload: " + filePath.toString(),
-//                    new WorkspaceDocumentException("Unable to find document to reload project"),
-//                    new TextDocumentIdentifier(filePath.toUri().toString())
-//            );
-            return;
+            throw new WorkspaceDocumentException("Document not found for filePath: " + filePath);
         }
 
         Lock lock = projectPairOpt.get().lockAndGet();
