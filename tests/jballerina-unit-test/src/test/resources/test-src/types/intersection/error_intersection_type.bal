@@ -283,11 +283,6 @@ function testMultipleErrorIntersectionWithReadOnly() {
     assertEquality(true, u.detail()["fatal"]);
 }
 
-
-
-
-
-
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -7,7 +7,6 @@ type SomeUnion distinct (Error0|Error1|record {| string key; string val; |});
 type TheInt distinct int;
 type TheTypeDesc distinct typedesc<int>;
 
-
 type Person record {
     distinct record { int i; } value;
     distinct int code;
