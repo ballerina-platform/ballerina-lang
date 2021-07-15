@@ -450,12 +450,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes.clear();
     }
 
-    private void defineErrorType(BErrorType errorType, SymbolEnv env) {
+    private void defineErrorType(Location pos, BErrorType errorType, SymbolEnv env) {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
         BTypeSymbol errorTSymbol = errorType.tsymbol;
         errorTSymbol.scope = new Scope(errorTSymbol);
 
-        if (symResolver.checkForUniqueSymbol(errorTSymbol.pos, pkgEnv, errorTSymbol)) {
+        if (symResolver.checkForUniqueSymbol(pos, pkgEnv, errorTSymbol)) {
             pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
         }
 
@@ -1156,7 +1156,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
         BErrorType intersectionErrorType = types.createErrorType(null, Flags.PUBLIC, env);
         intersectionErrorType.tsymbol.name = names.fromString(typeDef.name.value);
-        defineErrorType(intersectionErrorType, env);
+        defineErrorType(typeDef.pos, intersectionErrorType, env);
 
         this.intersectionTypes.add(typeDef);
     }
