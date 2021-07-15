@@ -85,9 +85,34 @@ public class NBallerinaCaller {
             Method configMethod = config.getMethod("$configureInit", String[].class,
                     Path[].class, String.class, String.class);
 
+            Class<?> init = cl.loadClass("wso2.nballerina.0_1_0.$_init");
+            Method initMethod = init.getMethod("$moduleInit", Strand.class);
+            Method startMethod = init.getMethod("$moduleStart", Strand.class);
+
             TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
             configMethod.invoke(null, new String[]{}, configurationDetails.paths,
                     configurationDetails.secret, configurationDetails.configContent);
+
+            Function<Object[], Object> funcInit = objects -> {
+                try {
+                    return initMethod.invoke(null, objects[0]);
+                } catch (InvocationTargetException e) {
+                    Throwable targetException = e.getTargetException();
+                    throw new BallerinaException("Error invoking nBallerina backend", targetException);
+                } catch (IllegalAccessException e) {
+                    throw new BallerinaException("Method has private access", e);
+                }
+            };
+            Function<Object[], Object> funcStart = objects -> {
+                try {
+                    return startMethod.invoke(null, objects[0]);
+                } catch (InvocationTargetException e) {
+                    Throwable targetException = e.getTargetException();
+                    throw new BallerinaException("Error invoking nBallerina backend", targetException);
+                } catch (IllegalAccessException e) {
+                    throw new BallerinaException("Method has private access", e);
+                }
+            };
 
             Object bir = modGenerator.genMod(pkgNode);
 
@@ -104,6 +129,10 @@ public class NBallerinaCaller {
                 }
             };
 
+            scheduler.schedule(new Object[1], funcInit, null, null, null,
+                    PredefinedTypes.TYPE_ANY, null, null);
+            scheduler.schedule(new Object[1], funcStart, null, null, null,
+                    PredefinedTypes.TYPE_ANY, null, null);
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
                     PredefinedTypes.TYPE_ANY, null, null);
             scheduler.start();
