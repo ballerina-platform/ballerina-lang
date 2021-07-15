@@ -16,6 +16,10 @@ jobs:
                     distribution: 'adopt'
                     java-version: 8
 
+            -   name: Initialize Submodules
+                run: |
+                    git submodule update --init
+
             -   name: Setup Node
                 uses: actions/setup-node@v2
                 with:
@@ -23,6 +27,4 @@ jobs:
 
             -   name: Build Ballerina Lang
                 run: |
-                    git submodule init
-                    git submodule update
                     ./gradlew :jballerina-integration-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
