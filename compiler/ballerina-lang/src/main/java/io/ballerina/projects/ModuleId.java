@@ -25,7 +25,7 @@ import java.util.UUID;
  *
  * @since 2.0.0
  */
-public final class ModuleId {
+public final class ModuleId implements Comparable<ModuleId> {
     private final UUID id;
     private final String moduleName;
     private final PackageId packageId;
@@ -77,5 +77,10 @@ public final class ModuleId {
     @Override
     public int hashCode() {
         return Objects.hash(id, packageId);
+    }
+
+    @Override
+    public int compareTo(ModuleId o) {
+        return this.hashCode() - o.hashCode();
     }
 }

@@ -337,8 +337,10 @@ public class PackageResolutionTests extends BaseTest {
         // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/31082
         // TODO: 1. ERROR [foo.bal:(1:1,1:18)] invalid bala file:
         // TODO: 2. ERROR [bar.bal:(3:1,3:18)] invalid bala file:
-        Assert.assertTrue(diagnosticIterator.next().toString().contains("invalid bala file:"));
-        Assert.assertTrue(diagnosticIterator.next().toString().contains("invalid bala file:"));
+        Assert.assertTrue(diagnosticIterator.next().toString().contains(
+                "ERROR [foo.bal:(1:1,1:18)] invalid bala file:"));
+        Assert.assertTrue(diagnosticIterator.next().toString().contains(
+                "ERROR [bar.bal:(3:1,3:18)] invalid bala file:"));
         // Check syntax diagnostics
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [bar.bal:(3:1,3:18)] cannot resolve module 'bash/soap'");
