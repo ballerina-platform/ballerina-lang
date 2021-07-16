@@ -72,10 +72,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         // Implicit new expressions
         debugTestRunner.assertEvaluationError(context, "new", String.format(EvaluationExceptionKind
                 .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
-                "the equivalent explicit expression by specifying the class descriptor instead."));
+                "the equivalent explicit expression by specifying the class descriptor (i.e. 'new T()') instead."));
         debugTestRunner.assertEvaluationError(context, "new()", String.format(EvaluationExceptionKind
                 .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
-                "the equivalent explicit expression by specifying the class descriptor instead."));
+                "the equivalent explicit expression by specifying the class descriptor (i.e. 'new T()') instead."));
 
         // New expressions with invalid number of args
         debugTestRunner.assertEvaluationError(context, "new Location()", String.format(EvaluationExceptionKind
