@@ -46,18 +46,27 @@ function testAsyncFunction() {
         test:assertEquals(r4, [1, 2, 3]);
     }
 
-    future<functionsLib:Person> f5 = start functionsLib:functionReturnRecord({id: 14, name: "waruna"});
+    future<functionsLib:Person> f5 = start functionsLib:functionReturnRecord({id: 14, name: "Waruna"});
     error|functionsLib:Person r5 = wait f5;
     test:assertEquals(r5 is functionsLib:Person, true);
     if (r5 is functionsLib:Person) {
-        test:assertEquals(r5, {id: 14, name: "waruna"});
+        test:assertEquals(r5, {id: 14, name: "Waruna"});
     }
 
-    future<anydata> f6 = start functionsLib:functionReturnAnydata(123.456);
-    error|anydata r6 = wait f6;
-    test:assertEquals(r6 is anydata, true);
-    if (r6 is anydata) {
-        test:assertEquals(r6, 123.456);
+
+    future<functionsLib:Person> f6 = start functionsLib:functionReturnIncludedRecord(id = 15, name = "Hinduja");
+    error|functionsLib:Person r6 = wait f6;
+    test:assertEquals(r6 is functionsLib:Person, true);
+    if (r6 is functionsLib:Person) {
+        test:assertEquals(r6, {id: 15, name: "Hinduja"});
+    }
+
+
+    future<anydata> f7 = start functionsLib:functionReturnAnydata(123.456);
+    error|anydata r7 = wait f7;
+    test:assertEquals(r7 is anydata, true);
+    if (r7 is anydata) {
+        test:assertEquals(r7, 123.456);
     }
 }
 

@@ -46,3 +46,7 @@ public function functionReturnRecord(Person a) returns Person {
 public function functionReturnAnydata(anydata a) returns anydata {
     return a;
 }
+
+public function functionReturnIncludedRecord(*Person a) returns Person {
+    return a;
+}
