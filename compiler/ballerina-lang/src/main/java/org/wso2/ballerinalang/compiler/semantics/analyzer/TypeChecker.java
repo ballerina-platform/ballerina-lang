@@ -6973,6 +6973,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             // Check if the field accessed is present in the record fields set.
             if (!checkRecordFieldExistence(varRefType, fieldName)) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.DOES_NOT_HAVE_A_FIELD, varRefType, fieldName);
                 return actualType;
             }
 
