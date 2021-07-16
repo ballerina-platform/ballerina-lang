@@ -452,6 +452,9 @@ public class TypeConverter {
         Set<Type> convertibleTypes;
         for (int i = 0; i < source.size(); i++) {
             convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues);
+            if (convertibleTypes.isEmpty()) {
+                return false;
+            }
             if (convertibleTypes.size() != 1 && !convertibleTypes.contains(TypeChecker.getType(source.get(i)))
                     && !hasIntegerSubTypes(convertibleTypes)) {
                 return false;
@@ -461,9 +464,6 @@ public class TypeConverter {
     }
 
     public static boolean hasIntegerSubTypes(Set<Type> convertibleTypes) {
-        if (convertibleTypes.size() < 2) {
-            return false;
-        }
         for (Type type : convertibleTypes) {
             if (!TypeTags.isIntegerTypeTag(type.getTag()) && type.getTag() != TypeTags.BYTE_TAG) {
                 return false;

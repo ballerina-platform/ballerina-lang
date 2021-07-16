@@ -2390,8 +2390,8 @@ public class TypeChecker {
                     return targetNumericTypes.size() == 1;
                 }
 
-                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG &&
-                        !TypeTags.isIntegerTypeTag(targetTypeElementType.getTag())) {
+                if (targetTypeElementType.getTag() == TypeTags.FLOAT_TAG ||
+                        targetTypeElementType.getTag() == TypeTags.DECIMAL_TAG) {
                     return false;
                 }
             }
