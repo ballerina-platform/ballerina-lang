@@ -59,6 +59,10 @@ public class IdentifierModifier extends TreeModifier {
                 IdentifierUtils.encodeNonFunctionIdentifier(identifier);
     }
 
+    public static String decodeIdentifier(String encodedIdentifier) {
+        return IdentifierUtils.decodeIdentifier(encodedIdentifier);
+    }
+
     /**
      * Identifier types based on different runtime identifier encoding mechanisms.
      */

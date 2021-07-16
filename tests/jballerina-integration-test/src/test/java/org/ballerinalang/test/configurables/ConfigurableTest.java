@@ -48,16 +48,20 @@ public class ConfigurableTest extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-
         // Build and push config Lib project.
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-configLib-java11-0.1.0.bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-configLib-java11-0.1.0.bala " +
-                "to 'local' repository.", ERROR);
+        compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(), "testOrg-configLib" +
+                "-java11-0.1.0");
+    }
+
+    private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
+                                                        "'local' repository.", ERROR);
         bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
-                              testFileLocation + "/configLibProject");
+                              packagPath);
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
-                              testFileLocation + "/configLibProject");
+                              packagPath);
         pushLeecher.waitForText(5000);
     }
 
@@ -208,6 +212,38 @@ public class ConfigurableTest extends BaseTest {
         errorLeecher3.waitForText(5000);
         errorLeecher4.waitForText(5000);
         errorLeecher5.waitForText(5000);
+    }
+
+    @Test
+    public void testMapVariableAndModuleAmbiguitySubModule() throws BallerinaTestException {
+        LogLeecher errorLog = new LogLeecher("[subModuleClash.bal:(19:26,19:30)] configurable variable name 'test' " +
+                "creates an ambiguity with module 'testOrg/subModuleClash.test:0.1.0'", ERROR);
+        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+                new LogLeecher[]{errorLog},
+                Paths.get(testFileLocation, "testAmbiguousCases", "subModuleClash").toString());
+        errorLog.waitForText(5000);
+    }
+
+    @Test
+    public void testMapVariableAndModuleAmbiguityImportedModule() throws BallerinaTestException {
+        String projectPath = Paths.get(testFileLocation, "testAmbiguousCases").toString();
+        LogLeecher errorLog = new LogLeecher("[main.bal:(19:26,19:30)] configurable variable name 'test' creates an " +
+                "ambiguity with module 'testOrg/test:0.1.0'", ERROR);
+        compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
+                "testOrg-test-any-0.1.0");
+        bMainInstance.runMain("build", new String[]{"-c", "main"}, null, new String[]{},
+                new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
+        errorLog.waitForText(5000);
+    }
+
+    @Test
+    public void testMapVariableAndModuleAmbiguityMultipleSubModule() throws BallerinaTestException {
+        LogLeecher errorLog = new LogLeecher("[mod1.bal:(17:26,17:30)] configurable variable name 'test' creates an " +
+                "ambiguity with module 'testOrg/multipleSubModuleClash.mod1.test:0.1.0'", ERROR);
+        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+                new LogLeecher[]{errorLog},
+                Paths.get(testFileLocation, "testAmbiguousCases", "multipleSubModuleClash").toString());
+        errorLog.waitForText(5000);
     }
 
     private void executeBalCommand(String projectPath, String packageName,

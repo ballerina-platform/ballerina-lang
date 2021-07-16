@@ -585,10 +585,12 @@ public class Types {
     }
 
     public boolean isSubTypeOfMapping(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
+        }
         if (type.tag != TypeTags.UNION) {
             return isSubTypeOfBaseType(type, TypeTags.MAP) || isSubTypeOfBaseType(type, TypeTags.RECORD);
         }
-
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfMapping);
     }
 

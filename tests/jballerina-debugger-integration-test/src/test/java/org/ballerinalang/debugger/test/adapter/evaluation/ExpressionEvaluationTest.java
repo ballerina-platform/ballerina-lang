@@ -102,7 +102,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "new Location(\"New York\",\"USA\")", "Location", "object");
     }
 
     @Override
