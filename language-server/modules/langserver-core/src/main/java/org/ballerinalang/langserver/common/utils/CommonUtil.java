@@ -1185,8 +1185,9 @@ public class CommonUtil {
      * @return {@link Predicate<Symbol>}
      */
     public static Predicate<Symbol> getVariableFilterPredicate() {
-        return symbol -> symbol instanceof VariableSymbol || symbol.kind() == PARAMETER
-                || symbol.kind() == SymbolKind.PATH_PARAMETER;
+        return symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER
+                || symbol.kind() == SymbolKind.PATH_PARAMETER)
+                && !symbol.getName().orElse("").equals(Names.ERROR.getValue());
     }
 
     private static String getQualifiedModuleName(Module module) {

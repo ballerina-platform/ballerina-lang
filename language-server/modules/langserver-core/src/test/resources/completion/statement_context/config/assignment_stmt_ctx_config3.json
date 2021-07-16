@@ -349,15 +349,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -466,25 +457,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "l1",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "D",
-      "insertText": "l1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "O",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -513,6 +485,25 @@
       "sortText": "E",
       "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "D",
+      "insertText": "l1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "O",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

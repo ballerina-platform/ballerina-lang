@@ -364,15 +364,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -481,11 +472,73 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "createVehicleModel(string name)",
+      "kind": "Function",
+      "detail": "test/lsproject.models:0.1.0:Model",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject.models:0.1.0_  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `Model`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "createVehicleModel",
+      "insertText": "createVehicleModel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Person",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "O",
+      "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Driver",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "O",
       "insertText": "Driver",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Model",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "AK",
+      "insertText": "Model",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "O",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "defaultModel",
+      "kind": "Variable",
+      "detail": "Model",
+      "sortText": "AB",
+      "insertText": "defaultModel",
       "insertTextFormat": "Snippet"
     },
     {
@@ -508,73 +561,11 @@
       }
     },
     {
-      "label": "defaultModel",
-      "kind": "Variable",
-      "detail": "Model",
-      "sortText": "AB",
-      "insertText": "defaultModel",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "createVehicleModel(string name)",
-      "kind": "Function",
-      "detail": "test/lsproject.models:0.1.0:Model",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject.models:0.1.0_  \n  \n  \n**Params**  \n- `string` name  \n  \n**Return** `Model`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "createVehicleModel",
-      "insertText": "createVehicleModel(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "Person",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "O",
-      "insertText": "Person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Model",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "AK",
-      "insertText": "Model",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Vehicle",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "M",
       "insertText": "Vehicle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "O",
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

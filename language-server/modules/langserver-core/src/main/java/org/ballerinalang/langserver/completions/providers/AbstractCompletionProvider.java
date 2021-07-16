@@ -464,6 +464,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         query pipeline starts with from keyword and also being added with the actions
          */
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
+        // Here we do not add the error keyword since it will be added via the module completion items
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
@@ -472,7 +473,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
@@ -488,9 +488,9 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
         Predicate<Symbol> symbolFilter = CommonUtil.getVariableFilterPredicate();
-        symbolFilter = symbolFilter.or(symbol -> symbol.kind() == FUNCTION
+        symbolFilter = symbolFilter.or(symbol -> (symbol.kind() == FUNCTION
                 || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
-                .and(symbol -> !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
+                && !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
                 .collect(Collectors.toList());
@@ -522,7 +522,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @return {@link List}
      */
-    private List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
+    protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         CommonUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));

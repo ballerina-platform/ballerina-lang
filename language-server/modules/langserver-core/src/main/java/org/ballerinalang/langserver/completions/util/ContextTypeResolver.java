@@ -446,10 +446,10 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         return Optional.of(this.getRawContextType(typeSymbol.get()));
     }
 
-    @Override
-    public Optional<TypeSymbol> transform(InterpolationNode interpolationNode) {
-        return super.transform(interpolationNode);
-    }
+//    @Override
+//    public Optional<TypeSymbol> transform(InterpolationNode interpolationNode) {
+//        return super.transform(interpolationNode);
+//    }
 
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
