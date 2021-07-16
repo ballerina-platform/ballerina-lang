@@ -75,7 +75,7 @@ public class BLangTypeTestExpr extends BLangExpression implements TypeTestExpres
         if (isNotIsExpr) {
             return expr + " !is " + typeNode;
         } else {
-            return expr + " !is " + typeNode;
+            return expr + " is " + typeNode;
         }
     }
 }

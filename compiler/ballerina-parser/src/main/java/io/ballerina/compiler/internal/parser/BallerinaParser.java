@@ -8354,24 +8354,24 @@ public class BallerinaParser extends AbstractParser {
      * @return Is expression node
      */
     private STNode parseTypeTestExpression(STNode lhsExpr, boolean isInConditionalExpr) {
-        STNode isKeyword = parseIsKeyword();
+        STNode isKeyword = parseIsOrNotIsKeyword();
         STNode typeDescriptor = parseTypeDescriptorInExpression(isInConditionalExpr);
         return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
     }
 
     /**
-     * Parse is-keyword.
+     * Parse type test expression.
      *
-     * @return Is-keyword node
+     * @return Type test expression node
      */
-    private STNode parseIsKeyword() {
+    private STNode parseIsOrNotIsKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.IS_KEYWORD ||
                 token.kind == SyntaxKind.NOT_IS_KEYWORD) {
             return consume();
         } else {
             recover(token, ParserRuleContext.IS_KEYWORD);
-            return parseIsKeyword();
+            return parseIsOrNotIsKeyword();
         }
     }
 

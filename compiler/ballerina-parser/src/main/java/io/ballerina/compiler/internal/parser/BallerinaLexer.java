@@ -1162,7 +1162,8 @@ public class BallerinaLexer extends AbstractLexer {
             default:
                 // this is '!is'
                 if (isNotIsToken()) {
-                     return getSyntaxToken(SyntaxKind.NOT_IS_KEYWORD);
+                    reader.advance(2);
+                    return getSyntaxToken(SyntaxKind.NOT_IS_KEYWORD);
                  }
                 // this is '!'
                 return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
@@ -1172,7 +1173,6 @@ public class BallerinaLexer extends AbstractLexer {
     private boolean isNotIsToken() {
         if ((reader.peek() == 'i' && reader.peek(1) == 's') &&
                 !(isIdentifierFollowingChar(reader.peek(2)) || reader.peek(2) == LexerTerminals.BACKSLASH)) {
-            reader.advance(2);
             return true;
         } else {
             return false;
