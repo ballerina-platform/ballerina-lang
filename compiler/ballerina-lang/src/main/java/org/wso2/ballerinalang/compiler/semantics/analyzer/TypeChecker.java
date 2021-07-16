@@ -6971,12 +6971,10 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldAccessExpr.originalType = actualType;
         } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
 
-            // Check if the field accessed is present in the record field set.
-            if (!((BRecordType) varRefType).fields.containsKey(fieldName.getValue())) {
-                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.DOES_NOT_HAVE_A_FIELD, varRefType, fieldName);
+            // Check if the field accessed is present in the record fields set.
+            if (!checkRecordFieldExistence(varRefType, fieldName)) {
                 return actualType;
             }
-
 
             actualType = checkRecordFieldAccessExpr(fieldAccessExpr, varRefType, fieldName);
 
@@ -7037,6 +7035,31 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return actualType;
+    }
+
+    private boolean checkRecordFieldExistence(BType varRefType, Name fieldName) {
+        switch (varRefType.tag) {
+            case TypeTags.RECORD:
+                return ((BRecordType) varRefType).fields.containsKey(fieldName.getValue());
+            case TypeTags.UNION:
+                return checkFieldExistenceInUnionRecordMembers(((BUnionType) varRefType).getMemberTypes(), fieldName);
+            default:
+                // The presence check for the fieldName is only done in record types or union of record types. A true
+                // value is returned to skip this step from the calling function.
+                return true;
+        }
+    }
+
+    private boolean checkFieldExistenceInUnionRecordMembers(LinkedHashSet<BType> memberTypes, Name fieldName) {
+        for (BType memberType : memberTypes) {
+            if (memberType.tag == TypeTags.RECORD) {
+                return ((BRecordType) memberType).fields.containsKey(fieldName.getValue());
+            }
+        }
+
+        // If no member type is of a record type, the presence check for fieldName in record fields can not be done,
+        // therefore, a true value is returned in order to skip this step from the calling function.
+        return true;
     }
 
     private void resolveXMLNamespace(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldAccessExpr) {
