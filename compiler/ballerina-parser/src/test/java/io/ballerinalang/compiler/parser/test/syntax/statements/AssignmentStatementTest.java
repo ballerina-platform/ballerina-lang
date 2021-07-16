@@ -83,7 +83,7 @@ public class AssignmentStatementTest extends AbstractStatementTest {
         testFile("assignment-stmt/assignment_stmt_source_11.bal", "assignment-stmt/assignment_stmt_assert_11.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMissingRHS() {
         testFile("assignment-stmt/assignment_stmt_source_12.bal", "assignment-stmt/assignment_stmt_assert_12.json");
         testFile("assignment-stmt/assignment_stmt_source_14.bal", "assignment-stmt/assignment_stmt_assert_14.json");

@@ -40,7 +40,7 @@ public class TypeDefinitionTest extends AbstractDeclarationTest {
         testFile("type-def/type_def_source_02.bal", "type-def/type_def_assert_02.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testObjectNetworkQualRecovery() {
         testFile("type-def/type_def_source_03.bal", "type-def/type_def_assert_03.json");
         testFile("type-def/type_def_source_04.bal", "type-def/type_def_assert_04.json");

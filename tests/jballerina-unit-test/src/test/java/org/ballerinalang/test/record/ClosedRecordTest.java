@@ -214,7 +214,7 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[3].stringValue(), "{}");
     }
 
-    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor", enabled = false)
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_delimiter.bal");
         int i = 0;

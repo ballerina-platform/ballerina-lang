@@ -48,7 +48,7 @@ public class WhileStatementTest extends AbstractStatementTest {
         testFile("while-stmt/while_stmt_source_03.bal", "while-stmt/while_stmt_assert_03.json");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testWhileOnFailClauseRecovery() {
         testFile("while-stmt/while_stmt_source_05.bal", "while-stmt/while_stmt_assert_05.json");
     }

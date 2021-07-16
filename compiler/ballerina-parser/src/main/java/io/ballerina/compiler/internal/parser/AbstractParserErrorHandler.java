@@ -40,7 +40,7 @@ public abstract class AbstractParserErrorHandler {
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
-    protected static final int LOOKAHEAD_LIMIT = 5;
+    protected static final int LOOKAHEAD_LIMIT = 4;
 
     /**
      * Limit for the number of times parser tries to recover staying on the same token index.
@@ -393,16 +393,10 @@ public abstract class AbstractParserErrorHandler {
             similarResutls.add(result);
         }
 
-        // This means there are no matches for any of the statements
-        if (bestMatchIndex == 0) {
-            return new Result(new ArrayDeque<>(), currentMatches);
-        }
-
         // If there is only one 'best' match, then return it. If there are more than one
         // 'best' match, then we need to do a tie-break. For that, pick the path with the
         // lowest number of fixes. If it again results in more than one match, then return
         // the based on the precedence (order of occurrence).
-
         List<Result> bestMatches = results[bestMatchIndex];
         Result bestMatch = bestMatches.get(0);
         Result currentMatch;
