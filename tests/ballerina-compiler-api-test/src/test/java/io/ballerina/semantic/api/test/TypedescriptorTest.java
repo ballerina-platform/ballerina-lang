@@ -187,10 +187,10 @@ public class TypedescriptorTest {
     @DataProvider(name = "paramsInFunctionType")
     public Object[][] getFunctionTypeParamsPos() {
         return new Object[][]{
-                {233, 18, STRING, "string"},
-                {233, 26, INT, "int"},
-                {236, 13, STRING, "string"},
-                {236, 21, STRING, "string"}
+                {241, 18, STRING, "string"},
+                {241, 26, INT, "int"},
+                {244, 13, STRING, "string"},
+                {244, 21, STRING, "string"}
         };
     }
 
