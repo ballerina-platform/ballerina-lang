@@ -70,7 +70,8 @@ public class IsExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testNotIsExprRecoveryInIfStmt() {
-        testFile("is-expr/is_expr_assert_09.bal", "is-expr/is_expr_assert_09.json");
+        testFile("is-expr/is_expr_source_09.bal", "is-expr/is_expr_assert_09.json");
+        testFile("is-expr/is_expr_source_12.bal", "is-expr/is_expr_assert_12.json");
     }
 
     @Test
