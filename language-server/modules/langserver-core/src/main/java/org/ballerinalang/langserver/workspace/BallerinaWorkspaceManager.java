@@ -352,7 +352,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    @Override
+    /**
+     * Refresh the project corresponding to the provided file path. Can be used to reload dependencies and trigger
+     * a recompile without document modifications. This is an internal API therefore, not available in the interface.
+     *
+     * @param filePath A path of a file in the project
+     */
     public void refreshProject(Path filePath) throws WorkspaceDocumentException {
         Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
         Optional<Document> doc = projectPairOpt.flatMap(projectPair -> document(filePath, projectPair.project()));
@@ -367,7 +372,6 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } finally {
             lock.unlock();
         }
-//        reloadProject(projectPairOpt.get(), filePath, LSContextOperation.RELOAD_PROJECT.getName());
     }
 
     private Optional<ProjectPair> projectOfWatchedFileChange(Path filePath, FileEvent fileEvent,

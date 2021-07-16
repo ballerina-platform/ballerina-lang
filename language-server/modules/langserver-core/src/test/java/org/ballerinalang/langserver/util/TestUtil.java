@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaProjectParams;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNodeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
@@ -78,8 +79,12 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
+import org.eclipse.lsp4j.services.LanguageServer;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -458,7 +463,7 @@ public class TestUtil {
     }
 
     /**
-     * Initialize the language server instance with given FoldingRangeCapabilities.
+     * Creates a new language server instance and initialize it.
      *
      * @return {@link Endpoint}     Service Endpoint
      */
@@ -469,6 +474,23 @@ public class TestUtil {
         ExtendedLanguageClient client = launcher.getRemoteProxy();
         languageServer.connect(client);
         
+        return initializeLanguageSever(languageServer);
+    }
+
+    /**
+     * Initializes the provided language server instance and returns the endpoint.
+     *
+     * @param languageServer A language server instance
+     * @return {@link Endpoint}     Service Endpoint
+     */
+    public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer) {
+        InputStream in = new ByteArrayInputStream(new byte[1024]);
+        OutputStream out = new ByteArrayOutputStream();
+        Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
+                ExtendedLanguageClient.class, in, out);
+        ExtendedLanguageClient client = launcher.getRemoteProxy();
+        languageServer.connect(client);
+
         Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
         endpoint.request("initialize", getInitializeParams());
         endpoint.request("initialized", new InitializedParams());

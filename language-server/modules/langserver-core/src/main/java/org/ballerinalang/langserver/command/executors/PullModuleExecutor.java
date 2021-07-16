@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.task.Task;
+import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
@@ -164,7 +165,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
             Path filePath = CommonUtil.getPathFromURI(fileUri)
                     .orElseThrow(() -> new ProjectException("Couldn't determine the project path"));
             // Reload project
-            context.workspace().refreshProject(filePath);
+            ((BallerinaWorkspaceManager) context.workspace()).refreshProject(filePath);
 
             DocumentServiceContext documentServiceContext = ContextBuilder.buildBaseContext(fileUri,
                     context.workspace(), LSContextOperation.TXT_DID_CHANGE,
