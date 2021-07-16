@@ -38,7 +38,7 @@ public class ByteArrayLiteralTest extends AbstractExpressionsTest {
 
     // Recovery tests
 
-    @Test(enabled = false)
+    @Test
     public void testMissingClosingBacktick() {
         testFile("byte-array-literal/base16_literal_source_02.bal", "byte-array-literal/base16_literal_assert_02.json");
         testFile("byte-array-literal/base64_literal_source_02.bal", "byte-array-literal/base64_literal_assert_02.json");

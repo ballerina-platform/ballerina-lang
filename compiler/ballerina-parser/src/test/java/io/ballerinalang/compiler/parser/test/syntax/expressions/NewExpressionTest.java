@@ -93,7 +93,7 @@ public class NewExpressionTest extends AbstractExpressionsTest {
         test("new Foo(1, a", "new-expr/explicit-new-with-identifier-with-args-negative02.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testOutdatedGrammarExplicitNewWithObjectType() {
         testFile("new-expr/explicit-new-with-object-keyword-with-multiple-args.bal",
                 "new-expr/explicit-new-with-object-keyword-with-multiple-args.json");

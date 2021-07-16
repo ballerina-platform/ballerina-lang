@@ -73,7 +73,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
     private static final ParserRuleContext[] EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS =
-            { ParserRuleContext.EXTERNAL_KEYWORD, ParserRuleContext.ANNOTATIONS };
+            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.EXTERNAL_KEYWORD };
 
     /**
      * ANNON_FUNC--> When a anonymous function is possible.
@@ -440,7 +440,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] ANNOTATION_REF_RHS =
-            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.ANNOTATION_END };
+            { ParserRuleContext.ANNOTATION_END, ParserRuleContext.MAPPING_CONSTRUCTOR };
 
     private static final ParserRuleContext[] INFER_PARAM_END_OR_PARENTHESIS_END =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.EXPR_FUNC_BODY_START };
@@ -2606,7 +2606,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForCloseParenthesis();
             case EXPRESSION:
             case BASIC_LITERAL:
-            case TERMINAL_EXPRESSION:
                 return getNextRuleForExpr();
             case FUNC_NAME:
                 ParserRuleContext grandParentCtx = getGrandParentContext();
@@ -4434,8 +4433,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
             endContext(); // end external func-body
-            endContext(); // end func-def
-            return ParserRuleContext.TOP_LEVEL_NODE;
+            return getNextRuleForSemicolon(nextLookahead);
         } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
             endContext(); // end expression
             return getNextRuleForSemicolon(nextLookahead);
@@ -4508,16 +4506,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                 return ParserRuleContext.EOF;
             }
-            parentCtx = getParentContext();
-            if (parentCtx == ParserRuleContext.OBJECT_TYPE_MEMBER) {
-                endContext(); // end object-member-desc
-                return ParserRuleContext.OBJECT_TYPE_MEMBER;
-            }
-            return ParserRuleContext.TOP_LEVEL_NODE;
+            return getNextRuleForSemicolon(nextLookahead);
         } else if (parentCtx == ParserRuleContext.MODULE_CLASS_DEFINITION) {
             return ParserRuleContext.CLASS_MEMBER;
         } else if (parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR) {
             return ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER;
+        } else if (parentCtx == ParserRuleContext.COMP_UNIT) {
+            return ParserRuleContext.TOP_LEVEL_NODE;
         } else {
             throw new IllegalStateException("getNextRuleForSemicolon found: " + parentCtx);
         }

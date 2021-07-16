@@ -120,14 +120,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseTopLevelNode();
             case STATEMENT:
                 startContext(ParserRuleContext.COMP_UNIT);
-                // startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
                 startContext(ParserRuleContext.FUNC_BODY_BLOCK);
                 return parseStatement();
             case EXPRESSION:
                 startContext(ParserRuleContext.COMP_UNIT);
-                // startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
-                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
-                startContext(ParserRuleContext.STATEMENT);
+                startContext(ParserRuleContext.VAR_DECL_STMT);
                 return parseExpression();
             default:
                 throw new UnsupportedOperationException("Cannot start parsing from: " + context);
@@ -2984,6 +2981,7 @@ public class BallerinaParser extends AbstractParser {
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case DO_KEYWORD:
+            case RIGHT_DOUBLE_ARROW_TOKEN:
                 return true;
             default:
                 return isEndOfModuleLevelNode(1);

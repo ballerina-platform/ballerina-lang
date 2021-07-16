@@ -89,7 +89,7 @@ public class TableConstructorTest extends AbstractExpressionsTest {
         test("table key(nic dob email) []", "table-constructor/table_constructor_assert_18.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTableWithMissingMappingConstructor() {
         test("table [, {a:b}]", "table-constructor/table_constructor_assert_19.json");
         test("table [{a:b}, ]", "table-constructor/table_constructor_assert_20.json");

@@ -1,5 +1,5 @@
 {
-  "kind": "CONDITIONAL_EXPRESSION",
+  "kind": "BINARY_EXPRESSION",
   "hasDiagnostics": true,
   "children": [
     {
@@ -18,11 +18,11 @@
       ]
     },
     {
-      "kind": "QUESTION_MARK_TOKEN",
+      "kind": "PLUS_TOKEN",
       "isMissing": true,
       "hasDiagnostics": true,
       "diagnostics": [
-        "ERROR_MISSING_QUESTION_MARK_TOKEN"
+        "ERROR_MISSING_BINARY_OPERATOR"
       ]
     },
     {
@@ -44,24 +44,6 @@
               "value": " "
             }
           ]
-        }
-      ]
-    },
-    {
-      "kind": "COLON_TOKEN",
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        }
-      ]
-    },
-    {
-      "kind": "SIMPLE_NAME_REFERENCE",
-      "children": [
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "d"
         }
       ]
     }

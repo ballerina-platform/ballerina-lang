@@ -107,7 +107,55 @@
         {
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT"
+          ],
           "children": [
+            {
+              "kind": "METADATA",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "LIST",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "ANNOTATION",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_AT_TOKEN"
+                          ]
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true
+                        },
+                        {
+                          "kind": "MAPPING_CONSTRUCTOR",
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACE_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
             {
               "kind": "LIST",
               "children": []
@@ -131,46 +179,27 @@
                   ]
                 },
                 {
-                  "kind": "MAPPING_BINDING_PATTERN",
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "OPEN_BRACE_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_BRACE_TOKEN"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_VARIABLE_NAME"
+                      ]
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "EQUAL_TOKEN",
+              "kind": "SEMICOLON_TOKEN",
               "isMissing": true,
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
-              ]
-            },
-            {
-              "kind": "SIMPLE_NAME_REFERENCE",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "isMissing": true
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
+                "ERROR_MISSING_SEMICOLON_TOKEN"
               ]
             }
           ]
@@ -178,7 +207,28 @@
       ]
     },
     {
-      "kind": "EOF_TOKEN"
+      "kind": "EOF_TOKEN",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_INVALID_TOKEN"
+      ],
+      "leadingMinutiae": [
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
+              {
+                "kind": "SEMICOLON_TOKEN"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
     }
   ]
 }
