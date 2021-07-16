@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,26 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/serv_classes.A;
+public isolated service class testClass {
+    private int testField = 12;
+    // only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, found 'other'
+    // undefined module 'module1'
+    // unknown type 'RequestMessage'
+    resource function name [module1:RequestMessage a]() {
 
-public service class Service {
-    remote function foo() returns int {
-        return 22;
-    }
-
-    resource function get bar() returns string {
-        return "bar";
-    }
-
-    resource function put bar() returns string {
-        return "put-bar";
-    }
-
-    resource function get foo/bar(int i, string j) returns string {
-        return i.toString() + j;
-    }
-
-    resource function get [A:T t]() returns string {
-        return t;
     }
 }

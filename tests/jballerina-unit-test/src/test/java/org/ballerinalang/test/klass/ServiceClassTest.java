@@ -76,6 +76,20 @@ public class ServiceClassTest {
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
+    @Test
+    public void testResourceFunctionWithInvalidPathParam() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/klass/resource_function_with_invalid_path_param_type_negative.bal");
+        int index = 0;
+        validateError(result, index++, "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
+                        "are supported as path params, found 'other'",
+                22, 28);
+        validateError(result, index++, "undefined module 'module1'",
+                22, 29);
+        validateError(result, index++, "unknown type 'RequestMessage'", 22, 29);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
     @AfterClass
     public void reset() {
         ServiceValue.reset();
