@@ -2905,8 +2905,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.SEMICOLON;
         } else if (parentCtx == ParserRuleContext.ANNOTATIONS) {
             nextContext = ParserRuleContext.ANNOTATION_END;
-        } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
-            nextContext = ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.INTERPOLATION) {
             nextContext = ParserRuleContext.CLOSE_BRACE;
         } else if (parentCtx == ParserRuleContext.BRACED_EXPRESSION ||
@@ -5074,6 +5072,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.CONSTANT_EXPRESSION) {
             endContext();
             return getNextRuleForConstExpr();
+        } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
+            return ParserRuleContext.CLOSE_BRACKET;
         }
         return ParserRuleContext.VARIABLE_REF_RHS;
     }
