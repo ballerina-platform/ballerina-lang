@@ -44,9 +44,15 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Limit for the number of times parser tries to recover staying on the same token index.
-     * This will prevent parser going to infinite loops.
+     * This will prevent parser going on infinite loops.
      */
-    private static final int ITTER_LIMIT = 7;
+    private static final int RESOLUTION_ITTER_LIMIT = 7;
+
+    /**
+     * Limit for the number of times parser tries to insert tokens staying on the same token index in completion mode.
+     * This will prevent parser going on infinite loops.
+     */
+    private static final int COMPLETION_ITTER_LIMIT = 15;
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
@@ -66,6 +72,8 @@ public abstract class AbstractParserErrorHandler {
 
     protected abstract SyntaxKind getExpectedTokenKind(ParserRuleContext context);
 
+    protected abstract Solution getInsertSolution(ParserRuleContext context);
+
     /*
      * -------------- Error recovering --------------
      */
@@ -75,20 +83,13 @@ public abstract class AbstractParserErrorHandler {
      * to the next token, in order to recover. This method will search for the most
      * optimal action, that will result the parser to proceed the farthest distance.
      *
-     * @param nextToken  Next token of the input where the error occurred
-     * @param currentCtx Current parser context
-     * @param args       Arguments that requires to continue parsing from the given parser context
+     * @param currentCtx   Current parser context
+     * @param nextToken    Next token of the input where the error occurred
+     * @param isCompletion Whether in recovery point is a completion
      * @return The action needs to be taken for the next token, in order to recover
      */
-    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, Object... args) {
+    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, boolean isCompletion) {
         // Assumption: always comes here after a peek()
-
-        if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-            SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
-            Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
-            applyFix(currentCtx, fix);
-            return fix;
-        }
 
         int currentTokenIndex = this.tokenReader.getCurrentTokenIndex();
         if (currentTokenIndex == this.previousTokenIndex) {
@@ -98,23 +99,34 @@ public abstract class AbstractParserErrorHandler {
             previousTokenIndex = currentTokenIndex;
         }
 
-        if (itterCount < ITTER_LIMIT) {
-            Result bestMatch = seekMatch(currentCtx);
-            validateSolution(bestMatch, currentCtx, nextToken);
-            if (bestMatch.matches > 0) {
-                Solution sol = bestMatch.solution;
-                if (sol != null) {
-                    applyFix(currentCtx, sol);
-                    return sol;
-                }
+        Solution fix = null;
+        if (isCompletion && itterCount < COMPLETION_ITTER_LIMIT) {
+            fix = getCompletion(currentCtx, nextToken);
+        } else if (itterCount < RESOLUTION_ITTER_LIMIT) {
+            fix = getResolution(currentCtx, nextToken);
+        }
 
-                // else fall through
-            }
+        if (fix != null) {
+            applyFix(currentCtx, fix);
+            return fix;
         }
 
         // Fail safe. This means we can't find a path to recover.
-        assert itterCount != ITTER_LIMIT : "fail safe reached";
+        assert isCompletion ? itterCount != COMPLETION_ITTER_LIMIT : itterCount != RESOLUTION_ITTER_LIMIT
+                : "fail safe reached";
         return getFailSafeSolution(currentCtx, nextToken);
+    }
+
+    private Solution getResolution(ParserRuleContext currentCtx, STToken nextToken) {
+        Result bestMatch = seekMatch(currentCtx);
+        validateSolution(bestMatch, currentCtx, nextToken);
+
+        Solution sol = null;
+        if (bestMatch.matches > 0) {
+            sol = bestMatch.solution;
+        }
+        
+        return sol;
     }
 
     private Solution getFailSafeSolution(ParserRuleContext currentCtx, STToken nextToken) {
@@ -151,6 +163,23 @@ public abstract class AbstractParserErrorHandler {
         if (secondFix.action == Action.REMOVE && secondFix.depth == 1) {
             bestMatch.solution = secondFix;
         }
+    }
+
+    private Solution getCompletion(ParserRuleContext context, STToken nextToken) {
+        ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
+        this.ctxStack = getCtxStackSnapshot();
+
+        Solution sol;
+        try {
+            sol = getInsertSolution(context);
+        } catch (IllegalStateException exception) {
+            assert false : "Oh no, something went bad with parser error handler: \n" +
+                    "getCompletion caught " + exception;
+            sol = getResolution(context, nextToken);
+        }
+
+        this.ctxStack = tempCtxStack;
+        return sol;
     }
     
     /**
@@ -221,7 +250,7 @@ public abstract class AbstractParserErrorHandler {
             // We catch the exception and since we don't have any other path, return the solution as a REMOVE.
             // We should never reach here. If we do, please open an issue.
             assert false : "Oh no, something went bad with parser error handler: \n" +
-                    "seekMatch caught " + exception.toString();
+                    "seekMatch caught " + exception;
             bestMatch = new Result(new ArrayDeque<>(), LOOKAHEAD_LIMIT - 1);
             bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         }
@@ -344,7 +373,7 @@ public abstract class AbstractParserErrorHandler {
                 // The best alternative path would get picked from the remaining contenders.
                 // We should never reach here. If we do, please open an issue.
                 assert false : "Oh no, something went bad with parser error handler: \n" +
-                        "seekInAlternativesPaths caught " + exception.toString();
+                        "seekInAlternativesPaths caught " + exception;
                 continue;
             }
 
