@@ -15,11 +15,10 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.DoStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -53,15 +52,18 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
                                                     CodeActionContext context) {
 
         if (!(DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
-                .equals(diagnostic.diagnosticInfo().code()))) {
+                .equals(diagnostic.diagnosticInfo().code())) && 
+                !(DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
+                        .equals(diagnostic.diagnosticInfo().code()))) {
             return Collections.emptyList();
         }
-
-        CheckExpressionNode checkExpressionNode = (CheckExpressionNode) positionDetails.matchedNode();
+        
+        Node nodeAtDiagnostic = positionDetails.matchedNode();
         List<TextEdit> edits = new ArrayList<>();
         String commandTitle;
-        if (isDoStmtNodePresent(positionDetails.matchedNode())) {
-            DoStatementNode doStatementNode = getDoStatementNode(checkExpressionNode);
+        
+        if (isDoStmtNodePresent(nodeAtDiagnostic)) {
+            DoStatementNode doStatementNode = getDoStatementNode(nodeAtDiagnostic);
             LinePosition doStmtLinePosition = doStatementNode.lineRange().endLine();
             Position onFailPosLine = new Position(doStmtLinePosition.line(), doStmtLinePosition.offset());
             
@@ -71,13 +73,15 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             edits.add(new TextEdit(new Range(onFailPosLine, onFailPosLine), editText));
             commandTitle = CommandConstants.CREATE_ON_FAIL_CLAUSE;
         } else {
-            VariableDeclarationNode variableDeclarationNode = (VariableDeclarationNode) checkExpressionNode.parent();
-            LinePosition linePosition = variableDeclarationNode.lineRange().startLine();
+            while (!StatementNode.class.isAssignableFrom(nodeAtDiagnostic.getClass())) {
+                nodeAtDiagnostic = nodeAtDiagnostic.parent();
+            }
+            LinePosition linePosition = nodeAtDiagnostic.lineRange().startLine();    
             Position positionDo = new Position(linePosition.line(), linePosition.offset());
             Position posCheckLineStart = new Position(linePosition.line() + 1, 0);
             
             String spaces = " ".repeat(linePosition.offset());
-            String insideDoStatement = variableDeclarationNode.toString();
+            String insideDoStatement = nodeAtDiagnostic.toString();
             String editTextDo = "do {" + CommonUtil.LINE_SEPARATOR + "\t" + insideDoStatement 
                     + spaces + "} on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                     + CommonUtil.LINE_SEPARATOR + spaces + "}" + CommonUtil.LINE_SEPARATOR;

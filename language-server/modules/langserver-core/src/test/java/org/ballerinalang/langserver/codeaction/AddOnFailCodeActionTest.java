@@ -38,10 +38,15 @@ public class AddOnFailCodeActionTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"on_fail_codeaction_config1.json", "on_fail_codeaction_source1.bal"},
-                {"on_fail_codeaction_config2.json", "on_fail_codeaction_source2.bal"},
-                {"on_fail_codeaction_config3.json", "on_fail_codeaction_source3.bal"},
-                {"on_fail_codeaction_config4.json", "on_fail_codeaction_source4.bal"},
+                {"on_fail_codeaction_for_check_stmt_config1.json", "on_fail_codeaction_for_check_stmt_source1.bal"},
+                {"on_fail_codeaction_for_check_stmt_config2.json", "on_fail_codeaction_for_check_stmt_source2.bal"},
+                {"on_fail_codeaction_for_check_stmt_config3.json", "on_fail_codeaction_for_check_stmt_source3.bal"},
+                {"on_fail_codeaction_for_check_stmt_config4.json", "on_fail_codeaction_for_check_stmt_source4.bal"},
+                {"on_fail_codeaction_for_check_stmt_config5.json", "on_fail_codeaction_for_check_stmt_source5.bal"},
+                {"on_fail_codeaction_for_fail_stmt_config1.json", "on_fail_codeaction_for_fail_stmt_source1.bal"},
+                {"on_fail_codeaction_for_fail_stmt_config2.json", "on_fail_codeaction_for_fail_stmt_source2.bal"},
+                {"on_fail_codeaction_for_fail_stmt_config3.json", "on_fail_codeaction_for_fail_stmt_source3.bal"},
+                {"on_fail_codeaction_for_fail_stmt_config4.json", "on_fail_codeaction_for_fail_stmt_source4.bal"},
         };
     }
 
