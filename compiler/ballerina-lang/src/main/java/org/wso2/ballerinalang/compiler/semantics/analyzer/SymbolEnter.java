@@ -4562,7 +4562,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isPrivate(referencedFunc.symbol)) {
+        if (Symbols.isPrivate(referencedFunc.symbol) || Symbols.isResource(referencedFunc.symbol)) {
             // we should not copy private functions.
             return;
         }

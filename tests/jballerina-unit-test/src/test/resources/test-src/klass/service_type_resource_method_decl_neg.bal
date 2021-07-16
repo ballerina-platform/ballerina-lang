@@ -23,3 +23,23 @@ type SType service object {
 service class SClass {
     *SType;
 }
+
+service class ROne {
+    resource function get foo() returns string {
+        return "foo";
+    }
+}
+
+// Not having a implementation for "get foo" resource method is expected as resource method is not part of the obj type.
+service class RTwo {
+    *ROne;
+}
+
+type RType service object {
+    *ROne;
+    *RTwo;
+};
+
+service class RTypeImpl {
+    *RType;
+}
