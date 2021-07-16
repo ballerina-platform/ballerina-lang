@@ -25,7 +25,6 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.List;
