@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
-import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Compiler plugin code action extension implementation for ballerina.
@@ -93,15 +91,6 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                             })
                             .forEach(codeActions::add);
                 });
-
-        List<String> commands = codeActions.stream()
-                .filter(codeAction -> codeAction.getCommand() != null)
-                .map(codeAction -> codeAction.getCommand().getCommand())
-                .collect(Collectors.toList());
-
-        if (!LSClientUtil.chekAndRegisterCommands(commands, context.languageServercontext())) {
-            return Collections.emptyList();
-        }
 
         return codeActions;
     }

@@ -24,9 +24,11 @@ import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Manages interaction with code actions via compiler plugins.
@@ -122,6 +124,24 @@ public class CodeActionManager {
         }
 
         return codeAction.execute(context);
+    }
+
+    /**
+     * Get all possible code action provider names. A provider name is used as the command at language server side.
+     *
+     * @return All possible provider names
+     */
+    public Set<String> getPossibleProviderNames() {
+        Set<String> providerNames = new HashSet<>();
+        codeActionsMap.forEach((diagnosticCode, descriptors) -> {
+            descriptors.forEach(codeActionDescriptor -> {
+                String providerName = getModifiedCodeActionName(diagnosticCode,
+                        codeActionDescriptor.compilerPluginInfo(),
+                        codeActionDescriptor.codeAction().name());
+                providerNames.add(providerName);
+            });
+        });
+        return providerNames;
     }
 
     static CodeActionManager from(List<CompilerPluginContextIml> compilerPluginContexts) {

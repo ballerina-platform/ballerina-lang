@@ -15,6 +15,10 @@
  */
 package org.ballerinalang.langserver.util;
 
+import io.ballerina.projects.CodeActionManager;
+import io.ballerina.projects.PackageCompilation;
+import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,26 +52,44 @@ public class LSClientUtil {
 
     }
 
-    public static boolean chekAndRegisterCommands(List<String> commands, LanguageServerContext context) {
-        ServerCapabilities serverCapabilities = context.get(ServerCapabilities.class);
+    /**
+     * Calculates the commands dynamically added by compiler plugins of imported modules and register the new ones in
+     * LS client side.
+     *
+     * @param context Document service context
+     */
+    public static void chekAndRegisterCommands(DocumentServiceContext context) {
+        LanguageServerContext serverContext = context.languageServercontext();
+        LSClientLogger clientLogger = LSClientLogger.getInstance(serverContext);
+
+        ServerCapabilities serverCapabilities = serverContext.get(ServerCapabilities.class);
         if (serverCapabilities.getExecuteCommandProvider() == null) {
-            return false;
+            clientLogger.logTrace("Not registering commands: server isn't a execute commands provider");
+            return;
         }
 
-        if (!isDynamicCommandRegistrationSupported(context)) {
-            return false;
+        if (!isDynamicCommandRegistrationSupported(serverContext)) {
+            clientLogger.logTrace("Not registering commands: client doesn't support dynamic commands registration");
+            return;
         }
+
+        Optional<PackageCompilation> compilation = context.workspace().waitAndGetPackageCompilation(context.filePath());
+        if (compilation.isEmpty()) {
+            return;
+        }
+
+        CodeActionManager codeActionManager = compilation.get().getCodeActionManager();
+        Set<String> commands = codeActionManager.getPossibleProviderNames();
 
         Set<String> supportedCommands = new HashSet<>(serverCapabilities.getExecuteCommandProvider().getCommands());
         boolean shouldReRegister = commands.stream().anyMatch(command -> !supportedCommands.contains(command));
 
         if (shouldReRegister) {
+            clientLogger.logTrace("Registering new commands");
             supportedCommands.addAll(commands);
-            unregisterCommands(context);
-            registerCommands(context, new ArrayList<>(supportedCommands));
+            unregisterCommands(serverContext);
+            registerCommands(serverContext, new ArrayList<>(supportedCommands));
         }
-
-        return true;
     }
 
     /**
