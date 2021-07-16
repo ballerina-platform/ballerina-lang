@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/lang.runtime;
 
 function asyncTest() returns int {
     return countSlowly();
@@ -11,6 +12,7 @@ public function countSlowly() returns int = @java:Method {
 
 public function main() {
     completeFutureMoreThanOnce();
+    runtime:sleep(1);
 }
 public function completeFutureMoreThanOnce() = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/AsyncInterop"
