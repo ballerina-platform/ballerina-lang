@@ -121,7 +121,7 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testNestedObjectRecovery() {
-        test("object-type-def/object_type_def_source_10.bal", "object-type-def/object_type_def_assert_10.json");
+        testFile("object-type-def/object_type_def_source_10.bal", "object-type-def/object_type_def_assert_10.json");
     }
 
     @Test

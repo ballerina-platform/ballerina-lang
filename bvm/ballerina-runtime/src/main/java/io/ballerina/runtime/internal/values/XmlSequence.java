@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -631,6 +632,10 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         }
         if (obj instanceof XmlItem) {
             return this.children.size() == 1 && this.children.get(0).equals(obj);
+        }
+
+        if (this.children.isEmpty() && TypeUtils.getType(obj) == PredefinedTypes.TYPE_XML_NEVER) {
+            return true;
         }
         return false;
     }
