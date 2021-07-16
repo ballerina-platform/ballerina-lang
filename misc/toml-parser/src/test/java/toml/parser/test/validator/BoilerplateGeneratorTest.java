@@ -37,13 +37,13 @@ public class BoilerplateGeneratorTest {
     @Test
     public void testGen() throws IOException {
         Path schemaPath = Paths.get("src", "test", "resources", "validator", "boilerplate", "schema.json");
-        Path expectedToml = Paths.get("src", "test", "resources", "validator", "boilerplate", "expected.toml");
         Schema rootSchema = Schema.from(schemaPath);
         BoilerplateGenerator generator = new BoilerplateGenerator(rootSchema);
         StringBuilder actual = new StringBuilder();
         for (String s : generator.getOutput()) {
             actual.append(s);
         }
+        Path expectedToml = Paths.get("src", "test", "resources", "validator", "boilerplate", "expected.toml");
         String expected = Files.readString(expectedToml);
         Assert.assertEquals(actual.toString(), expected);
     }
