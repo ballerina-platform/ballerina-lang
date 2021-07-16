@@ -160,7 +160,8 @@ public class PackageDependencyGraphBuilder {
         for (Vertex directDependencyNode : directDependencyNodes) {
             StaticPackageDependency directPkgDep = vertices.get(directDependencyNode);
             // Create a resolution request
-            ResolutionRequest resolutionRequest = ResolutionRequest.from(directPkgDep.pkgDesc, directPkgDep.scope);
+            ResolutionRequest resolutionRequest = ResolutionRequest.from(directPkgDep.pkgDesc, directPkgDep.scope,
+                    currentProject.buildOptions().offlineBuild());
             List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
                     Collections.singletonList(resolutionRequest), currentProject);
             ResolutionResponse resolutionResponse = resolutionResponses.get(0);
@@ -185,7 +186,8 @@ public class PackageDependencyGraphBuilder {
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
         for (Vertex transitiveDependencyNode : transitiveDependencyNodes) {
             StaticPackageDependency transitivePkgDep = vertices.get(transitiveDependencyNode);
-            resolutionRequests.add(ResolutionRequest.from(transitivePkgDep.pkgDesc, transitivePkgDep.scope));
+            resolutionRequests.add(ResolutionRequest.from(
+                    transitivePkgDep.pkgDesc, transitivePkgDep.scope, currentProject.buildOptions().offlineBuild()));
         }
 
         List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(

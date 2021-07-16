@@ -16,35 +16,25 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
-import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.variable.BVariable;
-import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.DebugVariableException;
-import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
-import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 /**
  * Evaluator implementation for optional field access expressions.
  *
  * @since 2.0.0
  */
-public class OptionalFieldAccessExpressionEvaluator extends Evaluator {
+public class OptionalFieldAccessExpressionEvaluator extends FieldAccessExpressionEvaluator {
 
-    private final OptionalFieldAccessExpressionNode syntaxNode;
-    private final Evaluator objectExpressionEvaluator;
+    private static final String UNDEFINED_FIELD_ERROR_PREFIX = "Undefined field";
+    private static final String UNDEFINED_ATTRIBUTE_ERROR_PREFIX = "Undefined attribute";
 
     public OptionalFieldAccessExpressionEvaluator(SuspendedContext context, Evaluator expression,
                                                   OptionalFieldAccessExpressionNode fieldAccessExpressionNode) {
-        super(context);
-        this.syntaxNode = fieldAccessExpressionNode;
-        this.objectExpressionEvaluator = expression;
+        super(context, expression, fieldAccessExpressionNode);
     }
 
     @Override
@@ -56,38 +46,14 @@ public class OptionalFieldAccessExpressionEvaluator extends Evaluator {
         // otherwise, if v does not have a member whose key is field-name, the result is ()
         // otherwise, the result is the member of v whose key is field-name.
         try {
-            BExpressionValue exprResult = objectExpressionEvaluator.evaluate();
-            BVariable exprResultVar = VariableFactory.getVariable(context, exprResult.getJdiValue());
-            // if v is (), the result should be ().
-            if (exprResultVar.getBType() == BVariableType.NIL) {
-                return new BExpressionValue(context, null);
-            }
-            // if expression result does not have basic type mapping, the result is a new error value.
-            if (exprResultVar.getBType() != BVariableType.OBJECT && exprResultVar.getBType() != BVariableType.RECORD &&
-                    exprResultVar.getBType() != BVariableType.JSON) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), " " +
-                        "Optional field access is not supported on type '" + exprResultVar.getBType().getString() +
-                        "'."));
-            }
-            String fieldName = syntaxNode.fieldName().toSourceCode().trim();
-
-            try {
-                Value fieldValue;
-                if (exprResultVar instanceof IndexedCompoundVariable) {
-                    fieldValue = ((IndexedCompoundVariable) exprResultVar).getChildByName(fieldName);
-                } else {
-                    fieldValue = ((NamedCompoundVariable) exprResultVar).getChildByName(fieldName);
-                }
-                return new BExpressionValue(context, fieldValue);
-            } catch (DebugVariableException e) {
-                // if expression result does not have a member whose key is field-name, the result is ().
-                return new BExpressionValue(context, null);
-            }
+            return super.evaluate();
         } catch (EvaluationException e) {
+            // if expression result does not have a member whose key is field-name, the result should be nil.
+            if (e.getMessage().contains(UNDEFINED_FIELD_ERROR_PREFIX) ||
+                    e.getMessage().contains(UNDEFINED_ATTRIBUTE_ERROR_PREFIX)) {
+                return new BExpressionValue(context, null);
+            }
             throw e;
-        } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
         }
     }
 }

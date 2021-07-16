@@ -2026,7 +2026,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                                           constituentBTypes, existingErrorDetailType, env);
         }
 
-        if (types.isInherentlyImmutableType(potentialIntersectionType)) {
+        if (types.isInherentlyImmutableType(potentialIntersectionType) ||
+                (Symbols.isFlagOn(potentialIntersectionType.flags, Flags.READONLY) &&
+                        // For objects, a new type has to be created.
+                        !types.isSubTypeOfBaseType(potentialIntersectionType, TypeTags.OBJECT))) {
             return potentialIntersectionType;
         }
 
@@ -2163,6 +2166,26 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean isModuleLevelVar(BSymbol symbol) {
         return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
+    }
+
+    public Set<BVarSymbol> getConfigVarSymbolsIncludingImportedModules(BPackageSymbol packageSymbol) {
+        Set<BVarSymbol> configVars = new HashSet<>();
+        populateConfigurableVars(packageSymbol, configVars);
+        if (!packageSymbol.imports.isEmpty()) {
+            for (BPackageSymbol importSymbol : packageSymbol.imports) {
+                populateConfigurableVars(importSymbol, configVars);
+            }
+        }
+        return configVars;
+    }
+
+    private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
+        for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
+            BSymbol symbol = entry.symbol;
+            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                configVars.add((BVarSymbol) symbol);
+            }
+        }
     }
 
     private static class ParameterizedTypeInfo {

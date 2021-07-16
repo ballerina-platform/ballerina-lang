@@ -26,6 +26,7 @@ import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.ballerinalang.docgen.generator.model.Record;
+import org.ballerinalang.docgen.generator.model.types.FunctionType;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -153,7 +154,7 @@ public class DocModelTest {
 
         Assert.assertEquals(function.get().parameters.get(0).name, "amt",
                 "First parameter name should be amt");
-        Assert.assertEquals(function.get().parameters.get(0).description, "Amount to be added\n",
+        Assert.assertEquals(function.get().parameters.get(0).description, "Amount to be added" + System.lineSeparator(),
                 "First parameter description doesn't match.");
         Assert.assertEquals(function.get().parameters.get(0).defaultValue, "",
                 "Second parameter default value should be empty");
@@ -163,8 +164,9 @@ public class DocModelTest {
 
         Assert.assertEquals(function.get().parameters.get(1).name, "rate",
                 "Second parameter name should be rate");
-        Assert.assertEquals(function.get().parameters.get(1).description, "Interest rate\n",
-                "Second parameter description: Interest rate\n");
+        Assert.assertEquals(function.get().parameters.get(1).description, "Interest rate" +
+                        System.lineSeparator(),
+                "Second parameter description: Interest rate" + System.lineSeparator());
         Assert.assertEquals(function.get().parameters.get(1).defaultValue, "1.5",
                 "Second parameter default value should be 1.5");
         Assert.assertEquals(function.get().parameters.get(1).type.name, "float",
@@ -181,13 +183,13 @@ public class DocModelTest {
 
         Assert.assertEquals(function.get().returnParameters.get(0).type.name, "RequestMessage",
                 "Return parameter type name should be RequestMessage");
-        Assert.assertEquals(function.get().returnParameters.get(0).description, "Req msg union type\n",
-                "Return parameter description should be: Req msg union type\n");
+        Assert.assertEquals(function.get().returnParameters.get(0).description, "Req msg union type" +
+                        System.lineSeparator(),
+                "Return parameter description should be: Req msg union type" + System.lineSeparator());
         Assert.assertEquals(function.get().returnParameters.get(0).type.moduleName, "docerina_project",
                 "Return parameter type moduleName should be docerina_project");
         Assert.assertEquals(function.get().returnParameters.get(0).type.category, "types",
                 "Return parameter type category should be types");
-
     }
 
     @Test(description = "Test class doc model")
@@ -201,17 +203,19 @@ public class DocModelTest {
 
         Assert.assertNotNull(personClz.get().initMethod, "Person class should have a init method");
         Assert.assertEquals(personClz.get().initMethod.description, "Gets invoked to initialize the Person " +
-                        "object\n\n",
-                "Expected init method description for Person class: Gets invoked to initialize the Person object\n" +
-                        "\n");
+                        "object" + System.lineSeparator() + "\n",
+                "Expected init method description for Person class: Gets invoked to initialize the Person object"
+                        + System.lineSeparator() + "\n");
         Assert.assertTrue(personClz.get().isIsolated, "Person class should be isolated");
         Assert.assertFalse(personClz.get().isReadOnly, "Person class should be readonly");
         Assert.assertEquals(personClz.get().otherMethods.size(), 1,
                 "Person class should have one other method");
         Assert.assertEquals(personClz.get().otherMethods.get(0).name, "addWealth",
                 "Person class second method name should be addWealth");
-        Assert.assertEquals(personClz.get().otherMethods.get(0).description, "Add wealth to person\n\n",
-                "Person class method addWealth description should be: Add wealth to person\n\n");
+        Assert.assertEquals(personClz.get().otherMethods.get(0).description, "Add wealth to person" +
+                        System.lineSeparator() + "\n",
+                "Person class method addWealth description should be: Add wealth to person" +
+                        System.lineSeparator() + "\n");
         Assert.assertEquals(personClz.get().otherMethods.get(0).parameters.size(), 1,
                 "Person class method addWealth should have one parameter");
         Assert.assertEquals(personClz.get().otherMethods.get(0).parameters.get(0).name, "amt",
@@ -236,8 +240,9 @@ public class DocModelTest {
         Assert.assertEquals(mainCntClz.get().otherMethods.get(0).returnParameters.get(0).type.category, "builtin",
                 "MainController class getId method return type category should be builtin");
         Assert.assertEquals(mainCntClz.get().otherMethods.get(0).returnParameters.get(0).description,
-                "string builtin type\n",
-                "MainController class getId method return description should be: string builtin type\n");
+                "string builtin type" + System.lineSeparator(),
+                "MainController class getId method return description should be: string builtin type" +
+                        System.lineSeparator());
     }
 
     @Test(description = "Test client doc model")
@@ -256,9 +261,10 @@ public class DocModelTest {
         Assert.assertEquals(caller.get().remoteMethods.get(0).returnParameters.size(), 1,
                 "Caller client should have one remote method name complete");
         Assert.assertEquals(caller.get().remoteMethods.get(0).returnParameters.get(0).description,
-                "A `grpc:Error` if an error occurs while sending the response or else `()`\n",
-                "Caller client remote method return description should be: " +
-                        "A `grpc:Error` if an error occurs while sending the response or else `()`\n");
+                "A `grpc:Error` if an error occurs while sending the response or else `()`"
+                        + System.lineSeparator(),
+                "Caller client remote method return description should be: A `grpc:Error` if an error " +
+                        "occurs while sending the response or else `()`" + System.lineSeparator());
         Assert.assertTrue(caller.get().remoteMethods.get(0).returnParameters.get(0).type.isAnonymousUnionType,
                 "Caller client remote method return type should be union");
         Assert.assertEquals(caller.get().remoteMethods.get(0).returnParameters.get(0).type.memberTypes.size(), 2,
@@ -281,10 +287,11 @@ public class DocModelTest {
 
         Assert.assertTrue(listener.isPresent(), "Listener not found");
         Assert.assertEquals(listener.get().description, "Represents server listener where one or more " +
-                "services can be registered. so that ballerina program can offer\n" +
-                "service through this listener.\n", "Listener expected description: Represents server " +
-                "listener where one or more services can be registered. so that ballerina program can offer\n" +
-                "service through this listener.\n");
+                "services can be registered. so that ballerina program can offer" + System.lineSeparator() +
+                "service through this listener." + System.lineSeparator(),
+                "Listener expected description: Represents server listener where one or more services can " +
+                        "be registered. so that ballerina program can offer" + System.lineSeparator() +
+                "service through this listener." + System.lineSeparator());
         Assert.assertEquals(listener.get().lifeCycleMethods.size(), 1,
                 "Listener should have one life cycle method");
 
@@ -297,8 +304,10 @@ public class DocModelTest {
 
         Assert.assertTrue(humanRec.isPresent(), "Human record not found");
         Assert.assertTrue(humanRec.get().isClosed, "Human record should be closed");
-        Assert.assertEquals(humanRec.get().description, "Represents a Human record.\n\n",
-                "Expected description for Human record: Represents a Human record.\n\n");
+        Assert.assertEquals(humanRec.get().description, "Represents a Human record." +
+                        System.lineSeparator() + "\n",
+                "Expected description for Human record: Represents a Human record." +
+                        System.lineSeparator() + "\n");
         Assert.assertEquals(humanRec.get().fields.size(), 7, "Expected 7 fields in Human Record");
 
         Assert.assertEquals(humanRec.get().fields.get(0).name, "controller",
@@ -307,8 +316,10 @@ public class DocModelTest {
                 "Type name of first field in Human Record should be MainController");
         Assert.assertEquals(humanRec.get().fields.get(0).type.category, "classes",
                 "Category of first field in Human Record should be classes");
-        Assert.assertEquals(humanRec.get().fields.get(0).description, "A MainController to control the human\n",
-                "Description of first field in Human Record should be: A MainController to control the human\n");
+        Assert.assertEquals(humanRec.get().fields.get(0).description, "A MainController to control the human" +
+                        System.lineSeparator(),
+                "Description of first field in Human Record should be: A MainController to control the human" +
+                        System.lineSeparator());
 
         Assert.assertEquals(humanRec.get().fields.get(1).name, "age",
                 "Second field in Human Record should be age");
@@ -318,8 +329,10 @@ public class DocModelTest {
                 "Type name of second field in Human Record should be int");
         Assert.assertEquals(humanRec.get().fields.get(1).type.category, "builtin",
                 "Category of second field in Human Record should be builtin");
-        Assert.assertEquals(humanRec.get().fields.get(1).description, "Age of the human\n",
-                "Description of first field in Human Record should be: Age of the human\n");
+        Assert.assertEquals(humanRec.get().fields.get(1).description, "Age of the human" +
+                        System.lineSeparator(),
+                "Description of first field in Human Record should be: Age of the human" +
+                        System.lineSeparator());
 
         Assert.assertEquals(humanRec.get().fields.get(2).name, "b",
                 "Third field in Human Record should be b");
@@ -377,7 +390,8 @@ public class DocModelTest {
         Assert.assertTrue(testTypeDescFunc.isPresent(), "testTypeDesc function not found");
         Assert.assertEquals(testTypeDescFunc.get().parameters.size(), 1);
         Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).name, "rowType");
-        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).description, "Typedesc with empty record\n");
+        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).description, "Typedesc with empty record"
+                + System.lineSeparator());
         Assert.assertTrue(testTypeDescFunc.get().parameters.get(0).type.isTypeDesc);
         Assert.assertNotNull(testTypeDescFunc.get().parameters.get(0).type.elementType);
         Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).type.elementType.category, "inline_record");
@@ -390,6 +404,12 @@ public class DocModelTest {
         Optional<Record> uuidRec = testModule.records.stream().filter(record -> record.name.equals("Uuid")).findAny();
         Assert.assertTrue(uuidRec.isPresent(), "Uuid record not found");
         Assert.assertTrue(uuidRec.get().isReadOnly);
+        Assert.assertEquals(uuidRec.get().fields.get(0).name, "timeLow");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.orgName, "ballerina");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "1.1.0");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
 
         Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
                 .equals("Controller")).findAny();
@@ -430,10 +450,11 @@ public class DocModelTest {
         Optional<BType> valuer = testModule.types.stream()
                 .filter(bType -> bType.name.equals("Valuer")).findAny();
         Assert.assertTrue(valuer.isPresent(), "Valuer function type not found");
-        Assert.assertTrue(valuer.get().memberTypes.get(0).isLambda);
-        Assert.assertTrue(valuer.get().memberTypes.get(0).isIsolated);
-        Assert.assertEquals(valuer.get().memberTypes.get(0).returnType.name, "anydata");
-        Assert.assertEquals(valuer.get().memberTypes.get(0).returnType.category, "builtin");
+        Assert.assertTrue(valuer.get().memberTypes.get(0) instanceof FunctionType);
+        Assert.assertTrue(((FunctionType) valuer.get().memberTypes.get(0)).isLambda);
+        Assert.assertTrue(((FunctionType) valuer.get().memberTypes.get(0)).isIsolated);
+        Assert.assertEquals(((FunctionType) valuer.get().memberTypes.get(0)).returnType.name, "anydata");
+        Assert.assertEquals(((FunctionType) valuer.get().memberTypes.get(0)).returnType.category, "builtin");
     }
 
     @Test(description = "Test included record parameter ")
@@ -477,7 +498,6 @@ public class DocModelTest {
         Assert.assertTrue(cityRec.isPresent(), "City record not found");
         Assert.assertEquals(cityRec.get().fields.size(), 2);
 
-        Assert.assertEquals(cityRec.get().fields.get(0).name, "Coordinates");
         Assert.assertNotNull(cityRec.get().fields.get(0).inclusionType);
         Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.name, "Coordinates");
         Assert.assertEquals(cityRec.get().fields.get(0).inclusionType.moduleName, "docerina_project");
@@ -495,22 +515,27 @@ public class DocModelTest {
                 .filter(client -> client.name.equals("PersonA")).findAny();
 
         Assert.assertTrue(personA.isPresent());
-        Assert.assertEquals(personA.get().description, "Represents PersonA object type\n\n");
+        Assert.assertEquals(personA.get().description, "Represents PersonA object type" +
+                System.lineSeparator() + "\n");
 
         Assert.assertEquals(personA.get().methods.size(), 1);
         Assert.assertEquals(personA.get().methods.get(0).name, "getFullName");
-        Assert.assertEquals(personA.get().methods.get(0).description, "Get full name method\n\n");
+        Assert.assertEquals(personA.get().methods.get(0).description, "Get full name method" +
+                System.lineSeparator() + "\n");
         Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).name, "middleName");
-        Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).description, "Middle name of person\n");
+        Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).description, "Middle name of person"
+                + System.lineSeparator());
         Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).type.name, "string");
         Assert.assertEquals(personA.get().methods.get(0).parameters.get(0).type.category, "builtin");
-        Assert.assertEquals(personA.get().methods.get(0).returnParameters.get(0).description, "The full name\n");
+        Assert.assertEquals(personA.get().methods.get(0).returnParameters.get(0).description, "The full name"
+                + System.lineSeparator());
         Assert.assertEquals(personA.get().methods.get(0).returnParameters.get(0).type.name, "string");
         Assert.assertEquals(personA.get().methods.get(0).returnParameters.get(0).type.category, "builtin");
 
         Assert.assertEquals(personA.get().fields.size(), 2);
         Assert.assertEquals(personA.get().fields.get(0).name, "firstName");
-        Assert.assertEquals(personA.get().fields.get(0).description, "First name of the person\n");
+        Assert.assertEquals(personA.get().fields.get(0).description, "First name of the person" +
+                System.lineSeparator());
         Assert.assertEquals(personA.get().fields.get(0).type.name, "string");
         Assert.assertEquals(personA.get().fields.get(0).type.category, "builtin");
     }
@@ -521,7 +546,7 @@ public class DocModelTest {
                 .filter(client -> client.name.equals("StudentA")).findAny();
 
         Assert.assertTrue(studentA.isPresent());
-        Assert.assertEquals(studentA.get().description, "Represents StudentA object type\n");
+        Assert.assertEquals(studentA.get().description, "Represents StudentA object type" + System.lineSeparator());
         Assert.assertEquals(studentA.get().fields.size(), 2);
         Assert.assertNotNull(studentA.get().fields.get(0).inclusionType);
         Assert.assertEquals(studentA.get().fields.get(0).inclusionType.name, "PersonA");
@@ -541,6 +566,7 @@ public class DocModelTest {
         Assert.assertEquals(studentA.get().methods.get(0).inclusionType.moduleName, "docerina_project");
         Assert.assertEquals(studentA.get().methods.get(0).inclusionType.version, "1.0.0");
         Assert.assertEquals(studentA.get().methods.get(0).inclusionType.category, "objectTypes");
+        Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).name, "middleName");
         Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).type.name, "string");
         Assert.assertEquals(studentA.get().methods.get(0).parameters.get(0).type.category, "builtin");
         Assert.assertEquals(studentA.get().methods.get(0).returnParameters.get(0).type.name, "string");
@@ -553,7 +579,8 @@ public class DocModelTest {
                 .filter(client -> client.name.equals("pubString")).findAny();
         Assert.assertTrue(pubString.isPresent());
 
-        Assert.assertEquals(pubString.get().description, "A public variable of string type\n");
+        Assert.assertEquals(pubString.get().description, "A public variable of string type" +
+                System.lineSeparator());
         Assert.assertEquals(pubString.get().defaultValue, "\"123\"");
         Assert.assertEquals(pubString.get().type.category, "builtin");
         Assert.assertEquals(pubString.get().type.name, "string");
@@ -561,7 +588,8 @@ public class DocModelTest {
         Optional<DefaultableVariable> tuple = testModule.variables.stream()
                 .filter(client -> client.name.equals("[a,b]")).findAny();
         Assert.assertTrue(tuple.isPresent());
-        Assert.assertEquals(tuple.get().description, "Docs for tuple module variable.\n");
+        Assert.assertEquals(tuple.get().description, "Docs for tuple module variable." +
+                System.lineSeparator());
         Assert.assertEquals(tuple.get().defaultValue, "[1, 1.5]");
         Assert.assertTrue(tuple.get().type.isTuple);
         Assert.assertEquals(tuple.get().type.memberTypes.size(), 2);
@@ -600,7 +628,7 @@ public class DocModelTest {
         Assert.assertTrue(anyDataType.isPresent());
 
         Assert.assertEquals(typeParam.get().name, "TypeParam");
-        Assert.assertEquals(typeParam.get().description, "A type param\n");
+        Assert.assertEquals(typeParam.get().description, "A type param" + System.lineSeparator());
         Assert.assertTrue(typeParam.get().isAnonymousUnionType);
         Assert.assertEquals(typeParam.get().memberTypes.size(), 2);
         Assert.assertEquals(typeParam.get().memberTypes.get(0).name, "any");
@@ -610,7 +638,7 @@ public class DocModelTest {
 
         Assert.assertEquals(charSubType.get().name, "Char");
         Assert.assertEquals(charSubType.get().description,
-                "Built-in subtype of string containing strings of length 1.\n");
+                "Built-in subtype of string containing strings of length 1." + System.lineSeparator());
         Assert.assertEquals(charSubType.get().memberTypes.get(0).name, "string");
         Assert.assertEquals(charSubType.get().memberTypes.get(0).category, "builtin");
 
@@ -641,7 +669,7 @@ public class DocModelTest {
 
         Assert.assertTrue(inlineRecordReturnFunc.isPresent());
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.category,
-                "inline_closed_record");
+                "inline_record");
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.size(), 3);
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(0).name,
                 "latitude");
@@ -655,5 +683,94 @@ public class DocModelTest {
                 .elementType.isRestParam);
         Assert.assertEquals(inlineRecordReturnFunc.get().returnParameters.get(0).type.memberTypes.get(2)
                 .elementType.elementType.name, "json");
+    }
+
+    @Test(description = "Test private record inclusion")
+    public void testPrivateRecordInclusion() {
+        Optional<Record> subVeriSucRec = testModule.records.stream().filter(record ->
+                record.name.equals("SubscriptionVerificationSuccess")).findAny();
+        Assert.assertTrue(subVeriSucRec.isPresent());
+        Assert.assertNull(subVeriSucRec.get().inclusionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.size(), 5);
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).name, "headers");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).description,
+                "Additional headers to be included in the `http:Response`");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.category, "map");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(0).type.constraint.isAnonymousUnionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(0).name, "string");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(0).category, "builtin");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(1).isArrayType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(1).elementType.name,
+                "string");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(0).type.constraint.memberTypes.get(1).elementType.category,
+                "builtin");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).name, "settings");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).description,
+                "Content to be included in the `http:Response` body");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).type.category, "records");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).type.name, "ClientHttp2Settings");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(1).type.memberTypes.size(), 0);
+        Assert.assertTrue(subVeriSucRec.get().fields.get(1).type.isPublic);
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).name, "timeLow");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(2).type.isAnonymousUnionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.size(), 2);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).name, "DistObj");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).category, "objectTypes");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).orgName, "test_org");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).moduleName, "docerina_project");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(0).version, "1.0.0");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(1).name, "Person");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(2).type.memberTypes.get(1).category, "classes");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).name, "clienthttpSettings");
+        Assert.assertTrue(subVeriSucRec.get().fields.get(3).type.isIntersectionType);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.size(), 2);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).name, "ClientHttp2Settings");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).category, "records");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(0).orgName, "test_org");
+
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(1).name, "readonly");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(3).type.memberTypes.get(1).category, "builtin");
+
+        Assert.assertTrue(subVeriSucRec.get().fields.get(4).type.isRestParam);
+        Assert.assertEquals(subVeriSucRec.get().fields.get(4).type.elementType.name, "string");
+        Assert.assertEquals(subVeriSucRec.get().fields.get(4).type.elementType.category, "builtin");
+    }
+
+    @Test(description = "Test private record parameter")
+    public void testPrivateRecordParameter() {
+        Optional<Function> inlineRecordReturnFunc = testModule.functions.stream()
+                .filter(bType -> bType.name.equals("inlineRecordReturn")).findAny();
+
+        Assert.assertTrue(inlineRecordReturnFunc.isPresent());
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.size(), 2);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).name, "prvtRecord");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.category, "inline_record");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.size(), 5);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).name, "headers");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).description,
+                "Additional headers to be included in the `http:Response`");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                category, "map");
+        Assert.assertTrue(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.isAnonymousUnionType);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.memberTypes.get(0).name, "string");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.memberTypes.get(0).category, "builtin");
+        Assert.assertTrue(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                constraint.memberTypes.get(1).isArrayType);
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                        constraint.memberTypes.get(1).elementType.name,
+                "string");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(0).type.memberTypes.get(0).elementType.
+                        constraint.memberTypes.get(1).elementType.category,
+                "builtin");
+
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(1).name, "publicRecord");
+        Assert.assertEquals(inlineRecordReturnFunc.get().parameters.get(1).type.memberTypes.size(), 0);
     }
 }

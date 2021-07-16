@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -40,5 +41,13 @@ public class EnumDeclarationNodeContext extends AbstractCompletionProvider<EnumD
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, EnumDeclarationNode node)
             throws LSCompletionException {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, EnumDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token token = node.enumKeywordToken();
+
+        return !token.isMissing() && cursor > token.textRange().startOffset();
     }
 }

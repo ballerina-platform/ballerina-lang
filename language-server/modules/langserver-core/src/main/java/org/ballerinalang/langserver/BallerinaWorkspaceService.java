@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -36,7 +35,6 @@ import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.services.WorkspaceService;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -55,7 +53,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
     private final WorkspaceManager workspaceManager;
     private final LanguageServerContext serverContext;
     private final LSClientLogger clientLogger;
-    private final Gson gson = new Gson();
 
     BallerinaWorkspaceService(BallerinaLanguageServer languageServer, WorkspaceManager workspaceManager,
                               LanguageServerContext serverContext) {
@@ -68,10 +65,6 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
     public void setClientCapabilities(LSClientCapabilities clientCapabilities) {
         this.clientCapabilities = clientCapabilities;
-    }
-
-    private String generateHash(BLangCompilationUnit compUnit, String basePath) {
-        return compUnit.getPackageID().toString() + "$" + basePath + "$" + compUnit.getName();
     }
 
     @Override

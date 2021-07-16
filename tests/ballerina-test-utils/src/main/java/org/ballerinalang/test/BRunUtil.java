@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test;
 
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.runtime.api.Module;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -121,6 +123,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -1316,7 +1319,11 @@ public class BRunUtil {
     }
 
     public static String runMain(CompileResult compileResult, String... args) {
-        ExitDetails exitDetails = run(compileResult, args);
+        return runMain(compileResult, new ArrayList<>(), args);
+    }
+
+    public static String runMain(CompileResult compileResult, List<String> javaOpts, String... args) {
+        ExitDetails exitDetails = run(compileResult, javaOpts, args);
         if (exitDetails.exitCode != 0) {
             throw new RuntimeException(exitDetails.errorOutput);
         }
@@ -1324,20 +1331,32 @@ public class BRunUtil {
     }
 
     public static ExitDetails run(CompileResult compileResult, String... args) {
+        return run(compileResult, new ArrayList<>(), args);
+    }
+
+    public static ExitDetails run(CompileResult compileResult, List<String> javaOpts, String... args) {
         PackageManifest packageManifest = compileResult.packageManifest();
         String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
                 packageManifest.version().toString(),
                 MODULE_INIT_CLASS_NAME);
-        URLClassLoader classLoader = (URLClassLoader) compileResult.getClassLoader();
+        Collection<JarLibrary> jarPathRequiredForExecution = compileResult.getJarPathRequiredForExecution();
+        String classPath = "";
+        for (JarLibrary jarLibrary : jarPathRequiredForExecution) {
+            classPath = classPath + File.pathSeparator + jarLibrary.path();
+        }
 
         try {
             final List<String> actualArgs = new ArrayList<>();
-            actualArgs.add(0, "java");
-            actualArgs.add(1, "-cp");
-            String classPath = System.getProperty("java.class.path") + ":" + getClassPath(classLoader);
-            actualArgs.add(2, classPath);
-            actualArgs.add(3, initClassName);
+            int index = 0;
+            actualArgs.add(index++, "java");
+            for (int i = 0; i < javaOpts.size(); i++) {
+                actualArgs.add(index++, javaOpts.get(i));
+            }
+            actualArgs.add(index++, "-cp");
+            classPath = System.getProperty("java.class.path") + classPath;
+            actualArgs.add(index++, classPath);
+            actualArgs.add(index++, initClassName);
             actualArgs.addAll(Arrays.asList(args));
 
             final Runtime runtime = Runtime.getRuntime();
@@ -1381,9 +1400,8 @@ public class BRunUtil {
         final Scheduler scheduler = new Scheduler(false);
         TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
-                new Class[]{String[].class, Path[].class, String.class, String.class},
-                  new Object[]{new String[]{}, configurationDetails.paths,
-                        configurationDetails.secret, configurationDetails.configContent});
+                new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
+                        configurationDetails.paths, configurationDetails.configContent});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
 //        if (temp) {

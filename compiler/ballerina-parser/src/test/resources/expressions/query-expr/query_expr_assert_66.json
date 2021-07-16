@@ -337,7 +337,7 @@
                                                   "isMissing": true,
                                                   "hasDiagnostics": true,
                                                   "diagnostics": [
-                                                    "ERROR_MISSING_VARIABLE_NAME"
+                                                    "ERROR_MISSING_IDENTIFIER"
                                                   ]
                                                 }
                                               ]

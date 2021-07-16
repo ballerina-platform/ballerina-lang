@@ -28,7 +28,7 @@ import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_HELPER_UTILS_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.INVOKE_FUNCTION_ASYNC;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_LANG_CLASSLOADER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -61,7 +61,7 @@ public class GeneratedStaticMethod extends GeneratedMethod {
             argTypeList.add(JAVA_STRING_CLASS);
             argTypeList.add(JAVA_OBJECT_ARRAY_CLASS);
             RuntimeStaticMethod scheduleMethod = EvaluationUtils.getRuntimeMethod(context,
-                    B_DEBUGGER_HELPER_UTILS_CLASS, INVOKE_FUNCTION_ASYNC, argTypeList);
+                    B_DEBUGGER_RUNTIME_CLASS, INVOKE_FUNCTION_ASYNC, argTypeList);
 
             List<Value> scheduleMethodArgs = new ArrayList<>();
             scheduleMethodArgs.add(context.getDebuggeeClassLoader());

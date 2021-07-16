@@ -180,5 +180,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a member of an enum.
      */
-    ENUM_MEMBER
+    ENUM_MEMBER,
+    /**
+     * Indicates flagged node is a query lambda function.
+     */
+    QUERY_LAMBDA
 }

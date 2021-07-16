@@ -79,7 +79,7 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
-public class TestBuildProject {
+public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     private final String dummyContent = "function foo() {\n}";
 
@@ -221,7 +221,7 @@ public class TestBuildProject {
         resetPermissions(projectPath);
     }
 
-    @Test(description = "tests package compilation", enabled = false)
+    @Test(description = "tests package compilation")
     public void testPackageCompilation() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation");
 
@@ -238,10 +238,10 @@ public class TestBuildProject {
         // 3) Compile the current package
         PackageCompilation compilation = currentPackage.getCompilation();
 
-        // The current package has 4 modules and each module has one semantic or syntactic error.
+        // The current package has 4 modules and each module has at least one semantic or syntactic error.
         // This shows that all 4 modules has been compiled, even though the `utils`
         //   module is not imported by any of the other modules.
-        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 4);
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 12);
     }
 
     @Test(description = "tests package diagnostics")
@@ -293,7 +293,7 @@ public class TestBuildProject {
         }
     }
 
-    @Test(description = "tests codegen with native libraries", enabled = false)
+    @Test(description = "tests codegen with native libraries")
     public void testJBallerinaBackend() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation_simple");
 
@@ -312,7 +312,7 @@ public class TestBuildProject {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
 
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4);
 
         Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraryDependencies(
                 currentPackage.packageId(), PlatformLibraryScope.DEFAULT);
@@ -348,7 +348,7 @@ public class TestBuildProject {
         Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 3);
     }
 
-    @Test(description = "tests loading a valid build project using project compilation", enabled = false)
+    @Test(description = "tests loading a valid build project using project compilation")
     public void testBuildProjectAPIWithPackageCompilation() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -419,7 +419,7 @@ public class TestBuildProject {
         }
     }
 
-    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
+    @Test(description = "tests loading a valid build project with build options from toml")
     public void testLoadingBuildOptionsFromToml() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // 1) Initialize the project instance
@@ -439,7 +439,7 @@ public class TestBuildProject {
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
-    @Test(enabled = false, description = "tests loading a valid build project with build options from toml")
+    @Test(description = "tests loading a valid build project with build options from toml")
     public void testOverrideBuildOptions() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
         // 1) Initialize the project instance
@@ -767,7 +767,7 @@ public class TestBuildProject {
         }
     }
 
-    @Test(description = "tests get semantic model in module compilation", enabled = false)
+    @Test(description = "tests get semantic model in module compilation")
     public void testGetSemanticModel() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -805,14 +805,14 @@ public class TestBuildProject {
 
         // Test module level symbols
         List<Symbol> symbols = semanticModel.moduleSymbols();
-        Assert.assertEquals(symbols.size(), 5);
+        Assert.assertEquals(symbols.size(), 4);
 
         // Test symbol
-        Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(5, 10));
+        Optional<Symbol> symbol = semanticModel.symbol(srcFile, LinePosition.from(4, 10));
         symbol.ifPresent(value -> assertEquals(value.getName().get(), "runServices"));
     }
 
-    @Test(description = "tests if other documents exists ie. Ballerina.toml, Package.md", enabled = true)
+    @Test(description = "tests if other documents exists ie. Ballerina.toml, Package.md")
     public void testOtherDocuments() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -947,6 +947,16 @@ public class TestBuildProject {
                         .packageInstance().packageName().toString().equals("package_dep")).findFirst().get();
         Assert.assertEquals(packageDepNew.packageInstance().packageVersion().toString(), "0.1.1");
         Assert.assertEquals(newCompilation.diagnosticResult().diagnosticCount(), 1);
+
+        // Set the old version again
+        project.currentPackage().dependenciesToml()
+                .get().modify().withContent("" +
+                "[[dependency]]\n" +
+                "org = \"foo\"\n" +
+                "name = \"package_dep\"\n" +
+                "version = \"0.1.0\"\n").apply();
+        PackageCompilation newCompilation2 = project.currentPackage().getCompilation();
+        Assert.assertEquals(newCompilation2.diagnosticResult().diagnosticCount(), 0);
     }
 
     @Test(description = "tests if other documents can be edited ie. Dependencies.toml, Package.md")
@@ -1024,7 +1034,7 @@ public class TestBuildProject {
         Assert.assertTrue(project.currentPackage().getDefaultModule().moduleMd().isEmpty());
     }
 
-    @Test(description = "tests adding Dependencies.toml, Package.md", enabled = true)
+    @Test(description = "tests adding Dependencies.toml, Package.md")
     public void testOtherDocumentAdd() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_without_k8s");
 
@@ -1090,7 +1100,7 @@ public class TestBuildProject {
         Assert.assertEquals(compilerPluginTomlTable.entries().size(), 2);
     }
 
-    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)
+    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
     public void testOtherMinimalistProjectEdit() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_minimalist");
 

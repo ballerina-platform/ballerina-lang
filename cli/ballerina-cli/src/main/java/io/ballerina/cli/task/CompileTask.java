@@ -79,7 +79,7 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-            diagnosticResult.diagnostics().forEach(d -> err.println(d.toString()));
+            diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
             if (diagnosticResult.hasErrors()) {
                 throw createLauncherException("compilation contains errors");
             }

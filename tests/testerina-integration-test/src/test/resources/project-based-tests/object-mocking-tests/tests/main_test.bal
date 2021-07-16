@@ -27,6 +27,20 @@ public client class MockHttpClient {
     }
 }
 
+public class MockPersonObj {
+    string fname;
+    string lname;
+
+    public function init(string fname, string lname) {
+        self.fname = fname;
+        self.lname = lname;
+    }
+
+    function name() returns string => self.fname + " " + self.lname;
+
+    public function getValue(string param, typedesc<int|string> td) returns int|string|error => "mock value";
+}
+
 @test:Config {}
 function testUserDefinedMockObject() {
     clientEndpoint = test:mock(TestHttpClient:HttpClient, new MockHttpClient());
@@ -77,4 +91,27 @@ function testProvideAReturnSequence() {
     clientEndpoint = mockClient;
 
     test:assertEquals(doGetRepeat(), "response2");
+}
+
+@test:Config {}
+function testDependentlyTypedFunctions_thenReturn() {
+    PersonObj mockPObj = test:mock(PersonObj);
+    test:prepare(mockPObj).when("getValue").thenReturn("Testing");
+
+    pObj = mockPObj;
+
+    string stringValue = pObj.getValue("id1", td = string);
+    test:assertEquals(stringValue, "Testing");
+
+    test:prepare(mockPObj).when("getValue").withArguments("id2").thenReturn(5);
+    int intValue = pObj.getValue("id2", td = int);
+    test:assertEquals(intValue, 5);
+}
+
+@test:Config {}
+function testDependentlyTypedFunctions_testDouble() {
+      pObj = test:mock(PersonObj, new MockPersonObj("John", "Doe"));
+
+      var s = pObj.getValue("id3", td = string);
+      test:assertEquals(s, "mock value");
 }

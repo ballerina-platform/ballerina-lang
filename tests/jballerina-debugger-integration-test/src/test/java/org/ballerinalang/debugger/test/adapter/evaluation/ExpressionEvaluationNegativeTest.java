@@ -69,7 +69,18 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Implicit new expressions
+        debugTestRunner.assertEvaluationError(context, "new", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
+                "the equivalent explicit expression by specifying the class descriptor (i.e. 'new T()') instead."));
+        debugTestRunner.assertEvaluationError(context, "new()", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
+                "the equivalent explicit expression by specifying the class descriptor (i.e. 'new T()') instead."));
+
+        // New expressions with invalid number of args
+        debugTestRunner.assertEvaluationError(context, "new Location()", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "missing required parameter 'country'."));
+
     }
 
     @Override
@@ -87,7 +98,14 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, XML_VAR + ".name",
+                EvaluationExceptionKind.PREFIX + "Undefined attribute `name' in: 'xmlVar'");
+        debugTestRunner.assertEvaluationError(context, "(xml `xmlString`).name",
+                EvaluationExceptionKind.PREFIX + "Invalid xml attribute access on xml text");
+        debugTestRunner.assertEvaluationError(context, "(xml `<!--I am a comment-->`).name",
+                EvaluationExceptionKind.PREFIX + "Invalid xml attribute access on xml comment");
+        debugTestRunner.assertEvaluationError(context, "(xml `<?target data?>`).name",
+                EvaluationExceptionKind.PREFIX + "Invalid xml attribute access on xml pi");
     }
 
     @Override
@@ -99,7 +117,34 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // strings
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
+                "string index out of range: index=-1, size=5");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[100]", EvaluationExceptionKind.PREFIX +
+                "string index out of range: index=100, size=5");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[\"undefined\"]",
+                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
+                        "'stringVar[\"undefined\"]'");
+        // lists
+        debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
+                "array index out of range: index=-1, size=4");
+        debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[100]", EvaluationExceptionKind.PREFIX +
+                "array index out of range: index=100, size=4");
+        debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[\"undefined\"]",
+                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
+                        "'arrayVar[\"undefined\"]'");
+        // maps
+        debugTestRunner.assertEvaluationError(context, MAP_VAR + "[1]", EvaluationExceptionKind.PREFIX +
+                "expected key type 'string'; found 'int' in 'mapVar[1]'");
+        // JSON
+        debugTestRunner.assertEvaluationError(context, JSON_VAR + "[1]", EvaluationExceptionKind.PREFIX +
+                "expected key type 'string'; found 'int' in 'jsonVar[1]'");
+        // XML
+        debugTestRunner.assertEvaluationError(context, XML_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
+                "xml index out of range: index=-1, size=2");
+        debugTestRunner.assertEvaluationError(context, XML_VAR + "[\"undefined\"]",
+                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
+                        "'xmlVar[\"undefined\"]'");
     }
 
     @Override
@@ -224,7 +269,12 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void rangeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // inclusive range expressions
+        debugTestRunner.assertEvaluationError(context, String.format("%s...%s", INT_VAR, FLOAT_VAR),
+                "operator '...' not defined for 'int' and 'float'.");
+        // exclusive range expressions
+        debugTestRunner.assertEvaluationError(context, String.format("%s..<%s", INT_VAR, STRING_VAR),
+                "operator '..<' not defined for 'int' and 'string'.");
     }
 
     @Override
@@ -352,9 +402,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         " not supported."));
 
         // unsupported expressions
-        debugTestRunner.assertEvaluationError(context, "new()",
+        debugTestRunner.assertEvaluationError(context, "error(\"name\")",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'new()' - IMPLICIT_NEW_EXPRESSION"));
+                        "'error(\"name\")' - ERROR_CONSTRUCTOR"));
     }
 
     @Override

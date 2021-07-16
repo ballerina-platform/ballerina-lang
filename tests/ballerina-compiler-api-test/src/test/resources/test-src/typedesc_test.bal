@@ -231,6 +231,14 @@ function testUnions() {
     FooUnion fUnion = 10;
 }
 
+type FooReadOnly readonly & record {
+    int a;
+};
+
+function testIntersectionTypeRef(FooObj & readonly f, Foo & readonly g) {
+    FooReadOnly recR = g;
+}
+
 type bar function(string, int) returns boolean;
 
 type Obj object {

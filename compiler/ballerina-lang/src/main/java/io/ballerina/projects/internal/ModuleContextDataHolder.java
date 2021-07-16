@@ -18,6 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.ModuleDescriptor;
+import io.ballerina.projects.ProjectKind;
 
 /**
  * Data holder class for {@code ModuleContext}.
@@ -28,10 +29,12 @@ public class ModuleContextDataHolder {
 
     private final boolean exported;
     private final ModuleDescriptor descriptor;
+    private final ProjectKind projectKind;
 
-    public ModuleContextDataHolder(boolean exported, ModuleDescriptor descriptor) {
+    public ModuleContextDataHolder(boolean exported, ModuleDescriptor descriptor, ProjectKind projectKind) {
         this.exported = exported;
         this.descriptor = descriptor;
+        this.projectKind = projectKind;
     }
 
     public boolean isExported() {
@@ -40,5 +43,9 @@ public class ModuleContextDataHolder {
 
     public ModuleDescriptor descriptor() {
         return descriptor;
+    }
+
+    public ProjectKind projectKind() {
+        return projectKind;
     }
 }
