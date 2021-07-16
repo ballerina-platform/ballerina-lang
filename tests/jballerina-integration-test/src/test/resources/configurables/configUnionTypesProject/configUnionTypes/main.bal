@@ -16,9 +16,9 @@
 
 
 import configUnionTypes.mod1;
-import ballerina/jballerina.java;
 import configUnionTypes.mod2;
 import testOrg/configLib.mod1 as configLib;
+import testOrg/configLib.util;
 import ballerina/test;
 
 configurable configLib:HttpVersion & readonly httpVersion = ?;
@@ -28,6 +28,11 @@ configurable mod1:CountryCodes[] countryCodes = ?;
 type HttpResponse record {|
     configLib:HttpVersion httpVersion;
 |};
+
+type Person record {
+    string name;
+    int age?;
+};
 
 configurable HttpResponse httpResponse = ?;
 configurable mod1:Country country = ?;
@@ -46,10 +51,13 @@ configurable configLib:GrantConfig config3 = ?;
 configurable map<configLib:ClientCredentialsGrantConfig>|map<configLib:RefreshTokenGrantConfig> configMap1 = ?;
 configurable map<configLib:ClientCredentialsGrantConfig|configLib:PasswordGrantConfig> configMap2 = ?;
 
+configurable int|Person recordUnionVar = ?;
+configurable float|table<Person> key(name) tableUnionVar = ?;
+
 public function main() {
     testEnumValues();
     mod2:testEnumValues();
-    print("Tests passed");
+    util:print("Tests passed");
 }
 
 function testEnumValues() {
@@ -87,22 +95,7 @@ function testEnumValues() {
                                              "\"clientConfig\":{\"httpVersion\":\"HTTP_1_1\"," +
                                              "\"customHeaders\":{\"header1\":\"header1\"," +
                                              "\"header2\":\"header2\"}}},\"config2\":{\"password\":[\"1\",2,3]}}");
-
+    test:assertEquals(recordUnionVar.toString(), "{\"name\":\"Manu\",\"age\":12}");
+    test:assertEquals(tableUnionVar.toString(), "[{\"name\":\"Nadeeshan\",\"age\":11},{\"name\":\"Gabilan\"}," +
+    "{\"name\":\"Hinduja\",\"age\":15}]");
 }
-
-function print(string value) {
-    handle strValue = java:fromString(value);
-    handle stdout1 = stdout();
-    printInternal(stdout1, strValue);
-}
-
-public function stdout() returns handle = @java:FieldGet {
-    name: "out",
-    'class: "java/lang/System"
-} external;
-
-public function printInternal(handle receiver, handle strValue) = @java:Method {
-    name: "println",
-    'class: "java/io/PrintStream",
-    paramTypes: ["java.lang.String"]
-} external;

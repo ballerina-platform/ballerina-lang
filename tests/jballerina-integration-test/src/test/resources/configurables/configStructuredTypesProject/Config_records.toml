@@ -67,110 +67,38 @@ place1.city="Colombo"
 place2.city="Kandy"
 place3.city="Galle"
 
-[[personArray]]
-name = "manu"
-id = 11
-address.city="New York"
-address.country.name="USA"
-
-[[personArray]]
-name = "hinduja"
-id = 12
-address.city="London"
-address.country.name="UK"
-
-[[personArray1]]
-name = "waruna"
-id = 700
-address.city="Abu Dhabi"
-address.country.name="UAE"
-
-[[personArray1]]
-name = "manu"
-id = 701
-address.city="Mumbai"
-address.country.name="India"
-
-[[personArray2]]
-name = "gabilan"
-id = 900
-address.city="Abu Dhabi"
-address.country.name="UAE"
-
-[[personArray2]]
-name = "hinduja"
-id = 901
-address.city="Mumbai"
-address.country.name="India"
-
-[configStructuredTypes.imported_records.doctor]
+[configRecordType.imported_records.doctor]
 name="waruna"
 
-[configStructuredTypes.imported_records.student]
+[configRecordType.imported_records.student]
 name="riyafa"
 
-[configStructuredTypes.imported_records.employee]
+[configRecordType.imported_records.employee]
 name="manu"
 id=101
 
-[configStructuredTypes.imported_records.employee1]
+[configRecordType.imported_records.employee1]
 name="waruna"
 id=404
 
-[configStructuredTypes.imported_records.officer]
+[configRecordType.imported_records.officer]
 name="gabilan"
 id=101
 
-[configStructuredTypes.imported_records.manager]
+[configRecordType.imported_records.manager]
 name="hinduja"
 id=107
 
-[configStructuredTypes.imported_records.teacher]
+[configRecordType.imported_records.teacher]
 name="hinduja"
 id=11
 
-[configStructuredTypes.imported_records.farmer]
+[configRecordType.imported_records.farmer]
 name="manu"
 id=22
 
-[configStructuredTypes.imported_records.person]
+[configRecordType.imported_records.person]
 name = "hinduja"
 id = 100
 address.city="Kandy"
 address.country.name="Sri Lanka"
-
-[[configStructuredTypes.imported_records.personArray]]
-name = "waruna"
-id = 111
-address.city="Abu Dhabi"
-address.country.name="UAE"
-
-[[configStructuredTypes.imported_records.personArray]]
-name = "manu"
-id = 122
-address.city="Mumbai"
-address.country.name="India"
-
-[[configStructuredTypes.imported_records.personArray1]]
-name = "manu"
-id = 800
-address.city="New York"
-address.country.name="USA"
-
-[[configStructuredTypes.imported_records.personArray1]]
-name = "hinduja"
-id = 801
-address.city="London"
-address.country.name="UK"
-
-[[configStructuredTypes.imported_records.personArray2]]
-name = "riyafa"
-id = 1000
-address.city="New York"
-address.country.name="USA"
-
-[[configStructuredTypes.imported_records.personArray2]]
-name = "waruna"
-id = 1001
-address.city="London"
-address.country.name="UK"

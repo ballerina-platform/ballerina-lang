@@ -24,6 +24,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.packaging.PackerinaTestUtils;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -47,16 +48,20 @@ public class ConfigurableTest extends BaseTest {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
-
         // Build and push config Lib project.
-        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-configLib-any-0.1.0.bala");
-        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-configLib-any-0.1.0.bala to " +
+        compilePackageAndPushToLocal(Paths.get(testFileLocation, "configLibProject").toString(), "testOrg-configLib" +
+                "-java11-0.1.0");
+    }
+
+    private void compilePackageAndPushToLocal(String packagPath, String balaFileName) throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
                                                         "'local' repository.", ERROR);
         bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
-                              testFileLocation + "/configLibProject");
+                              packagPath);
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
-                              testFileLocation + "/configLibProject");
+                              packagPath);
         pushLeecher.waitForText(5000);
     }
 
@@ -169,19 +174,13 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test()
-    public void testConfigurableRecordsAndRecordTables() throws BallerinaTestException {
-        String project = "configStructuredTypesProject";
-        String configFilePaths = Paths.get(testFileLocation, project, "Config_records.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_maps.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_open_records.toml") +
-                File.pathSeparator + Paths.get(testFileLocation, project, "Config_tables.toml");
-        executeBalCommand("/" + project, "configStructuredTypes",
-                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
-    }
-
-    @Test()
     public void testConfigurableUnionTypes() throws BallerinaTestException {
         executeBalCommand("/configUnionTypesProject", "configUnionTypes", null);
+    }
+
+    @Test
+    public void testMultipleTomlModuleSections() throws BallerinaTestException {
+        executeBalCommand("/multipleTomlModuleSectionsProject", "test_module", null);
     }
 
     /** Negative test cases. */
@@ -216,13 +215,29 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testInvalidDefaultableField() throws BallerinaTestException {
-        LogLeecher errorLog = new LogLeecher("error: [Config.toml:(1:1,3:17)] defaultable readonly record field " +
-                                                     "'name' in configurable variable'employees' is not supported",
-                                             ERROR);
-        LogLeecher errorLocationLog = new LogLeecher("\tat testOrg/main:0.1.0(main.bal:25)", ERROR);
-        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLog, errorLocationLog}, testFileLocation + "/invalidDefaultable");
+    public void testMapVariableAndModuleAmbiguity() throws BallerinaTestException {
+        String projectPath = Paths.get(testFileLocation, "testAmbiguousCases").toString();
+
+        LogLeecher errorLog = new LogLeecher("[subModuleClash.bal:(19:26,19:30)] configurable variable name 'test' " +
+                "creates an ambiguity with module 'testOrg/subModuleClash.test:0.1.0'", ERROR);
+        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+                new LogLeecher[]{errorLog}, projectPath + "/subModuleClash");
+        errorLog.waitForText(5000);
+
+        errorLog = new LogLeecher("[main.bal:(20:26,20:30)] configurable variable name 'test' creates an ambiguity " +
+                "with module 'testOrg/test:0.1.0'", ERROR);
+        compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "test").toString(),
+                "testOrg-test-any-0.1.0");
+        compilePackageAndPushToLocal(Paths.get(projectPath, "importedModuleClash", "tests").toString(),
+                "testOrg2-test-any-0.1.0");
+        bMainInstance.runMain("build", new String[]{"-c", "main"}, null, new String[]{},
+                new LogLeecher[]{errorLog}, projectPath + "/importedModuleClash");
+        errorLog.waitForText(5000);
+
+        errorLog = new LogLeecher("[mod1.bal:(17:26,17:30)] configurable variable name 'test' creates an ambiguity " +
+                "with module 'testOrg/multipleSubModuleClash.mod1.test:0.1.0'", ERROR);
+        bMainInstance.runMain("build", new String[]{"-c"}, null, new String[]{},
+                new LogLeecher[]{errorLog}, projectPath + "/multipleSubModuleClash");
         errorLog.waitForText(5000);
     }
 
@@ -232,6 +247,24 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain(testFileLocation + projectPath, packageName, null, new String[]{}, envProperties, null,
                 new LogLeecher[]{logLeecher});
         logLeecher.waitForText(5000);
+    }
+
+    @Test(dataProvider = "structured-project-provider")
+    public void testStructuredTypeConfigurable(String packageName, String configFile) throws BallerinaTestException {
+        executeBalCommand("/configStructuredTypesProject", packageName,
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFile))));
+    }
+
+    @DataProvider(name = "structured-project-provider")
+    public Object[] structuredDataProvider() {
+        return new String[][]{
+                {"configRecordType", "Config_records.toml"},
+                {"configOpenRecord", "Config_open_records.toml"},
+                {"defaultValuesRecord", "Config_default_values.toml"},
+                {"configRecordArray", "Config_record_arrays.toml"},
+                {"configTableType", "Config_tables.toml"},
+                {"configMapType", "Config_maps.toml"}
+        };
     }
 
     /**
