@@ -201,10 +201,8 @@ public class ModuleGen {
 
         BArray body = (BArray) astFunc.body.accept(this);
 
-        HashMap<String, Object> mapPosValues = new HashMap<>();
-        mapPosValues.put("lineNumber", astFunc.pos.lineRange().startLine().line() + 1);
-        mapPosValues.put("indexInLine", astFunc.pos.textRange().startOffset() + 9);
-        BMap<BString, Object> pos = ValueCreator.createRecordValue(modFront, "TempPosition", mapPosValues);
+        int lineNumber = astFunc.pos.lineRange().startLine().line() + 1;
+        int indexInLine = astFunc.pos.textRange().startOffset() + 9;
 
         ArrayType typDescArrTyp = TypeCreator.createArrayType(typeDescTyp);
         BArray args = ValueCreator.createArrayValue(typDescArrTyp);
@@ -224,7 +222,8 @@ public class ModuleGen {
         mapInitialValueEntries.put("paramNames", paramNames);
         mapInitialValueEntries.put("body", body);
         mapInitialValueEntries.put("typeDesc", td);
-        mapInitialValueEntries.put("pos", pos);
+        mapInitialValueEntries.put("tempLineNumber", lineNumber);
+        mapInitialValueEntries.put("tempIndexInLine", indexInLine);
         return ValueCreator.createRecordValue(modFront, "FunctionDef", mapInitialValueEntries);
     }
 

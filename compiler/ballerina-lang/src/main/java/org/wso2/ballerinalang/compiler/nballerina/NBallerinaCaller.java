@@ -116,7 +116,8 @@ public class NBallerinaCaller {
 
             Object bir = modGenerator.genMod(pkgNode);
 
-            Scheduler scheduler = new Scheduler(false);
+            Scheduler scheduler1 = new Scheduler(false);
+            Scheduler scheduler2 = new Scheduler(false);
 
             Function<Object[], Object> func = objects -> {
                 try {
@@ -129,14 +130,14 @@ public class NBallerinaCaller {
                 }
             };
 
-            scheduler.schedule(new Object[1], funcInit, null, null, null,
+            scheduler1.schedule(new Object[1], funcInit, null, null, null,
                     PredefinedTypes.TYPE_ANY, null, null);
-            scheduler.schedule(new Object[1], funcStart, null, null, null,
+            scheduler1.schedule(new Object[1], funcStart, null, null, null,
                     PredefinedTypes.TYPE_ANY, null, null);
-            final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
+            scheduler1.start();
+            final FutureValue out = scheduler2.schedule(new Object[1], func, null, null, null,
                     PredefinedTypes.TYPE_ANY, null, null);
-            scheduler.start();
-
+            scheduler2.start();
             final Throwable t = out.panic;
             if (t != null) {
                 if (t instanceof io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException) {
