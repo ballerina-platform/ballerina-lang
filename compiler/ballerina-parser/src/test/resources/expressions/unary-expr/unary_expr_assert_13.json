@@ -1,6 +1,5 @@
 {
   "kind": "FUNCTION_DEFINITION",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -46,7 +45,6 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -59,11 +57,9 @@
         },
         {
           "kind": "LIST",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LOCAL_VAR_DECL",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -71,7 +67,6 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "BOOLEAN_TYPE_DESC",
@@ -95,16 +90,10 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_ESCAPE_SEQUENCE",
-                            "ERROR_INVALID_ESCAPE_SEQUENCE"
-                          ],
-                          "value": "is\\not\\found",
+                          "value": "is\\ not\\ found",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -146,7 +135,6 @@
             },
             {
               "kind": "IF_ELSE_STATEMENT",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IF_KEYWORD",
@@ -165,23 +153,16 @@
                 },
                 {
                   "kind": "UNARY_EXPRESSION",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "EXCLAMATION_MARK_TOKEN"
                     },
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_ESCAPE_SEQUENCE",
-                            "ERROR_INVALID_ESCAPE_SEQUENCE"
-                          ],
-                          "value": "is\\not\\found",
+                          "value": "is\\ not\\ found",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -213,10 +194,6 @@
                       "kind": "CLOSE_BRACE_TOKEN",
                       "leadingMinutiae": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": "    "
                         }
@@ -235,7 +212,13 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "CLOSE_BRACE_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         }
       ]
     }

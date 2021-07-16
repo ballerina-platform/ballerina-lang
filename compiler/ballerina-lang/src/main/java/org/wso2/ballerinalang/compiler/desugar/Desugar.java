@@ -7777,20 +7777,20 @@ public class Desugar extends BLangNodeVisitor {
             typeTestExpr.expr = rewriteExpr(expr);
             typeTestExpr.typeNode = rewrite(typeTestExpr.typeNode, env);
             result = typeTestExpr;
-        } else {
-            BLangTypeTestExpr bLangTypeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
-            bLangTypeTestExpr.expr = typeTestExpr.expr;
-            bLangTypeTestExpr.typeNode = typeTestExpr.typeNode;
-            bLangTypeTestExpr.setBType(typeTestExpr.getBType());
-            BLangGroupExpr bLangGroupExpr = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
-            bLangGroupExpr.expression = bLangTypeTestExpr;
-            bLangGroupExpr.setBType(typeTestExpr.getBType());
-            BLangUnaryExpr unaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
-            unaryExpr.operator = OperatorKind.NOT;
-            unaryExpr.expr = bLangGroupExpr;
-            unaryExpr.setBType(typeTestExpr.getBType());
-            result = rewriteExpr(unaryExpr);
+            return;
         }
+        BLangTypeTestExpr bLangTypeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        bLangTypeTestExpr.expr = typeTestExpr.expr;
+        bLangTypeTestExpr.typeNode = typeTestExpr.typeNode;
+        bLangTypeTestExpr.setBType(typeTestExpr.getBType());
+        BLangGroupExpr bLangGroupExpr = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
+        bLangGroupExpr.expression = bLangTypeTestExpr;
+        bLangGroupExpr.setBType(typeTestExpr.getBType());
+        BLangUnaryExpr unaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        unaryExpr.operator = OperatorKind.NOT;
+        unaryExpr.expr = bLangGroupExpr;
+        unaryExpr.setBType(typeTestExpr.getBType());
+        result = rewriteExpr(unaryExpr);
     }
 
     @Override

@@ -1,8 +1,2 @@
-function test() {
-    boolean is\not\found = true;
-    if !is\not\found {
-
-    }
+public function main() {
 }
-
-//boolean a = !is\Not\Found;

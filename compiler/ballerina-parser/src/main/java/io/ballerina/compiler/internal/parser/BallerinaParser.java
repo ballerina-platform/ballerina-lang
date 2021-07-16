@@ -8307,9 +8307,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse is expression.
+     * Parse type test expression.
      * <code>
-     * is-expr := expression is type-descriptor
+     * type-test-expr := expression (is | !is) type-descriptor
      * </code>
      *
      * @param lhsExpr Preceding expression of the is expression
@@ -8322,9 +8322,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse type test expression.
+     * Parse `is` keyword or `!is` keyword.
      *
-     * @return Type test expression node
+     * @return is-keyword or not-is-keyword node
      */
     private STNode parseIsOrNotIsKeyword() {
         STToken token = peek();
