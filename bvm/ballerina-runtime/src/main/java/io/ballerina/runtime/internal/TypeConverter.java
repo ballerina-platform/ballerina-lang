@@ -49,7 +49,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -259,7 +258,6 @@ public class TypeConverter {
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
                 }
-                resolveAmbiguitiesWithIntAndIntSubtypes(convertibleTypes);
                 break;
             case TypeTags.ARRAY_TAG:
                 if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues)) {
@@ -445,47 +443,33 @@ public class TypeConverter {
         }
         ArrayValue source = (ArrayValue) sourceValue;
         Type targetTypeElementType = targetType.getElementType();
+        if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
+            Type sourceElementType = ((BArrayType) source.getType()).getElementType();
+            if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
+                return true;
+            }
+        }
         Set<Type> convertibleTypes;
         for (int i = 0; i < source.size(); i++) {
-            Type sourceElementType = TypeChecker.getType(source.get(i));
             convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues);
-            if (convertibleTypes.size() != 1 && !convertibleTypes.contains(sourceElementType)) {
+            if (convertibleTypes.size() != 1 && !convertibleTypes.contains(TypeChecker.getType(source.get(i)))
+                    && !hasIntegerSubTypes(convertibleTypes)) {
                 return false;
             }
         }
         return true;
     }
 
-    private static void resolveAmbiguitiesWithIntAndIntSubtypes(Set<Type> convertibleTypes) {
-        List<Type> targetIntegerTypes = new ArrayList<>();
+    public static boolean hasIntegerSubTypes(Set<Type> convertibleTypes) {
+        if (convertibleTypes.size() < 2) {
+            return false;
+        }
         for (Type type : convertibleTypes) {
             if (!TypeTags.isIntegerTypeTag(type.getTag()) && type.getTag() != TypeTags.BYTE_TAG) {
-                return;
+                return false;
             }
         }
-        targetIntegerTypes.addAll(convertibleTypes);
-        if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT)) {
-            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT);
-            convertibleTypes.removeAll(targetIntegerTypes);
-        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_UNSIGNED_32)) {
-            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_UNSIGNED_32);
-            convertibleTypes.removeAll(targetIntegerTypes);
-        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_SIGNED_32)) {
-            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_SIGNED_32);
-            convertibleTypes.removeAll(targetIntegerTypes);
-        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_UNSIGNED_16)) {
-            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_UNSIGNED_16);
-            convertibleTypes.removeAll(targetIntegerTypes);
-        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_SIGNED_16)) {
-            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_SIGNED_16);
-            convertibleTypes.removeAll(targetIntegerTypes);
-        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_INT_UNSIGNED_8)) {
-            targetIntegerTypes.remove(PredefinedTypes.TYPE_INT_UNSIGNED_8);
-            convertibleTypes.removeAll(targetIntegerTypes);
-        } else if (targetIntegerTypes.contains(PredefinedTypes.TYPE_BYTE)) {
-            targetIntegerTypes.remove(PredefinedTypes.TYPE_BYTE);
-            convertibleTypes.removeAll(targetIntegerTypes);
-        }
+        return true;
     }
 
     static long anyToInt(Object sourceVal, Supplier<BError> errorFunc) {

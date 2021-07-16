@@ -675,9 +675,8 @@ function testCloneWithTypeToArrayOfRecord () {
     X x1 = { a: 21, b: "Alice", c: 1000.5 };
     X x2 = { a: 25, b: "Michel", c: 1020.5};
     X[] x = [x1, x2];
-    Y[]|error y = x.cloneWithType();
-    assert(y is error, false);
-    //assert(y, [{"a":21.0,"b":"Alice","c":1000.5},{"a":25.0,"b":"Michel","c":1020.5}]);
+    Y[] y = checkpanic x.cloneWithType();
+    assert(y, <Y[]> [{"a":21.0,"b":"Alice","c":1000.5},{"a":25.0,"b":"Michel","c":1020.5}]);
 }
 
 function testCloneWithTypeToArrayOfMap () {
@@ -686,7 +685,7 @@ function testCloneWithTypeToArrayOfMap () {
     map<float>[] m = [m1, m2];
     map<string|int>[]|error res = m.cloneWithType();
     assert(res is error, false);
-    //assert(res, [{"a": 1, "b": 3}, {"a": 2, "b": 2}]);
+    assert(checkpanic res, [{"a": 1, "b": 3}, {"a": 2, "b": 2}]);
 }
 
 type IntMap map<int>;
@@ -777,7 +776,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(messageString, "'decimal[]' value cannot be converted to 'int[]'");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
 
     decimal a2 = 0.0 / 0;
     int|error nan = a2.cloneWithType(int);

@@ -114,7 +114,8 @@ public class CloneWithType {
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
             throw createConversionError(value, targetType);
-        } else if (!allowAmbiguity && convertibleTypes.size() > 1 && !convertibleTypes.contains(sourceType)) {
+        } else if (!allowAmbiguity && convertibleTypes.size() > 1 && !convertibleTypes.contains(sourceType) &&
+                !TypeConverter.hasIntegerSubTypes(convertibleTypes)) {
             throw createAmbiguousConversionError(value, targetType);
         }
 
