@@ -15,15 +15,12 @@
 // under the License.
 
 import ballerina/jballerina.java;
+
 public client class PublicClientObject {
     remote function getRemoteCounter(int num, decimal value, string msg = "test message") {
     }
 }
 
-public function getParamNames(PublicClientObject obj, string name) returns string[] = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
-} external;
-
-public function getParamDefaultability(PublicClientObject obj, string name) returns boolean[] = @java:Method {
+public function getParameters(PublicClientObject obj, string name) returns [string, boolean][] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

@@ -120,25 +120,17 @@ function assertEquality(any|error actual, any|error expected) {
 }
 
 function testServiceRemoteMethod(serv:Service serviceVal) {
-    string[] paramNames = getRemoteParamNames(serviceVal, "getRemoteCounter");
-    assertEquality(paramNames.length(), 3);
-    assertEquality(paramNames[0], "num");
-    assertEquality(paramNames[1], "value");
-    assertEquality(paramNames[2], "msg");
-
-    boolean[] paramDefaultability = getRemoteParamDefaultability(serviceVal, "getRemoteCounter");
-    assertEquality(paramDefaultability.length(), 3);
-    assertEquality(paramDefaultability[0], false);
-    assertEquality(paramDefaultability[1], false);
-    assertEquality(paramDefaultability[2], true);
+    [string, boolean][] parameters = getRemoteParameters(serviceVal, "getRemoteCounter");
+    assertEquality(parameters.length(), 3);
+    assertEquality(parameters[0][0], "num");
+    assertEquality(parameters[0][1], false);
+    assertEquality(parameters[1][0], "value");
+    assertEquality(parameters[1][1], false);
+    assertEquality(parameters[2][0], "msg");
+    assertEquality(parameters[2][1], true);
 }
 
-public function getRemoteParamNames(service object {} s, string name) returns string[] = @java:Method {
+public function getRemoteParameters(service object {} s, string name) returns [string, boolean][] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values",
-    name: "getParamNames"
-} external;
-
-public function getRemoteParamDefaultability(service object {} s, string name) returns boolean[] = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values",
-    name: "getParamDefaultability"
+    name: "getParameters"
 } external;

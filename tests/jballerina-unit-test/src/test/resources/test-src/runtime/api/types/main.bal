@@ -19,15 +19,9 @@ import testorg/runtime_api_types.objects;
 
 public function main() {
     objects:PublicClientObject obj = new ();
-    string[] paramNames = objects:getParamNames(obj, "getRemoteCounter");
-    test:assertEquals(paramNames.length(), 3);
-    test:assertEquals(paramNames[0], "num");
-    test:assertEquals(paramNames[1], "value");
-    test:assertEquals(paramNames[2], "msg");
-
-    boolean[] paramDefaultability = objects:getParamDefaultability(obj, "getRemoteCounter");
-    test:assertEquals(paramDefaultability.length(), 3);
-    test:assertEquals(paramDefaultability[0], false);
-    test:assertEquals(paramDefaultability[1], false);
-    test:assertEquals(paramDefaultability[2], true);
+    [string,boolean] [] parameters = objects:getParameters(obj, "getRemoteCounter");
+    test:assertEquals(parameters.length(), 3);
+    test:assertEquals(parameters[0], ["num", false]);
+    test:assertEquals(parameters[1], ["value", false]);
+    test:assertEquals(parameters[2], ["msg", true]);
 }
