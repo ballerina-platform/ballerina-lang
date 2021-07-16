@@ -1606,8 +1606,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ARG_END;
             case ARG_END:
                 return ParserRuleContext.ARG_LIST_END;
-            case CLASS_MEMBER_START:
-            case OBJECT_MEMBER_START:
+            case CLASS_MEMBER_OR_OBJECT_MEMBER_START:
+            case OBJECT_CONSTRUCTOR_MEMBER_START:
             case CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META:
             case OBJECT_CONS_MEMBER_WITHOUT_META:
                 return ParserRuleContext.CLOSE_BRACE;
@@ -1869,7 +1869,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_METHOD_WITHOUT_FIRST_QUALIFIER:
             case OBJECT_METHOD_WITHOUT_SECOND_QUALIFIER:
             case OBJECT_METHOD_WITHOUT_THIRD_QUALIFIER:
-            case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
+            case FUNC_DEF:
                 return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
             case JOIN_CLAUSE_START:
                 return ParserRuleContext.JOIN_KEYWORD;
@@ -1886,6 +1886,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_WORKER_DECL_START:
                 return ParserRuleContext.WORKER_KEYWORD;
             case FUNC_TYPE_DESC_START:
+            case FUNC_DEF_START:
             case ANON_FUNC_EXPRESSION_START:
                 return ParserRuleContext.FUNCTION_KEYWORD;
             case MODULE_CLASS_DEFINITION_START:
@@ -1953,7 +1954,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_DEF_WITHOUT_SECOND_QUALIFIER:
             case CLASS_DEF_WITHOUT_THIRD_QUALIFIER:
                 return ParserRuleContext.CLASS_KEYWORD;
-            case FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER:
+            case FUNC_DEF_WITHOUT_FIRST_QUALIFIER:
                 return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
             case FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL:
                 return ParserRuleContext.FUNCTION_KEYWORD;
@@ -1977,6 +1978,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESC_IN_PARAM;
             case PARAM_RHS:
                 return ParserRuleContext.VARIABLE_NAME;
+            case ANNOTATION_DECL_START:
+                return ParserRuleContext.ANNOTATION_KEYWORD;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
         }
@@ -5605,6 +5608,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_MATCH_PATTERN:
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
+            case ANNOTATION_DECL_START:
+                return SyntaxKind.ANNOTATION_KEYWORD;
             default:
                 return getExpectedSeperatorTokenKind(ctx);
         }

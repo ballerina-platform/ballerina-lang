@@ -354,6 +354,7 @@ public class SyntaxErrors {
             case XML_NAMESPACE_DECLARATION:
                 return DiagnosticErrorCode.ERROR_MISSING_XMLNS_KEYWORD;
             case ANNOTATION_KEYWORD:
+            case ANNOTATION_DECL_START:
                 return DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_KEYWORD;
             case TYPE_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_KEYWORD;

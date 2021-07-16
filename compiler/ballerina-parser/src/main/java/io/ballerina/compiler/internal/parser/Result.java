@@ -22,6 +22,8 @@ import java.util.ArrayDeque;
 /**
  * Represent a result of a token-sequence-search in a sub-tree. The result will contain the fixes required to
  * traverse in that sub-tree, and the number of matching tokens it found, without the fixed tokens.
+ *
+ * @since 2.0.0
  */
 public class Result {
 
@@ -44,7 +46,8 @@ public class Result {
      * Represent the end solution to be applied to the next immediate token, to recover from the error.
      * If the solution is to insert/remove next immediate token, then this is equivalent to the
      * <code>fixes.peek()</code>. Else, if the solution is to insert/remove a token that is not the
-     * immediate next token, then this will have a solution with {@link AbstractParserErrorHandler.Action#KEEP} as the action.
+     * immediate next token, then this will have a solution with {@link AbstractParserErrorHandler.Action#KEEP}
+     * as the action.
      */
     protected AbstractParserErrorHandler.Solution solution;
 
