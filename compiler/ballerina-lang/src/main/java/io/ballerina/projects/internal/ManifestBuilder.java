@@ -405,6 +405,8 @@ public class ManifestBuilder {
 
         boolean skipTests = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.SKIP_TESTS.toString());
         boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
+        boolean experimental =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
         boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
         boolean testReport =
@@ -424,6 +426,7 @@ public class ManifestBuilder {
         return buildOptionsBuilder
                 .skipTests(skipTests)
                 .offline(offline)
+                .experimental(experimental)
                 .observabilityIncluded(observabilityIncluded)
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)

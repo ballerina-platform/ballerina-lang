@@ -1237,6 +1237,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OUTER_KEYWORD;
             case "CONFIGURABLE_KEYWORD":
                 return SyntaxKind.CONFIGURABLE_KEYWORD;
+            case "UNDERSCORE_KEYWORD":
+                return SyntaxKind.UNDERSCORE_KEYWORD;
             default:
                 return getXMLTemplateKind(kind);
         }

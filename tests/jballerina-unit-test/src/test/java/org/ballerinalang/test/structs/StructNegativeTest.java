@@ -78,7 +78,10 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, i++, "missing close brace token", 20, 20);
         BAssertUtil.validateError(result, i++, "missing question mark token", 20, 20);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'person', found 'string'", 20, 24);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 20, 29);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 20, 28);
+        BAssertUtil.validateError(result, i++, "invalid token ';'", 23, 1);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 23, 1);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test(enabled = false)
@@ -94,7 +97,10 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, i++, "missing close brace token", 11, 25);
         BAssertUtil.validateError(result, i++, "missing question mark token", 11, 25);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'Department', found 'string'", 11, 29);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 11, 34);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 11, 33);
+        BAssertUtil.validateError(result, i++, "invalid token ';'", 14, 1);
+        BAssertUtil.validateError(result, i++, "invalid token '}'", 14, 1);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test(description = "Test defining a struct constant")

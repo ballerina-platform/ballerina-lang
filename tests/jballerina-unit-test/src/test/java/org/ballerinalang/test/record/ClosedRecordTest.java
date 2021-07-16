@@ -222,7 +222,7 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, i++, "invalid token '}'", 5, 2);
         BAssertUtil.validateError(result, i++, "missing close brace token", 11, 1);
         BAssertUtil.validateError(result, i++, "invalid token '|}'", 11, 3);
-        BAssertUtil.validateError(result, i++, "missing type desc", 13, 23);
+        BAssertUtil.validateError(result, i++, "missing type descriptor", 13, 23);
         BAssertUtil.validateError(result, i++, "invalid token '|'", 17, 3);
         BAssertUtil.validateError(result, i++, "missing close brace pipe token", 19, 25);
         BAssertUtil.validateError(result, i++, "invalid token '|'", 19, 28);

@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
@@ -26,7 +25,6 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
-import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +36,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class VariableDeclarationNodeContext extends VariableDeclarationProvider<VariableDeclarationNode> {
+public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvider<VariableDeclarationNode> {
 
     public VariableDeclarationNodeContext() {
         super(VariableDeclarationNode.class);
@@ -65,20 +63,6 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
         return CompletionUtil.route(context, node.parent());
     }
 
-    @Override
-    public void sort(BallerinaCompletionContext context, VariableDeclarationNode node,
-                     List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
-        if (typeSymbolAtCursor.isEmpty()) {
-            super.sort(context, node, completionItems);
-        }
-        TypeSymbol symbol = typeSymbolAtCursor.get();
-        for (LSCompletionItem completionItem : completionItems) {
-            completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
-        }
-    }
-
     private boolean onExpressionContext(BallerinaCompletionContext context, VariableDeclarationNode node) {
         if (node.equalsToken().isEmpty()) {
             return false;
@@ -88,7 +72,7 @@ public class VariableDeclarationNodeContext extends VariableDeclarationProvider<
 
         return equalTokenRange.endOffset() <= textPosition;
     }
-    
+
     private boolean onVariableNameContext(BallerinaCompletionContext context, VariableDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPatternNode = node.typedBindingPattern();

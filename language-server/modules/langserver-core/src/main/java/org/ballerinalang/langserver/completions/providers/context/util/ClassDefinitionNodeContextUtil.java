@@ -13,18 +13,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 public class ClassDefinitionNodeContextUtil {
     private ClassDefinitionNodeContextUtil() {
     }
-    
-    public static boolean onSuggestResourceSnippet(Node node) {
-        if (node.kind() == SyntaxKind.SERVICE_DECLARATION) {
-            return true;
-        }
-        if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
-            return ((ClassDefinitionNode) node).classTypeQualifiers().stream()
-                    .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD);
-        }
-        
-        return false;
-    }
 
     public static boolean onSuggestInitFunction(Node node) {
         if (node.kind() != SyntaxKind.CLASS_DEFINITION) {

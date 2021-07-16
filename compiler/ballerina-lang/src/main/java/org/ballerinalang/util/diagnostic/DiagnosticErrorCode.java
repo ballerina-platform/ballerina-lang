@@ -454,6 +454,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     FAILED_PREDICATE("BCE3104", "failed.predicate"),
     SYNTAX_ERROR("BCE3105", "syntax.error"),
     INVALID_SHIFT_OPERATOR("BCE3106", "invalid.shift.operator"),
+    UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER("BCE3107", "underscore.not.allowed.as.identifier"),
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("BCE3200", "invalid.stream.constructor"),
@@ -716,7 +717,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "unimplemented.referenced.method.in.service.declaration"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4006", "unimplemented.referenced.method.in.object.constructor"),
     UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4007", "unsupported.remote.method.name.in.scope"),
-    WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY("BCE4008", "wild.card.binding.pattern.only.supports.type.any")
+    WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY("BCE4008", "wild.card.binding.pattern.only.supports.type.any"),
+    CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY("BCE4009", "configurable.variable.module.ambiguity")
     ;
 
     private String diagnosticId;

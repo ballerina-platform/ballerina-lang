@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -260,19 +260,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRec2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "TestRec2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRec2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "TestRec2",
       "insertTextFormat": "Snippet"
     },
     {
