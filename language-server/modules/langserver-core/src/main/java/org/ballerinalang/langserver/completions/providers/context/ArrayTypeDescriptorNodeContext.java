@@ -37,6 +37,10 @@ import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ArrayTypeDescriptorNode} context.
+ * 
+ * Array type descriptor suggests the completions only if the cursor is within the brackets
+ * eg:
+ * (1) TypeName[[cursor]] ...
  *
  * @since 2.0.0
  */

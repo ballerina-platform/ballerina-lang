@@ -60,8 +60,8 @@ public class ConfigResolver {
         this.diagnosticLog = diagnosticLog;
     }
 
-    public Map<VariableKey, Object> resolveConfigs() {
-        Map<VariableKey, Object> configValueMap = new HashMap<>();
+    public Map<VariableKey, ConfigValue> resolveConfigs() {
+        Map<VariableKey, ConfigValue> configValueMap = new HashMap<>();
         if (configVarMap.isEmpty()) {
             return configValueMap;
         }
@@ -80,7 +80,7 @@ public class ConfigResolver {
             VariableKey[] variableKeys = entry.getValue();
             for (VariableKey varKey : variableKeys) {
                 Optional<?> configValue = getConfigValue(module, varKey);
-                configValue.ifPresent(o -> configValueMap.put(varKey, o));
+                configValue.ifPresent(o -> configValueMap.put(varKey, (ConfigValue) o));
             }
         }
         for (ConfigProvider provider : runtimeConfigProviders) {
@@ -146,7 +146,7 @@ public class ConfigResolver {
                 break;
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                    IdentifierUtils.decodeIdentifier(type.toString()));;
+                                    IdentifierUtils.decodeIdentifier(type.toString()));
         }
         return Optional.empty();
     }

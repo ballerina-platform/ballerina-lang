@@ -14,9 +14,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public class Person {
+    public string name;
+
+    function init(string name) {
+        self.name = name;
+    }
+
+    function getName() returns string {
+        return self.name;
+    }
+}
+
 public function main() {
      _ = sum(1, 2);
     earlyReturnFunc(1,2);
+
+    Person p1 = new Person("John");
+    string name = p1.getName();
 }
 
 function earlyReturnFunc(int a, int b) {
