@@ -295,4 +295,10 @@
             <class name="org.ballerinalang.test.bindgen.BindgenTestCase" />
         </classes>
     </test>
+    <test name="ballerina-async-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.async.AsyncFunctionsTest" />
+        </classes>
+    </test>
 </suite>
