@@ -255,7 +255,8 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible types: expected 'record {| anydata...; |}[]', found " +
                 "'record {| int i; any...; |}[]'", 53, 12);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 70, 16);
-        validateError(compileResult, index++, "undefined field 'key' in record 'record {| int i; boolean b; int...; |}'", 71, 13);
+        validateError(compileResult, index++, "undefined field 'key' in record 'record {| int i; boolean b; int...; " +
+                "|}'", 71, 13);
         validateError(compileResult, index++, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
         validateError(compileResult, index++, "incompatible types: expected 'record {| int i; |}', found 'record {| " +
                 "int a; float b; string...; |}'", 85, 12);
