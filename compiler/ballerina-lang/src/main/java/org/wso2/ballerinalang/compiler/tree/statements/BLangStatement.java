@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 /**
@@ -35,6 +34,4 @@ public abstract class BLangStatement extends BLangNode implements StatementNode 
         public BLangStatement statement;
         public BLangStatementLink parent;
     }
-
-    public abstract Object accept(ModuleGen visitor);
 }

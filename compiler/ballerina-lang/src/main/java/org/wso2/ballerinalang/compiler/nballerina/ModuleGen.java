@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -41,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -66,15 +68,14 @@ public class ModuleGen {
     private static final CompilerContext.Key<ModuleGen> MOD_GEN =
             new CompilerContext.Key<>();
 
-    //private static Module modBir = new Module("wso2", "nballerina.bir", "0.1.0");
     private static final Module modFront = new Module("wso2", "nballerina.front", "0.1.0");
-    private static final Module modErr = new Module("wso2", "nballerina.err", "0.1.0");
-    static BMap<BString, Object> tempVal;
     private static UnionType stmtTyp;
     private static UnionType exprTyp;
     private static UnionType defTyp;
     private static UnionType typeDescTyp;
     private static UnionType conTypeDescTyp;
+    private static ArrayType stmtArrTyp;
+    private static ArrayType typDescArrTyp;
     PrintStream console = System.out;
 
     public static ModuleGen getInstance(CompilerContext context) {
@@ -93,6 +94,8 @@ public class ModuleGen {
         defTyp = getDefTyp();
         conTypeDescTyp = getConstructorTypDescTyp();
         typeDescTyp = getTypeDescTyp();
+        stmtArrTyp = TypeCreator.createArrayType(stmtTyp);
+        typDescArrTyp = TypeCreator.createArrayType(typeDescTyp);
     }
 
     public Object genMod(BLangPackage astPkg) {
@@ -112,9 +115,13 @@ public class ModuleGen {
                 false, 0);
         RecordType whileStmt = TypeCreator.createRecordType("WhileStmt", modFront, 0,
                 false, 0);
-        FiniteType breakStmt = TypeCreator.createFiniteType("BreakStmt");
-        FiniteType continueStmt = TypeCreator.createFiniteType("ContinueStmt");
-        return TypeCreator.createUnionType(returnStmt, breakStmt, continueStmt);
+        LinkedHashSet breakSet = new LinkedHashSet();
+        breakSet.add(new BmpStringValue("break"));
+        FiniteType breakStmt = TypeCreator.createFiniteType("BreakStmt", breakSet, 6);
+        LinkedHashSet continueSet = new LinkedHashSet();
+        continueSet.add(new BmpStringValue("continue"));
+        FiniteType continueStmt = TypeCreator.createFiniteType("ContinueStmt", continueSet, 6);
+        return TypeCreator.createUnionType(returnStmt, ifElseStmt, whileStmt, breakStmt, continueStmt);
     }
 
     private static UnionType getDefTyp() {
@@ -184,6 +191,7 @@ public class ModuleGen {
 
         astPkg.imports.forEach(impPkg -> imps.append(impPkg.accept(this)));
         astPkg.functions.forEach(astFunc -> defs.append(astFunc.accept(this)));
+        astPkg.typeDefinitions.forEach(astTypDef -> defs.append(astTypDef.accept(this)));
 
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
         if (imps.size() > 0) {
@@ -204,7 +212,7 @@ public class ModuleGen {
         int lineNumber = astFunc.pos.lineRange().startLine().line() + 1;
         int indexInLine = astFunc.pos.textRange().startOffset() + 9;
 
-        ArrayType typDescArrTyp = TypeCreator.createArrayType(typeDescTyp);
+
         BArray args = ValueCreator.createArrayValue(typDescArrTyp);
         BArray rets = ValueCreator.createArrayValue(typDescArrTyp);
         astFunc.getParameters().forEach(param -> args.append(new BmpStringValue(param.type.getKind().typeName())));
@@ -226,15 +234,17 @@ public class ModuleGen {
         mapInitialValueEntries.put("tempIndexInLine", indexInLine);
         return ValueCreator.createRecordValue(modFront, "FunctionDef", mapInitialValueEntries);
     }
-
-    public Object tempTypeGen() {
-        return new BmpStringValue("boolean");
-    }
     
     public Object visit(BLangExpressionStmt exprStmtNode) {
         return exprStmtNode.expr.accept(this);
     }
 
+    public Object visit(BLangTypeDefinition typeDef){
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("name", new BmpStringValue(typeDef.name.getValue()));
+
+        return null;
+    }
     public Object visit(BLangStatementExpression statementExpression) {
         statementExpression.stmt.accept(this);
         statementExpression.expr.accept(this);
@@ -246,19 +256,16 @@ public class ModuleGen {
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
         mapInitialValueEntries.put("returnExpr", exp);
 
-        BMap<BString, Object> x = ValueCreator.createRecordValue(modFront, "ReturnStmt",
-                mapInitialValueEntries);
-        ModuleGen.tempVal = x;
-        return x;
+        return ValueCreator.createRecordValue(modFront, "ReturnStmt", mapInitialValueEntries);
     }
 
     public Object visit(BLangIf bLangIf) {
         Object expr = bLangIf.expr.accept(this);
-        ArrayType arrTyp = TypeCreator.createArrayType(stmtTyp);
-        BArray ifTrue = ValueCreator.createArrayValue(arrTyp);
+        BArray ifTrue = ValueCreator.createArrayValue(stmtArrTyp);
+        BArray ifFalse = ValueCreator.createArrayValue(stmtArrTyp);
         bLangIf.getBody().getStatements().forEach(stmt -> ifTrue.append(stmt.accept(this)));
-        Object ifFalse = bLangIf.elseStmt.accept(this);
-
+        ((BLangBlockStmt) bLangIf.elseStmt).getStatements().forEach(stmt -> {
+            ifFalse.append(stmt.accept(this)); });
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
         mapInitialValueEntries.put("condition", expr);
         mapInitialValueEntries.put("ifTrue", ifTrue);
@@ -270,8 +277,7 @@ public class ModuleGen {
 
     public Object visit(BLangWhile bLangWhile) {
         Object exp =  bLangWhile.expr.accept(this);
-        ArrayType arrTyp = TypeCreator.createArrayType(stmtTyp);
-        BArray stmts = ValueCreator.createArrayValue(arrTyp);
+        BArray stmts = ValueCreator.createArrayValue(stmtArrTyp);
         bLangWhile.body.getStatements().forEach(stmt -> stmts.append(stmt.accept(this)));
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
         mapInitialValueEntries.put("condition", exp);
@@ -322,14 +328,17 @@ public class ModuleGen {
     }
 
     public Object visit(BLangNode bLangNode) {
-        console.println("generic visitor");
+        console.println("generic visitor" + bLangNode.toString());
         return null;
     }
 
     public Object visit(BLangBlockFunctionBody astBody) {
-        ArrayType arrTyp = TypeCreator.createArrayType(stmtTyp);
-        BArray stmts = ValueCreator.createArrayValue(arrTyp);
-        astBody.getStatements().forEach(stmt -> stmts.append(stmt.accept(this)));
+        BArray stmts = ValueCreator.createArrayValue(stmtArrTyp);
+        astBody.getStatements().forEach(stmt -> {
+            console.println("point" + stmt + "end"); //TODO check returned stmt
+            Object x = stmt.accept(this);
+            stmts.append(x);
+        });
         return stmts;
     }
 
