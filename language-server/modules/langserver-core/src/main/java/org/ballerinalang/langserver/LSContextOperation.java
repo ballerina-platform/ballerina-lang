@@ -41,6 +41,7 @@ public enum LSContextOperation implements LSOperation {
     TXT_RENAME("text/rename"),
     TXT_IMPL("text/implementation"),
     TXT_FOLDING_RANGE("text/foldingRange"),
+    TXT_SEMANTIC_TOKENS_FULL("text/semanticTokens/full"),
     WS_SYMBOL("workspace/symbol"),
     WS_EXEC_CMD("workspace/executeCommand"),
     WS_WF_CHANGED("workspace/didChangeWatchedFiles"),

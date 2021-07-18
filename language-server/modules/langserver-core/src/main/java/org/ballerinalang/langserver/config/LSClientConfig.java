@@ -26,6 +26,7 @@ public class LSClientConfig {
     private final boolean traceLog;
     private final boolean enableFileWatcher;
     private final boolean enableTelemetry;
+    private final boolean enableSemanticHighlighting;
 
     protected LSClientConfig() {
         this.home = "";
@@ -36,6 +37,7 @@ public class LSClientConfig {
         String balExperimental = System.getenv("BAL_EXPERIMENTAL");
         String balFileWatcher = System.getenv("BAL_FILE_WATCHER");
         String balTelemetry = System.getenv("BAL_TELEMETRY");
+        String balSemanticHighlighting = System.getenv("BAL_SEMANTIC_HIGHLIGHTING");
 
         this.allowExperimental = Boolean.parseBoolean(balExperimental);
         this.debugLog = Boolean.parseBoolean(balDebugLog);
@@ -43,6 +45,8 @@ public class LSClientConfig {
         this.codeLens = new CodeLensConfig();
         this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
         this.enableTelemetry = balTelemetry == null || Boolean.parseBoolean(balTelemetry);
+        this.enableSemanticHighlighting = balSemanticHighlighting == null ||
+                        Boolean.parseBoolean(balSemanticHighlighting);
     }
 
     /**
@@ -115,5 +119,10 @@ public class LSClientConfig {
      */
     public boolean isEnableTelemetry() {
         return enableTelemetry;
+    }
+
+    public boolean isEnableSemanticHighlighting() {
+
+        return enableSemanticHighlighting;
     }
 }

@@ -51,6 +51,10 @@ import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.RenameOptions;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
+import org.eclipse.lsp4j.SemanticTokensLegend;
+import org.eclipse.lsp4j.SemanticTokensServerFull;
+import org.eclipse.lsp4j.SemanticTokensWithRegistrationOptions;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
@@ -136,6 +140,16 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+
+        // Set LS semantic token capabilities
+        SemanticTokensCapabilities semanticTokenCapabilities =
+                params.getCapabilities().getTextDocument().getSemanticTokens();
+        SemanticTokensLegend semanticTokensLegend = new SemanticTokensLegend(semanticTokenCapabilities.getTokenTypes(),
+                semanticTokenCapabilities.getTokenModifiers());
+        SemanticTokensServerFull serverFull = new SemanticTokensServerFull(false);
+        SemanticTokensWithRegistrationOptions semanticTokensWithRegistrationOptions =
+                new SemanticTokensWithRegistrationOptions(semanticTokensLegend, serverFull);
+        res.getCapabilities().setSemanticTokensProvider(semanticTokensWithRegistrationOptions);
 
         // Check and set prepare rename provider
         if (params.getCapabilities().getTextDocument().getRename() != null &&
