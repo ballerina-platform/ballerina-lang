@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.WorkerNode;
+import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 
 /**
  * Implementation of {@link WorkerNode}.
@@ -36,6 +37,11 @@ public class BLangWorker extends BLangInvokableNode implements WorkerNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Object accept(ModuleGen visitor) {
+        return null;
     }
 
     @Override

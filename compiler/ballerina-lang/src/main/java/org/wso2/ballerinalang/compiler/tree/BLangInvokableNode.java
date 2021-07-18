@@ -27,7 +27,6 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.WorkerNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -189,10 +188,4 @@ public abstract class BLangInvokableNode extends BLangNode implements InvokableN
                 ") (" + this.returnTypeNode + ") Body: {" + this.body + "}"
                 + (!workers.isEmpty() ? " Workers: {" + Arrays.toString(workers.toArray()) + "}" : "");
     }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
-    }
-
 }
