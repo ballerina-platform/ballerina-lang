@@ -29,6 +29,10 @@ import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 public class DebugOutputLogger {
 
     private final IDebugProtocolClient client;
+    private boolean isCompilationDone;
+
+    private static final String COMPILER_LOG_RUNNING_EXECUTABLE = "Running executable";
+    private static final String COMPILER_LOG_RUNNING_TESTS = "Running Tests";
 
     public DebugOutputLogger(IDebugProtocolClient client) {
         this.client = client;
@@ -67,13 +71,18 @@ public class DebugOutputLogger {
         OutputEventArguments outputArguments = new OutputEventArguments();
         outputArguments.setOutput(output);
         // Since Ballerina compiler logs and errors are redirected to the same stream (STDERR) by design, output
-        // category has to be derived based on the output prefix.
-        if (containsBalErrorPrefix(output)) {
+        // category has to be derived based on the output prefix. Once the Ballerina program has reached to the
+        // executable running state, there cannot be any compiler logs and hence the category should be "STDERR".
+        if (isCompilationDone || containsBalErrorPrefix(output)) {
             outputArguments.setCategory(OutputEventArgumentsCategory.STDERR);
         } else {
             outputArguments.setCategory(OutputEventArgumentsCategory.CONSOLE);
         }
         client.output(outputArguments);
+
+        if (output.startsWith(COMPILER_LOG_RUNNING_EXECUTABLE) || output.startsWith(COMPILER_LOG_RUNNING_TESTS)) {
+            isCompilationDone = true;
+        }
     }
 
     /**
