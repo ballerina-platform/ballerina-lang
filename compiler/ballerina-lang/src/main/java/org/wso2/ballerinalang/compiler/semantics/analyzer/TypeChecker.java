@@ -6973,7 +6973,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             // Check if the field accessed is present in the record fields set.
             if (!checkRecordFieldExistence(varRefType, fieldName)) {
-                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.DOES_NOT_HAVE_A_FIELD, varRefType, fieldName);
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, fieldName, varRefType);
                 return actualType;
             }
 
@@ -7052,15 +7052,19 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkFieldExistenceInUnionRecordMembers(LinkedHashSet<BType> memberTypes, Name fieldName) {
+        boolean membersHaveRecordsTypes = false;
         for (BType memberType : memberTypes) {
             if (memberType.tag == TypeTags.RECORD) {
-                return ((BRecordType) memberType).fields.containsKey(fieldName.getValue());
+                if (((BRecordType) memberType).fields.containsKey(fieldName.getValue())) {
+                    return true;
+                }
+                membersHaveRecordsTypes = true;
             }
         }
 
         // If no member type is of a record type, the presence check for fieldName in record fields can not be done,
         // therefore, a true value is returned in order to skip this step from the calling function.
-        return true;
+        return !membersHaveRecordsTypes;
     }
 
     private void resolveXMLNamespace(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldAccessExpr) {

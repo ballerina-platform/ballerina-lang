@@ -73,7 +73,7 @@ public class DiagnosticsTest {
                 {"incompatible types: 'int' cannot be cast to 'string'", 19, 15},
                 {"invalid operation: type 'testorg/testerrorproject:1.0.0:R' does not support field access for " +
                         "non-required field 'z'", 28, 12},
-                {"invalid operation: type 'testorg/testerrorproject:1.0.0:R' does not have a field 'y'", 29, 11},
+                {"undefined field 'y' in record 'testorg/testerrorproject:1.0.0:R'", 29, 11},
         };
     }
 
