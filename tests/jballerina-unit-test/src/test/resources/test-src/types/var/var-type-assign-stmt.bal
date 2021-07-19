@@ -191,3 +191,25 @@ function testInCompatibleStructForceCasting() returns A|error {
 
     return a;
 }
+
+function testObjectToVarAssignment() returns object {} {
+    var v = <object {}> object {
+                function a = function () returns error? {
+                    record {|
+                        any x = 1;
+                    |} r = {};
+                };
+    };
+    return v;
+}
+
+function testObjectToVarAssignment2() returns object {} & readonly {
+    var v = <object {} & readonly> object {
+                function a = function () returns error? {
+                    record {|
+                        any x = 1;
+                    |} r = {};
+                };
+    }; 
+    return v;
+}

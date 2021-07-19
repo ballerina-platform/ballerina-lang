@@ -390,6 +390,13 @@ public class TypeChecker extends BLangNodeVisitor {
         return resultType;
     }
 
+    private void analyzeNode(BLangNode node, SymbolEnv env) {
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        this.nonErrorLoggingCheck = false;
+        semanticAnalyzer.analyzeNode(node, env);
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+    }
+
     private void validateAndSetExprExpectedType(BLangExpression expr) {
         if (resultType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
@@ -3284,7 +3291,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
                                                           true);
                     } else {
-                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                        analyzeNode(classDefForConstructor, pkgEnv);
                     }
 
                     markConstructedObjectIsolatedness(actualObjectType);
@@ -8141,7 +8148,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
             if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
-                semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+                analyzeNode(classDefForConstructor, env);
                 hasNeverReadOnlyField = true;
 
                 if (!logErrors) {
@@ -8165,7 +8172,7 @@ public class TypeChecker extends BLangNodeVisitor {
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
                                                   anonymousModelHelper, symTable, names, cIExpr.pos);
 
-        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+        analyzeNode(classDefForConstructor, env);
     }
 
     private void markConstructedObjectIsolatedness(BObjectType actualObjectType) {
