@@ -41,7 +41,7 @@
             <class name="org.ballerinalang.test.service.http.sample.HttpHeaderTestCases"/>
             <class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.RoutingServiceSampleTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>
+<!--            <class name="org.ballerinalang.test.service.http.sample.MutualSSLTestCase"/>-->
             <class name="org.ballerinalang.test.service.http.sample.MutualSSLWithCertsTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.DisableSslTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPVerbsPassthruTestCases"/>
@@ -69,7 +69,7 @@
             <class name="org.ballerinalang.test.service.http.sample.KeepAliveTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCachingTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPClientContinueTestCase"/>
-            <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>
+<!--            <class name="org.ballerinalang.test.service.http.sample.SslProtocolTest"/>-->
             <class name="org.ballerinalang.test.service.http.sample.SerializeComplexXmlTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPListenerMethodTestCase"/>
             <class name="org.ballerinalang.test.service.http.sample.HTTPCookiesTestCase"/>
@@ -78,12 +78,12 @@
         </classes>
     </test>
 
-    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>
-        </classes>
-    </test>
+<!--    <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.service.resiliency.HttpResiliencyTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
 <!--    <test name="ballerina-future-tests" parallel="false">-->
 <!--        <classes>-->
@@ -191,7 +191,7 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
-            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
+<!--            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>-->
             <class name="org.ballerinalang.test.service.websocket.AuthenticationTest"/>
         </classes>
     </test>
@@ -299,7 +299,7 @@
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
-            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
+<!--            <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>-->
             <class name="org.ballerinalang.test.observability.metrics.KafkaMetricsTestCase"/>
         </classes>
     </test>
