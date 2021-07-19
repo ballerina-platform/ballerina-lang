@@ -323,6 +323,10 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
                 { "testCloneWithTypeNumeric7" },
+                { "testCloneWithTypeToArrayOfRecord" },
+                { "testCloneWithTypeToArrayOfMap" },
+                { "testCloneWithTypeIntArrayToUnionArray" },
+                { "testCloneWithTypeIntSubTypeArray" },
                 { "testCloneWithTypeStringArray" },
                 { "testCloneWithTypeWithInferredArgument" },
                 { "testCloneWithTypeWithImmutableTypes" },
@@ -331,6 +335,13 @@ public class LangLibValueTest {
                 { "testCloneWithTypeDecimalToByte"},
                 { "testCloneWithTypeDecimalToIntSubType"},
                 { "testCloneWithTypeImmutableStructuredTypes"},
+                {"testCloneWithTypeWithFiniteArrayTypeFromIntArray"},
+                { "testCloneWithTypeWithFiniteType" },
+                { "testCloneWithTypeWithUnionOfFiniteType" },
+                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
+                { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
+                { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
+                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
         };
     }
 
