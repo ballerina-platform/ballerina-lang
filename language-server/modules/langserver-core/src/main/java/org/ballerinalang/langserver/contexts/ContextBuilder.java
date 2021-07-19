@@ -37,6 +37,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 
 import java.util.List;
@@ -47,6 +48,7 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ContextBuilder {
+
     private ContextBuilder() {
     }
 
@@ -124,9 +126,9 @@ public class ContextBuilder {
      * @return {@link SignatureContext} generated signature context
      */
     public static ReferencesContext buildReferencesContext(String uri,
-                                                          WorkspaceManager workspaceManager,
-                                                          LanguageServerContext serverContext,
-                                                          Position position) {
+                                                           WorkspaceManager workspaceManager,
+                                                           LanguageServerContext serverContext,
+                                                           Position position) {
         return new ReferencesContextImpl.ReferencesContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
@@ -157,20 +159,18 @@ public class ContextBuilder {
     /**
      * Build the rename context.
      *
-     * @param uri              file uri
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
-     * @param position         cursor position
      * @return {@link SignatureContext} generated signature context
      */
-    public static RenameContext buildRenameContext(String uri,
+    public static RenameContext buildRenameContext(RenameParams params,
                                                    WorkspaceManager workspaceManager,
                                                    LanguageServerContext serverContext,
-                                                   Position position) {
-        return new RenameContextImpl.RenameContextBuilder(serverContext)
-                .withFileUri(uri)
+                                                   LSClientCapabilities clientCapabilities) {
+        return new RenameContextImpl.RenameContextBuilder(serverContext, params, clientCapabilities)
+                .withFileUri(params.getTextDocument().getUri())
                 .withWorkspaceManager(workspaceManager)
-                .withPosition(position)
+                .withPosition(params.getPosition())
                 .build();
     }
 
@@ -251,11 +251,11 @@ public class ContextBuilder {
 
     /**
      * Build the goto definition context.
-     * 
-     * @param uri file URI
+     *
+     * @param uri              file URI
      * @param workspaceManager workspace manager instance
-     * @param serverContext language server context
-     * @param position position where the definition operation invoked
+     * @param serverContext    language server context
+     * @param position         position where the definition operation invoked
      * @return {@link BallerinaDefinitionContext}
      */
     public static BallerinaDefinitionContext buildDefinitionContext(String uri,
