@@ -1303,6 +1303,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     // ---- Visitor methods to replace frame access and mark closure variables ---- //
     @Override
     public void visit(BLangLambdaFunction lambda) {
+        if (!lambda.function.flagSet.contains(Flag.QUERY_LAMBDA) && lambda.capturedClosureEnv.enclInvokable != null) {
+            lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
+        }
         lambda.function.accept(this);
     }
 
