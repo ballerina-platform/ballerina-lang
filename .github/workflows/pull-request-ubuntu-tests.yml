@@ -1,10 +1,10 @@
-name: Pull Request Tests (Without Integration Tests)
+name: Tests (Without Integration Tests)
 
 on: pull_request
 
 jobs:
     ubuntu-tests:
-        name: Tests on Ubuntu
+        name: Ubuntu
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
@@ -25,6 +25,6 @@ jobs:
               with:
                   node-version: '10.22.1'
 
-            -   name: Build Ballerina Lang
+            -   name: Run Unit Tests
                 run: |
                     ./gradlew build -x :jballerina-integration-test:test -x :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon

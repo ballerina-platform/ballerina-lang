@@ -1,10 +1,10 @@
-name: Windows Tests (Without Integration Tests)
+name: Tests (Without Integration Tests)
 
 on: pull_request
 
 jobs:
     windows-build:
-        name: Tests on Windows
+        name: Windows
         runs-on: windows-latest
         steps:
             -   name: Checkout Repository
@@ -25,7 +25,7 @@ jobs:
               with:
                   node-version: '10.22.1'
 
-            -   name: Build Ballerina Lang
+            -   name: Run Unit Tests
                 run: |
                     git submodule init
                     git submodule update
