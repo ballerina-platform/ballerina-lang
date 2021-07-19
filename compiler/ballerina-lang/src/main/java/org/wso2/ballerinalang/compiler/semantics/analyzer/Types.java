@@ -1043,8 +1043,8 @@ public class Types {
 
         if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE) {
             BTupleType rhsTupleType = (BTupleType) source;
-            for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
-                if (!isAssignable(rhsTupleType.tupleTypes.get(i), target, unresolvedTypes)) {
+            for (BType tupleType : rhsTupleType.tupleTypes) {
+                if (!isAssignable(tupleType, target, unresolvedTypes)) {
                     return false;
                 }
             }
