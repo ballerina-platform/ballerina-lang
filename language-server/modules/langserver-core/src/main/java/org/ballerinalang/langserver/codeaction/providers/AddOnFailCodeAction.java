@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.DoStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -62,12 +61,12 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
         String commandTitle;
         
-        if (isDoStmtNodePresent(nodeAtDiagnostic)) {
-            DoStatementNode doStatementNode = getDoStatementNode(nodeAtDiagnostic);
-            LinePosition doStmtLinePosition = doStatementNode.lineRange().endLine();
-            Position onFailPosLine = new Position(doStmtLinePosition.line(), doStmtLinePosition.offset());
+        if (isRegularCompoundStatementNodePresent(nodeAtDiagnostic)) {
+            Node regComStmtNode = getRegularCompoundStatementNode(nodeAtDiagnostic);
+            LinePosition regComStmtLinePosition = regComStmtNode.lineRange().endLine();
+            Position onFailPosLine = new Position(regComStmtLinePosition.line(), regComStmtLinePosition.offset());
             
-            String spaces = " ".repeat(doStmtLinePosition.offset() - 1);
+            String spaces = " ".repeat(regComStmtLinePosition.offset() - 1);
             String editText = " on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                 + CommonUtil.LINE_SEPARATOR + spaces + "}";
             edits.add(new TextEdit(new Range(onFailPosLine, onFailPosLine), editText));
@@ -91,24 +90,27 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }   
     
-    private boolean isDoStmtNodePresent (Node node) {
+    private boolean isRegularCompoundStatementNodePresent (Node node) {
         if (node == null) {
             return false;
-        } else if (node.kind() == SyntaxKind.DO_STATEMENT) {
+        } else if (node.kind() == SyntaxKind.DO_STATEMENT || node.kind() == SyntaxKind.MATCH_STATEMENT 
+                || node.kind() == SyntaxKind.FOREACH_STATEMENT || node.kind() == SyntaxKind.WHILE_STATEMENT 
+                || node.kind() == SyntaxKind.LOCK_STATEMENT) {
             return true;
         } else {
-            return isDoStmtNodePresent(node.parent());
+            return isRegularCompoundStatementNodePresent(node.parent());
         }
     }
 
-    private DoStatementNode getDoStatementNode(Node node) {
-        if (node.kind() == SyntaxKind.DO_STATEMENT) {
-            return (DoStatementNode) node;
-        } else {
-            return getDoStatementNode(node.parent());
+    private Node getRegularCompoundStatementNode(Node node) {
+        while (!(node.kind() == SyntaxKind.DO_STATEMENT || node.kind() == SyntaxKind.MATCH_STATEMENT
+                || node.kind() == SyntaxKind.FOREACH_STATEMENT || node.kind() == SyntaxKind.WHILE_STATEMENT
+                || node.kind() == SyntaxKind.LOCK_STATEMENT)) {
+            node = node.parent();
         }
+        return node;
     }
-
+ 
     @Override
     public String getName() {
         return NAME;
