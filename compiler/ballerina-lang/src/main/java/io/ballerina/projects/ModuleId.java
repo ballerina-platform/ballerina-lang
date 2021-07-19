@@ -81,6 +81,6 @@ public final class ModuleId implements Comparable<ModuleId> {
 
     @Override
     public int compareTo(ModuleId o) {
-        return this.hashCode() - o.hashCode();
+        return this.moduleName().compareTo(o.moduleName());
     }
 }

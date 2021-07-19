@@ -64,6 +64,7 @@ public class ResolvedPackageDependency extends PackageDependency implements Comp
 
     @Override
     public int compareTo(ResolvedPackageDependency o) {
-        return this.hashCode() - o.hashCode();
+        return this.packageInstance().descriptor().name().toString()
+                .compareTo(o.packageInstance().descriptor().name().toString());
     }
 }
