@@ -5880,7 +5880,7 @@ public class Desugar extends BLangNodeVisitor {
                 varRefExpr.symbol = varSymbol.originalSymbol;
             }
             if (!varSymbol.closure && encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
-                                                             encInvokable.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+                                                             !encInvokable.flagSet.contains(Flag.QUERY_LAMBDA)) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol =
                         symResolver.lookupClosureVarSymbol(encInvokableEnv, varRefExpr.symbol.name, SymTag.VARIABLE);
@@ -6003,7 +6003,6 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.scope = new Scope(functionSymbol);
         function.symbol = functionSymbol;
-        function.flagSet.add(Flag.DEFAULTABLE_PARAM); // to separate with stream
         return function;
     }
 
