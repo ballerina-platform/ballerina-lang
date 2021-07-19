@@ -3532,6 +3532,10 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
+        if (!isAnydata(lhsType) && !isAnydata(rhsType)) {
+            return false;
+        }
+
         if (isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
             return true;
         }

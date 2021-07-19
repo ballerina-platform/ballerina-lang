@@ -1659,10 +1659,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     public BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
                                                 BLangBinaryExpr binaryExpr) {
-        if (!types.isAnydata(lhsType) && !types.isAnydata(rhsType)) {
-            return symTable.notFoundSymbol;
-        }
-
         boolean validEqualityIntersectionExists;
         switch (opKind) {
             case EQUAL:
@@ -1680,7 +1676,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
-                    (types.isValueType(lhsType) && types.isValueType(rhsType))) {
+                    (types.isValueType(lhsType) && types.isValueType(rhsType)) ||
+                    (!types.isAnydata(lhsType) && types.isAnydata(rhsType)) ||
+                    (types.isAnydata(lhsType) && !types.isAnydata(rhsType))) {
                 return createEqualityOperator(opKind, lhsType, rhsType);
             } else {
                 types.setImplicitCastExpr(binaryExpr.rhsExpr, rhsType, symTable.anyType);
@@ -1821,7 +1819,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return binaryOpKind == OperatorKind.LESS_THAN ||
                 binaryOpKind == OperatorKind.LESS_EQUAL || binaryOpKind == OperatorKind.GREATER_THAN ||
                 binaryOpKind == OperatorKind.GREATER_EQUAL;
-    }
+    }getType(lhsValue)
 
     public boolean markParameterizedType(BType type, BType constituentType) {
         if (Symbols.isFlagOn(constituentType.flags, Flags.PARAMETERIZED)) {

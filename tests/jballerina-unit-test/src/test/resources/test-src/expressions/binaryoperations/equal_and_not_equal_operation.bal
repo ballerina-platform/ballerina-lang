@@ -1324,6 +1324,24 @@ function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
 
+type MyObject object {};
+
+function testEqualityWithNonAnydataType() {
+    map<int|string> a = { one: 1, two: "two" };
+    map<any> b = { one: 1, two: "two" };
+    assert(a == b, false);
+    assert(a != b, true);
+
+    any c = 5;
+    int d = 5;
+    assert(c == d, false);
+    assert(c != d, true);
+
+    MyObject? obj = ();
+    assert(obj == (), false);
+    assert(obj != (), true);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
@@ -1334,4 +1352,3 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
-
