@@ -6972,7 +6972,14 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (types.isSubTypeOfBaseType(varRefType, TypeTags.RECORD)) {
 
             // Check if the field accessed is present in the record fields set.
-            if (!checkRecordFieldExistence(varRefType, fieldName)) {
+            if (varRefType.tag == TypeTags.RECORD && !checkRecordFieldExistence((BRecordType) varRefType, fieldName)) {
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, fieldName, varRefType);
+                return actualType;
+            }
+
+            // Check if the field accessed is present in the fields of a record which is a member of a union type.
+            if (varRefType.tag == TypeTags.UNION &&
+                    !checkFieldExistenceInUnionRecordMembers(((BUnionType) varRefType).getMemberTypes(), fieldName)) {
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, fieldName, varRefType);
                 return actualType;
             }
@@ -7038,18 +7045,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    private boolean checkRecordFieldExistence(BType varRefType, Name fieldName) {
-        switch (varRefType.tag) {
-            case TypeTags.RECORD:
-                return ((BRecordType) varRefType).fields.containsKey(fieldName.getValue());
-            case TypeTags.UNION:
-                return checkFieldExistenceInUnionRecordMembers(((BUnionType) varRefType).getMemberTypes(), fieldName);
-            default:
-                // The presence check for the fieldName is only performed on record types or union types having
-                // at least a single member which is a record type. If the varRefType is non of the above,
-                // a true value is returned to skip this step.
-                return true;
-        }
+    private boolean checkRecordFieldExistence(BRecordType recordVarRefType, Name fieldName) {
+        return recordVarRefType.fields.containsKey(fieldName.getValue());
     }
 
     private boolean checkFieldExistenceInUnionRecordMembers(LinkedHashSet<BType> memberTypes, Name fieldName) {
