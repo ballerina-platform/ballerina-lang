@@ -241,12 +241,18 @@ public class CentralAPIClient {
             }
         }
     }
-    
+
     /**
      * Pushing a package to registry.
      */
+
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
                             String ballerinaVersion) throws CentralClientException {
+        pushPackage(balaPath, org, name, version, supportedPlatform, ballerinaVersion, false);
+    }
+
+    public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
+                            String ballerinaVersion, boolean disableOutStream) throws CentralClientException {
         String packageSignature = org + "/" + name + ":" + version;
         String url = this.baseUrl + "/" + PACKAGES;
         Optional<ResponseBody> body = Optional.empty();
@@ -263,12 +269,13 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-    
+
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [project repo -> central]", this.outStream);
 
+            // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
-                    .post(balaFileReqBodyWithProgressBar)
+                    .post(disableOutStream ? balaFileReqBody : balaFileReqBodyWithProgressBar)
                     .url(url)
                     .build();
 
@@ -277,7 +284,9 @@ public class CentralAPIClient {
 
             // Successfully pushed
             if (packagePushResponse.code() == HTTP_NO_CONTENT) {
-                this.outStream.println(packageSignature + " pushed to central successfully");
+                if (!disableOutStream) {
+                    this.outStream.println(packageSignature + " pushed to central successfully");
+                }
                 return;
             }
 
