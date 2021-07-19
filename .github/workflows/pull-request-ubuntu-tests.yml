@@ -1,0 +1,30 @@
+name: Pull Request Tests (Without Integration Tests)
+
+on: pull_request
+
+jobs:
+    ubuntu-tests:
+        name: Tests on Ubuntu
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v2
+
+            -   name: Setup JDK
+                uses: actions/setup-java@v2
+                with:
+                    distribution: 'adopt'
+                    java-version: 8
+
+            -   name: Initialize Submodules
+                run: |
+                    git submodule update --init
+
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: '10.22.1'
+
+            -   name: Build Ballerina Lang
+                run: |
+                    ./gradlew build -x :jballerina-integration-test:test -x :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
