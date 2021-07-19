@@ -7045,8 +7045,9 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.UNION:
                 return checkFieldExistenceInUnionRecordMembers(((BUnionType) varRefType).getMemberTypes(), fieldName);
             default:
-                // The presence check for the fieldName is only done in record types or union of record types. A true
-                // value is returned to skip this step from the calling function.
+                // The presence check for the fieldName is only performed on record types or union types having
+                // at least a single member which is a record type. If the varRefType is non of the above,
+                // a true value is returned to skip this step.
                 return true;
         }
     }
@@ -7062,8 +7063,9 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        // If no member type is of a record type, the presence check for fieldName in record fields can not be done,
-        // therefore, a true value is returned in order to skip this step from the calling function.
+        // If the members of the union type does not consist at least a single record type, the presence check for
+        // fieldName in record fields can not be performed. Therefore, a true value is returned in order to skip this
+        // step. Otherwise, if the fieldName isn't present in any of the record types, the presence check returns false.
         return !membersHaveRecordsTypes;
     }
 
