@@ -21,8 +21,10 @@ package org.ballerinalang.debugadapter.runtime;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
@@ -159,7 +161,8 @@ public class DebuggerRuntime {
         return ValueCreator.createObjectValue(packageId, objectTypeName, fieldValues);
     }
 
-    public static Object getRestArgArray(ArrayType arrayType, BValue... values) {
+    public static Object getRestArgArray(Type arrayElementType, BValue... values) {
+        ArrayType arrayType = TypeCreator.createArrayType(arrayElementType);
         if (values.length == 0) {
             return ValueCreator.createArrayValue(arrayType);
         } else if (values.length == 1) {

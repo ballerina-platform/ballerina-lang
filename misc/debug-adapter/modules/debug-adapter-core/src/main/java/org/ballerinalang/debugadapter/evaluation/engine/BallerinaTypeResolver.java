@@ -38,11 +38,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_UTILS_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CHECK_IS_TYPE_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
@@ -56,6 +53,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTAN
 public class BallerinaTypeResolver {
 
     private static final String UNION_TYPE_SEPARATOR_REGEX = "\\|";
+    private static final String ARRAY_TYPE_SUFFIX = "\\[\\]$";
 
     /**
      * @param context        debug context
@@ -98,6 +96,11 @@ public class BallerinaTypeResolver {
     }
 
     private static Value resolveSingleType(SuspendedContext context, String typeName) throws EvaluationException {
+        boolean arrayTypeDetected = false;
+        if (typeName.endsWith(ARRAY_TYPE_SUFFIX)) {
+            arrayTypeDetected = true;
+            typeName = typeName.replaceAll(ARRAY_TYPE_SUFFIX, "");
+        }
         // Checks if the type name matches with ballerina predefined types.
         Optional<Value> result = resolvePredefinedType(context, typeName);
         // If any predefined type is not found, falls back to named types resolving.
@@ -108,7 +111,19 @@ public class BallerinaTypeResolver {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                     "failed to resolve type '" + typeName + "'."));
         }
-        return result.get();
+
+        return arrayTypeDetected ? createBArrayType(context, result.get()) : result.get();
+    }
+
+    public static Value createBArrayType(SuspendedContext context, Value type) throws EvaluationException {
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add("io.ballerina.runtime.api.types.Type");
+        RuntimeStaticMethod createArrayMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,
+                "createArrayType", argTypeNames);
+        List<Value> methodArgs = new ArrayList<>();
+        methodArgs.add(type);
+        createArrayMethod.setArgValues(methodArgs);
+        return createArrayMethod.invokeSafely();
     }
 
     private static Optional<Value> resolvePredefinedType(SuspendedContext context, String typeName) {
