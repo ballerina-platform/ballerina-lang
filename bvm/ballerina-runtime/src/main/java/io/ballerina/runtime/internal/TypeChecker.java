@@ -2227,7 +2227,7 @@ public class TypeChecker {
         }
     }
     public static boolean isNumericType(Type type) {
-        return type.getTag() < TypeTags.STRING_TAG;
+        return type.getTag() < TypeTags.STRING_TAG || TypeTags.isIntegerTypeTag(type.getTag());
     }
 
     private static boolean checkIsLikeAnydataType(Object sourceValue, Type sourceType,
@@ -2390,7 +2390,8 @@ public class TypeChecker {
                     return targetNumericTypes.size() == 1;
                 }
 
-                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {
+                if (targetTypeElementType.getTag() == TypeTags.FLOAT_TAG ||
+                        targetTypeElementType.getTag() == TypeTags.DECIMAL_TAG) {
                     return false;
                 }
             }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -295,7 +296,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return pkgNode;
     }
 
-
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
@@ -328,6 +328,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
         }
+        analyzeModuleConfigurableAmbiguity(pkgNode);
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
@@ -870,6 +871,51 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private void analyzeModuleConfigurableAmbiguity(BLangPackage pkgNode) {
+        if (pkgNode.moduleContextDataHolder == null) {
+            return;
+        }
+        ModuleDescriptor rootModule = pkgNode.moduleContextDataHolder.descriptor();
+        Set<BVarSymbol> configVars = symResolver.getConfigVarSymbolsIncludingImportedModules(pkgNode.symbol);
+        String rootOrgName = rootModule.org().value();
+        String rootModuleName = rootModule.packageName().value();
+        Map<String, PackageID> configKeys =  getModuleKeys(configVars, rootOrgName);
+        for (BVarSymbol variable : configVars) {
+            String moduleName = variable.pkgID.name.value;
+            String orgName = variable.pkgID.orgName.value;
+            String varName = variable.name.value;
+            validateMapConfigVariable(orgName + "." + moduleName + "." + varName, variable, configKeys);
+            if (orgName.equals(rootOrgName)) {
+                validateMapConfigVariable(moduleName + "." + varName, variable, configKeys);
+                if (moduleName.equals(rootModuleName) && !(varName.equals(moduleName))) {
+                    validateMapConfigVariable(varName, variable, configKeys);
+                }
+            }
+        }
+    }
+
+    private Map<String, PackageID> getModuleKeys(Set<BVarSymbol> configVars, String rootOrg) {
+        Map<String, PackageID> configKeys = new HashMap<>();
+        for (BVarSymbol variable : configVars) {
+            PackageID pkgID = variable.pkgID;
+            String orgName = pkgID.orgName.value;
+            String moduleName = pkgID.name.value;
+            configKeys.put(orgName + "." + moduleName, pkgID);
+            if (!orgName.equals(rootOrg)) {
+                break;
+            }
+            configKeys.put(moduleName, pkgID);
+        }
+        return configKeys;
+    }
+
+    private void validateMapConfigVariable(String configKey, BVarSymbol variable, Map<String, PackageID> configKeys) {
+        if (configKeys.containsKey(configKey) && types.isSubTypeOfMapping(variable.type)) {
+            dlog.error(variable.pos, DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY,
+                    variable.name.value, configKeys.get(configKey));
+        }
     }
 
     private void checkSupportedConfigType(BType type, Location location, String varName) {

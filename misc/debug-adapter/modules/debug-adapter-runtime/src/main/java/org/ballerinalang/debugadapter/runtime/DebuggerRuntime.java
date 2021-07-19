@@ -18,8 +18,10 @@
 
 package org.ballerinalang.debugadapter.runtime;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
@@ -137,6 +139,22 @@ public class DebuggerRuntime {
         } catch (Exception e) {
             throw new BallerinaException("invocation failed: " + e.getMessage());
         }
+    }
+
+    /**
+     * Creates and returns a new ballerina object instance.
+     *
+     * @param pkgOrg         org name of the module
+     * @param pkgName        package name of the module
+     * @param pkgVersion     package version of the module
+     * @param objectTypeName type name of the class
+     * @param fieldValues    field values
+     * @return Ballerina object instance
+     */
+    public static Object createObjectValue(String pkgOrg, String pkgName, String pkgVersion, String objectTypeName,
+                                            Object... fieldValues) {
+        Module packageId = new Module(pkgOrg, pkgName, pkgVersion);
+        return ValueCreator.createObjectValue(packageId, objectTypeName, fieldValues);
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
