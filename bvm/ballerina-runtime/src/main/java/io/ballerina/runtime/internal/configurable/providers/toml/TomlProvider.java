@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -67,6 +68,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.ge
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getModuleKey;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getTomlTypeString;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
@@ -285,7 +287,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateValue(TomlNode tomlValue, String variableName, Type type) {
-        if (isPrimitiveType(type.getTag())) {
+        if (isPrimitiveType(type.getTag()) || isXMLType(type)) {
             validatePrimitiveValue(tomlValue, variableName, type);
         } else {
             validateStructuredValue(tomlValue, variableName, type);
@@ -352,9 +354,11 @@ public class TomlProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key) {
-        // This will throw error if user has configured xml variable in the toml
-        getPrimitiveTomlValue(module, key);
-        return Optional.empty();
+        Object value = getPrimitiveTomlValue(module, key);
+        if (value == null) {
+            return Optional.empty();
+        }
+        return getTomlConfigValue(TypeConverter.stringToXml((String) value), key);
     }
 
     private Object getPrimitiveTomlValue(Module module, VariableKey key) {
@@ -563,7 +567,7 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         Type type = convertibleTypes.get(0);
-        if (isPrimitiveType(type.getTag())) {
+        if (isPrimitiveType(type.getTag()) || isXMLType(type)) {
             return;
         }
 
@@ -598,6 +602,12 @@ public class TomlProvider implements ConfigProvider {
                                            Type elementType) {
         switch (elementType.getTag()) {
             case TypeTags.ARRAY_TAG:
+            case TypeTags.XML_ATTRIBUTES_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_TEXT_TAG:
                 if (tomlValue.kind() != TomlType.KEY_VALUE) {
                     invalidTomlLines.add(tomlValue.location().lineRange());
                     throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
@@ -615,31 +625,14 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.UNION_TAG:
                 validateUnionValueArray(tomlValue, variableName, arrayType, elementType);
                 break;
-            default:
+            case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
-                switch(effectiveType.getTag()) {
-                    case TypeTags.ARRAY_TAG:
-                        if (tomlValue.kind() != TomlType.KEY_VALUE) {
-                            invalidTomlLines.add(tomlValue.location().lineRange());
-                            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                                    arrayType, getTomlTypeString(tomlValue));
-                        }
-                        visitedNodes.add(tomlValue);
-                        tomlValue = ((TomlKeyValueNode) tomlValue).value();
-                        validatePrimitiveArray(tomlValue, variableName, arrayType);
-                        break;
-                    case TypeTags.RECORD_TYPE_TAG:
-                    case TypeTags.MAP_TAG:
-                        validateMapValueArray(tomlValue, variableName, arrayType, effectiveType);
-                        break;
-                    case TypeTags.ANYDATA_TAG:
-                    case TypeTags.UNION_TAG:
-                        validateUnionValueArray(tomlValue, variableName, arrayType, effectiveType);
-                        break;
-                    default:
-                        invalidTomlLines.add(tomlValue.location().lineRange());
-                        throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, arrayType.toString());
-                }
+                validateNonPrimitiveArray(tomlValue, variableName, arrayType, effectiveType);
+                break;
+            default:
+                invalidTomlLines.add(tomlValue.location().lineRange());
+                throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, arrayType.toString());
+
         }
     }
 
@@ -686,7 +679,11 @@ public class TomlProvider implements ConfigProvider {
             TomlNode tomlValueNode = arrayList.get(i);
             switch (elementType.getTag()) {
                 case TypeTags.INTERSECTION_TAG:
-                    ArrayType arrayType = (ArrayType) ((BIntersectionType) elementType).getEffectiveType();
+                    validateArrayElements(variableName, arrayList,
+                            ((BIntersectionType) elementType).getEffectiveType());
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    ArrayType arrayType = (ArrayType) elementType;
                     validatePrimitiveArray(tomlValueNode, variableName, arrayType);
                     break;
                 case TypeTags.ANYDATA_TAG:

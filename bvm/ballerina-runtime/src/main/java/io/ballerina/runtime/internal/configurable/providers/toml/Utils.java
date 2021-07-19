@@ -59,7 +59,6 @@ import java.util.Set;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 
 /**
@@ -134,10 +133,10 @@ public class Utils {
             tableEntries[count++] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData = new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION,
-                                                                              true), tableSize, tableEntries);
+                true), tableSize, tableEntries);
         ArrayValue keyNames = (ArrayValue) StringUtils.fromStringArray(new String[0]);
         TableType tableType = TypeCreator.createTableType(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION,
-                                                                                    true), true);
+                true), true);
         return new TableValueImpl<>(tableType, tableData, keyNames);
     }
 
@@ -146,11 +145,10 @@ public class Utils {
         int count = 0;
         for (Map.Entry<String, TopLevelNode> entry : tomlNode.entries().entrySet()) {
             initialValues[count++] = ValueCreator.createKeyFieldEntry(StringUtils.fromString(entry.getKey()),
-                                                                      getBalValueFromToml(entry.getValue(),
-                                                                                          visitedNodes));
+                    getBalValueFromToml(entry.getValue(), visitedNodes));
         }
-        return ValueCreator.createMapValue(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION,
-                                                                     true), initialValues);
+        return ValueCreator.createMapValue(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION, true),
+                initialValues);
     }
 
     private static Object getAnydataArray(TomlArrayValueNode tomlNode, Set<TomlNode> visitedNodes) {
@@ -162,7 +160,7 @@ public class Utils {
                     getBalValueFromToml(tomlValueNode, visitedNodes));
         }
         return new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION, true),
-                                  arrayValues.length, arrayValues);
+                arrayValues.length, arrayValues);
     }
 
     static TomlType getEffectiveTomlType(Type expectedType, String variableName) {
@@ -177,6 +175,12 @@ public class Utils {
                 return TomlType.DOUBLE;
             case TypeTags.STRING_TAG:
             case TypeTags.UNION_TAG:
+            case TypeTags.XML_ATTRIBUTES_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_TEXT_TAG:
                 return TomlType.STRING;
             case TypeTags.ARRAY_TAG:
                 return TomlType.ARRAY;
@@ -185,13 +189,6 @@ public class Utils {
                 return TomlType.TABLE;
             case TypeTags.TABLE_TAG:
                 return TomlType.TABLE_ARRAY;
-            case TypeTags.XML_ATTRIBUTES_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_TEXT_TAG:
-                throw new ConfigException(CONFIG_TOML_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
                 return getEffectiveTomlType(effectiveType, variableName);
@@ -257,7 +254,17 @@ public class Utils {
     }
 
     private static boolean isAnyDataType(Type restFieldType) {
-        return restFieldType.getTag() == TypeTags.ANYDATA_TAG || (restFieldType.getTag() == TypeTags.INTERSECTION_TAG &&
-                ((IntersectionType) restFieldType).getEffectiveType().getTag() == TypeTags.ANYDATA_TAG);
+        return getEffectiveType(restFieldType).getTag() == TypeTags.ANYDATA_TAG;
+    }
+
+    static boolean isXMLType(Type type) {
+        return TypeTags.isXMLTypeTag(getEffectiveType(type).getTag());
+    }
+
+    private static Type getEffectiveType(Type type) {
+        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
+            return ((IntersectionType) type).getEffectiveType();
+        }
+        return type;
     }
 }

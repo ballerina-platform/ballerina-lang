@@ -33,7 +33,9 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -45,6 +47,7 @@ import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
@@ -58,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
 
 /**
  * Value creator to create values for structured configurable values from TOML nodes.
@@ -91,6 +95,16 @@ public class ConfigValueCreator {
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
                 return createUnionValue(tomlValue, (BUnionType) type);
+            case TypeTags.XML_ATTRIBUTES_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_TEXT_TAG:
+                String value = ((TomlStringValueNode) ((TomlKeyValueNode) tomlValue).value()).getValue();
+                BXml xmlValue = TypeConverter.stringToXml(value);
+                xmlValue.freezeDirect();
+                return xmlValue;
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -116,6 +130,12 @@ public class ConfigValueCreator {
     private BArray getNonPrimitiveArray(TomlNode tomlValue, ArrayType arrayType,
                                         Type elementType) {
         switch (elementType.getTag()) {
+            case TypeTags.XML_ATTRIBUTES_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_TEXT_TAG:
             case TypeTags.ARRAY_TAG:
                 tomlValue = ((TomlKeyValueNode) tomlValue).value();
                 return getPrimitiveArray(tomlValue, arrayType);
@@ -164,12 +184,17 @@ public class ConfigValueCreator {
         for (int i = 0; i < arraySize; i++) {
             Object balValue;
             TomlNode tomlValueNode = arrayList.get(i);
-
             switch (elementType.getTag()) {
                 case TypeTags.INTERSECTION_TAG:
-                    ArrayType arrayType = (ArrayType) ((BIntersectionType) elementType).getEffectiveType();
-                    balValue = getPrimitiveArray(tomlValueNode, arrayType);
-                    break;
+                    if (isXMLType(elementType)) {
+                        BXml xmlValue = TypeConverter.stringToXml(((TomlStringValueNode) tomlValueNode).getValue());
+                        xmlValue.freezeDirect();
+                        balValue = xmlValue;
+                    } else {
+                        ArrayType arrayType = (ArrayType) ((BIntersectionType) elementType).getEffectiveType();
+                        balValue = getPrimitiveArray(tomlValueNode, arrayType);
+                    }
+                break;
                 case TypeTags.ANYDATA_TAG:
                 case TypeTags.UNION_TAG:
                     balValue = createUnionValue(tomlValueNode, (BUnionType) elementType);
@@ -282,7 +307,7 @@ public class ConfigValueCreator {
             }
         }
         Type type = convertibleTypes.get(0);
-        if (isPrimitiveType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG) {
+        if (isPrimitiveType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
             return balValue;
         }
         return createStructuredValue(tomlValue, type);
