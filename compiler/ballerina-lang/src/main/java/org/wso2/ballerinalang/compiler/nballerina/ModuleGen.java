@@ -38,11 +38,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -219,11 +220,15 @@ public class ModuleGen {
         BArray rets = ValueCreator.createArrayValue(typDescArrTyp);
         astFunc.getParameters().forEach(param -> {
             String arg = param.type.getKind().typeName();
-            if (arg == TypeKind.NIL.typeName()) {
+            if (arg.equals(TypeKind.NIL.typeName())) {
                 arg = "()";
             }
-            args.append(new BmpStringValue(arg));});
-        rets.append(new BmpStringValue(astFunc.getReturnTypeNode().type.getKind().typeName()));
+            args.append(new BmpStringValue(arg)); });
+        String ret = astFunc.getReturnTypeNode().type.getKind().typeName();
+        if (ret.equals(TypeKind.NIL.typeName())) {
+            ret = "()";
+        }
+        rets.append(new BmpStringValue(ret));
 
         Map<String, Object> funcTypeDefMap = new HashMap<>();
         funcTypeDefMap.put("args", args);
@@ -303,25 +308,44 @@ public class ModuleGen {
         return new BmpStringValue("continue");
     }
 
-    public Object visit(BLangAssignment bLangAssignment) {
-        return null;
-    }
-
-    public Object visit(BLangConstant bLangConstant) {
-        return null;
-    }
-
     public Object visit(BLangInvocation bLangInvocation) {
         ArrayType arrTyp = TypeCreator.createArrayType(exprTyp);
         BArray exprs = ValueCreator.createArrayValue(arrTyp);
         bLangInvocation.argExprs.forEach(expr -> exprs.append(expr.accept(this)));
 
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        String prefix = bLangInvocation.pkgAlias.getValue();
+        if (!prefix.equals("")) {
+            mapInitialValueEntries.put("prefix", new BmpStringValue(prefix));
+        }
         mapInitialValueEntries.put("funcName", new BmpStringValue(bLangInvocation.name.getValue()));
         mapInitialValueEntries.put("args", exprs);
 
         return ValueCreator.createRecordValue(modFront, "FunctionCallExpr",
                 mapInitialValueEntries);
+    }
+
+    public Object visit(BLangSimpleVariableDef varDec) {
+        String varName = varDec.var.symbol.name.value;
+        Object initExpr = varDec.var.expr.accept(this);
+        BArray tds = ValueCreator.createArrayValue(typDescArrTyp);
+        tds.append(varDec.var.symbol.type.getKind().typeName());
+
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("varName", new BmpStringValue(varName));
+        mapInitialValueEntries.put("initExpr", initExpr);
+        mapInitialValueEntries.put("td", tds.get(0));
+        return ValueCreator.createRecordValue(modFront, "VarDeclStmt", mapInitialValueEntries);
+    }
+
+    public Object visit(BLangVariableReference varRef) {
+        Map<String, Object> mapInitialValueEntries = new HashMap<>();
+        mapInitialValueEntries.put("varName", new BmpStringValue(varRef.pkgSymbol.name.value));
+        return ValueCreator.createRecordValue(modFront, "VarRefExpr", mapInitialValueEntries);
+    }
+
+    public Object visit(BLangAssignment bLangAssignment) {
+        return null;
     }
 
     public Object visit(BLangImportPackage bLangImportPackage) {
