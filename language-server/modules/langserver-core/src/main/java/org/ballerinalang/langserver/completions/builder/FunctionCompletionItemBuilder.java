@@ -136,7 +136,8 @@ public final class FunctionCompletionItemBuilder {
      * @param context        LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem buildMethod(@Nonnull FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
+    public static CompletionItem buildMethod(@Nonnull FunctionSymbol functionSymbol,
+                                             BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
         String funcName = functionSymbol.getName().get();
