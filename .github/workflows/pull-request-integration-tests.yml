@@ -5,6 +5,9 @@ on: pull_request
 jobs:
     ubuntu-tests:
         name: Ubuntu
+        concurrency:
+            group: ${{ github.head_ref }}-integration-tests-ubuntu
+            cancel-in-progress: true
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout Repository

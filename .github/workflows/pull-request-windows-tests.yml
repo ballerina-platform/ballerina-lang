@@ -5,6 +5,9 @@ on: pull_request
 jobs:
     windows-build:
         name: Windows
+        concurrency:
+            group: ${{ github.head_ref }}-tests-windows
+            cancel-in-progress: true
         runs-on: windows-latest
         steps:
             -   name: Checkout Repository

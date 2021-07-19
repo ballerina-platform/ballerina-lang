@@ -5,6 +5,9 @@ on: pull_request
 jobs:
     ubuntu-build:
         name: Ubuntu
+        concurrency:
+            group: ${{ github.head_ref }}-ubuntu-build
+            cancel-in-progress: true
         runs-on: ubuntu-latest
         steps:
             - name: Checkout Repository
@@ -31,6 +34,9 @@ jobs:
 
     windows-build:
         name: Windows
+        concurrency:
+            group: ${{ github.head_ref }}-windows-build
+            cancel-in-progress: true
         runs-on: windows-latest
         steps:
             - name: Checkout Repository
