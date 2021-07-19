@@ -7779,14 +7779,12 @@ public class Desugar extends BLangNodeVisitor {
             result = typeTestExpr;
             return;
         }
-        BLangTypeTestExpr bLangTypeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
-        bLangTypeTestExpr.expr = typeTestExpr.expr;
-        bLangTypeTestExpr.typeNode = typeTestExpr.typeNode;
-        bLangTypeTestExpr.setBType(typeTestExpr.getBType());
+        BLangTypeTestExpr bLangTypeTestExpr = ASTBuilderUtil.createTypeTestExpr(typeTestExpr.pos,
+                typeTestExpr.expr, typeTestExpr.typeNode);
         BLangGroupExpr bLangGroupExpr = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
         bLangGroupExpr.expression = bLangTypeTestExpr;
         bLangGroupExpr.setBType(typeTestExpr.getBType());
-        BLangUnaryExpr unaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        BLangUnaryExpr unaryExpr = ASTBuilderUtil.createUnaryExpr(typeTestExpr.pos);
         unaryExpr.operator = OperatorKind.NOT;
         unaryExpr.expr = bLangGroupExpr;
         unaryExpr.setBType(typeTestExpr.getBType());
