@@ -71,7 +71,7 @@ public class InferredDependentlyTypeFunctionTest {
                 {"testBuiltInRefType"},
                 {"testParameterizedTypeInUnionWithNonParameterizedTypes"},
                 {"testUsageWithVarWithUserSpecifiedArg"},
-//                {"testFunctionWithAnyFunctionParamType"},
+                {"testFunctionWithAnyFunctionParamType"},
                 {"testUsageWithCasts"}
         };
     }
