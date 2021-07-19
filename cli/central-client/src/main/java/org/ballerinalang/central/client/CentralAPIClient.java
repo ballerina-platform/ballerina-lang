@@ -352,7 +352,14 @@ public class CentralAPIClient {
     }
 
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
-            String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
+
+        pullPackage(org, name, version, packagePathInBalaCache, supportedPlatform, ballerinaVersion, isBuild, false);
+    }
+
+    public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild,
+                            boolean disableOutStream) throws CentralClientException {
         String packageSignature =  org + "/" + name;
         String url = this.baseUrl + "/" + PACKAGES + "/" + org + "/" + name;
         // append version to url if available
@@ -399,8 +406,10 @@ public class CentralAPIClient {
                     Call downloadBalaRequestCall = client.newCall(downloadBalaRequest);
                     Response balaDownloadResponse = downloadBalaRequestCall.execute();
                     boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
+
                     createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
-                            balaUrl.get(), balaFileName.get(), outStream, logFormatter);
+                            balaUrl.get(), balaFileName.get(), disableOutStream ? null : outStream, logFormatter);
+
                     return;
                 } else {
                     String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
