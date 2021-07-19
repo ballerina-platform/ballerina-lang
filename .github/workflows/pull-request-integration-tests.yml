@@ -20,10 +20,10 @@ jobs:
                 run: |
                     git submodule update --init
 
-            -   name: Setup Node
-                uses: actions/setup-node@v2
-                with:
-                    node-version: '8.9'
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: '10.22.1'
 
             -   name: Build Ballerina Lang
                 run: |

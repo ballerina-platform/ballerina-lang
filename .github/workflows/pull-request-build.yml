@@ -21,9 +21,9 @@ jobs:
                     git submodule update --init
 
             - name: Setup Node
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v1
               with:
-                  node-version: '8.9'
+                  node-version: '10.22.1'
 
             - name: Build Ballerina Lang
               run: |
@@ -47,9 +47,9 @@ jobs:
                     git submodule update --init
 
             - name: Setup Node
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v1
               with:
-                  node-version: '8.9'
+                  node-version: '10.22.1'
 
             - name: Build Ballerina Lang
               run: |
