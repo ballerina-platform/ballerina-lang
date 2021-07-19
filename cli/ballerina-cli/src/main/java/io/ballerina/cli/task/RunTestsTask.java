@@ -90,6 +90,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_N
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
  * Task for executing tests.
@@ -478,6 +479,8 @@ public class RunTestsTask implements Task {
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
+        cmdArgs.add("-XX:+HeapDumpOnOutOfMemoryError");
+        cmdArgs.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 

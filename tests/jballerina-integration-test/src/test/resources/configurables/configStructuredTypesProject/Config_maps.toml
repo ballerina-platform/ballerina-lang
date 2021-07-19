@@ -249,37 +249,37 @@ m2.id = 77
 m2.name = "Jim"
 
 
-[configStructuredTypes.imported_records.user]
+[configMapType.imported_maps.user]
 name = "Hinduja"
 occupation = "Software Engineer"
 city = "Colombo"
 
-[configStructuredTypes.imported_records.numbers]
+[configMapType.imported_maps.numbers]
 one = 1
 two = 2
 three = 3
 four = 4
 
-[configStructuredTypes.imported_records.fractions]
+[configMapType.imported_maps.fractions]
 quarter = 0.25
 half = 0.5
 three_quarter = 0.75
 
-[configStructuredTypes.imported_records.bits]
+[configMapType.imported_maps.bits]
 on = true
 off = false
 
-[configStructuredTypes.imported_records.numberSet]
+[configMapType.imported_maps.numberSet]
 set1 = [1,11,111]
 set2 = [2,22,222]
 set3 = [3,33,333]
 
-[configStructuredTypes.imported_records.stringSet]
+[configMapType.imported_maps.stringSet]
 set1 = [["a","aa"],["b","bb"]]
 set2 = [["c","cc"],["d","dd"]]
 set3 = [["e","ee"],["f","ff"]]
 
-[configStructuredTypes.imported_records.doctorMap]
+[configMapType.imported_maps.doctorMap]
 doctor1.id = 11
 doctor1.name = "Anne"
 doctor2.id = 22
@@ -287,7 +287,7 @@ doctor2.name = "Bob"
 doctor3.id = 33
 doctor3.name = "Charles"
 
-[configStructuredTypes.imported_records.readonlyDoctorMap]
+[configMapType.imported_maps.readonlyDoctorMap]
 doctor1.id = 11
 doctor1.name = "Anne"
 doctor2.id = 22
@@ -295,7 +295,7 @@ doctor2.name = "Bob"
 doctor3.id = 33
 doctor3.name = "Charles"
 
-[configStructuredTypes.imported_records.subjects]
+[configMapType.imported_maps.subjects]
 Maths.name = "Mathematics"
 Maths.grade = "grade 8"
 Maths.instructor = "Jane Doe"
@@ -306,102 +306,102 @@ English.name = "English Language"
 English.grade = "grade 11"
 English.instructor = "Jane Doe"
 
-[[configStructuredTypes.imported_records.departments.department1]]
+[[configMapType.imported_maps.departments.department1]]
 name = "Civil Engineering"
 
-[[configStructuredTypes.imported_records.departments.department2]]
+[[configMapType.imported_maps.departments.department2]]
 name = "Computer Science"
 
-[[configStructuredTypes.imported_records.departments.department3]]
+[[configMapType.imported_maps.departments.department3]]
 name = "Electronical Engineering"
 
-[[configStructuredTypes.imported_records.intMapArr]]
+[[configMapType.imported_maps.intMapArr]]
 int1 = 34
 int2 = 78
 
-[[configStructuredTypes.imported_records.intMapArr]]
+[[configMapType.imported_maps.intMapArr]]
 int3 = 17
 int4 = 92
 
-[[configStructuredTypes.imported_records.stringMapArr]]
+[[configMapType.imported_maps.stringMapArr]]
 arr1 = ["hhh", "ggg"]
 arr2 = ["aaa", "bbb"]
 
-[[configStructuredTypes.imported_records.stringMapArr]]
+[[configMapType.imported_maps.stringMapArr]]
 arr1 = ["lll", "mmm"]
 arr2 = ["nnn", "ooo"]
 
-[[configStructuredTypes.imported_records.doctorMapArr]]
+[[configMapType.imported_maps.doctorMapArr]]
 p1.id = 55
 p1.name = "Jack"
 p2.id = 88
 p2.name = "Jill"
 
-[[configStructuredTypes.imported_records.doctorMapArr]]
+[[configMapType.imported_maps.doctorMapArr]]
 p1.id = 66
 p1.name = "John"
 p2.id = 77
 p2.name = "Jim"
 
 
-[[configStructuredTypes.imported_records.stringMapTable]]
+[[configMapType.imported_maps.stringMapTable]]
 name = "Tom"
 occupation = "Software Engineer"
 city = "Colombo"
 
-[[configStructuredTypes.imported_records.stringMapTable]]
+[[configMapType.imported_maps.stringMapTable]]
 name = "Harry"
 occupation = "Student"
 city = "Kandy"
 
-[[configStructuredTypes.imported_records.readonlyTable]]
+[[configMapType.imported_maps.readonlyTable]]
 name = "James"
 occupation = "Software Engineer"
 city = "Colombo"
 
-[[configStructuredTypes.imported_records.readonlyTable]]
+[[configMapType.imported_maps.readonlyTable]]
 name = "Trevor"
 occupation = "Student"
 city = "Kandy"
 
-[[configStructuredTypes.imported_records.stringMapArrTable]]
+[[configMapType.imported_maps.stringMapArrTable]]
 names = ["Tom", "Jerry"]
 subjects = ["Maths", "Science", "Arts"]
 
-[[configStructuredTypes.imported_records.stringMapArrTable]]
+[[configMapType.imported_maps.stringMapArrTable]]
 cities = ["Colombo", "Galle"]
 fruits = ["Apple", "Grapes"]
 
-[[configStructuredTypes.imported_records.doctorMapTable]]
+[[configMapType.imported_maps.doctorMapTable]]
 p1.id = 10
 p1.name = "Anna"
 p2.id = 20
 p2.name = "Elsa"
 
-[[configStructuredTypes.imported_records.doctorMapTable]]
+[[configMapType.imported_maps.doctorMapTable]]
 p1.id = 30
 p1.name = "Diana"
 p2.id = 40
 p2.name = "Belle"
 
-[[configStructuredTypes.imported_records.readonlyDoctorMapTable]]
+[[configMapType.imported_maps.readonlyDoctorMapTable]]
 p1.id = 10
 p1.name = "Anna"
 p2.id = 20
 p2.name = "Elsa"
 
-[[configStructuredTypes.imported_records.readonlyDoctorMapTable]]
+[[configMapType.imported_maps.readonlyDoctorMapTable]]
 p1.id = 30
 p1.name = "Diana"
 p2.id = 40
 p2.name = "Belle"
 
-[configStructuredTypes.imported_records.intMap]
+[configMapType.imported_maps.intMap]
 ten = 10
 eleven = 11
 twelve = 12
 
-[configStructuredTypes.imported_records.studentMap]
+[configMapType.imported_maps.studentMap]
 student1.id = 11
 student1.name = "Anne"
 student2.id = 22
@@ -409,7 +409,7 @@ student2.name = "Bob"
 student3.id = 33
 student3.name = "Charles"
 
-[configStructuredTypes.imported_records.readonlyStudentMap]
+[configMapType.imported_maps.readonlyStudentMap]
 student1.id = 11
 student1.name = "Anne"
 student2.id = 22
@@ -417,66 +417,66 @@ student2.name = "Bob"
 student3.id = 33
 student3.name = "Charles"
 
-[[configStructuredTypes.imported_records.studentMapTable]]
+[[configMapType.imported_maps.studentMapTable]]
 p1.id = 10
 p1.name = "Anna"
 p2.id = 20
 p2.name = "Elsa"
 
-[[configStructuredTypes.imported_records.studentMapTable]]
+[[configMapType.imported_maps.studentMapTable]]
 p1.id = 30
 p1.name = "Diana"
 p2.id = 40
 p2.name = "Belle"
 
-[[configStructuredTypes.imported_records.readonlyStudentMapTable]]
+[[configMapType.imported_maps.readonlyStudentMapTable]]
 p1.id = 10
 p1.name = "Anna"
 p2.id = 20
 p2.name = "Elsa"
 
-[[configStructuredTypes.imported_records.readonlyStudentMapTable]]
+[[configMapType.imported_maps.readonlyStudentMapTable]]
 p1.id = 30
 p1.name = "Diana"
 p2.id = 40
 p2.name = "Belle"
 
-[configStructuredTypes.imported_records.libIntMap]
+[configMapType.imported_maps.libIntMap]
 fourteen = 14
 fifteen = 15
 sixteen = 16
 
-[configStructuredTypes.imported_records.managerMap]
+[configMapType.imported_maps.managerMap]
 m1.name="hinduja"
 m1.id=111
 m2.name="waruna"
 m2.id=222
 
-[configStructuredTypes.imported_records.readonlyManagerMap]
+[configMapType.imported_maps.readonlyManagerMap]
 m1.name="manu"
 m1.id=333
 m2.name="riyafa"
 m2.id=444
 
-[[configStructuredTypes.imported_records.managerMapTable]]
+[[configMapType.imported_maps.managerMapTable]]
 m1.id = 55
 m1.name = "Jack"
 m2.id = 88
 m2.name = "Jill"
 
-[[configStructuredTypes.imported_records.managerMapTable]]
+[[configMapType.imported_maps.managerMapTable]]
 m1.id = 66
 m1.name = "John"
 m2.id = 77
 m2.name = "Jim"
 
-[[configStructuredTypes.imported_records.readonlyManagerMapTable]]
+[[configMapType.imported_maps.readonlyManagerMapTable]]
 m1.id = 55
 m1.name = "Jack"
 m2.id = 88
 m2.name = "Jill"
 
-[[configStructuredTypes.imported_records.readonlyManagerMapTable]]
+[[configMapType.imported_maps.readonlyManagerMapTable]]
 m1.id = 66
 m1.name = "John"
 m2.id = 77

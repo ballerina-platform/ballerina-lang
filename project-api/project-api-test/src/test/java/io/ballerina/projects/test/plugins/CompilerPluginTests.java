@@ -37,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -147,6 +148,29 @@ public class CompilerPluginTests {
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
         Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
+    }
+
+    @Test(description = "Test `package-semantic-analyzer` compiler plugin by checking invalid export "
+            + "modules in `Ballerina.toml`")
+    public void testPkgInvalidExportedModule() {
+        Package currentPackage = loadPackage("package_invalid_exported_modules");
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected number of compilation diagnostics");
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(7:0,7:64)] "
+                + "could not locate dependency path '../libs/ballerina-runtime-api-2.0.0-beta.2-SNAPSHOT.jar'");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(4:10,4:15)] "
+                + "exported module 'abc' is not a module of the package");
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(4:17,4:22)] "
+                + "exported module 'xyz' is not a module of the package");
+    }
+
+    @Test(description = "Test `package-toml-semantic-analyzer` compiler plugin by checking valid export "
+            + "modules in `Ballerina.toml`")
+    public void testPkgValidExportedModule() {
+        Package currentPackage = loadPackage("package_valid_exported_modules");
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected diagnostics exists");
     }
 
     public void assertDiagnostics(Package currentPackage) {

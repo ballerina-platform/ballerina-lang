@@ -199,7 +199,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "retry|transaction",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -240,14 +240,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -256,6 +248,14 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -630,11 +630,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "s",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "s",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "self",
       "kind": "Variable",
       "detail": "isolated service object {isolated resource function get foo/[string bar] () returns () ;}",
       "sortText": "B",
       "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "bar",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "bar",
       "insertTextFormat": "Snippet"
     },
     {
@@ -650,22 +666,6 @@
       "sortText": "C",
       "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "s",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "s",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "bar",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "bar",
       "insertTextFormat": "Snippet"
     },
     {

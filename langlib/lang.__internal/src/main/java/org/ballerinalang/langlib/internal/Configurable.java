@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 
@@ -33,16 +34,16 @@ import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 public class Configurable {
 
     public static Object hasConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
-                                              BString configVarName) {
+                                              BString configVarName, BTypedesc t) {
         VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
-                configVarName.getValue());
+                configVarName.getValue(), t.getDescribingType());
         return ConfigMap.containsKey(key);
     }
 
     public static Object getConfigurableValue(BString orgName, BString moduleName, BString versionNumber,
-                                              BString configVarName) {
+                                              BString configVarName, BTypedesc t) {
         VariableKey key = new VariableKey(orgName.getValue(), moduleName.getValue(), versionNumber.getValue(),
-                configVarName.getValue());
+                configVarName.getValue(), t.getDescribingType());
         if (ConfigMap.containsKey(key)) {
             return ConfigMap.get(key);
         }

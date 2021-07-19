@@ -66,7 +66,7 @@ public class EvaluationUtils {
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
-    public static final String B_DEBUGGER_HELPER_UTILS_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
+    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
     public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
@@ -125,6 +125,7 @@ public class EvaluationUtils {
     public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
     public static final String CREATE_XML_ITEM = "createXmlItem";
     public static final String CREATE_XML_VALUE_METHOD = "createXmlValue";
+    public static final String CREATE_OBJECT_VALUE_METHOD = "createObjectValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
@@ -210,8 +211,8 @@ public class EvaluationUtils {
         try {
             ClassType classType = (ClassType) evaluationContext.getAttachedVm().classesByName(JAVA_LANG_CLASS).get(0);
             if (classType == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "jvm " +
-                        "class instance for the function invocation couldn't be loaded due to an internal error."));
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
+                        methodName));
             }
             Method forNameMethod = null;
             List<Method> methods = classType.methodsByName(FOR_NAME_METHOD);
@@ -221,8 +222,8 @@ public class EvaluationUtils {
                 }
             }
             if (forNameMethod == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "jvm " +
-                        "class instance for the function invocation couldn't be loaded due to an internal error."));
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
+                        methodName));
             }
 
             // Do not use unmodifiable lists because the list will be modified by JPDA.
@@ -234,8 +235,8 @@ public class EvaluationUtils {
                     forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
             return ((ClassObjectReference) classReference).reflectedType();
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load required classes to execute the function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
+                    methodName));
         }
     }
 

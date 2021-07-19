@@ -592,6 +592,7 @@ public class TestUtil {
         textDocumentClientCapabilities.setFoldingRange(foldingRangeCapabilities);
         RenameCapabilities renameCapabilities = new RenameCapabilities();
         renameCapabilities.setPrepareSupport(true);
+        renameCapabilities.setHonorsChangeAnnotations(true);
         textDocumentClientCapabilities.setRename(renameCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
