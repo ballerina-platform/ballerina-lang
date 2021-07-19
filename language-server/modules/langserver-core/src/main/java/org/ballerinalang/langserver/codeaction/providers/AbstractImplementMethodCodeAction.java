@@ -158,8 +158,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
         String returnStmt = "";
         if (unimplMethod.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = unimplMethod.typeDescriptor().returnTypeDescriptor().get();
-            Optional<String> returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol);
-            if (returnType.isPresent()) {
+            if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
                 returnStmt = "return " + CommonUtil.getDefaultValueForType(returnTypeSymbol) +
                         CommonKeys.SEMI_COLON_SYMBOL_KEY;
             }
