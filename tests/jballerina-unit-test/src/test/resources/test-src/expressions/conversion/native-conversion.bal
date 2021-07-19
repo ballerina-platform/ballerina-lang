@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'int as ints;
+import ballerina/test;
 
 type Person record {|
     string name = "";
@@ -54,6 +55,7 @@ type T2Array T2[];
 type IntArrayType int[];
 type Int_String [int, string];
 type T1_T1 [T1, T1];
+type T1_T2 [T1, T2];
 type personArray person[];
 
 function testStructToMap () returns (map<anydata> | error) {
@@ -855,14 +857,22 @@ public class O1 {
   public int y = 0;
 }
 
-function testTupleConversion1() returns [T1, T1]|error {
+function testTupleConversion1() {
     T1 a = {};
     T2 b = {};
-    [T1, T2] x = [a, b];
+    [T1, T2] x1 = [a, b];
     [T1, T1] x2;
-    anydata y = x;
-    x2 = check y.cloneWithType(T1_T1);
-    return x2;
+    anydata y = x1;
+    x2 = checkpanic y.cloneWithType(T1_T1);
+
+    T1 c = {};
+    [T1, T1] x3 = [a, c];
+    [T1, T2] x4;
+    anydata z = x3;
+    x4 = checkpanic z.cloneWithType(T1_T2);
+
+    test:assertEquals(x2, [{"x":0,"y":0}, {"x":0,"y":0,"z":0}]);
+    test:assertEquals(x4, [{"x":0,"y":0}, {"x":0,"y":0,"z":0}]);
 }
 
 function testTupleConversion2() returns [int, string]|error {

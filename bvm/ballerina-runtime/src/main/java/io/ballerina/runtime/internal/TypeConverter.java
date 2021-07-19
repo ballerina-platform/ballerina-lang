@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
@@ -264,6 +265,11 @@ public class TypeConverter {
                     convertibleTypes.add(targetType);
                 }
                 break;
+            case TypeTags.TUPLE_TAG:
+                if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues)) {
+                    convertibleTypes.add(targetType);
+                }
+                break;
             case TypeTags.RECORD_TYPE_TAG:
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, false, unresolvedValues)) {
                     convertibleTypes.add(targetType);
@@ -456,6 +462,51 @@ public class TypeConverter {
                 return false;
             }
             if (convertibleTypes.size() != 1 && !convertibleTypes.contains(TypeChecker.getType(source.get(i)))
+                    && !hasIntegerSubTypes(convertibleTypes)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isConvertibleToTupleType(Object sourceValue, BTupleType targetType,
+                                                    List<TypeValuePair> unresolvedValues) {
+        if (!(sourceValue instanceof ArrayValue)) {
+            return false;
+        }
+
+        ArrayValue source = (ArrayValue) sourceValue;
+        List<Type> targetTypes = targetType.getTupleTypes();
+        int sourceTypeSize = source.size();
+        int targetTypeSize = targetTypes.size();
+        Type targetRestType = targetType.getRestType();
+
+        if (sourceTypeSize < targetTypeSize) {
+            return false;
+        }
+        if (targetRestType == null && sourceTypeSize > targetTypeSize) {
+            return false;
+        }
+
+        Set<Type> convertibleTypes;
+
+        for (int i = 0; i < targetTypeSize; i++) {
+            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetTypes.get(i), unresolvedValues);
+            if (convertibleTypes.isEmpty()) {
+                return false;
+            }
+            if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(source.getRefValue(i)))
+                    && !hasIntegerSubTypes(convertibleTypes)) {
+                return false;
+            }
+        }
+
+        for (int i = targetTypeSize; i < sourceTypeSize; i++) {
+            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetRestType, unresolvedValues);
+            if (convertibleTypes.isEmpty()) {
+                return false;
+            }
+            if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(source.getRefValue(i)))
                     && !hasIntegerSubTypes(convertibleTypes)) {
                 return false;
             }
