@@ -107,9 +107,6 @@
         {
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT"
-          ],
           "children": [
             {
               "kind": "METADATA",
@@ -122,6 +119,9 @@
                     {
                       "kind": "ANNOTATION",
                       "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT"
+                      ],
                       "children": [
                         {
                           "kind": "AT_TOKEN",

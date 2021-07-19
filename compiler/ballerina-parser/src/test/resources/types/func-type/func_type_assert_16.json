@@ -72,18 +72,21 @@
                             {
                               "kind": "OBJECT_FIELD",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER"
-                              ],
                               "children": [
                                 {
                                   "kind": "METADATA",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "LIST",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "ANNOTATION",
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT"
+                                          ],
                                           "children": [
                                             {
                                               "kind": "AT_TOKEN",

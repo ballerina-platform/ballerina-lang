@@ -105,6 +105,8 @@ public class SyntaxErrors {
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
             case IDENT_AFTER_OBJECT_IDENT:
+            case FUNC_DEF_FIRST_QUALIFIER:
+            case FUNC_DEF_SECOND_QUALIFIER:
             case FUNC_TYPE_FIRST_QUALIFIER:
             case FUNC_TYPE_SECOND_QUALIFIER:
             case OBJECT_METHOD_FIRST_QUALIFIER:
