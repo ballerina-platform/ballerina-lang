@@ -203,7 +203,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private Names names;
     private int funClosureMapCount = 1;
     private int blockClosureMapCount = 1;
-    private int count = -1;
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
@@ -1183,15 +1182,16 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        // Chek
-        if (!localVarRef.symbol.closure || localVarRef.closureDesugared) {
+        BSymbol varRefSym = localVarRef.symbol;
+        if (!varRefSym.closure || localVarRef.closureDesugared) {
             result = localVarRef;
             return;
         }
 
-        if (localVarRef.symbol.owner.getKind() == SymbolKind.INVOKABLE_TYPE) {
-            ((BLangFunction) env.enclInvokable).paramClosureMap.putIfAbsent(count, (BVarSymbol) localVarRef.symbol);
-            count--;
+        if (varRefSym.owner.getKind() == SymbolKind.INVOKABLE_TYPE) {
+            int indexOfParam = ((BInvokableTypeSymbol) varRefSym.owner).params.indexOf(varRefSym) + 1;
+            ((BLangFunction) env.enclInvokable).paramClosureMap.putIfAbsent((-1) * indexOfParam,
+                                                                            (BVarSymbol) varRefSym);
             result = localVarRef;
             return;
         }
