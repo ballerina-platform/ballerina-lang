@@ -1,4 +1,4 @@
-name: Tests (Without Integration Tests)
+name: 1.2.x Tests (Without Integration Tests)
 
 on: pull_request
 

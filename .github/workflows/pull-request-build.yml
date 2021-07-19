@@ -1,4 +1,4 @@
-name: Build without Tests
+name: 1.2.x Build without Tests
 
 on: pull_request
 
