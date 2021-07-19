@@ -125,7 +125,7 @@ public type Cache object {
                                 logLevel = LOG_LEVEL_DEBUG);
         }
         // If the current cache is full (i.e. size = capacity), evict cache.
-        if (self.size() == self.capacity) {
+        if (self.size() >= self.capacity) {
             evict(self, self.evictionPolicy, self.capacity, self.evictionFactor);
         }
 
