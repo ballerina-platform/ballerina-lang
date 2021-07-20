@@ -40,7 +40,6 @@ class D {
         F f = new F();
         self.foo = f.foo;
     }
-
 }
 
 function foo() returns int {
@@ -90,7 +89,6 @@ isolated class Proxy {
 
 public function testInvocationOfObjectField() {
     F f = new ();
-
     assertEquals(1, f.f());
     assertEquals(foo(), f.fooDel());
     //assertEquals(333, f.selfFooDel());
@@ -102,8 +100,6 @@ public function testInvocationOfObjectField() {
     assertEquals(1, t.f());
 }
 public isolated function testInvocationOfObjectFieldWithMutableState() {
-
-
     Proxy proxy = new (10);
     proxy.inc();
     assertEquals(11, proxy.get());
