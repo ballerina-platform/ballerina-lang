@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerina.compiler.syntax.tree.QueryConstructTypeNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
@@ -28,7 +29,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +40,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class QueryExpressionNodeContext extends AbstractCompletionProvider<QueryExpressionNode> {
 
+    private static final String TABLE_KW = "table";
+
     public QueryExpressionNodeContext() {
         super(QueryExpressionNode.class);
     }
@@ -50,13 +52,25 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.queryConstructType().isPresent() && this.onQueryConstructType(context, node.queryConstructType().get())) {
-            // 1. table key() <cursor>
-            // 2. stream <cursor>
             QueryConstructTypeNode queryConstructType = node.queryConstructType().get();
             int cursor = context.getCursorPositionInTree();
-            if (queryConstructType.textRange().endOffset() < cursor &&
-                    cursor <= queryConstructType.textRangeWithMinutiae().endOffset()) {
-                completionItems.addAll(getKeywordCompletionItems(context, node));
+            if (TABLE_KW.equals(queryConstructType.keyword().text())) {
+                if (queryConstructType.keySpecifier().isEmpty() ||
+                        queryConstructType.keySpecifier().get().keyKeyword().isMissing()) {
+                    // 1. table [MISSING key]
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_KEY.get()));
+                } else if (withinKeySpecifierParenthesis(context, queryConstructType.keySpecifier().get())) {
+                    // 1. table key(<cursor>)
+                    // We don't suggest anything here
+                } else if (cursor > queryConstructType.keySpecifier().get().textRange().endOffset()) {
+                    // 1. table key(x) <cursor>
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
+                    completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
+                }
+            } else if (queryConstructType.keyword().textRange().endOffset() < cursor) {
+                // 1. stream <cursor>
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()));
             }
         } else if (this.onQueryPipeLine(context, node)) {
             /*
@@ -69,6 +83,13 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    private boolean withinKeySpecifierParenthesis(BallerinaCompletionContext context, KeySpecifierNode keySpecifierNode) {
+        int cursor = context.getCursorPositionInTree();
+        return keySpecifierNode.openParenToken().textRange().endOffset() <= cursor &&
+                (keySpecifierNode.closeParenToken().isMissing() ||
+                        cursor <= keySpecifierNode.closeParenToken().textRange().startOffset());
     }
 
     private boolean onQueryConstructType(BallerinaCompletionContext context, QueryConstructTypeNode node) {
@@ -89,7 +110,7 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
 
     private List<LSCompletionItem> getKeywordCompletionItems(BallerinaCompletionContext context,
                                                              QueryExpressionNode node) {
-        List<LSCompletionItem> completionItems = Arrays.asList(
+        List<LSCompletionItem> completionItems = List.of(
                 new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
                 new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()),
                 new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
@@ -101,7 +122,12 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
                 new SnippetCompletionItem(context, Snippet.KW_LIMIT.get())
         );
 
-        if (!node.queryPipeline().fromClause().isMissing()) {
+        // Need to specifically check if from keyword is missing because from clause can be there in the syntax tree
+        // without the from keyword
+        if (!node.queryPipeline().fromClause().isMissing() &&
+                !node.queryPipeline().fromClause().fromKeyword().isMissing()) {
+            // Above list is immutable, create new one
+            completionItems = new ArrayList<>(completionItems);
             /*
              * It is mandatory to have at least one pipeline clause.
              * Only if that is true we suggest the select clause
