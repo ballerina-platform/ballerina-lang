@@ -1074,7 +1074,14 @@ public class SymbolResolver extends BLangNodeVisitor {
                         continue;
                     }
 
-                    int length = Integer.parseInt(sizeConstSymbol.type.toString());
+                    int length;
+                    long lengthCheck = Long.parseLong(sizeConstSymbol.type.toString());
+                    if (lengthCheck > Integer.MAX_VALUE - 10) { // due to the JVM limitations
+                        length = 0;
+                        dlog.error(size.pos, DiagnosticErrorCode.GREATER_THAN_2147483647_ARRAY_SIZES_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
                     arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }

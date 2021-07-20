@@ -3436,11 +3436,28 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                    int length;
                     Token literalToken = ((BasicLiteralNode) keyExpr).literalToken();
                     if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text()), symTable.intType));
+                        long lengthCheck = Long.parseLong(literalToken.text());
+                        if (lengthCheck > Integer.MAX_VALUE - 10) { // due to the JVM limitations
+                            length = 0;
+                            dlog.error(((Node) literalToken).location(),
+                                    DiagnosticErrorCode.GREATER_THAN_2147483647_ARRAY_SIZES_NOT_YET_SUPPORTED);
+                        } else {
+                            length = (int) lengthCheck;
+                        }
+                        sizes.add(new BLangLiteral(length, symTable.intType));
                     } else {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text(), 16), symTable.intType));
+                        long lengthCheck = Long.parseLong(literalToken.text(), 16);
+                        if (lengthCheck > Integer.MAX_VALUE - 10) { // due to the JVM limitations
+                            length = 0;
+                            dlog.error(((Node) literalToken).location(),
+                                    DiagnosticErrorCode.GREATER_THAN_2147483647_ARRAY_SIZES_NOT_YET_SUPPORTED);
+                        } else {
+                            length = (int) lengthCheck;
+                        }
+                        sizes.add(new BLangLiteral(length, symTable.intType));
                     }
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
                     sizes.add(new BLangLiteral(INFERRED_ARRAY_INDICATOR, symTable.intType));

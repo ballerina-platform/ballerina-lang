@@ -152,6 +152,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2114", "defaultable.param.not.allowed.after.included.record.param"),
     REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM(
             "BCE2115", "required.param.not.allowed.after.included.record.param"),
+    GREATER_THAN_2147483647_ARRAY_SIZES_NOT_YET_SUPPORTED(
+            "BCE2116", "greater.than.2147483637.array.sizes.not.yet.supported"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
