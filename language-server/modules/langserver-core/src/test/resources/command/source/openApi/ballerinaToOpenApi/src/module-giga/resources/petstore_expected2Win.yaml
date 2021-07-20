@@ -18,10 +18,10 @@ servers:
       description: this value is assigned by the service provider
       default: petstore
     port:
-      default: "443"
       enum:
       - "8443"
       - "443"
+      default: "443"
     basePath:
       default: v2
 security:
