@@ -36,6 +36,7 @@ public class ArraySizeDefinitionTest {
     private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
     private String undefinedSymbolError = "undefined symbol 'length'";
     private String invalidArrayLengthError = "invalid array length";
+    private String sizeLimitError = "greater than 2147483637 array sizes not yet supported";
 
     @Test(groups = { "disableOnOldParser" })
     public void testCompilationSizeReferenceErrors() {
@@ -69,6 +70,8 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 43, 5);
         BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 44, 23);
         BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 8);
+        BAssertUtil.validateError(resultNegative, index++, sizeLimitError, 47, 9);
+        BAssertUtil.validateError(resultNegative, index++, sizeLimitError, 48, 9);
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 
