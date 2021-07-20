@@ -263,6 +263,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private Stack<SymbolEnv> prevEnvs = new Stack<>();
 
     private int recordCount = 0;
+    private boolean notCompletedNormally;
 
     public static SemanticAnalyzer getInstance(CompilerContext context) {
         SemanticAnalyzer semAnalyzer = context.get(SYMBOL_ANALYZER_KEY);
@@ -472,6 +473,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         for (BLangStatement stmt : body.stmts) {
             analyzeStmt(stmt, env);
         }
+        resetNotCompletedNormally();
     }
 
     @Override
@@ -2215,6 +2217,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType)) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
         }
+        if (exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
+            notCompletedNormally = true;
+        }
         validateWorkerAnnAttachments(exprStmtNode.expr);
     }
 
@@ -2231,6 +2237,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
 
         this.narrowedTypeInfo = new HashMap<>();
+        resetNotCompletedNormally();
 
         analyzeStmt(ifNode.body, ifEnv);
 
@@ -2242,11 +2249,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             prevNarrowedTypeInfo.putAll(this.narrowedTypeInfo);
         }
 
+        if (ifNode.elseStmt == null && notCompletedNormally) {
+            env = typeNarrower.evaluateFalsityForSingleIf(ifNode.expr, env);
+        }
+
         if (ifNode.elseStmt != null) {
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
             analyzeStmt(ifNode.elseStmt, elseEnv);
         }
         this.narrowedTypeInfo = prevNarrowedTypeInfo;
+        resetNotCompletedNormally();
+    }
+
+    private void resetNotCompletedNormally() {
+        notCompletedNormally = false;
     }
 
     @Override
@@ -3381,6 +3397,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 !types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
             dlog.error(errorExpression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
         }
+        notCompletedNormally = true;
     }
 
     @Override
@@ -3642,6 +3659,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.getBType());
         validateWorkerAnnAttachments(returnNode.expr);
+        notCompletedNormally = true;
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
@@ -3658,12 +3676,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangContinue continueNode) {
-        /* ignore */
+        notCompletedNormally = true;
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
-        /* ignore */
+        notCompletedNormally = true;
     }
 
     @Override
@@ -3674,6 +3692,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangPanic panicNode) {
         this.typeChecker.checkExpr(panicNode.expr, env, symTable.errorType);
+        notCompletedNormally = true;
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {

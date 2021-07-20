@@ -157,6 +157,33 @@ public class TypeNarrower extends BLangNodeVisitor {
         return targetEnv;
     }
 
+    public SymbolEnv evaluateFalsityForSingleIf(BLangExpression expr, SymbolEnv currentEnv) {
+        if (expr.getKind() != NodeKind.TYPE_TEST_EXPR || (expr.getKind() == NodeKind.GROUP_EXPR &&
+                ((BLangGroupExpr) expr).expression.getKind() != NodeKind.TYPE_TEST_EXPR)) {
+            return currentEnv;
+        }
+
+        BLangExpression expression;
+        if (expr.getKind() == NodeKind.GROUP_EXPR) {
+            expression = ((BLangGroupExpr) expr).expression;
+        } else {
+            expression = expr;
+        }
+
+        Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expression, currentEnv);
+        if (narrowedTypes.isEmpty()) {
+            return currentEnv;
+        }
+
+        narrowedTypes.forEach((symbol, typeInfo) -> {
+            BVarSymbol originalSym = getOriginalVarSymbol(symbol);
+            symbolEnter.defineTypeNarrowedSymbol(expression.pos, currentEnv, originalSym,
+                    typeInfo.falseType, originalSym.origin == VIRTUAL);
+        });
+
+        return currentEnv;
+    }
+
     public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
         return evaluateTruth(expr, targetNode, env, false);
     }
