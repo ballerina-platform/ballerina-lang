@@ -995,7 +995,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTypeDefinition typeDef) { //
+    public void visit(BLangTypeDefinition typeDef) {
         if (typeDef.typeNode.getKind() == NodeKind.OBJECT_TYPE
                 || typeDef.typeNode.getKind() == NodeKind.RECORD_TYPE) {
             typeDef.typeNode = rewrite(typeDef.typeNode, env);
