@@ -36,7 +36,7 @@ dependencies {
         implementation 'com.atlassian.commonmark:commonmark:0.11.0'
         implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.11.0'
         implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
-        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
+        implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
         implementation 'com.h2database:h2:1.4.199'
         implementation 'org.hsqldb:hsqldb:2.2.7'
         implementation 'com.wix:wix-embedded-mysql:4.6.1'
@@ -100,7 +100,6 @@ dependencies {
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
         implementation 'org.quartz-scheduler:quartz:2.3.2'
-        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4'
         
         implementation 'info.picocli:picocli:4.0.1'
         implementation 'io.ballerina.messaging:broker-common:0.970.5'
