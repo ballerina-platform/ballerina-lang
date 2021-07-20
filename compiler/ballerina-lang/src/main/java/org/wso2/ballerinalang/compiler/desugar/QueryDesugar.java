@@ -846,7 +846,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(FRAME_PARAMETER_NAME),
                                                 this.env.scope.owner.pkgID, frameType, this.env.scope.owner, pos,
                                                 VIRTUAL);
-        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, null,
+        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, FRAME_PARAMETER_NAME,
                 frameSymbol.type, null, frameSymbol);
         BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
 
