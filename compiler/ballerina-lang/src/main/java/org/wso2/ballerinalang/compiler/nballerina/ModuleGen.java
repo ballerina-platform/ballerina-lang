@@ -38,11 +38,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -51,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -71,7 +73,8 @@ public class ModuleGen {
     private static final CompilerContext.Key<ModuleGen> MOD_GEN =
             new CompilerContext.Key<>();
 
-    private static final Module modFront = new Module("wso2", "nballerina.front", "0.1.0");
+    static final Module modFront = new Module("wso2", "nballerina.front", "0.1.0");
+    static final Module modBir = new Module("wso2", "nballerina.bir", "0.1.0");
     private static UnionType stmtTyp;
     private static UnionType exprTyp;
     private static UnionType defTyp;
@@ -79,6 +82,11 @@ public class ModuleGen {
     private static UnionType conTypeDescTyp;
     private static ArrayType stmtArrTyp;
     private static ArrayType typDescArrTyp;
+    private static BasicBlock curBlock;
+    private static BasicBlock nextBlock;
+    private static BasicBlock endBlock;
+    private static BasicBlock bb;
+
     PrintStream console = System.out;
 
     public static ModuleGen getInstance(CompilerContext context) {
@@ -102,7 +110,48 @@ public class ModuleGen {
     }
 
     public Object genMod(BLangPackage astPkg) {
+        JNModule jnmod = new JNModule();
+        astPkg.functions.forEach(func -> {
+            boolean acc = func.getFlags().contains(Flag.PUBLIC);
+            String name = func.getName().toString();
+            TypeKind ret = func.returnTypeNode.type.getKind();
+            FunctionDefn funcDefn = new FunctionDefn(acc, name, ret);
+            func.getParameters().forEach(param -> {
+                funcDefn.paramTypes.add(param.type.getKind());
+            });
+            jnmod.functionDefns.add(funcDefn);
+        });
+        astPkg.functions.forEach(func -> {
+            String name = func.getName().toString();
+            TypeKind ret = func.returnTypeNode.type.getKind();
+            FunctionCode fcode = new FunctionCode();
+            BasicBlock startBlock = fcode.createBasicBlock();
+            func.getParameters().forEach(param -> {
+                fcode.createRegister(param.type.getKind(), param.getName().toString());
+            });
+            curBlock = bb;
+            ((BLangBlockFunctionBody) func.body).getStatements().forEach(this::codeGenStmt);
+            endBlock = curBlock;
+            jnmod.code.add(fcode);
+        });
         return astPkg.accept(this);
+    }
+
+    void codeGenStmt(BLangStatement stmt) {
+        if (stmt instanceof BLangReturn){
+            BLangReturn retStmt = (BLangReturn) stmt;
+            Object val = codeGenExpr(retStmt.expr);
+            nextBlock.insns.add(new RetInsn(val));
+            curBlock = null;
+        }
+    }
+
+    Object codeGenExpr(BLangExpression expr) {
+        if (expr instanceof BLangLiteral) {
+            nextBlock = bb;
+            return  ((BLangLiteral)expr).getValue();
+        }
+        return null;
     }
 
     private static UnionType getStmtTyp() {
@@ -329,7 +378,7 @@ public class ModuleGen {
         String varName = varDec.var.symbol.name.value;
         Object initExpr = varDec.var.expr.accept(this);
         BArray tds = ValueCreator.createArrayValue(typDescArrTyp);
-        tds.append(varDec.var.symbol.type.getKind().typeName());
+        tds.append(new BmpStringValue(varDec.var.symbol.type.getKind().typeName()));
 
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
         mapInitialValueEntries.put("varName", new BmpStringValue(varName));
@@ -338,9 +387,9 @@ public class ModuleGen {
         return ValueCreator.createRecordValue(modFront, "VarDeclStmt", mapInitialValueEntries);
     }
 
-    public Object visit(BLangVariableReference varRef) {
+    public Object visit(BLangSimpleVarRef varRef) {
         Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("varName", new BmpStringValue(varRef.pkgSymbol.name.value));
+        mapInitialValueEntries.put("varName", new BmpStringValue(varRef.variableName.getValue()));
         return ValueCreator.createRecordValue(modFront, "VarRefExpr", mapInitialValueEntries);
     }
 
