@@ -425,7 +425,7 @@
     {
       "label": "getXml()",
       "kind": "Function",
-      "detail": "ballerina/lang.xml:0.8.0:Element",
+      "detail": "xml:Element",
       "documentation": {
         "right": {
           "kind": "markdown",
