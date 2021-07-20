@@ -231,7 +231,12 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        if (PositionUtil.withinBlock(this.linePosition, funcNode.getPosition())) {
+        // If the function is Expression-bodied, then a right-inclusive position lookup would be performed.
+        // TODO: Update this approach accordingly once the discussion
+        //  at: https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is concluded
+        if ((funcNode.getBody() instanceof BLangExprFunctionBody &&
+                PositionUtil.withinRightInclusive(this.linePosition, funcNode.getPosition()))
+                || PositionUtil.withinBlock(this.linePosition, funcNode.getPosition())) {
             SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
             this.scope = funcEnv;
             this.acceptNode(funcNode.getBody(), funcEnv);
