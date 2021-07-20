@@ -1,0 +1,42 @@
+name: 1.2.x Integration Tests
+
+on: pull_request
+
+jobs:
+    ubuntu-tests:
+        name: Ubuntu
+        concurrency:
+            group: ${{ github.head_ref }}-integration-tests-ubuntu
+            cancel-in-progress: true
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout Repository
+                uses: actions/checkout@v2
+
+            -   name: Setup JDK
+                uses: actions/setup-java@v2
+                with:
+                    distribution: 'adopt'
+                    java-version: 8
+
+            -   name: Initialize Submodules
+                run: |
+                    git submodule update --init
+
+            -   name: Cache Gradle packages
+                uses: actions/cache@v2
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: 1.2.x-${{ runner.os }}-gradle-${{ github.sha }}
+                    restore-keys: 1.2.x-${{ runner.os }}-gradle-
+
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: '10.22.1'
+
+            -   name: Run Integration Tests
+                run: |
+                    ./gradlew :jballerina-integration-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon

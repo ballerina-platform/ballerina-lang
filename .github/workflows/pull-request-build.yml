@@ -1,0 +1,80 @@
+name: 1.2.x Build without Tests
+
+on: pull_request
+
+jobs:
+    ubuntu-build:
+        name: Ubuntu
+        concurrency:
+            group: ${{ github.head_ref }}-ubuntu-build
+            cancel-in-progress: true
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v2
+
+            - name: Setup JDK
+              uses: actions/setup-java@v2
+              with:
+                distribution: 'adopt'
+                java-version: 8
+
+            -   name: Initialize Submodules
+                run: |
+                    git submodule update --init
+
+            -   name: Cache Gradle packages
+                uses: actions/cache@v2
+                with:
+                    path: |
+                        ~/.gradle/caches
+                        ~/.gradle/wrapper
+                    key: 1.2.x-${{ runner.os }}-gradle-${{ github.sha }}
+                    restore-keys: 1.2.x-${{ runner.os }}-gradle-
+
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: '10.22.1'
+
+            - name: Build
+              run: |
+                  ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+
+    windows-build:
+        name: Windows
+        concurrency:
+            group: ${{ github.head_ref }}-windows-build
+            cancel-in-progress: true
+        runs-on: windows-latest
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v2
+
+            - name: Setup JDK
+              uses: actions/setup-java@v2
+              with:
+                  distribution: 'adopt'
+                  java-version: 8
+
+            -   name: Initialize Submodules
+                run: |
+                    git submodule update --init
+
+            -   name: Cache Gradle packages
+                uses: actions/cache@v2
+                with:
+                    path: |
+                        $home\.gradle\caches
+                        $home\.gradle\wrapper
+                    key: 1.2.x-${{ runner.os }}-gradle-${{ github.sha }}
+                    restore-keys: 1.2.x-${{ runner.os }}-gradle-
+
+            - name: Setup Node
+              uses: actions/setup-node@v1
+              with:
+                  node-version: '10.22.1'
+
+            - name: Build
+              run: |
+                  ./gradlew.bat build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
