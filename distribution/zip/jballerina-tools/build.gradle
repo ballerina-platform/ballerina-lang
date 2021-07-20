@@ -69,10 +69,10 @@ configurations {
 
 dependencies {
     dist 'org.bytedeco:javacpp:1.4.2'
-    dist 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
-    dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
-    dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
-    dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
+    dist 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
+    dist 'com.fasterxml.jackson.core:jackson-core:2.12.4'
+    dist 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
+    dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.4'
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
@@ -87,7 +87,7 @@ dependencies {
     dist 'org.ow2.asm:asm-analysis:7.1'
     dist 'org.ow2.asm:asm-tree:7.1'
     dist 'org.ow2.asm:asm-util:7.1'
-    dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
+    dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.4'
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
