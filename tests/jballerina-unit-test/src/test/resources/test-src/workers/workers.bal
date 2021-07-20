@@ -74,23 +74,23 @@ public function receiveWithTrap() {
 }
 
 public function syncSendReceiveWithTrap() {
-    var f = function () returns int|error {
+    var f = function () returns int|string|error {
         @strand{thread:"any"}
         worker w1 {
-            int i = 2;
-            if true {
+            int|string i = 2;
+            if i is int {
                 panic error("sync send err", message = "err msg");
             }
             i ->> w2;
        }
 
         @strand{thread:"any"}
-        worker w2 returns error|int {
-            int|error  j = trap <- w1;
+        worker w2 returns error|int|string {
+            int|string|error  j = trap <- w1;
             return j;
         }
 
-       int|error ret = wait w2;
+       int|string|error ret = wait w2;
        return ret;
     };
 

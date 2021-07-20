@@ -93,7 +93,11 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 624, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 646, 12);
         BAssertUtil.validateError(result, i++, "variable 'k' may not have been initialized", 669, 12);
+        BAssertUtil.validateError(result, i++, "unreachable code", 674, 17);
+        BAssertUtil.validateError(result, i++, "unreachable code", 677, 16);
         BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 682, 13);
+        BAssertUtil.validateError(result, i++, "unreachable code", 685, 17);
+        BAssertUtil.validateError(result, i++, "unreachable code", 688, 16);
         BAssertUtil.validateError(result, i++, "variable 'b' may not have been initialized", 693, 13);
         BAssertUtil.validateError(result, i++, "variable 'a' may not have been initialized", 708, 13);
         BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 709, 16);

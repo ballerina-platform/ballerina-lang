@@ -113,3 +113,5 @@ public isolated function toBalString(error e) returns string = @java:Method {
   'class: "org.ballerinalang.langlib.error.ToBalString",
   name: "toBalString"
 } external;
+
+public function unreachable() returns never {}
