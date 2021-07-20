@@ -255,6 +255,7 @@ public class SyntaxErrors {
             case CLOSE_BRACKET:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
             case DOT:
+            case METHOD_CALL_DOT:
                 return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
             case OPEN_BRACKET:
             case TUPLE_TYPE_DESC_START:

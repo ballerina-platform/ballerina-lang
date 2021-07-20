@@ -546,6 +546,7 @@ public enum ParserRuleContext {
     ORDER_DIRECTION("order-direction"),
     VAR_REF_COLON("var-ref-colon"),
     TYPE_REF_COLON("type-ref-colon"),
+    METHOD_CALL_DOT("method-call-dot"),
 
     // Expressions
     EXPRESSION("expression"),

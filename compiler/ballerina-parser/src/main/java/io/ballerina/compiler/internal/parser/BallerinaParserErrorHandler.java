@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
@@ -252,7 +251,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ELSE_KEYWORD, ParserRuleContext.STATEMENT };
 
     private static final ParserRuleContext[] CALL_STATEMENT =
-            { ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.VARIABLE_NAME };
+            { ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.VARIABLE_REF, ParserRuleContext.EXPRESSION };
 
     private static final ParserRuleContext[] IMPORT_PREFIX_DECL =
             { ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
@@ -278,7 +277,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST,
             ParserRuleContext.BRACED_EXPRESSION, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
-            ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE64_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
+            ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE16_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR,
@@ -329,7 +328,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR };
 
     private static final ParserRuleContext[] EXPRESSION_STATEMENT_START =
-            { ParserRuleContext.VARIABLE_REF, ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
+            { ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
                     ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD };
 
     private static final ParserRuleContext[] ANNOT_DECL_OPTIONAL_TYPE =
@@ -959,6 +958,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN;
                     break;
                 case DOT:
+                case METHOD_CALL_DOT:
                     hasMatch = nextToken.kind == SyntaxKind.DOT_TOKEN;
                     break;
                 case BOOLEAN_LITERAL:
@@ -1627,7 +1627,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ELSE_BODY:
                 return ParserRuleContext.OPEN_BRACE;
             case CALL_STMT_START:
-                return ParserRuleContext.VARIABLE_NAME;
+                return ParserRuleContext.VARIABLE_REF;
             case IMPORT_PREFIX_DECL:
             case IMPORT_VERSION_DECL:
                 return ParserRuleContext.SEMICOLON;
@@ -2896,6 +2896,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.BLOCK_STMT;
         } else if (parentCtx == ParserRuleContext.MATCH_STMT) {
             nextContext = ParserRuleContext.MATCH_BODY;
+        } else if (parentCtx == ParserRuleContext.CALL_STMT) {
+            nextContext = ParserRuleContext.METHOD_CALL_DOT;
         } else if (isStatement(parentCtx) ||
                 parentCtx == ParserRuleContext.RECORD_FIELD ||
                 parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER ||
@@ -2939,7 +2941,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             throw new IllegalStateException("seekMatchInExpressionRhs found: " + parentCtx);
         }
 
-        alternatives = getExpressionRhsAlternatives(nextContext, lookahead);
+        alternatives = getExpressionRhsAlternatives(nextContext);
 
         if (allowFuncCall) {
             alternatives = modifyAlternativesWithArgListStart(alternatives);
@@ -2947,26 +2949,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives, isEntryPoint);
     }
 
-    private ParserRuleContext[] getExpressionRhsAlternatives(ParserRuleContext nextContext, int lookahead) {
-        if (this.tokenReader.getCurrentTokenIndex() > 0) {
-            STToken previousToken = this.tokenReader.peek(lookahead - 1);
-            STNode trailingTrivia = previousToken.trailingMinutiae();
-            int bucketCount = trailingTrivia.bucketCount();
-
-            if (bucketCount > 0 &&
-                    trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                // Give higher priority to nextContext if previous token contains new line
-                // This is done to improve the recovery for missing semicolon
-                // eg:
-                // case 1 :- int a = expr1 [MISSING binaryOp] expr2;
-                // case 2 :- int a = expr1 [MISSING ;]
-                //           expr2;
-                return new ParserRuleContext[] { nextContext, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.IS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
-                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN };
-            }
+    private ParserRuleContext[] getExpressionRhsAlternatives(ParserRuleContext nextContext) {
+        if (nextContext == ParserRuleContext.SEMICOLON || nextContext == ParserRuleContext.QUERY_EXPRESSION_END) {
+            // Give higher priority to nextContext if nextContext contains `SEMICOLON`
+            // This is done to improve the recovery for missing semicolon
+            return new ParserRuleContext[] { nextContext, ParserRuleContext.BINARY_OPERATOR,
+                    ParserRuleContext.IS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                    ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                    ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
+                    ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN };
         }
 
         return new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
@@ -3139,6 +3130,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForCloseBracket();
             case DOT:
                 return getNextRuleForDot();
+            case METHOD_CALL_DOT:
+                return ParserRuleContext.VARIABLE_NAME;
             case BLOCK_STMT:
                 return ParserRuleContext.OPEN_BRACE;
             case IF_BLOCK:
@@ -4764,15 +4757,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
      */
     private ParserRuleContext getNextRuleForVarName() {
         ParserRuleContext parentCtx = getParentContext();
-        if (parentCtx == ParserRuleContext.ASSIGNMENT_STMT) {
-            return ParserRuleContext.ASSIGNMENT_STMT_RHS;
-        }
-
-        if (isStatement(parentCtx)) {
-            return ParserRuleContext.VAR_DECL_STMT_RHS;
-        }
-
         switch (parentCtx) {
+            case ASSIGNMENT_STMT:
+                return ParserRuleContext.ASSIGNMENT_STMT_RHS;
+            case CALL_STMT:
+                return ParserRuleContext.ARG_LIST;
             case REQUIRED_PARAM:
             case PARAM_LIST:
                 return ParserRuleContext.REQUIRED_PARAM_NAME_RHS;
@@ -4839,6 +4828,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RELATIVE_RESOURCE_PATH:
                 return ParserRuleContext.CLOSE_BRACKET;
             default:
+                if (isStatement(parentCtx)) {
+                    return ParserRuleContext.VAR_DECL_STMT_RHS;
+                }
                 throw new IllegalStateException("getNextRuleForVarName found: " + parentCtx);
         }
     }
@@ -5074,6 +5066,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             return getNextRuleForConstExpr();
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
+        } else if (parentCtx == ParserRuleContext.CALL_STMT) {
+            return ParserRuleContext.ARG_LIST;
         }
         return ParserRuleContext.VARIABLE_REF_RHS;
     }
@@ -5422,7 +5416,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ROLLBACK_STMT:
             case AMBIGUOUS_STMT:
             case MATCH_STMT:
-            case ON_FAIL_CLAUSE:
                 return true;
             default:
                 return false;
@@ -5657,6 +5650,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLOSE_BRACKET:
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case DOT:
+            case METHOD_CALL_DOT:
                 return SyntaxKind.DOT_TOKEN;
             case OPEN_BRACKET:
             case TUPLE_TYPE_DESC_START:
