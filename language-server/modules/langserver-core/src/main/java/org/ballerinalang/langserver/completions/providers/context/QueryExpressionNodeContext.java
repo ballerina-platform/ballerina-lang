@@ -51,7 +51,8 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (node.queryConstructType().isPresent() && this.onQueryConstructType(context, node.queryConstructType().get())) {
+        if (node.queryConstructType().isPresent() && 
+                this.onQueryConstructType(context, node.queryConstructType().get())) {
             QueryConstructTypeNode queryConstructType = node.queryConstructType().get();
             int cursor = context.getCursorPositionInTree();
             if (TABLE_KW.equals(queryConstructType.keyword().text())) {
@@ -85,7 +86,8 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
         return completionItems;
     }
 
-    private boolean withinKeySpecifierParenthesis(BallerinaCompletionContext context, KeySpecifierNode keySpecifierNode) {
+    private boolean withinKeySpecifierParenthesis(BallerinaCompletionContext context, 
+                                                  KeySpecifierNode keySpecifierNode) {
         int cursor = context.getCursorPositionInTree();
         return keySpecifierNode.openParenToken().textRange().endOffset() <= cursor &&
                 (keySpecifierNode.closeParenToken().isMissing() ||
