@@ -556,57 +556,19 @@ public class ProjectUtils {
      * Get `Dependencies.toml` content as a string.
      *
      * @param pkgGraphDependencies    direct dependencies of the package dependency graph
-     * @param pkgManifestDependencies list of dependencies as of root package manifest
      * @return Dependencies.toml` content
      */
-    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgGraphDependencies,
-            List<PackageManifest.Dependency> pkgManifestDependencies) {
+    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgGraphDependencies) {
         StringBuilder content = new StringBuilder();
-
-        // write dependencies already in the `Dependencies.toml`
-        pkgManifestDependencies.forEach(manifestDependency -> {
-            addDependencyContent(content, manifestDependency.org().value(), manifestDependency.name().value(),
-                                 manifestDependency.version().value().toString());
-            if (manifestDependency.repository() != null) {
-                content.append("repository = \"").append(manifestDependency.repository()).append("\"\n");
-            }
-            content.append("\n");
-        });
 
         // write dependencies from package dependency graph
         pkgGraphDependencies.forEach(graphDependency -> {
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
-
-            // ignore lang libs & ballerina internal packages
-            if (!descriptor.isBuiltInPackage() && !graphDependency.injected()) {
-                // write dependency, if it not already exists in `Dependencies.toml`
-                if (!isPkgManifestDependency(graphDependency, pkgManifestDependencies)) {
-                    // write dependencies only with stable versions
-                    if (!descriptor.version().value().isPreReleaseVersion()) {
-                        addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
-                                             descriptor.version().value().toString());
-                        content.append("\n");
-                    }
-                }
-            }
+            addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
+                    descriptor.version().value().toString());
+            content.append("\n");
         });
         return String.valueOf(content);
-    }
-
-    private static boolean isPkgManifestDependency(ResolvedPackageDependency graphDependency,
-            List<PackageManifest.Dependency> pkgManifestDependencies) {
-        if (pkgManifestDependencies.isEmpty()) {
-            return false;
-        }
-
-        for (PackageManifest.Dependency manifestDependency : pkgManifestDependencies) {
-            if (manifestDependency.org().value().equals(graphDependency.packageInstance().packageOrg().value())
-                    && manifestDependency.name().value()
-                    .equals(graphDependency.packageInstance().packageName().value())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static void addDependencyContent(StringBuilder content, String org, String name, String version) {

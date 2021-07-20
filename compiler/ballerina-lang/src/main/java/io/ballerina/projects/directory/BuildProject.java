@@ -24,7 +24,6 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageConfig;
-import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
@@ -40,7 +39,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
@@ -189,13 +190,23 @@ public class BuildProject extends Project {
     private void writeDependencies() {
         Package currentPackage = this.currentPackage();
         if (currentPackage != null) {
-            ResolvedPackageDependency resolvedPackageDependency =
-                    new ResolvedPackageDependency(currentPackage, PackageDependencyScope.DEFAULT);
-            Collection<ResolvedPackageDependency> pkgDependencies =
-                    currentPackage.getResolution().dependencyGraph().getDirectDependencies(resolvedPackageDependency);
+            Comparator<ResolvedPackageDependency> comparator = (o1, o2) -> {
+                if (o1.packageInstance().packageOrg().equals(o2.packageInstance().packageOrg())) {
+                    return o1.packageInstance().packageName().toString()
+                            .compareTo(o2.packageInstance().packageName().toString());
+                }
+                return o1.packageInstance().packageOrg().toString()
+                        .compareTo(o2.packageInstance().packageOrg().toString());
+            };
 
-            String dependenciesContent = getDependenciesTomlContent(pkgDependencies,
-                                                                    currentPackage.manifest().dependencies());
+            Collection<ResolvedPackageDependency> pkgDependencies =
+                    currentPackage.getResolution().dependencyGraph().getNodes().stream().filter(resolvedDep ->
+                                    resolvedDep.packageInstance() != currentPackage
+                                            && !resolvedDep.packageInstance().descriptor().isBuiltInPackage()
+                                            && !resolvedDep.injected())
+                            .sorted(comparator).collect(Collectors.toList());
+
+            String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
             if (!dependenciesContent.isEmpty()) {
                 // write content to Dependencies.toml file
                 createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
