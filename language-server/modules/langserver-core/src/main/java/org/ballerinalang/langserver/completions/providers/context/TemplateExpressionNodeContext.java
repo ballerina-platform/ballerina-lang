@@ -122,32 +122,6 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
     }
 
     @Override
-    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
-        // Following are for supporting the query expressions. Stream will be added via module completions
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
-
-        // Add the visible modules 
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        List<Symbol> symbols = visibleSymbols.stream()
-                .filter(this.symbolFilterPredicate()).collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(symbols, context));
-
-        return completionItems;
-    }
-
-    @Override
     public void sort(BallerinaCompletionContext context, TemplateExpressionNode node,
                      List<LSCompletionItem> completionItems, Object... interpolationParent) {
         if (interpolationParent.length == 0 || !(interpolationParent[0] instanceof SyntaxKind)) {
