@@ -113,6 +113,8 @@ public class ConfigResolver {
             case TypeTags.RECORD_TYPE_TAG:
                 return getConfigValue(key, configProvider -> configProvider
                         .getAsRecordAndMark(module, key));
+            case TypeTags.XML_TEXT_TAG:
+                return getConfigValue(key, configProvider -> configProvider.getAsXmlAndMark(module, key));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 switch (effectiveType.getTag()) {
@@ -133,8 +135,7 @@ public class ConfigResolver {
                     case TypeTags.XML_COMMENT_TAG:
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        return getConfigValue(key, configProvider -> configProvider
-                                .getAsXmlAndMark(module, key));
+                        return getConfigValue(key, configProvider -> configProvider.getAsXmlAndMark(module, key));
                     case TypeTags.ANYDATA_TAG:
                     case TypeTags.UNION_TAG:
                         return getConfigValue(key, configProvider -> configProvider
