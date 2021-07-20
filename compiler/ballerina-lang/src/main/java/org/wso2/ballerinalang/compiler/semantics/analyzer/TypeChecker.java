@@ -4330,9 +4330,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
 
-        if (!this.nonErrorLoggingCheck) {
-            env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
-        }
+       if (!this.nonErrorLoggingCheck) {
+            if (bLangLambdaFunction.function.flagSet.contains(Flag.WORKER)) {
+                env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
+            } else {
+                semanticAnalyzer.analyzeDef(bLangLambdaFunction.function, bLangLambdaFunction.capturedClosureEnv);
+            }
+       }
 
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.getBType(), expType);
     }
