@@ -15,19 +15,38 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.STRING_TEMPLATE_EXPRESSION;
 
 /**
  * Completion provider for {@link TemplateExpressionNode}.
@@ -48,21 +67,21 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         Optional<InterpolationNode> interpolationNode = findInterpolationNode(nodeAtCursor, node);
-        if (interpolationNode.isPresent()) {
-            // If the node at cursor is an interpolation, show expression suggestions
-            InterpolationNode interpolation = interpolationNode.get();
-            int cursor = context.getCursorPositionInTree();
-            // Check if cursor is within the interpolation start and end tokens. Ex: 
-            // 1. `some text ${..<cursor>..} other text`
-            if (!interpolation.interpolationStartToken().isMissing() &&
-                    interpolation.interpolationStartToken().textRange().endOffset() <= cursor &&
-                    (interpolation.interpolationEndToken().isMissing() ||
-                            cursor <= interpolation.interpolationEndToken().textRange().startOffset())) {
-                completionItems.addAll(this.expressionCompletions(context));
-            }
+        if (interpolationNode.isEmpty() || !this.isWithinInterpolation(context, node)) {
+            return completionItems;
         }
-
-        this.sort(context, node, completionItems);
+        
+        // If the node at cursor is an interpolation, show expression suggestions
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Symbol> moduleContent =
+                    QNameReferenceUtil.getModuleContent(context, qNameRef, this.symbolFilterPredicate());
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
+        }
+        SyntaxKind interpolationParent = interpolationNode.get().parent().kind();
+        this.sort(context, node, completionItems, interpolationParent);
 
         return completionItems;
     }
@@ -70,14 +89,13 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
     /**
      * Finds an {@link InterpolationNode} which is/is a parent of the cursor node.
      *
-     * @param cursorNode             Node at cursor
-     * @param templateExpressionNode Template expression node
+     * @param cursorNode Node at cursor
+     * @param node       Template expression node
      * @return Optional interpolation node
      */
-    private Optional<InterpolationNode> findInterpolationNode(NonTerminalNode cursorNode,
-                                                              TemplateExpressionNode templateExpressionNode) {
+    private Optional<InterpolationNode> findInterpolationNode(NonTerminalNode cursorNode, TemplateExpressionNode node) {
         // We know that the template expression node is definitely a parent of the node at the cursor
-        while (cursorNode.kind() != templateExpressionNode.kind()) {
+        while (cursorNode.kind() != node.kind()) {
             if (cursorNode.kind() == SyntaxKind.INTERPOLATION) {
                 return Optional.of((InterpolationNode) cursorNode);
             }
@@ -86,5 +104,138 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         }
 
         return Optional.empty();
+    }
+
+    private boolean isWithinInterpolation(BallerinaCompletionContext context, TemplateExpressionNode node) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        Optional<InterpolationNode> interpolationNode = this.findInterpolationNode(nodeAtCursor, node);
+        int cursor = context.getCursorPositionInTree();
+        // Check if cursor is within the interpolation start and end tokens. Ex: 
+        // 1. `some text ${..<cursor>..} other text`
+        if (interpolationNode.isEmpty()) {
+            return false;
+        }
+        Token startToken = interpolationNode.get().interpolationStartToken();
+        Token endToken = interpolationNode.get().interpolationEndToken();
+        return !startToken.isMissing() && startToken.textRange().endOffset() <= cursor
+                && (endToken.isMissing() || cursor <= endToken.textRange().startOffset());
+    }
+
+    @Override
+    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
+        // Following are for supporting the query expressions. Stream will be added via module completions
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+
+        // Add the visible modules 
+        completionItems.addAll(this.getModuleCompletionItems(context));
+        List<Symbol> symbols = visibleSymbols.stream()
+                .filter(this.symbolFilterPredicate()).collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(symbols, context));
+
+        return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, TemplateExpressionNode node,
+                     List<LSCompletionItem> completionItems, Object... interpolationParent) {
+        if (interpolationParent.length == 0 || !(interpolationParent[0] instanceof SyntaxKind)) {
+            throw new RuntimeException("Invalid sorting meta data provided");
+        }
+        /*
+        Sorting order will give the highest priority to the symbols.
+        Symbols which has a resolving type of boolean, int, float, decimal and string will get the highest priority.
+         */
+        for (LSCompletionItem lsCItem : completionItems) {
+            String sortText;
+            if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL
+                    || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem, 1));
+            } else {
+                Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().get();
+                Optional<TypeSymbol> typeSymbol = SymbolUtil.getTypeDescriptor(symbol);
+                if (typeSymbol.isEmpty()) {
+                    // Added for safety, and should not hit this point
+                    sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem, 1));
+                } else {
+                    /*
+                    Here the sort text is three-fold.
+                    First we will assign the highest priority (Symbols over the others such as keywords),
+                    then we sort with the resolved type,
+                    Then we again append the sorting among the symbols (ex: functions over variable).
+                     */
+                    sortText = SortingUtil.genSortText(1)
+                            + this.getSortTextForResolvedType(typeSymbol.get(), (SyntaxKind) interpolationParent[0])
+                            + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+                }
+            }
+
+            lsCItem.getCompletionItem().setSortText(sortText);
+        }
+    }
+
+    private Predicate<Symbol> symbolFilterPredicate() {
+        return CommonUtil.getVariableFilterPredicate()
+                .or(symbol -> symbol.kind() == SymbolKind.FUNCTION
+                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
+    }
+
+    private TypeSymbol getResolvedType(TypeSymbol typeSymbol) {
+        TypeSymbol resolvedType;
+        if (typeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            resolvedType = ((FunctionTypeSymbol) typeSymbol).returnTypeDescriptor().orElse(typeSymbol);
+        } else {
+            resolvedType = typeSymbol;
+        }
+
+        return CommonUtil.getRawType(resolvedType);
+    }
+
+    private String getSortTextForResolvedType(TypeSymbol typeSymbol, SyntaxKind interpolationParent) {
+        TypeSymbol resolvedType = this.getResolvedType(typeSymbol);
+        TypeDescKind typeKind = resolvedType.typeKind();
+        
+        // Note: The following logic can be simplified. Although, kept it as it is in order to improve the
+        // readability and maintainability over the changes 
+        switch (interpolationParent) {
+            case STRING_TEMPLATE_EXPRESSION:
+                if (typeKind == TypeDescKind.BOOLEAN || typeKind == TypeDescKind.INT
+                        || typeKind == TypeDescKind.FLOAT || typeKind == TypeDescKind.DECIMAL
+                        || typeKind == TypeDescKind.STRING) {
+                    return SortingUtil.genSortText(1);
+                }
+                break;
+            case XML_ATTRIBUTE:
+                if (typeKind == TypeDescKind.BOOLEAN || typeKind == TypeDescKind.INT
+                        || typeKind == TypeDescKind.FLOAT || typeKind == TypeDescKind.DECIMAL) {
+                    return SortingUtil.genSortText(1);
+                }
+                break;
+            case XML_ELEMENT:
+                if (typeKind == TypeDescKind.XML || typeKind == TypeDescKind.XML_COMMENT
+                        || typeKind == TypeDescKind.XML_ELEMENT || typeKind == TypeDescKind.XML_TEXT
+                        || typeKind == TypeDescKind.XML_PROCESSING_INSTRUCTION) {
+                    return SortingUtil.genSortText(1);
+                }
+                if (typeKind == TypeDescKind.BOOLEAN || typeKind == TypeDescKind.INT
+                        || typeKind == TypeDescKind.FLOAT || typeKind == TypeDescKind.DECIMAL) {
+                    return SortingUtil.genSortText(2);
+                }
+                break;
+            default:
+                break;
+        }
+        return SortingUtil.genSortText(3);
     }
 }

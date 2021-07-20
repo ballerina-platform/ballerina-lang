@@ -313,15 +313,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -430,18 +421,26 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunctionWithReturn2()",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunctionWithReturn1()",
       "kind": "Function",
-      "detail": "int",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "AC",
-      "filterText": "testFunctionWithReturn2",
-      "insertText": "testFunctionWithReturn2()",
+      "sortText": "E",
+      "filterText": "testFunctionWithReturn1",
+      "insertText": "testFunctionWithReturn1()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -464,26 +463,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunctionWithReturn1()",
+      "label": "testFunctionWithReturn2()",
       "kind": "Function",
-      "detail": "string",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "E",
-      "filterText": "testFunctionWithReturn1",
-      "insertText": "testFunctionWithReturn1()",
+      "sortText": "AC",
+      "filterText": "testFunctionWithReturn2",
+      "insertText": "testFunctionWithReturn2()",
       "insertTextFormat": "Snippet"
     },
     {

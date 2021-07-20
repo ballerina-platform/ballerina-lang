@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -50,6 +51,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -134,33 +136,34 @@ public final class FunctionCompletionItemBuilder {
      * @param context        LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem buildMethod(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
+    public static CompletionItem buildMethod(@Nonnull FunctionSymbol functionSymbol,
+                                             BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
-        if (functionSymbol != null) {
-            String funcName = functionSymbol.getName().get();
-            Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
-            item.setInsertText("self." + functionSignature.getLeft());
-            item.setLabel("self." + functionSignature.getRight());
-            item.setFilterText("self." + funcName);
-        }
+        String funcName = functionSymbol.getName().get();
+        Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
+        item.setInsertText("self." + functionSignature.getLeft());
+        item.setLabel("self." + functionSignature.getRight());
+        item.setFilterText("self." + funcName);
+        
         return item;
     }
 
-    private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
+    private static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setKind(CompletionItemKind.Function);
-        if (bSymbol != null) {
-            FunctionTypeSymbol functionTypeDesc = bSymbol.typeDescriptor();
-            item.setDetail(functionTypeDesc.returnTypeDescriptor().get().signature());
-            List<String> funcArguments = getFuncArguments(bSymbol, ctx);
+        if (functionSymbol != null) {
+            FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
+            Optional<TypeSymbol> typeSymbol = functionTypeDesc.returnTypeDescriptor();
+            typeSymbol.ifPresent(symbol -> item.setDetail(symbol.signature()));
+            List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
             if (!funcArguments.isEmpty()) {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
                 item.setCommand(cmd);
             }
-            boolean skipFirstParam = skipFirstParam(ctx, bSymbol);
-            if (bSymbol.documentation().isPresent()) {
-                item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
+            boolean skipFirstParam = skipFirstParam(ctx, functionSymbol);
+            if (functionSymbol.documentation().isPresent()) {
+                item.setDocumentation(getDocumentation(functionSymbol, skipFirstParam, ctx));
             }
         }
     }
