@@ -919,6 +919,50 @@ function testCloneWithTypeIntArrayToUnionArray() {
     assert(messageString, "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]'");
 }
 
+function testCloneWithTypeArrayToTuple() {
+    int[] arr = [1, 2, 3];
+
+    [decimal, byte...]|error a = arr.cloneWithType();
+    assert(checkpanic a, <[decimal, byte...]> [1.0, 2, 3]);
+
+    [int|decimal, byte|int:Unsigned8...]|error b = arr.cloneWithType();
+    assert(checkpanic b, [1, 2, 3]);
+
+    [int|decimal, byte|int:Unsigned8]|error c = arr.cloneWithType();
+    assert(c is error, true);
+    error err = <error> c;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[(int|decimal),(byte|lang.int:Unsigned8)]'");
+
+    [int, float, decimal, byte]|error d = arr.cloneWithType();
+    assert(d is error, true);
+    err = <error> d;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[int,float,decimal,byte]'");
+
+    [float|decimal, int|byte...]|error e = arr.cloneWithType();
+    assert(e is error, true);
+    err = <error> e;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]'");
+}
+
+function testCloneWithTypeTuple() {
+    [int, float, int|float...] t = [1, 2.5, 3, 5.2];
+
+    [float...]|error a = t.cloneWithType();
+    assert(checkpanic a, [1.0, 2.5, 3.0, 5.2]);
+
+    [byte|int:Unsigned8, int|float, int|byte, byte|int:Unsigned32]|error b = t.cloneWithType();
+    assert(checkpanic b, [1, 2.5, 3, 5]);
+}
+
 type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
