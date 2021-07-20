@@ -9,6 +9,7 @@ on:
       - stage
       - ballerina-1.2.x
       - stage-slbeta2
+      - project_api
 
 jobs:
   ubuntu_build:
