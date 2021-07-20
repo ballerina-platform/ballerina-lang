@@ -74,6 +74,9 @@ public class DiagnosticsTest {
                 {"invalid operation: type 'testorg/testerrorproject:1.0.0:R' does not support field access for " +
                         "non-required field 'z'", 28, 12},
                 {"undefined field 'y' in record 'testorg/testerrorproject:1.0.0:R'", 29, 11},
+                {"undefined field 'a' in record 'testorg/testerrorproject:1.0.0:Employee'", 38, 15},
+                {"invalid operation: type 'testorg/testerrorproject:1.0.0:Employee' does not support field access for " +
+                        "non-required field 'address'", 39, 11},
         };
     }
 

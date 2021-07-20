@@ -29,3 +29,13 @@ function foo(R r) returns int {
     int z = r.z;
     return r.y;
 }
+
+type Employee record {
+    string name;
+    string address?;
+};
+
+function bar(Employee e) returns string {
+    string x = e.a;
+    return e.address;
+}
