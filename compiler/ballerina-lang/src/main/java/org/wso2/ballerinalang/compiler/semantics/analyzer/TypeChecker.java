@@ -5762,6 +5762,22 @@ public class TypeChecker extends BLangNodeVisitor {
                 names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
         BSymbol funcSymbol =
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
+
+        int indexOfDot = -1;
+        if (funcSymbol == symTable.notFoundSymbol) {
+            indexOfDot = funcName.value.indexOf('.');
+        }
+        if (indexOfDot > 0 && funcName.value.length() > indexOfDot) {
+            String fieldName = funcName.value.substring(indexOfDot + 1);
+            BSymbol invocableField = symResolver.resolveInvocableObjectField(
+                    iExpr.pos, env, names.fromString(fieldName), (BObjectTypeSymbol) objectType.tsymbol);
+
+            if (invocableField != symTable.notFoundSymbol && invocableField.kind == SymbolKind.FUNCTION) {
+                funcSymbol = invocableField;
+                iExpr.functionPointerInvocation = true;
+            }
+        }
+
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
                 dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_METHOD_IN_OBJECT, iExpr.name.value,
