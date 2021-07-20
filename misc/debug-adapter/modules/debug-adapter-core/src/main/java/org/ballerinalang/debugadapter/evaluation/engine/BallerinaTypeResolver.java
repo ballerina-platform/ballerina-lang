@@ -52,8 +52,8 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTAN
  */
 public class BallerinaTypeResolver {
 
+    static final String ARRAY_TYPE_SUFFIX = "\\[\\]$";
     private static final String UNION_TYPE_SEPARATOR_REGEX = "\\|";
-    private static final String ARRAY_TYPE_SUFFIX = "\\[\\]$";
 
     /**
      * @param context        debug context

@@ -368,7 +368,7 @@ public class EvaluationUtils {
                 methodArgTypeNames);
 
         List<Value> methodArgs = new ArrayList<>();
-        methodArgs.add(sourceVal);
+        methodArgs.add(getValueAsObject(context, sourceVal));
         methodArgs.add(targetType);
         method.setArgValues(methodArgs);
         return Boolean.parseBoolean(new BExpressionValue(context, method.invokeSafely()).getStringValue());

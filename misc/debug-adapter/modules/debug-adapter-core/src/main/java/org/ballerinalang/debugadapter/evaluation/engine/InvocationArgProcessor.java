@@ -49,7 +49,6 @@ import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_REST_ARG_ARRAY_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
@@ -133,9 +132,11 @@ public class InvocationArgProcessor {
                         restArrayType = resolveType(context, restParamTypeName);
                         restArgsFound = true;
                     }
-                    if (!checkIsType(context, jdiArgValue, getElementType(context, restArrayType))) {
+                    Value elementType = getElementType(context, restArrayType);
+                    if (!checkIsType(context, jdiArgValue, elementType)) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                                restParamTypeName, argValue.getType().getString(), restParamName));
+                                restParamTypeName.replaceAll(BallerinaTypeResolver.ARRAY_TYPE_SUFFIX, ""),
+                                argValue.getType().getString(), restParamName));
                     }
                     restValues.add(jdiArgValue);
                     remainingParams.remove(restParamName);
@@ -273,9 +274,11 @@ public class InvocationArgProcessor {
                         restArrayType = resolveType(context, restParamTypeName);
                         restArgsFound = true;
                     }
-                    if (!checkIsType(context, jdiArgValue, getElementType(context, restArrayType))) {
+                    Value elementType = getElementType(context, restArrayType);
+                    if (!checkIsType(context, jdiArgValue, elementType)) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                                restParamTypeName, argValue.getType().getString(), restParamName));
+                                restParamTypeName.replaceAll(BallerinaTypeResolver.ARRAY_TYPE_SUFFIX, ""),
+                                argValue.getType().getString(), restParamName));
                     }
                     restValues.add(jdiArgValue);
                     remainingParams.remove(restParamName);
@@ -421,17 +424,6 @@ public class InvocationArgProcessor {
             return ArgType.REST;
         }
         return ArgType.UNKNOWN;
-    }
-
-    public static Value createBArrayType(SuspendedContext context, Value type) throws EvaluationException {
-        List<String> argTypeNames = new ArrayList<>();
-        argTypeNames.add("io.ballerina.runtime.api.types.Type");
-        RuntimeStaticMethod createArrayMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,
-                "createArrayType", argTypeNames);
-        List<Value> methodArgs = new ArrayList<>();
-        methodArgs.add(type);
-        createArrayMethod.setArgValues(methodArgs);
-        return createArrayMethod.invokeSafely();
     }
 
     private static Value resolveType(SuspendedContext context, String arrayTypeName) throws EvaluationException {
