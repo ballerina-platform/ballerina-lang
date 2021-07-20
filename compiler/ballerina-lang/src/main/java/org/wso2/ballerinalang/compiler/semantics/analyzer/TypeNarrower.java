@@ -158,8 +158,8 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     public SymbolEnv evaluateFalsityForSingleIf(BLangExpression expr, SymbolEnv currentEnv) {
-        if (expr.getKind() != NodeKind.TYPE_TEST_EXPR || (expr.getKind() == NodeKind.GROUP_EXPR &&
-                ((BLangGroupExpr) expr).expression.getKind() != NodeKind.TYPE_TEST_EXPR)) {
+        if (!(expr.getKind() == NodeKind.TYPE_TEST_EXPR || (expr.getKind() == NodeKind.GROUP_EXPR &&
+                ((BLangGroupExpr) expr).expression.getKind() == NodeKind.TYPE_TEST_EXPR))) {
             return currentEnv;
         }
 
