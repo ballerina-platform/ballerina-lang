@@ -57,6 +57,8 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
 
     FUNCTION_CAN_BE_MARKED_ISOLATED("BCE20300", "function.can.be.marked.isolated"),
 
+    FUNCTION_SHOULD_EXPLICITLY_RETURN_A_NIL("BCE20350", "function.should.explicitly.return.a.nil"),
+
     COMPILER_PLUGIN_ERROR("BCE20400", "compiler.plugin.crashed"),
 
     CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE("BCE20401",
