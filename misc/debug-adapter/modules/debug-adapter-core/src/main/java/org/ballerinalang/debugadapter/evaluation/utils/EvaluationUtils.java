@@ -381,7 +381,8 @@ public class EvaluationUtils {
      * @param resolvedTypes member types
      * @return a 'BUnionType' instance by combining all its member types
      */
-    public static Value getUnionTypeFrom(SuspendedContext context, List<Value> resolvedTypes) throws EvaluationException {
+    public static Value getUnionTypeFrom(SuspendedContext context, List<Value> resolvedTypes)
+            throws EvaluationException {
         List<String> methodArgTypeNames = new ArrayList<>();
         methodArgTypeNames.add(B_TYPE_ARRAY_CLASS);
         RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS, CREATE_UNION_TYPE_METHOD,

@@ -107,7 +107,6 @@ public class InvocationArgProcessor {
                             "too many arguments in call to '" + functionName + "'."));
                 }
 
-                String parameterName = params.get(paramIndex).getName().get();
                 BExpressionValue argValue = arg.getValue().evaluate();
                 Value jdiArgValue = argValue.getJdiValue();
                 if (params.get(paramIndex).typeDescriptor().signature().equals(BVariableType.ANY.getString())) {
@@ -141,6 +140,7 @@ public class InvocationArgProcessor {
                     restValues.add(jdiArgValue);
                     remainingParams.remove(restParamName);
                 } else {
+                    String parameterName = params.get(paramIndex).getName().get();
                     argValues.put(parameterName, jdiArgValue);
                     remainingParams.remove(parameterName);
                     paramIndex++;
@@ -249,7 +249,6 @@ public class InvocationArgProcessor {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                             "too many arguments in call to '" + functionName + "'."));
                 }
-                String parameterName = getParameterName(params.get(paramIndex));
                 BExpressionValue argValue = arg.getValue().evaluate();
                 Value jdiArgValue = argValue.getJdiValue();
                 if (getParameterTypeName(params.get(paramIndex)).equals(BVariableType.ANY.getString())) {
@@ -283,6 +282,7 @@ public class InvocationArgProcessor {
                     restValues.add(jdiArgValue);
                     remainingParams.remove(restParamName);
                 } else {
+                    String parameterName = getParameterName(params.get(paramIndex));
                     argValues.put(parameterName, jdiArgValue);
                     remainingParams.remove(parameterName);
                     paramIndex++;
