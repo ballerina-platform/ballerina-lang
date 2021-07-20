@@ -30,6 +30,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import java.util.Optional;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_UTILS_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_ARRAY_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
@@ -115,11 +117,11 @@ public class BallerinaTypeResolver {
         return arrayTypeDetected ? createBArrayType(context, result.get()) : result.get();
     }
 
-    public static Value createBArrayType(SuspendedContext context, Value type) throws EvaluationException {
+    private static Value createBArrayType(SuspendedContext context, Value type) throws EvaluationException {
         List<String> argTypeNames = new ArrayList<>();
-        argTypeNames.add("io.ballerina.runtime.api.types.Type");
+        argTypeNames.add(EvaluationUtils.B_TYPE_CLASS);
         RuntimeStaticMethod createArrayMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,
-                "createArrayType", argTypeNames);
+                CREATE_ARRAY_TYPE_METHOD, argTypeNames);
         List<Value> methodArgs = new ArrayList<>();
         methodArgs.add(type);
         createArrayMethod.setArgValues(methodArgs);

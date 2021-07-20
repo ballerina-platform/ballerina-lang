@@ -45,10 +45,10 @@ import java.util.function.Function;
  * <p>
  * These utils methods must be class-loaded into the program JVM to evaluate
  * <ul>
- *  <li> function
- *  <li> object method
- *  <li> remote call action
- *  <li> wait action
+ *  <li> functions
+ *  <li> object methods
+ *  <li> remote call actions
+ *  <li> wait actions
  *  </ul>
  * invocations using the debugger expression evaluation engine.
  *
@@ -161,6 +161,13 @@ public class DebuggerRuntime {
         return ValueCreator.createObjectValue(packageId, objectTypeName, fieldValues);
     }
 
+    /**
+     * Initializes and returns a Ballerina array instance with a given element type and the list of members.
+     *
+     * @param arrayElementType element type
+     * @param values           member values
+     * @return Ballerina array instance
+     */
     public static Object getRestArgArray(Type arrayElementType, BValue... values) {
         ArrayType arrayType = TypeCreator.createArrayType(arrayElementType);
         if (values.length == 0) {
