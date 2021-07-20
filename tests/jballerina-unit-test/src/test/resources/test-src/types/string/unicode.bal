@@ -23,12 +23,33 @@ function testUnicode() {
     string s4 = "ABC\u{644}\u{1048}CDE";
     string s5 = "ABC \u{0633} CDE";
     string s6 = "ABC \u{0633} CDE \u{0644} DEF \u{0644} XYZ";
+    string s7 = "\u{1F600}";
+    string s8 = "\u{1F600}\u{1F610}\u{1D702}Bar";
+    string s9 = "\u{41}";
+    string s10 = "\u{43}\u{061}\u{000074}";
 
-    if (s1 == "س" && s2 == "س" && s3 == "ABCل၈CDE" && s4 == "ABCل၈CDE" && s5 == "ABC س CDE"
-            && s6 == "ABC س CDE ل DEF ل XYZ") {
+    assertEquality(s1, "س");
+    assertEquality(s2, "س");
+    assertEquality(s3, "ABCل၈CDE");
+    assertEquality(s4, "ABCل၈CDE");
+    assertEquality(s5, "ABC س CDE");
+    assertEquality(s6, "ABC س CDE ل DEF ل XYZ");
+    assertEquality(s7, "😀");
+    assertEquality(s8, "😀😐𝜂Bar");
+    assertEquality(s9, "A");
+    assertEquality(s10, "Cat");
+
+    byte[] bArray = s9.toBytes();
+    assertEquality(s7.length(), 1);
+    assertEquality(bArray.length(), 1);
+    assertEquality(bArray.toString(), "[65]");
+}
+
+function assertEquality(anydata actual, anydata expected) {
+    if (actual == expected) {
         return;
     }
-    panic error(ASSERTION_ERROR_REASON, message = "expected 'س', 'س', 'ABCل၈CDE', 'ABCل၈CDE', 'ABC س CDE', "
-            + " 'ABC س CDE ل DEF ل XYZ', found " + s1 + "', '" + s2 + "', '" + s3 + "', '" + s4 + "', '"
-            + s5 + "', '" + s6 + "'");
+    
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

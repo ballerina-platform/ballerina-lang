@@ -83,7 +83,20 @@ public class IdentifierUtils {
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
         }
-        return StringEscapeUtils.unescapeJava(identifier);
+        return unescapeJava(identifier);
+    }
+
+    /**
+     * <p>Unescapes any Java literals found in the {@code String}.
+     * For example, it will turn a sequence of {@code '\'} and
+     * {@code 'n'} into a newline character, unless the {@code '\'}
+     * is preceded by another {@code '\'}.</p>
+     *
+     * @param str the {@code String} to unescape, may be null
+     * @return a new unescaped {@code String}, {@code null} if null string input
+     */
+    public static String unescapeJava(String str) {
+        return StringEscapeUtils.unescapeJava(str);
     }
 
     private static Identifier encodeGeneratedName(String identifier) {
@@ -147,7 +160,9 @@ public class IdentifierUtils {
         Matcher matcher = UNICODE_PATTERN.matcher(identifier);
         StringBuffer buffer = new StringBuffer(identifier.length());
         while (matcher.find()) {
-            String ch = String.valueOf((char) Integer.parseInt(matcher.group(1), 16));
+            int codePoint = Integer.parseInt(matcher.group(1), 16);
+            char[] chars = Character.toChars(codePoint);
+            String ch = String.valueOf(chars);
             matcher.appendReplacement(buffer, Matcher.quoteReplacement(ch));
         }
         matcher.appendTail(buffer);
