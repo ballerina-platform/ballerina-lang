@@ -80,6 +80,7 @@ public class EvaluationUtils {
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
     public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
+    public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
@@ -136,6 +137,7 @@ public class EvaluationUtils {
     public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
     public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
     public static final String CREATE_INT_RANGE_METHOD = "createIntRange";
+    public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
@@ -353,7 +355,7 @@ public class EvaluationUtils {
     /**
      * Check whether a given value belongs to the given type.
      *
-     * @param sourceVal value to check the type
+     * @param sourceVal  value to check the type
      * @param targetType type to be test against
      * @return true if the value belongs to the given type, false otherwise
      */

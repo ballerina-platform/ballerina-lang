@@ -48,7 +48,10 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CREATOR_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_ARRAY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_REST_ARG_ARRAY_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
@@ -91,8 +94,8 @@ public class InvocationArgProcessor {
         }
 
         Map<String, Value> argValues = new HashMap<>();
-        for (int i = 0; i < argEvaluators.size(); i++) {
-            Map.Entry<String, Evaluator> arg = argEvaluators.get(i);
+        for (int argIndex = 0, paramIndex = 0; argIndex < argEvaluators.size(); argIndex++) {
+            Map.Entry<String, Evaluator> arg = argEvaluators.get(argIndex);
             ArgType argType = getArgType(arg);
             if (argType == ArgType.POSITIONAL) {
                 if (namedArgsFound) {
@@ -100,23 +103,19 @@ public class InvocationArgProcessor {
                             "positional args are not allowed after named args."));
                 }
 
-                if (remainingParams.isEmpty()) {
+                if (remainingParams.isEmpty() && !restArgsFound) {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                             "too many arguments in call to '" + functionName + "'."));
                 }
 
-                String parameterName = params.get(i).getName().get();
+                String parameterName = params.get(paramIndex).getName().get();
                 BExpressionValue argValue = arg.getValue().evaluate();
                 Value jdiArgValue = argValue.getJdiValue();
-                // For the ballerina function parameters with type "any", the generated runtime method will only accept
-                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
-                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
-                // into the method.
-                if (params.get(i).typeDescriptor().signature().equals(BVariableType.ANY.getString())) {
+                if (params.get(paramIndex).typeDescriptor().signature().equals(BVariableType.ANY.getString())) {
                     jdiArgValue = getValueAsObject(context, jdiArgValue);
                 }
 
-                if (params.get(i).paramKind() == ParameterKind.REST) {
+                if (params.get(paramIndex).paramKind() == ParameterKind.REST) {
                     for (Map.Entry<String, ParameterSymbol> entry : remainingParams.entrySet()) {
                         ParameterKind parameterType = entry.getValue().paramKind();
                         if (parameterType == ParameterKind.REST) {
@@ -143,6 +142,7 @@ public class InvocationArgProcessor {
                 } else {
                     argValues.put(parameterName, jdiArgValue);
                     remainingParams.remove(parameterName);
+                    paramIndex++;
                 }
             } else if (argType == ArgType.NAMED) {
                 if (restArgsFound) {
@@ -157,15 +157,12 @@ public class InvocationArgProcessor {
                 }
                 namedArgsFound = true;
                 Value argValue = arg.getValue().evaluate().getJdiValue();
-                // For the ballerina function parameters with type "any", the generated runtime method will only accept
-                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
-                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
-                // into the method.
-                if (params.get(i).typeDescriptor().signature().equals(BVariableType.ANY.getString())) {
+                if (params.get(paramIndex).typeDescriptor().signature().equals(BVariableType.ANY.getString())) {
                     argValue = getValueAsObject(context, argValue);
                 }
                 argValues.put(argName, argValue);
                 remainingParams.remove(argName);
+                paramIndex++;
             } else if (argType == ArgType.REST) {
                 if (namedArgsFound) {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
@@ -185,22 +182,11 @@ public class InvocationArgProcessor {
                             "undefined rest parameter."));
                 }
 
-                BExpressionValue argValue = arg.getValue().evaluate();
-                Value jdiArgValue = argValue.getJdiValue();
-                if (params.get(i).typeDescriptor().signature().equals(BVariableType.ANY.getString())) {
-                    jdiArgValue = getValueAsObject(context, jdiArgValue);
-                }
-
-                if (!restArgsFound) {
-                    restArrayType = resolveType(context, restParamTypeName);
-                    restArgsFound = true;
-                }
-                if (!checkIsType(context, jdiArgValue, getElementType(context, restArrayType))) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                            restParamTypeName, argValue.getType().getString(), restParamName));
-                }
-                restValues.add(jdiArgValue);
+                restArgsFound = true;
+                argValues.put(restParamName, arg.getValue().evaluate().getJdiValue());
                 remainingParams.remove(restParamName);
+                restArgsProcessed = true;
+                paramIndex++;
             }
         }
 
@@ -221,8 +207,7 @@ public class InvocationArgProcessor {
         }
 
         if (restArgsFound && !restArgsProcessed) {
-            argValues.put(restParamName, getRestArgArray(context, restArrayType, restValues
-                    .toArray(new Value[0])));
+            argValues.put(restParamName, getRestArgArray(context, restArrayType, restValues.toArray(new Value[0])));
         }
         return argValues;
     }
@@ -250,8 +235,8 @@ public class InvocationArgProcessor {
         }
 
         Map<String, Value> argValues = new HashMap<>();
-        for (int i = 0; i < argEvaluators.size(); i++) {
-            Map.Entry<String, Evaluator> arg = argEvaluators.get(i);
+        for (int argIndex = 0, paramIndex = 0; argIndex < argEvaluators.size(); argIndex++) {
+            Map.Entry<String, Evaluator> arg = argEvaluators.get(argIndex);
             ArgType argType = getArgType(arg);
             if (argType == ArgType.POSITIONAL) {
                 if (namedArgsFound) {
@@ -259,22 +244,18 @@ public class InvocationArgProcessor {
                             "positional args are not allowed after named args."));
                 }
 
-                if (remainingParams.isEmpty()) {
+                if (remainingParams.isEmpty() && restArgsFound) {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                             "too many arguments in call to '" + functionName + "'."));
                 }
-                String parameterName = getParameterName(params.get(i));
+                String parameterName = getParameterName(params.get(paramIndex));
                 BExpressionValue argValue = arg.getValue().evaluate();
                 Value jdiArgValue = argValue.getJdiValue();
-                // For the ballerina function parameters with type "any", the generated runtime method will only accept
-                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
-                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
-                // into the method.
-                if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
+                if (getParameterTypeName(params.get(paramIndex)).equals(BVariableType.ANY.getString())) {
                     jdiArgValue = getValueAsObject(context, jdiArgValue);
                 }
 
-                if (params.get(i).kind() == SyntaxKind.REST_PARAM) {
+                if (params.get(paramIndex).kind() == SyntaxKind.REST_PARAM) {
                     for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
                         SyntaxKind parameterType = entry.getValue().kind();
                         if (parameterType == SyntaxKind.REST_PARAM) {
@@ -301,6 +282,7 @@ public class InvocationArgProcessor {
                 } else {
                     argValues.put(parameterName, jdiArgValue);
                     remainingParams.remove(parameterName);
+                    paramIndex++;
                 }
             } else if (argType == ArgType.NAMED) {
                 if (restArgsFound) {
@@ -315,15 +297,12 @@ public class InvocationArgProcessor {
                 }
                 namedArgsFound = true;
                 Value argValue = arg.getValue().evaluate().getJdiValue();
-                // For the ballerina function parameters with type "any", the generated runtime method will only accept
-                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
-                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
-                // into the method.
-                if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
+                if (getParameterTypeName(params.get(paramIndex)).equals(BVariableType.ANY.getString())) {
                     argValue = getValueAsObject(context, argValue);
                 }
                 argValues.put(argName, argValue);
                 remainingParams.remove(argName);
+                paramIndex++;
             } else if (argType == ArgType.REST) {
                 if (namedArgsFound) {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
@@ -343,21 +322,11 @@ public class InvocationArgProcessor {
                             "undefined rest parameter."));
                 }
 
-                BExpressionValue argValue = arg.getValue().evaluate();
-                Value jdiArgValue = argValue.getJdiValue();
-                if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
-                    jdiArgValue = getValueAsObject(context, jdiArgValue);
-                }
-                if (!restArgsFound) {
-                    restArrayType = resolveType(context, restParamTypeName);
-                    restArgsFound = true;
-                }
-                if (!checkIsType(context, jdiArgValue, getElementType(context, restArrayType))) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                            restParamTypeName, argValue.getType().getString(), restParamName));
-                }
-                restValues.add(jdiArgValue);
+                restArgsFound = true;
+                argValues.put(restParamName, arg.getValue().evaluate().getJdiValue());
                 remainingParams.remove(restParamName);
+                restArgsProcessed = true;
+                paramIndex++;
             }
         }
 
@@ -378,18 +347,19 @@ public class InvocationArgProcessor {
         }
 
         if (restArgsFound && !restArgsProcessed) {
-            argValues.put(restParamName, getRestArgArray(context, restArrayType, restValues
-                    .toArray(new Value[0])));
+            argValues.put(restParamName, getRestArgArray(context, restArrayType, restValues.toArray(new Value[0])));
         }
         return argValues;
     }
 
-    private static Value getRestArgArray(SuspendedContext context, Value arrayType, Value... values) throws EvaluationException {
+    private static Value getRestArgArray(SuspendedContext context, Value arrayType, Value... values)
+            throws EvaluationException {
+
         List<String> argTypeNames = new ArrayList<>();
-        argTypeNames.add("io.ballerina.runtime.api.types.Type");
-        argTypeNames.add("io.ballerina.runtime.api.values.BValue[]");
-        RuntimeStaticMethod getRestArgArray = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS, "getRestArgArray",
-                argTypeNames);
+        argTypeNames.add(B_TYPE_CLASS);
+        argTypeNames.add(B_VALUE_ARRAY_CLASS);
+        RuntimeStaticMethod getRestArgArray = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
+                GET_REST_ARG_ARRAY_METHOD, argTypeNames);
         List<Value> argValues = new ArrayList<>();
         argValues.add(arrayType);
         argValues.addAll(Arrays.asList(values));
