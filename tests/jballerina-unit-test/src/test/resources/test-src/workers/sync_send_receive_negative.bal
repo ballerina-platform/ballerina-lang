@@ -31,6 +31,7 @@ public function main() {
             return error E2(R2);
         }
         "hello" ->> w2;
+        return();
     }
 
     worker w2 returns error? {
@@ -40,6 +41,7 @@ public function main() {
             return error("w2 err");
         }
         string s = <- w1;
+        return();
     }
 
     error? err = wait w1;

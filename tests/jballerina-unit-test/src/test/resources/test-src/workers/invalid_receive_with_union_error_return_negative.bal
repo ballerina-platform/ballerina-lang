@@ -39,6 +39,7 @@ public function main() {
         }
         j = <- w2;
         j = <- w2;
+        return();
     }
 
     worker w2 returns boolean|error {
