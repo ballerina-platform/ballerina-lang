@@ -61,8 +61,8 @@ public class ErrorHandlerValidationTest {
             if ((boolean) hasAlternativePaths.invoke(errorHandler, ctx)) {
                 try {
                     getShortestAlternative.invoke(errorHandler, ctx);
-                } catch (Exception exception) {
-                    Assert.fail(exception.toString());
+                } catch (InvocationTargetException exception) {
+                    Assert.fail("Alternative path entry not found");
                 }
             }
         }
