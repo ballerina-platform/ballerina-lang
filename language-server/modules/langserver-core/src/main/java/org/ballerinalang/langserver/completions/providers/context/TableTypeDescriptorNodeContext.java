@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -80,8 +82,19 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
                 if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
                     // Type parameter is a record and we allow only readonly fields in keys
                     RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
+
+                    // Get existing keys
+                    KeySpecifierNode keySpecifierNode = (KeySpecifierNode) node.keyConstraintNode().get();
+                    Set<String> fieldNames = keySpecifierNode.fieldNames().stream()
+                            .filter(identifierToken -> !identifierToken.isMissing())
+                            .map(Token::text)
+                            .collect(Collectors.toSet());
+
+                    // Get field symbols which are readonly and not already specified
                     List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
                             .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
+                            .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent() &&
+                                    !fieldNames.contains(recordFieldSymbol.getName().get()))
                             .collect(Collectors.toList());
                     return this.getCompletionItemList(symbols, context);
                 }
