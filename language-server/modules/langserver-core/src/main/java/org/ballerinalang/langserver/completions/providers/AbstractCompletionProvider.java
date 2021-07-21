@@ -464,7 +464,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         query pipeline starts with from keyword and also being added with the actions
          */
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        // Here we do not add the error keyword since it will be added via the module completion items
+        // Here we do not add the error and object keywords since it will be added via the module completion items
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
@@ -474,7 +474,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
