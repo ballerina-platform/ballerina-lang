@@ -31,37 +31,33 @@ import java.util.Objects;
  */
 public class GlobalVariable {
     private final String type;
-    private final String kind;
     private final QuotedIdentifier variableName;
     private final boolean isAssignableToAny;
     private final String qualifiersAndMetadata;
     private final boolean isAssignedWithVar;
+    private final boolean isDefinedObject;
 
-    private static final String VAR_TYPE_DESC = "VAR_TYPE_DESC";
-
-    public GlobalVariable(String type, String typeLHS, String kind, QuotedIdentifier variableName,
+    public GlobalVariable(String type, boolean isAssignedWithVar, boolean isDefinedObject,
+                          QuotedIdentifier variableName,
                           boolean isAssignableToAny, String qualifiersAndMetadata) {
         this.type = Objects.requireNonNull(type);
         this.isAssignableToAny = isAssignableToAny;
         this.qualifiersAndMetadata = Objects.requireNonNull(qualifiersAndMetadata);
         this.variableName = variableName;
-        isAssignedWithVar = typeLHS.equals(VAR_TYPE_DESC) ? true : false;
-        this.kind = kind;
+        this.isAssignedWithVar = isAssignedWithVar;
+        this.isDefinedObject = isDefinedObject;
     }
 
     public String getType() {
         return this.type;
     }
 
-    public String getKind() {
-        return this.kind;
+    public boolean isAssignedWithVar() {
+        return this.isAssignedWithVar;
     }
 
-    public String getTypeLHS() {
-        if (isAssignedWithVar) {
-            return VAR_TYPE_DESC;
-        }
-        return this.type;
+    public boolean isDefinedObject() {
+        return isDefinedObject;
     }
 
     public QuotedIdentifier getVariableName() {

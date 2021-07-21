@@ -32,22 +32,20 @@ public class VariableContext {
     private final String prefix;
     private final String name;
     private final String type;
-    private final String typeLHS;
-    private final String kind;
+    private final boolean isAssignedWithVar;
+    private final boolean isDefinedObject;
     private final boolean isNew;
     private final boolean isAny;
 
-    private static final String VAR_TYPE_DESC = "VAR_TYPE_DESC";
     private static final String VAR = "var";
-    private static final String OBJECT = "object";
 
-    private VariableContext(String prefix, String name, String type, String typeLHS, String kind,
-                            boolean isNew, boolean isAny) {
+    private VariableContext(String prefix, String name, String type, boolean isAssignedWithVar,
+                            boolean isDefinedObject, boolean isNew, boolean isAny) {
         this.prefix = prefix;
         this.name = StringUtils.quoted(name);
         this.type = type;
-        this.typeLHS = typeLHS;
-        this.kind = kind;
+        this.isAssignedWithVar = isAssignedWithVar;
+        this.isDefinedObject = isDefinedObject;
         this.isNew = isNew;
         this.isAny = isAny;
     }
@@ -61,9 +59,9 @@ public class VariableContext {
     public static VariableContext newVar(GlobalVariable variableEntry) {
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
                 variableEntry.getVariableName().getName(), variableEntry.getType(),
-                                   variableEntry.getTypeLHS(),
-                                   variableEntry.getKind(), true,
-                                   variableEntry.isAssignableToAny());
+                variableEntry.isAssignedWithVar(),
+                variableEntry.isDefinedObject(), true,
+                variableEntry.isAssignableToAny());
     }
 
     /**
@@ -74,10 +72,10 @@ public class VariableContext {
      */
     public static VariableContext oldVar(GlobalVariable variableEntry) {
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
-                                   variableEntry.getVariableName().getName(), variableEntry.getType(),
-                                   variableEntry.getTypeLHS(),
-                                   variableEntry.getKind(), false,
-                                   variableEntry.isAssignableToAny());
+                variableEntry.getVariableName().getName(), variableEntry.getType(),
+                variableEntry.isAssignedWithVar(),
+                variableEntry.isDefinedObject(), false,
+                variableEntry.isAssignableToAny());
     }
 
     public String prefix() {
@@ -97,10 +95,9 @@ public class VariableContext {
     }
 
     public String typeLHS() {
-        String returnType = this.typeLHS.equals(VAR_TYPE_DESC) &&
-                this.kind.equals(OBJECT) ?
+        return this.isAssignedWithVar &&
+                this.isDefinedObject ?
                 VAR : this.type;
-        return returnType;
     }
 
     public boolean isNew() {
