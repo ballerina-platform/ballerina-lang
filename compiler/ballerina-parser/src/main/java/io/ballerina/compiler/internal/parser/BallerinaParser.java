@@ -8316,9 +8316,9 @@ public class BallerinaParser extends AbstractParser {
      * @return Is expression node
      */
     private STNode parseTypeTestExpression(STNode lhsExpr, boolean isInConditionalExpr) {
-        STNode isKeyword = parseIsOrNotIsKeyword();
+        STNode isOrNotIsKeyword = parseIsOrNotIsKeyword();
         STNode typeDescriptor = parseTypeDescriptorInExpression(isInConditionalExpr);
-        return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
+        return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isOrNotIsKeyword, typeDescriptor);
     }
 
     /**
