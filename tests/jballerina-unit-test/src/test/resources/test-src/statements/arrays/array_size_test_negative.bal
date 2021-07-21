@@ -46,4 +46,7 @@ function arraySizeTest() {
 
     int[2147483657] u = [];
     int[int:MAX_VALUE] v = [];
+
+    int[9223372036854775808] w = [];
+    int[0x001234567890abcdef01] x = [];
 }
