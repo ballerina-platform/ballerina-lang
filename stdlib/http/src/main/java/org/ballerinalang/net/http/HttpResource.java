@@ -38,6 +38,7 @@ import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_PARAM_ORDER_CONF
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
+import static org.ballerinalang.net.http.HttpConstants.SINGLE_SLASH;
 import static org.ballerinalang.net.http.HttpUtil.checkConfigAnnotationAvailability;
 
 /**
@@ -291,5 +292,9 @@ public class HttpResource {
         List<BType> paramTypes = new ArrayList<>();
         paramTypes.addAll(Arrays.asList(this.balResource.getParameterType()));
         return paramTypes;
+    }
+
+    protected String getAbsoluteResourcePath() {
+        return (parentService.getBasePath() + SINGLE_SLASH + getPath()).replaceAll("/+", SINGLE_SLASH);
     }
 }
