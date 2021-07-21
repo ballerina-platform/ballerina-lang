@@ -137,7 +137,7 @@ public abstract class AbstractParserErrorHandler {
 
     private void validateSolution(Result bestMatch, ParserRuleContext currentCtx, STNode nextToken) {
         Solution sol = bestMatch.solution;
-        if (sol == null) {
+        if (sol == null || sol.action == Action.REMOVE) {
             return;
         }
 

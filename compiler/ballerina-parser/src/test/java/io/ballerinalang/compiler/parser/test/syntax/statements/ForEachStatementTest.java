@@ -136,7 +136,7 @@ public class ForEachStatementTest extends AbstractStatementTest {
         "forEach-stmt/forEach_stmt_assert_15.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testListBindingPatternInvalidComponentsForEachStmt() {
         testFile("forEach-stmt/forEach_stmt_source_16.bal",
                 "forEach-stmt/forEach_stmt_assert_16.json");
@@ -172,7 +172,7 @@ public class ForEachStatementTest extends AbstractStatementTest {
                 "forEach-stmt/forEach_stmt_assert_23.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testForEachOnFailClauseRecovery() {
         testFile("forEach-stmt/forEach_stmt_source_25.bal", "forEach-stmt/forEach_stmt_assert_25.json");
     }

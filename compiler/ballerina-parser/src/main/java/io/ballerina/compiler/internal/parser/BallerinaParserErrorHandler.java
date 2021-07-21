@@ -273,15 +273,16 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] EXPRESSION_START = { ParserRuleContext.BASIC_LITERAL,
             ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
-            ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_KEYWORD, ParserRuleContext.UNARY_EXPRESSION,
-            ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST,
+            ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST,
             ParserRuleContext.BRACED_EXPRESSION, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE16_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR,
-            ParserRuleContext.ERROR_CONSTRUCTOR, ParserRuleContext.TRANSACTIONAL_KEYWORD };
+            ParserRuleContext.ERROR_CONSTRUCTOR, ParserRuleContext.TRANSACTIONAL_KEYWORD,
+            ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_KEYWORD, ParserRuleContext.UNARY_EXPRESSION,
+            ParserRuleContext.CHECKING_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -464,7 +465,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.LIST_BINDING_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
 
     private static final ParserRuleContext[] LIST_BINDING_PATTERN_CONTENTS =
-            { ParserRuleContext.REST_BINDING_PATTERN, ParserRuleContext.BINDING_PATTERN };
+            { ParserRuleContext.BINDING_PATTERN, ParserRuleContext.REST_BINDING_PATTERN };
 
     private static final ParserRuleContext[] LIST_BINDING_PATTERN_MEMBER_END =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
@@ -597,8 +598,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.RIGHT_DOUBLE_ARROW, ParserRuleContext.IF_KEYWORD };
 
     private static final ParserRuleContext[] MATCH_PATTERN_START = { ParserRuleContext.CONSTANT_EXPRESSION,
-            ParserRuleContext.VAR_KEYWORD, ParserRuleContext.LIST_MATCH_PATTERN,
-            ParserRuleContext.MAPPING_MATCH_PATTERN, ParserRuleContext.ERROR_MATCH_PATTERN };
+            ParserRuleContext.VAR_KEYWORD, ParserRuleContext.MAPPING_MATCH_PATTERN,
+            ParserRuleContext.LIST_MATCH_PATTERN, ParserRuleContext.ERROR_MATCH_PATTERN };
 
     private static final ParserRuleContext[] LIST_MATCH_PATTERNS_START =
             { ParserRuleContext.LIST_MATCH_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
@@ -795,6 +796,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     
     private static final ParserRuleContext[] PARAM_RHS =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.REST_PARAM_RHS };
+
+    private static final ParserRuleContext[] FUNC_TYPE_PARAM_RHS =
+            { ParserRuleContext.PARAM_END, ParserRuleContext.PARAM_RHS };
 
     private static final ParserRuleContext[] ANNOTATION_DECL_START =
             { ParserRuleContext.ANNOTATION_KEYWORD, ParserRuleContext.CONST_KEYWORD };
@@ -1537,6 +1541,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ASSIGNMENT_STMT_RHS:
             case PARAM_START:
             case PARAM_RHS:
+            case FUNC_TYPE_PARAM_RHS:
             case ANNOTATION_DECL_START:
                 return true;
             default:
@@ -1978,6 +1983,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESC_IN_PARAM;
             case PARAM_RHS:
                 return ParserRuleContext.VARIABLE_NAME;
+            case FUNC_TYPE_PARAM_RHS:
+                return ParserRuleContext.PARAM_END;
             case ANNOTATION_DECL_START:
                 return ParserRuleContext.ANNOTATION_KEYWORD;
             default:
@@ -2315,6 +2322,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case PARAM_RHS:
                 alternativeRules = PARAM_RHS;
+                break;
+            case FUNC_TYPE_PARAM_RHS:
+                alternativeRules = FUNC_TYPE_PARAM_RHS;
                 break;
             case ANNOTATION_DECL_START:
                 alternativeRules = ANNOTATION_DECL_START;
@@ -2950,9 +2960,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     private ParserRuleContext[] getExpressionRhsAlternatives(ParserRuleContext nextContext) {
-        if (nextContext == ParserRuleContext.SEMICOLON || nextContext == ParserRuleContext.QUERY_EXPRESSION_END) {
-            // Give higher priority to nextContext if nextContext contains `SEMICOLON`
-            // This is done to improve the recovery for missing semicolon
+        if (nextContext == ParserRuleContext.SEMICOLON || nextContext == ParserRuleContext.QUERY_EXPRESSION_END ||
+                nextContext == ParserRuleContext.MATCH_BODY) {
             return new ParserRuleContext[] { nextContext, ParserRuleContext.BINARY_OPERATOR,
                     ParserRuleContext.IS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
                     ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
@@ -4281,6 +4290,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.REQUIRED_PARAM || parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
             // Here we add ELLIPSIS as an alternative path via PARAM_RHS.
             // This is because we allow parsing rest param under REQUIRED_PARAM and DEFAULTABLE_PARAM ctx in the parser.
+            if (hasAncestorContext(ParserRuleContext.FUNC_TYPE_DESC)) {
+                return ParserRuleContext.FUNC_TYPE_PARAM_RHS;
+            }
             return ParserRuleContext.PARAM_RHS;
         } else if (parentCtx == ParserRuleContext.REST_PARAM) {
             return ParserRuleContext.ELLIPSIS;

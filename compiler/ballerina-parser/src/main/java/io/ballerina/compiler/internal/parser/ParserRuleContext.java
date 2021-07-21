@@ -46,6 +46,7 @@ public enum ParserRuleContext {
     REST_PARAM("rest-parameter"),
     PARAM_START("parameter-start"),
     PARAM_RHS("param-rhs"),
+    FUNC_TYPE_PARAM_RHS("function-type-desc-param-rhs"),
     REST_PARAM_RHS("rest-param-rhs"),
     AFTER_PARAMETER_TYPE("after-parameter-type"),
     PARAMETER_NAME_RHS("parameter-name-rhs"),
