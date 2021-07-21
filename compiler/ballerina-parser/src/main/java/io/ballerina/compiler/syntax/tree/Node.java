@@ -149,6 +149,36 @@ public abstract class Node {
     public abstract MinutiaeList trailingMinutiae();
 
     /**
+     * Get all leading invalid tokens as a list.
+     *
+     * @return list of tokens
+     */
+    public List<Token> leadingInvalidTokens() {
+        return getInvalidTokens(leadingMinutiae());
+    }
+
+    /**
+     * Get all trailing invalid tokens as a list.
+     *
+     * @return list of tokens
+     */
+    public List<Token> trailingInvalidTokens() {
+        return this.getInvalidTokens(trailingMinutiae());
+    }
+
+    List<Token> getInvalidTokens(MinutiaeList minutiaeList) {
+        List<Token> invalidTokens = new ArrayList<>();
+        for (Minutiae minutiae : minutiaeList) {
+            minutiae.invalidTokenMinutiaeNode().ifPresent(invalidTokenMinutiaeNode -> {
+                Token token = invalidTokenMinutiaeNode.invalidToken();
+                invalidTokens.add(token);
+            });
+        }
+
+        return invalidTokens;
+    }
+
+    /**
      * Accepts an instance of the {@code NodeVisitor}, which can be used to
      * traverse the syntax tree.
      *

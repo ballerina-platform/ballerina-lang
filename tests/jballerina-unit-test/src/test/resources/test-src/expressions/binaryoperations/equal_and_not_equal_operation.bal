@@ -1365,6 +1365,30 @@ function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
 
+function testTupleJSONEquality() {
+    [string, int] t = ["Hi", 1];
+    json j = "Hi 1";
+    boolean bool1 = t == j && t != j;
+    assert(bool1, false);
+
+    [string, int][] e = [["Hi", 1]];
+    bool1 = e == j && e != j;
+    assert(bool1, false);
+
+    [string, int...] k = ["Hi", 1];
+    bool1 = k == j && k != j;
+    assert(bool1, false);
+
+    j = ["Hi", 1];
+    assert(j == t, true);
+    assert(j == k, true);
+    j = [["Hi", 1]];
+    assert(j == e, true);
+    j = true;
+    [boolean, string|()] l = [true];
+    assert(j != l, true);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
