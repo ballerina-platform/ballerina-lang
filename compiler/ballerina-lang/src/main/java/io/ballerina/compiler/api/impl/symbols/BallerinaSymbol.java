@@ -78,10 +78,14 @@ public class BallerinaSymbol implements Symbol {
             ModuleID moduleID = getModule().get().id();
             if (moduleID.moduleName().startsWith("lang.")
                     && moduleID.orgName().startsWith("ballerina") && this.name.startsWith("'")) {
-                this.unEscapedName = IdentifierUtils.unescapeUnicodeCodepoints(this.name.substring(1));
-                return Optional.ofNullable(this.unEscapedName);
+                if (!(moduleID.moduleName().equals("lang.string") && this.name.equals("'join"))) {
+                    // Related discussion: https://github.com/ballerina-platform/ballerina-lang/discussions/31830
+                    this.unEscapedName = IdentifierUtils.unescapeUnicodeCodepoints(this.name.substring(1));
+                    return Optional.ofNullable(this.unEscapedName);
+                }
             }
         }
+        this.unEscapedName = this.name;
         return Optional.ofNullable(this.name);
     }
 
