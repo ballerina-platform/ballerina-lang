@@ -86,9 +86,9 @@ class FunctionSignature {
         UnionType typ = TypeCreator.createUnionType(complexSem, PredefinedTypes.TYPE_INT_UNSIGNED_32);
         ArrayType arrTyp = TypeCreator.createArrayType(typ);
         BArray arr = ValueCreator.createArrayValue(arrTyp);
-        paramTypes.forEach(param -> arr.append(2L));
+        paramTypes.forEach(param -> arr.append(ModuleGen.convertSimpleSemType(param)));
         Map<String, Object> fields = new HashMap<>();
-        fields.put("returnType", arr.get(0)); //TODO convert to SemType
+        fields.put("returnType", ModuleGen.convertSimpleSemType(returnType)); //TODO convert to SemType
         fields.put("paramTypes", arr); //TODO create SemType BArray
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.FUNCTION_SIGNATURE, fields);
     }
@@ -155,7 +155,7 @@ class Register {
         UnionType typ = TypeCreator.createUnionType(complexSem, PredefinedTypes.TYPE_INT_UNSIGNED_32);
         ArrayType arrTyp = TypeCreator.createArrayType(typ);
         BArray arr = ValueCreator.createArrayValue(arrTyp);
-        arr.append(2L);
+        arr.append(ModuleGen.convertSimpleSemType(semType));
         Map<String, Object> fields = new HashMap<>();
         fields.put("number", number);
         fields.put("varName", new BmpStringValue(varName));

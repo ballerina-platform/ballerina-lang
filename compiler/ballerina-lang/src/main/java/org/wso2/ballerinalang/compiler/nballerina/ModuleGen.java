@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.types.TypeKind;
@@ -155,6 +156,18 @@ public class ModuleGen {
             return  ((BLangLiteral) expr).getValue();
         }
         return null;
+    }
+
+    static long convertSimpleSemType(TypeKind typeKind) {
+        switch (typeKind.typeName()) {
+            case "int":
+                return 4L;
+            case "boolean":
+                return 2L;
+            default:
+                throw new BallerinaException("Semtype not implemented for type");
+        }
+
     }
 
     private static UnionType getStmtTyp() {
