@@ -102,7 +102,6 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
         protected FunctionTypeSymbol typeDescriptor;
-        protected boolean replaceOriginalName = false;
 
         public FunctionSymbolBuilder(String name, BInvokableSymbol bSymbol, CompilerContext context) {
             this(name, SymbolKind.FUNCTION, bSymbol, context);
@@ -129,11 +128,6 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
 
         public FunctionSymbolBuilder withAnnotation(AnnotationSymbol annot) {
             this.annots.add(annot);
-            return this;
-        }
-
-        public FunctionSymbolBuilder setReplaceOriginalName(boolean replaceOriginalName) {
-            this.replaceOriginalName = replaceOriginalName;
             return this;
         }
 

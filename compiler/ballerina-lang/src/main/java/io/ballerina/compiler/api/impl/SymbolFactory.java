@@ -271,17 +271,6 @@ public class SymbolFactory {
     }
 
     /**
-     * Create a Method Symbol.
-     *
-     * @param invokableSymbol {@link BInvokableSymbol} to convert
-     * @return {@link Symbol} generated
-     */
-    private BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol) {
-        String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
-        return createMethodSymbol(invokableSymbol, name);
-    }
-
-    /**
      * Given a symbol for a resource method, returns a public resource method symbol instance.
      *
      * @param invokableSymbol The internal symbol for the method

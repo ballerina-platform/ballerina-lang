@@ -212,13 +212,5 @@ public class BallerinaSymbol implements Symbol {
          * @return {@link BallerinaSymbol} built
          */
         public abstract BallerinaSymbol build();
-
-        /**
-         * Build the Ballerina Symbol.
-         *
-         * @param  replaceOriginalName     whether to replace the original name or not
-         * @return {@link BallerinaSymbol} built
-         */
-//        public abstract BallerinaSymbol build(boolean replaceOriginalName);
     }
 }
