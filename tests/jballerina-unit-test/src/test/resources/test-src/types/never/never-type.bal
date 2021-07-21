@@ -17,12 +17,7 @@
 //------------ Testing a function with 'never' return type ---------
 
 function functionWithNeverReturnType() returns never {
-    string a = "hello";
-    if (a == "a") {
-        a = "b";
-    } else {
-        a = "c";
-    }
+    panic error("Panic occured in function with never return");
 }
 
 function testNeverReturnTypedFunctionCall() {
@@ -318,7 +313,7 @@ function testNeverWithFromClauseInQueryExpr1() {
 
 function testNeverWithFromClauseInQueryExpr2() {
     xml<never> x = xml ``;
-    xml y = from never a in x select xml:concat(a);
+    xml y = from never a in x select xml:concat();
     assertEquality(xml:concat(), y);
 }
 
@@ -352,7 +347,7 @@ type RestRecord record {|
 
 function testNeverWithRestParamsAndFields() {
     RestRecord x = {someName: "ABC"};
-    var y = testNeverWithRestParams({});
+    var y = testNeverWithRestParams();
 }
 
 function testNeverWithRestParams(record {| never x; |}... rec) {

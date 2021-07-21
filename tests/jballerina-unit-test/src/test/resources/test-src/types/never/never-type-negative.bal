@@ -229,3 +229,28 @@ function testNeverEquivRecord() {
     Record1 a = { i: 1 };
     Record2 b = { i: 1 };
 }
+
+public function testNeverReturnFuncInvWithPanic() {
+    panic unreached();
+}
+
+function unreached() returns never {
+    panic error("error!!!");
+}
+
+function testCheckWithNeverTypeExpr() returns error? {
+    error e = check unreached();
+    checkpanic unreached();
+}
+
+function testNeverTypeRequiredAndDefaultableParamInInv() {
+   passIntValue(unreached(), unreached());
+}
+
+function passIntValue(int a, int b = 2) {
+
+}
+
+function num() returns error {
+    return unreached();
+}

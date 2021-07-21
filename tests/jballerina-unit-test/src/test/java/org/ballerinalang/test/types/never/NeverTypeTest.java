@@ -44,7 +44,8 @@ public class NeverTypeTest {
     }
 
 
-    @Test(description = "Test calling function with 'never' return type")
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: Panic occured in function with never return.*")
     public void testNeverReturnTypedFunctionCall() {
         BRunUtil.invoke(neverTypeTestResult, "testNeverReturnTypedFunctionCall");
     }
@@ -101,7 +102,6 @@ public class NeverTypeTest {
 
     @Test
     public void testNeverTypeNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 44);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never' or equivalent to type 'never'", 2, 5);
@@ -192,8 +192,21 @@ public class NeverTypeTest {
                 " or equivalent to type 'never'", 214, 82);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                 "or equivalent to type 'never'", 229, 5);
-        BAssertUtil.validateError(negativeCompileResult, i, "cannot define a variable of type 'never' " +
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                 "or equivalent to type 'never'", 230, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 234, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 242, 21);
+        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 243, 16);
+        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 247, 17);
+        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 247, 30);
+        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 255, 12);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -319,6 +332,15 @@ public class NeverTypeTest {
                 "testNeverRuntime12",
                 "testNeverWithAnyAndAnydataRuntime"
         };
+    }
+
+    @Test
+    public void testNeverTypeCodeAnalysisNegative() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/never/never_code_analysis_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to type " +
+                        "'never' should panic", 17, 1);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
     @AfterClass
