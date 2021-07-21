@@ -25,7 +25,6 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-logging')
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-runtime')
@@ -37,7 +36,6 @@ dependencies {
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'

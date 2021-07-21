@@ -21,7 +21,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang:annotations')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-observability')
     implementation 'io.opentelemetry:opentelemetry-api'
