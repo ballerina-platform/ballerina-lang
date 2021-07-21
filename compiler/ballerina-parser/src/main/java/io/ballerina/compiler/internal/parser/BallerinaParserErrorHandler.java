@@ -117,8 +117,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF, ParserRuleContext.DOC_STRING,
-            ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA, ParserRuleContext.ANNOTATIONS };
+    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF,
+            ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA, ParserRuleContext.DOC_STRING,
+            ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = { ParserRuleContext.EOF,
             ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, ParserRuleContext.PUBLIC_KEYWORD };
