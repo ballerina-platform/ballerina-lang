@@ -86,9 +86,9 @@ class FunctionSignature {
         UnionType typ = TypeCreator.createUnionType(complexSem, PredefinedTypes.TYPE_INT_UNSIGNED_32);
         ArrayType arrTyp = TypeCreator.createArrayType(typ);
         BArray arr = ValueCreator.createArrayValue(arrTyp);
-        //paramTypes.forEach(param -> arr.append(0));
+        paramTypes.forEach(param -> arr.append(2L));
         Map<String, Object> fields = new HashMap<>();
-        //fields.put("returnType", arr.get(0)); //TODO convert to SemType
+        fields.put("returnType", arr.get(0)); //TODO convert to SemType
         fields.put("paramTypes", arr); //TODO create SemType BArray
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.FUNCTION_SIGNATURE, fields);
     }
@@ -146,7 +146,7 @@ class Register {
 
     public Register(int number, TypeKind semType, String varName) {
         this.number = number;
-        this.semType = semType;
+        this.semType = semType; //TODO convert to SemType
         this.varName = varName;
     }
 
@@ -155,11 +155,11 @@ class Register {
         UnionType typ = TypeCreator.createUnionType(complexSem, PredefinedTypes.TYPE_INT_UNSIGNED_32);
         ArrayType arrTyp = TypeCreator.createArrayType(typ);
         BArray arr = ValueCreator.createArrayValue(arrTyp);
-        //arr.append(2);
+        arr.append(2L);
         Map<String, Object> fields = new HashMap<>();
         fields.put("number", number);
         fields.put("varName", new BmpStringValue(varName));
-        //fields.put("semType", arr.get(0)); //TODO change to SemType Value
+        fields.put("semType", arr.get(0)); //TODO change to SemType Value
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER, fields);
     }
 }
@@ -174,15 +174,15 @@ class BasicBlock {
     }
 
     public BMap<BString, Object> getRecord() {
-        RecordType retTyp = TypeCreator.createRecordType(NBTypeNames.RET_INSN + NBTypeNames.READONLY, 
-                ModuleGen.MODBIR, 1, true, 0); //TODO add other insns
-        UnionType insnTyp = TypeCreator.createUnionType(retTyp);
+        BMap<BString, Object> tmpVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN,
+                new HashMap<>()); //TODO add other insns
+        UnionType insnTyp = TypeCreator.createUnionType(tmpVal.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         BArray arr = ValueCreator.createArrayValue(arrTyp);
         insns.forEach(insn -> arr.append(insn.getRecord()));
         Map<String, Object> fields = new HashMap<>();
         fields.put("label", label);
-        //fields.put("insns", arr);
+        fields.put("insns", arr);
         return ValueCreator.createRecordValue(ModuleGen.MODBIR, "BasicBlock", fields);
     }
 }
@@ -220,7 +220,7 @@ class RetInsn extends InsnBase {
     @Override
     public BMap<BString, Object> getRecord() {
         Map<String, Object> fields = new HashMap<>();
-        fields.put("operand", operandr.getRecord());
+        fields.put("operand", operandc);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN,
                 fields);
     }

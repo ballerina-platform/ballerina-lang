@@ -130,7 +130,7 @@ public class ModuleGen {
             func.getParameters().forEach(param -> {
                 fcode.createRegister(param.type.getKind(), param.getName().toString());
             });
-            curBlock = bb;
+            curBlock = startBlock;
             ((BLangBlockFunctionBody) func.body).getStatements().forEach(this::codeGenStmt);
             endBlock = curBlock;
             jnmod.code.add(fcode);
@@ -143,7 +143,7 @@ public class ModuleGen {
         if (stmt instanceof BLangReturn) {
             BLangReturn retStmt = (BLangReturn) stmt;
             Object val = codeGenExpr(retStmt.expr);
-            nextBlock = new BasicBlock(2);
+            nextBlock = curBlock;
             nextBlock.insns.add(new RetInsn(val));
             curBlock = null;
         }
