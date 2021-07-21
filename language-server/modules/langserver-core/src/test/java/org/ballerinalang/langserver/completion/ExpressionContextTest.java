@@ -52,7 +52,6 @@ public class ExpressionContextTest extends CompletionTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                "table_constructor_expr_ctx_config2.json",
                 "object_constructor_expr_ctx_config12a.json",
                 "object_constructor_expr_ctx_config6.json", // LS fix needed
                 "object_constructor_expr_ctx_config11.json", // LS fix needed
