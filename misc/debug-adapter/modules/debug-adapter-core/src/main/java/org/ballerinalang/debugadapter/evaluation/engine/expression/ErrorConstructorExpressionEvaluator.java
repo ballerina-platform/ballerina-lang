@@ -31,6 +31,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_ARRAY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_ERROR_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
@@ -65,48 +68,45 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
             }
 
             List<String> argTypeNames = new ArrayList<>();
-            argTypeNames.add("io.ballerina.runtime.api.values.BValue");
-            argTypeNames.add("io.ballerina.runtime.api.values.BValue");
-            argTypeNames.add("io.ballerina.runtime.api.values.BValue[]");
+            argTypeNames.add(B_VALUE_CLASS);
+            argTypeNames.add(B_VALUE_CLASS);
+            argTypeNames.add(B_VALUE_ARRAY_CLASS);
             RuntimeStaticMethod createErrorValueMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
-                    "createErrorValue", argTypeNames);
+                    CREATE_ERROR_VALUE_METHOD, argTypeNames);
 
             List<Value> argValues = new ArrayList<>();
             if (argEvaluators.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "missing error message in error constructor"));
+                throw new EvaluationException(EvaluationExceptionKind.MISSING_MESSAGE_IN_ERROR.getString());
             }
             for (int i = 0; i < argEvaluators.size(); i++) {
                 if (i == 0) {
+                    // Process error message.
                     if (!argEvaluators.get(i).getKey().isEmpty()) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "missing error message in error constructor"));
+                        throw new EvaluationException(EvaluationExceptionKind.MISSING_MESSAGE_IN_ERROR.getString());
                     }
                     argValues.add(argEvaluators.get(i).getValue().evaluate().getJdiValue());
                     if (argEvaluators.size() == 1) {
                         argValues.add(null);
                     }
                 } else if (i == 1) {
+                    // Process error cause (optional).
                     if (argEvaluators.get(i).getKey().equals(REST_ARG_IDENTIFIER)) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "rest args are not allowed in error constructor"));
+                        throw new EvaluationException(EvaluationExceptionKind.REST_ARG_IN_ERROR.getString());
                     } else if (!argEvaluators.get(i).getKey().isEmpty()) {
                         argValues.add(null);
                     }
                     argValues.add(argEvaluators.get(i).getValue().evaluate().getJdiValue());
                 } else {
+                    // Process error details (optional).
                     if (argEvaluators.get(i).getKey().isEmpty()) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "additional positional arg in error constructor"));
+                        throw new EvaluationException(EvaluationExceptionKind.ADDITIONAL_ARG_IN_ERROR.getString());
                     } else if (argEvaluators.get(i).getKey().equals(REST_ARG_IDENTIFIER)) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "rest args are not allowed in error constructor"));
+                        throw new EvaluationException(EvaluationExceptionKind.REST_ARG_IN_ERROR.getString());
                     }
                     argValues.add(VMUtils.make(context, argEvaluators.get(i).getKey()).getJdiValue());
                     argValues.add(argEvaluators.get(i).getValue().evaluate().getJdiValue());
                 }
             }
-
             createErrorValueMethod.setArgValues(argValues);
             return new BExpressionValue(context, createErrorValueMethod.invokeSafely());
         } catch (EvaluationException e) {
