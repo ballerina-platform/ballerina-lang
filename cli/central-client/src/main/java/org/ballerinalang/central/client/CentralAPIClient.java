@@ -352,8 +352,8 @@ public class CentralAPIClient {
     }
 
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
-                            String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
-
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild)
+            throws CentralClientException {
         pullPackage(org, name, version, packagePathInBalaCache, supportedPlatform, ballerinaVersion, isBuild, false);
     }
 
