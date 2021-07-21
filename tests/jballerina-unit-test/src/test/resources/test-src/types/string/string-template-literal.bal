@@ -218,6 +218,15 @@ function testStringTemplateExprWithUnionType() {
     assertEquality("true", stringTemplateExprWithUnionType4());
 }
 
+function testNumericEscapes() {
+        string s1 = string `\u{61}`;
+        string s2 = string `\u{61}ppl\\u{65}`;
+
+        assertEquality(s1, "\\u{61}");
+        assertEquality(s1.toBytes().toString(), "[92,117,123,54,49,125]");
+        assertEquality(s2, "\\u{61}ppl\\\\u{65}");
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
