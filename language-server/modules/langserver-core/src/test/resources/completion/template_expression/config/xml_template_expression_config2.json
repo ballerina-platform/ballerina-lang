@@ -70,10 +70,9 @@
     },
     {
       "label": "table",
-      "kind": "Keyword",
-      "detail": "Keyword",
+      "kind": "Unit",
+      "detail": "type",
       "sortText": "R",
-      "filterText": "table",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -299,14 +298,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
@@ -443,6 +434,196 @@
       "detail": "xml",
       "sortText": "AAB",
       "insertText": "last",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "service",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "client",
+      "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "false",
+      "insertText": "false",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "R",
+      "filterText": "is",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object constructor",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base16",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "base16",
+      "insertText": "base16 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "base64",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "Q",
+      "filterText": "base64",
+      "insertText": "base64 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "ACM",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "IntTypeDef",
+      "kind": "TypeParameter",
+      "detail": "Int",
+      "sortText": "ABN",
+      "insertText": "IntTypeDef",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RecordTypeDec",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "ACM",
+      "insertText": "RecordTypeDec",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "ACN",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
   ]
