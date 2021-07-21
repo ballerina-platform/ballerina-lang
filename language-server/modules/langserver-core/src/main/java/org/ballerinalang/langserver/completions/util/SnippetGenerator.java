@@ -35,7 +35,7 @@ import java.util.stream.IntStream;
  */
 public class SnippetGenerator {
 
-    private static final String FILTER_TEXT_SEPARATOR = "|";
+    private static final String FILTER_TEXT_SEPARATOR = "_";
 
     private SnippetGenerator() {
     }
@@ -178,17 +178,6 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getBreakSnippet() {
         return new SnippetBlock(ItemResolverConstants.BREAK, ItemResolverConstants.BREAK, "break;",
-                ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
-    }
-
-    /**
-     * Get Match Expression Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getMatchExpressionSnippet() {
-        String snippet = "but {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "};";
-        return new SnippetBlock(ItemResolverConstants.BUT, ItemResolverConstants.BUT, snippet,
                 ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
     }
 

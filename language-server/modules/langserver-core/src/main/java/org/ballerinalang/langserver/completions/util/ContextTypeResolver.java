@@ -58,6 +58,7 @@ import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -433,6 +434,21 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         return Optional.of((TypeSymbol) typeSymbol.get());
     }
+
+    @Override
+    public Optional<TypeSymbol> transform(RecordFieldWithDefaultValueNode node) {
+        Optional<Symbol> variableSymbol = this.getSymbolByName(node.fieldName().text());
+        Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
+        if (typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(this.getRawContextType(typeSymbol.get()));
+    }
+
+//    @Override
+//    public Optional<TypeSymbol> transform(InterpolationNode interpolationNode) {
+//        return super.transform(interpolationNode);
+//    }
 
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {

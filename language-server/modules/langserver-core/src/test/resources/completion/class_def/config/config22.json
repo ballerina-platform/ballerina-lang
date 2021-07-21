@@ -136,7 +136,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "public|function|main",
+      "filterText": "public_function_main",
       "insertText": "public function main() {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -145,7 +145,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "service|http",
+      "filterText": "service_http",
       "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -187,7 +187,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "type|record",
+      "filterText": "type_record",
       "insertText": "type ${1:RecordName} record {\n\t${2}\n};",
       "insertTextFormat": "Snippet"
     },
@@ -205,7 +205,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "type|object",
+      "filterText": "type_object",
       "insertText": "type ${1:ObjectName} object {${2}};",
       "insertTextFormat": "Snippet"
     },
@@ -232,7 +232,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "type|record",
+      "filterText": "type_record",
       "insertText": "type ${1:RecordName} record {|\n\t${2}\n|};",
       "insertTextFormat": "Snippet"
     },
@@ -241,7 +241,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "type|error",
+      "filterText": "type_error",
       "insertText": "type ${1:ErrorName} error<${2:map<anydata>}>;",
       "insertTextFormat": "Snippet"
     },
@@ -250,7 +250,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
-      "filterText": "type|table",
+      "filterText": "type_table",
       "insertText": "type ${1:TypeName} table<${2}>;",
       "insertTextFormat": "Snippet"
     },
@@ -282,25 +282,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
-      },
-      "sortText": "D",
-      "insertText": "'error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "BALLERINA",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "D",
-      "insertText": "BALLERINA",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -325,6 +306,14 @@
       "detail": "Union",
       "sortText": "D",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BALLERINA",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "D",
+      "insertText": "BALLERINA",
       "insertTextFormat": "Snippet"
     },
     {
@@ -464,75 +453,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
@@ -552,6 +472,29 @@
             }
           },
           "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -598,6 +541,52 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
