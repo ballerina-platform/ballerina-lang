@@ -226,6 +226,18 @@ public class CacheTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
     }
 
+    @Test
+    public void testEvictionCount() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(compileResult, "testEvictionCount", args);
+        Assert.assertTrue(returns[0] instanceof BValueArray);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        String[] expected = new String[]{"C"};
+        String[] actual = removeEmptyValues(((BValueArray) returns[0]).getStringArray());
+        Assert.assertTrue(Arrays.equals(actual, expected));
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
+    }
+
     @Test(enabled = false)
     public void testCacheEvictionWithTimer1() {
         BValue[] args = new BValue[0];

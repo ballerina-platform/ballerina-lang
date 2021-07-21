@@ -16,5 +16,12 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-
+    <Match>
+        <Class name="org.ballerinalang.stdlib.cache.nativeimpl.concurrentlinkedhashmap.ConcurrentLinkedHashMap$Node" />
+        <Bug pattern="SE_INNER_CLASS" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.stdlib.cache.nativeimpl.concurrentlinkedhashmap.ConcurrentLinkedHashMap$WriteThroughEntry" />
+        <Bug pattern="SE_INNER_CLASS" />
+    </Match>
 </FindBugsFilter>

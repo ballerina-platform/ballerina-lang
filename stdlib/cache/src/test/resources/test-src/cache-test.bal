@@ -293,3 +293,15 @@ function testCreateCacheWithNegativeDefaultMaxAge() {
     };
     cache:Cache c = new(config);
 }
+
+function testEvictionCount() returns [string[], int] {
+    cache:CacheConfig config = {
+        capacity: 1,
+        evictionFactor: 0.1
+    };
+    cache:Cache cache = new(config);
+    checkpanic cache.put("A", "1");
+    checkpanic cache.put("B", "2");
+    checkpanic cache.put("C", "3");
+    return [cache.keys(), cache.size()];
+}
