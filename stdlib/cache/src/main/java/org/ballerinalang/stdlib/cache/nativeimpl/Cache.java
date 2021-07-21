@@ -18,11 +18,16 @@
 
 package org.ballerinalang.stdlib.cache.nativeimpl;
 
-import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.stdlib.cache.nativeimpl.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 /**
  * Ballerina function to cache with java.util.concurrent.ConcurrentHashMap.
@@ -31,52 +36,90 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Cache {
 
-    public static final String CACHE_MAP = "CACHE_MAP";
+    private static ConcurrentLinkedHashMap<String, BMap<String, Object>> cacheMap;
+    private static final String MAX_CAPACITY = "capacity";
+    private static final String EVICTION_FACTOR = "evictionFactor";
+    private static final String EXPIRE_TIME = "expTime";
+    private static final String CACHE = "CACHE";
+    private static final String ID = "ID";
 
-    public static void externInit(ObjectValue cache, int capacity) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map = new ConcurrentHashMap<>(capacity);
-        cache.addNativeData(CACHE_MAP, map);
+    private Cache() {}
+
+    public static void externInit(ObjectValue cache) {
+        int capacity = (int) cache.getIntValue(MAX_CAPACITY);
+        cacheMap = new ConcurrentLinkedHashMap<>(capacity);
+        cache.addNativeData(CACHE, cacheMap);
     }
 
-    public static void externPut(ObjectValue cache, String key, MapValue<String, Object> value) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map =
-                (ConcurrentHashMap<String, MapValue<String, Object>>) cache.getNativeData(CACHE_MAP);
-        map.put(key, value);
+    @SuppressWarnings("unchecked")
+    public static void externPut(ObjectValue cache, String key, BMap<String, Object> value) {
+        int capacity = (int) cache.getIntValue(MAX_CAPACITY);
+        float evictionFactor = (float) cache.getFloatValue(EVICTION_FACTOR);
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        if (cacheMap.size() >= capacity) {
+            int evictionKeysCount = (int) Math.ceil(capacity * evictionFactor);
+            cacheMap.setCapacity((capacity - evictionKeysCount));
+            cacheMap.setCapacity(capacity);
+        }
+        cacheMap.put(key, value);
     }
 
-    public static MapValue<String, Object> externGet(ObjectValue cache, String key) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map =
-                (ConcurrentHashMap<String, MapValue<String, Object>>) cache.getNativeData(CACHE_MAP);
-        return map.get(key);
+    @SuppressWarnings("unchecked")
+    public static Object externGet(ObjectValue cache, String key, Long currentTime) {
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        BMap<String, Object> value = cacheMap.get(key);
+        Long time = (Long) value.get(EXPIRE_TIME);
+        if (time != -1 && time <= currentTime) {
+            cacheMap.remove(key);
+            return null;
+        }
+        return value;
     }
 
+    @SuppressWarnings("unchecked")
     public static void externRemove(ObjectValue cache, String key) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map =
-                (ConcurrentHashMap<String, MapValue<String, Object>>) cache.getNativeData(CACHE_MAP);
-        map.remove(key);
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        cacheMap.remove(key);
     }
 
+    @SuppressWarnings("unchecked")
     public static void externRemoveAll(ObjectValue cache) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map =
-                (ConcurrentHashMap<String, MapValue<String, Object>>) cache.getNativeData(CACHE_MAP);
-        map.clear();
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        cacheMap.clear();
     }
 
+    @SuppressWarnings("unchecked")
     public static boolean externHasKey(ObjectValue cache, String key) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map =
-                (ConcurrentHashMap<String, MapValue<String, Object>>) cache.getNativeData(CACHE_MAP);
-        return map.containsKey(key);
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        return cacheMap.containsKey(key);
     }
 
-    public static ArrayValueImpl externKeys(ObjectValue cache) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map =
-                (ConcurrentHashMap<String, MapValue<String, Object>>) cache.getNativeData(CACHE_MAP);
-        return new ArrayValueImpl(map.keySet().toArray(new String[0]));
+    @SuppressWarnings("unchecked")
+    public static BArray externKeys(ObjectValue cache) {
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        String[] keySets = cacheMap.keySet().toArray(new String[0]);
+        HandleValue[] handleValues = new HandleValue[keySets.length];
+        for (int i = 0; i < keySets.length; i++) {
+            handleValues[i] = new HandleValue(keySets[i]);
+        }
+        return BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
     }
 
+    @SuppressWarnings("unchecked")
     public static int externSize(ObjectValue cache) {
-        ConcurrentHashMap<String, MapValue<String, Object>> map =
-                (ConcurrentHashMap<String, MapValue<String, Object>>) cache.getNativeData(CACHE_MAP);
-        return map.size();
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        return cacheMap.size();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void externCleanUp(ObjectValue cache, Long currentTime) {
+        cacheMap = (ConcurrentLinkedHashMap<String, BMap<String, Object>>) cache.getNativeData(CACHE);
+        for (Map.Entry<String, BMap<String, Object>> entry : cacheMap.entrySet()) {
+            BMap<String, Object> value = entry.getValue();
+            Long time = (Long) value.get(EXPIRE_TIME);
+            if (time != -1 && time <= currentTime) {
+                cacheMap.remove(entry.getKey());
+            }
+        }
     }
 }

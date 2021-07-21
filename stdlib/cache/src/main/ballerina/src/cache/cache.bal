@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/java;
-import ballerina/math;
 import ballerina/task;
 import ballerina/time;
 
@@ -29,7 +28,7 @@ import ballerina/time;
 #                            `maxAgeInSeconds` property set when inserting item to the cache
 # + cleanupIntervalInSeconds - Interval of the timer task, which will clean up the cache
 public type CacheConfig record {|
-    int capacity = 100;
+    int capacity = 20;
     AbstractEvictionPolicy evictionPolicy = new LruEvictionPolicy();
     float evictionFactor = 0.25;
     int defaultMaxAgeInSeconds = -1;
@@ -37,7 +36,6 @@ public type CacheConfig record {|
 |};
 
 type CacheEntry record {|
-    string key;
     any data;
     int expTime;       // exp time since epoch. calculated based on the `maxAge` parameter when inserting to map
 |};
@@ -47,11 +45,11 @@ boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
 final service cleanupService = service {
-    resource function onTrigger(Cache cache, AbstractEvictionPolicy evictionPolicy) {
+    resource function onTrigger(Cache cache) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
             cleanupInProgress = true;
-            cleanup(cache, evictionPolicy);
+            externCleanUp(cache, time:nanoTime());
             cleanupInProgress = false;
         }
     }
@@ -90,8 +88,7 @@ public type Cache object {
         if (self.defaultMaxAgeInSeconds != -1 && self.defaultMaxAgeInSeconds <= 0) {
             panic prepareError("Default max age should be greater than 0 or -1 for indicate forever valid.");
         }
-        externLockInit();
-        externInit(self, self.capacity);
+       externInit(self);
 
         int? cleanupIntervalInSeconds = cacheConfig?.cleanupIntervalInSeconds;
         if (cleanupIntervalInSeconds is int) {
@@ -124,10 +121,6 @@ public type Cache object {
             return prepareError("Unsupported cache value '()' for the key: " + key + ".",
                                 logLevel = LOG_LEVEL_DEBUG);
         }
-        // If the current cache is full (i.e. size = capacity), evict cache.
-        if (self.size() >= self.capacity) {
-            evict(self, self.evictionPolicy, self.capacity, self.evictionFactor);
-        }
 
         // Calculate the `expTime` of the cache entry based on the `maxAgeInSeconds` property and
         // `defaultMaxAgeInSeconds` property.
@@ -141,19 +134,10 @@ public type Cache object {
         }
 
         CacheEntry entry = {
-            key: key,
             data: value,
             expTime: calculatedExpTime
         };
-        Node newNode = { value: entry };
-
-        if (self.hasKey(key)) {
-            Node oldNode = externGet(self, java:fromString(key));
-            self.evictionPolicy.replace(newNode, oldNode);
-        } else {
-            self.evictionPolicy.put(newNode);
-        }
-        externPut(self, java:fromString(key), newNode);
+        return externPut(self, java:fromString(key), entry);
     }
 
     # Returns the cached value associated with the provided key.
@@ -167,20 +151,10 @@ public type Cache object {
                                 logLevel = LOG_LEVEL_DEBUG);
         }
 
-        Node node = externGet(self, java:fromString(key));
-        CacheEntry entry = <CacheEntry>node.value;
-
-        // Check whether the cache entry is already expired. Even though the cache cleaning task is configured
-        // and runs in predefined intervals, sometimes the cache entry might not have been removed at this point
-        // even though it is expired. So this check guarantees that the expired cache entries will not be returned.
-        if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
-            self.evictionPolicy.remove(node);
-            externRemove(self, java:fromString(key));
-            return ();
+        any? entry = externGet(self, java:fromString(key), time:nanoTime());
+        if (entry is CacheEntry) {
+            return entry.data;
         }
-
-        self.evictionPolicy.get(node);
-        return entry.data;
     }
 
     # Discards a cached value from the cache.
@@ -193,9 +167,6 @@ public type Cache object {
             return prepareError("Cache entry from the given key: " + key + ", is not available.",
                                 logLevel = LOG_LEVEL_DEBUG);
         }
-
-        Node node = externGet(self, java:fromString(key));
-        self.evictionPolicy.remove(node);
         externRemove(self, java:fromString(key));
     }
 
@@ -204,7 +175,6 @@ public type Cache object {
     # + return - `()` if successfully discarded all the values from the cache or an `Error` if any error occurred while
     # discarding all the values from the cache.
     public function invalidateAll() returns Error? {
-        self.evictionPolicy.clear();
         externRemoveAll(self);
     }
 
@@ -221,7 +191,14 @@ public type Cache object {
     #
     # + return - Array of all the keys from the cache
     public function keys() returns string[] {
-        return externKeys(self);
+        handle[] result = externKeys(self);
+        string[] keys = [];
+        int index = 0;
+        foreach var key in result {
+            keys[index] = <string>java:toString(key);
+            index = index + 1;
+        }
+        return keys;
     }
 
     # Returns the size of the cache.
@@ -239,51 +216,7 @@ public type Cache object {
     }
 };
 
-function evict(Cache cache, AbstractEvictionPolicy evictionPolicy, int capacity, float evictionFactor) {
-    int evictionKeysCount = <int>(math:ceil(capacity * evictionFactor));
-    foreach int i in 1...evictionKeysCount {
-        Node? node = evictionPolicy.evict();
-        if (node is Node) {
-            CacheEntry entry = <CacheEntry>node.value;
-            externRemove(cache, java:fromString(entry.key));
-            // The return result (error which occurred due to unavailability of the key or nil) is ignored
-            // since no purpose of handling it.
-        } else {
-            break;
-        }
-    }
-}
-
-function cleanup(Cache cache, AbstractEvictionPolicy evictionPolicy) {
-    if (externSize(cache) == 0) {
-        return;
-    }
-    foreach string key in externKeys(cache) {
-        Node node = externGet(cache, java:fromString(key));
-        CacheEntry entry = <CacheEntry>node.value;
-        if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
-            evictionPolicy.remove(node);
-            externRemove(cache, java:fromString(entry.key));
-            // The return result (error which occurred due to unavailability of the key or nil) is ignored
-            // since no purpose of handling it.
-            return;
-        }
-    }
-}
-
-function externInit(Cache cache, int capacity) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
-} external;
-
-function externPut(Cache cache, handle key, Node value) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
-} external;
-
-function externGet(Cache cache, handle key) returns Node = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
-} external;
-
-function externRemove(Cache cache, handle key) = @java:Method {
+function externInit(Cache cache) = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
@@ -295,10 +228,26 @@ function externHasKey(Cache cache, handle key) returns boolean = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
-function externKeys(Cache cache) returns string[] = @java:Method {
+function externKeys(Cache cache) returns handle[] = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externSize(Cache cache) returns int = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externPut(Cache cache, handle key, any value) = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externGet(Cache cache, handle key, int currentTime) returns CacheEntry? = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externRemove(Cache cache, handle key) = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externCleanUp(Cache cache, int currentTime) = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
