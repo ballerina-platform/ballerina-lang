@@ -49,7 +49,7 @@ public class StringTemplateLiteralNegativeTest {
                 "incompatible types: expected '(int|float|decimal|string|boolean)', found '(int[]|string[])'", 26, 21);
     }
 
-    @Test(description = "Test string template literal syntax errors", enabled = false)
+    @Test(description = "Test string template literal syntax errors")
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 13);

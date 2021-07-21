@@ -62,44 +62,37 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, 6, "incompatible types: expected 'string', found 'int'", 39, 31);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined symbol 'dptName'", 12, 23);
-        BAssertUtil.validateError(result, i++, "missing comma token", 12, 30);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'string', found 'int'", 12, 31);
-        BAssertUtil.validateError(result, i++, "missing open bracket token", 16, 17);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'string', found '[int]'", 12, 30);
+        BAssertUtil.validateError(result, i++, "missing colon token", 12, 30);
+        BAssertUtil.validateError(result, i++, "missing comma token", 12, 33);
+        BAssertUtil.validateError(result, i++, "missing identifier", 12, 33);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 16, 17);
+        BAssertUtil.validateError(result, i++, "missing ellipsis token", 16, 17);
         BAssertUtil.validateError(result, i++, "undefined symbol 'a'", 16, 18);
-        BAssertUtil.validateError(result, i++, "missing close bracket token", 16, 20);
-        BAssertUtil.validateError(result, i++,
-                "a type compatible with mapping constructor expressions not found in type 'boolean'", 20, 16);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'person', found '()'", 20, 20);
-        BAssertUtil.validateError(result, i++, "missing close brace token", 20, 20);
-        BAssertUtil.validateError(result, i++, "missing question mark token", 20, 20);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'person', found 'string'", 20, 24);
-        BAssertUtil.validateError(result, i++, "missing semicolon token", 20, 28);
-        BAssertUtil.validateError(result, i++, "invalid token ';'", 23, 1);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 23, 1);
+        BAssertUtil.validateError(result, i++, "missing comma token", 16, 20);
+        BAssertUtil.validateError(result, i++, "missing identifier", 16, 20);
+        BAssertUtil.validateError(result, i++, "missing colon token", 20, 20);
+        BAssertUtil.validateError(result, i++, "missing comma token", 20, 22);
+        BAssertUtil.validateError(result, i++, "missing identifier", 20, 22);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "missing open bracket token", 7, 21);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 7, 21);
+        BAssertUtil.validateError(result, i++, "missing ellipsis token", 7, 21);
         BAssertUtil.validateError(result, i++, "undefined symbol 'a'", 7, 22);
-        BAssertUtil.validateError(result, i++, "missing close bracket token", 7, 24);
-        BAssertUtil.validateError(result, i++,
-                "a type compatible with mapping constructor expressions not found in type 'boolean'", 11, 21);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'Department', found '()'", 11, 25);
-        BAssertUtil.validateError(result, i++, "missing close brace token", 11, 25);
-        BAssertUtil.validateError(result, i++, "missing question mark token", 11, 25);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'Department', found 'string'", 11, 29);
-        BAssertUtil.validateError(result, i++, "missing semicolon token", 11, 33);
-        BAssertUtil.validateError(result, i++, "invalid token ';'", 14, 1);
-        BAssertUtil.validateError(result, i++, "invalid token '}'", 14, 1);
+        BAssertUtil.validateError(result, i++, "missing comma token", 7, 24);
+        BAssertUtil.validateError(result, i++, "missing identifier", 7, 24);
+        BAssertUtil.validateError(result, i++, "missing colon token", 11, 25);
+        BAssertUtil.validateError(result, i++, "missing comma token", 11, 27);
+        BAssertUtil.validateError(result, i++, "missing identifier", 11, 27);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
