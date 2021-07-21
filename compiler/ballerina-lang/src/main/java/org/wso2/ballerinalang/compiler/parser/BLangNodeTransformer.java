@@ -5261,31 +5261,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     text = text.substring(1);
                 }
             }
+
             Location pos = getPosition(literal);
-            Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
-            while (matcher.find()) {
-                String leadingBackSlashes = matcher.group(1);
-                if (IdentifierUtils.isEscapedNumericEscape(leadingBackSlashes)) {
-                    // e.g. \\u{61}, \\\\u{61}
-                    continue;
-                }
+            validateUnicodePoints(text, pos);
 
-                String hexCodePoint = matcher.group(2);
-                int decimalCodePoint = Integer.parseInt(hexCodePoint, 16);
-
-                if ((decimalCodePoint >= Constants.MIN_UNICODE && decimalCodePoint <= Constants.MIDDLE_LIMIT_UNICODE)
-                        || decimalCodePoint > Constants.MAX_UNICODE) {
-
-                    int offset = matcher.end(1) + 1;
-                    String numericEscape = "\\u{" + hexCodePoint + "}";
-                    BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
-                            pos.lineRange().startLine().line(),
-                            pos.lineRange().endLine().line(),
-                            pos.lineRange().startLine().offset() + offset,
-                            pos.lineRange().startLine().offset() + offset + numericEscape.length());
-                    dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, numericEscape);
-                }
-            }
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
                     text = IdentifierUtils.unescapeUnicodeCodepoints(text);
@@ -5332,6 +5311,33 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
+    }
+
+    private void validateUnicodePoints(String text, Location pos) {
+        Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String leadingBackSlashes = matcher.group(1);
+            if (IdentifierUtils.isEscapedNumericEscape(leadingBackSlashes)) {
+                // e.g. \\u{61}, \\\\u{61}
+                continue;
+            }
+
+            String hexCodePoint = matcher.group(2);
+            int decimalCodePoint = Integer.parseInt(hexCodePoint, 16);
+
+            if ((decimalCodePoint >= Constants.MIN_UNICODE && decimalCodePoint <= Constants.MIDDLE_LIMIT_UNICODE)
+                    || decimalCodePoint > Constants.MAX_UNICODE) {
+
+                int offset = matcher.end(1) + 1;
+                String numericEscape = "\\u{" + hexCodePoint + "}";
+                BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
+                        pos.lineRange().startLine().line(),
+                        pos.lineRange().endLine().line(),
+                        pos.lineRange().startLine().offset() + offset,
+                        pos.lineRange().startLine().offset() + offset + numericEscape.length());
+                dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, numericEscape);
+            }
+        }
     }
 
     private BLangLiteral createStringLiteral(String value, Location pos) {
