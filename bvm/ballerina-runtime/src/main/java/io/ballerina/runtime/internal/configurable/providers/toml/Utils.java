@@ -24,15 +24,19 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
@@ -52,6 +56,7 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,7 +64,9 @@ import java.util.Set;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * Util methods required for configurable variables.
@@ -97,39 +104,46 @@ public class Utils {
         }
     }
 
-    static Object getBalValueFromToml(TomlNode tomlNode, Set<TomlNode> visitedNodes) {
+    static Object getBalValueFromToml(TomlNode tomlNode, Set<TomlNode> visitedNodes, BUnionType unionType,
+                                      Set<LineRange> invalidTomlLines, String variableName) {
         visitedNodes.add(tomlNode);
         switch (tomlNode.kind()) {
             case STRING:
-                return StringUtils.fromString(((TomlStringValueNode) tomlNode).getValue());
+                return validateAndGetStringValue((TomlStringValueNode) tomlNode, unionType, invalidTomlLines,
+                        variableName);
             case INTEGER:
                 return ((TomlLongValueNode) tomlNode).getValue();
             case DOUBLE:
-                return ((TomlDoubleValueNodeNode) tomlNode).getValue();
+                return validateAndGetDoubleValue((TomlDoubleValueNodeNode) tomlNode, unionType, invalidTomlLines,
+                        variableName);
             case BOOLEAN:
                 return ((TomlBooleanValueNode) tomlNode).getValue();
             case KEY_VALUE:
-                return getBalValueFromToml(((TomlKeyValueNode) tomlNode).value(), visitedNodes);
+                return getBalValueFromToml(((TomlKeyValueNode) tomlNode).value(), visitedNodes, unionType,
+                        invalidTomlLines, variableName);
             case ARRAY:
-                return getAnydataArray((TomlArrayValueNode) tomlNode, visitedNodes);
+                return getAnydataArray((TomlArrayValueNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
             case TABLE:
-                return getAnydataMap((TomlTableNode) tomlNode, visitedNodes);
+                return getAnydataMap((TomlTableNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
             case TABLE_ARRAY:
-                return getAnydataTable((TomlTableArrayNode) tomlNode, visitedNodes);
+                return validateAndGetTableArrayValue((TomlTableArrayNode) tomlNode, visitedNodes, unionType,
+                        invalidTomlLines, variableName);
             default:
                 // should not come here
                 return null;
         }
     }
 
-    private static Object getAnydataTable(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes) {
+    private static Object getAnydataTable(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes,
+                                          Set<LineRange> invalidTomlLines, String variableName) {
         List<TomlTableNode> tableNodeList = tomlNode.children();
         int tableSize = tableNodeList.size();
         ListInitialValueEntry.ExpressionEntry[] tableEntries =
                 new ListInitialValueEntry.ExpressionEntry[tableSize];
         int count = 0;
         for (TomlTableNode tomlTableNode : tableNodeList) {
-            Object value = getBalValueFromToml(tomlTableNode, visitedNodes);
+            Object value = getBalValueFromToml(tomlTableNode, visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA,
+                    invalidTomlLines, variableName);
             tableEntries[count++] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData = new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION,
@@ -140,26 +154,43 @@ public class Utils {
         return new TableValueImpl<>(tableType, tableData, keyNames);
     }
 
-    private static Object getAnydataMap(TomlTableNode tomlNode, Set<TomlNode> visitedNodes) {
+    private static Object getAnydataMap(TomlTableNode tomlNode, Set<TomlNode> visitedNodes,
+                                        Set<LineRange> invalidTomlLines, String variableName) {
         BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[tomlNode.entries().size()];
         int count = 0;
         for (Map.Entry<String, TopLevelNode> entry : tomlNode.entries().entrySet()) {
             initialValues[count++] = ValueCreator.createKeyFieldEntry(StringUtils.fromString(entry.getKey()),
-                    getBalValueFromToml(entry.getValue(), visitedNodes));
+                    getBalValueFromToml(entry.getValue(), visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA,
+                            invalidTomlLines, variableName));
         }
         return ValueCreator.createMapValue(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION, true),
                 initialValues);
     }
 
-    private static Object getAnydataArray(TomlArrayValueNode tomlNode, Set<TomlNode> visitedNodes) {
+    private static Object getAnydataArray(TomlArrayValueNode tomlNode, Set<TomlNode> visitedNodes,
+                                          Set<LineRange> invalidTomlLines, String variableName) {
         ListInitialValueEntry[] arrayValues = new ListInitialValueEntry[tomlNode.elements().size()];
         List<TomlValueNode> elements = tomlNode.elements();
         int count = 0;
         for (TomlValueNode tomlValueNode : elements) {
-            arrayValues[count++] = new ListInitialValueEntry.ExpressionEntry(
-                    getBalValueFromToml(tomlValueNode, visitedNodes));
+            arrayValues[count++] = new ListInitialValueEntry.ExpressionEntry(getBalValueFromToml(tomlValueNode,
+                    visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA, invalidTomlLines, variableName));
         }
         return new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION, true),
+                arrayValues.length, arrayValues);
+    }
+
+    private static Object getMapAnydataArray(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes,
+                                             Set<LineRange> invalidTomlLines, String variableName) {
+        ListInitialValueEntry[] arrayValues = new ListInitialValueEntry[tomlNode.children().size()];
+        List<TomlTableNode> elements = tomlNode.children();
+        int count = 0;
+        for (TomlTableNode tomlValueNode : elements) {
+            arrayValues[count++] = new ListInitialValueEntry.ExpressionEntry(getBalValueFromToml(tomlValueNode,
+                    visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA, invalidTomlLines, variableName));
+        }
+        return new ArrayValueImpl(
+                TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION), true),
                 arrayValues.length, arrayValues);
     }
 
@@ -253,6 +284,85 @@ public class Utils {
         }
     }
 
+    private static Object validateAndGetTableArrayValue(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes,
+                                                        BUnionType unionType, Set<LineRange> invalidTomlLines,
+                                                        String variableName) {
+        boolean hasTable = containsType(unionType, TypeTags.TABLE_TAG);
+        boolean hasMapArray = containsMapArray(unionType);
+        if (hasTable && hasMapArray && unionType.getTag() != TypeTags.ANYDATA_TAG) {
+            throwMemberAmbiguityError(unionType, invalidTomlLines, variableName, tomlNode);
+        }
+        if (hasMapArray) {
+            return getMapAnydataArray(tomlNode, visitedNodes, invalidTomlLines, variableName);
+        }
+        return getAnydataTable(tomlNode, visitedNodes, invalidTomlLines, variableName);
+    }
+
+    private static Object validateAndGetDoubleValue(TomlDoubleValueNodeNode tomlNode, BUnionType unionType,
+                                                    Set<LineRange> invalidTomlLines, String variableName) {
+        boolean hasDecimal = containsType(unionType, TypeTags.DECIMAL_TAG);
+        boolean hasFloat = containsType(unionType, TypeTags.FLOAT_TAG);
+        if (hasDecimal && hasFloat && unionType.getTag() != TypeTags.ANYDATA_TAG) {
+            throwMemberAmbiguityError(unionType, invalidTomlLines, variableName, tomlNode);
+        }
+        Double value = tomlNode.getValue();
+        if (hasFloat || containsType(unionType, TypeTags.FINITE_TYPE_TAG)) {
+            return value;
+        }
+        return ValueCreator.createDecimalValue(BigDecimal.valueOf(value));
+    }
+
+    private static Object validateAndGetStringValue(TomlStringValueNode tomlNode, BUnionType unionType,
+                                                    Set<LineRange> invalidTomlLines, String variableName) {
+        boolean hasString = containsType(unionType, TypeTags.STRING_TAG);
+        boolean hasXml = containsXMLType(unionType);
+        if (hasString && hasXml && unionType.getTag() != TypeTags.ANYDATA_TAG) {
+            throwMemberAmbiguityError(unionType, invalidTomlLines, variableName, tomlNode);
+        }
+        String value = tomlNode.getValue();
+        if (hasString || SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM) || containsType(unionType,
+                TypeTags.FINITE_TYPE_TAG)) {
+            return StringUtils.fromString(value);
+        }
+        return createReadOnlyXmlValue(value);
+    }
+
+    private static void throwMemberAmbiguityError(BUnionType unionType, Set<LineRange> invalidTomlLines,
+                                                  String variableName, TomlNode tomlNode) {
+        invalidTomlLines.add(tomlNode.location().lineRange());
+        throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlNode), variableName,
+                IdentifierUtils.decodeIdentifier(unionType.toString()));
+    }
+
+    private static boolean containsType(BUnionType unionType, int tag) {
+        for (Type type : unionType.getMemberTypes()) {
+            if (getEffectiveType(type).getTag() == tag) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsMapArray(BUnionType unionType) {
+        for (Type type : unionType.getMemberTypes()) {
+            Type effectiveType = getEffectiveType(type);
+            if (effectiveType.getTag() == TypeTags.ARRAY_TAG &&
+                    isMappingType(getEffectiveType(((ArrayType) effectiveType).getElementType()).getTag())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsXMLType(BUnionType unionType) {
+        for (Type type : unionType.getMemberTypes()) {
+            if (isXMLType(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean isAnyDataType(Type restFieldType) {
         return getEffectiveType(restFieldType).getTag() == TypeTags.ANYDATA_TAG;
     }
@@ -267,4 +377,9 @@ public class Utils {
         }
         return type;
     }
+
+    private static boolean isMappingType(int typeTag) {
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
+    }
+
 }

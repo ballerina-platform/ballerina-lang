@@ -33,9 +33,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -62,6 +60,7 @@ import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.createReadOnlyXmlValue;
 
 /**
  * Value creator to create values for structured configurable values from TOML nodes.
@@ -101,10 +100,8 @@ public class ConfigValueCreator {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
-                String value = ((TomlStringValueNode) ((TomlKeyValueNode) tomlValue).value()).getValue();
-                BXml xmlValue = TypeConverter.stringToXml(value);
-                xmlValue.freezeDirect();
-                return xmlValue;
+                return createReadOnlyXmlValue(
+                        ((TomlStringValueNode) ((TomlKeyValueNode) tomlValue).value()).getValue());
             default:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -187,9 +184,7 @@ public class ConfigValueCreator {
             switch (elementType.getTag()) {
                 case TypeTags.INTERSECTION_TAG:
                     if (isXMLType(elementType)) {
-                        BXml xmlValue = TypeConverter.stringToXml(((TomlStringValueNode) tomlValueNode).getValue());
-                        xmlValue.freezeDirect();
-                        balValue = xmlValue;
+                        balValue = createReadOnlyXmlValue(((TomlStringValueNode) tomlValueNode).getValue());
                     } else {
                         ArrayType arrayType = (ArrayType) ((BIntersectionType) elementType).getEffectiveType();
                         balValue = getPrimitiveArray(tomlValueNode, arrayType);
@@ -299,7 +294,7 @@ public class ConfigValueCreator {
 
 
     private Object createUnionValue(TomlNode tomlValue, BUnionType unionType) {
-        Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>());
+        Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             if (TypeChecker.checkIsLikeType(balValue, type, false)) {

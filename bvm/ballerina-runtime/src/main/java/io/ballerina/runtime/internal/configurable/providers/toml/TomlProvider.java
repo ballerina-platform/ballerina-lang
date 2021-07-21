@@ -548,7 +548,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
         visitedNodes.add(tomlValue);
-        Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes);
+        Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
         List<Type> convertibleTypes = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             if (TypeChecker.checkIsLikeType(balValue, type, false)) {

@@ -11,7 +11,7 @@ xmlRecord.details = "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tylor</ARTIST>
 
 xmlUnion1 = "<book><name>Harry Potter and the sorcerer's stone</name></book>"
 xmlUnion2 = "<greet>Hello!</greet>"
-xmlUnion3.details = "<TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tylor</ARTIST><COUNTRY>UK</COUNTRY><YEAR>1988</YEAR>"
+xmlUnion3 = "<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>"
 
 [[xmlTable1]]
 title =  "<title>This is a title!</title>"

@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.util;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -101,6 +102,18 @@ public class RuntimeUtils {
     public static boolean isByteLiteral(int intValue) {
 
         return (intValue >= BBYTE_MIN_VALUE && intValue <= BBYTE_MAX_VALUE);
+    }
+
+    /**
+     * Provide the readonly Xml Value that is equivalent to a given string value.
+     *
+     * @param value string value
+     * @return immutable Xml value
+     */
+    public static BXml createReadOnlyXmlValue(String value) {
+        BXml xml = TypeConverter.stringToXml(value);
+        xml.freezeDirect();
+        return xml;
     }
 
     /**

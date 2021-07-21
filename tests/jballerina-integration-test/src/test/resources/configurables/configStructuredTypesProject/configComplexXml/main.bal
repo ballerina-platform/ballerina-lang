@@ -35,14 +35,15 @@ configurable Album xmlRecord = ?;
 configurable table<map<xml>> xmlTable1 = ?;
 configurable table<Album> xmlTable2 = ?;
 
-// // Test xml unions
-// configurable xml:ProcessingInstruction|int|float xmlUnion1 = ?;
-// configurable xml|Album xmlUnion2 = ?;
-// configurable xml|Album xmlUnion3 = ?;
+// Test xml unions
+configurable xml:Element|int|float xmlUnion1 = ?;
+configurable xml|Album xmlUnion2 = ?;
+configurable xml:ProcessingInstruction|xml:Element xmlUnion3 = ?;
 
 public function main() {
     testSimpleXmlType();
     testStructuredXmlType();
+    testUnionXmlType();
     util:print("Tests passed");
 }
 
@@ -56,10 +57,6 @@ function testSimpleXmlType() {
 }
 
 function testStructuredXmlType() {
-    // util:print(xmlUnion1.toString());
-    // util:print(xmlUnion2.toString());
-    // util:print(xmlUnion3.toString());
-
     test:assertEquals(xmlArr.toString(), "[`<!--I am a comment-->`,`<?target data?>`]");
     test:assertEquals(xmlMap.toString(), "{\"title\":`<title>This is a title!</title>`," + 
     "\"comment\":`<!--I am a comment-->`}");
@@ -71,4 +68,10 @@ function testStructuredXmlType() {
     "<ARTIST>Savage Rose</ARTIST><COUNTRY>EU</COUNTRY><YEAR>1995</YEAR>`,\"price\":10.9}," +
     "{\"details\":`<TITLE>For the good times</TITLE><ARTIST>Kenny Rogers</ARTIST><COUNTRY>UK</COUNTRY>" +
     "<YEAR>1995</YEAR>`}]");
+}
+
+function testUnionXmlType() {
+    test:assertEquals(xmlUnion1.toString(), "<book><name>Harry Potter and the sorcerer's stone</name></book>");
+    test:assertEquals(xmlUnion2.toString(), "<greet>Hello!</greet>");
+    test:assertEquals(xmlUnion3.toString(), "<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>");
 }

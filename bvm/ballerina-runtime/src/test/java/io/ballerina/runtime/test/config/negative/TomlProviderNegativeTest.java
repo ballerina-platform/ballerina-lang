@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
@@ -511,6 +513,42 @@ public class TomlProviderNegativeTest {
                 "type 'int', but found 'string'";
         validateTomlProviderErrors("RestFieldNegative", error, Map.ofEntries(Map.entry(ROOT_MODULE,
                 new VariableKey[]{recordVar})), 1, 1);
+    }
+
+    @Test(dataProvider = "union-ambiguity-provider")
+    public void testTomlValueAmbiguityForUnionType(String errorMsg, VariableKey variableKey) {
+        validateTomlProviderErrors("UnionAmbiguousType", errorMsg, Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{variableKey})), 1, 4);
+    }
+
+    @DataProvider(name = "union-ambiguity-provider")
+    public Object[][] getUnionAmbiguityTests() {
+        UnionType unionType1 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_STRING,
+                PredefinedTypes.TYPE_XML), true);
+        VariableKey stringUnion =  new VariableKey(ROOT_MODULE, "var1", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType1, PredefinedTypes.TYPE_READONLY}, unionType1, 1, true), true);
+
+        UnionType unionType2 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT,
+                PredefinedTypes.TYPE_DECIMAL), true);
+        VariableKey floatUnion =  new VariableKey(ROOT_MODULE, "var2", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType2, PredefinedTypes.TYPE_READONLY}, unionType2, 1, true), true);
+
+        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
+        UnionType unionType3 = TypeCreator.createUnionType(List.of(TypeCreator.createArrayType(mapType),
+                TypeCreator.createTableType(mapType, true)), true);
+        VariableKey tableUnion =  new VariableKey(ROOT_MODULE, "var3", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType3, PredefinedTypes.TYPE_READONLY}, unionType3, 1, true), true);
+
+        return new Object[][]{
+                {"[UnionAmbiguousType.toml:(1:8,1:41)] ambiguous target types found for configurable variable 'var1' " +
+                        "with type '(string|xml<(lang.xml:Element|lang.xml:Comment|lang" +
+                        ".xml:ProcessingInstruction|lang.xml:Text)>)'", stringUnion},
+                {"[UnionAmbiguousType.toml:(2:8,2:13)] ambiguous target types found for configurable variable 'var2' " +
+                        "with type '(float|decimal)'", floatUnion},
+                {"[UnionAmbiguousType.toml:(3:1,5:7)] ambiguous target types found for configurable variable 'var3' " +
+                        "with type '(map<anydata>[]|table<map<(anydata & readonly)> & readonly> & readonly)'",
+                        tableUnion}
+        };
     }
 
     private VariableKey[] getSimpleVariableKeys(Module module) {
