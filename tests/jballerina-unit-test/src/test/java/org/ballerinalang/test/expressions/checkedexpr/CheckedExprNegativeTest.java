@@ -38,12 +38,15 @@ public class CheckedExprNegativeTest {
         Assert.assertEquals(compile.getErrorCount(), 6, compile.toString());
         BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
                 "operator: no expression type is equivalent to error type", 11, 25);
-        BAssertUtil.validateError(compile, 1, "'check' expression of type 'never' is not allowed", 16, 19);
-        BAssertUtil.validateError(compile, 2, "'check' expression of type 'never' is not allowed", 30, 19);
+        BAssertUtil.validateError(compile, 1, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 16, 25);
+        BAssertUtil.validateError(compile, 2, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 30, 25);
         BAssertUtil.validateError(compile, 3, "incompatible types: expected '(string|error)'" +
                                               ", found '(string|int)'", 39, 25);
         BAssertUtil.validateError(compile, 4, "invalid expression, expected a call expression", 54, 5);
-        BAssertUtil.validateError(compile, 5, "'check' expression of type 'never' is not allowed", 58, 5);
+        BAssertUtil.validateError(compile, 5, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 58, 11);
     }
 
     @Test
