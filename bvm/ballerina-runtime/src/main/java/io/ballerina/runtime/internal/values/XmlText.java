@@ -112,16 +112,7 @@ public class XmlText extends XmlNonElementItem {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj instanceof XmlText) {
-            XmlText that = (XmlText) obj;
-            return data.equals(that.data);
-
-        }
-        return false;
+        return this == obj;
     }
 
     @Override

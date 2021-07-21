@@ -1324,22 +1324,27 @@ function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
 
-type MyObject object {};
+class MyObj2 {}
+type MyObject1 object {};
 
 function testEqualityWithNonAnydataType() {
     map<int|string> a = { one: 1, two: "two" };
     map<any> b = { one: 1, two: "two" };
-    assert(a == b, false);
-    assert(a != b, true);
+    assert(a == b, true);
+    assert(a != b, false);
 
     any c = 5;
     int d = 5;
-    assert(c == d, false);
-    assert(c != d, true);
+    assert(c == d, true);
+    assert(c != d, false);
 
-    MyObject? obj = ();
-    assert(obj == (), false);
-    assert(obj != (), true);
+    MyObject1? obj1 = ();
+    assert(obj1 == (), true);
+    assert(obj1 != (), false);
+
+    MyObj2? obj2 = new;
+    assert(obj2 == (), false);
+    assert(obj2 != (), true);
 }
 
 function assert(anydata actual, anydata expected) {

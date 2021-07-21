@@ -619,22 +619,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         };
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (obj instanceof XmlSequence) {
-            XmlSequence that = (XmlSequence) obj;
-            return that.children.equals(this.children);
-        }
-        if (obj instanceof XmlItem) {
-            return this.children.size() == 1 && this.children.get(0).equals(obj);
-        }
-        return false;
-    }
-
     private Type getSequenceType(Type tempExprType) {
         switch (tempExprType.getTag()) {
             case TypeTags.XML_ELEMENT_TAG:

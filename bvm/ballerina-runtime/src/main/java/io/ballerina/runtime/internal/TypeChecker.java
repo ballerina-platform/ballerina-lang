@@ -65,6 +65,9 @@ import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
+import io.ballerina.runtime.internal.values.XmlComment;
+import io.ballerina.runtime.internal.values.XmlItem;
+import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
@@ -2684,7 +2687,8 @@ public class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.XML_PI_TAG:
-                return XmlFactory.isEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isXMLEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+//                return XmlFactory.isEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -2832,6 +2836,91 @@ public class TypeChecker {
         return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
                 isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
                 isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
+    }
+
+    /**
+     * Deep equality check for XML.
+     *
+     * @param lhsXml The XML on the left hand side
+     * @param rhsXml The XML on the right hand side
+     * @return True if the XML values are equal, else false.
+     */
+    private static boolean isXMLEqual(XmlValue lhsXml, XmlValue rhsXml) {
+        if (lhsXml instanceof XmlSequence) {
+            XmlSequence lhsXMLSequence = (XmlSequence) lhsXml;
+            if (lhsXMLSequence == rhsXml) {
+                return true;
+            }
+            if (rhsXml instanceof XmlSequence) {
+                XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
+                return rhsXMLSequence.getChildrenList().equals(lhsXMLSequence.getChildrenList());
+            }
+            if (rhsXml instanceof XmlItem) {
+                return lhsXMLSequence.getChildrenList().size() == 1 &&
+                        lhsXMLSequence.getChildrenList().get(0).equals(rhsXml);
+            }
+            return false;
+        }
+        if (lhsXml instanceof XmlItem) {
+            XmlItem lhsXMLItem = (XmlItem) lhsXml;
+            if (lhsXMLItem == rhsXml) {
+                return true;
+            }
+            if (rhsXml instanceof XmlItem) {
+                XmlItem rhsXMLItem = (XmlItem) rhsXml;
+                boolean qNameEquals = rhsXMLItem.getQName().equals(lhsXMLItem.getQName());
+                if (!qNameEquals) {
+                    return false;
+                }
+                boolean attrMapEquals = rhsXMLItem.getAttributesMap().entrySet()
+                        .equals(lhsXMLItem.getAttributesMap().entrySet());
+                if (!attrMapEquals) {
+                    return false;
+                }
+                return rhsXMLItem.getChildrenSeq().equals(lhsXMLItem.getChildrenSeq());
+            }
+            if (rhsXml instanceof XmlSequence) {
+                XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
+                return rhsXMLSequence.getChildrenList().size() == 1 &&
+                        lhsXMLItem.equals(rhsXMLSequence.getChildrenList().get(0));
+            }
+            return false;
+        }
+        if (lhsXml instanceof XmlText) {
+            XmlText lhsXMLText = (XmlText) lhsXml;
+            if (lhsXMLText == rhsXml) {
+                return true;
+            }
+            if (rhsXml instanceof XmlText) {
+                XmlText rhsXMLText = (XmlText) rhsXml;
+                return lhsXMLText.getTextValue().equals(rhsXMLText.getTextValue());
+            }
+            return false;
+        }
+        if (lhsXml instanceof XmlComment) {
+            XmlComment lhsXMLComment = (XmlComment) lhsXml;
+            if (lhsXMLComment == rhsXml) {
+                return true;
+            }
+            if (rhsXml instanceof XmlComment) {
+                XmlComment rhXMLComment = (XmlComment) rhsXml;
+                return lhsXMLComment.getTextValue().equals(rhXMLComment.getTextValue());
+            }
+            return false;
+        }
+        if (lhsXml instanceof XmlPi) {
+            XmlPi lhsXMLPi = (XmlPi) lhsXml;
+            if (lhsXMLPi == rhsXml) {
+                return true;
+            }
+            if (rhsXml instanceof XmlPi) {
+                XmlPi rhsXMLPi = (XmlPi) rhsXml;
+                return lhsXMLPi.getData().equals(rhsXMLPi.getData()) &&
+                        lhsXMLPi.getTarget().equals(rhsXMLPi.getTarget());
+            }
+            return false;
+        }
+        return false;
     }
 
     /**
