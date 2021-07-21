@@ -24,17 +24,11 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.BallerinaTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CHECK_IS_TYPE_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
@@ -72,7 +66,7 @@ public class TypeTestExpressionEvaluator extends Evaluator {
             }
 
             for (Value type : resolvedTypes) {
-                boolean typeMatched = checkIsType(valueAsObject, type);
+                boolean typeMatched = checkIsType(context, valueAsObject, type);
                 if (typeMatched) {
                     return VMUtils.make(context, true);
                 }
@@ -84,19 +78,5 @@ public class TypeTestExpressionEvaluator extends Evaluator {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
         }
-    }
-
-    private boolean checkIsType(Value lhsExpressionResult, Value type) throws EvaluationException {
-        List<String> methodArgTypeNames = new ArrayList<>();
-        methodArgTypeNames.add(JAVA_OBJECT_CLASS);
-        methodArgTypeNames.add(B_TYPE_CLASS);
-        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, CHECK_IS_TYPE_METHOD,
-                methodArgTypeNames);
-
-        List<Value> methodArgs = new ArrayList<>();
-        methodArgs.add(lhsExpressionResult);
-        methodArgs.add(type);
-        method.setArgValues(methodArgs);
-        return Boolean.parseBoolean(new BExpressionValue(context, method.invokeSafely()).getStringValue());
     }
 }

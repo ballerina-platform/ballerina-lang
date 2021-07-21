@@ -31,14 +31,12 @@ import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticM
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CHECK_CAST_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_UNION_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getUnionTypeFrom;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
@@ -84,7 +82,8 @@ public class TypeCastExpressionEvaluator extends Evaluator {
 
             // If the type descriptor is resolved into multiple types, creates a "BUnionType" instance by combining
             // its member types.
-            Value bTypeDescriptor = resolvedTypes.size() > 1 ? getUnionTypeFrom(resolvedTypes) : resolvedTypes.get(0);
+            Value bTypeDescriptor = resolvedTypes.size() > 1 ? getUnionTypeFrom(context, resolvedTypes) :
+                    resolvedTypes.get(0);
             return checkCast(valueAsObject, bTypeDescriptor);
         } catch (EvaluationException e) {
             throw e;
@@ -92,22 +91,6 @@ public class TypeCastExpressionEvaluator extends Evaluator {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
         }
-    }
-
-    /**
-     * Creates a "BUnionType" instance by combining all member types.
-     *
-     * @param resolvedTypes member types
-     * @return a 'BUnionType' instance by combining all its member types
-     */
-    private Value getUnionTypeFrom(List<Value> resolvedTypes) throws EvaluationException {
-        List<String> methodArgTypeNames = new ArrayList<>();
-        methodArgTypeNames.add(B_TYPE_ARRAY_CLASS);
-        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS, CREATE_UNION_TYPE_METHOD,
-                methodArgTypeNames);
-        List<Value> methodArgs = new ArrayList<>(resolvedTypes);
-        method.setArgValues(methodArgs);
-        return method.invokeSafely();
     }
 
     /**

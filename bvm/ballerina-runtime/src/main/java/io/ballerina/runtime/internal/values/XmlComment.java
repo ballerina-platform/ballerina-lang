@@ -120,6 +120,15 @@ public class XmlComment extends XmlNonElementItem {
 
     @Override
     public boolean equals(Object obj) {
-        return this == obj;
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof XmlComment) {
+            XmlComment that = (XmlComment) obj;
+            return data.equals(that.data);
+
+        }
+        return false;
     }
 }

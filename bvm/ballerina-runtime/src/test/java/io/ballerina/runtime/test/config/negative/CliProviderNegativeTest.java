@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
+import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
@@ -132,22 +133,21 @@ public class CliProviderNegativeTest {
         Module module = new Module("myorg", "mod", "1.0.0");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(module, "x", PredefinedTypes.TYPE_INT, true),
-        };
-        configVarMap.put(module, keys);
+        VariableKey x = new VariableKey(module, "x", PredefinedTypes.TYPE_INT, true);
+
+        configVarMap.put(module, new VariableKey[] {x});
         String[] args = {"-Cmyorg.mod.x=123", "-Cmyorg.mod.y=apple", "-Cmyorg.mod.z=27.5"};
         ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
-        Map<VariableKey, Object> varKeyValueMap =  configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> varKeyValueMap =  configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getWarningCount(), 2);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
                             "warning: [myorg.mod.z=27.5] unused command line argument");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
                             "warning: [myorg.mod.y=apple] unused command line argument");
-        Assert.assertEquals(varKeyValueMap.get(new VariableKey(module, "x")), 123L);
+        Assert.assertEquals(varKeyValueMap.get(x).getValue(), 123L);
     }
 
     @Test
@@ -156,23 +156,23 @@ public class CliProviderNegativeTest {
         Module rootModule = new Module("testOrg", "a.b", "1.0.0");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey validKey = new VariableKey(rootModule, "y", PredefinedTypes.TYPE_STRING, true);
         VariableKey[] keys = {
                 new VariableKey(importedModule, "c", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(rootModule, "c", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(rootModule, "y", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(rootModule, "c", PredefinedTypes.TYPE_INT, true), validKey
         };
         configVarMap.put(rootModule, keys);
         String[] args = {"-Ca.b.c=123", "-Ca.b.y=apple"};
         ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(rootModule, args)));
-        Map<VariableKey, Object> varKeyValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> varKeyValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
                 "variable 'testOrg/a.b:c' clashes with variable 'a/b:c'. Please provide the command line argument as " +
                 "'[-CtestOrg.a.b.c=<value>]'");
-        Assert.assertEquals(varKeyValueMap.get(new VariableKey(rootModule, "y")), StringUtils.fromString("apple"));
+        Assert.assertEquals(varKeyValueMap.get(validKey).getValue(), StringUtils.fromString("apple"));
     }
 
 

@@ -2167,6 +2167,26 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
     }
 
+    public Set<BVarSymbol> getConfigVarSymbolsIncludingImportedModules(BPackageSymbol packageSymbol) {
+        Set<BVarSymbol> configVars = new HashSet<>();
+        populateConfigurableVars(packageSymbol, configVars);
+        if (!packageSymbol.imports.isEmpty()) {
+            for (BPackageSymbol importSymbol : packageSymbol.imports) {
+                populateConfigurableVars(importSymbol, configVars);
+            }
+        }
+        return configVars;
+    }
+
+    private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
+        for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
+            BSymbol symbol = entry.symbol;
+            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                configVars.add((BVarSymbol) symbol);
+            }
+        }
+    }
+
     private static class ParameterizedTypeInfo {
         BType paramValueType;
         int index = -1;

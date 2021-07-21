@@ -2996,6 +2996,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         simpleVar.pos = getPosition(requiredParameter);
         if (requiredParameter.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
+        } else if (simpleVar.name.pos == null) {
+            // Param doesn't have a name and also is not a missing node
+            // Therefore, assigning the built-in location
+            simpleVar.name.pos = symTable.builtinPos;
         }
         simpleVar.flagSet.add(Flag.REQUIRED_PARAM);
         return simpleVar;

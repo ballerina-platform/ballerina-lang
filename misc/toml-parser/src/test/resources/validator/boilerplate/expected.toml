@@ -3,9 +3,6 @@ name = "hello"
 repository = "local"
 tag = "v1.0.0"
 base = "ballerina/jre11:v1"
-cmd = ""
-[container.image.user]
-run_as = "ballerina"
 [[container.copy.files]]
 sourceFile = "./data/data.txt"
 target = "/home/ballerina/data/data.txt"

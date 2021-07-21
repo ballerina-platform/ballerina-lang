@@ -17,3 +17,5 @@ public class School {
 function getPath() returns string {
     return module2:directoryPath + "module2";
 }
+
+public int gInt = 1;

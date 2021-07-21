@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
@@ -63,6 +64,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlComment;
@@ -1053,6 +1055,18 @@ public class TypeChecker {
 
                 if (!recordType.sealed) {
                     return checkIsJSONType(recordType.restFieldType, unresolvedTypes);
+                }
+                return true;
+            case TypeTags.TUPLE_TAG:
+                BTupleType sourceTupleType = (BTupleType) sourceType;
+                for (Type memberType : sourceTupleType.getTupleTypes()) {
+                    if (!checkIsJSONType(memberType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                Type tupleRestType = sourceTupleType.getRestType();
+                if (tupleRestType != null) {
+                    return checkIsJSONType(tupleRestType, unresolvedTypes);
                 }
                 return true;
             case TypeTags.UNION_TAG:
@@ -2230,7 +2244,7 @@ public class TypeChecker {
         }
     }
     public static boolean isNumericType(Type type) {
-        return type.getTag() < TypeTags.STRING_TAG;
+        return type.getTag() < TypeTags.STRING_TAG || TypeTags.isIntegerTypeTag(type.getTag());
     }
 
     private static boolean checkIsLikeAnydataType(Object sourceValue, Type sourceType,
@@ -2393,7 +2407,8 @@ public class TypeChecker {
                     return targetNumericTypes.size() == 1;
                 }
 
-                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {
+                if (targetTypeElementType.getTag() == TypeTags.FLOAT_TAG ||
+                        targetTypeElementType.getTag() == TypeTags.DECIMAL_TAG) {
                     return false;
                 }
             }
@@ -2462,6 +2477,13 @@ public class TypeChecker {
             unresolvedValues.add(typeValuePair);
             for (Object object : ((MapValueImpl) sourceValue).values()) {
                 if (!checkIsLikeType(object, targetType, unresolvedValues, allowNumericConversion)) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (sourceType.getTag() == TypeTags.TUPLE_TAG) {
+            for (Object obj : ((TupleValueImpl) sourceValue).getValues()) {
+                if (!checkIsLikeType(obj, targetType, unresolvedValues, allowNumericConversion)) {
                     return false;
                 }
             }
@@ -2683,12 +2705,19 @@ public class TypeChecker {
                 }
                 return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
             case TypeTags.XML_TAG:
+                // Instance of xml never
+                if (lhsValue instanceof XmlText) {
+                    return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlText) lhsValue, (XmlValue) rhsValue);
+                }
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlSequence) lhsValue, (XmlValue) rhsValue);
             case TypeTags.XML_ELEMENT_TAG:
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlItem) lhsValue, (XmlValue) rhsValue);
             case TypeTags.XML_COMMENT_TAG:
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlComment) lhsValue, (XmlValue) rhsValue);
             case TypeTags.XML_TEXT_TAG:
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlText) lhsValue, (XmlValue) rhsValue);
             case TypeTags.XML_PI_TAG:
-                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isXMLEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
-//                return XmlFactory.isEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && isEqual((XmlPi) lhsValue, (XmlValue) rhsValue);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
@@ -2817,7 +2846,6 @@ public class TypeChecker {
         return false;
     }
 
-
     /**
      * Deep equality check for error.
      *
@@ -2839,86 +2867,118 @@ public class TypeChecker {
     }
 
     /**
-     * Deep equality check for XML.
+     * Deep equality check for XML Sequence.
      *
-     * @param lhsXml The XML on the left hand side
+     * @param lhsXMLSequence The XML sequence on the left hand side
      * @param rhsXml The XML on the right hand side
      * @return True if the XML values are equal, else false.
      */
-    private static boolean isXMLEqual(XmlValue lhsXml, XmlValue rhsXml) {
-        if (lhsXml instanceof XmlSequence) {
-            XmlSequence lhsXMLSequence = (XmlSequence) lhsXml;
-            if (lhsXMLSequence == rhsXml) {
-                return true;
-            }
-            if (rhsXml instanceof XmlSequence) {
-                XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
-                return rhsXMLSequence.getChildrenList().equals(lhsXMLSequence.getChildrenList());
-            }
-            if (rhsXml instanceof XmlItem) {
-                return lhsXMLSequence.getChildrenList().size() == 1 &&
-                        lhsXMLSequence.getChildrenList().get(0).equals(rhsXml);
-            }
-            return false;
+    private static boolean isEqual(XmlSequence lhsXMLSequence, XmlValue rhsXml) {
+        if (lhsXMLSequence == rhsXml) {
+            return true;
         }
-        if (lhsXml instanceof XmlItem) {
-            XmlItem lhsXMLItem = (XmlItem) lhsXml;
-            if (lhsXMLItem == rhsXml) {
-                return true;
-            }
-            if (rhsXml instanceof XmlItem) {
-                XmlItem rhsXMLItem = (XmlItem) rhsXml;
-                boolean qNameEquals = rhsXMLItem.getQName().equals(lhsXMLItem.getQName());
-                if (!qNameEquals) {
-                    return false;
-                }
-                boolean attrMapEquals = rhsXMLItem.getAttributesMap().entrySet()
-                        .equals(lhsXMLItem.getAttributesMap().entrySet());
-                if (!attrMapEquals) {
-                    return false;
-                }
-                return rhsXMLItem.getChildrenSeq().equals(lhsXMLItem.getChildrenSeq());
-            }
-            if (rhsXml instanceof XmlSequence) {
-                XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
-                return rhsXMLSequence.getChildrenList().size() == 1 &&
-                        lhsXMLItem.equals(rhsXMLSequence.getChildrenList().get(0));
-            }
-            return false;
+        if (rhsXml instanceof XmlSequence) {
+            XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
+            return rhsXMLSequence.getChildrenList().equals(lhsXMLSequence.getChildrenList());
         }
-        if (lhsXml instanceof XmlText) {
-            XmlText lhsXMLText = (XmlText) lhsXml;
-            if (lhsXMLText == rhsXml) {
-                return true;
-            }
-            if (rhsXml instanceof XmlText) {
-                XmlText rhsXMLText = (XmlText) rhsXml;
-                return lhsXMLText.getTextValue().equals(rhsXMLText.getTextValue());
-            }
-            return false;
+        if (rhsXml instanceof XmlItem) {
+            return lhsXMLSequence.getChildrenList().size() == 1 &&
+                    isEqual(lhsXMLSequence.getChildrenList().get(0), rhsXml);
         }
-        if (lhsXml instanceof XmlComment) {
-            XmlComment lhsXMLComment = (XmlComment) lhsXml;
-            if (lhsXMLComment == rhsXml) {
-                return true;
-            }
-            if (rhsXml instanceof XmlComment) {
-                XmlComment rhXMLComment = (XmlComment) rhsXml;
-                return lhsXMLComment.getTextValue().equals(rhXMLComment.getTextValue());
-            }
-            return false;
+        if (lhsXMLSequence.getChildrenList().isEmpty() &&
+                TypeUtils.getType(rhsXml) == PredefinedTypes.TYPE_XML_NEVER) {
+            return true;
         }
-        if (lhsXml instanceof XmlPi) {
-            XmlPi lhsXMLPi = (XmlPi) lhsXml;
-            if (lhsXMLPi == rhsXml) {
-                return true;
+        return false;
+    }
+
+    /**
+     * Deep equality check for XML item.
+     *
+     * @param lhsXMLItem The XML item on the left hand side
+     * @param rhsXml The XML on the right hand side
+     * @return True if the XML values are equal, else false.
+     */
+    private static boolean isEqual(XmlItem lhsXMLItem, XmlValue rhsXml) {
+        if (lhsXMLItem == rhsXml) {
+            return true;
+        }
+        if (rhsXml instanceof XmlItem) {
+            XmlItem rhsXMLItem = (XmlItem) rhsXml;
+            boolean qNameEquals = rhsXMLItem.getQName().equals(lhsXMLItem.getQName());
+            if (!qNameEquals) {
+                return false;
             }
-            if (rhsXml instanceof XmlPi) {
-                XmlPi rhsXMLPi = (XmlPi) rhsXml;
-                return lhsXMLPi.getData().equals(rhsXMLPi.getData()) &&
-                        lhsXMLPi.getTarget().equals(rhsXMLPi.getTarget());
+            boolean attrMapEquals = rhsXMLItem.getAttributesMap().entrySet()
+                    .equals(lhsXMLItem.getAttributesMap().entrySet());
+            if (!attrMapEquals) {
+                return false;
             }
-            return false;
+            return isEqual(rhsXMLItem.getChildrenSeq(), lhsXMLItem.getChildrenSeq());
+        }
+        if (rhsXml instanceof XmlSequence) {
+            XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
+            return rhsXMLSequence.getChildrenList().size() == 1 &&
+                    isEqual(lhsXMLItem, rhsXMLSequence.getChildrenList().get(0));
+        }
+        return false;
+    }
+
+    /**
+     * Deep equality check for XML Text.
+     *
+     * @param lhsXMLText The XML text on the left hand side
+     * @param rhsXml The XML on the right hand side
+     * @return True if the XML values are equal, else false.
+     */
+    private static boolean isEqual(XmlText lhsXMLText, XmlValue rhsXml) {
+        if (lhsXMLText == rhsXml) {
+            return true;
+        }
+        if (rhsXml instanceof XmlText) {
+            XmlText rhsXMLText = (XmlText) rhsXml;
+            return lhsXMLText.getTextValue().equals(rhsXMLText.getTextValue());
+        }
+        if (lhsXMLText.getType() == PredefinedTypes.TYPE_XML_NEVER && rhsXml instanceof XmlSequence &&
+                ((XmlSequence) rhsXml).getChildrenList().isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Deep equality check for XML Comment.
+     *
+     * @param lhsXMLComment The XML comment on the left hand side
+     * @param rhsXml The XML on the right hand side
+     * @return True if the XML values are equal, else false.
+     */
+    private static boolean isEqual(XmlComment lhsXMLComment, XmlValue rhsXml) {
+        if (lhsXMLComment == rhsXml) {
+            return true;
+        }
+        if (rhsXml instanceof XmlComment) {
+            XmlComment rhXMLComment = (XmlComment) rhsXml;
+            return lhsXMLComment.getTextValue().equals(rhXMLComment.getTextValue());
+        }
+        return false;
+    }
+
+    /**
+     * Deep equality check for XML Processing Instruction.
+     *
+     * @param lhsXMLPi The XML processing instruction on the left hand side
+     * @param rhsXml The XML on the right hand side
+     * @return True if the XML values are equal, else false.
+     */
+    private static boolean isEqual(XmlPi lhsXMLPi, XmlValue rhsXml) {
+        if (lhsXMLPi == rhsXml) {
+            return true;
+        }
+        if (rhsXml instanceof XmlPi) {
+            XmlPi rhsXMLPi = (XmlPi) rhsXml;
+            return lhsXMLPi.getData().equals(rhsXMLPi.getData()) &&
+                    lhsXMLPi.getTarget().equals(rhsXMLPi.getTarget());
         }
         return false;
     }

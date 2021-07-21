@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.tools.text.LinePosition;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +69,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
             }
         } else if (this.withinParameterContext(context, node)) {
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 /*
                 Covers the Following
                 (1) function(mod:<cursor>)
@@ -94,11 +93,10 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
     }
 
     private boolean withinReturnTypeDescContext(BallerinaCompletionContext context, FunctionSignatureNode node) {
-        Position cursor = context.getCursorPosition();
-        LinePosition closeParanPosition = node.closeParenToken().lineRange().endLine();
+        int cursor = context.getCursorPositionInTree();
+        Token closeParenToken = node.closeParenToken();
 
-        return (closeParanPosition.line() == cursor.getLine() && closeParanPosition.offset() < cursor.getCharacter())
-                || closeParanPosition.line() < cursor.getLine();
+        return cursor > closeParenToken.textRange().startOffset();
     }
 
     private boolean withinParameterContext(BallerinaCompletionContext context, FunctionSignatureNode node) {

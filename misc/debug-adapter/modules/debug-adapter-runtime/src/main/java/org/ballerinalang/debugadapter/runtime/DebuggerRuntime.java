@@ -18,11 +18,17 @@
 
 package org.ballerinalang.debugadapter.runtime;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -39,10 +45,10 @@ import java.util.function.Function;
  * <p>
  * These utils methods must be class-loaded into the program JVM to evaluate
  * <ul>
- *  <li> function
- *  <li> object method
- *  <li> remote call action
- *  <li> wait action
+ *  <li> functions
+ *  <li> object methods
+ *  <li> remote call actions
+ *  <li> wait actions
  *  </ul>
  * invocations using the debugger expression evaluation engine.
  *
@@ -137,6 +143,41 @@ public class DebuggerRuntime {
         } catch (Exception e) {
             throw new BallerinaException("invocation failed: " + e.getMessage());
         }
+    }
+
+    /**
+     * Creates and returns a new ballerina object instance.
+     *
+     * @param pkgOrg         org name of the module
+     * @param pkgName        package name of the module
+     * @param pkgVersion     package version of the module
+     * @param objectTypeName type name of the class
+     * @param fieldValues    field values
+     * @return Ballerina object instance
+     */
+    public static Object createObjectValue(String pkgOrg, String pkgName, String pkgVersion, String objectTypeName,
+                                           Object... fieldValues) {
+        Module packageId = new Module(pkgOrg, pkgName, pkgVersion);
+        return ValueCreator.createObjectValue(packageId, objectTypeName, fieldValues);
+    }
+
+    /**
+     * Initializes and returns a Ballerina array instance with a given element type and the list of members.
+     *
+     * @param arrayElementType element type
+     * @param values           member values
+     * @return Ballerina array instance
+     */
+    public static Object getRestArgArray(Type arrayElementType, BValue... values) {
+        ArrayType arrayType = TypeCreator.createArrayType(arrayElementType);
+        if (values.length == 0) {
+            return ValueCreator.createArrayValue(arrayType);
+        } else if (values.length == 1) {
+            if (values[0].getType().equals(arrayType)) {
+                return values[0];
+            }
+        }
+        return ValueCreator.createArrayValue(values, arrayType);
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {

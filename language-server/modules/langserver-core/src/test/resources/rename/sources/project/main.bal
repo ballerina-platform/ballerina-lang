@@ -11,4 +11,6 @@ public function main() {
             school.addStudent(person);
         }
     }
+
+    int localInt = module1:gInt;
 }

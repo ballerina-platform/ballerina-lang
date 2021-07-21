@@ -666,6 +666,11 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testXmlNeverAndXmlSequenceEquality() {
+        BRunUtil.invoke(result, "testXmlNeverAndXmlSequenceEquality");
+    }
+
+    @Test
     public void testEqualityWithNonAnydataType() {
         BRunUtil.invoke(result, "testEqualityWithNonAnydataType");
     }
@@ -824,6 +829,11 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testTupleJSONEquality() {
+        BRunUtil.invoke(result, "testTupleJSONEquality");
+    }
+
+    @Test
     public void testArrayTupleEqualityNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayTupleEqualityNegative");
         Assert.assertEquals(returns.length, 1);
@@ -882,29 +892,25 @@ public class EqualAndNotEqualOperationsTest {
                 "'PersonWithOptionalId'", 66, 17);
         validateError(resultNegative, i++, "operator '!=' not defined for 'EmployeeWithOptionalId' and " +
                 "'PersonWithOptionalId'", 66, 31);
-        validateError(resultNegative, i++, "operator '==' not defined for '[string,int]' and 'json'", 72, 21);
-        validateError(resultNegative, i++, "operator '!=' not defined for '[string,int]' and 'json'", 72, 31);
-        validateError(resultNegative, i++, "operator '==' not defined for '[string,int][]' and 'json'", 76, 21);
-        validateError(resultNegative, i++, "operator '!=' not defined for '[string,int][]' and 'json'", 76, 31);
-        validateError(resultNegative, i++, "operator '==' not defined for 'map<boolean>' and 'ClosedDept'", 87, 23);
-        validateError(resultNegative, i++, "operator '!=' not defined for 'ClosedDept' and 'map<boolean>'", 87, 35);
-        validateError(resultNegative, i++, "operator '==' not defined for 'int[]' and '[float,float]'", 94, 23);
-        validateError(resultNegative, i++, "operator '!=' not defined for 'int[]' and '[float,float]'", 94, 35);
-        validateError(resultNegative, i++, "operator '==' not defined for 'int[]' and '[int,float]'", 97, 23);
-        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and 'int[]'", 97, 35);
-        validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and '()'", 150, 9);
-        validateError(resultNegative, i++, "operator '==' not defined for 'Foo' and '()'", 156, 9);
+        validateError(resultNegative, i++, "operator '==' not defined for 'map<boolean>' and 'ClosedDept'", 75, 23);
+        validateError(resultNegative, i++, "operator '!=' not defined for 'ClosedDept' and 'map<boolean>'", 75, 35);
+        validateError(resultNegative, i++, "operator '==' not defined for 'int[]' and '[float,float]'", 82, 23);
+        validateError(resultNegative, i++, "operator '!=' not defined for 'int[]' and '[float,float]'", 82, 35);
+        validateError(resultNegative, i++, "operator '==' not defined for 'int[]' and '[int,float]'", 85, 23);
+        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and 'int[]'", 85, 35);
+        validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and '()'", 138, 9);
+        validateError(resultNegative, i++, "operator '==' not defined for 'Foo' and '()'", 144, 9);
         validateError(resultNegative, i++, "operator '==' not defined for 'function () returns (string)' and '()'",
-                      162, 9);
+                      150, 9);
         validateError(resultNegative, i++, "operator '!=' not defined for 'readonly' and 'map<int>'",
-                180, 12);
-        validateError(resultNegative, i++, "operator '==' not defined for '[int,map<int>]' and '[int,float]'", 191,
+                168, 12);
+        validateError(resultNegative, i++, "operator '==' not defined for '[int,map<int>]' and '[int,float]'", 179,
                 23);
-        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and '[int,map<int>]'", 191,
+        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and '[int,map<int>]'", 179,
                 35);
-        validateError(resultNegative, i++, "operator '==' not defined for 'MyObject' and '()'", 194,
+        validateError(resultNegative, i++, "operator '==' not defined for 'MyObject' and '()'", 182,
                 15);
-        validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and '()'", 194,
+        validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and '()'", 182,
                 30);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }

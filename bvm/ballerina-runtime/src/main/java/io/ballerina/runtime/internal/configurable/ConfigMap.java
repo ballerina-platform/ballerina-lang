@@ -27,19 +27,19 @@ import java.util.Map;
  * @since 2.0.0
  */
 public class ConfigMap {
-    private static Map<VariableKey, Object> configurableMap = new HashMap<>();
+    private static Map<VariableKey, ConfigValue> configurableMap = new HashMap<>();
 
     private ConfigMap(){}
 
     public static Object get(VariableKey key) {
-        return configurableMap.get(key);
+        return configurableMap.get(key).getValue();
     }
 
     public static boolean containsKey(VariableKey key) {
         return configurableMap.containsKey(key);
     }
 
-    public static void setConfigurableMap(Map<VariableKey, Object> configurableMap) {
+    public static void setConfigurableMap(Map<VariableKey, ConfigValue> configurableMap) {
         ConfigMap.configurableMap = configurableMap;
     }
 }
