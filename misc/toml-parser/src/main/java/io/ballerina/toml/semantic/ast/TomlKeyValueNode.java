@@ -68,4 +68,9 @@ public class TomlKeyValueNode extends TopLevelNode {
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
     }
+
+    @Override
+    public Object toNativeObject() {
+        return value.toNativeValue();
+    }
 }
