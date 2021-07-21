@@ -133,9 +133,9 @@ public class SymbolFactory {
                     if (Symbols.isFlagOn(symbol.flags, Flags.RESOURCE)) {
                         return createResourceMethodSymbol((BInvokableSymbol) symbol);
                     }
-                    return createMethodSymbol((BInvokableSymbol) symbol);
+                    return createMethodSymbol((BInvokableSymbol) symbol, name);
                 }
-                return createFunctionSymbol((BInvokableSymbol) symbol, name, false);
+                return createFunctionSymbol((BInvokableSymbol) symbol, symbol.getOriginalName().getValue());
             }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
@@ -213,13 +213,10 @@ public class SymbolFactory {
      * Create Function Symbol.
      *
      * @param invokableSymbol {@link BInvokableSymbol} to convert
-     * @param name                symbol name
-     * @param replaceOriginalName whether to replace the original name with the given name
+     * @param name            symbol name
      * @return {@link Symbol}     generated
      */
-    public BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol,
-                                                        String name,
-                                                        boolean replaceOriginalName) {
+    public BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, invokableSymbol, this.context);
         boolean isResourceMethod = isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
@@ -253,7 +250,6 @@ public class SymbolFactory {
 
         return builder.withTypeDescriptor((FunctionTypeSymbol) typesFactory
                 .getTypeDescriptor(invokableSymbol.type, invokableSymbol.type.tsymbol, true))
-                .setReplaceOriginalName(replaceOriginalName)
                 .build();
     }
 
@@ -266,7 +262,7 @@ public class SymbolFactory {
      */
     public BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol, String name) {
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(invokableSymbol.type);
-        BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name, false);
+        BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name);
         if (typeDescriptor.typeKind() == TypeDescKind.FUNCTION) {
             return new BallerinaMethodSymbol(functionSymbol, invokableSymbol, this.context);
         }
@@ -294,7 +290,7 @@ public class SymbolFactory {
     public BallerinaResourceMethodSymbol createResourceMethodSymbol(BInvokableSymbol invokableSymbol) {
         String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(invokableSymbol.type);
-        BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name, true);
+        BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name);
 
         if (typeDescriptor.typeKind() == TypeDescKind.FUNCTION) {
             return new BallerinaResourceMethodSymbol(functionSymbol, invokableSymbol, this.context);
@@ -379,7 +375,7 @@ public class SymbolFactory {
         if (symbol == null) {
             return null;
         }
-        String name = symbol.getName().getValue().isBlank() ? null : symbol.getName().getValue();
+        String name = symbol.getOriginalName().getValue().isBlank() ? null : symbol.getOriginalName().getValue();
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(symbol.getType());
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
@@ -529,8 +525,9 @@ public class SymbolFactory {
      */
     public BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
         BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
-                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol,
-                                                                      this.context);
+                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.getOriginalName().getValue(),
+                        symbol,
+                        this.context);
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }

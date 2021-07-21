@@ -49,8 +49,8 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
 
     protected BallerinaFunctionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
                                       FunctionTypeSymbol typeDescriptor, BInvokableSymbol invokableSymbol,
-                                      CompilerContext context, boolean replaceOriginalName) {
-        super(name, SymbolKind.FUNCTION, invokableSymbol, context, replaceOriginalName);
+                                      CompilerContext context) {
+        super(name, SymbolKind.FUNCTION, invokableSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
         this.docAttachment = getDocAttachment(invokableSymbol);
@@ -140,8 +140,8 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         @Override
         public BallerinaFunctionSymbol build() {
             return new BallerinaFunctionSymbol(this.name, this.qualifiers, this.annots,
-                                               this.typeDescriptor, (BInvokableSymbol) this.bSymbol,
-                                               this.context, this.replaceOriginalName);
+                    this.typeDescriptor, (BInvokableSymbol) this.bSymbol,
+                    this.context);
         }
     }
 }

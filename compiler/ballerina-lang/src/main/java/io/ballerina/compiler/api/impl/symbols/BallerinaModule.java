@@ -68,7 +68,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
     private ModuleID id;
 
     protected BallerinaModule(CompilerContext context, String name, BPackageSymbol packageSymbol) {
-        super(name, SymbolKind.MODULE, packageSymbol, context, true);
+        super(name, SymbolKind.MODULE, packageSymbol, context);
         this.packageSymbol = packageSymbol;
     }
 
@@ -108,9 +108,8 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
                     && scopeEntry.symbol.kind == org.ballerinalang.model.symbols.SymbolKind.FUNCTION
                     && isFlagOn(scopeEntry.symbol.flags, Flags.PUBLIC)
                     && scopeEntry.symbol.origin == COMPILED_SOURCE) {
-                String funcName = scopeEntry.symbol.getName().getValue();
-                functions.add(symbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol,
-                                                                 funcName, false));
+                String funcName = scopeEntry.symbol.getOriginalName().getValue();
+                functions.add(symbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol, funcName));
             }
         }
 
