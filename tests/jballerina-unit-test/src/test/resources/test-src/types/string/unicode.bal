@@ -43,6 +43,27 @@ function testUnicode() {
     assertEquality(s7.length(), 1);
     assertEquality(bArray.length(), 1);
     assertEquality(bArray.toString(), "[65]");
+
+    // Test NumericEscape Escaping
+    string s11 = "\\u{61}";
+    string s12 = "\\\u{61}";
+    string s13 = "\\\\u{61}";
+    string s14 = "\\\\\u{61}pp\\\u{6C}e";
+    string s15 = "\\\\u{61}pp\\\u{6C}e";
+    string s16 = "\\\\u{61}pp\\\\u{6C}e";
+    string s17 = "A\\u{61}\u{42}BE";
+    string s18 = "\\" + "u{61}";
+    string s19 = "\\u{D800}"; // no error for \u{D800} as it is escaped
+    
+    assertEquality(s11, "\\u{61}");
+    assertEquality(s12, "\\a");
+    assertEquality(s13, "\\\\u{61}");
+    assertEquality(s14, "\\\\app\\le");
+    assertEquality(s15, "\\\\u{61}pp\\le");
+    assertEquality(s16, "\\\\u{61}pp\\\\u{6C}e");
+    assertEquality(s17, "A\\u{61}BBE");
+    assertEquality(s18, s11);
+    assertEquality(s19, "\\u{D800}");
 }
 
 function assertEquality(anydata actual, anydata expected) {

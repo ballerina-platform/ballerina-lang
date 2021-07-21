@@ -5263,23 +5263,28 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
             Location pos = getPosition(literal);
             Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
-            int position = 0;
-            while (matcher.find(position)) {
-                String hexStringVal = matcher.group(1);
-                int hexDecimalVal = Integer.parseInt(hexStringVal, 16);
-                if ((hexDecimalVal >= Constants.MIN_UNICODE && hexDecimalVal <= Constants.MIDDLE_LIMIT_UNICODE)
-                        || hexDecimalVal > Constants.MAX_UNICODE) {
-                    String hexStringWithBraces = matcher.group(0);
-                    int offset = text.indexOf(hexStringWithBraces) + 1;
-                    dlog.error(new BLangDiagnosticLocation(currentCompUnitName,
-                                    pos.lineRange().startLine().line(),
-                                    pos.lineRange().endLine().line(),
-                                    pos.lineRange().startLine().offset() + offset,
-                                    pos.lineRange().startLine().offset() + offset + hexStringWithBraces.length()),
-                               DiagnosticErrorCode.INVALID_UNICODE, hexStringWithBraces);
+            while (matcher.find()) {
+                String leadingBackSlashes = matcher.group(1);
+                if (IdentifierUtils.isEscapedNumericEscape(leadingBackSlashes)) {
+                    // e.g. \\u{61}, \\\\u{61}
+                    continue;
                 }
-                position = matcher.end();
-                matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
+
+                String hexCodePoint = matcher.group(2);
+                int decimalCodePoint = Integer.parseInt(hexCodePoint, 16);
+
+                if ((decimalCodePoint >= Constants.MIN_UNICODE && decimalCodePoint <= Constants.MIDDLE_LIMIT_UNICODE)
+                        || decimalCodePoint > Constants.MAX_UNICODE) {
+
+                    int offset = matcher.end(1) + 1;
+                    String numericEscape = "\\u{" + hexCodePoint + "}";
+                    BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
+                            pos.lineRange().startLine().line(),
+                            pos.lineRange().endLine().line(),
+                            pos.lineRange().startLine().offset() + offset,
+                            pos.lineRange().startLine().offset() + offset + numericEscape.length());
+                    dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, numericEscape);
+                }
             }
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
