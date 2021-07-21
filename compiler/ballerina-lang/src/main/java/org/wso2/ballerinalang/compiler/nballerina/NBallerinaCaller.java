@@ -1,16 +1,17 @@
 package org.wso2.ballerinalang.compiler.nballerina;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.FutureValue;
-import io.ballerina.runtime.internal.values.MapValue;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -78,8 +79,8 @@ public class NBallerinaCaller {
             Class<?> c = cl.loadClass("wso2.nballerina$0046nback.0_1_0.nback");
             //Method m = c.getMethod("compileModule", Strand.class, BObject.class, Boolean.TYPE,
             //       Object.class, Boolean.TYPE);
-            Method m = c.getMethod("compileModuleJBal", Strand.class, MapValue.class, Boolean.TYPE,
-                    Object.class, Boolean.TYPE);
+            Method m = c.getMethod("compileModuleJBal", Strand.class, ArrayValue.class, Boolean.TYPE,
+                    Object.class, Boolean.TYPE, BString.class, Boolean.TYPE);
 
             Class<?> config = cl.loadClass("wso2.nballerina.0_1_0.$ConfigurationMapper");
             Method configMethod = config.getMethod("$configureInit", String[].class,
@@ -114,14 +115,15 @@ public class NBallerinaCaller {
                 }
             };
 
-            Object bir = modGenerator.genMod(pkgNode);
+            JNModule jnModule = modGenerator.genMod(pkgNode);
 
             Scheduler scheduler1 = new Scheduler(false);
             Scheduler scheduler2 = new Scheduler(false);
 
             Function<Object[], Object> func = objects -> {
                 try {
-                    return m.invoke(null, objects[0], bir, true, new BmpStringValue("out.ll"), true);
+                    return m.invoke(null, objects[0], jnModule.getCodeArray(), true,
+                            jnModule.getFuncDefsArray(), true, new BmpStringValue("out.ll"), true);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
                     throw new BallerinaException("Error invoking nBallerina backend", targetException);
