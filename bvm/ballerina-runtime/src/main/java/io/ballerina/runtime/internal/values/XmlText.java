@@ -122,8 +122,8 @@ public class XmlText extends XmlNonElementItem {
 
         }
 
-        if (this.getType() == PredefinedTypes.TYPE_XML_NEVER && obj instanceof XmlSequence &&
-                ((XmlSequence) obj).getChildrenList().isEmpty()) {
+        if (this.type == PredefinedTypes.TYPE_XML_NEVER && obj instanceof XmlSequence &&
+                ((XmlSequence) obj).children.isEmpty()) {
             return true;
         }
         return false;
