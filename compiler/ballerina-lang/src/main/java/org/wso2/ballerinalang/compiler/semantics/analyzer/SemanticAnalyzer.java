@@ -2237,9 +2237,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
 
         this.narrowedTypeInfo = new HashMap<>();
-        resetNotCompletedNormally();
 
         analyzeStmt(ifNode.body, ifEnv);
+        boolean ifCompletionStatus = this.notCompletedNormally;
+        resetNotCompletedNormally();
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = this.narrowedTypeInfo;
@@ -2249,16 +2250,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             prevNarrowedTypeInfo.putAll(this.narrowedTypeInfo);
         }
 
-        if (ifNode.elseStmt == null && notCompletedNormally) {
+        if (ifNode.elseStmt == null && ifCompletionStatus) {
             env = typeNarrower.evaluateFalsityForSingleIf(ifNode.expr, env);
+            this.notCompletedNormally = ifCompletionStatus;
         }
 
         if (ifNode.elseStmt != null) {
             SymbolEnv elseEnv = typeNarrower.evaluateFalsity(ifNode.expr, ifNode.elseStmt, env);
             analyzeStmt(ifNode.elseStmt, elseEnv);
+            this.notCompletedNormally = ifCompletionStatus && this.notCompletedNormally;
         }
         this.narrowedTypeInfo = prevNarrowedTypeInfo;
-        resetNotCompletedNormally();
     }
 
     private void resetNotCompletedNormally() {
