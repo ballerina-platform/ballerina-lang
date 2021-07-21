@@ -6,17 +6,6 @@
   "source": "expression_context/source/typecast_expr_ctx_source2.bal",
   "items": [
     {
-      "label": "'error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
-      },
-      "sortText": "L",
-      "insertText": "'error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ErrorName",
       "kind": "Event",
       "detail": "Error",

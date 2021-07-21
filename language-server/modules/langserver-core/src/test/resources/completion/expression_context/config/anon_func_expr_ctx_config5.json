@@ -6,17 +6,6 @@
   "source": "expression_context/source/anon_func_expr_ctx_source5.bal",
   "items": [
     {
-      "label": "'error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
-      },
-      "sortText": "BL",
-      "insertText": "'error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",

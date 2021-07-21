@@ -14,17 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe type parameter is for the error detail type. It's constrained to Cloneable type."
-      },
-      "sortText": "BL",
-      "insertText": "'error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "MyType",
       "kind": "TypeParameter",
       "detail": "String",

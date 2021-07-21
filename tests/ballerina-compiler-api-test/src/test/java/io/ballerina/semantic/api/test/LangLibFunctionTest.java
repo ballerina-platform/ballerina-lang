@@ -162,10 +162,10 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), ARRAY);
 
-        List<String> expFunctions = List.of("length", "iterator", "enumerate", "'map", "forEach", "filter",
-                                            "reduce", "slice", "remove", "removeAll", "setLength", "reverse",
-                                            "sort", "pop", "push", "shift", "unshift", "toString",
-                                            "toBalString", "toStream", "ensureType");
+        List<String> expFunctions = List.of("length", "iterator", "enumerate", "map", "forEach", "filter",
+                "reduce", "slice", "remove", "removeAll", "setLength", "reverse",
+                "sort", "pop", "push", "shift", "unshift", "toString",
+                "toBalString", "toStream", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -176,11 +176,11 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), MAP);
 
-        List<String> expFunctions = List.of("length", "iterator", "get", "entries", "'map", "forEach", "filter",
-                                            "reduce", "removeIfHasKey", "remove", "removeAll", "hasKey", "keys",
-                                            "toArray", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
-                                            "toString", "toBalString", "toJson", "toJsonString", "fromJsonWithType",
-                                            "mergeJson", "ensureType");
+        List<String> expFunctions = List.of("length", "iterator", "get", "entries", "map", "forEach", "filter",
+                "reduce", "removeIfHasKey", "remove", "removeAll", "hasKey", "keys",
+                "toArray", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
+                "toString", "toBalString", "toJson", "toJsonString", "fromJsonWithType",
+                "mergeJson", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -195,10 +195,10 @@ public class LangLibFunctionTest {
 
     @DataProvider(name = "XMLInfoProvider")
     public Object[][] getXMLInfo() {
-        List<String> expFunctions = List.of("length", "iterator", "forEach", "'map", "filter", "get", "slice", "strip",
-                                            "elements", "children", "elementChildren", "clone", "cloneReadOnly",
-                                            "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
-                                            "toJsonString", "ensureType", "text", "data");
+        List<String> expFunctions = List.of("length", "iterator", "forEach", "map", "filter", "get", "slice", "strip",
+                "elements", "children", "elementChildren", "clone", "cloneReadOnly",
+                "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
+                "toJsonString", "ensureType", "text", "data");
 
 //        List<String> additionalFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes");
 
@@ -237,11 +237,11 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), RECORD);
 
-        List<String> expFunctions = List.of("length", "iterator", "get", "entries", "'map", "forEach", "filter",
-                                            "reduce", "removeIfHasKey", "remove", "removeAll", "hasKey", "keys",
-                                            "toArray", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
-                                            "toString", "toBalString", "toJson", "toJsonString", "fromJsonWithType",
-                                            "mergeJson", "ensureType");
+        List<String> expFunctions = List.of("length", "iterator", "get", "entries", "map", "forEach", "filter",
+                "reduce", "removeIfHasKey", "remove", "removeAll", "hasKey", "keys",
+                "toArray", "clone", "cloneReadOnly", "cloneWithType", "isReadOnly",
+                "toString", "toBalString", "toJson", "toJsonString", "fromJsonWithType",
+                "mergeJson", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -303,8 +303,8 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), STREAM);
 
-        List<String> expFunctions = List.of("filter", "next", "'map", "reduce", "forEach", "iterator", "close",
-                                            "toString", "toBalString", "ensureType");
+        List<String> expFunctions = List.of("filter", "next", "map", "reduce", "forEach", "iterator", "close",
+                "toString", "toBalString", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -319,9 +319,9 @@ public class LangLibFunctionTest {
 
     @DataProvider(name = "TableInfoProvider")
     public Object[][] getTableInfo() {
-        List<String> expFunctions = List.of("length", "put", "add", "removeAll", "toArray", "'map", "reduce", "forEach",
-                                            "iterator", "toString", "toBalString", "clone", "cloneReadOnly",
-                                            "cloneWithType", "isReadOnly", "toJson", "toJsonString", "ensureType");
+        List<String> expFunctions = List.of("length", "put", "add", "removeAll", "toArray", "map", "reduce", "forEach",
+                "iterator", "toString", "toBalString", "clone", "cloneReadOnly",
+                "cloneWithType", "isReadOnly", "toJson", "toJsonString", "ensureType");
 
         List<String> additionalFuncs = List.of("get", "remove", "removeIfHasKey", "filter", "hasKey", "keys");
 
@@ -338,11 +338,11 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), INTERSECTION);
 
         List<String> expFunctions = List.of("reduce", "forEach", "shift", "length", "sort", "reverse", "toStream",
-                                            "remove", "push", "filter", "pop", "lastIndexOf", "iterator", "removeAll",
-                                            "setLength", "slice", "enumerate", "unshift", "'map", "indexOf",
-                                            "cloneWithType", "cloneReadOnly", "toBalString", "toJson", "isReadOnly",
-                                            "fromJsonWithType", "mergeJson", "clone", "ensureType", "toString",
-                                            "toJsonString");
+                "remove", "push", "filter", "pop", "lastIndexOf", "iterator", "removeAll",
+                "setLength", "slice", "enumerate", "unshift", "map", "indexOf",
+                "cloneWithType", "cloneReadOnly", "toBalString", "toJson", "isReadOnly",
+                "fromJsonWithType", "mergeJson", "clone", "ensureType", "toString",
+                "toJsonString");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
