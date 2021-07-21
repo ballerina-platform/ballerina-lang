@@ -473,6 +473,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  * @since 1.3.0
  */
 public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
@@ -3436,26 +3437,36 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
-                    int length;
+                    int length = 0;
                     Token literalToken = ((BasicLiteralNode) keyExpr).literalToken();
                     if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        long lengthCheck = Long.parseLong(literalToken.text());
-                        if (lengthCheck > Integer.MAX_VALUE - 10) { // due to the JVM limitations
+                        double lengthCheck = Double.parseDouble(literalToken.text());
+                        if (lengthCheck > MAX_ARRAY_SIZE) {
                             length = 0;
                             dlog.error(((Node) literalToken).location(),
-                                    DiagnosticErrorCode.GREATER_THAN_2147483647_ARRAY_SIZES_NOT_YET_SUPPORTED);
+                                    DiagnosticErrorCode.GREATER_THAN_SIGNED_INT32_MAX_ARRAY_SIZES_NOT_YET_SUPPORTED);
                         } else {
                             length = (int) lengthCheck;
                         }
                         sizes.add(new BLangLiteral(length, symTable.intType));
                     } else {
-                        long lengthCheck = Long.parseLong(literalToken.text(), 16);
-                        if (lengthCheck > Integer.MAX_VALUE - 10) { // due to the JVM limitations
-                            length = 0;
+                        int textLen = literalToken.text().length();
+                        boolean isIntOverflow = false;
+                        for (int i = 2; i < textLen; i++) {
+                            if (textLen - i > 8) {
+                                String s = literalToken.text().substring(i, i + 1);
+                                if (!s.equals("0")) {
+                                    isIntOverflow = true;
+                                    break;
+                                }
+                            } else {
+                                length = Integer.parseInt(literalToken.text().substring(2), 16);
+                                break;
+                            }
+                        }
+                        if (isIntOverflow || length > MAX_ARRAY_SIZE) {
                             dlog.error(((Node) literalToken).location(),
-                                    DiagnosticErrorCode.GREATER_THAN_2147483647_ARRAY_SIZES_NOT_YET_SUPPORTED);
-                        } else {
-                            length = (int) lengthCheck;
+                                    DiagnosticErrorCode.GREATER_THAN_SIGNED_INT32_MAX_ARRAY_SIZES_NOT_YET_SUPPORTED);
                         }
                         sizes.add(new BLangLiteral(length, symTable.intType));
                     }
