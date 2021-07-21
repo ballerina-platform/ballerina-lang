@@ -543,15 +543,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
-
-            boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
-                    funcNode.symbol.type.getReturnType().isNullable();
+            boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
+                            (funcNode.symbol.type.getReturnType());
+            boolean isNilableReturn = funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!isNeverOrNilableReturn && !this.statementReturns) {
+            if (!isNilableReturn && !isNeverReturn && !this.statementReturns) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
+            } else if (isNeverReturn && !this.statementReturns) {
+                this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
         }
         this.returnTypes.pop();
@@ -2769,6 +2771,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.checkStatementExecutionValidity(exprStmtNode);
         analyzeExpr(exprStmtNode.expr);
         validateExprStatementExpression(exprStmtNode);
+        if (exprStmtNode.expr.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) exprStmtNode.expr;
+            if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(invocation.getBType())) {
+                this.statementReturns = true;
+            }
+        }
     }
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
