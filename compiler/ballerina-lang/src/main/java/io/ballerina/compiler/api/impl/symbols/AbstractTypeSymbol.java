@@ -63,6 +63,11 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
+    public Optional<String> getOriginalName() {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<ModuleSymbol> getModule() {
         return Optional.empty();
     }

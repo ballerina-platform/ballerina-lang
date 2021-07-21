@@ -36,6 +36,13 @@ public interface Symbol {
     Optional<String> getName();
 
     /**
+     * Retrieves the original name of the symbol if it is associated with an identifier.
+     *
+     * @return The name of the symbol if applicable
+     */
+    Optional<String> getOriginalName();
+
+    /**
      * Retrieves the symbol of the module this symbol belongs to if the symbol is defined in a module. Type symbols will
      * typically return empty except for {@link TypeReferenceTypeSymbol}.
      *

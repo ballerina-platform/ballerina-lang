@@ -43,6 +43,11 @@ public class BallerinaIntUnsigned16TypeSymbol extends AbstractTypeSymbol impleme
     }
 
     @Override
+    public Optional<String> getOriginalName() {
+        return Optional.of(Names.STRING_UNSIGNED16);
+    }
+
+    @Override
     public String signature() {
         return "int:" + Names.STRING_UNSIGNED16;
     }

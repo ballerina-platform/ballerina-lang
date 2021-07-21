@@ -17,12 +17,14 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.BallerinaKeywordsProvider;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -46,6 +48,7 @@ public class BallerinaSymbol implements Symbol {
     private final BSymbol internalSymbol;
     private ModuleSymbol module;
     private boolean moduleEvaluated;
+    private String unEscapedName;
 
     protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
         this.name = name;
@@ -66,6 +69,24 @@ public class BallerinaSymbol implements Symbol {
 
     @Override
     public Optional<String> getName() {
+        // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
+        // escaped.
+        if (this.unEscapedName != null) {
+            return Optional.of(this.unEscapedName);
+        }
+        if (getModule().isPresent()) {
+            ModuleID moduleID = getModule().get().id();
+            if (moduleID.moduleName().startsWith("lang.")
+                    && moduleID.orgName().startsWith("ballerina") && this.name.startsWith("'")) {
+                this.unEscapedName = IdentifierUtils.unescapeUnicodeCodepoints(this.name.substring(1));
+                return Optional.ofNullable(this.unEscapedName);
+            }
+        }
+        return Optional.ofNullable(this.name);
+    }
+
+    @Override
+    public Optional<String> getOriginalName() {
         return Optional.ofNullable(this.name);
     }
 
