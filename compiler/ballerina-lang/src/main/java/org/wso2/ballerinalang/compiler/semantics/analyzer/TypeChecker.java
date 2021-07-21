@@ -6055,7 +6055,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         for (BLangExpression requiredArg : iExpr.requiredArgs) {
-            if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(requiredArg.getBType())) {
+            BType argType = requiredArg.getBType();
+            if (argType != null && types.isNeverTypeOrStructureTypeWithARequiredNeverMember(argType)) {
                 dlog.error(requiredArg.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
             }
         }
@@ -6210,7 +6211,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         for (BLangExpression restArg : iExpr.restArgs) {
-            if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restArg.getBType())) {
+            BType argType = restArg.getBType();
+            if (argType != null && types.isNeverTypeOrStructureTypeWithARequiredNeverMember(argType)) {
                 dlog.error(restArg.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
             }
         }
