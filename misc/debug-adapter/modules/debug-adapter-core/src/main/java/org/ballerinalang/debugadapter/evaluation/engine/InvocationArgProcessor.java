@@ -66,6 +66,7 @@ public class InvocationArgProcessor {
 
     public static final String DEFAULTABLE_PARAM_SUFFIX = "[Defaultable]";
     private static final String GET_ELEMENT_TYPE_METHOD = "getElementType";
+    private static final String UNKNOWN = "unknown";
 
     public static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionTypeSymbol
             definition, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
@@ -83,13 +84,13 @@ public class InvocationArgProcessor {
         if (definition.params().isPresent()) {
             for (ParameterSymbol parameterSymbol : definition.params().get()) {
                 params.add(parameterSymbol);
-                remainingParams.put(parameterSymbol.getName().get(), parameterSymbol);
+                remainingParams.put(parameterSymbol.getName().orElse(UNKNOWN), parameterSymbol);
             }
         }
 
         if (definition.restParam().isPresent()) {
             params.add(definition.restParam().get());
-            remainingParams.put(definition.restParam().get().getName().get(), definition.restParam().get());
+            remainingParams.put(definition.restParam().get().getName().orElse(UNKNOWN), definition.restParam().get());
         }
 
         Map<String, Value> argValues = new HashMap<>();
@@ -140,7 +141,7 @@ public class InvocationArgProcessor {
                     restValues.add(jdiArgValue);
                     remainingParams.remove(restParamName);
                 } else {
-                    String parameterName = params.get(paramIndex).getName().get();
+                    String parameterName = params.get(paramIndex).getName().orElse(UNKNOWN);
                     argValues.put(parameterName, jdiArgValue);
                     remainingParams.remove(parameterName);
                     paramIndex++;

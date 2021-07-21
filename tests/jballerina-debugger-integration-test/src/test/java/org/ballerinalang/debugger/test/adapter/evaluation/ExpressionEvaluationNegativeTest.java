@@ -180,7 +180,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         "'int': in 'modules'");
 
         debugTestRunner.assertEvaluationError(context, "printDetails(\"Hi\", 20, ...stringArrayVar, 20);",
-                EvaluationExceptionKind.PREFIX + "Syntax errors found: \n" +
+                EvaluationExceptionKind.PREFIX + "Syntax errors found: " + System.lineSeparator() +
                         "rest arg followed by another arg");
     }
 
