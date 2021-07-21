@@ -32,13 +32,11 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     public BType constraint;
     public final String definitionName;
-    public BTypeSymbol tSymbol;
 
     public BTypeReferenceType(BType constraint, BTypeDefinitionSymbol tsymbol, long flags) {
         super(TYPEREFDESC, tsymbol, flags);
         this.constraint = constraint;
         this.definitionName = tsymbol != null ? tsymbol.getName().getValue() : null;
-        this.tSymbol = tsymbol;
     }
 
     @Override

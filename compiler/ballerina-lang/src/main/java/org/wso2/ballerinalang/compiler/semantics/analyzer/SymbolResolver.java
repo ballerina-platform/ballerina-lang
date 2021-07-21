@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -67,6 +68,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -870,6 +872,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
+//            symTable.errorType = (BErrorType)(((BTypeReferenceType) entry.symbol.type)).constraint;
             symTable.detailType = (BMapType) symTable.errorType.detailType;
             return;
         }
@@ -1105,6 +1108,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             memberTypes.add(resolvedType);
         }
 
+//        BTypeSymbol unionTypeSymbol = Symbols.createTypeDefinitionSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+//                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+//                env.scope.owner, unionTypeNode.pos, SOURCE);
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                 env.scope.owner, unionTypeNode.pos, SOURCE);
@@ -1378,12 +1384,17 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private void validateXMLConstraintType(BType constraintType, Location pos) {
-        if (constraintType.tag == TypeTags.UNION) {
+        int constrainedTag = constraintType.tag;
+        if (constrainedTag == TypeTags.UNION) {
             checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
             return;
         }
 
-        if (!TypeTags.isXMLTypeTag(constraintType.tag) && constraintType.tag != TypeTags.NEVER) {
+        if(constrainedTag == TypeTags.TYPEREFDESC) {
+            constrainedTag = ((BTypeReferenceType)constraintType).constraint.tag;
+        }
+
+        if (!TypeTags.isXMLTypeTag(constrainedTag) && constrainedTag != TypeTags.NEVER) {
             dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintType);
         }
     }
@@ -1486,7 +1497,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         userDefinedTypeNode.symbol = symbol;
-        resultType = symbol.type;
+
+        if (symbol.kind == SymbolKind.TYPE_DEF) {
+            if (((BTypeDefinitionSymbol) symbol).referenceType == null) {
+                BTypeReferenceType refType = new BTypeReferenceType(symbol.type, (BTypeDefinitionSymbol) symbol, symbol.type.flags);
+                ((BTypeDefinitionSymbol) symbol).referenceType = refType;
+                resultType = refType;
+            } else {
+                resultType = ((BTypeDefinitionSymbol) symbol).referenceType;
+            }
+        } else {
+            resultType = symbol.type;
+        }
     }
 
     private ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params, BSymbol varSym) {
@@ -1876,6 +1898,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         Name typeName = names.fromTypeKind(typeKind);
         BSymbol typeSymbol = lookupMemberSymbol(typeNode.pos, symTable.rootScope,
                                                 env, typeName, SymTag.TYPE);
+
         if (typeSymbol == symTable.notFoundSymbol) {
             dlog.error(typeNode.pos, diagCode, typeName);
         }

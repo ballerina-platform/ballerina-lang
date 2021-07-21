@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -437,6 +438,12 @@ public class TypeParamAnalyzer {
                             ((BIntersectionType) actualType).effectiveType, env, resolvedTypes, result);
                 }
                 return;
+            case TypeTags.TYPEREFDESC:
+                if (actualType.tag == TypeTags.TYPEREFDESC) {
+                    findTypeParam(loc, ((BTypeReferenceType) expType).constraint,
+                            ((BTypeReferenceType) actualType).constraint, env, resolvedTypes, result);
+                }
+                return;
         }
     }
 
@@ -753,6 +760,8 @@ public class TypeParamAnalyzer {
                 return new BTypedescType(matchingBoundType, symTable.typeDesc.tsymbol);
             case TypeTags.INTERSECTION:
                 return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
+            case TypeTags.TYPEREFDESC:
+                return getMatchingBoundType(((BTypeReferenceType) expType).constraint, env, resolvedTypes);
             default:
                 return expType;
         }

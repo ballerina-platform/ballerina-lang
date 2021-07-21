@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -674,9 +675,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         List<String> fieldNameList = tableTypeNode.tableType.fieldNameList;
         if (fieldNameList != null) {
+            BType type = constraint.tag != TypeTags.TYPEREFDESC ? constraint :
+                    ((BTypeReferenceType) constraint).constraint;
             typeChecker.validateKeySpecifier(fieldNameList,
-                    constraint.tag != TypeTags.INTERSECTION ? constraint :
-                            ((BIntersectionType) constraint).effectiveType,
+                    type.tag != TypeTags.INTERSECTION ? type :
+                            ((BIntersectionType) type).effectiveType,
                     tableTypeNode.tableKeySpecifier.pos);
         }
     }
@@ -895,6 +898,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return types.isAnydata(type);
             case ARRAY:
                 BType elementType = ((BArrayType) type).eType;
+                if (elementType.tag == TypeTags.TYPEREFDESC) {
+                    elementType = ((BTypeReferenceType) elementType).constraint;
+                }
+
                 if (elementType.tag == TypeTags.INTERSECTION) {
                     elementType = ((BIntersectionType) elementType).getEffectiveType();
                 }

@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -660,6 +661,16 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
+        if (sourceTag == TypeTags.TYPEREFDESC) {
+            return isAssignable(((BTypeReferenceType) source).constraint,
+                    targetTag != TypeTags.TYPEREFDESC ? target :
+                            ((BTypeReferenceType) target).constraint, unresolvedTypes);
+        }
+
+        if (targetTag == TypeTags.TYPEREFDESC) {
+            return isAssignable(source, ((BTypeReferenceType) target).constraint, unresolvedTypes);
+        }
+
         if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
             return isParameterizedTypeAssignable(source, target, unresolvedTypes);
         }
@@ -720,6 +731,14 @@ public class Types {
         if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
             return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
                                 unresolvedTypes);
+        }
+
+        if (targetTag == TypeTags.TYPEREFDESC) {
+            return isAssignable(source,  ((BTypeReferenceType)target).constraint);
+        }
+
+        if (sourceTag == TypeTags.TYPEREFDESC) {
+            return isAssignable(((BTypeReferenceType)source).constraint, target);
         }
 
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
@@ -865,6 +884,7 @@ public class Types {
 
     private boolean isAssignableStreamType(BStreamType sourceStreamType, BStreamType targetStreamType,
                                            Set<TypePair> unresolvedTypes) {
+
         return isAssignable(sourceStreamType.constraint, targetStreamType.constraint, unresolvedTypes)
                 && isAssignable(sourceStreamType.completionType, targetStreamType.completionType, unresolvedTypes);
     }
@@ -944,6 +964,8 @@ public class Types {
                 break;
             case TypeTags.INTERSECTION:
                 return getTableConstraintField(((BIntersectionType) constraintType).effectiveType, fieldName);
+            case TypeTags.TYPEREFDESC:
+                return getTableConstraintField(((BTypeReferenceType) constraintType).constraint, fieldName);
         }
 
         return null;
@@ -1343,6 +1365,10 @@ public class Types {
             case TypeTags.INTERSECTION:
                 return isSelectivelyImmutableType(((BIntersectionType) type).effectiveType, unresolvedTypes,
                                                   forceCheck);
+            case TypeTags.TYPEREFDESC:
+                return isSelectivelyImmutableType(((BTypeReferenceType) type).constraint, unresolvedTypes,
+                        forceCheck);
+
         }
         return false;
     }
@@ -1968,6 +1994,9 @@ public class Types {
     }
 
     public BType getTypeWithEffectiveIntersectionTypes(BType type) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            type = ((BTypeReferenceType) type).constraint;
+        }
         if (type.tag == TypeTags.INTERSECTION) {
             type = ((BIntersectionType) type).effectiveType;
         }
@@ -2360,6 +2389,8 @@ public class Types {
 
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
+            case TypeTags.TYPEREFDESC:
+                return isValidErrorDetailType(((BTypeReferenceType) detailType).constraint);
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 return isAssignable(detailType, symTable.detailType);
@@ -2399,7 +2430,8 @@ public class Types {
                 case TypeTags.STRING:
                 case TypeTags.BOOLEAN:
                     return t.tag == s.tag
-                            && (TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s));
+                            && ((TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s)) ||
+                            (t instanceof BTypeReferenceType || s instanceof BTypeReferenceType));
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                     return t.tag == s.tag && hasSameReadonlyFlag(s, t)
@@ -3250,6 +3282,14 @@ public class Types {
                 case TypeTags.UNION:
                     memTypes.addAll(getEffectiveMemberTypes((BUnionType) memberType));
                     break;
+                case TypeTags.TYPEREFDESC:
+                    BType constraint = ((BTypeReferenceType) memberType).constraint;
+                    if (constraint.tag == TypeTags.UNION) {
+                        memTypes.addAll(getEffectiveMemberTypes((BUnionType) constraint));
+                        continue;
+                    }
+                    memTypes.add(constraint);
+                    break;
                 default:
                     memTypes.add(memberType);
                     break;
@@ -3259,22 +3299,32 @@ public class Types {
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
-        if (targetType.tag == TypeTags.FINITE) {
+        BType expType = targetType.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) targetType).constraint : targetType;
+        if (expType.tag == TypeTags.FINITE) {
             return finiteType.getValueSpace().stream()
-                    .allMatch(expression -> isAssignableToFiniteType(targetType, (BLangLiteral) expression));
+                    .allMatch(expression -> isAssignableToFiniteType(expType, (BLangLiteral) expression));
         }
 
-        if (targetType.tag == TypeTags.UNION) {
-            List<BType> unionMemberTypes = getAllTypes(targetType);
+        if (expType.tag == TypeTags.UNION) {
+            List<BType> unionMemberTypes = getAllTypes(expType);
             return finiteType.getValueSpace().stream()
-                    .allMatch(valueExpr ->  unionMemberTypes.stream()
-                            .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
+                    .allMatch(valueExpr -> {
+                        for (BType targetMemType : unionMemberTypes) {
+                            if (targetMemType.tag == TypeTags.TYPEREFDESC) {
+                                targetMemType = ((BTypeReferenceType) targetMemType).constraint;
+                            }
+                            if (targetMemType.tag == TypeTags.FINITE ?
                                     isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                    isAssignable(valueExpr.getBType(), targetType, unresolvedTypes)));
+                                    isAssignable(valueExpr.getBType(), expType, unresolvedTypes)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
         }
 
         return finiteType.getValueSpace().stream()
-                .allMatch(expression -> isAssignable(expression.getBType(), targetType, unresolvedTypes));
+                .allMatch(expression -> isAssignable(expression.getBType(), expType, unresolvedTypes));
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {

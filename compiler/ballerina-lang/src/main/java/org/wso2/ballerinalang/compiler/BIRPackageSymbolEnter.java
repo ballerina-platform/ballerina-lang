@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -78,6 +79,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -111,6 +113,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
+import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -136,7 +139,7 @@ public class BIRPackageSymbolEnter {
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
-    private static final int SERVICE_TYPE_TAG = 52;
+    private static final int SERVICE_TYPE_TAG = 53;
 
     private static final CompilerContext.Key<BIRPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
@@ -474,20 +477,22 @@ public class BIRPackageSymbolEnter {
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
         BTypeSymbol symbol;
-        if (isLabel) {
-            symbol = type.tsymbol.createLabelSymbol();
-        } else {
+
+        if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             symbol = type.tsymbol;
+            symbol.name = names.fromString(typeDefName);
+            symbol.type = type;
+            symbol.pkgID = this.env.pkgSymbol.pkgID;
+            symbol.flags = flags;
+            symbol.origin = toOrigin(origin);
+            symbol.pos = pos;
+        } else {
+             symbol =  Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
+                    names.fromString(typeDefName),  this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
+                    pos, SOURCE);
         }
 
         defineMarkDownDocAttachment(symbol, docBytes);
-
-        symbol.name = names.fromString(typeDefName);
-        symbol.type = type;
-        symbol.pkgID = this.env.pkgSymbol.pkgID;
-        symbol.flags = flags;
-        symbol.origin = toOrigin(origin);
-        symbol.pos = pos;
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);
@@ -855,6 +860,8 @@ public class BIRPackageSymbolEnter {
                 ConstrainedType constrainedType = (ConstrainedType) type;
                 populateParameterizedType((BType) constrainedType.getConstraint(), paramsMap, invSymbol);
                 break;
+            case TypeTags.TYPEREFDESC:
+                break;
             case TypeTags.XML:
                 populateParameterizedType(((BXMLType) type).constraint, paramsMap, invSymbol);
                 break;
@@ -912,6 +919,7 @@ public class BIRPackageSymbolEnter {
     private String getStringCPEntryValue(DataInputStream dataInStream) throws IOException {
         int pkgNameCPIndex = dataInStream.readInt();
         StringCPEntry stringCPEntry = (StringCPEntry) this.env.constantPool[pkgNameCPIndex];
+
         return stringCPEntry.value;
     }
 
@@ -1116,6 +1124,35 @@ public class BIRPackageSymbolEnter {
                     typedescType.constraint = readTypeFromCp();
                     typedescType.flags = flags;
                     return typedescType;
+                case TypeTags.TYPEREFDESC:
+                    int pkgIndex = inputStream.readInt();
+                    PackageID pkg = getPackageId(pkgIndex);
+
+                    String typeDefName = getStringCPEntryValue(inputStream);
+                    BTypeDefinitionSymbol typeSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_REF,
+                            Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                            names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                            symTable.builtinPos, COMPILED_SOURCE);
+                    typeSymbol.flags |= flags;
+                    typeSymbol.scope = new Scope(typeSymbol);
+                    BTypeReferenceType typeReferenceType = new BTypeReferenceType(null,
+                            typeSymbol, typeSymbol.flags);
+                    typeReferenceType.flags |= flags;
+                    typeSymbol.referenceType = typeReferenceType;
+                    addShapeCP(typeReferenceType, cpI);
+                    compositeStack.push(typeReferenceType);
+                    typeReferenceType.constraint = readTypeFromCp();
+                    typeSymbol.type = typeReferenceType.constraint;
+
+                    Object poppedRefType = compositeStack.pop();
+                    assert poppedRefType == typeReferenceType;
+                    if (pkg.equals(env.pkgSymbol.pkgID)) {
+                        return typeReferenceType;
+                    }
+
+                    SymbolEnv pkgenv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkg));
+                    return symbolResolver.lookupSymbolInMainSpace(pkgenv, names.fromString(typeDefName)).type;
+
                 case TypeTags.PARAMETERIZED_TYPE:
                     BParameterizedType type = new BParameterizedType(null, null, null, name, -1);
                     type.paramValueType = readTypeFromCp();

@@ -48,6 +48,7 @@ public class TypeConstants {
     public static final String ANYDATA_TNAME = "anydata";
     public static final String READONLY_ANYDATA_TNAME = "anydata & readonly";
     public static final String TYPEDESC_TNAME = "typedesc";
+    public static final String TYPEREFERENCE_TNAME = "typereference";
     public static final String NULL_TNAME = "()";
     public static final String NEVER_TNAME = "never";
     public static final String XML_ATTRIBUTES_TNAME = "xml-attributes";

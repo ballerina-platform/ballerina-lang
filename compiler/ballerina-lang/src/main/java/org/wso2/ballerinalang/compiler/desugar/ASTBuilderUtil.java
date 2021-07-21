@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -662,6 +663,8 @@ public class ASTBuilderUtil {
     static BLangListConstructorExpr createListConstructorExpr(Location pos, BType type) {
         if (type.tag == TypeTags.INTERSECTION) {
             type = ((BIntersectionType) type).effectiveType;
+        } else if (type.tag == TypeTags.TYPEREFDESC) {
+            type = ((BTypeReferenceType) type).constraint;
         }
 
         if (type.tag != TypeTags.ARRAY && type.tag != TypeTags.TUPLE) {
