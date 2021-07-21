@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -256,11 +257,7 @@ public class MethodGen {
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
 
-//        try {
-            mv.visitMaxs(0, 0);
-//        } catch (Throwable e) {
-//            e.getMessage();
-//        }
+        mv.visitMaxs(0, 0);
 
         mv.visitEnd();
     }
@@ -369,16 +366,15 @@ public class MethodGen {
             case TypeTags.HANDLE:
             case TypeTags.TYPEDESC:
             case TypeTags.READONLY:
-            case TypeTags.TYPEREFDESC:
                 mv.visitInsn(ACONST_NULL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case JTypeTags.JTYPE:
                 genJDefaultValue(mv, (JType) bType, index);
                 break;
-//            case TypeTags.TYPEREFDESC:
-//                genDefaultValue(mv, ((BTypeReferenceType) bType).constraint, index);
-//                break;
+            case TypeTags.TYPEREFDESC:
+                genDefaultValue(mv, ((BTypeReferenceType) bType).constraint, index);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          String.format("%s", bType));
@@ -581,6 +577,9 @@ public class MethodGen {
                                              BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
             BType bType = localVar.type;
+            if (bType.tag == TypeTags.TYPEREFDESC) {
+                bType = ((BTypeReferenceType) bType).constraint;
+            }
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -678,7 +677,6 @@ public class MethodGen {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-            case TypeTags.TYPEREFDESC:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                                   String.format("L%s;", OBJECT));
                 mv.visitVarInsn(ASTORE, index);
@@ -691,9 +689,9 @@ public class MethodGen {
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldLoad(localVar, mv, index, frameName);
                 break;
-//            case TypeTags.TYPEREFDESC:
-//                generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index, ((BTypeReferenceType) bType).constraint);
-//                break;
+            case TypeTags.TYPEREFDESC:
+                generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index, ((BTypeReferenceType) bType).constraint);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -743,6 +741,9 @@ public class MethodGen {
                                                BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
             BType bType = localVar.type;
+            if (bType.tag == TypeTags.TYPEREFDESC) {
+                bType = ((BTypeReferenceType) bType).constraint;
+            }
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -840,7 +841,6 @@ public class MethodGen {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-            case TypeTags.TYPEREFDESC:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                                   String.format("L%s;", OBJECT));
@@ -853,9 +853,9 @@ public class MethodGen {
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
                 break;
-//            case TypeTags.TYPEREFDESC:
-//                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, ((BTypeReferenceType) bType).constraint);
-//                break;
+            case TypeTags.TYPEREFDESC:
+                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, ((BTypeReferenceType) bType).constraint);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          String.format("%s", bType));
@@ -1045,15 +1045,14 @@ public class MethodGen {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-            case TypeTags.TYPEREFDESC:
                 jvmType = String.format("L%s;", OBJECT);
                 break;
             case JTypeTags.JTYPE:
                 jvmType = InteropMethodGen.getJTypeSignature((JType) bType);
                 break;
-//            case TypeTags.TYPEREFDESC:
-//                jvmType = getJVMTypeSign(((BTypeReferenceType) bType).constraint);
-//                break;
+            case TypeTags.TYPEREFDESC:
+                jvmType = getJVMTypeSign(((BTypeReferenceType) bType).constraint);
+                break;
             default:
                 throw new BLangCompilerException("JVM code generation is not supported for type " +
                         String.format("%s", bType));

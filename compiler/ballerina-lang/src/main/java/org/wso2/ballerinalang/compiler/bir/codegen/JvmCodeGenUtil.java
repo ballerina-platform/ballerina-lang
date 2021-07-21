@@ -181,7 +181,6 @@ public class JvmCodeGenUtil {
                 case TypeTags.JSON:
                 case TypeTags.FINITE:
                 case TypeTags.READONLY:
-//                case TypeTags.TYPEREFDESC:
                     return String.format("L%s;", OBJECT);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -355,7 +354,6 @@ public class JvmCodeGenUtil {
             case TypeTags.FINITE:
             case TypeTags.ANY:
             case TypeTags.READONLY:
-//            case TypeTags.TYPEREFDESC:
                 return String.format("L%s;", OBJECT);
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
@@ -435,8 +433,6 @@ public class JvmCodeGenUtil {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-//            case TypeTags.TYPEREFDESC:
-//                return String.format(")L%s;", OBJECT);
             case TypeTags.OBJECT:
                 return String.format(")L%s;", B_OBJECT);
             case TypeTags.INVOKABLE:

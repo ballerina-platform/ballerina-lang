@@ -634,7 +634,6 @@ class JMethodResolver {
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
-//                    return this.classLoader.loadClass(BTypeReferenceType.class.getCanonicalName()).isAssignableFrom(jType);
                     return isValidReturnBType(jType, ((BTypeReferenceType)bType).constraint, jMethodRequest, visitedSet);
                 default:
                     return false;

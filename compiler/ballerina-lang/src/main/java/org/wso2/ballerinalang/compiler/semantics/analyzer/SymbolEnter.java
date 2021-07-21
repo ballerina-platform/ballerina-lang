@@ -1467,17 +1467,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean label = false;
         if (definedType.tsymbol.name != Names.EMPTY) {
-//            typeDefSymbol = definedType.tsymbol.createLabelSymbol();
-//            label = true;
-
             typeDefSymbol = Symbols.createTypeDefinitionSymbol(definedType.tsymbol.tag, Flags.asMask(typeDefinition.flagSet),
                     names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
                     typeDefinition.pos, SOURCE);
             label = true;
         } else {
-//            typeDefSymbol = Symbols.createTypeDefinitionSymbol(definedType.tsymbol.tag, Flags.asMask(typeDefinition.flagSet),
-//                    names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
-//                    typeDefinition.pos, SOURCE);
             typeDefSymbol = definedType.tsymbol;
         }
 
@@ -3584,14 +3578,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
-//        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.type.tsymbol.scope, pkgEnv);
 
         // Define all the fields
         resolveFields(structureType, structureTypeNode, typeDefEnv);
-
-//        if ((typeDef.symbol.kind == SymbolKind.TYPE_DEF && typeDef.symbol.type.tsymbol.kind != SymbolKind.RECORD)) {
-//            return;
-//        }
 
         if (typeDef.symbol.kind != SymbolKind.RECORD) {
             return;
@@ -3833,7 +3822,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                     continue;
                 }
             } else if (nodeKind == NodeKind.RECORD_TYPE) {
-//                if (((BRecordType) ((BTypeReferenceType)typeDef.symbol.type).constraint).mutableType == null) {
                 if (((BRecordType) typeDef.symbol.type).mutableType == null) {
                     continue;
                 }

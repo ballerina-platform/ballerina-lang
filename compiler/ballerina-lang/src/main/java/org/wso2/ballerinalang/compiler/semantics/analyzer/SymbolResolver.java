@@ -872,7 +872,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
-//            symTable.errorType = (BErrorType)(((BTypeReferenceType) entry.symbol.type)).constraint;
             symTable.detailType = (BMapType) symTable.errorType.detailType;
             return;
         }
@@ -1108,9 +1107,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             memberTypes.add(resolvedType);
         }
 
-//        BTypeSymbol unionTypeSymbol = Symbols.createTypeDefinitionSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-//                Names.EMPTY, env.enclPkg.symbol.pkgID, null,
-//                env.scope.owner, unionTypeNode.pos, SOURCE);
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, env.enclPkg.symbol.pkgID, null,
                 env.scope.owner, unionTypeNode.pos, SOURCE);

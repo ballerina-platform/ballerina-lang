@@ -541,9 +541,6 @@ public class JvmInstructionGen {
         if (ins.jKind == JInsKind.JCAST) {
             JCast castIns = (JCast) ins;
             BType targetType = castIns.targetType;
-//            if(targetType.tag == TypeTags.TYPEREFDESC) {
-//                targetType = ((BTypeReferenceType)castIns.targetType).constraint;
-//            }
             this.loadVar(castIns.rhsOp.variableDcl);
             jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
             this.storeToVar(castIns.lhsOp.variableDcl);
