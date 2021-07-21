@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRAbstractInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
@@ -180,6 +181,7 @@ public class JvmCodeGenUtil {
                 case TypeTags.JSON:
                 case TypeTags.FINITE:
                 case TypeTags.READONLY:
+//                case TypeTags.TYPEREFDESC:
                     return String.format("L%s;", OBJECT);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -205,6 +207,8 @@ public class JvmCodeGenUtil {
                     return String.format("L%s;", HANDLE_VALUE);
                 case JTypeTags.JTYPE:
                     return InteropMethodGen.getJTypeSignature((JType) bType);
+                case TypeTags.TYPEREFDESC:
+                    return getFieldTypeSignature(((BTypeReferenceType)bType).constraint);
                 default:
                     throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
             }
@@ -351,6 +355,7 @@ public class JvmCodeGenUtil {
             case TypeTags.FINITE:
             case TypeTags.ANY:
             case TypeTags.READONLY:
+//            case TypeTags.TYPEREFDESC:
                 return String.format("L%s;", OBJECT);
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
@@ -374,6 +379,8 @@ public class JvmCodeGenUtil {
                 return String.format("L%s;", B_OBJECT);
             case TypeTags.HANDLE:
                 return String.format("L%s;", HANDLE_VALUE);
+            case TypeTags.TYPEREFDESC:
+                return getArgTypeSignature(((BTypeReferenceType)bType).constraint);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          String.format("%s", bType));
@@ -428,13 +435,16 @@ public class JvmCodeGenUtil {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
-                return String.format(")L%s;", OBJECT);
+//            case TypeTags.TYPEREFDESC:
+//                return String.format(")L%s;", OBJECT);
             case TypeTags.OBJECT:
                 return String.format(")L%s;", B_OBJECT);
             case TypeTags.INVOKABLE:
                 return String.format(")L%s;", FUNCTION_POINTER);
             case TypeTags.HANDLE:
                 return String.format(")L%s;", HANDLE_VALUE);
+            case TypeTags.TYPEREFDESC:
+                return generateReturnType(((BTypeReferenceType)bType).constraint);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }

@@ -1320,6 +1320,10 @@ public class JvmTerminatorGen {
             return;
         }
 
+//        if (bType.tag == TypeTags.TYPEREFDESC) {
+//            bType = ((BTypeReferenceType) bType).constraint;
+//        }
+
         switch (bType.tag) {
             case TypeTags.NIL:
             case TypeTags.NEVER:
@@ -1341,6 +1345,7 @@ public class JvmTerminatorGen {
             case TypeTags.FINITE:
             case TypeTags.TYPEDESC:
             case TypeTags.READONLY:
+            case TypeTags.TYPEREFDESC:
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
                 break;

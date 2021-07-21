@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -466,6 +467,12 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TYPEREFDESC:
+                    if (jTypeName.equals(J_OBJECT_TNAME)) {
+                        return true;
+                    }
+                    return isValidParamBType(jType, ((BTypeReferenceType) bType).constraint, isLastParam,
+                            restParamExist);
                 default:
                     return false;
             }
@@ -623,6 +630,12 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TYPEREFDESC:
+                    if (jTypeName.equals(J_OBJECT_TNAME)) {
+                        return true;
+                    }
+//                    return this.classLoader.loadClass(BTypeReferenceType.class.getCanonicalName()).isAssignableFrom(jType);
+                    return isValidReturnBType(jType, ((BTypeReferenceType)bType).constraint, jMethodRequest, visitedSet);
                 default:
                     return false;
             }

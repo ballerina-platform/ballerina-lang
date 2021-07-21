@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -731,6 +732,8 @@ public class JvmCastGen {
                 return targetType.isNullable();
             case TypeTags.FINITE:
                 return targetType.isNullable();
+            case TypeTags.TYPEREFDESC:
+                return isNillable(((BTypeReferenceType)targetType).constraint);
         }
 
         return false;
@@ -836,6 +839,9 @@ public class JvmCastGen {
                     return;
                 case TypeTags.FINITE:
                     generateCheckCastToFiniteType(mv, sourceType, (BFiniteType) targetType);
+                    return;
+                case TypeTags.TYPEREFDESC:
+                    generateCheckCast(mv, sourceType, ((BTypeReferenceType)targetType).constraint, indexMap);
                     return;
                 default:
                     // do the ballerina checkcast
@@ -1264,6 +1270,9 @@ public class JvmCastGen {
 
     private void generateCheckCastToAnyData(MethodVisitor mv, BType sourceType) {
 
+        if(sourceType.tag == TypeTags.TYPEREFDESC) {
+            sourceType = ((BTypeReferenceType)sourceType).constraint;
+        }
         if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.INTERSECTION) {
             checkCast(mv, symbolTable.anydataType);
@@ -1274,7 +1283,9 @@ public class JvmCastGen {
     }
 
     private void generateCheckCastToJSON(MethodVisitor mv, BType sourceType) {
-
+        if (sourceType.tag == TypeTags.TYPEREFDESC) {
+            sourceType = ((BTypeReferenceType)sourceType).constraint;
+        }
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.INTERSECTION ||
@@ -1410,6 +1421,9 @@ public class JvmCastGen {
                 case TypeTags.INTERSECTION:
                     generateCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType);
                     return;
+                case TypeTags.TYPEREFDESC:
+                    generateCast(mv, sourceType, ((BTypeReferenceType) targetType).constraint);
+                    return;
             }
         }
         // cast to the specific java class
@@ -1440,6 +1454,9 @@ public class JvmCastGen {
             case TypeTags.INTERSECTION:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
                         false);
+                break;
+            case TypeTags.TYPEREFDESC:
+                generateCastToInt(mv, ((BTypeReferenceType)sourceType).constraint);
                 break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'",

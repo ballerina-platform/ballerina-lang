@@ -125,6 +125,7 @@ public class JvmConstants {
     public static final String NEVER_TYPE = "io/ballerina/runtime/api/types/NeverType";
     public static final String NULL_TYPE = "io/ballerina/runtime/api/types/NullType";
     public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
+    public static final String REF_TYPE = "io/ballerina/runtime/api/types/TypeReferenceType";
 
 
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";

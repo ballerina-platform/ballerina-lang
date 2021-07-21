@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -1584,6 +1585,9 @@ public class JvmTypeGen {
                 case TypeTags.PARAMETERIZED_TYPE:
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
+                case TypeTags.TYPEREFDESC:
+                    loadType(mv, ((BTypeReferenceType)bType).constraint);
+                    return;
                 default:
                     return;
             }
@@ -2202,6 +2206,8 @@ public class JvmTypeGen {
                 return String.format("L%s;", HANDLE_VALUE);
             case TypeTags.INVOKABLE:
                 return String.format("L%s;", FUNCTION_POINTER);
+            case TypeTags.TYPEREFDESC:
+                return getTypeDesc(((BTypeReferenceType)bType).constraint);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }

@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -342,6 +343,9 @@ public class JvmInstructionGen {
     public void generateVarLoad(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
         BType bType = varDcl.type;
+        if (bType.tag == TypeTags.TYPEREFDESC) {
+            bType = ((BTypeReferenceType) bType).constraint;
+        }
 
         switch (varDcl.kind) {
             case GLOBAL: {
@@ -369,6 +373,10 @@ public class JvmInstructionGen {
             }
         }
 
+        generateVarLoadForType(mv, bType, valueIndex);
+    }
+
+    private void generateVarLoadForType (MethodVisitor mv, BType bType, int valueIndex) {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LLOAD, valueIndex);
             return;
@@ -417,6 +425,9 @@ public class JvmInstructionGen {
             case JTypeTags.JTYPE:
                 generateJVarLoad(mv, (JType) bType, valueIndex);
                 break;
+            case TypeTags.TYPEREFDESC:
+                generateVarLoadForType(mv, ((BTypeReferenceType) bType).constraint, valueIndex);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                         String.format("%s", bType));
@@ -426,7 +437,9 @@ public class JvmInstructionGen {
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
         BType bType = varDcl.type;
-
+        if (bType.tag == TypeTags.TYPEREFDESC) {
+            bType = ((BTypeReferenceType) bType).constraint;
+        }
         if (varDcl.kind == VarKind.GLOBAL) {
             String varName = varDcl.name.value;
             String className = jvmPackageGen.lookupGlobalVarClassName(currentPackageName, varName);
@@ -443,6 +456,10 @@ public class JvmInstructionGen {
             return;
         }
 
+        generateVarStoreForType(mv, bType, valueIndex);
+    }
+
+    private void generateVarStoreForType (MethodVisitor mv, BType bType, int valueIndex) {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LSTORE, valueIndex);
             return;
@@ -489,6 +506,9 @@ public class JvmInstructionGen {
             case JTypeTags.JTYPE:
                 generateJVarStore(mv, (JType) bType, valueIndex);
                 break;
+            case TypeTags.TYPEREFDESC:
+                generateVarStoreForType(mv, ((BTypeReferenceType) bType).constraint, valueIndex);
+                break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                         String.format("%s", bType));
@@ -521,6 +541,9 @@ public class JvmInstructionGen {
         if (ins.jKind == JInsKind.JCAST) {
             JCast castIns = (JCast) ins;
             BType targetType = castIns.targetType;
+//            if(targetType.tag == TypeTags.TYPEREFDESC) {
+//                targetType = ((BTypeReferenceType)castIns.targetType).constraint;
+//            }
             this.loadVar(castIns.rhsOp.variableDcl);
             jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
             this.storeToVar(castIns.lhsOp.variableDcl);
