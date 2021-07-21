@@ -131,6 +131,12 @@ function testMappingConstructor(string name, int age) {
         [bar()]: "BAR",
         ...adrs
     };
+
+    var john = <Person2>{
+        name: "John Doe",
+        age: 25,
+        address: {city: "Colombo", country: "Sri Lanka"}
+    };
 }
 
 function bar() returns string => "bar";
@@ -143,4 +149,14 @@ type Person record {
 type Address record {
     string city;
     string country;
+};
+
+public type Person2 record {
+    string name;
+    int age;
+
+    record {|
+        string city;
+        string country;
+    |} address;
 };

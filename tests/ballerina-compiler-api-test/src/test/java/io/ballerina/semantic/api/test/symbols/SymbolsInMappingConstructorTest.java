@@ -73,6 +73,8 @@ public class SymbolsInMappingConstructorTest {
                 {21, 8, PARAMETER, "age"},
 //                {22, 10, FUNCTION, "foo"}, https://github.com/ballerina-platform/ballerina-lang/issues/31803
                 {23, 11, VARIABLE, "adrs"},
+                {27, 8, RECORD_FIELD, "name"},
+                {29, 18, RECORD_FIELD, "city"},
         };
     }
 }

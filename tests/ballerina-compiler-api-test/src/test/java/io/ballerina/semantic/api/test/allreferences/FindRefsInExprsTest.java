@@ -149,13 +149,21 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                                 location(121, 14, 17))
                 },
                 // Keys in mapping constructor
-                {128, 8, location(138, 11, 15),
+                {128, 8, location(144, 11, 15),
                         List.of(location(128, 8, 12),
-                                location(138, 11, 15))
+                                location(144, 11, 15))
                 },
                 {131, 11, location(125, 12, 16),
                         List.of(location(125, 12, 16),
                                 location(131, 11, 15))
+                },
+                {154, 11, location(154, 11, 15),
+                        List.of(location(135, 8, 12),
+                                location(154, 11, 15))
+                },
+                {158, 15, location(158, 15, 19),
+                        List.of(location(137, 18, 22),
+                                location(158, 15, 19))
                 },
         };
     }
