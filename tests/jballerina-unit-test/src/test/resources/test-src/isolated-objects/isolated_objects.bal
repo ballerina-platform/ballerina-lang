@@ -586,15 +586,15 @@ isolated service class ServiceClass {
 
 public class Listener {
 
-    public function 'start() returns error? { return (); }
+    public function 'start() returns error? { return; }
 
-    public function gracefulStop() returns error? { return (); }
+    public function gracefulStop() returns error? { return; }
 
-    public function immediateStop() returns error? { return (); }
+    public function immediateStop() returns error? { return; }
 
-    public function detach(service object {} s) returns error? { return (); }
+    public function detach(service object {} s) returns error? { return; }
 
-    public function attach(service object {} s, string[]? name = ()) returns error? { return (); }
+    public function attach(service object {} s, string[]? name = ()) returns error? { return; }
 }
 
 isolated class IsolatedClassUsingSelf {
@@ -744,7 +744,7 @@ service / on new Listener() {
          Response val = check cl->sendMessage(fromMobile, toMobile, "Hi!");
          resp = val.clone();
       }
-      return ();
+      return;
    }
 }
 

@@ -32,7 +32,8 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
  * @since 1.2.0
  */
 public class DeprecationAnnotationNegativeTest {
-    private static final String WARN_FUNCTION_SHOULD_RETURN_NIL = "function should explicitly return a 'nil' value";
+    private static final String WARN_FUNCTION_SHOULD_RETURN_NIL =
+            "this function should explicitly return a 'nil' value";
 
     @Test(description = "Negative tests for deprecation annotation", groups = { "disableOnOldParser" })
     public void testDeprecationAnnotation() {

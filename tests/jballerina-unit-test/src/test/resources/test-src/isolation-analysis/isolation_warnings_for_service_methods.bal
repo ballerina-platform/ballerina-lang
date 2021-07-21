@@ -317,22 +317,22 @@ var s6 = isolated service object {
 
 public class Listener {
     public isolated function 'start() returns error? {
-        return ();
+        return;
     }
 
     public isolated function gracefulStop() returns error? {
-        return ();
+        return;
     }
 
     public isolated function immediateStop() returns error? {
-        return ();
+        return;
     }
 
     public isolated function detach(service object {} s) returns error? {
-        return ();
+        return;
     }
 
     public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
-        return ();
+        return;
     }
 }

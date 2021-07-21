@@ -255,3 +255,33 @@ function testUnreachableCodeWithWhile5() returns int {
     value += 2;
     // must return a result
 }
+
+function testUnreachableCodeWithFail() returns error? {
+    boolean? v = false;
+    int i = 0;
+    string str = "";
+    while true {
+        do {
+            int|string a = "ABC";
+            if a is string {
+                if v is boolean {
+                    break;
+                } else if v is () {
+                    continue;
+                }
+                string x = "A"; // unreachable code
+            }
+            if a is int {
+                if true {
+                    fail getError();
+                }
+            }
+        }
+    }
+    string w = "A"; // unreachable code
+}
+
+function getError() returns error {
+    error err = error("Custom Error");
+    return err;
+}

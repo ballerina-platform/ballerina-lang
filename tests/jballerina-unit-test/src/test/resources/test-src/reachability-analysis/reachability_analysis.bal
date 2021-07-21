@@ -348,6 +348,40 @@ function foo2() returns int {
     return 4;
 }
 
+function testUnreachableCodeWithFail() returns error? {
+    boolean? v = false;
+    int i = 0;
+    string str = "";
+    while true {
+        do {
+            int|string a = "ABC";
+            if a is string {
+                if v is boolean {
+                    str += a;
+                    break;
+                } else if v is () {
+                    i += 1;
+                    panic getError();
+                }
+                error:unreachable();
+            }
+            if a is int {
+                if true {
+                    str += "DEF";
+                    fail getError();
+                }
+                error:unreachable();
+            }
+            error:unreachable();
+        }
+    }
+}
+
+function getError() returns error {
+    error err = error("Custom Error");
+    return err;
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
