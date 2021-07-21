@@ -223,8 +223,6 @@ CMD_LINE_ARGS="-Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
                -classpath "$BALLERINA_CLASSPATH" \
                -Dballerina.home="$BALLERINA_HOME" \
                -Dballerina.version=${project.version} \
-               -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
-               -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
                -Denable.nonblocking=false \
                -Djava.security.egd=file:/dev/./urandom \
                -Dfile.encoding=UTF8 \

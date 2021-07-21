@@ -74,7 +74,6 @@ test {
     dependsOn configurations.birJarCompile
 
     systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

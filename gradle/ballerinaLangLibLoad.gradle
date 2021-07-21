@@ -110,7 +110,6 @@ task loadDistributionCache() {
 test {
     dependsOn loadDistributionCache
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "enableJBallerinaTests", "true"
     systemProperty "ballerina.home", "$buildDir"
 

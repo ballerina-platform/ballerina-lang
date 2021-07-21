@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -16,17 +16,19 @@
  *  under the License.
  */
 
-package org.ballerinalang.logging.handlers;
-
-import java.io.IOException;
-import java.util.logging.FileHandler;
+package io.ballerina.runtime.api;
 
 /**
- * A file handler for handling any other log file other than ballerina.log, error.log and bre.log.
+ * {@code {@link Parameter } represents the parameter of a function in ballerina.
  *
- * @since 0.89
+ * @since 2.0
  */
-public class DefaultLogFileHandler extends FileHandler {
-    public DefaultLogFileHandler() throws IOException, SecurityException {
+public class Parameter {
+    public final String name;
+    public final boolean isDefault;
+
+    public Parameter(String name, Boolean isDefault) {
+        this.name = name;
+        this.isDefault = isDefault;
     }
 }

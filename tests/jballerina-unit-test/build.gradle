@@ -30,7 +30,6 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')
-    implementation project(':ballerina-logging')
 //    implementation project(':ballerina-http')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang-test')
@@ -60,7 +59,6 @@ dependencies {
 //    balaTestImplementation project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
 ////    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
-//    balaTestImplementation project(path: ':ballerina-config-api', configuration: 'balaImplementation')
 //    balaTestImplementation project(path: ':ballerina-log-api', configuration: 'balaImplementation')
 //    balaTestImplementation project(path: ':ballerina-file', configuration: 'balaImplementation')
 //    balaTestImplementation project(path: ':ballerina-auth', configuration: 'balaImplementation')
@@ -86,7 +84,6 @@ description = 'JBallerina - Unit Test Module'
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "enableJBallerinaTests", "true"
 
     useTestNG() {
