@@ -951,6 +951,14 @@ function testCloneWithTypeArrayToTuple() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]'");
+
+    [string, string:Char, string|string:Char]|error f = arr.cloneWithType();
+    assert(f is error, true);
+    err = <error> f;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[string,lang.string:Char,(string|lang.string:Char)]'");
 }
 
 function testCloneWithTypeTuple() {
@@ -961,6 +969,22 @@ function testCloneWithTypeTuple() {
 
     [byte|int:Unsigned8, int|float, int|byte, byte|int:Unsigned32]|error b = t.cloneWithType();
     assert(checkpanic b, [1, 2.5, 3, 5]);
+
+    [string...]|error c = t.cloneWithType();
+    assert(c is error, true);
+    error err = <error> c;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[string...]'");
+
+    [int|float, decimal|int...]|error d = t.cloneWithType();
+    assert(d is error, true);
+    err = <error> d;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]'");
 }
 
 type StringArray string[];
