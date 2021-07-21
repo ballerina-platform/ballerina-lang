@@ -1,1 +1,1 @@
-var a = a ? (b)  c
+var a = a ? (b) c

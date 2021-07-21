@@ -1,5 +1,5 @@
 class client client Foo {
-    string name;
+string name;
 }
 
 class client Boo {
