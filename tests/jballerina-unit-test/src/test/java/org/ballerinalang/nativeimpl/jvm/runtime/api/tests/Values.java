@@ -18,8 +18,8 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
-import io.ballerina.runtime.api.FunctionParameter;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.Parameter;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -73,7 +73,7 @@ public class Values {
             return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0), 0);
         }
         RemoteMethodType remoteType = (RemoteMethodType) funcType.get();
-        FunctionParameter[] parameters = remoteType.getParameters();
+        Parameter[] parameters = remoteType.getParameters();
         int len = parameters.length;
         BListInitialValueEntry[] elements = new BListInitialValueEntry[len];
         for (int i = 0; i < len; i++) {

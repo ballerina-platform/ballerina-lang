@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.FunctionParameter;
+import io.ballerina.runtime.api.Parameter;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.Type;
@@ -30,10 +30,10 @@ import java.util.StringJoiner;
  * @since 2.0
  */
 public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
-    public final FunctionParameter[] parameters;
+    public final Parameter[] parameters;
 
     public BRemoteMethodType(String funcName, BObjectType parent, BFunctionType type, long flags,
-                             FunctionParameter[] parameters) {
+                             Parameter[] parameters) {
         super(funcName, parent, type, flags);
         this.parameters = parameters;
     }
@@ -53,7 +53,7 @@ public class BRemoteMethodType extends BMethodType implements RemoteMethodType {
     }
 
     @Override
-    public FunctionParameter[] getParameters() {
+    public Parameter[] getParameters() {
         return parameters;
     }
 }

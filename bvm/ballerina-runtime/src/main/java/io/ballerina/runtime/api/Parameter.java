@@ -19,15 +19,15 @@
 package io.ballerina.runtime.api;
 
 /**
- * {@code {@link FunctionParameter} represents the parameter of a function in ballerina.
+ * {@code {@link Parameter } represents the parameter of a function in ballerina.
  *
  * @since 2.0
  */
-public class FunctionParameter {
+public class Parameter {
     public final String name;
     public final boolean isDefault;
 
-    public FunctionParameter(String name, Boolean isDefault) {
+    public Parameter(String name, Boolean isDefault) {
         this.name = name;
         this.isDefault = isDefault;
     }
