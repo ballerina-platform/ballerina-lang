@@ -644,6 +644,11 @@ public class BByteValueTest {
         Assert.assertEquals(bInteger.intValue(), d, "Invalid byte value returned.");
     }
 
+    @Test(description = "Test byte shift by large value")
+    public void testByteShiftWithLargeValue() {
+        BRunUtil.invoke(result, "testByteShiftWithLargeValue");
+    }
+
     @Test(description = "Test bitwise Complement operator 1")
     public void testBitwiseComplementOperator1() {
         byte a = 34;
