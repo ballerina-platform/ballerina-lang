@@ -15,6 +15,7 @@ import org.ballerinalang.model.types.TypeKind;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 class JNModule {
@@ -108,7 +109,7 @@ class InternalSymbol {
 
 class FunctionCode {
     public ArrayList<BasicBlock> blocks = new ArrayList<>();
-    public ArrayList<Register> registers = new ArrayList<>();
+    public Map<String, Register> registers = new HashMap<>();
 
     BasicBlock createBasicBlock() {
         BasicBlock bb = new BasicBlock(this.blocks.size());
@@ -118,7 +119,7 @@ class FunctionCode {
 
     Register createRegister(TypeKind semType, String varName) {
         Register r = new Register(this.registers.size(), semType, varName);
-        this.registers.add(r);
+        this.registers.put(varName, r);
         return r;
     }
 
@@ -131,7 +132,7 @@ class FunctionCode {
                 NBTypeNames.REGISTER, new HashMap<>());
         ArrayType rArrTyp = TypeCreator.createArrayType(tempVal.getType());
         BArray rArr = ValueCreator.createArrayValue(rArrTyp);
-        registers.forEach(register -> rArr.append(register.getRecord()));
+        registers.forEach((name, register) -> rArr.append(register.getRecord()));
         Map<String, Object> fields = new HashMap<>();
         fields.put("blocks", bArr);
         fields.put("registers", rArr);
@@ -158,7 +159,9 @@ class Register {
         arr.append(ModuleGen.convertSimpleSemType(semType));
         Map<String, Object> fields = new HashMap<>();
         fields.put("number", number);
-        fields.put("varName", new BmpStringValue(varName));
+        if (varName != null) {
+            fields.put("varName", new BmpStringValue(varName));
+        }
         fields.put("semType", arr.get(0)); //TODO change to SemType Value
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER, fields);
     }
@@ -204,24 +207,68 @@ class IntArithmeticBinaryInsn extends InsnBase {
         fields.put("op", new BmpStringValue(op));
         fields.put("result", result.getRecord());
         fields.put("operands", operands); //TODO create Ballerina array
-        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INT_ARITHMETIC_BINARY_INSN,
-                fields);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INT_ARITHMETIC_BINARY_INSN, fields);
     }
 }
 
 class RetInsn extends InsnBase {
-    public Register operandr;
-    public Object operandc;
+    public Operand operand;
 
-    public RetInsn(Object operandc) {
-        this.operandc = operandc;
+    public RetInsn(Operand operand) {
+        this.operand = operand;
     }
 
     @Override
     public BMap<BString, Object> getRecord() {
-        Map<String, Object> fields = new HashMap<>();
-        fields.put("operand", operandc);
-        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN,
-                fields);
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        Object op = operand.isReg ? operand.register.getRecord() : operand.constant;
+        fields.put("operand", op);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN, fields);
+    }
+}
+
+class IntNegateInsn extends InsnBase {
+    public Register operand;
+    public Register result;
+
+    public IntNegateInsn(Register operand, Register result) {
+        this.operand = operand;
+        this.result = result;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("operand", operand);
+        fields.put("result", result);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INTNEG_INSN, fields);
+    }
+}
+
+class BoolNotInsn extends InsnBase {
+    public Register operand;
+    public Register result;
+
+    public BoolNotInsn(Register operand, Register result) {
+        this.operand = operand;
+        this.result = result;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("operand", operand);
+        fields.put("result", result);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.BOOLNOT_INSN, fields);
+    }
+}
+
+class Operand {
+    public Register register;
+    public Object constant;
+    public boolean isReg;
+
+    public Operand(boolean isReg) {
+        this.isReg = isReg;
     }
 }

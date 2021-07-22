@@ -8,6 +8,10 @@ public class NBTypeNames {
             "record {| (INSN_INT_ARITHMETIC_BINARY|INSN_INT_NO_PANIC_ARITHMETIC_BINARY) name; +|-|*|/|% op; Register" +
                     " result; wso2/nballerina.bir:0.1.0:IntOperand[] operands; anydata...; |}";
     static final String RET_INSN = "record {| INSN_RET name; wso2/nballerina.bir:0.1.0:Operand operand; anydata...; |}";
+    static final String INTNEG_INSN = "record {| (INSN_INT_NEGATE|INSN_INT_NO_PANIC_NEGATE) name; Register result;" +
+            " Register operand; anydata...; |}";
+    static final String BOOLNOT_INSN = "record {| INSN_BOOLEAN_NOT name; Register result;" +
+            " Register operand; anydata...; |}";
     static final String REGISTER = "record {| int number; wso2/nballerina.types:0.1.0:SemType semType;" +
             " string? varName; |}";
     static final String INTERNAL_SYMBOL = "record {| boolean isPublic; string identifier; |}";

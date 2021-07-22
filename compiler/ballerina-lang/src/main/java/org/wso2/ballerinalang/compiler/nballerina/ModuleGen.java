@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -124,15 +125,13 @@ public class ModuleGen {
             jnmod.functionDefns.add(funcDefn);
         });
         astPkg.functions.forEach(func -> {
-            String name = func.getName().toString();
-            TypeKind ret = func.returnTypeNode.type.getKind();
             FunctionCode fcode = new FunctionCode();
             BasicBlock startBlock = fcode.createBasicBlock();
             func.getParameters().forEach(param -> {
                 fcode.createRegister(param.type.getKind(), param.getName().toString());
             });
             curBlock = startBlock;
-            ((BLangBlockFunctionBody) func.body).getStatements().forEach(this::codeGenStmt);
+            ((BLangBlockFunctionBody) func.body).getStatements().forEach(stmt -> codeGenStmt(stmt, fcode));
             endBlock = curBlock;
             jnmod.code.add(fcode);
         });
@@ -140,30 +139,58 @@ public class ModuleGen {
         //return astPkg.accept(this);
     }
 
-    void codeGenStmt(BLangStatement stmt) {
+    void codeGenStmt(BLangStatement stmt, FunctionCode code) {
         if (stmt instanceof BLangReturn) {
             BLangReturn retStmt = (BLangReturn) stmt;
-            Object val = codeGenExpr(retStmt.expr);
-            nextBlock = curBlock;
-            nextBlock.insns.add(new RetInsn(val));
+            Operand operand = codeGenExpr(retStmt.expr, code);
+            nextBlock.insns.add(new RetInsn(operand));
+            curBlock = null;
+        } else if (stmt instanceof BLangSimpleVariableDef) {
+            //TODO
             curBlock = null;
         }
     }
 
-    Object codeGenExpr(BLangExpression expr) {
+    Operand codeGenExpr(BLangExpression expr, FunctionCode code) {
         if (expr instanceof BLangLiteral) {
-            nextBlock = bb;
-            return  ((BLangLiteral) expr).getValue();
+            nextBlock = curBlock;
+            Operand op = new Operand(false);
+            op.constant = ((BLangLiteral) expr).getValue();
+            return op;
+        } else if (expr instanceof BLangSimpleVarRef) {
+            nextBlock = curBlock;
+            String name = ((BLangSimpleVarRef) expr).variableName.getValue();
+            Operand op = new Operand(true);
+            if (!code.registers.containsKey(name)) {
+                throw new BallerinaException("variable '" + name + "' not found");
+            }
+            op.register = code.registers.get(name);
+            return op;
+        } else if (expr instanceof BLangUnaryExpr) {
+            BLangUnaryExpr unexpr = (BLangUnaryExpr) expr;
+            Operand operand = codeGenExpr(unexpr.expr, code);
+            OperatorKind op = unexpr.operator;
+            switch (op) {
+                case NOT:
+                    Register reg1 = code.createRegister(TypeKind.BOOLEAN, null);
+                    curBlock.insns.add(new BoolNotInsn(operand.register, reg1));
+                    return operand;
+                case SUB:
+                    Register reg2 = code.createRegister(TypeKind.INT, null);
+                    curBlock.insns.add(new IntNegateInsn(operand.register, reg2));
+            }
         }
         return null;
     }
 
     static long convertSimpleSemType(TypeKind typeKind) {
-        switch (typeKind.typeName()) {
-            case "int":
+        switch (typeKind) {
+            case INT:
                 return 4L;
-            case "boolean":
+            case BOOLEAN:
                 return 2L;
+            case NIL:
+                return 1L;
             default:
                 throw new BallerinaException("Semtype not implemented for type");
         }
