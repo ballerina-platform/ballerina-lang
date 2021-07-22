@@ -169,15 +169,19 @@ public class ModuleGen {
         } else if (expr instanceof BLangUnaryExpr) {
             BLangUnaryExpr unexpr = (BLangUnaryExpr) expr;
             Operand operand = codeGenExpr(unexpr.expr, code);
+            Operand result = new Operand(true);
             OperatorKind op = unexpr.operator;
             switch (op) {
                 case NOT:
                     Register reg1 = code.createRegister(TypeKind.BOOLEAN, null);
                     curBlock.insns.add(new BoolNotInsn(operand.register, reg1));
-                    return operand;
+                    result.register = reg1;
+                    return result;
                 case SUB:
                     Register reg2 = code.createRegister(TypeKind.INT, null);
                     curBlock.insns.add(new IntNegateInsn(operand.register, reg2));
+                    result.register = reg2;
+                    return result;
             }
         }
         return null;

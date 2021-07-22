@@ -109,7 +109,7 @@ class InternalSymbol {
 
 class FunctionCode {
     public ArrayList<BasicBlock> blocks = new ArrayList<>();
-    public Map<String, Register> registers = new HashMap<>();
+    public Map<Object, Register> registers = new LinkedHashMap<>();
 
     BasicBlock createBasicBlock() {
         BasicBlock bb = new BasicBlock(this.blocks.size());
@@ -119,6 +119,9 @@ class FunctionCode {
 
     Register createRegister(TypeKind semType, String varName) {
         Register r = new Register(this.registers.size(), semType, varName);
+        if (varName == null) {
+            varName = String.valueOf(r.number);
+        }
         this.registers.put(varName, r);
         return r;
     }
@@ -177,9 +180,13 @@ class BasicBlock {
     }
 
     public BMap<BString, Object> getRecord() {
-        BMap<BString, Object> tmpVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN,
-                new HashMap<>()); //TODO add other insns
-        UnionType insnTyp = TypeCreator.createUnionType(tmpVal.getType());
+        BMap<BString, Object> tmpVal1 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN,
+                new HashMap<>());
+        BMap<BString, Object> tmpVal2 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.BOOLNOT_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal3 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.INTNEG_INSN, new HashMap<>()); //TODO add other insns
+        UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         BArray arr = ValueCreator.createArrayValue(arrTyp);
         insns.forEach(insn -> arr.append(insn.getRecord()));
@@ -257,8 +264,8 @@ class BoolNotInsn extends InsnBase {
     @Override
     public BMap<BString, Object> getRecord() {
         LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
-        fields.put("operand", operand);
-        fields.put("result", result);
+        fields.put("operand", operand.getRecord());
+        fields.put("result", result.getRecord());
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.BOOLNOT_INSN, fields);
     }
 }
