@@ -1389,6 +1389,29 @@ function testTupleJSONEquality() {
     assert(j != l, true);
 }
 
+function testIntersectingUnionEquality() {
+    string:Char? a = "a";
+    string b = "a";
+    assert(a == b, true);
+    assert(a != b, false);
+    assert(b == a, true);
+    assert(b != a, false);
+    assert(a == "a", true);
+    assert(a != "a", false);
+    assert("a" == a, true);
+    assert("a" != a, false);
+
+    string c = "x";
+    assert(a == c, false);
+    assert(a != c, true);
+    assert(c == a, false);
+    assert(c != a, true);
+    assert(a == "x", false);
+    assert(a != "x", true);
+    assert("abc" == a, false);
+    assert("abc" != a, true);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
