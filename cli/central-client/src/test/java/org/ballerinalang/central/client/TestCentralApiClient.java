@@ -526,4 +526,87 @@ public class TestCentralApiClient extends CentralAPIClient {
             System.setProperty(ballerinaInstallDirProp, String.valueOf(Paths.get("build")));
         }
     }
+
+    @Test(description = "Test pull package without Logs", enabled = false)
+    public void testPullPackageWithoutLogs() throws IOException, CentralClientException {
+        final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+        File balaFile = new File(String.valueOf(balaPath));
+        InputStream balaStream = null;
+
+        try {
+            balaStream = new FileInputStream(balaFile);
+
+            Request mockRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/packages/foo/sf/1.3.5")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Response mockResponse = new Response.Builder()
+                    .request(mockRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_MOVED_TEMP)
+                    .addHeader(LOCATION, balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, "attachment; filename=sf-2020r2-any-1.3.5.bala")
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+
+            when(this.remoteCall.execute()).thenReturn(mockResponse);
+            when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false, true);
+
+            Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.bala").toFile().exists());
+            String buildLog = readOutput();
+            given().with().pollInterval(Duration.ONE_SECOND).and().with().pollDelay(Duration.ONE_SECOND).await()
+                    .atMost(10, SECONDS)
+                    .until(() -> !(buildLog.contains("foo/sf:1.3.5 pulled from central successfully")));
+        } finally {
+            if (balaStream != null) {
+                balaStream.close();
+            }
+            cleanTmpDir();
+        }
+    }
+
+
+    @Test(description = "Test push package without logs")
+    public void testPushPackageWithoutLogs() throws IOException, CentralClientException {
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+
+        setBallerinaHome();
+
+        RequestBody balaFileReqBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bala-file", TEST_BALA_NAME,
+                        RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
+                .build();
+
+        Request mockRequest = new Request.Builder()
+                .post(balaFileReqBody)
+                .url("https://localhost:9090/registry/packages")
+                .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_NO_CONTENT)
+                .message("")
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION, true);
+        String buildLog = readOutput();
+        given().with().pollInterval(Duration.ONE_SECOND).and()
+                .with().pollDelay(Duration.ONE_SECOND)
+                .await().atMost(10, SECONDS)
+                .until(() -> !(buildLog.contains("foo/sf:1.3.5 pushed to central successfully")));
+    }
 }
