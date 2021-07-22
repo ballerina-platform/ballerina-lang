@@ -24,6 +24,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
@@ -31,11 +32,14 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_ARRAY_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_ERROR_VALUE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.variable.VariableFactory.getVariable;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 
 /**
  * Evaluator implementation for error constructor expressions.
@@ -68,9 +72,9 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
             }
 
             List<String> argTypeNames = new ArrayList<>();
-            argTypeNames.add(B_VALUE_CLASS);
-            argTypeNames.add(B_VALUE_CLASS);
-            argTypeNames.add(B_VALUE_ARRAY_CLASS);
+            argTypeNames.add(JAVA_OBJECT_CLASS);
+            argTypeNames.add(JAVA_OBJECT_CLASS);
+            argTypeNames.add(JAVA_OBJECT_ARRAY_CLASS);
             RuntimeStaticMethod createErrorValueMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
                     CREATE_ERROR_VALUE_METHOD, argTypeNames);
 
@@ -84,7 +88,9 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
                     if (!argEvaluators.get(i).getKey().isEmpty()) {
                         throw new EvaluationException(EvaluationExceptionKind.MISSING_MESSAGE_IN_ERROR.getString());
                     }
-                    argValues.add(argEvaluators.get(i).getValue().evaluate().getJdiValue());
+                    Value messageValue = argEvaluators.get(i).getValue().evaluate().getJdiValue();
+                    messageValue = EvaluationUtils.getValueAsObject(context, messageValue);
+                    argValues.add(messageValue);
                     if (argEvaluators.size() == 1) {
                         argValues.add(null);
                     }
@@ -94,8 +100,11 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
                         throw new EvaluationException(EvaluationExceptionKind.REST_ARG_IN_ERROR.getString());
                     } else if (!argEvaluators.get(i).getKey().isEmpty()) {
                         argValues.add(null);
+                    } else {
+                        Value causeValue = argEvaluators.get(i).getValue().evaluate().getJdiValue();
+                        causeValue = EvaluationUtils.getValueAsObject(context, causeValue);
+                        argValues.add(causeValue);
                     }
-                    argValues.add(argEvaluators.get(i).getValue().evaluate().getJdiValue());
                 } else {
                     // Process error details (optional).
                     if (argEvaluators.get(i).getKey().isEmpty()) {
@@ -104,16 +113,28 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
                         throw new EvaluationException(EvaluationExceptionKind.REST_ARG_IN_ERROR.getString());
                     }
                     argValues.add(VMUtils.make(context, argEvaluators.get(i).getKey()).getJdiValue());
-                    argValues.add(argEvaluators.get(i).getValue().evaluate().getJdiValue());
+                    Value detailValue = argEvaluators.get(i).getValue().evaluate().getJdiValue();
+                    detailValue = EvaluationUtils.getValueAsObject(context, detailValue);
+                    argValues.add(detailValue);
                 }
             }
             createErrorValueMethod.setArgValues(argValues);
-            return new BExpressionValue(context, createErrorValueMethod.invokeSafely());
+            Value returnValue = createErrorValueMethod.invokeSafely();
+            validateForErrors(returnValue);
+            return new BExpressionValue(context, returnValue);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
+        }
+    }
+
+    private void validateForErrors(Value returnValue) throws EvaluationException {
+        if (returnValue.type().name().equals(JAVA_STRING_CLASS)) {
+            String errorMessage = removeRedundantQuotes(getVariable(context, returnValue).computeValue());
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                    errorMessage));
         }
     }
 }

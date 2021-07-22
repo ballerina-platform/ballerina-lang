@@ -80,7 +80,6 @@ public class EvaluationUtils {
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
     public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
-    public static final String B_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue";
     public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";

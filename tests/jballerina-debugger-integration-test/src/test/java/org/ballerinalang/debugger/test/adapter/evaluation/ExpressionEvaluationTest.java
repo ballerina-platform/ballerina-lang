@@ -372,7 +372,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void errorConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\")", "Simple Error", "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", " + ERROR_VAR + ")", "Simple Error", "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", count=1)", "Simple Error", "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", " + ERROR_VAR + ",count=1)", "Simple Error", "error");
     }
 
     @Override
