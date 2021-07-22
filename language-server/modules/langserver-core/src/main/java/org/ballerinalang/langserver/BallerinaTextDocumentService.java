@@ -45,7 +45,7 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
-import org.ballerinalang.langserver.semantictokens.SemanticTokensHandler;
+import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
@@ -89,7 +89,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 import java.nio.file.Path;
@@ -543,7 +542,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didSave(DidSaveTextDocumentParams params) {
     }
 
-    @JsonRequest
+    @Override
     public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -566,16 +565,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
         });
     }
 
-    @JsonRequest
+    @Override
     public CompletableFuture<SemanticTokens> semanticTokensFull(SemanticTokensParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                // Handle semantic highlighting configuration for a client that doesn't support dynamic registration
                 if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableSemanticHighlighting()) {
                     return new SemanticTokens(new ArrayList<>());
                 }
+
                 SemanticTokensContext semanticTokensContext = ContextBuilder.buildSemanticTokensContext(
                         params.getTextDocument().getUri(), this.workspaceManager, this.serverContext);
-                return new SemanticTokensHandler(semanticTokensContext).getSemanticTokens();
+                return SemanticTokensUtils.getSemanticTokens(semanticTokensContext);
             } catch (Throwable e) {
                 String msg = "Operation 'textDocument/semanticTokens/full' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_SEMANTIC_TOKENS_FULL, msg, e,

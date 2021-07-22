@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.ballerinalang.langserver.semantictokens;
+
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.SemanticTokensContext;
+import org.eclipse.lsp4j.SemanticTokens;
+import org.eclipse.lsp4j.SemanticTokensLegend;
+import org.eclipse.lsp4j.SemanticTokensServerFull;
+import org.eclipse.lsp4j.SemanticTokensWithRegistrationOptions;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * Semantic tokens util class.
+ */
+public class SemanticTokensUtils {
+
+    SemanticTokensUtils() {
+    }
+
+    /**
+     * Returns the semantic tokens for a given context.
+     *
+     * @param semanticTokensContext context
+     * @return {@link SemanticTokens}
+     */
+    public static SemanticTokens getSemanticTokens(SemanticTokensContext semanticTokensContext) {
+        String fileUri = semanticTokensContext.fileUri();
+        Optional<Path> filePathOptional = CommonUtil.getPathFromURI(fileUri);
+        if (filePathOptional.isEmpty()) {
+            return new SemanticTokens(new ArrayList<>());
+        }
+        Optional<Document> docOptional = semanticTokensContext.workspace().document(filePathOptional.get());
+        if (docOptional.isEmpty()) {
+            return new SemanticTokens(new ArrayList<>());
+        }
+        SyntaxTree syntaxTree = docOptional.get().syntaxTree();
+        if (syntaxTree == null) {
+            return new SemanticTokens(new ArrayList<>());
+        }
+        return new SemanticTokensVisitor(semanticTokensContext).visitSemanticTokens(syntaxTree.rootNode());
+    }
+
+    /**
+     * Returns the list of semantic token types supported bt Ballerina LS.
+     *
+     * @return List of token types
+     */
+    private static List<String> getTokenTypes() {
+        return Arrays.stream(SemanticTokensContext.TokenTypes.values())
+                .map(SemanticTokensContext.TokenTypes::getValue)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the list of semantic token type modifiers supported bt Ballerina LS.
+     *
+     * @return List of modifiers
+     */
+    private static List<String> getTokenTypeModifiers() {
+        return Arrays.stream(SemanticTokensContext.TokenTypeModifiers.values())
+                .map(SemanticTokensContext.TokenTypeModifiers::getValue)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns semantic tokens registration options.
+     *
+     * @return {@link SemanticTokensWithRegistrationOptions}
+     */
+    public static SemanticTokensWithRegistrationOptions getSemanticTokensRegistrationOptions() {
+        SemanticTokensLegend semanticTokensLegend = new SemanticTokensLegend(getTokenTypes(), getTokenTypeModifiers());
+        return new SemanticTokensWithRegistrationOptions(semanticTokensLegend, new SemanticTokensServerFull(false));
+    }
+}

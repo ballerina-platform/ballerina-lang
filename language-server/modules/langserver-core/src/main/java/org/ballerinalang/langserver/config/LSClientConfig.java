@@ -37,7 +37,6 @@ public class LSClientConfig {
         String balExperimental = System.getenv("BAL_EXPERIMENTAL");
         String balFileWatcher = System.getenv("BAL_FILE_WATCHER");
         String balTelemetry = System.getenv("BAL_TELEMETRY");
-        String balSemanticHighlighting = System.getenv("BAL_SEMANTIC_HIGHLIGHTING");
 
         this.allowExperimental = Boolean.parseBoolean(balExperimental);
         this.debugLog = Boolean.parseBoolean(balDebugLog);
@@ -45,8 +44,7 @@ public class LSClientConfig {
         this.codeLens = new CodeLensConfig();
         this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
         this.enableTelemetry = balTelemetry == null || Boolean.parseBoolean(balTelemetry);
-        this.enableSemanticHighlighting = balSemanticHighlighting == null ||
-                        Boolean.parseBoolean(balSemanticHighlighting);
+        this.enableSemanticHighlighting = false;
     }
 
     /**
@@ -121,8 +119,12 @@ public class LSClientConfig {
         return enableTelemetry;
     }
 
+    /**
+     * Returns True if ballerina semantic highlighting is enabled, False otherwise.
+     *
+     * @return True if enabled, False otherwise
+     */
     public boolean isEnableSemanticHighlighting() {
-
         return enableSemanticHighlighting;
     }
 }

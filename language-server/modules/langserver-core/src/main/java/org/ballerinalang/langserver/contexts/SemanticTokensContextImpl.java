@@ -34,7 +34,7 @@ public class SemanticTokensContextImpl extends AbstractDocumentServiceContext im
     }
 
     /**
-     * Represents folding range context Builder.
+     * Represents semantic tokens context Builder.
      */
     protected static class SemanticTokensContextBuilder extends
             AbstractContextBuilder<SemanticTokensContextImpl.SemanticTokensContextBuilder> {

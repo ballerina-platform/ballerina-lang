@@ -20,6 +20,8 @@ package org.ballerinalang.langserver.commons.semantichighlighter;
  * Represents the data model for Semantic Highlighting Information.
  *
  * @since 1.2.0
+ *
+ * @deprecated Use semantic tokens API instead.
  */
 public class SemanticHighlightingInformation {
     private final int line;

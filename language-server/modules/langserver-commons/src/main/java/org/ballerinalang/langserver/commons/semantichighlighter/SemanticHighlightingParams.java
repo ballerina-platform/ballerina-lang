@@ -23,6 +23,8 @@ import java.util.ArrayList;
  * Represents the data model for Semantic Highlighting params.
  *
  * @since 1.2.0
+ *
+ * @deprecated Use semantic tokens API instead.
  */
 public class SemanticHighlightingParams {
     private final String textDocument;

@@ -15,14 +15,15 @@
  */
 package org.ballerinalang.langserver.semantictokens;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumMemberNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
@@ -38,8 +39,16 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.commons.SemanticTokensContext;
+import org.ballerinalang.langserver.commons.SemanticTokensContext.TokenTypeModifiers;
+import org.ballerinalang.langserver.commons.SemanticTokensContext.TokenTypes;
+import org.eclipse.lsp4j.SemanticTokens;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -52,174 +61,146 @@ import java.util.TreeSet;
  */
 public class SemanticTokensVisitor extends NodeVisitor {
 
-    private static final String SELF = "self";
-
-    private enum TokenTypes {
-        NAMESPACE(0), TYPE(1), CLASS(2), ENUM(3), INTERFACE(4), STRUCT(5),
-        TYPE_PARAMETER(6), PARAMETER(7), VARIABLE(8), PROPERTY(9), ENUM_MEMBER(10),
-        EVENT(11), FUNCTION(12), METHOD(13), MACRO(14), KEYWORD(15), MODIFIER(16),
-        COMMENT(17), STRING(18), NUMBER(19), REGXP(20), OPERATOR(21);
-
-        private final int value;
-
-        TokenTypes(int value) {
-
-            this.value = value;
-        }
-    }
-
-    private enum TypeModifiers {
-        DECLARATION(1), DEFINITION(1 << 1), READONLY(1 << 2), STATIC(1 << 3), DEPRECATED(1 << 4),
-        ABSTRACT(1 << 5), ASYNC(1 << 6), MODIFICATION(1 << 7), DOCUMENTATION(1 << 8), DEFAULT_LIBRARY(1 << 9);
-        private final int value;
-
-        TypeModifiers(int value) {
-
-            this.value = value;
-        }
-    }
-
-    private final List<Integer> data;
-    private SemanticToken previousToken;
-    // sorted
+    // Sorted tree of semantic tokens
     private final Set<SemanticToken> semanticTokens;
-    private final SemanticTokensHandler semanticTokensHandler;
+    private final SemanticTokensContext semanticTokensContext;
 
-    public SemanticTokensVisitor(List<Integer> data, SemanticTokensHandler semanticTokensHandler) {
-
-        this.data = data;
+    public SemanticTokensVisitor(SemanticTokensContext semanticTokensContext) {
         this.semanticTokens = new TreeSet<>(SemanticToken.semanticTokenComparator);
-        this.semanticTokensHandler = semanticTokensHandler;
+        this.semanticTokensContext = semanticTokensContext;
     }
 
-    public void visitSemanticTokens(Node node) {
-
+    /**
+     * Collects semantic tokens while traversing the semantic tress and returns the processed list of semantic tokens
+     * for highlighting.
+     *
+     * @param node Root node
+     * @return {@link SemanticTokens}
+     */
+    public SemanticTokens visitSemanticTokens(Node node) {
+        List<Integer> data = new ArrayList<>();
         visitSyntaxNode(node);
-        this.semanticTokens.forEach(this::processSemanticToken);
+
+        SemanticToken previousToken = null;
+        for (SemanticToken semanticToken : this.semanticTokens) {
+            previousToken = semanticToken.processSemanticToken(data, previousToken);
+        }
+        return new SemanticTokens(data);
     }
 
     public void visit(ImportDeclarationNode importDeclarationNode) {
-
         Optional<ImportPrefixNode> importPrefixNode = importDeclarationNode.prefix();
-        importPrefixNode.ifPresent(prefixNode -> this.addSemanticToken(prefixNode.prefix(), TokenTypes.NAMESPACE.value,
-                TypeModifiers.DECLARATION.value, true, TokenTypes.NAMESPACE.value, 0));
+        importPrefixNode.ifPresent(prefixNode -> this.addSemanticToken(prefixNode.prefix(),
+                TokenTypes.NAMESPACE.getId(), TokenTypeModifiers.DECLARATION.getId(), true,
+                TokenTypes.NAMESPACE.getId(), 0));
         visitSyntaxNode(importDeclarationNode);
     }
 
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
-
         LinePosition startLine = functionDefinitionNode.functionName().lineRange().startLine();
         SemanticToken semanticToken = new SemanticToken(startLine.line(), startLine.offset());
         if (!semanticTokens.contains(semanticToken)) {
             int length = functionDefinitionNode.functionName().text().length();
-            semanticToken.setProperties(length, TokenTypes.FUNCTION.value, TypeModifiers.DECLARATION.value);
+            semanticToken.setProperties(length, TokenTypes.FUNCTION.getId(), TokenTypeModifiers.DECLARATION.getId());
             semanticTokens.add(semanticToken);
 
             if (functionDefinitionNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
                 functionDefinitionNode.relativeResourcePath().forEach(resourcePath -> {
                     SemanticToken resourcePathToken = new SemanticToken(resourcePath.lineRange().startLine().line(),
                             resourcePath.lineRange().startLine().offset(), resourcePath.toString().trim().length(),
-                            TokenTypes.FUNCTION.value, TypeModifiers.DECLARATION.value);
+                            TokenTypes.FUNCTION.getId(), TokenTypeModifiers.DECLARATION.getId());
                     semanticTokens.add(resourcePathToken);
                 });
             } else {
-                handleReferences(startLine, length, TokenTypes.FUNCTION.value, 0);
+                handleReferences(startLine, length, TokenTypes.FUNCTION.getId(), 0);
             }
         }
         visitSyntaxNode(functionDefinitionNode);
     }
 
-    public void visit(RequiredParameterNode requiredParameterNode) {
+    public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+        Node functionName = functionCallExpressionNode.functionName();
+        processSymbols(functionName, functionName.location().lineRange().startLine());
+        visitSyntaxNode(functionCallExpressionNode);
+    }
 
-        requiredParameterNode.paramName().ifPresent(token -> this.addSemanticToken(token, TokenTypes.PARAMETER.value,
-                TypeModifiers.DECLARATION.value, true, TokenTypes.PARAMETER.value, 0));
+    public void visit(RequiredParameterNode requiredParameterNode) {
+        requiredParameterNode.paramName().ifPresent(token -> this.addSemanticToken(token, TokenTypes.PARAMETER.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.PARAMETER.getId(), 0));
         visitSyntaxNode(requiredParameterNode);
     }
 
     public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
-
-        this.addSemanticToken(captureBindingPatternNode, TokenTypes.VARIABLE.value, TypeModifiers.DECLARATION.value,
-                true, TokenTypes.VARIABLE.value, 0);
+        this.addSemanticToken(captureBindingPatternNode, TokenTypes.VARIABLE.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.VARIABLE.getId(), 0);
         visitSyntaxNode(captureBindingPatternNode);
     }
 
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
-
         processSymbols(simpleNameReferenceNode, simpleNameReferenceNode.lineRange().startLine());
         visitSyntaxNode(simpleNameReferenceNode);
     }
 
     public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
-
-        this.addSemanticToken(qualifiedNameReferenceNode.modulePrefix(),
-                TokenTypes.NAMESPACE.value, 0, false, -1, -1);
+        this.addSemanticToken(qualifiedNameReferenceNode.modulePrefix(), TokenTypes.NAMESPACE.getId(), 0, false, -1,
+                -1);
 
         Token identifier = qualifiedNameReferenceNode.identifier();
         LinePosition position = identifier.lineRange().startLine();
-        SemanticToken identifierSemanticToken = new SemanticToken(position.line(), position.offset());
-        if (!semanticTokens.contains(identifierSemanticToken)) {
-            processSymbols(identifier, position);
-        }
+        processSymbols(identifier, position);
         visitSyntaxNode(qualifiedNameReferenceNode);
     }
 
     public void visit(ConstantDeclarationNode constantDeclarationNode) {
-
-        this.addSemanticToken(constantDeclarationNode.variableName(), TokenTypes.VARIABLE.value,
-                TypeModifiers.DECLARATION.value | TypeModifiers.READONLY.value, true, TokenTypes.VARIABLE.value,
-                TypeModifiers.READONLY.value);
+        this.addSemanticToken(constantDeclarationNode.variableName(), TokenTypes.VARIABLE.getId(),
+                TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId(), true,
+                TokenTypes.VARIABLE.getId(), TokenTypeModifiers.READONLY.getId());
         visitSyntaxNode(constantDeclarationNode);
     }
 
     public void visit(ClassDefinitionNode classDefinitionNode) {
-
-        this.addSemanticToken(classDefinitionNode.className(), TokenTypes.CLASS.value, TypeModifiers.DECLARATION.value,
-                true, TokenTypes.CLASS.value, 0);
+        this.addSemanticToken(classDefinitionNode.className(), TokenTypes.CLASS.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.CLASS.getId(), 0);
         visitSyntaxNode(classDefinitionNode);
     }
 
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
-
         serviceDeclarationNode.absoluteResourcePath().forEach(serviceName -> {
             LinePosition startLine = serviceName.lineRange().startLine();
             SemanticToken semanticToken = new SemanticToken(startLine.line(), startLine.offset(),
-                    serviceName.toString().trim().length(), TokenTypes.TYPE.value, TypeModifiers.DECLARATION.value);
+                    serviceName.toString().trim().length(), TokenTypes.TYPE.getId(),
+                    TokenTypeModifiers.DECLARATION.getId());
             semanticTokens.add(semanticToken);
         });
         visitSyntaxNode(serviceDeclarationNode);
     }
 
     public void visit(EnumDeclarationNode enumDeclarationNode) {
-
-        this.addSemanticToken(enumDeclarationNode.identifier(), TokenTypes.ENUM.value, TypeModifiers.DECLARATION.value,
-                false, -1, -1);
+        this.addSemanticToken(enumDeclarationNode.identifier(), TokenTypes.ENUM.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
         visitSyntaxNode(enumDeclarationNode);
     }
 
     public void visit(EnumMemberNode enumMemberNode) {
-
-        this.addSemanticToken(enumMemberNode.identifier(), TokenTypes.ENUM_MEMBER.value,
-                TypeModifiers.DECLARATION.value | TypeModifiers.READONLY.value, true, TokenTypes.ENUM_MEMBER.value,
-                TypeModifiers.READONLY.value);
+        this.addSemanticToken(enumMemberNode.identifier(), TokenTypes.ENUM_MEMBER.getId(),
+                TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId(), true,
+                TokenTypes.ENUM_MEMBER.getId(), TokenTypeModifiers.READONLY.getId());
         visitSyntaxNode(enumMemberNode);
     }
 
     public void visit(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
-
-        this.addSemanticToken(markdownParameterDocumentationLineNode.parameterName(), TokenTypes.PARAMETER.value,
-                TypeModifiers.DOCUMENTATION.value, false, -1, -1);
+        this.addSemanticToken(markdownParameterDocumentationLineNode.parameterName(), TokenTypes.PARAMETER.getId(),
+                TokenTypeModifiers.DOCUMENTATION.getId(), false, -1, -1);
         visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
     public void visit(TypeDefinitionNode typeDefinitionNode) {
-
-        this.addSemanticToken(typeDefinitionNode.typeName(), TokenTypes.TYPE.value, TypeModifiers.DECLARATION.value,
-                true, TokenTypes.TYPE.value, 0);
+        this.addSemanticToken(typeDefinitionNode.typeName(), TokenTypes.TYPE.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.TYPE.getId(), 0);
         visitSyntaxNode(typeDefinitionNode);
     }
 
     public void visit(RecordFieldNode recordFieldNode) {
-
         Token token = recordFieldNode.fieldName();
         LinePosition startLine = token.lineRange().startLine();
         SemanticToken semanticToken = new SemanticToken(startLine.line(), startLine.offset());
@@ -228,87 +209,148 @@ public class SemanticTokensVisitor extends NodeVisitor {
             int modifiers;
             int refModifiers;
             if (recordFieldNode.readonlyKeyword().isPresent()) {
-                modifiers = TypeModifiers.DECLARATION.value | TypeModifiers.READONLY.value;
-                refModifiers = TypeModifiers.READONLY.value;
+                modifiers = TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId();
+                refModifiers = TokenTypeModifiers.READONLY.getId();
             } else {
-                modifiers = TypeModifiers.DECLARATION.value;
+                modifiers = TokenTypeModifiers.DECLARATION.getId();
                 refModifiers = 0;
             }
-            semanticToken.setProperties(length, TokenTypes.TYPE_PARAMETER.value, modifiers);
+            semanticToken.setProperties(length, TokenTypes.TYPE_PARAMETER.getId(), modifiers);
             semanticTokens.add(semanticToken);
-            handleReferences(startLine, length, TokenTypes.TYPE_PARAMETER.value, refModifiers);
+            handleReferences(startLine, length, TokenTypes.TYPE_PARAMETER.getId(), refModifiers);
         }
         visitSyntaxNode(recordFieldNode);
     }
 
-    public void visit(AnnotationNode annotationNode) {
-
-        visitSyntaxNode(annotationNode);
-    }
-
-    //public int age;
     public void visit(ObjectFieldNode objectFieldNode) {
-
-        this.addSemanticToken(objectFieldNode.fieldName(), TokenTypes.PROPERTY.value, TypeModifiers.DECLARATION.value,
-                true, TokenTypes.PROPERTY.value, 0);
+        this.addSemanticToken(objectFieldNode.fieldName(), TokenTypes.PROPERTY.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.PROPERTY.getId(), 0);
         visitSyntaxNode(objectFieldNode);
     }
 
+    /**
+     * Get the symbol of the given node and process the semantic tokens for the symbol and it's references.
+     *
+     * @param node      Current node
+     * @param startLine Start line position
+     */
     private void processSymbols(Node node, LinePosition startLine) {
-
-        SemanticToken semanticToken = new SemanticToken(startLine.line(), startLine.offset());
-        if (!semanticTokens.contains(semanticToken)) {
-            Optional<Symbol> symbol = this.semanticTokensHandler.getSemanticModelSymbol(node);
-            if (symbol.isPresent()) {
+        if (!semanticTokens.contains(new SemanticToken(startLine.line(), startLine.offset()))) {
+            Optional<SemanticModel> semanticModel = this.semanticTokensContext.currentSemanticModel();
+            if (semanticModel.isEmpty()) {
+                return;
+            }
+            Optional<Symbol> symbol = semanticModel.get().symbol(node);
+            if (symbol.isPresent() && symbol.get().getLocation().isPresent()) {
+                LineRange symbolLineRange = symbol.get().getLocation().get().lineRange();
+                LinePosition linePosition = symbolLineRange.startLine();
                 SymbolKind kind = symbol.get().kind();
                 String nodeName = node.toString().trim();
-                int type = -1;
-                int modifiers = -1;
+
+                int declarationType = -1, declarationModifiers = -1, referenceType = -1, referenceModifiers = -1;
                 switch (kind) {
                     case CLASS:
-                        type = nodeName.equals(SELF) ? TokenTypes.KEYWORD.value : TokenTypes.CLASS.value;
+                        if (!nodeName.equals(SemanticTokensConstants.SELF)) {
+                            declarationType = TokenTypes.CLASS.getId();
+                            declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                            referenceType = TokenTypes.CLASS.getId();
+                        }
                         break;
                     case CLASS_FIELD:
-                        type = TokenTypes.PROPERTY.value;
+                        declarationType = TokenTypes.PROPERTY.getId();
+                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                        referenceType = TokenTypes.PROPERTY.getId();
                         break;
                     case CONSTANT:
-                        type = TokenTypes.VARIABLE.value;
-                        modifiers = TypeModifiers.READONLY.value;
+                        declarationType = TokenTypes.VARIABLE.getId();
+                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId() |
+                                TokenTypeModifiers.READONLY.getId();
+                        referenceType = TokenTypes.VARIABLE.getId();
+                        referenceModifiers = TokenTypeModifiers.READONLY.getId();
                         break;
                     case VARIABLE:
-                        type = nodeName.equals(SELF) ? TokenTypes.KEYWORD.value : TokenTypes.VARIABLE.value;
+                        if (!nodeName.equals(SemanticTokensConstants.SELF)) {
+                            declarationType = TokenTypes.VARIABLE.getId();
+                            declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                            referenceType = TokenTypes.VARIABLE.getId();
+                        }
                         break;
                     case TYPE:
                     case RECORD_FIELD:
-                        type = TokenTypes.TYPE.value;
+                        declarationType = TokenTypes.TYPE.getId();
+                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                        referenceType = TokenTypes.TYPE.getId();
                         break;
                     case ENUM_MEMBER:
-                        type = TokenTypes.ENUM_MEMBER.value;
-                        modifiers = TypeModifiers.READONLY.value;
+                        declarationType = TokenTypes.ENUM_MEMBER.getId();
+                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                        referenceType = TokenTypes.ENUM_MEMBER.getId();
                         break;
                     case PARAMETER:
-                        type = TokenTypes.PARAMETER.value;
+                        declarationType = TokenTypes.PARAMETER.getId();
+                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                        referenceType = TokenTypes.PARAMETER.getId();
                         break;
                     case FUNCTION:
-                        type = TokenTypes.FUNCTION.value;
+                        declarationType = TokenTypes.FUNCTION.getId();
+                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                        referenceType = TokenTypes.FUNCTION.getId();
                         break;
                     case METHOD:
-                        type = TokenTypes.METHOD.value;
+                        declarationType = TokenTypes.METHOD.getId();
+                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                        referenceType = TokenTypes.METHOD.getId();
                         break;
                     default:
                         break;
                 }
-                if (type != -1) {
-                    semanticToken.setProperties(nodeName.length(), type, modifiers == -1 ? 0 : modifiers);
-                    semanticTokens.add(semanticToken);
+
+                Path path = this.semanticTokensContext.filePath().getFileName();
+                if (path == null) {
+                    return;
+                }
+                // Add the symbol's semantic token if it is in the same file
+                if (declarationType != -1) {
+                    if (symbolLineRange.filePath().equals(path.toString())) {
+                        SemanticToken semanticToken = new SemanticToken(linePosition.line(), linePosition.offset());
+                        if (!semanticTokens.contains(semanticToken)) {
+                            semanticToken.setProperties(nodeName.length(), declarationType, declarationModifiers == -1
+                                    ? 0 : declarationModifiers);
+                            semanticTokens.add(semanticToken);
+                        }
+                    }
+                }
+
+                // Add symbol's references if they reside in the same file
+                if (referenceType != -1) {
+                    final int type = referenceType;
+                    final int modifiers = referenceModifiers == -1 ? 0 : referenceModifiers;
+                    semanticModel.get().references(symbol.get(), false).stream().filter(location ->
+                            location.lineRange().filePath().equals(path.toString())).forEach(location -> {
+                        LinePosition position = location.lineRange().startLine();
+                        SemanticToken semanticToken = new SemanticToken(position.line(), position.offset());
+                        if (!semanticTokens.contains(semanticToken)) {
+                            semanticToken.setProperties(nodeName.length(), type, modifiers);
+                            semanticTokens.add(semanticToken);
+                        }
+                    });
                 }
             }
         }
     }
 
+    /**
+     * Adds a semantic token instance into the semanticTokens set for the given node.
+     *
+     * @param node              Current node
+     * @param type              Semantic token type's index
+     * @param modifiers         Semantic token type modifiers' index
+     * @param processReferences True if node references should be processed, false otherwise
+     * @param refType           Reference's semantic token type's index
+     * @param refModifiers      Reference's semantic token type modifiers' index
+     */
     private void addSemanticToken(Node node, int type, int modifiers, boolean processReferences, int refType,
                                   int refModifiers) {
-
         LinePosition startLine = node.lineRange().startLine();
         SemanticToken semanticToken = new SemanticToken(startLine.line(), startLine.offset());
         if (!semanticTokens.contains(semanticToken)) {
@@ -322,30 +364,32 @@ public class SemanticTokensVisitor extends NodeVisitor {
         }
     }
 
-    private void processSemanticToken(SemanticToken semanticToken) {
-
-        int line = semanticToken.getLine();
-        int column = semanticToken.getColumn();
-        int prevTokenLine = line;
-        int prevTokenColumn = column;
-
-        if (this.previousToken != null) {
-            if (line == this.previousToken.getLine()) {
-                column -= this.previousToken.getColumn();
-            }
-            line -= this.previousToken.getLine();
-        }
-        this.data.add(line);
-        this.data.add(column);
-        this.data.add(semanticToken.getLength());
-        this.data.add(semanticToken.getType());
-        this.data.add(semanticToken.getModifiers());
-        this.previousToken = new SemanticToken(prevTokenLine, prevTokenColumn);
-    }
-
+    /**
+     * Handles references of the node that is located in the given position.
+     *
+     * @param linePosition Start position of the node
+     * @param length       Length to highlight
+     * @param type         Semantic token type's index
+     * @param modifiers    Semantic token type modifiers' index
+     */
     private void handleReferences(LinePosition linePosition, int length, int type, int modifiers) {
+        Optional<SemanticModel> semanticModel = this.semanticTokensContext.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return;
+        }
 
-        this.semanticTokensHandler.getSemanticModelReferences(linePosition).forEach(location -> {
+        Optional<Document> docOptional = this.semanticTokensContext.currentDocument();
+        if (docOptional.isEmpty()) {
+            return;
+        }
+
+        Path path = this.semanticTokensContext.filePath().getFileName();
+        if (path == null) {
+            return;
+        }
+
+        semanticModel.get().references(docOptional.get(), linePosition).stream().filter(location ->
+                location.lineRange().filePath().equals(path.toString())).forEach(location -> {
             LinePosition position = location.lineRange().startLine();
             SemanticToken semanticToken = new SemanticToken(position.line(), position.offset());
             if (!semanticTokens.contains(semanticToken)) {
@@ -355,6 +399,9 @@ public class SemanticTokensVisitor extends NodeVisitor {
         });
     }
 
+    /**
+     * Represents semantic token data for a node.
+     */
     static class SemanticToken implements Comparable<SemanticToken> {
 
         private final int line;
@@ -363,14 +410,12 @@ public class SemanticTokensVisitor extends NodeVisitor {
         private int type;
         private int modifiers;
 
-        SemanticToken(int line, int column) {
-
+        private SemanticToken(int line, int column) {
             this.line = line;
             this.column = column;
         }
 
-        public SemanticToken(int line, int column, int length, int type, int modifiers) {
-
+        private SemanticToken(int line, int column, int length, int type, int modifiers) {
             this.line = line;
             this.column = column;
             this.length = length;
@@ -378,41 +423,54 @@ public class SemanticTokensVisitor extends NodeVisitor {
             this.modifiers = modifiers;
         }
 
-        public int getLine() {
-
+        private int getLine() {
             return line;
         }
 
-        public int getColumn() {
-
+        private int getColumn() {
             return column;
         }
 
-        public int getLength() {
-
+        private int getLength() {
             return length;
         }
 
-        public int getType() {
-
+        private int getType() {
             return type;
         }
 
-        public int getModifiers() {
-
+        private int getModifiers() {
             return modifiers;
         }
 
         public void setProperties(int length, int type, int modifiers) {
-
             this.length = length;
             this.type = type;
             this.modifiers = modifiers;
         }
 
+        public SemanticToken processSemanticToken(List<Integer> data, SemanticToken previousToken) {
+            int line = this.getLine();
+            int column = this.getColumn();
+            int prevTokenLine = line;
+            int prevTokenColumn = column;
+
+            if (previousToken != null) {
+                if (line == previousToken.getLine()) {
+                    column -= previousToken.getColumn();
+                }
+                line -= previousToken.getLine();
+            }
+            data.add(line);
+            data.add(column);
+            data.add(this.getLength());
+            data.add(this.getType());
+            data.add(this.getModifiers());
+            return new SemanticToken(prevTokenLine, prevTokenColumn);
+        }
+
         @Override
         public boolean equals(Object obj) {
-
             if (this == obj) {
                 return true;
             }
@@ -425,13 +483,11 @@ public class SemanticTokensVisitor extends NodeVisitor {
 
         @Override
         public int hashCode() {
-
             return Objects.hash(line, column);
         }
 
         @Override
         public int compareTo(SemanticToken semanticToken) {
-
             if (this.line == semanticToken.line) {
                 return this.column - semanticToken.column;
             }

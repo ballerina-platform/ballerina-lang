@@ -32,6 +32,7 @@ public interface ExtendedLanguageClient extends LanguageClient {
     @JsonNotification("window/showTextDocument")
     void showTextDocument(Location location);
 
+    @Deprecated
     @JsonNotification("window/highlighting")
     void publishTextHighlighting(SemanticHighlightingParams semanticHighlightingParams);
 }
