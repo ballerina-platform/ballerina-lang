@@ -35,17 +35,14 @@ public class GlobalVariable {
     private final boolean isAssignableToAny;
     private final String qualifiersAndMetadata;
     private final boolean isAssignedWithVar;
-    private final boolean isDefinedObject;
 
-    public GlobalVariable(String type, boolean isAssignedWithVar, boolean isDefinedObject,
-                          QuotedIdentifier variableName,
+    public GlobalVariable(String type, boolean isAssignedWithVar, QuotedIdentifier variableName,
                           boolean isAssignableToAny, String qualifiersAndMetadata) {
         this.type = Objects.requireNonNull(type);
         this.isAssignableToAny = isAssignableToAny;
         this.qualifiersAndMetadata = Objects.requireNonNull(qualifiersAndMetadata);
         this.variableName = variableName;
         this.isAssignedWithVar = isAssignedWithVar;
-        this.isDefinedObject = isDefinedObject;
     }
 
     public String getType() {
@@ -54,10 +51,6 @@ public class GlobalVariable {
 
     public boolean isAssignedWithVar() {
         return this.isAssignedWithVar;
-    }
-
-    public boolean isDefinedObject() {
-        return isDefinedObject;
     }
 
     public QuotedIdentifier getVariableName() {
