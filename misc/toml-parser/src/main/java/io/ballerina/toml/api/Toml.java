@@ -18,6 +18,8 @@
 
 package io.ballerina.toml.api;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
@@ -42,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -258,5 +261,20 @@ public class Toml {
 
     public TomlTableNode rootNode() {
         return rootNode;
+    }
+    
+    public Map<String, Object> toMap() {
+        return this.rootNode.toNativeObject();
+    }
+
+    public <T> T to(Class<T> targetClass) {
+        Gson gson = new Gson();
+        JsonElement json = gson.toJsonTree(toMap());
+
+        if (targetClass == JsonElement.class) {
+            return targetClass.cast(json);
+        }
+
+        return gson.fromJson(json, targetClass);
     }
 }

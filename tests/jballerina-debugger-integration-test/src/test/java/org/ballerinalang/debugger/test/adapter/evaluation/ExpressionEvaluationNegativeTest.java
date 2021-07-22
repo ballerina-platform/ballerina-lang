@@ -79,7 +79,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
 
         // New expressions with invalid number of args
         debugTestRunner.assertEvaluationError(context, "new Location()", String.format(EvaluationExceptionKind
-                .CUSTOM_ERROR.getString(), "missing required parameter 'country'."));
+                .CUSTOM_ERROR.getString(), "missing required parameter 'city'."));
 
     }
 
@@ -171,6 +171,17 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, b = 6, ...c)", EvaluationExceptionKind.PREFIX +
                 "rest args are not allowed after named args.");
+
+        debugTestRunner.assertEvaluationError(context, "printDetails(...stringArrayVar);",
+                EvaluationExceptionKind.PREFIX + "missing required parameter 'name'.");
+
+        debugTestRunner.assertEvaluationError(context, "printDetails(\"Hi\", 20, 30);",
+                EvaluationExceptionKind.PREFIX + "Incompatible types: expected `string`, but found " +
+                        "'int': in 'modules'");
+
+        debugTestRunner.assertEvaluationError(context, "printDetails(\"Hi\", 20, ...stringArrayVar, 20);",
+                EvaluationExceptionKind.PREFIX + "Syntax errors found: " + System.lineSeparator() +
+                        "rest arg followed by another arg");
     }
 
     @Override

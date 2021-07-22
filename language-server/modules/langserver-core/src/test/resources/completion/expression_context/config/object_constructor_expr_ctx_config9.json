@@ -313,15 +313,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -430,6 +421,37 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "constructor",
+      "kind": "Variable",
+      "detail": "object {public int field1;}",
+      "sortText": "AB",
+      "insertText": "constructor",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testObjectConstructor()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "testObjectConstructor",
+      "insertText": "testObjectConstructor()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunctionWithReturn1()",
       "kind": "Function",
       "detail": "string",
@@ -442,6 +464,14 @@
       "sortText": "E",
       "filterText": "testFunctionWithReturn1",
       "insertText": "testFunctionWithReturn1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -468,45 +498,6 @@
       "sortText": "E",
       "filterText": "testFunctionWithReturn2",
       "insertText": "testFunctionWithReturn2()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testObjectConstructor()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "testObjectConstructor",
-      "insertText": "testObjectConstructor()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "constructor",
-      "kind": "Variable",
-      "detail": "object {public int field1;}",
-      "sortText": "AB",
-      "insertText": "constructor",
       "insertTextFormat": "Snippet"
     },
     {

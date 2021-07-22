@@ -364,15 +364,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -481,31 +472,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myInt2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "myInt2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myFunc(int a, int b)",
+      "label": "main()",
       "kind": "Function",
-      "detail": "int",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Return** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "AC",
-      "filterText": "myFunc",
-      "insertText": "myFunc(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "sortText": "E",
+      "filterText": "main",
+      "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "process(function (int, int) returns int func, int num1, int num2)",
@@ -527,12 +514,23 @@
       }
     },
     {
-      "label": "myInt1",
-      "kind": "Variable",
+      "label": "myFunc(int a, int b)",
+      "kind": "Function",
       "detail": "int",
-      "sortText": "AB",
-      "insertText": "myInt1",
-      "insertTextFormat": "Snippet"
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "myFunc",
+      "insertText": "myFunc(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "myString",
@@ -562,6 +560,14 @@
       }
     },
     {
+      "label": "total",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "total",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -573,34 +579,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "main",
-      "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "total",
+      "label": "myInt2",
       "kind": "Variable",
       "detail": "int",
       "sortText": "AB",
-      "insertText": "total",
+      "insertText": "myInt2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "myInt1",
       "insertTextFormat": "Snippet"
     },
     {

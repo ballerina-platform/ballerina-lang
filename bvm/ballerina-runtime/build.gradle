@@ -32,8 +32,6 @@ dependencies {
         exclude group: 'org.hibernate', module: 'hibernate'
     }
     implementation "javax.transaction:javax.transaction-api:1.3"
-    implementation project(':ballerina-config')
-    implementation project(':ballerina-logging')
     implementation project(':toml-parser')
     implementation project(':ballerina-tools-api')
 

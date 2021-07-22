@@ -349,15 +349,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -466,19 +457,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testC",
-      "kind": "Variable",
-      "detail": "module1:Client",
-      "sortText": "AB",
-      "insertText": "testC",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "P",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testC",
+      "kind": "Variable",
+      "detail": "module1:Client",
+      "sortText": "AB",
+      "insertText": "testC",
       "insertTextFormat": "Snippet"
     },
     {
