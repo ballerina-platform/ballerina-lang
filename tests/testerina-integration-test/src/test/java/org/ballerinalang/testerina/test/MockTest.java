@@ -23,6 +23,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -67,5 +68,35 @@ public class MockTest extends BaseTestCase {
         if (!output.contains(msg1) || !output.contains(msg2)) {
             Assert.fail("Test failed due to object mocking failure in test framework.\nOutput:\n" + output);
         }
+    }
+
+    @Test(dataProvider = "testNegativeCases")
+    public void testObjectMocking_NegativeCases(String message, String test) throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests", test});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
+        if (!output.contains(message)) {
+            throw new BallerinaTestException(
+                    "Test failed due to default module single test failure.\nOutput:\n" + output);
+        }
+    }
+
+    @DataProvider(name = "testNegativeCases")
+    public static Object[][] negativeCases() {
+        return new Object[][] {
+                {"incorrect type of argument provided at position '1' to mock the function 'get()'",
+                        "object_mocking:testDefaultIncompatibleArgs"},
+                {"return value provided does not match the type of 'url'",
+                        "object_mocking:testDefaultInvalidMemberReturnValue"},
+                {"invalid field name 'invalidField' provided",
+                        "object_mocking:testDefaultMockInvalidFieldName"},
+                {"return value provided does not match the return type of function 'get()'",
+                        "object_mocking:testDefaultMockInvalidReturnValue"},
+                {"return value provided does not match the return type of function 'get()'",
+                        "object_mocking:testDefaultMockWrongAction"},
+                {"too many argument provided to mock the function 'get()'",
+                        "object_mocking:testDefaultTooManyArgs"}
+        };
     }
 }

@@ -323,6 +323,10 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
                 { "testCloneWithTypeNumeric7" },
+                { "testCloneWithTypeToArrayOfRecord" },
+                { "testCloneWithTypeToArrayOfMap" },
+                { "testCloneWithTypeIntArrayToUnionArray" },
+                { "testCloneWithTypeIntSubTypeArray" },
                 { "testCloneWithTypeStringArray" },
                 { "testCloneWithTypeWithInferredArgument" },
                 { "testCloneWithTypeWithImmutableTypes" },
@@ -330,7 +334,15 @@ public class LangLibValueTest {
                 {"testCloneWithTypeDecimalToIntNegative"},
                 { "testCloneWithTypeDecimalToByte"},
                 { "testCloneWithTypeDecimalToIntSubType"},
+                { "testCloneWithTypeTupleToJSON"},
                 { "testCloneWithTypeImmutableStructuredTypes"},
+                {"testCloneWithTypeWithFiniteArrayTypeFromIntArray"},
+                { "testCloneWithTypeWithFiniteType" },
+                { "testCloneWithTypeWithUnionOfFiniteType" },
+                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
+                { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
+                { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
+                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
         };
     }
 
@@ -342,6 +354,11 @@ public class LangLibValueTest {
     @Test
     public void testAssigningCloneableToAnyOrError() {
         BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+    }
+
+    @Test
+    public void testDestructuredNamedArgs() {
+        BRunUtil.invokeFunction(compileResult, "testDestructuredNamedArgs");
     }
 
     @DataProvider(name = "fromJsonWithTypeFunctions")

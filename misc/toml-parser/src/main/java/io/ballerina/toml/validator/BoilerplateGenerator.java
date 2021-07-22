@@ -21,6 +21,7 @@ import io.ballerina.toml.validator.schema.AbstractSchema;
 import io.ballerina.toml.validator.schema.ArraySchema;
 import io.ballerina.toml.validator.schema.BooleanSchema;
 import io.ballerina.toml.validator.schema.NumericSchema;
+import io.ballerina.toml.validator.schema.PrimitiveValueSchema;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.toml.validator.schema.SchemaVisitor;
 import io.ballerina.toml.validator.schema.StringSchema;
@@ -41,7 +42,7 @@ public class BoilerplateGenerator extends SchemaVisitor {
     private String parentTableKey;
     private final List<String> output;
     private String key;
-    
+
     private static final String NEW_LINE = System.lineSeparator();
 
     public BoilerplateGenerator(Schema rootSchema) {
@@ -58,6 +59,9 @@ public class BoilerplateGenerator extends SchemaVisitor {
     @Override
     public void visit(Schema objectSchema) {
         Map<String, AbstractSchema> children = objectSchema.properties();
+        if (!isDefaultValuesExist(children)) {
+            return;
+        }
         if (!isTableHeaderSkippable(children)) {
             output.add("[" + this.parentTableKey + "]" + NEW_LINE);
         }
@@ -103,7 +107,7 @@ public class BoilerplateGenerator extends SchemaVisitor {
     public void visit(BooleanSchema booleanSchema) {
         Optional<Boolean> defaultValue = booleanSchema.defaultValue();
         if (defaultValue.isEmpty()) {
-            throw new RuntimeException(this.parentTableKey + " Default value is not set");
+            return;
         }
         Boolean val = defaultValue.get();
         output.add(this.key + " = " + val + NEW_LINE);
@@ -113,7 +117,7 @@ public class BoilerplateGenerator extends SchemaVisitor {
     public void visit(NumericSchema numericSchema) {
         Optional<Double> defaultValue = numericSchema.defaultValue();
         if (defaultValue.isEmpty()) {
-            throw new RuntimeException(this.parentTableKey + " Default value is not set");
+            return;
         }
         Double val = defaultValue.get();
         output.add(this.key + " = " + numericPrettyPrint(val) + NEW_LINE);
@@ -123,7 +127,7 @@ public class BoilerplateGenerator extends SchemaVisitor {
     public void visit(StringSchema stringSchema) {
         Optional<String> defaultValue = stringSchema.defaultValue();
         if (defaultValue.isEmpty()) {
-            throw new RuntimeException(this.parentTableKey + " Default value is not set");
+            return;
         }
         String val = defaultValue.get();
         output.add(this.key + " = " + "\"" + val + "\"" + NEW_LINE);
@@ -148,6 +152,36 @@ public class BoilerplateGenerator extends SchemaVisitor {
             }
         }
         return true;
+    }
+
+    private static boolean isDefaultValuesExist(Map<String, AbstractSchema> children) {
+        for (AbstractSchema value : children.values()) {
+            //If Anything other than array or table
+            if (!(value.type() == Type.OBJECT || value.type() == Type.ARRAY)) {
+                if (((PrimitiveValueSchema) value).defaultValue().isPresent()) {
+                    return true;
+                }
+            }
+
+            if (value.type() == Type.OBJECT) {
+                Schema table = (Schema) value;
+                if (isDefaultValuesExist(table.properties())) {
+                    return true;
+                }
+            }
+
+            if (value.type() == Type.ARRAY) {
+                ArraySchema arraySchema = (ArraySchema) value;
+                AbstractSchema items = arraySchema.items();
+                if (items.type() == Type.OBJECT) {
+                    Schema table = (Schema) items;
+                    if (isDefaultValuesExist(table.properties())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
 }

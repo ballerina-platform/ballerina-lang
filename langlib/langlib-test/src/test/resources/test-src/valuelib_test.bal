@@ -517,6 +517,60 @@ type Person2 record {
     int age;
 };
 
+function testCloneWithTypeTupleToJSON() {
+    [string, string, string] tupleValue1 = ["Mohan", "single", "LK2014"];
+    json|error jsonValue = tupleValue1.cloneWithType();
+
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, string, xml] tupleValue2 = ["Mohan", "single"];
+    jsonValue = tupleValue2.cloneWithType();
+    assert(jsonValue is error, true);
+    error err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
+
+    [string, xml|int] tupleValue3 = ["text1", 1];
+    jsonValue = tupleValue3.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, anydata...] tupleValue4 = [""];
+    jsonValue = tupleValue4.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, int|xml...] tupleValue5 = ["text"];
+    jsonValue = tupleValue5.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, int|xml...] tupleValue6 = ["text", xml `text`, 1];
+    jsonValue = tupleValue6.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,(int|xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>)...]' value cannot be converted to 'json'");
+
+    [string, anydata...] tupleValue7 = ["", xml `text`, true];
+    jsonValue = tupleValue7.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
+
+    [string, xml|int] tupleValue8 = ["text1", xml `</elem>`];
+    jsonValue = tupleValue8.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
+}
+
 function testCloneWithTypeJsonRec1() {
     Person2  p = {name: "N", age: 3};
     json|error ss = p.cloneWithType(json);
@@ -671,6 +725,23 @@ function testCloneWithTypeNumeric5() {
     assert(j, <(float|boolean)[]> j2);
 }
 
+function testCloneWithTypeToArrayOfRecord () {
+    X x1 = { a: 21, b: "Alice", c: 1000.5 };
+    X x2 = { a: 25, b: "Michel", c: 1020.5};
+    X[] x = [x1, x2];
+    Y[] y = checkpanic x.cloneWithType();
+    assert(y, <Y[]> [{"a":21.0,"b":"Alice","c":1000.5},{"a":25.0,"b":"Michel","c":1020.5}]);
+}
+
+function testCloneWithTypeToArrayOfMap () {
+    map<float> m1 = { a: 1.2, b: 2.7 };
+    map<float> m2 = { a: 1.8, b: 2.3 };
+    map<float>[] m = [m1, m2];
+    map<string|int>[]|error res = m.cloneWithType();
+    assert(res is error, false);
+    assert(checkpanic res, [{"a": 1, "b": 3}, {"a": 2, "b": 2}]);
+}
+
 type IntMap map<int>;
 type IntOrStringMap map<string|int>;
 function testCloneWithTypeNumeric6() {
@@ -759,7 +830,7 @@ function testCloneWithTypeDecimalToIntNegative() {
     message = err.detail()["message"];
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(messageString, "'decimal[]' value cannot be converted to 'int[]'");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
 
     decimal a2 = 0.0 / 0;
     int|error nan = a2.cloneWithType(int);
@@ -769,6 +840,83 @@ function testCloneWithTypeDecimalToIntNegative() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina}NumberConversionError");
     assert(messageString, "'decimal' value 'NaN' cannot be converted to 'int'");
+}
+
+function checkDecimalToIntError(any|error result) {
+    assert(result is error, true);
+    error err = <error>result;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'decimal' value cannot be converted to 'int'");
+}
+
+type IntSubtypeArray1 int:Signed32[];
+type IntSubtypeArray2 int:Unsigned16[];
+function testCloneWithTypeIntSubTypeArray() {
+    float[] a = [1.25, 3.46, 7.52];
+    int:Signed32[]|error b = a.cloneWithType(IntSubtypeArray1);
+    assert(b is error, false);
+    assert(checkpanic b, [1, 3, 8]);
+
+    decimal[] d = [12.763445, 23.4578923, 31.674895374];
+    int:Unsigned16[]|error e = d.cloneWithType(IntSubtypeArray2);
+    assert(e is error, false);
+    assert(checkpanic e, [13, 23, 32]);
+}
+
+function testCloneWithTypeIntArrayToUnionArray() {
+    int[] x = [1, 2, 3];
+
+    (int|float)[]|error a = x.cloneWithType();
+    assert(a is error, false);
+    assert(checkpanic a, [1, 2, 3]);
+
+    (float|string)[]|error c = x.cloneWithType();
+    assert(c is error, false);
+    assert(checkpanic c, [1.0, 2.0, 3.0]);
+
+    (byte|float)[]|error e = x.cloneWithType();
+    assert(e is error, true);
+    error err = <error> e;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '(byte|float)[]'");
+
+    float[] y = [10, 20];
+
+    (int|byte)[]|error f = y.cloneWithType();
+    assert(f is error, false);
+    assert(checkpanic f, [10, 20]);
+
+    (byte|int:Signed8|int:Unsigned8)[]|error g = y.cloneWithType();
+    assert(g is error, false);
+    assert(checkpanic g, [10, 20]);
+
+    (int:Signed32|int:Unsigned32|int:Unsigned16)[]|error h = y.cloneWithType();
+    assert(h is error, false);
+    assert(checkpanic h, [10, 20]);
+
+    (int:Signed32|int:Unsigned16)[]|error i = y.cloneWithType();
+    assert(i is error, false);
+    assert(checkpanic i, [10, 20]);
+
+    (int:Signed16|int:Unsigned8)[]|error j = y.cloneWithType();
+    assert(j is error, false);
+    assert(checkpanic j, [10, 20]);
+
+    (int:Signed8|byte)[]|error k = y.cloneWithType();
+    assert(k is error, false);
+    assert(checkpanic k, [10, 20]);
+
+    (int:Signed16|int:Unsigned8|decimal)[]|error m = y.cloneWithType();
+    assert(m is error, true);
+    err = <error> m;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]'");
 }
 
 type StringArray string[];
@@ -967,6 +1115,141 @@ function testCloneWithTypeImmutableStructuredTypes() {
     record {| Person3 & readonly value; |} p2 = <record {| Person3 & readonly value; |}>tab2.iterator().next();
     Person3 person4 = p2["value"];
     assert(person4.id, 14);
+}
+
+type IntOneOrTwo 1|2;
+type IntTwoOrThree 2|3;
+type IntThreeOrFour 3|4;
+type FloatOneOrTwo 1.0|2.0;
+type FloatTwoOrThree 2.0|3.0;
+type FloatThreeOrFour 3.0|4.0;
+type IntOneOrFloatTwo 1|2.0;
+type IntTwoOrFloatTwo 2|2.0;
+
+function testCloneWithTypeWithFiniteType() {
+    int x = 2;
+    float y = 2.0;
+
+    IntOneOrTwo|error a = x.cloneWithType();
+    assert(a is IntOneOrTwo, true);
+    IntOneOrTwo b = checkpanic a;
+    assert(b, 2);
+
+    FloatOneOrTwo|error c = x.cloneWithType();
+    assert(c is error, false);
+    FloatOneOrTwo d = checkpanic c;
+    assert(d, 2.0);
+
+    IntTwoOrFloatTwo|error e = x.cloneWithType();
+    assert(e is error, false);
+    IntTwoOrFloatTwo f = checkpanic e;
+    assert(f, 2);
+
+    IntTwoOrFloatTwo|error g = y.cloneWithType();
+    assert(g is error, false);
+    IntTwoOrFloatTwo h = checkpanic g;
+    assert(h, 2.0);
+}
+
+function testCloneWithTypeWithUnionOfFiniteType() {
+    int x = 3;
+
+    (IntTwoOrThree|IntThreeOrFour)|error a = x.cloneWithType();
+    assert(a is error, false);
+    IntTwoOrThree|IntThreeOrFour b = checkpanic a;
+    assert(b, 3);
+
+    (FloatTwoOrThree|FloatThreeOrFour)|error c = x.cloneWithType();
+    assert(c is error, false);
+    FloatTwoOrThree|FloatThreeOrFour d = checkpanic c;
+    assert(d, 3.0);
+
+    int y = 2;
+    (IntOneOrFloatTwo|IntTwoOrThree)|error e = y.cloneWithType();
+    assert(e is error, false);
+    IntOneOrFloatTwo|IntTwoOrThree f = checkpanic e;
+    assert(f, 2);
+}
+
+function testCloneWithTypeWithFiniteArrayTypeFromIntArray() {
+    int[] x = [1, 2];
+    IntOneOrTwo[]|error a = x.cloneWithType();
+    assert(a is IntOneOrTwo[], true);
+    assert(a is error, false);
+
+    IntOneOrTwo[] b = checkpanic a;
+    assert(b[0], 1);
+    assert(b[1], 2);
+
+    int[] y = [3, 4];
+    FloatThreeOrFour[]|error c = y.cloneWithType();
+    assert(c is error, false);
+    FloatThreeOrFour[] d = checkpanic c;
+    assert(d, [3.0, 4.0]);
+}
+
+function testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray() {
+    int[] x = [1, 2, 3];
+    (IntOneOrTwo|IntTwoOrThree)[]|error a = x.cloneWithType();
+    assert(a is error, false);
+
+    (IntOneOrTwo|IntTwoOrThree)[] b = checkpanic a;
+    assert(b, [1,2,3]);
+
+    float[] y = [3.0, 4.0];
+    (IntTwoOrThree|FloatThreeOrFour)[]|error c = y.cloneWithType();
+    assert(c is error, false);
+    (IntTwoOrThree|FloatThreeOrFour)[] d = checkpanic c;
+    assert(d, [3.0, 4.0]);
+}
+
+function testCloneWithTypeWithUnionTypeArrayFromIntArray() {
+    int[] x = [1, 2, 3];
+
+    (string|IntOneOrTwo|IntTwoOrThree)[]|error a = x.cloneWithType();
+    assert(a is error, false);
+    (string|IntOneOrTwo|IntTwoOrThree)[] b = checkpanic a;
+    assert(b, [1,2,3]);
+
+    int[] y = [3, 4];
+
+    (float|FloatThreeOrFour)[]|error c = y.cloneWithType();
+    assert(c is error, false);
+    (float|FloatThreeOrFour)[] d = checkpanic c;
+    assert(d, [3.0, 4.0]);
+
+    (IntThreeOrFour|FloatThreeOrFour)[]|error e = y.cloneWithType();
+    assert(e is error, false);
+    (IntThreeOrFour|FloatThreeOrFour)[] f = checkpanic e;
+    assert(f, [3, 4]);
+}
+
+function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
+    int[] x = [1, 2, 3, 4];
+
+    IntTwoOrThree[]|error a = x.cloneWithType();
+    assert(a is error, true);
+
+    error err = <error> a;
+    var message = err.detail()["message"];
+    string messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int[]' value cannot be converted to 'IntTwoOrThree[]'");
+
+    (IntTwoOrThree|IntThreeOrFour)[]|error c = x.cloneWithType();
+    assert(c is error, true);
+    err = <error> c;
+    message = err.detail()["message"];
+    messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int[]' value cannot be converted to '(IntTwoOrThree|IntThreeOrFour)[]'");
+
+    int[] y = [3, 4];
+
+    IntThreeOrFour[]|FloatThreeOrFour[]|error f = y.cloneWithType();
+    assert(f is error, true);
+    err = <error> f;
+    message = err.detail()["message"];
+    messageString = message is error? message.toString(): message.toString();
+    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
@@ -1490,14 +1773,14 @@ function testToStringOnCycles() {
 }
 
 function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+    if (expected == actual) {
+        return;
     }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(reason);
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
@@ -1803,4 +2086,17 @@ function testXMLWithAngleBrackets() {
         return;
     }
     panic error("AssertionError : expected: " + expected + " found: " + exy.toString());
+}
+
+public type KeyVals record {|
+    anydata ...;
+|};
+
+function foo(*KeyVals kvPairs) returns string {
+    return kvPairs.toString();
+}
+
+public function testDestructuredNamedArgs() returns any {
+   string actual =  foo(message = "This is a sample message", a = "foo", b = "bar", c = 100);
+   assertEquality("{\"message\":\"This is a sample message\",\"a\":\"foo\",\"b\":\"bar\",\"c\":100}", actual);
 }

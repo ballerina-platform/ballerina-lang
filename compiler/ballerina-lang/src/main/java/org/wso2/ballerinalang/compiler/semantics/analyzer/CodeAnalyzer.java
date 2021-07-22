@@ -344,7 +344,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
     }
 
     private void resetFunction() {

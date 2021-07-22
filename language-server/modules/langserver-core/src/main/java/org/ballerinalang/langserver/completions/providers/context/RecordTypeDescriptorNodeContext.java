@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +66,24 @@ public class RecordTypeDescriptorNodeContext extends AbstractCompletionProvider<
                     (QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(this.getCompletionItemList(types, context));
         } else {
+            // The readonly keyword also considered as a suggestion and it is suggested via the type-descriptor Items
             completionItems.addAll(this.getTypeDescContextItems(context));
         }
+        /*
+        Sorting is done depending on the type descriptor context. Any changes to the completion item list, should be
+        handled along with the sorting as well.
+         */
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, RecordTypeDescriptorNode node,
+                     List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsCItem : completionItems) {
+            String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+            lsCItem.getCompletionItem().setSortText(sortText);
+        }
     }
 }

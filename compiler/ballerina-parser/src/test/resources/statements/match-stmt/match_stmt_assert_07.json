@@ -151,12 +151,11 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
+                                      "kind": "UNDERSCORE_KEYWORD",
                                       "hasDiagnostics": true,
                                       "diagnostics": [
                                         "ERROR_INVALID_TOKEN"
                                       ],
-                                      "value": "_",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",

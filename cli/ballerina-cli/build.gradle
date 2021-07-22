@@ -59,7 +59,6 @@ dependencies {
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-core')
 }
 
@@ -81,7 +80,6 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "ballerina.home", "$buildDir"
     useTestNG() {
         suites 'src/test/resources/testng.xml'

@@ -30,7 +30,6 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-runtime')
-    implementation 'javax.ws.rs:javax.ws.rs-api'
     implementation 'me.tongfei:progressbar'
     implementation 'com.google.code.gson:gson'
     implementation 'com.google.code.findbugs:jsr305'
@@ -75,7 +74,6 @@ test {
     dependsOn configurations.birJarCompile
 
     systemProperty "ballerina.home", "$buildDir"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

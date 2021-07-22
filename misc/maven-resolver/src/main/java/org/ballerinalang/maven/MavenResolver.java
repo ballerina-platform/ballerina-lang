@@ -75,7 +75,6 @@ public class MavenResolver {
         session = MavenRepositorySystemUtils.newSession();
         LocalRepository localRepo = new LocalRepository(targetLocation);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
-        session.setTransferListener(new TransferListener());
 
         repositories = new ArrayList<>();
         repositories.add(new RemoteRepository.Builder(
@@ -181,6 +180,9 @@ public class MavenResolver {
             }
         } else {
             try {
+                // The transfer listener is set only for resolving artifacts without transitive
+                // dependencies, since parallel downloads tend to generate a broken progress bar.
+                session.setTransferListener(new TransferListener());
                 ArtifactRequest artifactRequest = new ArtifactRequest();
                 artifactRequest.setArtifact(artifact);
                 artifactRequest.setRepositories(repositories);

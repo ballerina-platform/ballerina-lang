@@ -23,7 +23,10 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -242,5 +245,19 @@ public class Utils {
                 // should not come here
                 return null;
         }
+    }
+
+    public static Field createAdditionalField(RecordType recordType, String fieldName, TomlNode value) {
+        Type restFieldType = recordType.getRestFieldType();
+        if (!isAnyDataType(restFieldType)) {
+            return TypeCreator.createField(restFieldType, fieldName, SymbolFlags.READONLY);
+        } else {
+            return TypeCreator.createField(Utils.getTypeFromTomlValue(value), fieldName, SymbolFlags.READONLY);
+        }
+    }
+
+    private static boolean isAnyDataType(Type restFieldType) {
+        return restFieldType.getTag() == TypeTags.ANYDATA_TAG || (restFieldType.getTag() == TypeTags.INTERSECTION_TAG &&
+                ((IntersectionType) restFieldType).getEffectiveType().getTag() == TypeTags.ANYDATA_TAG);
     }
 }

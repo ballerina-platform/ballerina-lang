@@ -67,3 +67,36 @@ public type Two 2.5;
 
 public type Three "three";
 
+configurable int num4 = 8;
+configurable string word5 = "word";
+
+final string symbol1 = "!";
+configurable string symbol2 = "a";
+configurable string symbol3 = "a";
+
+public type Symbols record {|
+    string symbol1 = symbol1;
+    string symbol2 = symbol2;
+    string symbol3 = getSymbol();
+    string symbol4;
+|};
+
+public isolated function getWord() returns string {
+    return word5;
+}
+
+public isolated function getNumber() returns int {
+    return num4;
+}
+
+isolated function getSymbol() returns string {
+    return symbol3;
+}
+
+type Staff record {|
+    readonly int id;
+    readonly string name = "Default";
+    readonly float salary?;
+|};
+
+public type StaffTable table<Staff> key(id);

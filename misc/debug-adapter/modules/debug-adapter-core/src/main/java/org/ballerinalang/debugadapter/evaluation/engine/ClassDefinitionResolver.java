@@ -46,7 +46,7 @@ public class ClassDefinitionResolver {
         return semanticContext.moduleSymbols()
                 .stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.CLASS
-                        && modifyName(symbol.getName().get()).equals(className))
+                        && modifyName(symbol.getName().orElse("")).equals(className))
                 .findFirst()
                 .map(symbol -> (ClassSymbol) symbol);
     }

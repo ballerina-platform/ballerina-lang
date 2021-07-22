@@ -19,7 +19,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -31,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -187,14 +187,14 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
     protected List<LSCompletionItem> getSymbolCompletions(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
+        Predicate<Symbol> symbolFilter = CommonUtil.getVariableFilterPredicate();
+        symbolFilter = symbolFilter.or(symbol -> symbol.kind() == SymbolKind.FUNCTION);
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol ||
-                        symbol.kind() == SymbolKind.PARAMETER || symbol.kind() == SymbolKind.PATH_PARAMETER)
+                .filter(symbolFilter)
                 .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        return completionItems;
+        
+        return this.getCompletionItemList(filteredList, context);
     }
 
     private boolean withinLoopConstructs(T node) {

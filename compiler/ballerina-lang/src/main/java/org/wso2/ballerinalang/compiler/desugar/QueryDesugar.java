@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -214,7 +216,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
     private BLangExpression onConflictExpr;
     private BVarSymbol currentFrameSymbol;
-    private BLangBlockFunctionBody currentLambdaBody;
+    private BLangBlockFunctionBody currentQueryLambdaBody;
     private Map<String, BSymbol> identifiers;
     private int streamElementCount = 0;
     private final Desugar desugar;
@@ -224,6 +226,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Types types;
     private SymbolEnv env;
     private boolean containsCheckExpr;
+    private boolean withinLambdaFunc = false;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -876,6 +879,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                                                      BLangFunctionBody lambdaBody) {
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(pos, "$streamLambda$",
                 requiredParams, returnType, lambdaBody);
+        lambdaFunction.function.addFlag(Flag.QUERY_LAMBDA);
         lambdaFunction.capturedClosureEnv = env;
         return lambdaFunction;
     }
@@ -1299,15 +1303,40 @@ public class QueryDesugar extends BLangNodeVisitor {
     // ---- Visitor methods to replace frame access and mark closure variables ---- //
     @Override
     public void visit(BLangLambdaFunction lambda) {
-        BLangFunction function = lambda.function;
-        currentFrameSymbol = function.requiredParams.get(0).symbol;
-        identifiers = new HashMap<>();
-        currentLambdaBody = (BLangBlockFunctionBody) function.getBody();
-        List<BLangStatement> stmts = new ArrayList<>(currentLambdaBody.getStatements());
+        lambda.function.accept(this);
+        env.enclPkg.lambdaFunctions.add(lambda);
+    }
+
+    @Override
+    public void visit(BLangFunction function) {
+        if (function.flagSet.contains(Flag.QUERY_LAMBDA)) {
+            BLangBlockFunctionBody prevQueryLambdaBody = currentQueryLambdaBody;
+            BVarSymbol prevFrameSymbol = currentFrameSymbol;
+            Map<String, BSymbol> prevIdentifiers = identifiers;
+            currentFrameSymbol = function.requiredParams.get(0).symbol;
+            identifiers = new HashMap<>();
+            currentQueryLambdaBody = (BLangBlockFunctionBody) function.getBody();
+            currentQueryLambdaBody.accept(this);
+            currentFrameSymbol = prevFrameSymbol;
+            identifiers = prevIdentifiers;
+            currentQueryLambdaBody = prevQueryLambdaBody;
+        } else {
+            boolean prevWithinLambdaFunc = withinLambdaFunc;
+            withinLambdaFunc = true;
+            function.getBody().accept(this);
+            withinLambdaFunc = prevWithinLambdaFunc;
+        }
+    }
+
+    @Override
+    public void visit(BLangBlockFunctionBody body) {
+        List<BLangStatement> stmts = new ArrayList<>(body.getStatements());
         stmts.forEach(stmt -> stmt.accept(this));
-        currentFrameSymbol = null;
-        identifiers = null;
-        currentLambdaBody = null;
+    }
+
+    @Override
+    public void visit(BLangExprFunctionBody exprBody) {
+        exprBody.expr.accept(this);
     }
 
     @Override
@@ -1350,6 +1379,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef structFunctionVarRef) {
+        structFunctionVarRef.expr.accept(this);
+    }
+
+    @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         exprStmtNode.expr.accept(this);
     }
@@ -1365,6 +1399,16 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (invocationExpr.expr != null) {
             invocationExpr.expr.accept(this);
         }
+    }
+
+    @Override
+    public void visit(BLangInvocation.BFunctionPointerInvocation functionPointerInvocationExpr) {
+        visit((BLangInvocation) functionPointerInvocationExpr);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation attachedFunctionInvocation) {
+        visit((BLangInvocation) attachedFunctionInvocation);
     }
 
     @Override
@@ -1398,6 +1442,16 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : bLangRecordLiteral.fields) {
             ((BLangNode) field).accept(this);
         }
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
+        visit((BLangRecordLiteral) structLiteral);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
+        visit((BLangRecordLiteral) mapLiteral);
     }
 
     @Override
@@ -1460,9 +1514,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                 names.fromString(identifier), SymTag.VARIABLE);
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
-        if (symbol != null && symbol != resolvedSymbol) {
-            if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
-                Location pos = currentLambdaBody.pos;
+        if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
+            if (!identifiers.containsKey(identifier)) {
+                Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
                         symTable.anyOrErrorType, currentFrameSymbol);
                 frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
@@ -1470,12 +1524,30 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
+                    if (withinLambdaFunc && symbol.closure) {
+                        // When there's a closure in a lambda inside a query lambda the symbol.closure is
+                        // true for all its usages. Therefore mark symbol.closure = false for the existing
+                        // symbol and create a new symbol with the same properties.
+                        symbol.closure = false;
+                        symbol = new BVarSymbol(0, symbol.name, env.scope.owner.pkgID, symbol.type, env.scope.owner,
+                                pos, VIRTUAL);
+                        symbol.closure = true;
+                        bLangSimpleVarRef.symbol = symbol;
+                        bLangSimpleVarRef.varSymbol = symbol;
+                    }
+
                     BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
                             desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                     BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-                    currentLambdaBody.stmts.add(0, variableDef);
+                    currentQueryLambdaBody.stmts.add(0, variableDef);
+                    SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                    queryLambdaEnv.scope.define(symbol.name, symbol);
                 }
                 identifiers.put(identifier, symbol);
+            } else if (identifiers.containsKey(identifier) && withinLambdaFunc) {
+                symbol = identifiers.get(identifier);
+                bLangSimpleVarRef.symbol = symbol;
+                bLangSimpleVarRef.varSymbol = symbol;
             }
         } else if (resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
@@ -1495,9 +1567,59 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
+        visit(((BLangSimpleVarRef) localVarRef));
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
+        visit(((BLangSimpleVarRef) fieldVarRef));
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
+        visit(((BLangSimpleVarRef) functionVarRef));
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         indexAccessExpr.indexExpr.accept(this);
         indexAccessExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr structFieldAccessExpr) {
+        visit((BLangIndexBasedAccess) structFieldAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapAccessExpr) {
+        visit((BLangIndexBasedAccess) mapAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayAccessExpr) {
+        visit((BLangIndexBasedAccess) arrayAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableAccessExpr) {
+        visit((BLangIndexBasedAccess) tableAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr tupleAccessExpr) {
+        visit((BLangIndexBasedAccess) tupleAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
+        visit((BLangIndexBasedAccess) stringAccessExpr);
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
+        visit((BLangIndexBasedAccess) xmlAccessExpr);
     }
 
     @Override
@@ -1568,6 +1690,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
         tupleLiteral.exprs.forEach(expression -> expression.accept(this));
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
+        jsonArrayLiteral.exprs.forEach(expression -> expression.accept(this));
     }
 
     @Override

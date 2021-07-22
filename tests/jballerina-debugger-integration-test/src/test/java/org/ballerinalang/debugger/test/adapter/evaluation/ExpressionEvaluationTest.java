@@ -102,7 +102,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "new Location(\"New York\",\"USA\")", "Location", "object");
     }
 
     @Override
@@ -162,7 +162,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
-        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
+        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 3)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
@@ -179,7 +179,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_08, "2", "int");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 2)", "json");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 3)", "json");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
         // Todo - add test for qualified name references, after adding support
@@ -193,7 +193,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // record fields
         debugTestRunner.assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~π", "20", "int");
         // json fields
-        debugTestRunner.assertExpression(context, JSON_VAR + ".name", "\"John\"", "string");
+        debugTestRunner.assertExpression(context, JSON_VAR + ".name", "\"apple\"", "string");
         // service object fields
         debugTestRunner.assertExpression(context, String.format("%s.i", SERVICE_VAR), "5", "int");
 
@@ -206,7 +206,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + ".gender", "\"male\"", "string");
+        // XML optional attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + "?.gender", "\"male\"", "string");
+        // XML optional attribute access on non existing attribute
+        debugTestRunner.assertExpression(context, XML_VAR + "?.name", "()", "nil");
     }
 
     @Override
@@ -223,18 +228,23 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // lists
         debugTestRunner.assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
         // maps
-        // debugTestRunner.assertExpression(context, mapVar + "[\"country\"]", "\"Sri Lanka\"", "string");
-        // debugTestRunner.assertExpression(context, mapVar + "[\"undefined\"]", "()", "nil");
+        debugTestRunner.assertExpression(context, MAP_VAR + "[\"country\"]", "\"Sri Lanka\"", "string");
+        debugTestRunner.assertExpression(context, MAP_VAR + "[\"undefined\"]", "()", "nil");
         // json
-        // debugTestRunner.assertExpression(context, jsonVar + "[\"color\"]", "\"red\"", "string");
-        // debugTestRunner.assertExpression(context, jsonVar + "[\"undefined\"]", "()", "nil");
-        // Todo - add following tests after the implementation
-        //  - xml member access
+        debugTestRunner.assertExpression(context, JSON_VAR + "[\"color\"]", "\"red\"", "string");
+        debugTestRunner.assertExpression(context, JSON_VAR + "[\"undefined\"]", "()", "nil");
+        // XML
+        debugTestRunner.assertExpression(context, XML_VAR + "[0]", "<firstname>Praveen</firstname>", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + "[0][0]", "Praveen", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + "[2]", "XMLSequence (size = 0)", "xml");
     }
 
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
+
+        // Function which includes asynchronous calls.
+        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
 
         // ---------------------- Required Parameters + named arguments ---------------------------------
 
@@ -287,32 +297,30 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                 "\"[2500, 100, 0.1]\"", "string");
 
         // ----------------------------  Rest Parameters  ------------------------------------------
-        // Todo - Enable once the debugger runtime helper module is restored.
 
         // Call the function by passing only the required parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "[2500, 20, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "\"[Alice, 18, Module(s): ()]\"",
+                "string");
 
-        // Call the function by passing the required parameter and the defaultable parameter. Named arguments can
+        // Call the function by passing the required parameter and the defaultable parameter.Named arguments can
         // also be used since values are not passed for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Bob\", 20);", "[2500, 20, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printDetails(\"Bob\", 20);", "\"[Bob, 20, Module(s): ()]\"",
+                "string");
 
         // Call the function by passing the required parameter, the defaultable parameter, and one value for the rest
-        // parameter. Arguments cannot be passed as named arguments since values are specified for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Corey\", 19, \"Math\");", "[2500, 20, 0.02]",
-        // "string");
+        // parameter.Arguments cannot be passed as named arguments since values are specified for the rest parameter.
+        debugTestRunner.assertExpression(context, "printDetails(\"Corey\", 19, \"Math\");",
+                "\"[Corey, 19, Module(s): Math,]\"", "string");
 
         // Call the function by passing the required parameter, defaultable parameter,
-        // and multiple values for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, \"Math\", \"Physics\");",
-        // "[2500, 20, 0.02]", "string");
+        //  and multiple values for the rest parameter.
+        debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, \"Math\", \"Physics\");",
+                "\"[Diana, 20, Module(s): Math,Physics,]\"", "string");
 
         // Pass an array as the rest parameter instead of calling the
         // function by passing each value separately.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...modules);", "[2500, 20, 0.02]",
-        // "string");
-
-        // Function which includes asynchronous calls.
-        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
+        debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...stringArrayVar);",
+                "\"[Diana, 20, Module(s): foo,bar,]\"", "string");
     }
 
     @Override

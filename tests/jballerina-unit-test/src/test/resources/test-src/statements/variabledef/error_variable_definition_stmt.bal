@@ -139,19 +139,19 @@ function testErrorWithAnonErrorType() returns [string, value:Cloneable] {
 function testErrorWithUnderscore() returns [string, string, string, string, string, string, string, string,
                                                string|error?, anydata|readonly?, anydata|readonly?] {
     error err = error("Error Code", message = "Fatal");
-    error error (reason, ... _) = err;
+    error error (reason) = err;
     error error (reason2) = err;
 
     SMS err1 = error SMS("Error One", message = "Msg One", detail = "Detail Msg");
-    SMS error (reason3, ... _) = err1;
+    SMS error (reason3) = err1;
     SMS error (reason4) = err1;
     SMS error (_, ... detail) = err1;
 
     FooError err2 = error FooError("Error Two", message = "Something Wrong", fatal = true);
-    FooError error (reason5, ... _) = err2;
+    FooError error (reason5) = err2;
     FooError error (reason6) = err2;
     FooError error (_, ... detail2) = err2;
-    var error (reason7, ... _) = err2;
+    var error (reason7) = err2;
     var error (reason8) = err2;
     var error (_, ... detail3) = err2;
 
