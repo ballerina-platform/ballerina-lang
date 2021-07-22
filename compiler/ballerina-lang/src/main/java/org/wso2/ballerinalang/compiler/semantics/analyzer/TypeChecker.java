@@ -4071,7 +4071,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                     if (opSymbol == symTable.notFoundSymbol) {
                         opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
-                                binaryExpr);
+                                binaryExpr, env);
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
