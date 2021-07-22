@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -639,14 +639,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "value1",
       "kind": "Variable",
       "detail": "int",
@@ -682,6 +674,14 @@
       "sortText": "C",
       "filterText": "doSomeTask",
       "insertText": "doSomeTask()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "value2",
       "insertTextFormat": "Snippet"
     }
   ]

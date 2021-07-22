@@ -625,7 +625,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
         Optional<ImportPrefixNode> prefixNode = importDeclaration.prefix();
-        Token prefix = prefixNode.isPresent() ? prefixNode.get().prefix() : null;
 
         Token orgName = null;
         if (orgNameNode != null) {
@@ -644,8 +643,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
         importDcl.version = this.createIdentifier(null, version);
-        importDcl.alias = (prefix != null) ? this.createIdentifier(getPosition(prefix), prefix)
-                : pkgNameComps.get(pkgNameComps.size() - 1);
+
+        if (prefixNode.isEmpty()) {
+            importDcl.alias = pkgNameComps.get(pkgNameComps.size() - 1);
+            return importDcl;
+        }
+
+        ImportPrefixNode importPrefixNode = prefixNode.get();
+        Token prefix = importPrefixNode.prefix();
+        Location prefixPos = getPosition(prefix);
+        if (prefix.kind() == SyntaxKind.UNDERSCORE_KEYWORD) {
+            importDcl.alias = createIgnoreIdentifier(prefix);
+        } else {
+            importDcl.alias = createIdentifier(prefixPos, prefix);
+        }
 
         return importDcl;
     }
@@ -2141,7 +2152,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
         SeparatedNodeList<io.ballerina.compiler.syntax.tree.ExpressionNode> keys =
                 indexedExpressionNode.keyExpression();
-        if (keys.size() == 1) {
+        if (keys.size() == 0) {
+            // TODO : This should be handled by Parser, issue #31536
+            dlog.error(getPosition(indexedExpressionNode.closeBracket()),
+                    DiagnosticErrorCode.MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+            Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+            Node expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+            indexBasedAccess.indexExpr = createExpression(expression);
+        } else if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         } else {
             BLangTableMultiKeyExpr multiKeyExpr =
@@ -2425,11 +2444,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
         BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        BLangIdentifier ignore = createIgnoreIdentifier(wildcardBindingPatternNode);
+        ignoreVarRef.variableName = ignore;
+        ignoreVarRef.pos = ignore.pos;
+        return ignoreVarRef;
+    }
+
+    private BLangIdentifier createIgnoreIdentifier(Node node) {
         BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         ignore.value = Names.IGNORE.value;
-        ignoreVarRef.variableName = ignore;
-        ignore.pos = getPosition(wildcardBindingPatternNode);
-        return ignoreVarRef;
+        ignore.pos = getPosition(node);
+        return ignore;
     }
 
     @Override
@@ -2971,6 +2996,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         simpleVar.pos = getPosition(requiredParameter);
         if (requiredParameter.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
+        } else if (simpleVar.name.pos == null) {
+            // Param doesn't have a name and also is not a missing node
+            // Therefore, assigning the built-in location
+            simpleVar.name.pos = symTable.builtinPos;
         }
         simpleVar.flagSet.add(Flag.REQUIRED_PARAM);
         return simpleVar;
@@ -4828,9 +4857,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 varName = restBindingPatternNode.variableName().name();
                 break;
             case WILDCARD_BINDING_PATTERN:
-                WildcardBindingPatternNode wildcardBindingPatternNode = (WildcardBindingPatternNode) bindingPattern;
-                varName = wildcardBindingPatternNode.underscoreToken();
-                break;
+                BLangIdentifier ignore = createIgnoreIdentifier(bindingPattern);
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+                simpleVar.setName(ignore);
+                simpleVar.pos = ignore.pos;
+                return simpleVar;
             case CAPTURE_BINDING_PATTERN:
             default:
                 CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPattern;
@@ -5108,6 +5139,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         String identifierName = token.text();
         if (token.isMissing() || identifierName.equals(IDENTIFIER_LITERAL_PREFIX)) {
+            identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
+        } else if (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_")) {
+            dlog.error(pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER);
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
         }
 

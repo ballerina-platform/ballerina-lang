@@ -13,7 +13,7 @@
         "left": "foreach statement for iterable variable - myStr"
       },
       "sortText": "R",
-      "insertText": "foreach string item in myStr {\n\t${1}\n}",
+      "insertText": "foreach string:Char item in myStr {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -234,7 +234,7 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| ballerina/lang.string:1.1.0:Char value; |}? ;}",
+      "detail": "object {public isolated function next() returns record {| string:Char value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",

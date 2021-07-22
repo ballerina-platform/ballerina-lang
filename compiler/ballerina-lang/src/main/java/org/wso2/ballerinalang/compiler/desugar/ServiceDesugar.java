@@ -289,7 +289,8 @@ public class ServiceDesugar {
     void engageCustomServiceDesugar(BLangService service, SymbolEnv env) {
         List<BType> expressionTypes = service.attachedExprs.stream().map(expression -> expression.getBType())
                 .collect(Collectors.toList());
-        service.serviceClass.functions.stream().filter(fun -> Symbols.isFlagOn(fun.symbol.flags, Flags.RESOURCE))
+        service.serviceClass.functions.stream()
+                .filter(fun -> Symbols.isResource(fun.symbol) || Symbols.isRemote(fun.symbol))
                 .forEach(func -> engageCustomResourceDesugar(func, env, expressionTypes));
     }
 

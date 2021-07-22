@@ -101,15 +101,15 @@ public class LanguageConstructDebugTest extends BaseTestCase {
         // Variable visibility test for object
         debugTestRunner.assertVariable(variables, "person", "Person", "object");
         // Variable visibility test for object's method
-        debugTestRunner.assertVariable(variables, "fullName", "John Doe", "string");
+        debugTestRunner.assertVariable(variables, "fullName", "\"John Doe\"", "string");
         // Variable visibility test for object's remote function
-        debugTestRunner.assertVariable(variables, "name", "John", "string");
+        debugTestRunner.assertVariable(variables, "name", "\"John\"", "string");
         // Variable visibility test for mock object
         debugTestRunner.assertVariable(variables, "person2", "Person", "object");
         // Variable visibility test for mock object's method
-        debugTestRunner.assertVariable(variables, "person2FullName", "Praveen Nada", "string");
+        debugTestRunner.assertVariable(variables, "person2FullName", "\"Praveen Nada\"", "string");
         // Variable visibility test for mock object's remote function
-        debugTestRunner.assertVariable(variables, "person2Name", "Praveen", "string");
+        debugTestRunner.assertVariable(variables, "person2Name", "\"Praveen\"", "string");
     }
 
     @Test

@@ -111,7 +111,7 @@ public class FunctionSignatureNegativeTest {
     @Test
     public void testNegativeFuncSignature() {
         CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures-negative.bal");
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 3, 1);
         Assert.assertEquals(1, result.getErrorCount());
     }
 

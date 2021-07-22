@@ -119,6 +119,21 @@ public class ForwardReferencingGlobalDefinitionTest {
         Assert.assertEquals(cycle.getDiagnostics().length, i);
     }
 
+    @Test
+    public void moduleVariableWithLetExprCausingCycle() {
+        CompileResult cycle = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/viaModuleLevelLetExpr");
+        int i = 0;
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[fieldOne, conf1]'", 21, 1);
+        // This error should go away and cycling error should come here when #21382 is fixed.
+        BAssertUtil.validateError(cycle, i++, "let expressions are not yet supported for record fields", 30, 16);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[letRef, modVar]'", 17, 1);
+        BAssertUtil.validateError(cycle, i++,
+                "illegal cyclic reference '[modVarQueryLet1, queryRef, modVarQuery]'", 19, 1);
+        BAssertUtil.validateError(cycle, i++, "illegal cyclic reference '[modVarQueryLet2, queryRef2]'", 20, 1);
+
+        Assert.assertEquals(cycle.getDiagnostics().length, i);
+    }
+
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def")
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.

@@ -175,8 +175,8 @@ public class MatchStmtConstPatternTest {
         BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 140, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 159, 9);
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 170, 5);
-        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 173, 1);
-        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 187, 1);
+        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 185, 1);
+        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 208, 1);
     }
 
     @Test(description = "Test negative semantics")

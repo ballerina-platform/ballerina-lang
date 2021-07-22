@@ -48,7 +48,7 @@ dependencies {
     dist 'io.ballerina.messaging:broker-rest-runner:0.970.0'
     dist 'org.apache.geronimo.specs:geronimo-activation_1.1_spec:1.1'
     dist 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec:1.0.1'
-    dist 'com.google.code.gson:gson:2.7'
+    dist 'com.google.code.gson:gson:2.8.7'
     dist 'com.github.jknack:handlebars:4.0.6'
     dist 'com.sun.mail:javax.mail:1.6.2'
     dist 'jaxen:jaxen:1.1.6'
@@ -84,7 +84,6 @@ dependencies {
 
     dist project(':ballerina-core')
     dist project(':ballerina-lang')
-    dist project(':ballerina-logging')
     dist project(':ballerina-observability')
     dist project(':ballerina-cli')
     dist project(':ballerina-observability-internal')

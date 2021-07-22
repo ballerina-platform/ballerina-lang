@@ -17,7 +17,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-shell-cli-test-suite">
-    <test name="ballerina-shell-cli-test" preserve-order="true" parallel="false" enabled="false">
+    <test name="ballerina-shell-cli-test" preserve-order="true" parallel="false">
         <packages>
             <package name="io.ballerina.shell.cli.test.*"/>
         </packages>

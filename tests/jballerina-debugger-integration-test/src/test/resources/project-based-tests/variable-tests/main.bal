@@ -111,7 +111,7 @@ var stringValue = "Ballerina";
 var decimalValue = 100.0d;
 var byteValue = <byte>2;
 var floatValue = 2.0;
-json jsonVar = {name:"John", age:20};
+json jsonValue = {name:"John", age:20};
 var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
 // configurable variables
@@ -283,9 +283,12 @@ function printDetails(string name, int age = 18, string... modules) returns stri
     if (modules.length() == 0) {
         moduleString = "Module(s): ()";
     } else {
-        moduleString = "Module(s): " + modules[0];
+        modules.forEach(function(string module) {
+            moduleString += 'module + ",";
+        });
+        moduleString = "Module(s): " + moduleString;
     }
-    return  string `[${name}, ${age}, ${moduleString}]`;
+    return string `[${name}, ${age}, ${moduleString}]`;
 }
 
 function addition(int a, int b) returns int {

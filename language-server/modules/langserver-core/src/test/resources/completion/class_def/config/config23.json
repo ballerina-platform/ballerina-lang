@@ -42,11 +42,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remote function",
+      "label": "resource",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "resource",
+      "insertText": "resource ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "remote function <name>();",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(remote)|(function)",
+      "filterText": "remote_function",
       "insertText": "remote function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -57,15 +66,6 @@
       "sortText": "P",
       "filterText": "function",
       "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "function",
-      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -87,11 +87,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "resource function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "resource_function",
+      "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "init function",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
-      "filterText": "(init)|(function)",
+      "filterText": "init_function",
       "insertText": "function init(${1:any arg}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -107,19 +116,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestClass",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
       "insertText": "TestClass",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

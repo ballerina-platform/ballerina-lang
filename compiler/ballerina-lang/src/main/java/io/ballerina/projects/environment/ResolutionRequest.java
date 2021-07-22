@@ -35,14 +35,17 @@ import java.util.Optional;
 public final class ResolutionRequest {
     private final PackageDescriptor packageDesc;
     private final PackageDependencyScope scope;
+    private final boolean offline;
 
-    private ResolutionRequest(PackageDescriptor packageDescriptor, PackageDependencyScope scope) {
+    private ResolutionRequest(PackageDescriptor packageDescriptor, PackageDependencyScope scope, boolean offline) {
         this.packageDesc = packageDescriptor;
         this.scope = scope;
+        this.offline = offline;
     }
 
-    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope) {
-        return new ResolutionRequest(packageDescriptor, scope);
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
+                                         boolean offline) {
+        return new ResolutionRequest(packageDescriptor, scope, offline);
     }
 
     public PackageOrg orgName() {
@@ -67,6 +70,10 @@ public final class ResolutionRequest {
 
     public Optional<String> repositoryName() {
         return packageDesc.repository();
+    }
+
+    public boolean offline() {
+        return offline;
     }
 
     @Override

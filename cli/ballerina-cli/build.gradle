@@ -37,7 +37,7 @@ dependencies {
     implementation project(':central-client')
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-compress:1.19'
-    implementation 'com.google.code.gson:gson:2.7'
+    implementation 'com.google.code.gson:gson:2.8.7'
     implementation project(':docerina')
     implementation project(':testerina:testerina-core')
     implementation project(':testerina:testerina-runtime')
@@ -59,7 +59,6 @@ dependencies {
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
-    implementation project(':ballerina-config')
     implementation project(':ballerina-core')
 }
 
@@ -81,7 +80,6 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "ballerina.home", "$buildDir"
     useTestNG() {
         suites 'src/test/resources/testng.xml'

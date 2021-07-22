@@ -259,7 +259,7 @@ public class BStreamValueTest {
     @Test(description = "Test incomplete stream definition")
     public void testIncompleteTypeResult() {
         int i = 0;
-        BAssertUtil.validateError(incompleteTypeResult, i++, "missing type desc", 17, 15);
+        BAssertUtil.validateError(incompleteTypeResult, i++, "missing type descriptor", 17, 15);
         Assert.assertEquals(i, incompleteTypeResult.getErrorCount());
     }
 

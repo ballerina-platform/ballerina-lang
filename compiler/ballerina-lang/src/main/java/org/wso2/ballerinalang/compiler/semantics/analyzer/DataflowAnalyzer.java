@@ -527,6 +527,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (variable.typeNode != null && variable.typeNode.getBType() != null) {
             recordGlobalVariableReferenceRelationship(variable.typeNode.getBType().tsymbol);
         }
+        boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
+        if (withInModuleVarLetExpr) {
+            BVarSymbol dependentVar = env.enclVarSym;
+            this.currDependentSymbol.push(dependentVar);
+        }
         try {
             if (variable.isDeclaredWithVar) {
                 addVarIfInferredTypeIncludesError(variable);
@@ -550,6 +555,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
+            if (withInModuleVarLetExpr) {
+                this.currDependentSymbol.pop();
+            }
             this.currDependentSymbol.pop();
         }
     }
@@ -1929,7 +1937,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol ownerSymbol = this.env.scope.owner;
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.
-        if (isInPkgLevel && (globalVarSymbol || symbol instanceof BTypeSymbol)) {
+        if (isInPkgLevel && (globalVarSymbol || symbol instanceof BTypeSymbol)
+            || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
             BSymbol dependent = this.currDependentSymbol.peek();
             addDependency(dependent, symbol);
         } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbol) {
