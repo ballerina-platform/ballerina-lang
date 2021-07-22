@@ -110,7 +110,7 @@ Run following commands in order.
 
 ```batch
 gradlew.bat fatJar
-java -jar -Dballerina.home=home -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" shell-cli/build/libs/shell-cli-1.0-SNAPSHOT.jar
+java -jar -Dballerina.home=home shell-cli/build/libs/shell-cli-1.0-SNAPSHOT.jar
 ```
 
 **To run with an installed ballerina distribution,** (This will enable stdlib imports)
@@ -118,8 +118,8 @@ In the following script, `$BALLERINA_HOME` refers to the ballerina distribution 
 should be run with a compatible ballerina distribution.
 
 ```bash
-java -jar -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" -Dballerina.home=$BALLERINA_HOME shell-cli/build/libs/shell-cli-1.0-SNAPSHOT.jar
-# eg: java -jar -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" -Dballerina.home=/usr/lib/ballerina/distributions/ballerina-slp8 shell-cli/build/libs/shell-cli-1.0-SNAPSHOT.jar
+java -jar -Dballerina.home=$BALLERINA_HOME shell-cli/build/libs/shell-cli-1.0-SNAPSHOT.jar
+# eg: java -jar -Dballerina.home=/usr/lib/ballerina/distributions/ballerina-slp8 shell-cli/build/libs/shell-cli-1.0-SNAPSHOT.jar
 ```
 
 ## References

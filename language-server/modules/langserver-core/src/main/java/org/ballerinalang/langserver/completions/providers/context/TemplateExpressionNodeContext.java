@@ -33,10 +33,8 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -44,9 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import static io.ballerina.compiler.syntax.tree.SyntaxKind.STRING_TEMPLATE_EXPRESSION;
 
 /**
  * Completion provider for {@link TemplateExpressionNode}.
@@ -119,32 +114,6 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         Token endToken = interpolationNode.get().interpolationEndToken();
         return !startToken.isMissing() && startToken.textRange().endOffset() <= cursor
                 && (endToken.isMissing() || cursor <= endToken.textRange().startOffset());
-    }
-
-    @Override
-    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-
-        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR_CONSTRUCTOR.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
-        // Following are for supporting the query expressions. Stream will be added via module completions
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
-
-        // Add the visible modules 
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        List<Symbol> symbols = visibleSymbols.stream()
-                .filter(this.symbolFilterPredicate()).collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(symbols, context));
-
-        return completionItems;
     }
 
     @Override

@@ -29,6 +29,7 @@ import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -164,5 +165,16 @@ public class TomlTableNode extends TopLevelNode {
             return tableArrayNode.identifier().isMissing();
         }
         return false;
+    }
+
+    @Override
+    public Map<String, Object> toNativeObject() {
+        Map<String, Object> map = new HashMap<>();
+        for (Map.Entry<String, TopLevelNode> topLevelNodeEntry : this.entries().entrySet()) {
+            String key = topLevelNodeEntry.getKey();
+            TopLevelNode value = topLevelNodeEntry.getValue();
+            map.put(key, value.toNativeObject());
+        }
+        return map;
     }
 }

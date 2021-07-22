@@ -442,6 +442,51 @@ function getError(string expectedVal, string actualVal) returns error {
     return error("expected " + expectedVal + " found " + actualVal);
 }
 
+type MyTupleType int|[MyTupleType...];
+
+function testTupleToJSONAssignment() {
+     [json, json...] A = [];
+     json jsonTest = A;
+     assertEquality(true, A is json);
+
+     MyTupleType C = [1, 2, 3];
+     jsonTest = C;
+     assertEquality(true, C is json);
+
+     [int, int...] B = [];
+     jsonTest = B;
+     assertEquality(true, B is json);
+
+     [string, int] D = ["text1", 1];
+     jsonTest = D;
+     assertEquality(true, D is json);
+
+     [string, int, boolean...] E = ["text1", 1, true, false];
+     jsonTest = E;
+     assertEquality(true, E is json);
+     assertEquality(false, (<json[]>jsonTest)[2] is boolean[]);
+
+     [float[]] F = [[10.5]];
+     jsonTest = F;
+     assertEquality(true, F is json);
+
+     [map<string>...] G = [];
+     jsonTest = G;
+     assertEquality(true, G is json);
+     assertEquality(true, jsonTest is map<string>[]);
+
+     [float, ["json"], map<json>, int, json[], string...] H = [10.5];
+     jsonTest = H;
+     assertEquality(true, H is json);
+     assertEquality(true, (<json[]>(<json[]>jsonTest)[1])[0] is string);
+
+     xml testXml = xml `<elem>text1</elem>`;
+     [string, xml]|json J = ["Anne", testXml];
+     assertEquality(false, J is json);
+     [string, xml[]|int]|json K = ["text1", [testXml]];
+     assertEquality(false, K is json);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

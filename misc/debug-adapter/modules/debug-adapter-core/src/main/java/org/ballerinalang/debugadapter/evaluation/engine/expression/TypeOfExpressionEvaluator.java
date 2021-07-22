@@ -55,20 +55,25 @@ public class TypeOfExpressionEvaluator extends Evaluator {
     public BExpressionValue evaluate() throws EvaluationException {
         try {
             BExpressionValue result = exprEvaluator.evaluate();
-            // primitive types need to be handled separately, as the jvm runtime util method accepts only the sub
-            // classes of 'java.lang.Object'. Therefore java primitive types are converted into their wrapper
-            // implementations first.
-            Value valueAsObject = getValueAsObject(context, result.getJdiValue());
-            List<String> methodArgTypeNames = Collections.singletonList(JAVA_OBJECT_CLASS);
-            RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
-                    methodArgTypeNames);
-            method.setArgValues(Collections.singletonList(valueAsObject));
-            return new BExpressionValue(context, method.invokeSafely());
+            Value bTypeValue = getBTypeOf(context, result.getJdiValue());
+            return new BExpressionValue(context, bTypeValue);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
         }
+    }
+
+    public static Value getBTypeOf(SuspendedContext context, Value bValue) throws EvaluationException {
+        // primitive types need to be handled separately, as the jvm runtime util method accepts only the sub
+        // classes of 'java.lang.Object'. Therefore java primitive types are converted into their wrapper
+        // implementations first.
+        Value valueAsObject = getValueAsObject(context, bValue);
+        List<String> methodArgTypeNames = Collections.singletonList(JAVA_OBJECT_CLASS);
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
+                methodArgTypeNames);
+        method.setArgValues(Collections.singletonList(valueAsObject));
+        return method.invokeSafely();
     }
 }
