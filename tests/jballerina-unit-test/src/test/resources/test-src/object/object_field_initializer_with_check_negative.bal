@@ -154,3 +154,27 @@ function func2() returns error? {
     any v = check ob;
     any w = check ob2;
 }
+
+class Baz {
+    any a = check new Qux(function () returns error? { // error
+                              // OK, since it is enclosed in the function, and not directly used in the default value.
+                              int q = check int:fromString("invalid");
+                          });
+    any b = check new Qux(() => check int:fromString("invalid")); // error for outer check
+}
+
+class Quux {
+    any a = check new Qux(function () returns error? { // error
+                              // OK, since it is enclosed in the function, and not directly used in the default value.
+                              int q = check int:fromString("invalid");
+                          });
+    any b = check new Qux(() => check int:fromString("invalid")); // error for outer check
+
+    function init() returns MyError? {
+    }
+}
+
+class Qux {
+    isolated function init(function () returns int|error? f) returns error? {
+    }
+}

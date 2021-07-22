@@ -193,6 +193,24 @@ function testCheckInObjectFieldInitializer5() returns error? {
     assertTrue(ob2 is MyError);
 }
 
+class Baz {
+    function () returns int|error? a = () => check int:fromString("invalid");
+    object {} b = check f2();
+
+    function init() returns MyError? {
+    }
+}
+
+function testCheckInObjectFieldInitializer6() {
+    globString = "1";
+    Baz|MyError a = new;
+    assertTrue(a is Baz);
+
+    globString = "invalid";
+    Baz|MyError b = new;
+    assertTrue(b is MyError);
+}
+
 isolated function assertTrue(anydata actual) => assertEquality(true, actual);
 
 isolated function assertFalse(anydata actual) => assertEquality(false, actual);

@@ -43,7 +43,7 @@ public class ObjectTest {
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
 
-    private CompileResult checkInInitializerResult = BCompileUtil.compile(
+    private final CompileResult checkInInitializerResult = BCompileUtil.compile(
             "test-src/object/object_field_initializer_with_check.bal");
 
     @Test(description = "Test Basic object as struct")
@@ -854,6 +854,12 @@ public class ObjectTest {
                 "'", 140, 16);
         BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
                 " with the return type of the 'init' method: expected 'MyErrorTwo?', found 'MyError'", 148, 23);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 159, 13);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 163, 13);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 167, 13);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 171, 13);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -869,7 +875,8 @@ public class ObjectTest {
             { "testCheckInObjectFieldInitializer2" },
             { "testCheckInObjectFieldInitializer3" },
             { "testCheckInObjectFieldInitializer4" },
-            { "testCheckInObjectFieldInitializer5" }
+            { "testCheckInObjectFieldInitializer5" },
+            { "testCheckInObjectFieldInitializer6" }
         };
     }
 }
