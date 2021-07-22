@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.utils.QuotedIdentifier;
@@ -105,5 +106,13 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
             String unescapedIdentifier = StringUtils.unescapeUnicodeCodepoints(token.text());
             foundVariableIdentifiers.add(new QuotedIdentifier(unescapedIdentifier));
         }
+    }
+
+    /**
+     * Returns syntax node kind.
+     */
+    public SyntaxKind getSyntaxKind() {
+        return rootNode.typedBindingPattern()
+                .typeDescriptor().kind();
     }
 }
