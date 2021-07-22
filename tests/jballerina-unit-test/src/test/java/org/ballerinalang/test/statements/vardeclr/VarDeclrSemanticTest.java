@@ -65,14 +65,11 @@ public class VarDeclrSemanticTest {
                       17, 1);
         validateError(result, indx++, "missing object keyword", 18, 1);
         validateError(result, indx++, "missing open brace token", 18, 1);
-        validateError(result, indx++, "missing object keyword", 19, 23);
         validateError(result, indx++, "missing semicolon token", 19, 23);
-        validateError(result, indx++, "missing close brace token", 22, 1);
+        validateError(result, indx++, "invalid token '{'", 21, 1);
         validateError(result, indx++, "missing equal token", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
-        validateError(result, indx++, "missing identifier", 22, 1);
-        validateError(result, indx++, "missing semicolon token", 22, 1);
         validateError(result, indx++, "missing semicolon token", 22, 1);
         assertEquals(result.getErrorCount(), indx);
     }
