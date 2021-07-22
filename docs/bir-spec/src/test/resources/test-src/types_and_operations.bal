@@ -325,7 +325,7 @@ type Subscription record {|
 
 public function functionWithStreams() {
     OddNumberGenerator oddGen = new;
-    var oddNumberStream = new stream<int, error>(oddGen);
+    var oddNumberStream = new stream<int, error?>(oddGen);
 
     record {|int value;|}|error? oddNumber = oddNumberStream.next();
     if (oddNumber is ResultValue) {
