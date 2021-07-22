@@ -2308,7 +2308,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void analyzeVarArgIsolatedness(BLangInvocation invocationExpr, BLangRestArgsExpression restArgsExpression,
                                            Location pos, boolean expectsIsolation) {
-        BInvokableSymbol symbol = (BInvokableSymbol) invocationExpr.symbol;
         BLangExpression expr = restArgsExpression.expr;
         if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
             for (BLangExpression expression : ((BLangListConstructorExpr) expr).exprs) {
@@ -2826,7 +2825,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (BType memberType : ((BUnionType) type).getMemberTypes()) {
             if (!isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
-                                                                       inferring, memberType, unresolvedSymbols)) {
+                                                                       true, memberType, unresolvedSymbols)) {
                 return false;
             }
         }
