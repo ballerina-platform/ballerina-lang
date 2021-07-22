@@ -108,8 +108,4 @@ public class AbstractSnippet<T extends Node> implements Snippet {
             imports.add(qualifiedNameReferenceNode.modulePrefix().text());
         }
     }
-
-    public T getRootNode() {
-        return rootNode;
-    }
 }
