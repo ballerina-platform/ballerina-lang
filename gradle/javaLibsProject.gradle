@@ -31,7 +31,7 @@ dependencies {
     dist 'com.zaxxer:HikariCP:3.3.1'
     dist 'io.dropwizard.metrics:metrics-core:3.1.0'
     dist 'javax.transaction:javax.transaction-api:1.2'
-    dist 'org.apache.thrift:libthrift:0.10.0'
+    dist 'org.apache.thrift:libthrift:0.14.1'
     dist 'org.jvnet.mimepull:mimepull:1.9.7'
     dist 'org.quartz-scheduler:quartz-jobs:2.3.0'
     dist 'org.quartz-scheduler:quartz:2.3.2'
@@ -39,7 +39,7 @@ dependencies {
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
     dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.25'
-    dist 'org.bouncycastle:bcprov-jdk15on:1.61'
+    dist 'org.bouncycastle:bcprov-jdk15on:1.69'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
     dist 'info.picocli:picocli:4.0.1'

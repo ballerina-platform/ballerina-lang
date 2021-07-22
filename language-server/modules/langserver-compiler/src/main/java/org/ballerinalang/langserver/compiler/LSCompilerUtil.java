@@ -84,8 +84,12 @@ public class LSCompilerUtil {
         }
 
         // Here we will create a tmp directory as the untitled project repo.
-        File untitledDir = com.google.common.io.Files.createTempDir();
-        untitledProjectPath = untitledDir.toPath();
+        try {
+            untitledProjectPath = Files.createTempDirectory(System.currentTimeMillis() + "-");
+        } catch (IOException e) {
+            logger.error("Unable to create the temp directory.");
+        }
+
         // Now lets create a empty untitled.bal to fool compiler.
         File untitledBal = new File(Paths.get(untitledProjectPath.toString(), UNTITLED_BAL).toString());
         try {
