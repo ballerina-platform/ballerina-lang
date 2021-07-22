@@ -15,11 +15,9 @@
 // under the License.
 
 import testOrg/test;
-import testOrg2/test as mod;
 
 configurable map<string> test = ?;
 
 public function main() {
     string keyResult = test:getKey();
-    keyResult = mod:getKey();
 }

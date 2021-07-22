@@ -192,3 +192,13 @@ function wildCardBindingPattern() {
     (int|error)[2] o = [1, 2];
     var [_, y] = o;
 }
+
+function testTupleToJSONAssignmentNegative() {
+    xml A = xml `xml string`;
+    [string, int, xml...] B = ["text1", 1, A];
+    json jsonTest = B;
+
+    [string, int|xml, string...] C = ["text1", 1, A.toString()];
+    jsonTest = <json[]>C;
+    jsonTest = C;
+}

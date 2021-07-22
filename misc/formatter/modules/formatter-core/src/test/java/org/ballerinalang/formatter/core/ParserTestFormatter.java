@@ -76,6 +76,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "minutiae_test_04.bal",
                 "minutiae_test_05.bal",
                 "minutiae_test_05_with_no_newlines.bal",
+                "invalid_token_minutiae_test_01.bal",
+                "invalid_token_minutiae_test_02.bal",
                 "doc_source_15.bal",
                 "doc_source_06.bal",
                 "module_var_decl_source_16.bal",

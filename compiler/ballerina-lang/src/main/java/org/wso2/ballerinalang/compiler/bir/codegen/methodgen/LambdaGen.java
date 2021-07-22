@@ -222,7 +222,12 @@ public class LambdaGen {
             paramTypes = getInitialParamTypes(lambdaDetails.functionWrapper.func.type.paramTypes,
                                               lambdaDetails.functionWrapper.func.argsCount);
         } else {
-            paramTypes = ((BInvokableType) lambdaDetails.funcSymbol.type).paramTypes;
+            BInvokableType type = (BInvokableType) lambdaDetails.funcSymbol.type;
+            if (type.restType == null) {
+                return type.paramTypes;
+            }
+            paramTypes = new ArrayList<>(type.paramTypes);
+            paramTypes.add(type.restType);
         }
         return paramTypes;
     }
