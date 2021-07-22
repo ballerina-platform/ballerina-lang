@@ -39,4 +39,6 @@ public abstract class TopLevelNode extends TomlNode {
     public TomlKeyNode key() {
         return key;
     }
+    
+    public abstract Object toNativeObject();
 }
