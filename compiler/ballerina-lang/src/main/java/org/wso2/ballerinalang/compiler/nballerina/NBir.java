@@ -206,7 +206,7 @@ abstract class InsnBase {
 class IntArithmeticBinaryInsn extends InsnBase {
     public String op;
     public Register result;
-    public Object[] operands = new Object[2];
+    public Operand[] operands = new Operand[2];
 
     @Override
     public BMap<BString, Object> getRecord() {
@@ -246,8 +246,8 @@ class IntNegateInsn extends InsnBase {
     @Override
     public BMap<BString, Object> getRecord() {
         LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
-        fields.put("operand", operand);
-        fields.put("result", result);
+        fields.put("operand", operand.getRecord());
+        fields.put("result", result.getRecord());
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INTNEG_INSN, fields);
     }
 }

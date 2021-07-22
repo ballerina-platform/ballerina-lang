@@ -183,6 +183,24 @@ public class ModuleGen {
                     result.register = reg2;
                     return result;
             }
+        } else if (expr instanceof BLangBinaryExpr) {
+            BLangBinaryExpr bexpr = (BLangBinaryExpr) expr;
+            Operand lhs = codeGenExpr(bexpr.lhsExpr, code);
+            Operand rhs = codeGenExpr(bexpr.rhsExpr, code);
+            Operand result = new Operand(true);
+            OperatorKind op = bexpr.opKind;
+            switch (op) {
+                case ADD: case SUB: case MUL: case DIV: case MOD:
+                    Register reg = code.createRegister(TypeKind.INT, null);
+                    IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
+                    ins.op = op.toString();
+                    ins.result = reg;
+                    ins.operands[0] = lhs;
+                    ins.operands[1] = rhs;
+                    curBlock.insns.add(ins);
+                    result.register = reg;
+                    return result;
+            }
         }
         return null;
     }
