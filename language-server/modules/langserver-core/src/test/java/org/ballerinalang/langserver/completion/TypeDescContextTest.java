@@ -55,9 +55,7 @@ public class TypeDescContextTest extends CompletionTest {
                 "function_typedesc16.json",
                 "function_typedesc17.json",
                 "function_typedesc18.json",
-                "function_typedesc19.json",
-                "table_typedesc4.json",
-                "table_typedesc7.json"
+                "function_typedesc19.json"
         );
     }
 }

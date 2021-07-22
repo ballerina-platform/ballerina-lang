@@ -72,35 +72,37 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
 
     private List<LSCompletionItem> getKeyCompletionItems(BallerinaCompletionContext context,
                                                          TableTypeDescriptorNode node) {
-        if (node.rowTypeParameterNode().kind() == SyntaxKind.TYPE_PARAMETER) {
-            TypeParameterNode typeParameterNode = (TypeParameterNode) node.rowTypeParameterNode();
-            // Get type of type parameter
-            Optional<Symbol> symbol = context.currentSemanticModel()
-                    .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()));
-            if (symbol.isPresent()) {
-                TypeSymbol typeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
-                if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
-                    // Type parameter is a record and we allow only readonly fields in keys
-                    RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
+        if (node.rowTypeParameterNode().kind() != SyntaxKind.TYPE_PARAMETER) {
+            return Collections.emptyList();
+        }
+        
+        TypeParameterNode typeParameterNode = (TypeParameterNode) node.rowTypeParameterNode();
+        // Get type of type parameter
+        Optional<Symbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()));
+        if (symbol.isPresent()) {
+            TypeSymbol typeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
+            if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
+                // Type parameter is a record and we allow only readonly fields in keys
+                RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) typeSymbol;
 
-                    // Get existing keys
-                    KeySpecifierNode keySpecifierNode = (KeySpecifierNode) node.keyConstraintNode().get();
-                    Set<String> fieldNames = keySpecifierNode.fieldNames().stream()
-                            .filter(identifierToken -> !identifierToken.isMissing())
-                            .map(Token::text)
-                            .collect(Collectors.toSet());
+                // Get existing keys
+                KeySpecifierNode keySpecifierNode = (KeySpecifierNode) node.keyConstraintNode().get();
+                Set<String> fieldNames = keySpecifierNode.fieldNames().stream()
+                        .filter(identifierToken -> !identifierToken.isMissing())
+                        .map(Token::text)
+                        .collect(Collectors.toSet());
 
-                    // Get field symbols which are readonly and not already specified
-                    List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
-                            .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
-                            .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent() &&
-                                    !fieldNames.contains(recordFieldSymbol.getName().get()))
-                            .collect(Collectors.toList());
-                    return this.getCompletionItemList(symbols, context);
-                }
+                // Get field symbols which are readonly and not already specified
+                List<RecordFieldSymbol> symbols = recordTypeSymbol.fieldDescriptors().values().stream()
+                        .filter(recordFieldSymbol -> recordFieldSymbol.qualifiers().contains(Qualifier.READONLY))
+                        .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent() &&
+                                !fieldNames.contains(recordFieldSymbol.getName().get()))
+                        .collect(Collectors.toList());
+                return this.getCompletionItemList(symbols, context);
             }
         }
-
+        
         return Collections.emptyList();
     }
 
@@ -109,9 +111,25 @@ public class TableTypeDescriptorNodeContext extends AbstractCompletionProvider<T
         Optional<Node> keyConstraint = node.keyConstraintNode();
         Node rowTypeParamNode = node.rowTypeParameterNode();
 
-        return (keyConstraint.isEmpty() && cursor >= rowTypeParamNode.textRange().endOffset())
+        boolean shouldSuggest = (keyConstraint.isEmpty() && cursor >= rowTypeParamNode.textRange().endOffset())
                 || (keyConstraint.isPresent() && cursor <= keyConstraint.get().textRange().startOffset()
                 && cursor >= rowTypeParamNode.textRange().endOffset());
+
+        if (!shouldSuggest || node.rowTypeParameterNode().kind() != SyntaxKind.TYPE_PARAMETER) {
+            return false;
+        }
+
+        TypeParameterNode typeParameterNode = (TypeParameterNode) node.rowTypeParameterNode();
+        // Get type of type parameter
+        Optional<Symbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(typeParameterNode.typeNode()));
+        if (symbol.isEmpty()) {
+            return false;
+        }
+        
+        TypeSymbol typeSymbol = CommonUtil.getRawType((TypeSymbol) symbol.get());
+        // key specifier or key constraint not allowed for map types
+        return typeSymbol.typeKind() == TypeDescKind.RECORD;
     }
 
     private boolean onSuggestKeys(BallerinaCompletionContext context, TableTypeDescriptorNode node) {
