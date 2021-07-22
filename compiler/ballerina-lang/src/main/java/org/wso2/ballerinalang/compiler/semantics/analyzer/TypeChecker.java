@@ -230,8 +230,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private static Set<String> listLengthModifierFunctions = new HashSet<>();
     private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
 
-    private static final String TABLE_TNAME = "table";
-
     private static final String LIST_LANG_LIB = "lang.array";
     private static final String MAP_LANG_LIB = "lang.map";
     private static final String TABLE_LANG_LIB = "lang.table";
@@ -4082,12 +4080,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
                                 lhsType, rhsType);
                     } else {
-                        if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
-                                (couldHoldTableValues(lhsType, new ArrayList<>()) &&
-                                        couldHoldTableValues(rhsType, new ArrayList<>()))) {
-                            dlog.error(binaryExpr.pos, DiagnosticErrorCode.EQUALITY_NOT_YET_SUPPORTED, TABLE_TNAME);
-                        }
-
                         binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                         actualType = opSymbol.type.getReturnType();
                     }
