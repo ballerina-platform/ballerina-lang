@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -17,7 +17,7 @@
     {
       "label": "field1",
       "kind": "Field",
-      "detail": "(record {| int field1; string field2; boolean field3; anydata...; |}).field1",
+      "detail": "TestRecord2.field1",
       "sortText": "G",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,7 +25,7 @@
     {
       "label": "field3",
       "kind": "Field",
-      "detail": "(record {| int field1; string field2; boolean field3; anydata...; |}).field3",
+      "detail": "TestRecord2.field3",
       "sortText": "G",
       "insertText": "field3: ${2:false}",
       "insertTextFormat": "Snippet"
@@ -33,16 +33,16 @@
     {
       "label": "field2",
       "kind": "Field",
-      "detail": "(record {| int field1; string field2; boolean field3; anydata...; |}).field2",
+      "detail": "TestRecord2.field2",
       "sortText": "G",
       "insertText": "field2: \"${3}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int field1; string field2; boolean field3; anydata...; |} Required Fields",
+      "label": "Fill TestRecord2 Required Fields",
       "kind": "Property",
-      "detail": "record {| int field1; string field2; boolean field3; anydata...; |}",
-      "sortText": "Q",
+      "detail": "TestRecord2",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "field1: 0,\nfield3: false,\nfield2: \"\"",
       "insertTextFormat": "Snippet"

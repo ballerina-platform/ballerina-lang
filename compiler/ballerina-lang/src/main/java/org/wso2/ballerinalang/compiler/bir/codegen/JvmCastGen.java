@@ -710,6 +710,8 @@ public class JvmCastGen {
                 mv.visitLabel(afterHandle);
                 break;
             case JTypeTags.JARRAY:
+                mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, DECIMAL_VALUE_OF_J_METHOD,
+                        String.format("(L%s;)L%s;", OBJECT, HANDLE_VALUE), false);
                 break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'any'",
@@ -1301,6 +1303,9 @@ public class JvmCastGen {
     private void generateCheckCastToUnionType(MethodVisitor mv, BType sourceType, BUnionType targetType) {
 
         generateCastToAny(mv, sourceType);
+        if (targetType.getMemberTypes().contains(sourceType)) {
+            return;
+        }
         checkCast(mv, targetType);
     }
 

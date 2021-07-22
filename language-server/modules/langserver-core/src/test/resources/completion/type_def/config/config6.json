@@ -48,62 +48,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "BL",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "BL",
-      "insertText": "TestRecord2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "BM",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "BM",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "BK",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorOne",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "BQ",
-      "insertText": "ErrorOne",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ErrorTwo",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "BQ",
-      "insertText": "ErrorTwo",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestEnum1",
       "kind": "Enum",
       "detail": "enum",
@@ -115,7 +59,7 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "BL",
+      "sortText": "BM",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -142,11 +86,59 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "BM",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "BN",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
       "kind": "Interface",
-      "detail": "Class",
+      "detail": "Object",
       "sortText": "BK",
-      "insertText": "TestClass1",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "BL",
+      "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
     {
@@ -177,6 +169,14 @@
       },
       "sortText": "BK",
       "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "BK",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     }
   ]

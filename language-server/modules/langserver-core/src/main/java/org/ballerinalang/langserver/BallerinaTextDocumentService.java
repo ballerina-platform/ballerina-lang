@@ -174,8 +174,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String uri = params.getTextDocument().getUri();
             Optional<Path> sigFilePath = CommonUtil.getPathFromURI(uri);
 
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (sigFilePath.isEmpty() || CommonUtil.isCachedExternalSource(uri)) {
+            // Note: If the path does not exist, then return early and ignore
+            if (sigFilePath.isEmpty()) {
                 return new SignatureHelp();
             }
 
@@ -261,8 +261,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
 
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (docSymbolFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
+            // Note: If the path does not exist, then return early and ignore
+            if (docSymbolFilePath.isEmpty()) {
                 return new ArrayList<>();
             }
             try {
@@ -315,8 +315,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
 
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (docSymbolFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
+            // Note: If the path does not exist, then return early and ignore
+            if (docSymbolFilePath.isEmpty()) {
                 return new ArrayList<>();
             }
 
@@ -352,8 +352,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             TextEdit textEdit = new TextEdit();
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (formattingFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
+            // Note: If the path does not exist, then return early and ignore
+            if (formattingFilePath.isEmpty()) {
                 return Collections.singletonList(textEdit);
             }
             try {
@@ -393,8 +393,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             TextEdit textEdit = new TextEdit();
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (formattingFilePath.isEmpty() || CommonUtil.isCachedExternalSource(fileUri)) {
+            // Note: If the path does not exist, then return early and ignore
+            if (formattingFilePath.isEmpty()) {
                 return Collections.singletonList(textEdit);
             }
             try {
@@ -455,16 +455,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-
             try {
-                RenameContext context = ContextBuilder.buildRenameContext(params.getTextDocument().getUri(),
+                RenameContext context = ContextBuilder.buildRenameContext(params,
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        this.clientCapabilities);
 
-                Map<String, List<TextEdit>> changes = RenameUtil.rename(context, params.getNewName());
-                workspaceEdit.setChanges(changes);
+                return RenameUtil.rename(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
             } catch (Throwable e) {
@@ -472,8 +469,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_RENAME, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
-
-            return workspaceEdit;
+            return null;
         });
     }
 
@@ -504,11 +500,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CHANGE,
                     this.serverContext);
-            // Note: If the source is a cached stdlib source or path does not exist, then return early and ignore
-            if (CommonUtil.isCachedExternalSource(fileUri)) {
-                // TODO: Check whether still we need this check
-                return;
-            }
+            // Note: If the path does not exist, then return early and ignore
             workspaceManager.didChange(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");

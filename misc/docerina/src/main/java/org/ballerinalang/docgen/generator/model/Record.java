@@ -16,7 +16,6 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
-import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.util.List;
 
@@ -35,6 +34,5 @@ public class Record extends Construct {
         super(name, description, isDeprecated);
         this.isClosed = isClosed;
         this.fields = fields;
-        this.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
     }
 }

@@ -19,10 +19,14 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -52,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TYPE_NOT_SUPPORTED;
@@ -216,5 +221,43 @@ public class Utils {
                 lineRange.filePath(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+    }
+
+    public static Type getTypeFromTomlValue(TomlNode tomlNode) {
+        switch (tomlNode.kind()) {
+            case STRING:
+                return PredefinedTypes.TYPE_STRING;
+            case INTEGER:
+                return PredefinedTypes.TYPE_INT;
+            case DOUBLE:
+                return PredefinedTypes.TYPE_FLOAT;
+            case BOOLEAN:
+                return PredefinedTypes.TYPE_BOOLEAN;
+            case KEY_VALUE:
+                return getTypeFromTomlValue(((TomlKeyValueNode) tomlNode).value());
+            case ARRAY:
+                return TypeCreator.createArrayType(TYPE_ANYDATA, true);
+            case TABLE:
+                return TypeCreator.createMapType(TYPE_ANYDATA, true);
+            case TABLE_ARRAY:
+                return TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_ANYDATA), true);
+            default:
+                // should not come here
+                return null;
+        }
+    }
+
+    public static Field createAdditionalField(RecordType recordType, String fieldName, TomlNode value) {
+        Type restFieldType = recordType.getRestFieldType();
+        if (!isAnyDataType(restFieldType)) {
+            return TypeCreator.createField(restFieldType, fieldName, SymbolFlags.READONLY);
+        } else {
+            return TypeCreator.createField(Utils.getTypeFromTomlValue(value), fieldName, SymbolFlags.READONLY);
+        }
+    }
+
+    private static boolean isAnyDataType(Type restFieldType) {
+        return restFieldType.getTag() == TypeTags.ANYDATA_TAG || (restFieldType.getTag() == TypeTags.INTERSECTION_TAG &&
+                ((IntersectionType) restFieldType).getEffectiveType().getTag() == TypeTags.ANYDATA_TAG);
     }
 }

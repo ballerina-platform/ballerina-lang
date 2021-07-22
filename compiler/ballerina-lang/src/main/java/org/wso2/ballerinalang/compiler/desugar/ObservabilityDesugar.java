@@ -56,8 +56,8 @@ public class ObservabilityDesugar {
     }
 
     void addObserveInternalModuleImport(BLangPackage pkgNode) {
-        if (observabilityIncluded &&
-                (pkgNode.projectKind != null && !pkgNode.projectKind.equals(ProjectKind.BALA_PROJECT))) {
+        if (observabilityIncluded && (pkgNode.moduleContextDataHolder != null
+                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));
@@ -73,8 +73,8 @@ public class ObservabilityDesugar {
     }
 
     void addObserveModuleImport(BLangPackage pkgNode) {
-        if (observabilityIncluded &&
-                (pkgNode.projectKind != null && !pkgNode.projectKind.equals(ProjectKind.BALA_PROJECT))) {
+        if (observabilityIncluded && (pkgNode.moduleContextDataHolder != null
+                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));

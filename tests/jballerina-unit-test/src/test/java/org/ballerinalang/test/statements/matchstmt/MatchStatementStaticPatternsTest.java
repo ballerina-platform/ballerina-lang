@@ -432,7 +432,7 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 256, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 257, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unreachable pattern", 257, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 267, 1);
+        BAssertUtil.validateError(resultNegative, ++i, "this function must return a result", 274, 1);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 284, 9);
     }
 

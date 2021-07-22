@@ -12,7 +12,7 @@
       "documentation": {
         "left": "foreach statement for iterable variable - xmlVal"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach xml item in xmlVal {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -38,7 +38,7 @@
       "documentation": {
         "left": "foreach i statement for iterable variable - xmlVal"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach int i in ${1:0}...xmlVal.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -109,7 +109,7 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -128,7 +128,7 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text value; |}? ;}",
+      "detail": "object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -143,7 +143,7 @@
     {
       "label": "strip()",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -158,7 +158,7 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -177,7 +177,7 @@
     {
       "label": "children()",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -192,7 +192,7 @@
     {
       "label": "get(int i)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -211,7 +211,7 @@
     {
       "label": "elements(string? nm)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element>",
+      "detail": "xml<xml:Element>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -230,7 +230,7 @@
     {
       "label": "text()",
       "kind": "Function",
-      "detail": "ballerina/lang.xml:0.8.0:Text",
+      "detail": "xml:Text",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -245,7 +245,7 @@
     {
       "label": "elementChildren(string? nm)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element>",
+      "detail": "xml<xml:Element>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -264,7 +264,7 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "xml<xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>>",
+      "detail": "xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>",
       "documentation": {
         "right": {
           "kind": "markdown",

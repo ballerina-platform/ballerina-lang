@@ -204,7 +204,7 @@ public class JvmTerminatorGen {
     }
 
     private void loadDefaultValue(MethodVisitor mv, BType bType) {
-        if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             return;
         } else if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)) {
@@ -216,6 +216,7 @@ public class JvmTerminatorGen {
             case TypeTags.FLOAT:
                 mv.visitInsn(DCONST_0);
                 break;
+            case TypeTags.BYTE:
             case TypeTags.BOOLEAN:
                 mv.visitInsn(ICONST_0);
                 break;

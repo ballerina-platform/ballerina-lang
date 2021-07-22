@@ -619,6 +619,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstRef constRef) {
+        result = constRef;
+    }
+
+    @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         rewrite(varRefExpr.expressions);
         result = varRefExpr;

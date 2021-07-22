@@ -586,10 +586,12 @@ public class Types {
     }
 
     public boolean isSubTypeOfMapping(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
+        }
         if (type.tag != TypeTags.UNION) {
             return isSubTypeOfBaseType(type, TypeTags.MAP) || isSubTypeOfBaseType(type, TypeTags.RECORD);
         }
-
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfMapping);
     }
 
@@ -765,6 +767,10 @@ public class Types {
         if (targetTag == TypeTags.JSON) {
             if (sourceTag == TypeTags.JSON) {
                 return true;
+            }
+
+            if (sourceTag == TypeTags.TUPLE) {
+                return isTupleTypeAssignable(source, target, unresolvedTypes);
             }
 
             if (sourceTag == TypeTags.ARRAY) {
@@ -1027,7 +1033,7 @@ public class Types {
                     }
                     return isAssignable(source, target.constraint, unresolvedTypes);
                 }
-                return isAssignable(source.constraint, target.constraint, unresolvedTypes);
+                return isAssignable(source.constraint, target, unresolvedTypes);
             }
             return true;
         }
@@ -1035,8 +1041,12 @@ public class Types {
             BXMLType source = (BXMLType) sourceType;
             if (targetTag == TypeTags.XML_TEXT) {
                 if (source.constraint != null) {
-                    return source.constraint.tag == TypeTags.NEVER ||
-                            source.constraint.tag == TypeTags.XML_TEXT;
+                    if (source.constraint.tag == TypeTags.NEVER ||
+                            source.constraint.tag == TypeTags.XML_TEXT) {
+                        return true;
+                    } else {
+                        return isAssignable(source.constraint, targetType, unresolvedTypes);
+                    }
                 }
                 return false;
             }
@@ -1053,6 +1063,19 @@ public class Types {
         if (source.tag == TypeTags.TUPLE && ((BTupleType) source).isCyclic) {
             // add cyclic source to target pair to avoid recursive calls
             unresolvedTypes.add(pair);
+        }
+
+        if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE) {
+            BTupleType rhsTupleType = (BTupleType) source;
+            for (BType tupleType : rhsTupleType.tupleTypes) {
+                if (!isAssignable(tupleType, target, unresolvedTypes)) {
+                    return false;
+                }
+            }
+            if (rhsTupleType.restType != null) {
+                return isAssignable(rhsTupleType.restType, target, unresolvedTypes);
+            }
+            return true;
         }
 
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
@@ -1934,6 +1957,8 @@ public class Types {
 
     public BErrorType getErrorType(BUnionType type) {
         for (BType member : type.getMemberTypes()) {
+            member = getEffectiveTypeForIntersection(member);
+
             if (member.tag == TypeTags.ERROR) {
                 return (BErrorType) member;
             } else if (member.tag == TypeTags.UNION) {

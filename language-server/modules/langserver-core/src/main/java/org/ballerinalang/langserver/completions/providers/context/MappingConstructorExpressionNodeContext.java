@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -62,6 +63,7 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class MappingConstructorExpressionNodeContext extends
         AbstractCompletionProvider<MappingConstructorExpressionNode> {
+
     public MappingConstructorExpressionNodeContext() {
         super(MappingConstructorExpressionNode.class);
     }
@@ -93,15 +95,16 @@ public class MappingConstructorExpressionNodeContext extends
             if (!this.hasReadonlyKW(evalNode)) {
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
             }
-            List<TypeSymbol> recordTypeDesc = this.getRecordTypeDescs(context, node);
-            for (TypeSymbol recordTypeSymbol : recordTypeDesc) {
-                RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol));
+            List<Pair<TypeSymbol, TypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
+            for (Pair<TypeSymbol, TypeSymbol> recordTypeSymbol : recordTypeDesc) {
+                RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol.getLeft()));
                 Map<String, RecordFieldSymbol> fields = this.getValidFields(node, rawType);
                 // TODO: Revamp the implementation
                 // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
                 completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
                 if (!fields.values().isEmpty()) {
-                    completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields, recordTypeSymbol));
+                    completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields,
+                            recordTypeSymbol));
                 }
                 completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
             }
@@ -147,8 +150,8 @@ public class MappingConstructorExpressionNodeContext extends
         return cursorPosInTree >= openBracketEnd && cursorPosInTree <= closeBracketStart;
     }
 
-    private List<TypeSymbol> getRecordTypeDescs(BallerinaCompletionContext context,
-                                                MappingConstructorExpressionNode node) {
+    private List<Pair<TypeSymbol, TypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
+                                                                  MappingConstructorExpressionNode node) {
         ContextTypeResolver typeResolver = new ContextTypeResolver(context);
         Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
         if (resolvedType.isEmpty()) {
@@ -156,11 +159,17 @@ public class MappingConstructorExpressionNodeContext extends
         }
         TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get());
         if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Collections.singletonList(rawType);
+            Optional<TypeSymbol> broaderType = typeResolver.getBroaderTypeSymbol();
+            if (broaderType.isPresent()) {
+                return Collections.singletonList(Pair.of(rawType, broaderType.get()));
+            } else {
+                return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
+            }
         }
         if (rawType.typeKind() == TypeDescKind.UNION) {
             return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                     .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD)
+                    .map(typeSymbol -> Pair.of(CommonUtil.getRawType(typeSymbol), typeSymbol))
                     .collect(Collectors.toList());
         }
 

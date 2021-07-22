@@ -222,9 +222,10 @@ public class BIRPackageSymbolEnter {
 
         String orgName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
         String pkgName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
+        String moduleName = ((StringCPEntry) this.env.constantPool[pkgCpEntry.moduleNameCPIndex]).value;
         String pkgVersion = ((StringCPEntry) this.env.constantPool[pkgCpEntry.versionCPIndex]).value;
 
-        PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
+        PackageID pkgId = createPackageID(orgName, pkgName, moduleName, pkgVersion);
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable, COMPILED_SOURCE);
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
@@ -336,7 +337,7 @@ public class BIRPackageSymbolEnter {
                 }
                 return new CPEntry.StringCPEntry(strValue);
             case CP_ENTRY_PACKAGE:
-                return new CPEntry.PackageCPEntry(dataInStream.readInt(),
+                return new CPEntry.PackageCPEntry(dataInStream.readInt(), dataInStream.readInt(),
                         dataInStream.readInt(), dataInStream.readInt());
             case CP_ENTRY_SHAPE:
                 env.unparsedBTypeCPs.put(i, readByteArray(dataInStream));
@@ -368,8 +369,9 @@ public class BIRPackageSymbolEnter {
     private void defineImportPackage(DataInputStream dataInStream) throws IOException {
         String orgName = getStringCPEntryValue(dataInStream);
         String pkgName = getStringCPEntryValue(dataInStream);
+        String moduleName = getStringCPEntryValue(dataInStream);
         String pkgVersion = getStringCPEntryValue(dataInStream);
-        PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
+        PackageID importPkgID = createPackageID(orgName, pkgName, moduleName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
         //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
@@ -946,14 +948,15 @@ public class BIRPackageSymbolEnter {
         return Double.toString(floatCPEntry.value);
     }
 
-    private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
+    private PackageID createPackageID(String orgName, String pkgName, String moduleName, String pkgVersion) {
         if (orgName == null || orgName.isEmpty()) {
-            throw new BLangCompilerException("invalid module name '" + pkgName + "' in compiled package file");
+            throw new BLangCompilerException("invalid module name '" + moduleName + "' in compiled package file");
         }
 
         return new PackageID(names.fromString(orgName),
                 names.fromString(pkgName),
-                names.fromString(pkgVersion));
+                names.fromString(moduleName),
+                names.fromString(pkgVersion), null);
     }
 
     /**
@@ -1634,9 +1637,10 @@ public class BIRPackageSymbolEnter {
         PackageCPEntry pkgCpEntry = (PackageCPEntry) env.constantPool[pkgCPIndex];
         String orgName = ((StringCPEntry) env.constantPool[pkgCpEntry.orgNameCPIndex]).value;
         String pkgName = ((StringCPEntry) env.constantPool[pkgCpEntry.pkgNameCPIndex]).value;
+        String moduleName = ((StringCPEntry) env.constantPool[pkgCpEntry.moduleNameCPIndex]).value;
         String version = ((StringCPEntry) env.constantPool[pkgCpEntry.versionCPIndex]).value;
-        return new PackageID(names.fromString(orgName),
-                names.fromString(pkgName), names.fromString(version));
+        return new PackageID(names.fromString(orgName), names.fromString(pkgName),
+                names.fromString(moduleName), names.fromString(version), null);
     }
 
     private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType, BIRTypeReader typeReader)

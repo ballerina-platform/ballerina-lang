@@ -1,0 +1,101 @@
+{
+  "source": {
+    "file": "modules/module1/module1.bal"
+  },
+  "position": {
+    "line": 20,
+    "character": 14
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {},
+    "documentChanges": [
+      {
+        "textDocument": {
+          "version": null,
+          "uri": "modules/module1/module1.bal"
+        },
+        "edits": [
+          {
+            "annotationId": "quoted",
+            "range": {
+              "start": {
+                "line": 20,
+                "character": 11
+              },
+              "end": {
+                "line": 20,
+                "character": 15
+              }
+            },
+            "newText": "\u0027string"
+          },
+          {
+            "annotationId": "unquoted",
+            "range": {
+              "start": {
+                "line": 20,
+                "character": 11
+              },
+              "end": {
+                "line": 20,
+                "character": 15
+              }
+            },
+            "newText": "string"
+          }
+        ]
+      },
+      {
+        "textDocument": {
+          "version": null,
+          "uri": "main.bal"
+        },
+        "edits": [
+          {
+            "annotationId": "quoted",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 27
+              },
+              "end": {
+                "line": 14,
+                "character": 31
+              }
+            },
+            "newText": "\u0027string"
+          },
+          {
+            "annotationId": "unquoted",
+            "range": {
+              "start": {
+                "line": 14,
+                "character": 27
+              },
+              "end": {
+                "line": 14,
+                "character": 31
+              }
+            },
+            "newText": "string"
+          }
+        ]
+      }
+    ],
+    "changeAnnotations": {
+      "quoted": {
+        "label": "Quoted Rename",
+        "needsConfirmation": true,
+        "description": "Rename to keyword with a quote"
+      },
+      "unquoted": {
+        "label": "Un-quoted Rename",
+        "needsConfirmation": true,
+        "description": "Rename to keyword without a quote"
+      }
+    }
+  }
+}

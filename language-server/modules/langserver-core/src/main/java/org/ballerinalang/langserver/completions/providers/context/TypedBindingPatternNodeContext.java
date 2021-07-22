@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -56,7 +55,7 @@ public class TypedBindingPatternNodeContext extends AbstractCompletionProvider<T
             return CompletionUtil.route(context, node.typeDescriptor());
         }
 
-        return Collections.emptyList();
+        return CompletionUtil.route(context, node.parent());
     }
 
     private boolean withinTypeDesc(BallerinaCompletionContext context, TypedBindingPatternNode node) {

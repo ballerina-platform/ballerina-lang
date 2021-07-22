@@ -884,6 +884,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // TODO Clean this code up. Can we move the this to BLangPackageBuilder class
         // Create import package symbol
         Name orgName;
+        Name pkgName = null;
         Name version;
         PackageID enclPackageID = env.enclPkg.packageID;
         // The pattern of the import statement is 'import [org-name /] module-name [version sem-ver]'
@@ -902,10 +903,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (projectAPIInitiatedCompilation) {
                     version = Names.EMPTY;
                 } else {
-                    String pkgName = importPkgNode.getPackageName().stream()
+                    String pkgNameComps = importPkgNode.getPackageName().stream()
                             .map(id -> id.value)
                             .collect(Collectors.joining("."));
-                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgName)
+                    if (this.sourceDirectory.getSourcePackageNames().contains(pkgNameComps)
                             && orgName.value.equals(enclPackageID.orgName.value)) {
                         version = enclPackageID.version;
                     } else {
@@ -915,14 +916,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         } else {
             orgName = enclPackageID.orgName;
+            pkgName = enclPackageID.pkgName;
             version = (Names.DEFAULT_VERSION.equals(enclPackageID.version)) ? Names.EMPTY : enclPackageID.version;
         }
 
         List<Name> nameComps = importPkgNode.pkgNameComps.stream()
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
+        Name moduleName = new Name(nameComps.stream().map(Name::getValue).collect(Collectors.joining(".")));
 
-        PackageID pkgId = new PackageID(orgName, nameComps, version);
+        if (pkgName == null) {
+            pkgName = moduleName;
+        }
+
+        PackageID pkgId = new PackageID(orgName, pkgName, moduleName, version, null);
 
         // Un-exported modules not inside current package is not allowed to import.
         BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
@@ -1109,7 +1116,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unresolvedRecordDueToFields = new HashSet<>(typeDefs.size());
         this.resolveRecordsUnresolvedDueToFields = false;
         for (BLangNode typeDef : typeDefs) {
-            if (isErrorIntersectionType(typeDef, env)) {
+            if (isErrorIntersectionTypeCreatingNewType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
                 continue;
             }
@@ -1159,7 +1166,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes.add(typeDef);
     }
 
-    private boolean isErrorIntersectionType(BLangNode typeDef, SymbolEnv env) {
+    private boolean isErrorIntersectionTypeCreatingNewType(BLangNode typeDef, SymbolEnv env) {
         boolean isIntersectionType = typeDef.getKind() == NodeKind.TYPE_DEFINITION
                 && ((BLangTypeDefinition) typeDef).typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE;
         if (!isIntersectionType) {
@@ -1169,13 +1176,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangIntersectionTypeNode intersectionTypeNode =
                 (BLangIntersectionTypeNode) ((BLangTypeDefinition) typeDef).typeNode;
 
+        Set<BType> errorTypes = new HashSet<>();
+
         for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
             BType bType = symResolver.resolveTypeNode(type, env);
             if (bType.tag == TypeTags.ERROR) {
-                return true;
+                errorTypes.add(bType);
             }
         }
-        return false;
+        return errorTypes.size() > 1;
     }
 
     private void checkErrors(SymbolEnv env, BLangNode unresolvedType, BLangNode currentTypeOrClassNode,
@@ -1194,9 +1203,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // Recursively check all members.
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, fromStructuredType);
-                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-                        break;
-                    }
                 }
                 break;
             case INTERSECTION_TYPE_NODE:
@@ -1210,9 +1216,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 memberTypeNodes = tupleNode.memberTypeNodes;
                 for (BLangType memberTypeNode : memberTypeNodes) {
                     checkErrors(env, unresolvedType, memberTypeNode, visitedNodes, true);
-                    if (((BLangTypeDefinition) unresolvedType).hasCyclicReference) {
-                        break;
-                    }
                 }
                 if (tupleNode.restParamType != null) {
                     checkErrors(env, unresolvedType, tupleNode.restParamType, visitedNodes, true);
@@ -1230,8 +1233,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             case STREAM_TYPE:
                 checkErrors(env, unresolvedType, ((BLangStreamType) currentTypeOrClassNode).constraint, visitedNodes,
                         true);
-                checkErrors(env, unresolvedType, ((BLangStreamType) currentTypeOrClassNode).error, visitedNodes,
-                        true);
+                BLangType completionType = ((BLangStreamType) currentTypeOrClassNode).error;
+                if (completionType != null) {
+                    checkErrors(env, unresolvedType, completionType, visitedNodes, true);
+                }
                 break;
             case USER_DEFINED_TYPE:
                 checkErrorsOfUserDefinedType(env, unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
@@ -1276,6 +1281,23 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private  boolean isTypeConstructorAvailable(NodeKind unresolvedType) {
+        switch (unresolvedType) {
+            case OBJECT_TYPE:
+            case RECORD_TYPE:
+            case CONSTRAINED_TYPE:
+            case ARRAY_TYPE:
+            case TUPLE_TYPE_NODE:
+            case TABLE_TYPE:
+            case ERROR_TYPE:
+            case FUNCTION_TYPE:
+            case STREAM_TYPE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private void checkErrorsOfUserDefinedType(SymbolEnv env, BLangNode unresolvedType,
                                               BLangUserDefinedType currentTypeOrClassNode,
                                               Stack<String> visitedNodes, boolean fromStructuredType) {
@@ -1292,15 +1314,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (sameTypeNode || isVisited) {
             if (typeDef) {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) unresolvedType;
-                if (fromStructuredType && (typeDefinition.getTypeNode().getKind() == NodeKind.UNION_TYPE_NODE
-                        || typeDefinition.getTypeNode().getKind() == NodeKind.TUPLE_TYPE_NODE)) {
-                    // Valid cyclic dependency
+                NodeKind unresolvedTypeNodeKind = typeDefinition.getTypeNode().getKind();
+                if (fromStructuredType && (unresolvedTypeNodeKind == NodeKind.UNION_TYPE_NODE
+                        || unresolvedTypeNodeKind == NodeKind.TUPLE_TYPE_NODE)) {
+                    // Type definitions with tuples and unions are allowed to have cyclic references atm
                     typeDefinition.hasCyclicReference = true;
                     return;
                 }
+                // Recursive types (A -> B -> C -> B) are valid provided they go through a type constructor
+                if (unresolvedTypeNodeKind != NodeKind.OBJECT_TYPE && isTypeConstructorAvailable(unresolvedTypeNodeKind)
+                    && !sameTypeNode) {
+                    return;
+                }
             }
-
-            //type definitions with tuple and unions are allowed to have cyclic reference atm
             if (isVisited) {
                 // Invalid dependency detected. But in here, all the types in the list might not
                 // be necessary for the cyclic dependency error message.
@@ -1337,9 +1363,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (typeDefinitions.isEmpty()) {
                 BType referredType = symResolver.resolveTypeNode(currentTypeOrClassNode, env);
-                if (referredType.tag == TypeTags.RECORD || referredType.tag == TypeTags.OBJECT ||
-                        referredType.tag == TypeTags.FINITE) {
-                    // we are referring an fully or partially defined type from another cyclic type eg: record, class
+                // We are referring a fully or partially defined type from another cyclic type
+                if (referredType != symTable.noType) {
                     return;
                 }
 
@@ -2271,8 +2296,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (varName == Names.IGNORE) {
                     ignoredCount++;
                     simpleVar.setBType(symTable.anyType);
-                    types.checkType(varNode.pos, type, simpleVar.getBType(),
-                                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    if (!types.isAssignable(type, symTable.anyType)) {
+                        dlog.error(varNode.pos, DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
+                    }
                     continue;
                 }
             }
@@ -2644,9 +2670,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                     if (!recordVarTypeFields.containsKey(variable.getKey().getValue())) {
                         continue;
                     }
-                    types.checkType(variable.valueBindingPattern.pos,
-                                    recordVarTypeFields.get((variable.getKey().getValue())).type, simpleVar.getBType(),
-                                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    if (!types.isAssignable(recordVarTypeFields.get((variable.getKey().getValue())).type,
+                            symTable.anyType)) {
+                        dlog.error(variable.valueBindingPattern.pos,
+                                DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
+                    }
                     continue;
                 }
             }
@@ -2772,7 +2800,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordVarType = new BRecordType(recordSymbol);
         LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
             putAll(recordType.fields);
-            if(recordType.restFieldType.tag == TypeTags.RECORD) {
+            if (recordType.restFieldType.tag == TypeTags.RECORD) {
                 putAll(((BRecordType) recordType.restFieldType).fields);
             }
         }};

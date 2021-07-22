@@ -93,6 +93,8 @@ function testServiceObjectValue() {
 
     string[]? paramNames = getParamNames(serviceVal, "$get$foo$bar");
     assertEquality(paramNames, <string[]>["i", "j"]);
+
+    testServiceRemoteMethod(serviceVal);
 }
 
 
@@ -116,3 +118,19 @@ function assertEquality(any|error actual, any|error expected) {
     panic error("AssertionError",
             message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
+
+function testServiceRemoteMethod(serv:Service serviceVal) {
+    [string, boolean][] parameters = getRemoteParameters(serviceVal, "getRemoteCounter");
+    assertEquality(parameters.length(), 3);
+    assertEquality(parameters[0][0], "num");
+    assertEquality(parameters[0][1], false);
+    assertEquality(parameters[1][0], "value");
+    assertEquality(parameters[1][1], false);
+    assertEquality(parameters[2][0], "msg");
+    assertEquality(parameters[2][1], true);
+}
+
+public function getRemoteParameters(service object {} s, string name) returns [string, boolean][] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values",
+    name: "getParameters"
+} external;

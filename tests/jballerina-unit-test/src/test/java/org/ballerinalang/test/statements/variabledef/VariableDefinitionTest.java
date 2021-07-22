@@ -152,6 +152,11 @@ public class VariableDefinitionTest {
         Assert.assertEquals(f, v5, DELTA);
     }
 
+    @Test(description = "Test defining var with wild card")
+    public void wildCardLocalVariables() {
+        BRunUtil.invoke(result, "wildCardLocalVariables", new BValue[0]);
+    }
+
     @Test(description = "Test variable definition negative test cases with errors")
     public void testUnsupportedTypeVariable() {
         resultNegative = BCompileUtil

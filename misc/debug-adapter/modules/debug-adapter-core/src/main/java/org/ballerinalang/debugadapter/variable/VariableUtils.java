@@ -21,6 +21,8 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.ArrayList;
@@ -51,6 +53,9 @@ public class VariableUtils {
      */
     public static String getBType(Value value) {
         try {
+            if (!(value instanceof ObjectReference)) {
+                return UNKNOWN_VALUE;
+            }
             ObjectReference valueRef = (ObjectReference) value;
             Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
@@ -98,6 +103,9 @@ public class VariableUtils {
      */
     public static String getStringValue(SuspendedContext context, Value jvmObject) {
         try {
+            if (!(jvmObject instanceof ObjectReference)) {
+                return UNKNOWN_VALUE;
+            }
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
             if (method.isPresent()) {
                 Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
@@ -147,10 +155,10 @@ public class VariableUtils {
      * @param value JDI value instance.
      * @return true the given JDI value is a ballerina service variable instance.
      */
-     public static boolean isService(Value value) {
+    public static boolean isService(Value value) {
         try {
             return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
-                (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
+                    (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
         } catch (DebugVariableException e) {
             return false;
         }
@@ -228,7 +236,7 @@ public class VariableUtils {
      * @return the JDI method instance of a any given method which exists in the given JDI object reference.
      */
     public static Optional<Method> getMethod(Value parent, String methodName, String signature)
-        throws DebugVariableException {
+            throws DebugVariableException {
         List<Method> methods = new ArrayList<>();
         if (!(parent instanceof ObjectReference)) {
             return Optional.empty();
@@ -260,5 +268,25 @@ public class VariableUtils {
             str = str.replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
         } while (str.startsWith("\"") || str.endsWith("\""));
         return str;
+    }
+
+    /**
+     * Returns the child variable instance with given name using the parent variable instance.
+     *
+     * @param variable     parent variable
+     * @param childVarName child variable name
+     * @throws DebugVariableException if the parent variable does not contain a child with the given name.
+     * @throws EvaluationException    if the child access is not supported on the given parent variable type.
+     */
+    public static Value getChildVarByName(BVariable variable, String childVarName) throws DebugVariableException,
+            EvaluationException {
+        if (variable instanceof IndexedCompoundVariable) {
+            return ((IndexedCompoundVariable) variable).getChildByName(childVarName);
+        } else if (variable instanceof NamedCompoundVariable) {
+            return ((NamedCompoundVariable) variable).getChildByName(childVarName);
+        } else {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                    "Field access is not allowed for Ballerina simple types."));
+        }
     }
 }

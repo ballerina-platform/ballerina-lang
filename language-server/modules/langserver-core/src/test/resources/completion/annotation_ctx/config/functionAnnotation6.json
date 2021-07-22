@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -17,7 +17,7 @@
     {
       "label": "bar",
       "kind": "Field",
-      "detail": "(record {| string foo; int bar?; anydata...; |}).bar",
+      "detail": "module1:AnnotationType.bar",
       "sortText": "G",
       "insertText": "bar: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,16 +25,16 @@
     {
       "label": "foo",
       "kind": "Field",
-      "detail": "(record {| string foo; int bar?; anydata...; |}).foo",
+      "detail": "module1:AnnotationType.foo",
       "sortText": "G",
       "insertText": "foo: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| string foo; int bar?; anydata...; |} Required Fields",
+      "label": "Fill module1:AnnotationType Required Fields",
       "kind": "Property",
-      "detail": "record {| string foo; int bar?; anydata...; |}",
-      "sortText": "Q",
+      "detail": "module1:AnnotationType",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "foo: \"\"",
       "insertTextFormat": "Snippet"

@@ -16,17 +16,23 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.invokable;
 
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.INVOKE_FUNCTION_ASYNC;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_LANG_CLASSLOADER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 
 /**
  * JVM generated static method representation of a ballerina function.
@@ -49,12 +55,21 @@ public class GeneratedStaticMethod extends GeneratedMethod {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
                         .getString(), methodRef.name()));
             }
-            List<Value> argValueList = getMethodArgs(this);
-            return ((ClassType) classRef).invokeMethod(context.getOwningThread().getThreadReference(),
-                    methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
-        } catch (ClassNotLoadedException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    methodRef.name()));
+            List<String> argTypeList = new ArrayList<>();
+            argTypeList.add(JAVA_LANG_CLASSLOADER);
+            argTypeList.add(JAVA_STRING_CLASS);
+            argTypeList.add(JAVA_STRING_CLASS);
+            argTypeList.add(JAVA_OBJECT_ARRAY_CLASS);
+            RuntimeStaticMethod scheduleMethod = EvaluationUtils.getRuntimeMethod(context,
+                    B_DEBUGGER_RUNTIME_CLASS, INVOKE_FUNCTION_ASYNC, argTypeList);
+
+            List<Value> scheduleMethodArgs = new ArrayList<>();
+            scheduleMethodArgs.add(context.getDebuggeeClassLoader());
+            scheduleMethodArgs.add(EvaluationUtils.getAsJString(context, classRef.name()));
+            scheduleMethodArgs.add(EvaluationUtils.getAsJString(context, methodRef.name()));
+            scheduleMethodArgs.addAll(getMethodArgs(this));
+            scheduleMethod.setArgValues(scheduleMethodArgs);
+            return scheduleMethod.invoke();
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

@@ -70,6 +70,8 @@ public class EnumMemberNodeContext extends AbstractCompletionProvider<EnumMember
             visibleSymbols.addAll(filteredSymbols);
         }
         completionItems.addAll(this.getCompletionItemList(visibleSymbols, ctx));
+        this.sort(ctx, node, completionItems);
+        
         return completionItems;
     }
 

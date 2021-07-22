@@ -138,8 +138,6 @@ public enum Snippet {
 
 
     // Expressions Snippets
-    EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
-
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 
     EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -17,7 +17,7 @@
     {
       "label": "optionalInt",
       "kind": "Field",
-      "detail": "(record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}).optionalInt",
+      "detail": "module1:TestRecord1.optionalInt",
       "sortText": "G",
       "insertText": "optionalInt: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,7 +25,7 @@
     {
       "label": "rec1Field1",
       "kind": "Field",
-      "detail": "(record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}).rec1Field1",
+      "detail": "module1:TestRecord1.rec1Field1",
       "sortText": "G",
       "insertText": "rec1Field1: ${2:0}",
       "insertTextFormat": "Snippet"
@@ -33,16 +33,16 @@
     {
       "label": "rec1Field2",
       "kind": "Field",
-      "detail": "(record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}).rec1Field2",
+      "detail": "module1:TestRecord1.rec1Field2",
       "sortText": "G",
       "insertText": "rec1Field2: \"${3}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |} Required Fields",
+      "label": "Fill module1:TestRecord1 Required Fields",
       "kind": "Property",
-      "detail": "record {| int rec1Field1; string rec1Field2; int optionalInt?; anydata...; |}",
-      "sortText": "Q",
+      "detail": "module1:TestRecord1",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "rec1Field1: 0,\nrec1Field2: \"\"",
       "insertTextFormat": "Snippet"

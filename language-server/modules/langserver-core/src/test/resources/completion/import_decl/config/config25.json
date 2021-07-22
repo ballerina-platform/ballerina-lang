@@ -9,7 +9,7 @@
       "label": "transaction.join",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "'transaction.'join",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "client",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "'client",
       "insertTextFormat": "Snippet"
     }

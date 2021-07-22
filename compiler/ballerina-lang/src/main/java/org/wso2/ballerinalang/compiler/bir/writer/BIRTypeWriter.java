@@ -24,7 +24,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
-import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
@@ -136,10 +135,7 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BErrorType bErrorType) {
         // Write the error package and type name
-        int orgCPIndex = addStringCPEntry(bErrorType.tsymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(bErrorType.tsymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(bErrorType.tsymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = BIRWriterUtils.addPkgCPEntry(bErrorType.tsymbol.pkgID, cp);
         buff.writeInt(pkgIndex);
         buff.writeInt(addStringCPEntry(bErrorType.tsymbol.name.value));
         // Write detail types.
@@ -159,10 +155,7 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writeTypeId(BTypeIdSet.BTypeId bTypeId) {
-        int orgCPIndex = addStringCPEntry(bTypeId.packageID.orgName.value);
-        int nameCPIndex = addStringCPEntry(bTypeId.packageID.name.value);
-        int versionCPIndex = addStringCPEntry(bTypeId.packageID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = BIRWriterUtils.addPkgCPEntry(bTypeId.packageID, cp);
         buff.writeInt(pkgIndex);
         buff.writeInt(addStringCPEntry(bTypeId.name));
         buff.writeBoolean(bTypeId.publicId);
@@ -340,11 +333,7 @@ public class BIRTypeWriter implements TypeVisitor {
     }
 
     private void writePackageIndex(BTypeSymbol tsymbol) {
-
-        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        int pkgIndex = BIRWriterUtils.addPkgCPEntry(tsymbol.pkgID, cp);
         buff.writeInt(pkgIndex);
     }
 
