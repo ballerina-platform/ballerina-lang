@@ -550,8 +550,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (funcNode.body != null) {
 
             DefaultValueState prevDefaultValueState = this.defaultValueState;
-            if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
-                    defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            if (this.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                    this.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
                 this.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
             }
             analyzeNode(funcNode.body, invokableEnv);
