@@ -385,6 +385,11 @@ public class RefEqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testIntersectingUnionRefEquality() {
+        BRunUtil.invoke(result, "testIntersectingUnionRefEquality");
+    }
+
+    @Test
     public void testXMLSequenceRefEqualityDifferentLength() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLSequenceRefEqualityDifferentLength");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
