@@ -514,17 +514,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
-            if (typeDefinition.symbol.kind == SymbolKind.ENUM) {
-                List<String> enumElements = new ArrayList<String>();
-                BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  typeDefinition.typeNode;
-                for (int j = 0; j < bLangUnionTypeNode.memberTypeNodes.size(); j++) {
-                    BLangUserDefinedType nextType = (BLangUserDefinedType) bLangUnionTypeNode.memberTypeNodes.get(j);
-                    String nextTypeName = nextType.typeName.value;
-                    if (enumElements.contains(nextTypeName)) {
-                        dlog.error(nextType.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, nextTypeName);
-                    } else {
-                        enumElements.add(nextTypeName);
-                    }
+            HashSet<String> enumElements = new HashSet<String>();
+            BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  typeDefinition.typeNode;
+            for (int j = 0; j < bLangUnionTypeNode.memberTypeNodes.size(); j++) {
+                BLangUserDefinedType nextType = (BLangUserDefinedType) bLangUnionTypeNode.memberTypeNodes.get(j);
+                String nextTypeName = nextType.typeName.value;
+                if (enumElements.contains(nextTypeName)) {
+                    dlog.error(nextType.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, nextTypeName);
+                } else {
+                    enumElements.add(nextTypeName);
                 }
             }
         }

@@ -772,8 +772,7 @@ public class Desugar extends BLangNodeVisitor {
                 initFnBody.stmts.add(constInit);
             }
         }
-
-        List<String> elements = new ArrayList<String>();
+        HashSet<String> elements = new HashSet<String>();
         for (int i = 0; i < pkgNode.constants.size(); i++) {
             String next = pkgNode.constants.get(i).symbol.name.value;
             if (elements.contains(next)) {
