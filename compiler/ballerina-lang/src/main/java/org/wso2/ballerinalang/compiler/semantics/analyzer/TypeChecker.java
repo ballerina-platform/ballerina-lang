@@ -900,8 +900,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType applicableExpType = expType.tag == TypeTags.TYPEREFDESC ?
                 ((BTypeReferenceType) expType).constraint : expType;
 
-        applicableExpType = expType.tag == TypeTags.INTERSECTION ?
-                ((BIntersectionType) expType).effectiveType : expType;
+        applicableExpType = applicableExpType.tag == TypeTags.INTERSECTION ?
+                ((BIntersectionType) applicableExpType).effectiveType : applicableExpType;
 
         if (applicableExpType.tag == TypeTags.TABLE) {
             List<BType> memTypes = new ArrayList<>();
@@ -2254,12 +2254,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 BConstantSymbol constSymbol = (BConstantSymbol) symbol;
                 varRefExpr.symbol = constSymbol;
                 BType symbolType = symbol.type;
-                BType expectedType = expType;
+//                BType expectedType = expType;
                 if (expType.tag == TypeTags.TYPEREFDESC) {
-                    expectedType = ((BTypeReferenceType) expType).constraint;
+                    expType = ((BTypeReferenceType) expType).constraint;
                 }
-                if (symbolType != symTable.noType && expectedType.tag == TypeTags.FINITE ||
-                        (expectedType.tag == TypeTags.UNION && ((BUnionType) expectedType).getMemberTypes().stream()
+                if (symbolType != symTable.noType && expType.tag == TypeTags.FINITE ||
+                        (expType.tag == TypeTags.UNION && ((BUnionType) expType).getMemberTypes().stream()
                                 .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
                                         types.isAssignable(symbolType, memType)))) {
                     actualType = symbolType;
