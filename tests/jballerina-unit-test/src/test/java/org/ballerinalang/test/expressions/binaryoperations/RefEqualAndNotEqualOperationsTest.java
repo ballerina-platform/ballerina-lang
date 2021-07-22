@@ -435,10 +435,10 @@ public class RefEqualAndNotEqualOperationsTest {
                       54, 34);
         validateError(resultNegative, i++, "operator '===' not defined for 'Employee' and 'Person'", 62, 12);
         validateError(resultNegative, i++, "operator '!==' not defined for 'Person' and 'Employee'", 62, 25);
-        validateError(resultNegative, i++, "operator '===' not defined for '(Employee|[string,int])' and 'json'",
-                      68, 21);
-        validateError(resultNegative, i++, "operator '!==' not defined for '(Employee|[string,int])' and 'json'",
-                      68, 34);
+        validateError(resultNegative, i++, "operator '===' not defined for '(record {| xml x; anydata...; |}|[string," +
+                        "xml])' and 'json'", 68, 21);
+        validateError(resultNegative, i++, "operator '!==' not defined for '(record {| xml x; anydata...; |}|[string," +
+                        "xml])' and 'json'", 68, 34);
         validateError(resultNegative, i++, "operator '===' not defined for 'Abc' and 'Def'", 76, 12);
         validateError(resultNegative, i++, "operator '!==' not defined for 'Def' and 'Abc'", 76, 25);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
