@@ -213,8 +213,7 @@ public class XMLParser extends AbstractParser {
                 return STNodeFactory.createXMLStartTagNode(tagOpen, name, attributes, tagClose);
             default:
                 STToken token = peek();
-                Solution solution =
-                        recover(token, ParserRuleContext.XML_START_OR_EMPTY_TAG_END, tagOpen, name, attributes);
+                Solution solution = recover(token, ParserRuleContext.XML_START_OR_EMPTY_TAG_END);
                 return parseXMLElementTagEnd(solution.tokenKind, tagOpen, name, attributes);
         }
     }
@@ -630,5 +629,9 @@ public class XMLParser extends AbstractParser {
             default:
                 throw new IllegalStateException();
         }
+    }
+
+    private Solution recover(STToken token, ParserRuleContext currentCtx) {
+        return this.recover(token, currentCtx, false);
     }
 }

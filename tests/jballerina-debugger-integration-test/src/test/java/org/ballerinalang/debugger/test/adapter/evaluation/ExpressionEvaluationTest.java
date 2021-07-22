@@ -102,7 +102,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "new Location(\"New York\",\"USA\")", "Location", "object");
     }
 
     @Override
@@ -206,7 +206,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + ".gender", "\"male\"", "string");
+        // XML optional attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + "?.gender", "\"male\"", "string");
+        // XML optional attribute access on non existing attribute
+        debugTestRunner.assertExpression(context, XML_VAR + "?.name", "()", "nil");
     }
 
     @Override
@@ -237,6 +242,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
+
+        // Function which includes asynchronous calls.
+        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
 
         // ---------------------- Required Parameters + named arguments ---------------------------------
 
@@ -289,32 +297,30 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                 "\"[2500, 100, 0.1]\"", "string");
 
         // ----------------------------  Rest Parameters  ------------------------------------------
-        // Todo - Enable once the debugger runtime helper module is restored.
 
         // Call the function by passing only the required parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "[2500, 20, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "\"[Alice, 18, Module(s): ()]\"",
+                "string");
 
-        // Call the function by passing the required parameter and the defaultable parameter. Named arguments can
+        // Call the function by passing the required parameter and the defaultable parameter.Named arguments can
         // also be used since values are not passed for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Bob\", 20);", "[2500, 20, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printDetails(\"Bob\", 20);", "\"[Bob, 20, Module(s): ()]\"",
+                "string");
 
         // Call the function by passing the required parameter, the defaultable parameter, and one value for the rest
-        // parameter. Arguments cannot be passed as named arguments since values are specified for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Corey\", 19, \"Math\");", "[2500, 20, 0.02]",
-        // "string");
+        // parameter.Arguments cannot be passed as named arguments since values are specified for the rest parameter.
+        debugTestRunner.assertExpression(context, "printDetails(\"Corey\", 19, \"Math\");",
+                "\"[Corey, 19, Module(s): Math,]\"", "string");
 
         // Call the function by passing the required parameter, defaultable parameter,
-        // and multiple values for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, \"Math\", \"Physics\");",
-        // "[2500, 20, 0.02]", "string");
+        //  and multiple values for the rest parameter.
+        debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, \"Math\", \"Physics\");",
+                "\"[Diana, 20, Module(s): Math,Physics,]\"", "string");
 
         // Pass an array as the rest parameter instead of calling the
         // function by passing each value separately.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...modules);", "[2500, 20, 0.02]",
-        // "string");
-
-        // Function which includes asynchronous calls.
-        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
+        debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...stringArrayVar);",
+                "\"[Diana, 20, Module(s): foo,bar,]\"", "string");
     }
 
     @Override

@@ -30,32 +30,18 @@ import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.logging.BLogManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.logging.LogManager;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX_LENGTH;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIG_FILE_PROPERTY;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.CONFIG_SEPARATOR;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_PROPERTY;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_CONFIG_PATH;
@@ -70,44 +56,6 @@ public class LaunchUtils {
     private LaunchUtils() {
     }
 
-    static {
-        System.setProperty(UTIL_LOGGING_CONFIG_CLASS_PROPERTY, UTIL_LOGGING_CONFIG_CLASS_VALUE);
-        System.setProperty(UTIL_LOGGING_MANAGER_CLASS_PROPERTY, UTIL_LOGGING_MANAGER_CLASS_VALUE);
-    }
-
-    public static String[] initConfigurations(String[] args) {
-
-        if (ConfigRegistry.getInstance().isInitialized()) {
-            return args;
-        }
-        Map<String, String> configArgs = new HashMap<>();
-        String[] userProgramArgs = getUserArgs(args, configArgs);
-
-        // load configurations
-        loadConfigurations(configArgs, configArgs.get(CONFIG_FILE_PROPERTY));
-        return userProgramArgs;
-    }
-
-    public static String[] getUserArgs(String[] args, Map<String, String> configArgs) {
-        List<String> userProgramArgs = new ArrayList<>();
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].equals(BALLERINA_ARGS_INIT_PREFIX)) {
-                userProgramArgs.addAll(Arrays.asList(Arrays.copyOfRange(args, i + 1, args.length)));
-                break;
-            }
-            if (args[i].toLowerCase().startsWith(BALLERINA_ARGS_INIT_PREFIX)) {
-                String configString = args[i].substring(BALLERINA_ARGS_INIT_PREFIX_LENGTH);
-                String[] keyValuePair = configString.split(CONFIG_SEPARATOR);
-                if (keyValuePair.length >= 2) {
-                    configArgs.put(keyValuePair[0], configString.substring(keyValuePair[0].length() + 1));
-                    continue;
-                }
-            }
-            userProgramArgs.add(args[i]);
-        }
-        return userProgramArgs.toArray(new String[0]);
-    }
-
     public static void startListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.beforeRunProgram(isService));
@@ -116,26 +64,6 @@ public class LaunchUtils {
     public static void stopListeners(boolean isService) {
         ServiceLoader<LaunchListener> listeners = ServiceLoader.load(LaunchListener.class);
         listeners.forEach(listener -> listener.afterRunProgram(isService));
-    }
-
-    /**
-     * Initializes the {@link ConfigRegistry} and loads {@link LogManager} configs.
-     */
-    private static void loadConfigurations(Map<String, String> configArgs, String configFilePath) {
-        Path ballerinaConfPath = Paths.get(System.getProperty("user.dir")).resolve("ballerina.conf");
-        try {
-            ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-            configRegistry.initRegistry(configArgs, configFilePath, ballerinaConfPath);
-            LogManager logManager = LogManager.getLogManager();
-            if (logManager instanceof BLogManager) {
-                ((BLogManager) logManager).loadUserProvidedLogConfiguration();
-            }
-        } catch (IOException e) {
-            RuntimeUtils.handleUsageError("failed to read the specified configuration file: " +
-                                                 configFilePath);
-        } catch (RuntimeException e) {
-            RuntimeUtils.handleUsageError(e.getMessage());
-        }
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,

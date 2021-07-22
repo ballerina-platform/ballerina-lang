@@ -19,6 +19,7 @@ package io.ballerina.runtime.observability;
 
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
@@ -73,13 +74,18 @@ public class ObserveUtils {
     static {
         // TODO: Move config initialization to ballerina level once checking config key is possible at ballerina level
         Module observeModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "observe", "0.9.0");
-        VariableKey enabledKey = new VariableKey(observeModule, "enabled");
-        VariableKey providerKey = new VariableKey(observeModule, "provider");
-        VariableKey metricsEnabledKey = new VariableKey(observeModule, "metricsEnabled");
-        VariableKey metricsProviderKey = new VariableKey(observeModule, "metricsProvider");
-        VariableKey metricsReporterKey = new VariableKey(observeModule, "metricsReporter");
-        VariableKey tracingEnabledKey = new VariableKey(observeModule, "tracingEnabled");
-        VariableKey tracingProviderKey = new VariableKey(observeModule, "tracingProvider");
+        VariableKey enabledKey = new VariableKey(observeModule, "enabled", PredefinedTypes.TYPE_BOOLEAN, false);
+        VariableKey providerKey = new VariableKey(observeModule, "provider", PredefinedTypes.TYPE_STRING, false);
+        VariableKey metricsEnabledKey = new VariableKey(observeModule, "metricsEnabled", PredefinedTypes.TYPE_BOOLEAN
+                , false);
+        VariableKey metricsProviderKey = new VariableKey(observeModule, "metricsProvider",
+                PredefinedTypes.TYPE_STRING, false);
+        VariableKey metricsReporterKey = new VariableKey(observeModule, "metricsReporter",
+                PredefinedTypes.TYPE_STRING, false);
+        VariableKey tracingEnabledKey = new VariableKey(observeModule, "tracingEnabled", PredefinedTypes.TYPE_BOOLEAN
+                , false);
+        VariableKey tracingProviderKey = new VariableKey(observeModule, "tracingProvider",
+                PredefinedTypes.TYPE_STRING, false);
 
         metricsEnabled = readConfig(metricsEnabledKey, enabledKey, false);
         metricsProvider = readConfig(metricsProviderKey, null, StringUtils.fromString("default"));

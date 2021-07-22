@@ -283,9 +283,12 @@ function printDetails(string name, int age = 18, string... modules) returns stri
     if (modules.length() == 0) {
         moduleString = "Module(s): ()";
     } else {
-        moduleString = "Module(s): " + modules[0];
+        modules.forEach(function(string module) {
+            moduleString += 'module + ",";
+        });
+        moduleString = "Module(s): " + moduleString;
     }
-    return  string `[${name}, ${age}, ${moduleString}]`;
+    return string `[${name}, ${age}, ${moduleString}]`;
 }
 
 function addition(int a, int b) returns int {
