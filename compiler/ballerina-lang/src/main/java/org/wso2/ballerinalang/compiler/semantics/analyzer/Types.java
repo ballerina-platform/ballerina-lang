@@ -3298,11 +3298,12 @@ public class Types {
                             .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
                                     isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
                                     isAssignable(valueExpr.getBType(), targetType, unresolvedTypes) ||
-                                            isValidLiteral((BLangLiteral) valueExpr, targetMemType)));
+                                    isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
+                                                                                   targetMemType)));
         }
 
         for (BLangExpression expression : finiteType.getValueSpace()) {
-            if (!isValidLiteral((BLangLiteral) expression, targetType) &&
+            if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
                     !isAssignable(expression.getBType(), targetType, unresolvedTypes)) {
                 return false;
             }
@@ -3539,13 +3540,41 @@ public class Types {
     private boolean isAssignableToBuiltinSubtypeInTargetType(BLangLiteral literal, BType targetType) {
         if (targetType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
-                if (isValidLiteral(literal, memberType)) {
+                if (isLiteralCompatibleWithBuiltinTypeWithSubTypes(literal, memberType)) {
                     return true;
                 }
             }
         }
 
-        return isValidLiteral(literal, targetType);
+        return isLiteralCompatibleWithBuiltinTypeWithSubTypes(literal, targetType);
+    }
+
+    public boolean isLiteralCompatibleWithBuiltinTypeWithSubTypes(BLangLiteral literal, BType targetType) {
+        BType literalType = literal.getBType();
+        if (literalType.tag == targetType.tag) {
+            return true;
+        }
+
+        switch (targetType.tag) {
+            case TypeTags.BYTE:
+                return literalType.tag == TypeTags.INT && isByteLiteralValue((Long) literal.value);
+            case TypeTags.SIGNED32_INT:
+                return literalType.tag == TypeTags.INT && isSigned32LiteralValue((Long) literal.value);
+            case TypeTags.SIGNED16_INT:
+                return literalType.tag == TypeTags.INT && isSigned16LiteralValue((Long) literal.value);
+            case TypeTags.SIGNED8_INT:
+                return literalType.tag == TypeTags.INT && isSigned8LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED32_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned32LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED16_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned16LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED8_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned8LiteralValue((Long) literal.value);
+            case TypeTags.CHAR_STRING:
+                return literalType.tag == TypeTags.STRING && isCharLiteralValue((String) literal.value);
+            default:
+                return false;
+        }
     }
 
     /**
