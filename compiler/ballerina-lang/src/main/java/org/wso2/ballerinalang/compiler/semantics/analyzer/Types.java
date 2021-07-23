@@ -2169,9 +2169,11 @@ public class Types {
                 (actualType.tag == TypeTags.FINITE ||
                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
                                 .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, targetType))))) {
-            // for decimal or nil, no cast is required
+            // for nil, no cast is required
             return TypeTags.isIntegerTypeTag(targetTypeTag) ||  targetType.tag == TypeTags.BYTE ||
-                    targetTypeTag == TypeTags.FLOAT || TypeTags.isStringTypeTag(targetTypeTag) ||
+                    targetTypeTag == TypeTags.FLOAT ||
+                    targetTypeTag == TypeTags.DECIMAL ||
+                    TypeTags.isStringTypeTag(targetTypeTag) ||
                     targetTypeTag == TypeTags.BOOLEAN;
         } else if (targetTypeTag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
