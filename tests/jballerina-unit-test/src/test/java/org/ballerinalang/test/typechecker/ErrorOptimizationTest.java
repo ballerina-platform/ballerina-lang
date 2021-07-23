@@ -46,14 +46,14 @@ public class ErrorOptimizationTest {
     }
 
     @DataProvider(name = "FunctionList")
-    public Object[][] getTestFunctions() {
-        return new Object[][]{
-                {"testWithValue"},
-                {"testWithError"},
-                {"testWithOnlyError"},
-                {"testWithMultipleErrors"},
-                {"testWithMultipleErrorsAndError"},
-                {"testWithRecordAndError"},
+    public Object[] getTestFunctions() {
+        return new Object[]{
+                "testWithValue",
+                "testWithError",
+                "testWithOnlyError",
+                "testWithMultipleErrors",
+                "testWithMultipleErrorsAndError",
+                "testWithRecordAndError",
         };
     }
 }

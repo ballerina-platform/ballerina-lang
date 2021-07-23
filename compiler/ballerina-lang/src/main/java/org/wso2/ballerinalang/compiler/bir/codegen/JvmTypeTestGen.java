@@ -41,7 +41,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 
 /**
- * BIR function to JVM byte code generation class.
+ * BIR Type checking instructions to JVM byte code generation class.
  *
  * @since 2.0.0
  */
@@ -63,6 +63,8 @@ public class JvmTypeTestGen {
         var sourceValue = typeTestIns.rhsOp.variableDcl;
         BType sourceType = sourceValue.type;
         BType targetType = typeTestIns.type;
+        // Optimization is done by avoiding the call to the TypeChecker and instead generating instructions with the
+        // instanceof operator.
         if (canOptimizeNilCheck(sourceType, targetType) ||
                 canOptimizeNilUnionCheck(sourceType, targetType)) {
             handleNilUnionType(typeTestIns);
@@ -81,11 +83,27 @@ public class JvmTypeTestGen {
         jvmInstructionGen.storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
+    /**
+     * Checks if the type tested for is nil. That is the target type is nil. Example instructions include 'a is ()'
+     * where 'a' is a variable of type say any or a union with nil.
+     *
+     * @param sourceType the declared variable type
+     * @param targetType the RHS type in the type check instruction. Type to be tested for
+     * @return whether instruction could be optimized using 'instanceof` check
+     */
     private boolean canOptimizeNilCheck(BType sourceType, BType targetType) {
         return targetType.tag == TypeTags.NIL && types.isAssignable(targetType, sourceType);
     }
 
-    private boolean canOptimizeNilUnionCheck(BType sourceType, BType type) {
+    /**
+     * This checks for any variable declaration containing a nil in a union of two types. Examples include string? or
+     * error? or int?.
+     *
+     * @param sourceType the declared variable type
+     * @param targetType the RHS type in the type check instruction. Type to be tested for
+     * @return whether instruction could be optimized using 'instanceof` check for null
+     */
+    private boolean canOptimizeNilUnionCheck(BType sourceType, BType targetType) {
         if (isInValidUnionType(sourceType)) {
             return false;
         }
@@ -98,9 +116,17 @@ public class JvmTypeTestGen {
                 otherType = bType;
             }
         }
-        return foundNil && type.equals(otherType);
+        return foundNil && targetType.equals(otherType);
     }
 
+    /**
+     * Checks if the type tested for is error. That is the target type is error. Example instructions include 'a is
+     * error' where 'a' is a variable of type say any or a union with nil.
+     *
+     * @param sourceType the declared variable type
+     * @param targetType the RHS type in the type check instruction. Type to be tested for
+     * @return whether instruction could be optimized using 'instanceof` check for BError
+     */
     private boolean canOptimizeErrorCheck(BType sourceType, BType targetType) {
         if (targetType.tag != TypeTags.ERROR || sourceType.tag != TypeTags.UNION) {
             return false;
@@ -117,6 +143,14 @@ public class JvmTypeTestGen {
                 targetType.tsymbol.name.value));
     }
 
+    /**
+     * This checks for any variable declaration containing a error in a union of two types. Examples include
+     * string|error or error|error or int|error.
+     *
+     * @param sourceType the declared variable type
+     * @param targetType the RHS type in the type check instruction. Type to be tested for
+     * @return whether instruction could be optimized using 'instanceof` check for BError
+     */
     private boolean canOptimizeErrorUnionCheck(BType sourceType, BType targetType) {
         if (isInValidUnionType(sourceType)) {
             return false;

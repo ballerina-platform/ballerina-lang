@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 import java.nio.file.Paths;
 
 /**
- * Tests the optimizations done for error related type checks, to not pass through the TypeChecker.
+ * Tests the optimizations done for nil related type checks, to not pass through the TypeChecker.
  */
 public class NilOptimizationTest {
 
@@ -41,17 +41,17 @@ public class NilOptimizationTest {
     }
 
     @Test(dataProvider = "FunctionList")
-    public void testErrorOptimizations(String funcName) {
+    public void testNilOptimizations(String funcName) {
         BRunUtil.invoke(compileResult, funcName);
     }
 
     @DataProvider(name = "FunctionList")
-    public Object[][] getTestFunctions() {
-        return new Object[][]{
-                {"testNil"},
-                {"testInt"},
-                {"testNilMultiple"},
-                {"testNilMultipleInt"},
+    public Object[] getTestFunctions() {
+        return new String[]{
+                "testNil",
+                "testInt",
+                "testNilMultiple",
+                "testNilMultipleInt",
         };
     }
 }
