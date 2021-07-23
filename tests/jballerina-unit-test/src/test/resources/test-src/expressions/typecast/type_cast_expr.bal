@@ -380,8 +380,9 @@ function testFutureCastPositive() returns boolean {
 function testFutureWithoutFutureConstraintCastPositive() {
     future f1 = start getNewEmployee();
     any a = f1;
-    future f2 = <future> a;
-    test:assertTrue(f1 === f2);
+    future<anydata> f2 = <future<anydata>> a;
+    anydata|error b = wait f2;
+    test:assertEquals(checkpanic b, {"name": "John","id": 15634});
 }
 
 function testFutureCastNegative() {
