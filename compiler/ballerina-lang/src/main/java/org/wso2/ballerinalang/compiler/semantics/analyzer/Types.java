@@ -2149,13 +2149,14 @@ public class Types {
         return TypeTestResult.NOT_FOUND;
     }
 
-    public boolean isImplicityCastable(BType actualType, BType targetType) {
+    public boolean isImplicitlyCastable(BType actualType, BType targetType) {
         /* The word Builtin refers for Compiler known types. */
 
         BType newTargetType = targetType;
-        if ((targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.FINITE) && isValueType(actualType)) {
+        int targetTypeTag = targetType.tag;
+        if ((targetTypeTag == TypeTags.UNION || targetTypeTag == TypeTags.FINITE) && isValueType(actualType)) {
             newTargetType = symTable.anyType;   // TODO : Check for correctness.
-        } else if (targetType.tag == TypeTags.INTERSECTION) {
+        } else if (targetTypeTag == TypeTags.INTERSECTION) {
             newTargetType = ((BIntersectionType) targetType).effectiveType;
         }
 
@@ -2169,9 +2170,10 @@ public class Types {
                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
                                 .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, targetType))))) {
             // for decimal or nil, no cast is required
-            return targetType.tag == TypeTags.INT || targetType.tag == TypeTags.BYTE || targetType.tag == TypeTags.FLOAT
-                    || targetType.tag == TypeTags.STRING || targetType.tag == TypeTags.BOOLEAN;
-        } else if (targetType.tag == TypeTags.ERROR
+            return TypeTags.isIntegerTypeTag(targetTypeTag) ||  targetType.tag == TypeTags.BYTE ||
+                    targetTypeTag == TypeTags.FLOAT || TypeTags.isStringTypeTag(targetTypeTag) ||
+                    targetTypeTag == TypeTags.BOOLEAN;
+        } else if (targetTypeTag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
             return true;
@@ -2321,7 +2323,7 @@ public class Types {
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
 
-        if (!isImplicityCastable(actualType, expType)) {
+        if (!isImplicitlyCastable(actualType, expType)) {
             return;
         }
         BLangTypeConversionExpr implicitConversionExpr =
@@ -3295,11 +3297,17 @@ public class Types {
                     .allMatch(valueExpr ->  unionMemberTypes.stream()
                             .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
                                     isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                    isAssignable(valueExpr.getBType(), targetType, unresolvedTypes)));
+                                    isAssignable(valueExpr.getBType(), targetType, unresolvedTypes) ||
+                                            isValidLiteral((BLangLiteral) valueExpr, targetMemType)));
         }
 
-        return finiteType.getValueSpace().stream()
-                .allMatch(expression -> isAssignable(expression.getBType(), targetType, unresolvedTypes));
+        for (BLangExpression expression : finiteType.getValueSpace()) {
+            if (!isValidLiteral((BLangLiteral) expression, targetType) &&
+                    !isAssignable(expression.getBType(), targetType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
@@ -3482,20 +3490,21 @@ public class Types {
 
         // Identify all the values from the value space of the finite type that are assignable to the target type.
         // e.g., finiteType - type Foo "foo"|1 ;
-        Set<BLangExpression> matchingValues = finiteType.getValueSpace().stream()
-                .filter(
-                        // case I: targetType - string ("foo" is assignable to string)
-                        // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
-                        expr -> isAssignable(expr.getBType(), targetType) ||
-                                isAssignableToFiniteType(targetType, (BLangLiteral) expr) ||
-                                // type FooVal "foo";
-                                // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
-                                (targetType.tag == TypeTags.UNION &&
-                                         ((BUnionType) targetType).getMemberTypes().stream()
-                                                 .filter(memType ->  memType.tag == TypeTags.FINITE)
-                                                 .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
-                                                                                            (BLangLiteral) expr))))
-                .collect(Collectors.toSet());
+        Set<BLangExpression> matchingValues = new HashSet<>();
+        for (BLangExpression expr : finiteType.getValueSpace()) {
+            // case I: targetType - string ("foo" is assignable to string)
+            BLangLiteral literal = (BLangLiteral) expr;
+            if (isAssignable(expr.getBType(), targetType) ||
+                    // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
+                    isAssignableToFiniteType(targetType, literal) ||
+                    // type FooVal "foo";
+                    // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
+                    isAssignableToFiniteTypeMemberInUnion(literal, targetType) ||
+                    // case IV:  targetType - int:Signed16 (1 is assignable to int:Signed16)
+                    isAssignableToBuiltinSubtypeInTargetType(literal, targetType)) {
+                matchingValues.add(expr);
+            }
+        }
 
         if (matchingValues.isEmpty()) {
             return symTable.semanticError;
@@ -3510,6 +3519,33 @@ public class Types {
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
+    }
+
+    private boolean isAssignableToFiniteTypeMemberInUnion(BLangLiteral expr, BType targetType) {
+        if (targetType.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
+            if (memType.tag == TypeTags.FINITE) {
+                if (isAssignableToFiniteType(memType, expr)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean isAssignableToBuiltinSubtypeInTargetType(BLangLiteral literal, BType targetType) {
+        if (targetType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+                if (isValidLiteral(literal, memberType)) {
+                    return true;
+                }
+            }
+        }
+
+        return isValidLiteral(literal, targetType);
     }
 
     /**
