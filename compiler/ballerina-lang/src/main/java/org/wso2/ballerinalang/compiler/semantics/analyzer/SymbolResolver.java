@@ -621,6 +621,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
+            case TypeTags.BYTE:
                 bSymbol = lookupMethodInModule(symTable.langIntModuleSymbol, name, env);
                 break;
             case TypeTags.MAP:
