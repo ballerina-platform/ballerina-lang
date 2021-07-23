@@ -674,6 +674,29 @@ public class SymbolResolver extends BLangNodeVisitor {
                     bSymbol = symTable.notFoundSymbol;
                 }
                 break;
+            case TypeTags.FINITE:
+                if (types.isAssignable(type, symTable.intType)) {
+                    return lookupLangLibMethod(symTable.intType, name);
+                }
+
+                if (types.isAssignable(type, symTable.stringType)) {
+                    return lookupLangLibMethod(symTable.stringType, name);
+                }
+
+                if (types.isAssignable(type, symTable.decimalType)) {
+                    return lookupLangLibMethod(symTable.decimalType, name);
+                }
+
+                if (types.isAssignable(type, symTable.floatType)) {
+                    return lookupLangLibMethod(symTable.floatType, name);
+                }
+
+                if (types.isAssignable(type, symTable.booleanType)) {
+                    return lookupLangLibMethod(symTable.booleanType, name);
+                }
+
+                bSymbol = symTable.notFoundSymbol;
+                break;
             default:
                 bSymbol = symTable.notFoundSymbol;
         }
