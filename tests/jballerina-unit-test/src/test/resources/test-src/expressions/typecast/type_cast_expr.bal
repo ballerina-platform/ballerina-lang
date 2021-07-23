@@ -915,6 +915,24 @@ function assertErrorForTypeCastFailure(error? res) {
     assertEquality("incompatible types: 'any[]' cannot be cast to 'byte[]'", err1.detail()["message"]);
 }
 
+type Baz "foo"|1;
+
+function testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
+    Baz a = 1;
+    var b = <int:Signed16|float> a;
+    assertTrue(b is int:Signed16);
+    assertTrue(b is int);
+    assertEquality(1, b);
+
+    Baz c = "foo";
+    var d = trap <int:Signed16|float> c;
+    assertTrue(d is error);
+    error e = <error> d;
+    assertEquality("{ballerina}TypeCastError", e.message());
+    assertEquality("incompatible types: 'string' cannot be cast to '(lang.int:Signed16|float)'",
+                   <string> checkpanic e.detail()["message"]);
+}
+
 // Util functions
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -391,6 +391,11 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, function);
     }
 
+    @Test
+    public void testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
+        BRunUtil.invoke(result, "testCastOfFiniteTypeWithIntersectingBuiltInSubType");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
