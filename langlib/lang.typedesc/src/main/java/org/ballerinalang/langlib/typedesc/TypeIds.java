@@ -91,7 +91,7 @@ public class TypeIds {
         map.put("organization", StringUtils.fromString(mod.getOrg()));
         map.put("name", StringUtils.fromString(mod.getName()));
         map.put("platformParts",
-                ValueCreator.createArrayValue(new BString[]{StringUtils.fromString(mod.getVersion())}));
+                ValueCreator.createArrayValue(new BString[]{StringUtils.fromString(mod.getMajorVersion())}));
 
         return ValueCreator.createReadonlyRecordValue(BALLERINA_TYPEDESC_PKG_ID, MODULE_ID_TYPE_SIG, map);
     }

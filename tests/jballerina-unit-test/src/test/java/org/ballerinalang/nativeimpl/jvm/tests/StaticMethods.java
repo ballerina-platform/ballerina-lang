@@ -525,13 +525,13 @@ public class StaticMethods {
     public static BString getCurrentModule(Environment env, long b) {
         Module callerModule = env.getCurrentModule();
         return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
-                                              callerModule.getVersion() + "#" + b);
+                                              callerModule.getMajorVersion() + "#" + b);
     }
 
     public static BString getCurrentModuleForObject(Environment env, ObjectValue a, long b) {
         Module callerModule = env.getCurrentModule();
         return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
-                                              callerModule.getVersion() + "#" +
+                                              callerModule.getMajorVersion() + "#" +
                                               a.get(StringUtils.fromString("age")) + "#" + b);
     }
 
