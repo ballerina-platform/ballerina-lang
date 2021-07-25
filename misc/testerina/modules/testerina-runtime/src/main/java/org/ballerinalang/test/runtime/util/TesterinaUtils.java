@@ -18,6 +18,7 @@
 package org.ballerinalang.test.runtime.util;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -139,7 +140,8 @@ public class TesterinaUtils {
     public static String getQualifiedClassName(String orgName, String packageName,
                                                String version, String className) {
         if (!DOT.equals(packageName)) {
-            className = encodeNonFunctionIdentifier(packageName) + "." + version.replace('.', '_') + "." + className;
+            className = encodeNonFunctionIdentifier(packageName) + "." + 
+                    RuntimeUtils.getMajorVersion(version) + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
             className = encodeNonFunctionIdentifier(orgName) + "." +  className;
