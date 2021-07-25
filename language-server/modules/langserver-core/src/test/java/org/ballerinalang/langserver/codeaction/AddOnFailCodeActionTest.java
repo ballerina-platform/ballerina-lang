@@ -51,6 +51,7 @@ public class AddOnFailCodeActionTest extends AbstractCodeActionTest {
                 {"on_fail_for_lock_check_stmt.json", "on_fail_for_lock_check_stmt.bal"},
                 {"on_fail_for_match_check_stmt.json", "on_fail_for_match_check_stmt.bal"},
                 {"on_fail_for_while_check_stmt.json", "on_fail_for_while_check_stmt.bal"},
+                {"on_fail_for_while_condition_check_stmt.json", "on_fail_for_while_condition_check_stmt.bal"},
         };
     }
 

@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.FailStatementResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -51,64 +52,50 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
                                                     CodeActionContext context) {
 
         if (!(DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
-                .equals(diagnostic.diagnosticInfo().code())) && 
+                .equals(diagnostic.diagnosticInfo().code())) &&
                 !(DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
                         .equals(diagnostic.diagnosticInfo().code()))) {
             return Collections.emptyList();
         }
-        
+
         Node nodeAtDiagnostic = positionDetails.matchedNode();
         List<TextEdit> edits = new ArrayList<>();
         String commandTitle;
+
+        FailStatementResolver finder = new FailStatementResolver();
+        Node failStatementNode = finder.getRegComNSmtNode(nodeAtDiagnostic);
         
-        if (isRegularCompoundStatementNodePresent(nodeAtDiagnostic)) {
-            Node regComStmtNode = getRegularCompoundStatementNode(nodeAtDiagnostic);
-            LinePosition regComStmtLinePosition = regComStmtNode.lineRange().endLine();
+        if (failStatementNode != null && failStatementNode.kind() == SyntaxKind.WHILE_KEYWORD) {
+            return Collections.emptyList();
+        }
+        
+        if (failStatementNode != null) {
+            LinePosition regComStmtLinePosition = failStatementNode.lineRange().endLine();
             Position onFailPosLine = new Position(regComStmtLinePosition.line(), regComStmtLinePosition.offset());
-            
+
             String spaces = " ".repeat(regComStmtLinePosition.offset() - 1);
             String editText = " on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
-                + CommonUtil.LINE_SEPARATOR + spaces + "}";
+                    + CommonUtil.LINE_SEPARATOR + spaces + "}";
             edits.add(new TextEdit(new Range(onFailPosLine, onFailPosLine), editText));
             commandTitle = CommandConstants.CREATE_ON_FAIL_CLAUSE;
         } else {
             while (!StatementNode.class.isAssignableFrom(nodeAtDiagnostic.getClass())) {
                 nodeAtDiagnostic = nodeAtDiagnostic.parent();
             }
-            LinePosition linePosition = nodeAtDiagnostic.lineRange().startLine();    
+            LinePosition linePosition = nodeAtDiagnostic.lineRange().startLine();
             Position positionDo = new Position(linePosition.line(), linePosition.offset());
             Position posCheckLineStart = new Position(linePosition.line() + 1, 0);
-            
+
             String spaces = " ".repeat(linePosition.offset());
             String insideDoStatement = nodeAtDiagnostic.toString();
-            String editTextDo = "do {" + CommonUtil.LINE_SEPARATOR + "\t" + insideDoStatement 
+            String editTextDo = "do {" + CommonUtil.LINE_SEPARATOR + "\t" + insideDoStatement
                     + spaces + "} on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                     + CommonUtil.LINE_SEPARATOR + spaces + "}" + CommonUtil.LINE_SEPARATOR;
             edits.add(new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo));
             commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
         }
-        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
-    }   
-    
-    private boolean isRegularCompoundStatementNodePresent (Node node) {
-        if (node == null) {
-            return false;
-        } else if (node.kind() == SyntaxKind.DO_STATEMENT || node.kind() == SyntaxKind.MATCH_STATEMENT 
-                || node.kind() == SyntaxKind.FOREACH_STATEMENT || node.kind() == SyntaxKind.WHILE_STATEMENT 
-                || node.kind() == SyntaxKind.LOCK_STATEMENT) {
-            return true;
-        } else {
-            return isRegularCompoundStatementNodePresent(node.parent());
-        }
-    }
 
-    private Node getRegularCompoundStatementNode(Node node) {
-        while (!(node.kind() == SyntaxKind.DO_STATEMENT || node.kind() == SyntaxKind.MATCH_STATEMENT
-                || node.kind() == SyntaxKind.FOREACH_STATEMENT || node.kind() == SyntaxKind.WHILE_STATEMENT
-                || node.kind() == SyntaxKind.LOCK_STATEMENT)) {
-            node = node.parent();
-        }
-        return node;
+        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
  
     @Override
