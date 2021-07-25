@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -33,6 +34,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.EMPTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.getMajorVersion;
 
 /**
  * A {@code ValueCreator} is an API that will be implemented by all the module init classed from jvm codegen.
@@ -56,7 +58,11 @@ public abstract class ValueCreator {
         runtimeValueCreators.put(key, valueCreator);
     }
 
-    private static String getLookupKey(String orgName, String moduleName, String version) {
+    public static String getLookupKey(Module module) {
+        return getLookupKey(module.getOrg(), module.getName(), module.getMajorVersion());
+    }
+
+    public static String getLookupKey(String orgName, String moduleName, String majorVersion) {
         if (DOT.equals(moduleName)) {
             return moduleName;
         }
@@ -66,11 +72,11 @@ public abstract class ValueCreator {
             pkgName = orgName + ORG_NAME_SEPARATOR;
         }
 
-        if (version == null || version.equals(EMPTY)) {
+        if (majorVersion == null || majorVersion.equals(EMPTY)) {
             return pkgName + moduleName;
         }
 
-        return pkgName + moduleName + VERSION_SEPARATOR + version;
+        return pkgName + moduleName + VERSION_SEPARATOR + majorVersion;
     }
 
     public static ValueCreator getValueCreator(String key) {

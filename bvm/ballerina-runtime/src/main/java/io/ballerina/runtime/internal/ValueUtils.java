@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.util.Map;
 
@@ -48,8 +49,9 @@ public class ValueUtils {
      * @return value of the record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
-        io.ballerina.runtime.internal.values.ValueCreator
-                valueCreator = io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(packageId.toString());
+        io.ballerina.runtime.internal.values.ValueCreator valueCreator =
+                io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator.
+                        getLookupKey(packageId));
         return valueCreator.createRecordValue(recordTypeName);
     }
 
@@ -111,7 +113,8 @@ public class ValueUtils {
         Strand currentStrand = getStrand();
         // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         io.ballerina.runtime.internal.values.ValueCreator
-                valueCreator = io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(packageId.toString());
+                valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
+                .getLookupKey(packageId));
         Object[] fields = new Object[fieldValues.length * 2];
 
         // Here the variables are initialized with default values
