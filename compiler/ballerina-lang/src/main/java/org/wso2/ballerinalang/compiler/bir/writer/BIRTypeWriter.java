@@ -31,10 +31,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -68,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -195,7 +198,38 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(bInvokableType.restType);
         }
         writeTypeCpIndex(bInvokableType.retType);
+        boolean hasTSymbol = bInvokableType.tsymbol != null;
+        buff.writeBoolean(hasTSymbol);
+        if (!hasTSymbol) {
+            return;
+        }
 
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
+        buff.writeInt(invokableTypeSymbol.params.size());
+        for (BVarSymbol symbol : invokableTypeSymbol.params) {
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeLong(symbol.flags);
+            writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
+            writeTypeCpIndex(symbol.type);
+        }
+
+        BVarSymbol restParam = invokableTypeSymbol.restParam;
+        boolean restParamExist = restParam != null;
+        buff.writeBoolean(restParamExist);
+        if (restParamExist) {
+            buff.writeInt(addStringCPEntry(restParam.name.value));
+            buff.writeLong(restParam.flags);
+            writeMarkdownDocAttachment(buff, restParam.markdownDocumentation);
+            writeTypeCpIndex(restParam.type);
+        }
+
+        writeTypeCpIndex(bInvokableType.retType);
+
+        buff.writeInt(invokableTypeSymbol.defaultValues.size());
+        invokableTypeSymbol.defaultValues.forEach((k, v) -> {
+            buff.writeInt(addStringCPEntry(k));
+            buff.writeInt(addStringCPEntry(((BLangLambdaFunction) v).function.name.value));
+        });
     }
 
     @Override

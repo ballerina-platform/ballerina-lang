@@ -82,6 +82,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -580,29 +583,7 @@ public class BIRPackageSymbolEnter {
             type = new BIRTypeReader(new DataInputStream(new ByteArrayInputStream(e))).readType(typeCpIndex);
             addShapeCP(type, typeCpIndex);
         }
-
-        if (type.tag == TypeTags.INVOKABLE) {
-            return createClonedInvokableTypeWithTsymbol((BInvokableType) type);
-        }
-
         return type;
-    }
-
-    private BInvokableType createClonedInvokableTypeWithTsymbol(BInvokableType bInvokableType) {
-        BInvokableType clonedType;
-        if (Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION)) {
-            clonedType = new BInvokableType(null, null, null, null);
-        } else {
-            clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType, bInvokableType.retType,
-                                            null);
-        }
-        clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                                                               bInvokableType.flags, env.pkgSymbol.pkgID, null,
-                                                               env.pkgSymbol.owner, symTable.builtinPos,
-                                                               COMPILED_SOURCE);
-        clonedType.flags = bInvokableType.flags;
-        //TODO: tsymbol param values should be read from bir and added here
-        return clonedType;
     }
 
     private void addShapeCP(BType bType, int typeCpIndex) {
@@ -752,18 +733,38 @@ public class BIRPackageSymbolEnter {
         BType varType = readBType(dataInStream);
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
-
-        if (varType.tag == TypeTags.INVOKABLE) {
-            // Here we don't set the required-params, defaultable params and the rest param of
-            // the symbol. Because, for the function pointers we directly read the param types
-            // from the varType (i.e: from InvokableType), and assumes it can have only required
-            // params.
+        if (dataInStream.readBoolean()) {
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
                                              this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
                                              toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
             invokableSymbol.retType = ((BInvokableType) invokableSymbol.type).retType;
+
+            if (dataInStream.readBoolean()) {
+                int params = dataInStream.readInt();
+                for (int i = 0; i < params; i++) {
+                    String fieldName = getStringCPEntryValue(dataInStream);
+                    var paramFlags = dataInStream.readLong();
+
+                    BVarSymbol paramSymbol = new BVarSymbol(paramFlags, names.fromString(fieldName),
+                                                            this.env.pkgSymbol.pkgID,
+                                                            ((BInvokableType) invokableSymbol.type).paramTypes.get(i),
+                                                            invokableSymbol, symTable.builtinPos, COMPILED_SOURCE);
+                    paramSymbol.isDefaultable = ((paramFlags & Flags.OPTIONAL) == Flags.OPTIONAL);
+                    invokableSymbol.params.add(paramSymbol);
+                }
+
+                if (dataInStream.readBoolean()) { //if rest param exist
+                    String fieldName = getStringCPEntryValue(dataInStream);
+
+                    BVarSymbol restParamSymbol = new BVarSymbol(0, names.fromString(fieldName),
+                                                                this.env.pkgSymbol.pkgID,
+                                                                ((BInvokableType) invokableSymbol.type).restType,
+                                                                invokableSymbol, symTable.builtinPos, COMPILED_SOURCE);
+                    invokableSymbol.restParam = restParamSymbol;
+                }
+            }
             varSymbol = invokableSymbol;
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
@@ -989,6 +990,60 @@ public class BIRPackageSymbolEnter {
             return readBType(inputStream);
         }
 
+        private BInvokableType setTSymbolForInvokableType(BInvokableType bInvokableType) throws IOException {
+            BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, bInvokableType.flags,
+                                                                             env.pkgSymbol.pkgID, null,
+                                                                             env.pkgSymbol.owner, symTable.builtinPos,
+                                                                             COMPILED_SOURCE);
+            bInvokableType.tsymbol = tSymbol;
+            boolean hasTSymbol = inputStream.readBoolean();
+            if (!hasTSymbol) {
+                return bInvokableType;
+            }
+
+            int params = inputStream.readInt();
+            for (int i = 0; i < params; i++) {
+                String fieldName = getStringCPEntryValue(inputStream);
+                var fieldFlags = inputStream.readLong();
+                byte[] docBytes = readDocBytes(inputStream);
+                BType fieldType = readTypeFromCp();
+
+                BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName), tSymbol.pkgID,
+                                                      fieldType, tSymbol, symTable.builtinPos,
+                                                      COMPILED_SOURCE);
+                defineMarkDownDocAttachment(varSymbol, docBytes);
+                tSymbol.params.add(varSymbol);
+            }
+
+            if (inputStream.readBoolean()) { //if rest param exist
+                String fieldName = getStringCPEntryValue(inputStream);
+                var fieldFlags = inputStream.readLong();
+                byte[] docBytes = readDocBytes(inputStream);
+                BType fieldType = readTypeFromCp();
+
+                BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName), tSymbol.pkgID, fieldType,
+                                                      tSymbol, symTable.builtinPos, COMPILED_SOURCE);
+                defineMarkDownDocAttachment(varSymbol, docBytes);
+                tSymbol.restParam = varSymbol;
+            }
+
+            tSymbol.returnType = readTypeFromCp();
+
+            int defaultValues = inputStream.readInt();
+            for (int i = 0; i < defaultValues; i++) {
+                String paramName = getStringCPEntryValue(inputStream);
+                String closureName = getStringCPEntryValue(inputStream);
+                BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+                BLangFunction function = (BLangFunction) TreeBuilder.createFunctionNode();
+                BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                funcName.value = closureName;
+                function.name = funcName;
+                lambdaFunction.function = function;
+                tSymbol.defaultValues.put(paramName, lambdaFunction);
+            }
+            return bInvokableType;
+        }
+
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
@@ -1177,7 +1232,7 @@ public class BIRPackageSymbolEnter {
                         bInvokableType.restType = readTypeFromCp();
                     }
                     bInvokableType.retType = readTypeFromCp();
-                    return bInvokableType;
+                    return setTSymbolForInvokableType(bInvokableType);
                 // All the above types are branded types
                 case TypeTags.ANY:
                     BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
