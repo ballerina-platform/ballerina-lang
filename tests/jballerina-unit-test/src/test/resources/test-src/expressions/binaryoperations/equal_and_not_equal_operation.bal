@@ -884,6 +884,47 @@ function testReferenceEqualityXml() {
     true);
 }
 
+function testXmlNeverAndXmlSequenceEquality() {
+    xml a = xml ``;
+    xml<xml:Element> h = xml ``;
+    xml<xml:Comment> i = xml ``;
+    xml<xml:ProcessingInstruction> j = xml ``;
+    xml<xml:Text> k = xml ``;
+    xml:Text l = xml ``;
+    xml<never> b = xml ``;
+    xml c = 'xml:concat();
+    xml<never> d = <xml<never>> c;
+    xml<xml:Element> f = xml `<ele></ele>`;
+    xml e = f/*;
+
+    xml m = xml `<authors><name>Enid Blyton</name></authors>`;
+    xml n = m.filter(function (xml x2) returns boolean {
+        xml elements = (x2/*).elements();
+        return (elements/*).toString() == "Anne North";
+    });
+
+    assert(a == b, true);
+    assert(a != c, false);
+    assert(b == c, true);
+    assert(c == d, true);
+    assert(b == d, true);
+    assert(d != b, false);
+    assert(a == h, true);
+    assert(h != a, false);
+    assert(a == i, true);
+    assert(a == j, true);
+    assert(a == k, true);
+    assert(a == l, true);
+    assert(b == h, true);
+    assert(h != b, false);
+    assert(b == i, true);
+    assert(b == j, true);
+    assert(b == k, true);
+    assert(b == l, true);
+    assert(e != b, false);
+    assert(n == b, true);
+}
+
 function testSimpleXmlNegative() returns boolean {
     xml x1 = xml `<book>The Lot World</book>`;
     xml x2 = xml `<book>The Lost World</book>`;
@@ -991,6 +1032,20 @@ public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
     xml x2 = xml `<name>Book Two</name>`;
     xml x3 = x2.get(0);
     return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
+}
+
+function testXmlStringNegative() {
+    anydata x1 = xml `<book>The Lost World</book>`;
+    anydata x2 = "<book>The Lost World</book>";
+    anydata x3 = xml `Hello, world!`;
+    anydata x4 = "Hello, world!";
+    anydata x5 = xml `<?target data?>`;
+    anydata x6 = "<?target data?>";
+    anydata x7 = xml `<!-- I'm comment -->`;
+    anydata x8 = "<!-- I'm comment -->";
+    boolean result =  x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7
+     != x8) || x2 == x1 || !(x2 != x1) || x4 == x3 || !(x4 != x3) || x6 == x5 || !(x6 != x5) || x8 == x7 || !(x8 != x7);
+     assert(result, false);
 }
 
 public function testJsonRecordMapEqualityPositive() returns boolean {
@@ -1322,6 +1377,30 @@ function testTableEquality() {
 
 function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
+}
+
+function testTupleJSONEquality() {
+    [string, int] t = ["Hi", 1];
+    json j = "Hi 1";
+    boolean bool1 = t == j && t != j;
+    assert(bool1, false);
+
+    [string, int][] e = [["Hi", 1]];
+    bool1 = e == j && e != j;
+    assert(bool1, false);
+
+    [string, int...] k = ["Hi", 1];
+    bool1 = k == j && k != j;
+    assert(bool1, false);
+
+    j = ["Hi", 1];
+    assert(j == t, true);
+    assert(j == k, true);
+    j = [["Hi", 1]];
+    assert(j == e, true);
+    j = true;
+    [boolean, string|()] l = [true];
+    assert(j != l, true);
 }
 
 function assert(anydata actual, anydata expected) {

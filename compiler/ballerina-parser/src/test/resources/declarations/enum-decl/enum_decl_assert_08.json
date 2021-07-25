@@ -368,7 +368,6 @@
                       "kind": "IDENTIFIER_TOKEN",
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_INVALID_TOKEN",
                         "ERROR_INVALID_TOKEN"
                       ],
                       "value": "RED",
@@ -380,17 +379,6 @@
                             "children": [
                               {
                                 "kind": "OPEN_BRACE_TOKEN"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "CLOSE_BRACE_TOKEN"
                               }
                             ]
                           }

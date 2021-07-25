@@ -17,11 +17,35 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.eclipse.lsp4j.RenameParams;
+
 /**
  * Represents the rename opration context.
  *
  * @since 2.0.0
  */
 public interface RenameContext extends ReferencesContext {
+
+    /**
+     * Get client change annotations capability flag.
+     *
+     * @return
+     */
+    boolean getHonorsChangeAnnotations();
+
+    /**
+     * Get rename params.
+     *
+     * @return {@link RenameParams}
+     */
+    RenameParams getParams();
+
+    /**
+     * Get client capabilities.
+     *
+     * @return {@link RenameParams}
+     */
+    LSClientCapabilities getClientCapabilities();
 
 }

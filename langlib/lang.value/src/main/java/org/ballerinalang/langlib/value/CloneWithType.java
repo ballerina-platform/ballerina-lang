@@ -53,6 +53,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
@@ -107,16 +108,23 @@ public class CloneWithType {
             return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
-        List<Type> convertibleTypes;
+        Set<Type> convertibleTypes;
         convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
+
+        Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
             throw createConversionError(value, targetType);
-        } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
+        } else if (!allowAmbiguity && convertibleTypes.size() > 1 && !convertibleTypes.contains(sourceType) &&
+                !TypeConverter.hasIntegerSubTypes(convertibleTypes)) {
             throw createAmbiguousConversionError(value, targetType);
         }
 
-        Type sourceType = TypeChecker.getType(value);
-        Type matchingType = convertibleTypes.get(0);
+        Type matchingType;
+        if (convertibleTypes.contains(sourceType)) {
+            matchingType = sourceType;
+        } else {
+            matchingType = convertibleTypes.iterator().next();
+        }
         // handle primitive values
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
             if (TypeChecker.checkIsType(value, matchingType)) {

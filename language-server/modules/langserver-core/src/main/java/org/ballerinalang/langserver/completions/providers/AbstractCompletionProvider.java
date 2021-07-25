@@ -82,6 +82,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -463,6 +464,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         query pipeline starts with from keyword and also being added with the actions
          */
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
+        // Here we do not add the error keyword since it will be added via the module completion items
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
@@ -471,7 +473,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
@@ -484,17 +485,25 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
-
-        // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
+        
+        Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
-                        symbol.kind() == FUNCTION || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
-                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
+                .filter(symbolFilter)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         // TODO: anon function expressions, 
         return completionItems;
+    }
+    
+    protected Predicate<Symbol> getExpressionContextSymbolFilter() {
+        Predicate<Symbol> symbolFilter = CommonUtil.getVariableFilterPredicate();
+        // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib
+        symbolFilter = symbolFilter.or(symbol -> (symbol.kind() == FUNCTION
+                || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
+                && !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
+        
+        return symbolFilter;
     }
 
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
@@ -519,7 +528,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @return {@link List}
      */
-    private List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
+    protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         CommonUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
@@ -570,7 +579,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     CompletionItem completionItem = FunctionCompletionItemBuilder.buildMethod(methodSymbol, ctx);
                     return new SymbolCompletionItem(ctx, methodSymbol, completionItem);
                 }).forEach(completionItems::add);
-        
+
         return completionItems;
     }
 }
