@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -195,6 +196,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private static final String PARAMETER_MAP_NAME = "$paramMap$";
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
+    private SymbolResolver symResolver;
     private SymbolTable symTable;
     private SymbolEnv env;
     private BLangNode result;
@@ -224,6 +226,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         this.desugar = Desugar.getInstance(context);
         this.names = Names.getInstance(context);
         this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
+        this.symResolver = SymbolResolver.getInstance(context);
     }
 
     @Override
@@ -688,13 +691,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = functionTypeNode;
     }
 
-    private BLangInvocation getInvocation(BLangLambdaFunction lambdaFunction) {
+    private BLangInvocation getInvocation(BInvokableSymbol symbol) {
         BLangInvocation funcInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        funcInvocation.setBType(lambdaFunction.function.returnTypeNode.getBType());
+        funcInvocation.setBType(symbol.retType);
         funcInvocation.expr = null;
-        BInvokableSymbol lambdaSymbol = lambdaFunction.function.symbol;
-        funcInvocation.symbol = lambdaSymbol;
-        funcInvocation.name = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, lambdaSymbol.name.value);
+        funcInvocation.symbol = symbol;
+        funcInvocation.name = ASTBuilderUtil.createIdentifier(symbol.pos, symbol.name.value);
         return funcInvocation;
     }
 
@@ -1518,7 +1520,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
 
             BLangLambdaFunction lambdaExpr = (BLangLambdaFunction) defaultValues.get(paramName);
-            BLangInvocation invocation = getInvocation(lambdaExpr);
+            Name funcName = names.fromIdNode(lambdaExpr.function.name);
+            Name pkgAlias = names.fromIdNode(fpInvocation.pkgAlias);
+            BInvokableSymbol closureSymbol = (BInvokableSymbol) symResolver.lookupMainSpaceSymbolInPackage(
+                                                                             fpInvocation.pos, env, pkgAlias, funcName);
+            BLangInvocation invocation = getInvocation(closureSymbol);
             lambdaExpr.function.paramClosureMap.forEach((k, v) -> {
                 if (k < 0) {
                     BLangExpression expr = arguments.get(v.name.value);

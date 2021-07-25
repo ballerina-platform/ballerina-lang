@@ -5982,7 +5982,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
-        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableTypeSymbol.params);
+        List<BVarSymbol> nonRestParams = new ArrayList<>(invokableSymbol.params);
 
         List<BLangExpression> nonRestArgs = iExpr.requiredArgs;
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
