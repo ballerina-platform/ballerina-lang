@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
