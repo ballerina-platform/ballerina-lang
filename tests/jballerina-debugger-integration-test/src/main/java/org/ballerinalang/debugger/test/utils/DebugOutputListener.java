@@ -30,8 +30,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DebugOutputListener extends TimerTask {
 
     private final TestDAPClientConnector connector;
-    private OutputEventArguments debugOutputContext;
+    private OutputEventArguments lastOutputContext;
     private boolean debugOutputFound;
+    private OutputEventArguments[] outputs;
     private String lastOutputLog;
 
     public DebugOutputListener(TestDAPClientConnector connector) {
@@ -39,8 +40,8 @@ public class DebugOutputListener extends TimerTask {
         this.debugOutputFound = false;
     }
 
-    public OutputEventArguments getDebugOutputContext() {
-        return debugOutputContext;
+    public OutputEventArguments getLastOutputContext() {
+        return lastOutputContext;
     }
 
     public boolean isDebugOutputFound() {
@@ -51,17 +52,23 @@ public class DebugOutputListener extends TimerTask {
         return lastOutputLog;
     }
 
+    public OutputEventArguments[] getAllDebugOutputs() {
+        return outputs;
+    }
+
     @Override
     public void run() {
         ConcurrentLinkedQueue<OutputEventArguments> events = connector.getServerEventHolder().getOutputEvents();
         while (!events.isEmpty() && connector.isConnected()) {
-            OutputEventArguments event = events.poll();
-            if (event == null) {
+            OutputEventArguments[] outputEvents = events.toArray(events.toArray(new OutputEventArguments[0]));
+            events.clear();
+            if (outputEvents.length == 0) {
                 continue;
             }
-            debugOutputFound = true;
-            debugOutputContext = event;
-            lastOutputLog = event.getOutput();
+            this.debugOutputFound = true;
+            this.outputs = outputEvents;
+            this.lastOutputContext = outputEvents[outputEvents.length - 1];
+            this.lastOutputLog = outputEvents[outputEvents.length - 1].getOutput();
             this.cancel();
         }
     }
