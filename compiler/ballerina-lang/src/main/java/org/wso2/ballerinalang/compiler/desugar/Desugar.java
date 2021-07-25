@@ -5975,6 +5975,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function, lambdaFunctionSymbol);
         lambdaFunction.capturedClosureEnv = typeDefEnv.createClone();
         rewrite(function, typeDefEnv);
+        env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
         env.enclPkg.functions.add(function);
         env.enclPkg.topLevelNodes.add(function);
         symbol.defaultValues.put(name, lambdaFunction);
@@ -5993,15 +5994,16 @@ public class Desugar extends BLangNodeVisitor {
 
         function.body = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
 
-        BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.asMask(function.flagSet),
-                new Name(funcName), pkgID, function.getBType(), owner,
-                function.name.pos, VIRTUAL);
+        BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.FUNCTION, Flags.asMask(function.flagSet),
+                                                               new Name(funcName), pkgID, function.getBType(), owner,
+                                                               function.name.pos, VIRTUAL);
         functionSymbol.bodyExist = true;
         functionSymbol.kind = SymbolKind.FUNCTION;
 
         functionSymbol.retType = function.returnTypeNode.getBType();
         functionSymbol.scope = new Scope(functionSymbol);
         function.symbol = functionSymbol;
+        function.flagSet.add(Flag.PUBLIC);
         return function;
     }
 
@@ -7697,11 +7699,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangIsAssignableExpr assignableExpr) {
         assignableExpr.lhsExpr = rewriteExpr(assignableExpr.lhsExpr);
         result = assignableExpr;
-    }
-
-    @Override
-    public void visit(BFunctionPointerInvocation fpInvocation) {
-        result = fpInvocation;
     }
 
     @Override
