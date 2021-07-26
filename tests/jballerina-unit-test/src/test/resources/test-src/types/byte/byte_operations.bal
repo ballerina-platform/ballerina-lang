@@ -280,7 +280,7 @@ public function testIntBitwiseXor() returns int {
 }
 
 // Test byte bitwise complement
-public function testByteBitwiseComplement() returns byte {
+public function testByteBitwiseComplement() returns int {
     byte b = 191;
     return ~b;
 }

@@ -267,8 +267,8 @@ function testByteShift() returns int {
     return d;
 }
 
-function testBitwiseNotOperator(byte b, int i) returns [byte, int] {
-    byte a = ~b;
+function testBitwiseNotOperator(byte b, int i) returns [int, int] {
+    int a = ~b;
     int j = ~i;
     return [a, j];
 }
