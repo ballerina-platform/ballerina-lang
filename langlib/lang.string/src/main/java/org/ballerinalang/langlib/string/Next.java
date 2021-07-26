@@ -24,9 +24,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-
+import java.text.BreakIterator;
 
 /**
  * Native implementation of lang.string.StringIterator:next().
@@ -35,24 +33,30 @@ import java.text.StringCharacterIterator;
  */
 public class Next {
 
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
     public static Object next(BObject m) {
-        StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
-        if (stringCharacterIterator == null) {
-            String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();
-            stringCharacterIterator = new StringCharacterIterator(s);
-            m.addNativeData("&iterator&", stringCharacterIterator);
+        String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();
+        BreakIterator breakIterator = (BreakIterator) m.getNativeData("&iterator&");
+        if (breakIterator == null) {
+            breakIterator = BreakIterator.getCharacterInstance();
+            breakIterator.setText(s);
+            m.addNativeData("&iterator&", breakIterator);
         }
-
-        if (stringCharacterIterator.current() != CharacterIterator.DONE) {
-            char character = stringCharacterIterator.current();
-            stringCharacterIterator.next();
-            Object charAsStr = StringUtils.fromString(String.valueOf(character));
-            return ValueCreator.createRecordValue(ValueCreator.createMapValue(
-                    PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
+        Integer startIndex = (Integer) m.getNativeData("&predecessor&");
+        if (startIndex == null) {
+            startIndex = 0;
+        }
+        int currentIndex = breakIterator.next();
+        if (currentIndex != BreakIterator.DONE) {
+            m.addNativeData("&predecessor&", currentIndex);
+            Object charAsStr = StringUtils.fromString(s.substring(startIndex, currentIndex));
+            return ValueCreator
+                    .createRecordValue(ValueCreator.createMapValue(PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
                                                   charAsStr);
         }
-
         return null;
     }
 }

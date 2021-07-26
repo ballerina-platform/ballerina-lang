@@ -198,6 +198,13 @@ function testLangLibCallOnFiniteType() {
     assertEquals(false, x.startsWith("a"));
 }
 
+function testIteratorWithUnicodeChar(int codePoint, int[] expected) returns error? {
+    string str = check string:fromCodePointInt(codePoint);
+    int i = 0;
+    foreach var ch in str {
+        assertEquals(expected, ch.toCodePointInts());
+    }
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
