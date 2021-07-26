@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import org.wso2.ballerinalang.compiler.util.Constants;
 
 /**
- * Extern function lang.string:fromCodePointInt(int)
+ * Extern function lang.string:fromCodePointInt(int).
  *
  * @since 1.0
  */
