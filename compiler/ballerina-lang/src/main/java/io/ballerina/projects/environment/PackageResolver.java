@@ -17,9 +17,14 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Defines the interface that will be used by the resolution logic to resolve
@@ -28,6 +33,10 @@ import java.util.List;
  * @since 2.0.0
  */
 public interface PackageResolver {
+
+    Map<ImportModuleRequest, ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
+
+    DependencyGraph<PackageDescriptor> resolveDependencies(List<ResolutionRequest> packageLoadRequests);
 
     List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
 

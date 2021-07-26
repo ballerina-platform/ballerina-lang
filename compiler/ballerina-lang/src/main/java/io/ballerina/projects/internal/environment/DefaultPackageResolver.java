@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.internal.environment;
 
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
@@ -29,6 +30,8 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,6 +105,17 @@ public class DefaultPackageResolver implements PackageResolver {
         }
 
         return resolutionResponses;
+    }
+
+    @Override
+    public Map<ImportModuleRequest, ImportModuleResponse> resolvePackageNames(
+            List<ImportModuleRequest> importModuleRequests) {
+        return null;
+    }
+
+    @Override
+    public DependencyGraph<PackageDescriptor> resolveDependencies(List<ResolutionRequest> packageLoadRequests) {
+        return null;
     }
 
     @Override
