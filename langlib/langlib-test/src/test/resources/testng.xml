@@ -22,7 +22,6 @@
 <suite name="ballerina-langlib-test-suite">
 
     <listeners>
-        <listener class-name="org.ballerinalang.langlib.test.utils.BLogInitializer" />
         <!--<listener class-name="org.ballerinalang.langlib.test.utils.TestEventListener"/>-->
     </listeners>
 

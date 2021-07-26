@@ -485,12 +485,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
-
-        // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
-        Predicate<Symbol> symbolFilter = CommonUtil.getVariableFilterPredicate();
-        symbolFilter = symbolFilter.or(symbol -> (symbol.kind() == FUNCTION
-                || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
-                && !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
+        
+        Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
                 .collect(Collectors.toList());
@@ -498,6 +494,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         // TODO: anon function expressions, 
         return completionItems;
+    }
+    
+    protected Predicate<Symbol> getExpressionContextSymbolFilter() {
+        Predicate<Symbol> symbolFilter = CommonUtil.getVariableFilterPredicate();
+        // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib
+        symbolFilter = symbolFilter.or(symbol -> (symbol.kind() == FUNCTION
+                || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
+                && !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
+        
+        return symbolFilter;
     }
 
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {

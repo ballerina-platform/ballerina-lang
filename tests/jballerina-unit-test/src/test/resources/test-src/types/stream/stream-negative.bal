@@ -58,11 +58,11 @@ function testIteratorWithCustomError() {
     IteratorWithCustomError itr = new();
 
     // correct
-    var streamA = new stream<int, CustomError>(itr);
-    stream<int, CustomError> streamB = new(itr);
+    var streamA = new stream<int, CustomError?>(itr);
+    stream<int, CustomError?> streamB = new(itr);
 
     var streamC = new stream<int, error?>(itr);
-    stream<int, error> streamD = new(itr);
+    stream<int, error?> streamD = new(itr);
 
     record {| int value; |}|CustomError? returnedValA = streamA.next();
     returnedValA = streamB.next();
@@ -106,8 +106,8 @@ function testIteratorWithGenericError() {
     record {| int value; |}? returnedValC = streamB.next();
 
     // incorrect (itr returns an `error` instead of `CustomError`)
-    var streamC = new stream<int, CustomError>(itr);
-    stream<int, CustomError> streamD = new(itr);
+    var streamC = new stream<int, CustomError?>(itr);
+    stream<int, CustomError?> streamD = new(itr);
 
     // incorrect (error type should be there in the stream<int, ?>)
     var streamE = new stream<int>(itr);
@@ -134,10 +134,10 @@ function testIteratorWithOutError() {
     returnedValA = streamB.next();
 
     // incorrect (error type shouldn't be there)
-    var streamC = new stream<int, error>(itr);
-    stream<int, error> streamD = new(itr);
-    var streamE = new stream<int, CustomError>(itr);
-    stream<int, CustomError> streamF = new(itr);
+    var streamC = new stream<int, error?>(itr);
+    stream<int, error?> streamD = new(itr);
+    var streamE = new stream<int, CustomError?>(itr);
+    stream<int, CustomError?> streamF = new(itr);
 
     // incorrect (next returns record {| int value; |}?)
     record {| int value; |}|error? returnedValB = streamA.next();
@@ -158,10 +158,10 @@ function testIteratorWithOutNext() {
     // incorrect (itr doesn't have a next() method implemented)
     var streamA = new stream<int>(itr);
     stream<int> streamB = new(itr);
-    var streamC = new stream<int, error>(itr);
-    stream<int, error> streamD = new(itr);
-    var streamE = new stream<int, CustomError>(itr);
-    stream<int, CustomError> streamF = new(itr);
+    var streamC = new stream<int, error?>(itr);
+    stream<int, error?> streamD = new(itr);
+    var streamE = new stream<int, CustomError?>(itr);
+    stream<int, CustomError?> streamF = new(itr);
 }
 
 class IteratorWithMismatchedNextA {
@@ -177,10 +177,10 @@ function testIteratorWithMismatchedNextA() {
     // incorrect (`next(int i)` of itr, doesn't match with `next()`)
     var streamA = new stream<int>(itr);
     stream<int> streamB = new(itr);
-    var streamC = new stream<int, error>(itr);
-    stream<int, error> streamD = new(itr);
-    var streamE = new stream<int, CustomError>(itr);
-    stream<int, CustomError> streamF = new(itr);
+    var streamC = new stream<int, error?>(itr);
+    stream<int, error?> streamD = new(itr);
+    var streamE = new stream<int, CustomError?>(itr);
+    stream<int, CustomError?> streamF = new(itr);
 }
 
 class IteratorWithMismatchedNextC {
@@ -195,14 +195,14 @@ class IteratorWithMismatchedNextC {
 function testIteratorWithMismatchedNextC() {
     IteratorWithMismatchedNextC itr = new();
     // correct
-    var streamA = new stream<int, error>(itr);
-    stream<int, error> streamB = new(itr);
+    var streamA = new stream<int, error?>(itr);
+    stream<int, error?> streamB = new(itr);
 
     // incorrect (`return type of `next()` of itr, doesn't match with value type)
-    var streamC = new stream<string, error>(itr);
-    stream<string, error> streamD = new(itr);
-    var streamE = new stream<string, CustomError>(itr);
-    stream<string, CustomError> streamF = new(itr);
+    var streamC = new stream<string, error?>(itr);
+    stream<string, error?> streamD = new(itr);
+    var streamE = new stream<string, CustomError?>(itr);
+    stream<string, CustomError?> streamF = new(itr);
 }
 
 class IteratorWithMismatchedError {
@@ -217,15 +217,15 @@ class IteratorWithMismatchedError {
 function testIteratorWithMismatchedError() {
     IteratorWithMismatchedError itr = new();
     // correct
-    var streamA = new stream<int, CustomError>(itr);
-    stream<int, CustomError> streamB = new(itr);
+    var streamA = new stream<int, CustomError?>(itr);
+    stream<int, CustomError?> streamB = new(itr);
 
-    var streamC = new stream<int, error>(itr);
-    stream<int, error> streamD = new(itr);
+    var streamC = new stream<int, error?>(itr);
+    stream<int, error?> streamD = new(itr);
 
     // incorrect (`CustomError` & `CustomError1` doesn't match)
-    var streamE = new stream<string, CustomError1>(itr);
-    stream<string, CustomError1> streamF = new(itr);
+    var streamE = new stream<string, CustomError1?>(itr);
+    stream<string, CustomError1?> streamF = new(itr);
 }
 
 function testInvalidStreamConstructor() {
@@ -236,8 +236,8 @@ function testInvalidStreamConstructor() {
     stream<int> streamB = new(itr);
 
     // incorrect (`IteratorWithOutError` does not return an error from next() method)
-    var streamC = new stream<int, CustomError>(itr);
-    stream<int, CustomError> streamD = new(itr);
+    var streamC = new stream<int, CustomError?>(itr);
+    stream<int, CustomError?> streamD = new(itr);
 }
 
 
@@ -246,12 +246,12 @@ function testInvalidStreamConstructs() returns boolean {
     stream<int> stream1 = new(itr, itr);
     stream<int> stream2 = new stream<int>(itr, itr);
     stream<int, never> stream3 = new(itr, itr);
-    stream<int, error> stream4 = new(itr, itr);
+    stream<int, error?> stream4 = new(itr, itr);
     stream<int, never> stream5 = new stream<int, never>(itr, itr);
-    stream<int, error> stream6 = new stream<int, error>(itr, itr);
+    stream<int, error?> stream6 = new stream<int, error?>(itr, itr);
     var stream7 = new stream<int>(itr, itr);
     var stream8 = new stream<int, never>(itr, itr);
-    var stream9 = new stream<int, error>(itr, itr);
+    var stream9 = new stream<int, error?>(itr, itr);
 }
 
 class IteratorWithIsolatedNext {
@@ -345,11 +345,11 @@ public function main() returns @tainted error? {
     IteratorWithNonIsolatedNext itr3 = new;
     IteratorWithNonIsolatedNextAndIsolatedClose itr4 = new;
     IteratorWithIsolatedNextAndNonIsolatedClose itr5 = new;
-    var intStr1 = new stream<int, error>(itr1);
-    var intStr2 = new stream<int, error>(itr2);
-    var intStr3 = new stream<int, error>(itr3);
-    var intStr4 = new stream<int, error>(itr4);
-    var intStr5 = new stream<int, error>(itr5);
+    var intStr1 = new stream<int, error?>(itr1);
+    var intStr2 = new stream<int, error?>(itr2);
+    var intStr3 = new stream<int, error?>(itr3);
+    var intStr4 = new stream<int, error?>(itr4);
+    var intStr5 = new stream<int, error?>(itr5);
 
     InvalidNumberStreamGenerator n = new ();
     stream<stream<int>> numberStream = new (n);
@@ -361,12 +361,12 @@ function testAssignabilityOfStreams() {
     stream<int> emptyStream1 = new;
     stream<int> emptyStream2 = new stream<int>();
     stream<int, ()> emptyStream3 = new;
-    stream<int, error> emptyStream4 = new;
+    stream<int, error?> emptyStream4 = new;
     stream<int, ()> emptyStream5 = new stream<int, ()>();
-    stream<int, error> emptyStream6 = new stream<int, error>();
+    stream<int, error?> emptyStream6 = new stream<int, error?>();
     var emptyStream7 = new stream<int>();
     var emptyStream8 = new stream<int, ()>();
-    var emptyStream9 = new stream<int, error>();
+    var emptyStream9 = new stream<int, error?>();
 
     emptyStream1 = emptyStream6;
     emptyStream2 = emptyStream9;
