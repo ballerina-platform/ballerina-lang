@@ -20,7 +20,7 @@ import java.util.Map;
 
 class JNModule {
     public ArrayList<FunctionCode> code = new ArrayList<>();
-    public ArrayList<FunctionDefn> functionDefns = new ArrayList<>();
+    public Map<String, FunctionDefn> functionDefns = new LinkedHashMap<>();
     public ModuleId moduleId;
 
     BArray getFuncDefsArray() {
@@ -28,7 +28,7 @@ class JNModule {
                 NBTypeNames.FUNCTION_DEFN, new HashMap<>());
         ArrayType arrTyp = TypeCreator.createArrayType(tmpVal.getType());
         BArray arr = ValueCreator.createArrayValue(arrTyp);
-        functionDefns.forEach(def -> arr.append(def.getRecord()));
+        functionDefns.forEach((id, def) -> arr.append(def.getRecord()));
         return arr;
     }
 
@@ -210,10 +210,17 @@ class IntArithmeticBinaryInsn extends InsnBase {
 
     @Override
     public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_INT);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ, 2);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        arr.add(0, operands[0].getOperand());
+        arr.add(1, operands[1].getOperand());
         Map<String, Object> fields = new HashMap<>();
         fields.put("op", new BmpStringValue(op));
         fields.put("result", result.getRecord());
-        fields.put("operands", operands); //TODO create Ballerina array
+        fields.put("operands", arr); //TODO create Ballerina array
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INT_ARITHMETIC_BINARY_INSN, fields);
     }
 }
@@ -228,7 +235,7 @@ class RetInsn extends InsnBase {
     @Override
     public BMap<BString, Object> getRecord() {
         LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
-        Object op = operand.isReg ? operand.register.getRecord() : operand.constant;
+        Object op = operand.getOperand();
         fields.put("operand", op);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN, fields);
     }
@@ -272,10 +279,14 @@ class BoolNotInsn extends InsnBase {
 
 class Operand {
     public Register register;
-    public Object constant;
+    public Object value;
     public boolean isReg;
 
     public Operand(boolean isReg) {
         this.isReg = isReg;
+    }
+
+    public Object getOperand() {
+        return (this.isReg ? this.register.getRecord() : this.value);
     }
 }

@@ -5,8 +5,8 @@ package org.wso2.ballerinalang.compiler.nballerina;
  */
 public class NBTypeNames {
     static final String INT_ARITHMETIC_BINARY_INSN =
-            "record {| (INSN_INT_ARITHMETIC_BINARY|INSN_INT_NO_PANIC_ARITHMETIC_BINARY) name; +|-|*|/|% op; Register" +
-                    " result; wso2/nballerina.bir:0.1.0:IntOperand[] operands; anydata...; |}";
+            "record {| (INSN_INT_ARITHMETIC_BINARY|INSN_INT_NO_PANIC_ARITHMETIC_BINARY) name; +|-|*|/|% op; Register " +
+                    "result; wso2/nballerina.bir:0.1.0:IntOperand[2] operands; anydata...; |}";
     static final String RET_INSN = "record {| INSN_RET name; wso2/nballerina.bir:0.1.0:Operand operand; anydata...; |}";
     static final String INTNEG_INSN = "record {| (INSN_INT_NEGATE|INSN_INT_NO_PANIC_NEGATE) name; Register result;" +
             " Register operand; anydata...; |}";

@@ -122,7 +122,7 @@ public class ModuleGen {
             func.getParameters().forEach(param -> {
                 funcDefn.signature.paramTypes.add(param.type.getKind());
             });
-            jnmod.functionDefns.add(funcDefn);
+            jnmod.functionDefns.put(name, funcDefn);
         });
         astPkg.functions.forEach(func -> {
             FunctionCode fcode = new FunctionCode();
@@ -146,7 +146,7 @@ public class ModuleGen {
             nextBlock.insns.add(new RetInsn(operand));
             curBlock = null;
         } else if (stmt instanceof BLangSimpleVariableDef) {
-            //TODO
+
             curBlock = null;
         }
     }
@@ -155,7 +155,7 @@ public class ModuleGen {
         if (expr instanceof BLangLiteral) {
             nextBlock = curBlock;
             Operand op = new Operand(false);
-            op.constant = ((BLangLiteral) expr).getValue();
+            op.value = ((BLangLiteral) expr).getValue();
             return op;
         } else if (expr instanceof BLangSimpleVarRef) {
             nextBlock = curBlock;
@@ -200,6 +200,11 @@ public class ModuleGen {
                     curBlock.insns.add(ins);
                     result.register = reg;
                     return result;
+            }
+        } else if (expr instanceof BLangInvocation) {
+            BLangInvocation funcCall = (BLangInvocation) expr;
+            if (funcCall.pkgAlias.getValue().equals("")) {
+                return null;
             }
         }
         return null;
