@@ -58,6 +58,7 @@ public class BTupleType extends BType implements TupleType {
         this.tupleTypes = typeList;
         this.restType = null;
         checkAllMembers();
+        this.readonly = false;
     }
 
     public BTupleType(List<Type> typeList, int typeFlags) {
@@ -121,7 +122,6 @@ public class BTupleType extends BType implements TupleType {
         if (isAllMembersAnydata) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         }
-        this.readonly = false;
     }
 
     private List<Type> getReadOnlyTypes(List<Type> typeList) {

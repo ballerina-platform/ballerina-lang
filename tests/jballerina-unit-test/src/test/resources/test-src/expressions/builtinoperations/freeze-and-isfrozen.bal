@@ -361,6 +361,27 @@ function testFrozenTupleUpdate() {
     t2[1] = e2;
 }
 
+type A [int, string|xml, boolean, A...];
+type B [int, boolean, B[]...];
+
+function testFrozenRecursiveTupleUpdate() {
+    A tupleTest1 = [1, "text"];
+    A tupleTemp1 = tupleTest1.cloneReadOnly();
+    tupleTemp1[2] = true;
+}
+
+function testRecursiveTupleFreeze() {
+    A tupleTest1 = [1, ""];
+    A tupleTemp1 = tupleTest1.cloneReadOnly();
+    assertTrue(tupleTemp1.isReadOnly());
+    assertFalse(tupleTest1.isReadOnly());
+
+    B tupleTest2 = [1];
+    B tupleTemp2 = tupleTest2.cloneReadOnly();
+    assertTrue(tupleTemp2.isReadOnly());
+    assertFalse(tupleTest2.isReadOnly());
+}
+
 function testFrozenRecordUpdate() {
     Dept d1 = { code: "fe11", name: "finance" };
     DeptEmployee e1 = { name: "Em", id: 1000, dept: d1 };

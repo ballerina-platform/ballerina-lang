@@ -4347,6 +4347,9 @@ public class Types {
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env,
                                                   LinkedHashSet<BType> visitedTypes) {
+        if (!visitedTypes.add(tupleType)) {
+            return tupleType;
+        }
         List<BType> tupleTypes = tupleType.tupleTypes;
         if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
             if (tupleTypes.size() > arrayType.size) {
