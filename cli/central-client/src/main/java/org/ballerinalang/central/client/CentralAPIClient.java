@@ -243,7 +243,14 @@ public class CentralAPIClient {
     }
 
     /**
-     * Pushing a package to registry.
+     * Push a package to registry.
+     *
+     * @param balaPath              The path to the bala file.
+     * @param org                   The organization of the package.
+     * @param name                  The name of the package.
+     * @param version               The version of the package.
+     * @param supportedPlatform     The supported platform.
+     * @param ballerinaVersion      The ballerina version.
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
                             String ballerinaVersion) throws CentralClientException {
@@ -348,7 +355,16 @@ public class CentralAPIClient {
     }
 
     /**
-     * Pulling a package.
+     * Pull a package from central.
+     *
+     * @param org                       The organization of the package.
+     * @param name                      The name of the package.
+     * @param version                   The version of the package.
+     * @param packagePathInBalaCache    The package path in Bala cache.
+     * @param supportedPlatform         The supported platform.
+     * @param ballerinaVersion          The ballerina version.
+     * @param isBuild                   If build option is enabled or not.
+     * @throws CentralClientException   Central Client exception.
      */
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
                             String supportedPlatform, String ballerinaVersion, boolean isBuild)
