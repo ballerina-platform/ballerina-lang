@@ -541,7 +541,7 @@
     {
       "label": "getPerson()",
       "kind": "Function",
-      "detail": "test/lsproject.models:0.1.0:Person",
+      "detail": "models:Person",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -575,7 +575,7 @@
     {
       "label": "getDriver(models:Person person)",
       "kind": "Function",
-      "detail": "test/lsproject.models:0.1.0:Driver",
+      "detail": "models:Driver",
       "documentation": {
         "right": {
           "kind": "markdown",

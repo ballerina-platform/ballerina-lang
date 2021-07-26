@@ -465,7 +465,7 @@
     {
       "label": "createVehicleModel(string name)",
       "kind": "Function",
-      "detail": "test/lsproject.models:0.1.0:Model",
+      "detail": "Model",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -535,7 +535,7 @@
     {
       "label": "createVehicle(Model model)",
       "kind": "Function",
-      "detail": "test/lsproject.models:0.1.0:Vehicle",
+      "detail": "Vehicle",
       "documentation": {
         "right": {
           "kind": "markdown",

@@ -8,7 +8,7 @@
     {
       "label": "post(string path, RequestMessage message, string targetType)",
       "kind": "Function",
-      "detail": "ballerina/module1:0.1.0:Response",
+      "detail": "mod:Response",
       "documentation": {
         "right": {
           "kind": "markdown",

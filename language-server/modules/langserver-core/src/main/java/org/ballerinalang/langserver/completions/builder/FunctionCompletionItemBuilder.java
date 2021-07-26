@@ -155,7 +155,7 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol != null) {
             FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
             Optional<TypeSymbol> typeSymbol = functionTypeDesc.returnTypeDescriptor();
-            typeSymbol.ifPresent(symbol -> item.setDetail(symbol.signature()));
+            typeSymbol.ifPresent(symbol -> item.setDetail(CommonUtil.getModifiedTypeName(ctx, symbol)));
             List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
             if (!funcArguments.isEmpty()) {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
