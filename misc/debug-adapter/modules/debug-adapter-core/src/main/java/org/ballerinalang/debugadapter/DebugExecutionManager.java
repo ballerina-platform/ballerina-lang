@@ -83,7 +83,7 @@ public class DebugExecutionManager {
 
         // Todo - enable for launch-mode after implementing debug server client logger
         if (server.getClientConfigHolder().getKind() == ClientConfigHolder.ClientConfigKind.ATTACH_CONFIG) {
-            server.getOutputLogger().sendConsoleOutput((String.format("Connected to the target VM, address: " +
+            server.getOutputLogger().sendDebugServerOutput((String.format("Connected to the target VM, address: " +
                     "'%s:%s'", host, port)));
         }
         return attachedVm;
