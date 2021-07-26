@@ -357,6 +357,14 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         "'new()' - IMPLICIT_NEW_EXPRESSION"));
     }
 
+    @Override
+    @Test
+    public void remoteCallActionEvaluationTest() throws BallerinaTestException {
+        debugTestRunner.assertEvaluationError(context, String.format("%s->undefinedFunction()", CLIENT_OBJECT_VAR),
+                String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(), "undefinedFunction",
+                        "Student"));
+    }
+
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

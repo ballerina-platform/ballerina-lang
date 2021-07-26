@@ -108,7 +108,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
     }
 
-    public TableValueImpl(BTableType type, ArrayValue data, ArrayValue fieldNames) {
+    public TableValueImpl(TableType type, ArrayValue data, ArrayValue fieldNames) {
         this(type);
         if (this.fieldNames == null) {
             this.fieldNames = fieldNames.getStringArray();
@@ -622,6 +622,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                                                             "inherent table type '" + type + "'");
             throw ErrorCreator.createError(reason, detail);
         }
+    }
+
+    @Override
+    public String toString() {
+        return stringValue(null);
     }
 
     @Override

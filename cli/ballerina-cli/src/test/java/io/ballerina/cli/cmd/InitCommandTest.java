@@ -53,7 +53,7 @@ public class InitCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedContent);
 
         Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
@@ -93,7 +93,7 @@ public class InitCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedContent);
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
@@ -129,7 +129,7 @@ public class InitCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedContent);
 
         Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
@@ -170,7 +170,7 @@ public class InitCommandTest extends BaseCommandTest {
                 "version = \"0.1.0\"\n" +
                 "\n" +
                 "[build-options]\n" +
-                "observabilityIncluded = true";
+                "observabilityIncluded = true\n";
         Assert.assertEquals(tomlContent, expectedTomlContent);
 
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -209,7 +209,7 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         Assert.assertTrue(readOutput().contains(
-                "ballerina-init - Create a new Ballerina package inside the current directory."));
+                "ballerina-init - Create a new Ballerina package inside the current directory"));
     }
 
     @Test(description = "Test init command with help flag")
@@ -221,7 +221,7 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         Assert.assertTrue(readOutput().contains(
-                "ballerina-init - Create a new Ballerina package inside the current directory."));
+                "ballerina-init - Create a new Ballerina package inside the current directory"));
     }
 
     @Test(description = "Test init command inside a directory with invalid package name")
@@ -263,7 +263,7 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         //initialize a project again
-        Assert.assertTrue(readOutput().contains("Directory is already a ballerina project"));
+        Assert.assertTrue(readOutput().contains("Directory is already a Ballerina project"));
     }
 
     @Test(description = "Test init command within a ballerina project", dependsOnMethods = "testInitCommand")
@@ -278,6 +278,6 @@ public class InitCommandTest extends BaseCommandTest {
         InitCommand initCommand = new InitCommand(projectDir, printStream);
         new CommandLine(initCommand).parse(args);
         initCommand.execute();
-        Assert.assertTrue(readOutput().contains("Directory is already within a ballerina project"));
+        Assert.assertTrue(readOutput().contains("Directory is already within a Ballerina project"));
     }
 }

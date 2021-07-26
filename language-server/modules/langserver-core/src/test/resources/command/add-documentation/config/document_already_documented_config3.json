@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 14,
+        "character": 4
+      },
+      "end": {
+        "line": 19,
+        "character": 5
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 16,
+                    "character": 46
+                  }
+                },
+                "newText": "# Encrypts the provided plain text\n    #\n    # + plainText - plain text to be encrypted  \n    # + padding - Parameter Description\n    # + return - Return Value Description"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

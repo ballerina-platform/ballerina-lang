@@ -209,6 +209,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType originalType, BType expType) {
+        if (!visitedTypes.add(originalType)) {
+            return originalType;
+        }
+
         boolean hasNewType = false;
 
         BTupleType matchingType = (BTupleType) getMatchingTypeForInferrableType(originalType, expType);
@@ -238,6 +242,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         List<BType> tupleTypes = originalType.tupleTypes;
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
+            if (this.visitedTypes.contains(tupleTypes.get(i))) {
+                continue;
+            }
             BType member = tupleTypes.get(i);
             BType expMember = expTupleTypes.get(j);
             BType newMem = member.accept(this, expMember);
@@ -611,7 +618,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
             BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) arg;
             if (namedArgsExpression.name.value.equals(paramName)) {
-                return getConstraintTypeIfNotError(namedArgsExpression.expr.type);
+                return getConstraintTypeIfNotError(namedArgsExpression.expr.getBType());
             }
         }
 
@@ -624,10 +631,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BLangExpression argAtIndex = requiredArgs.get(index);
 
             if (argAtIndex.getKind() != NodeKind.NAMED_ARGS_EXPR) {
-                return getConstraintTypeIfNotError(argAtIndex.type);
+                return getConstraintTypeIfNotError(argAtIndex.getBType());
             }
         } else if (!restArgs.isEmpty()) {
-            BType restArgType = restArgs.get(0).type;
+            BType restArgType = restArgs.get(0).getBType();
 
             if (restArgType.tag == TypeTags.RECORD) {
                 return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
@@ -651,15 +658,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     private BLangNamedArgsExpression createTypedescExprNamedArg(BType expType, String name) {
         BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
-        typedescExpr.pos = this.invocation.pos;
+        typedescExpr.pos = this.symbolTable.builtinPos;
         typedescExpr.resolvedType = expType;
-        typedescExpr.type = new BTypedescType(expType, null);
+        typedescExpr.setBType(new BTypedescType(expType, null));
 
         BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
         BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         identifierNode.value = name;
         namedArgsExpression.name = identifierNode;
         namedArgsExpression.expr = typedescExpr;
+        namedArgsExpression.pos = this.symbolTable.builtinPos;
         return namedArgsExpression;
     }
 
@@ -681,7 +689,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
                 if (arg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
                     // If this is a positional arg, it should correspond to the current param.
-                    paramValueTypes.put(params.get(paramIndex).name.value, arg.type);
+                    paramValueTypes.put(params.get(paramIndex).name.value, arg.getBType());
                     argIndex++;
                     continue;
                 } else {
@@ -725,7 +733,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) requiredArgs.get(argIndex);
 
                 if (name.equals(namedArg.name.value)) {
-                    paramValueTypes.put(name, namedArg.type);
+                    paramValueTypes.put(name, namedArg.getBType());
                     argProvided = true;
                     break;
                 }
@@ -742,7 +750,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void populateParamMapFromRestArg(List<BVarSymbol> params, int currentParamIndex, BLangExpression restArg) {
-        BType type = restArg.type;
+        BType type = restArg.getBType();
         int tag = type.tag;
         if (tag == TypeTags.RECORD) {
             populateParamMapFromRecordRestArg(params, currentParamIndex, (BRecordType) type);
@@ -813,7 +821,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return symbolTable.noType;
             }
 
-            BType paramType = requiredParam.type;
+            BType paramType = requiredParam.getBType();
             if (paramType.tag != TypeTags.TYPEDESC) {
                 return symbolTable.noType;
             }

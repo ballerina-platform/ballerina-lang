@@ -20,7 +20,12 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -32,11 +37,15 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.DiagnosticState.REDECLARED;
+import static io.ballerina.compiler.api.symbols.DiagnosticState.UNKNOWN_TYPE;
+import static io.ballerina.compiler.api.symbols.DiagnosticState.VALID;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
@@ -261,40 +270,40 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
         Map<String, Symbol> symbolsForWhere = getSymbolsInFile(model, srcFile, 22, 21, moduleID);
-        assertList(symbolsForWhere, Arrays.asList("test", "arr1", "arr2", "i", "j", "res1"));
+        assertList(symbolsForWhere, Arrays.asList("test", "arr1", "arr2", "i", "j", "res1", "Person"));
 
         Map<String, Symbol> symbolsForSelect = getSymbolsInFile(model, srcFile, 28, 21, moduleID);
         assertList(symbolsForSelect, Arrays.asList("intVal", "test", "res1", "stringVal", "res2", "i", "j", "arr2",
-                "arr1"));
+                "arr1", "Person"));
 
         Map<String, Symbol> symbolsForQueryAct = getSymbolsInFile(model, srcFile, 31, 20, moduleID);
-        assertList(symbolsForQueryAct, Arrays.asList("ii", "test", "res1", "res3", "res2", "arr2", "arr1"));
+        assertList(symbolsForQueryAct, Arrays.asList("ii", "test", "res1", "res3", "res2", "arr2", "arr1", "Person"));
 
         Map<String, Symbol> symbolsForJoinLHS = getSymbolsInFile(model, srcFile, 36, 20, moduleID);
-        assertList(symbolsForJoinLHS, Arrays.asList("test", "res1", "res3", "res2", "i", "arr2", "arr1"));
+        assertList(symbolsForJoinLHS, Arrays.asList("test", "res1", "res3", "res2", "i", "arr2", "arr1", "Person"));
  
         Map<String, Symbol> symbolsForJoinRHS = getSymbolsInFile(model, srcFile, 36, 28, moduleID);
-        assertList(symbolsForJoinRHS, Arrays.asList("test", "res1", "res3", "res2", "j", "arr2", "arr1"));
+        assertList(symbolsForJoinRHS, Arrays.asList("test", "res1", "res3", "res2", "j", "arr2", "arr1", "Person"));
 
         Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 44, 25, moduleID);
         assertList(symbolsForOrderBy, Arrays.asList("res5", "p", "res4", "p1", "p2", "personList", "test", "res1",
-                "res3", "res2", "arr2", "arr1"));
+                "res3", "res2", "arr2", "arr1", "Person"));
 
         Map<String, Symbol> symbolsForNestedFrom1 = getSymbolsInFile(model, srcFile, 48, 42, moduleID);
         assertList(symbolsForNestedFrom1, Arrays.asList("res5", "res4", "p1", "p2", "personList", "res6", "test",
-                "res1", "res3", "res2", "k", "arr2", "arr1"));
+                "res1", "res3", "res2", "k", "arr2", "arr1", "Person"));
  
         Map<String, Symbol> symbolsForNestedFrom2 = getSymbolsInFile(model, srcFile, 49, 23, moduleID);
         assertList(symbolsForNestedFrom2, Arrays.asList("res5", "res4", "p1", "p2", "personList", "res6", "test",
-                "res1", "res3", "res2", "i", "arr2", "arr1"));
+                "res1", "res3", "res2", "i", "arr2", "arr1", "Person"));
  
         Map<String, Symbol> symbolsForNestedFrom3 = getSymbolsInFile(model, srcFile, 53, 58, moduleID);
         assertList(symbolsForNestedFrom3, Arrays.asList("res5", "res4", "p1", "res7", "p2", "personList", "res6",
-                "test", "res1", "res3", "res2", "m", "arr2", "arr1"));
+                "test", "res1", "res3", "res2", "m", "arr2", "arr1", "Person"));
 
         Map<String, Symbol> symbolsForNestedFrom4 = getSymbolsInFile(model, srcFile, 53, 64, moduleID);
         assertList(symbolsForNestedFrom4, Arrays.asList("res5", "ii", "res4", "p1", "p2", "personList", "res6",
-                "test", "res1", "res3", "res2", "arr2", "arr1"));
+                "test", "res1", "res3", "res2", "arr2", "arr1", "Person"));
     }
 
     @Test
@@ -348,6 +357,118 @@ public class SymbolLookupTest {
                 {36, 26, 6, asList("d", "func", "v", "c1", "c2", "x7")},
                 {39, 9, 4, asList("func", "v", "c1", "c2")}
         };
+    }
+
+    @Test
+    public void testRedeclaredSymbolLookup() {
+        Project project = BCompileUtil.loadProject("test-src/errored_symbol_lookup_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(23, 8));
+        List<Symbol> symbols = new ArrayList<>();
+        for (Symbol symbol : allInScopeSymbols) {
+            if (symbol.getModule().get().id().equals(moduleID)) {
+                symbols.add(symbol);
+                switch (symbol.kind()) {
+                    case VARIABLE:
+                        assertErroredSymbols(symbol);
+                        break;
+                    case PARAMETER:
+                        assertEquals(symbol.getName().get(), "b");
+                        assertEquals(((ParameterSymbol) symbol).typeDescriptor().typeKind(), TypeDescKind.INT);
+                        break;
+                    case FUNCTION:
+                        assertEquals(symbol.getName().get(), "test");
+                        break;
+                    default:
+                        throw new AssertionError("Unexpected symbol kind: " + symbol.kind());
+
+                }
+            }
+        }
+    }
+
+    private void assertErroredSymbols(Symbol symbol) {
+        assertEquals(symbol.kind(), SymbolKind.VARIABLE);
+        assertEquals(symbol.getName().get(), "b");
+        assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), TypeDescKind.COMPILATION_ERROR);
+        assertEquals(((VariableSymbol) symbol).diagnosticState(), REDECLARED);
+    }
+
+    @Test
+    public void testRedeclaredSymbolLookup2() {
+        Project project = BCompileUtil.loadProject("test-src/errored_symbol_lookup_test_2.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        List<Symbol> allInScopeSymbols = model.visibleSymbols(srcFile, LinePosition.from(25, 8), VALID, REDECLARED,
+                                                              UNKNOWN_TYPE);
+        List<Symbol> symbols = new ArrayList<>();
+        for (Symbol symbol : allInScopeSymbols) {
+            if (symbol.getModule().get().id().equals(moduleID) && symbol.kind() == SymbolKind.VARIABLE) {
+                symbols.add(symbol);
+            }
+        }
+
+        assertEquals(symbols.size(), 4);
+
+        for (Symbol symbol : symbols) {
+            switch (symbol.getName().get()) {
+                case "b":
+                    assertVarSymbol(symbol, "b", REDECLARED);
+                    break;
+                case "p":
+                    assertVarSymbol(symbol, "p", UNKNOWN_TYPE);
+                    break;
+                case "x":
+                    assertVarSymbol(symbol, "x", UNKNOWN_TYPE);
+                    break;
+                default:
+                    throw new AssertionError("Unexpected symbol: " + symbol.getName().get());
+            }
+        }
+    }
+
+    private void assertVarSymbol(Symbol symbol, String name, DiagnosticState state) {
+        assertEquals(symbol.kind(), SymbolKind.VARIABLE);
+        assertEquals(symbol.getName().get(), name);
+        assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), TypeDescKind.COMPILATION_ERROR);
+        assertEquals(((VariableSymbol) symbol).diagnosticState(), state);
+    }
+
+    @Test
+    public void test() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_destructure_var_exclusion_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+        List<String> expSymbolNames = List.of("personName", "personAge", "BasicErrorDetail", "rest", "s", "test", "f",
+                                              "detail1", "i", "Person", "message1", "UserDefinedError");
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 22, 4, moduleID);
+
+        assertEquals(symbolsInFile.size(), expSymbolNames.size());
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
     }
 
     private String createSymbolString(Symbol symbol) {

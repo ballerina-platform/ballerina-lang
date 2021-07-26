@@ -60,6 +60,7 @@ import javax.annotation.Nullable;
  * @since 0.983.0
  */
 public final class FunctionCompletionItemBuilder {
+
     private FunctionCompletionItemBuilder() {
     }
 
@@ -128,6 +129,26 @@ public final class FunctionCompletionItemBuilder {
         return item;
     }
 
+    /**
+     * Creates and returns a completion item.
+     *
+     * @param functionSymbol BSymbol
+     * @param context        LS context
+     * @return {@link CompletionItem}
+     */
+    public static CompletionItem buildMethod(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
+        CompletionItem item = new CompletionItem();
+        setMeta(item, functionSymbol, context);
+        if (functionSymbol != null) {
+            String funcName = functionSymbol.getName().get();
+            Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
+            item.setInsertText("self." + functionSignature.getLeft());
+            item.setLabel("self." + functionSignature.getRight());
+            item.setFilterText("self." + funcName);
+        }
+        return item;
+    }
+
     private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
         item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
@@ -156,9 +177,15 @@ public final class FunctionCompletionItemBuilder {
         Map<String, String> docParamsMap = new HashMap<>();
         docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
 
-        List<ParameterSymbol> defaultParams = functionTypeDesc.params().get().stream()
-                .filter(parameter -> parameter.paramKind() == ParameterKind.DEFAULTABLE)
-                .collect(Collectors.toList());
+        List<ParameterSymbol> functionParameters = new ArrayList<>();
+        List<ParameterSymbol> defaultParams = new ArrayList<>();
+
+        if (functionTypeDesc.params().isPresent()) {
+            functionParameters.addAll(functionTypeDesc.params().get());
+            defaultParams.addAll(functionParameters.stream()
+                    .filter(parameter -> parameter.paramKind() == ParameterKind.DEFAULTABLE)
+                    .collect(Collectors.toList()));
+        }
 
         MarkupContent docMarkupContent = new MarkupContent();
         docMarkupContent.setKind(CommonUtil.MARKDOWN_MARKUP_KIND);
@@ -173,7 +200,7 @@ public final class FunctionCompletionItemBuilder {
         documentation.append(description).append(CommonUtil.MD_LINE_SEPARATOR);
 
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        List<ParameterSymbol> functionParameters = new ArrayList<>(functionTypeDesc.params().get());
+
         if (functionTypeDesc.restParam().isPresent()) {
             functionParameters.add(functionTypeDesc.restParam().get());
         }
@@ -293,7 +320,10 @@ public final class FunctionCompletionItemBuilder {
         boolean skipFirstParam = skipFirstParam(ctx, symbol);
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
         Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
-        List<ParameterSymbol> parameterDefs = new ArrayList<>(functionTypeDesc.params().get());
+        List<ParameterSymbol> parameterDefs = new ArrayList<>();
+        if (functionTypeDesc.params().isPresent()) {
+            parameterDefs.addAll(functionTypeDesc.params().get());
+        }
         for (int i = 0; i < parameterDefs.size(); i++) {
             if (i == 0 && skipFirstParam) {
                 continue;
@@ -315,7 +345,10 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Whether we skip the first parameter being included as a label in the signature.
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
-     * showing the invocation over package of the langlib with the COLON we show the first param
+     * showing the invocation over package of the langlib with the COLON we show the first param.
+     * 
+     * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
+     * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
      *
      * @param context        context
      * @param functionSymbol invokable symbol

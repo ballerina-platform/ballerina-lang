@@ -402,7 +402,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             BType listenerType;
             if ((listenerType = serviceListenerMap.get(plugin)) != null) {
                 for (BLangExpression expr : serviceNode.getAttachedExprs()) {
-                    if (!types.isSameType(expr.type, listenerType)) {
+                    if (!types.isSameType(expr.getBType(), listenerType)) {
                         continue;
                     }
                     isCurrentPluginProcessed = true;

@@ -213,6 +213,7 @@
             <class name="org.ballerinalang.test.observability.tracing.ObservableAnnotationTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.ConcurrencyTestCase"/>
             <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.SpanContextTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingBaseTest"/>-->
 <!--            <class name="org.ballerinalang.test.observability.tracing.HttpTracingTestCase"/>-->
@@ -244,6 +245,7 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.logging.LogAPITestCase" />
+<!--            <class name="org.ballerinalang.test.logging.BadSadTests" />-->
         </classes>
     </test>
 

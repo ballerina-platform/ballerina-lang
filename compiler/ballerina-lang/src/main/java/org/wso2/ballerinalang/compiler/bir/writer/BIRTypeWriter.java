@@ -177,8 +177,8 @@ public class BIRTypeWriter implements TypeVisitor {
                 throw new AssertionError(
                         "Type serialization is not implemented for finite type with value: " + valueLiteral.getKind());
             }
-            writeTypeCpIndex(valueLiteral.type);
-            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.type);
+            writeTypeCpIndex(valueLiteral.getBType());
+            writeValue(((BLangLiteral) valueLiteral).value, valueLiteral.getBType());
         }
     }
 
@@ -404,6 +404,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeLong(field.symbol.flags);
+            buff.writeBoolean(field.symbol.isDefaultable);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
         }

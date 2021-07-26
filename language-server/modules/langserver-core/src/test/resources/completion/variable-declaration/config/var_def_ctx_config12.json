@@ -9,7 +9,8 @@
       "label": "start",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "start",
       "insertText": "start ",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +18,8 @@
       "label": "wait",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "wait",
       "insertText": "wait ",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +27,8 @@
       "label": "flush",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "flush",
       "insertText": "flush ",
       "insertTextFormat": "Snippet"
     },
@@ -33,7 +36,8 @@
       "label": "from clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
@@ -291,7 +295,8 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -299,7 +304,8 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -307,7 +313,8 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     },
@@ -315,7 +322,8 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
@@ -323,7 +331,8 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -331,7 +340,8 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
     },
@@ -339,7 +349,8 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
     },
@@ -347,7 +358,8 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "trap",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     },
@@ -355,7 +367,8 @@
       "label": "error",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "error",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -363,7 +376,8 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "client",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
@@ -371,7 +385,8 @@
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "object",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
@@ -379,7 +394,8 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
     },
@@ -387,7 +403,8 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
     },
@@ -395,7 +412,8 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -403,7 +421,8 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -411,7 +430,8 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "R",
+      "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
     },
@@ -419,7 +439,8 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
     },
@@ -427,15 +448,17 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
-      "insertText": "object {${1}};",
+      "sortText": "Q",
+      "filterText": "object",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
     },
@@ -443,8 +466,36 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "base64",
       "insertText": "base64 `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "N",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "var1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "result",
+      "kind": "Variable",
+      "detail": "error?",
+      "sortText": "A",
+      "insertText": "result",
       "insertTextFormat": "Snippet"
     },
     {
@@ -457,44 +508,17 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "main",
       "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "result",
-      "kind": "Variable",
-      "detail": "error?",
-      "sortText": "C",
-      "insertText": "result",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "N",
+      "sortText": "O",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "var1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -557,7 +581,8 @@
       "label": "commit",
       "kind": "Snippet",
       "detail": "Statement",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "commit",
       "insertText": "commit;",
       "insertTextFormat": "Snippet"
     }

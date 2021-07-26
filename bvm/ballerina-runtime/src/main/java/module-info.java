@@ -42,7 +42,7 @@ module io.ballerina.runtime {
             io.ballerina.lang, io.ballerina.lang.map, io.ballerina.lang.test, io.ballerina.lang.array,
             io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core,
             io.ballerina.cli, io.ballerina.lang.integer, io.ballerina.lang.bool, io.ballerina.lang.decimal,
-            io.ballerina.lang.floatingpoint;
+            io.ballerina.lang.floatingpoint, io.ballerina.lang.internal;
     exports io.ballerina.runtime.internal.commons to io.ballerina.lang.value;
     exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
             ballerina.test.listener, io.ballerina.cli, io.ballerina.lang;
@@ -63,6 +63,9 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
             io.ballerina.lang.xml, io.ballerina.lang;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
+    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime;
+    exports io.ballerina.runtime.observability.metrics.noop;
+    exports io.ballerina.runtime.observability.tracer.noop;
     exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc;
     exports io.ballerina.runtime.internal.configurable.providers.toml;
 }

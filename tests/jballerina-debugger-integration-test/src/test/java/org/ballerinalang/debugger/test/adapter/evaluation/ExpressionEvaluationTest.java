@@ -96,8 +96,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "xml `<?target data?>`", "<?target data?>", "xml");
         // concatenated XML
         debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>Hello, world!" +
-                "<!--I am a comment--><?target data?>`", "<book>The Lost World</book>Hello, world!" +
-                "<!--I am a comment--><?target data?>", "xml");
+                "<!--I am a comment--><?target data?>`", "XMLSequence (size = 4)", "xml");
     }
 
     @Override
@@ -127,9 +126,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // array variable test
         debugTestRunner.assertExpression(context, ARRAY_VAR, "any[4]", "array");
         // tuple variable test
-        debugTestRunner.assertExpression(context, TUPLE_VAR, "tuple[int,string]", "tuple");
+        debugTestRunner.assertExpression(context, TUPLE_VAR, "tuple[int,string] (size = 2)", "tuple");
         // map variable test
-        debugTestRunner.assertExpression(context, MAP_VAR, "map", "map");
+        debugTestRunner.assertExpression(context, MAP_VAR, "map<string> (size = 4)", "map");
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~π_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
@@ -138,11 +137,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // error variable test
         debugTestRunner.assertExpression(context, ERROR_VAR, "SimpleErrorType", "error");
         // anonymous function variable test
-        debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "function isolated function (string,string) " +
-                                                 "returns (string)",
-                "function");
+        debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "isolated function (string,string) " +
+                "returns (string)", "function");
         // future variable test
-        debugTestRunner.assertExpression(context, FUTURE_VAR, "future", "future");
+        debugTestRunner.assertExpression(context, FUTURE_VAR, "future<int>", "future");
         // object variable test (Person object)
         debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // type descriptor variable test
@@ -158,20 +156,23 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // byte variable test
         debugTestRunner.assertExpression(context, BYTE_VAR, "128", "int");
         // table variable test
-        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee>[3]", "table");
+        debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee> (entries = 3)", "table");
         // stream variable test
         debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
+        // TODO - Need to enable
         // never variable test
-        debugTestRunner.assertExpression(context, NEVER_VAR, "", "xml");
+        // debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
-        debugTestRunner.assertExpression(context, JSON_VAR, "map<json>", "json");
+        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
+        // service object variable test
+        debugTestRunner.assertExpression(context, SERVICE_VAR, "service", "service");
 
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
         // debugTestRunner.assertExpression(context, "gv02_nameWithType", "Ballerina", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map", "map");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map<string> (size = 1)", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -179,7 +180,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_08, "2", "int");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json>", "json");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 2)", "json");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "IL with global var", "string");
 
         // Todo - add test for qualified name references, after adding support
@@ -194,6 +195,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~π", "20", "int");
         // json fields
         debugTestRunner.assertExpression(context, JSON_VAR + ".name", "John", "string");
+        // service object fields
+        debugTestRunner.assertExpression(context, String.format("%s.i", SERVICE_VAR), "5", "int");
+
         // nested field access (chain access)
         debugTestRunner.assertExpression(context, RECORD_VAR + ".grades.maths", "80", "int");
         // optional field access
@@ -350,8 +354,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml
         debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "person", "string");
-        debugTestRunner.assertExpression(context, XML_VAR + ".children()",
-                "<firstname>Praveen</firstname><lastname>Nada</lastname>", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)",
+                "xml");
     }
 
     @Override
@@ -476,9 +480,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
-                "<person gender=\"male\">" +
-                        "<firstname>Praveen</firstname><lastname>Nada</lastname></person><person gender=\"male\">" +
-                        "<firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
+                "XMLSequence (size = 10)", "xml");
 
         //////////////////////////////-------------subtraction------------------//////////////////////////////////////
         // int - int
@@ -701,6 +703,16 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
         // Todo
+    }
+
+    @Override
+    @Test
+    public void remoteCallActionEvaluationTest() throws BallerinaTestException {
+        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR), "John",
+                "string");
+        // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/31096
+        // debugTestRunner.assertExpression(context, String.format("%s->getTotalMarks(78,90)", CLIENT_OBJECT_VAR),
+        // "168", "int");
     }
 
     @AfterClass(alwaysRun = true)

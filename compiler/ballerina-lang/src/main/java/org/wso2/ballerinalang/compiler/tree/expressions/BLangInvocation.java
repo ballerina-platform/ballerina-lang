@@ -166,7 +166,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             this.pos = location;
             this.expr = varRef;
             this.symbol = bSymbol;
-            this.type = retType;
+            this.setBType(retType);
         }
 
         public BFunctionPointerInvocation(BLangInvocation parent, BLangExpression varRef) {
@@ -177,7 +177,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             this.symbol = parent.symbol;
             this.async = parent.async;
             this.expr = varRef;
-            this.type = parent.type;
+            this.setBType(parent.getBType());
         }
 
         @Override
@@ -203,7 +203,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             this.requiredArgs = requiredArgs;
             this.restArgs = restArgs;
             this.symbol = symbol;
-            this.type = type;
+            this.setBType(type);
             this.expr = expr;
             this.async = async;
         }

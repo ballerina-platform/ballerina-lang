@@ -22,7 +22,6 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.bala.BalaCreator;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -61,7 +60,6 @@ public class RecordInBalaTest {
 
     @AfterClass
     public void tearDown() {
-        BalaCreator.clearPackageFromRepository("test-src/bala/test_projects/test_project/", "testorg", "records");
         result = null;
     }
 }

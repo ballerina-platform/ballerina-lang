@@ -25,6 +25,8 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -64,7 +66,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.StringJoiner;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -304,6 +308,16 @@ public class ProjectUtils {
         return dependencies;
     }
 
+    public static Path generateObservabilitySymbolsJar(String packageName) throws IOException {
+        Path jarPath = Files.createTempFile(packageName + "-", "-observability-symbols.jar");
+        Manifest manifest = new Manifest();
+        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        JarOutputStream jarOutputStream = new JarOutputStream(new BufferedOutputStream(
+                new FileOutputStream(jarPath.toFile())), manifest);
+        jarOutputStream.close();
+        return jarPath;
+    }
+
     public static void assembleExecutableJar(Manifest manifest,
                                              List<CompiledJarFile> compiledPackageJarList,
                                              Path targetPath) throws IOException {
@@ -436,6 +450,18 @@ public class ProjectUtils {
             }
         }
         return jarName;
+    }
+
+    /**
+     * Construct and return the thin jar moduleName.
+     *
+     * @param org        organization
+     * @param moduleName module name
+     * @param version    version
+     * @return the moduleName of the thin jar
+     */
+    public static String getThinJarFileName(PackageOrg org, String moduleName, PackageVersion version) {
+        return org.value() + "-" + moduleName + "-" + version.value();
     }
 
     /**

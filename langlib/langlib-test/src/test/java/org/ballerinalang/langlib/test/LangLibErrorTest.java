@@ -103,4 +103,9 @@ public class LangLibErrorTest {
     public void testErrorCallStack() {
         BRunUtil.invoke(compileResult, "testErrorCallStack");
     }
+
+    @Test
+    public void testRetriableTest() {
+        BRunUtil.invoke(compileResult, "testRetriableTest");
+    }
 }

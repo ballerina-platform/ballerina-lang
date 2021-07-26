@@ -76,8 +76,8 @@ public class BLangObjectConstructorExpression extends BLangExpression {
         }
 
         sb.append("object ");
-        if (referenceType != null && referenceType.type.name != null) {
-            sb.append(referenceType.type.name.getValue());
+        if (referenceType != null && referenceType.getBType().name != null) {
+            sb.append(referenceType.getBType().name.getValue());
         }
         sb.append(" {");
         sb.append(this.classNode.toString());

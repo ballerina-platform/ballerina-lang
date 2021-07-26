@@ -84,3 +84,14 @@ public type Cat object {
 public type Annot record {|
     string host;
 |};
+
+public class EmployeeObj {
+    string name;
+    public string address = "No 20, Palm Grove";
+    public int age;
+
+    public function init(string name, int age) {
+        self.name = name;
+        self.age = age;
+    }
+}

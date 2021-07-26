@@ -52,7 +52,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -89,22 +89,21 @@ public class ExpressionTypeTest {
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 13, 19, 42);
+        TypeSymbol type = getExprType(19, 15, 19, 42);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
 
-    @Test(dataProvider = "TemplateExprProvider")
-    public void testTemplateExprs(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
-        assertType(sLine, sCol, eLine, eCol, kind);
+    @Test
+    public void testStringTemplateExpr() {
+        assertType(23, 15, 23, 36, STRING);
     }
 
-    @DataProvider(name = "TemplateExprProvider")
-    public Object[][] getTemplateExprPos() {
-        return new Object[][]{
-                {23, 15, 23, 36, STRING},
-                {24, 12, 24, 45, XML},
-        };
+    @Test
+    public void testXMLTemplateExpr() {
+        TypeSymbol type = getExprType(24, 12, 24, 45);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML_ELEMENT);
     }
 
     @Test
@@ -359,6 +358,12 @@ public class ExpressionTypeTest {
 
         exprType = getExprType(166, 12, 166, 42);
         assertEquals(exprType.typeKind(), STRING);
+    }
+
+    @Test
+    public void testFuncCallForDependentlyTypedSignatures() {
+        TypeSymbol exprType = getExprType(172, 12, 172, 35);
+        assertEquals(exprType.typeKind(), INT);
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {

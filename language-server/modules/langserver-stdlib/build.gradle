@@ -18,16 +18,12 @@
 apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 dependencies {
-    distributionBala project(path: ':ballerina-io', configuration: 'distributionBala')
-
     balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-cli')
-    implementation project(':ballerina-io')
 
     testCompile 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-core')
     testCompile project(':ballerina-cli')

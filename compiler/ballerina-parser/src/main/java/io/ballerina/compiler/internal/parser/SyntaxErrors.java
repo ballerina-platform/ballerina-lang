@@ -112,6 +112,9 @@ public class SyntaxErrors {
             case IMPORT_SUB_VERSION:
             case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
+            case ATTACH_POINT_IDENT:
+            case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
+                return DiagnosticErrorCode.ERROR_MISSING_ATTACH_POINT_NAME;
             case SIMPLE_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_BUILTIN_TYPE;
             case REQUIRED_PARAM:
@@ -174,6 +177,7 @@ public class SyntaxErrors {
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
             case NAMED_ARG_BINDING_PATTERN:
+            case TYPE_DESC_RHS_OR_BP_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -254,6 +258,7 @@ public class SyntaxErrors {
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
             case ERROR_CONSTRUCTOR_RHS:
+            case ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
             case OBJECT_FIELD_RHS:
@@ -377,8 +382,6 @@ public class SyntaxErrors {
             case ANNOTATION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_KEYWORD;
             case TYPE_KEYWORD:
-            case ATTACH_POINT_IDENT:
-            case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_KEYWORD;
             case RECORD_KEYWORD:
             case RECORD_FIELD:
@@ -513,14 +516,11 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
             case NAMED_WORKER_DECL:
-            case PARAMETERIZED_TYPE:
+            case MAP_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_MAP_KEYWORD;
-            case FUTURE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_FUTURE_KEYWORD;
-            case TYPEDESC_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_TYPEDESC_KEYWORD;
             case ERROR_KEYWORD:
             case ERROR_BINDING_PATTERN:
+            case PARAMETERIZED_TYPE:
                 return DiagnosticErrorCode.ERROR_MISSING_ERROR_KEYWORD;
             case STREAM_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_STREAM_KEYWORD;
@@ -665,9 +665,13 @@ public class SyntaxErrors {
      * Converts the invalid node into a list of {@code STMinutiae} nodes.
      * <p>
      * Here are the steps:
+     * <br/>
      * 1) Iterates through all the tokens in the invalid node. For each token:
+     * <br/>
      * 2) Add the leading minutiae to the list
+     * <br/>
      * 3) Create a new token without leading or trailing minutiae and add it to the list
+     * <br/>
      * 4) Add the trailing minutiae to the list
      *
      * @param invalidNode the invalid node to be converted

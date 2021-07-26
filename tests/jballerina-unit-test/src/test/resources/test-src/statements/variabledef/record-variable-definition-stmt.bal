@@ -319,7 +319,11 @@ type ObjectRestRecord record {|
     Object...;
 |};
 
-function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean] {
+type IntStringMap map<int|string>;
+
+type ObjectMap map<Object>;
+
+function testRestParameterType() returns [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean] {
     IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
     IntRestRecord { name: name1, ...other1 } = rec1;
     var { name: name2, ...other2 } = rec1;
@@ -330,11 +334,174 @@ function testRestParameterType() returns [boolean, boolean, boolean, boolean, bo
     map<string> stringMap = { a: "A", b: "B" };
     map<string> { a, ...other6 } = stringMap;
 
+    IntStringMap map1 = { name: "A", "age": 19, "token": 200 };
+    IntStringMap {name: name6, ...other7} = map1;
+    var { name: name7, ...other8} = map1;
+
+    IntStringMap|ObjectMap map2 = map1;
+    IntStringMap|ObjectMap { name: name8, ...other9 } = map2;
+
     any a1 = other1;
     any a2 = other2;
     any a5 = other5;
     any a6 = other6;
+    any a7 = other7;
+    any a8 = other8;
+    any a9 = other9;
 
-    return [a1 is map<anydata|error>, a2 is map<int>, a5 is map<any|error>,
-                                                                    a5 is map<anydata>, a6 is map<anydata|error>];
+    return [a1 is record{|never name?; boolean married; int...;|}, a2 is record{|int...;|},
+    a5 is record{|never name?; boolean married; int|Object...;|}, a5 is map<anydata>,
+    a6 is record{|never a?; string...;|}, a7 is record {| never name?; (int|string)...; |},
+    a8 is record {| never name?; (int|string)...; |}, a9 is record {| never name?; (int|string|Object)...; |}];
+}
+
+type XY record {
+    int x;
+    int y;
+};
+
+// any field other than x and y
+type NotXY record {
+    never x?;
+    never y?;
+};
+
+function testInferredType(XY xy) returns NotXY {
+    var {x: _, y: _, ...extra} = xy;
+    return extra;
+}
+
+function testInferredResType() {
+    NotXY extra = testInferredType({x: 10, y: 20, "foo": "bar"});
+    assertEquality(extra["foo"], "bar");
+}
+
+function testRecordDestructuring1() {
+    var {s: s, i: i, ...rest} = recordReturningFunc(10);
+    int num1 = <int>rest.get("f");
+    assertEquality(num1, 10);
+    {s: s, i: i, ...rest} = recordReturningFunc((20));
+    int num2 = <int>rest["f"];
+    assertEquality(num2, 20);
+}
+
+function recordReturningFunc(int num) returns record { string s; int? i; } {
+    return {s: "hello", i: 10, "f": num};
+}
+
+type Emp record {|
+    string name;
+    int age;
+    string...;
+|};
+
+function testRecordDestructuring2() {
+    string stdName;
+    int age;
+    map<string> details;
+    {name: stdName, age, ...details} = <Emp>{name: "Jane Doe", age: 10, "foo": "bar"};
+    assertEquality("bar", details["foo"]);
+}
+
+type StudentRecord record {
+    int? Id;
+    string studentName;
+};
+
+public record {
+    int Id;
+    string studentName;
+} {Id, ...studentDetail} = {Id: 1001, studentName: "John", "Age": 24, "surName": "Paker"};
+
+public function testRecordDestructuring3() {
+    record {
+        int? Id;
+        string studentName;
+    } {Id, ...studentDetail} = getStudentRecord(1);
+
+    assertEquality("John", <string>studentDetail["studentName"]);
+    assertEquality(24, <int>studentDetail["Age"]);
+    assertEquality("Paker", <string>studentDetail["surName"]);
+}
+
+function getStudentRecord(int? id) returns record { int? Id; string studentName; } {
+    return {Id: id, studentName: "John", "Age": 24, "surName": "Paker"};
+}
+
+type SchemaA record {|
+    string name;
+    int age;
+    string...;
+|};
+
+type SchemaB record {|
+    string name;
+    boolean age;
+    boolean married;
+    int...;
+|};
+
+function testRestFieldResolvingWithUnion() {
+    SchemaA recA = {name: "David", age:10, "foo":"bar"};
+    SchemaA|SchemaB {name, ...rest} = recA;
+
+    var age = rest.age;
+    var fooVal = rest["foo"];
+    assertEquality(10, age);
+    assertEquality("bar", fooVal);
+
+    rest.age = true;
+    rest["foo"] = 100;
+    age = rest.age;
+    fooVal = rest["foo"];
+    assertEquality(true, age);
+    assertEquality(100, fooVal);
+
+    rest.married = true;
+    assertEquality(true, rest?.married);
+}
+
+public function testClosedRecordDefinedRestField() {
+    string fullName;
+    boolean isMarried;
+    map<string> rest1;
+    map<never> rest2;
+    record {| never name?; boolean married; never...; |} rest3;
+
+    Person p = {name: "Jane Doe", married: false};
+    {name: fullName, married: isMarried, ...rest1} = p;
+
+    record {| never name?; never married?; |} rec = {};
+    rest2 = rec;
+    {name: fullName, married: isMarried, ...rest2} = p;
+    {name: fullName, ...rest3} = p;
+    assertEquality(false, rest3.married);
+}
+
+function testRestFieldResolving() {
+    testInferredResType();
+    testRecordDestructuring1();
+    testRecordDestructuring2();
+    testRecordDestructuring3();
+    testRestFieldResolvingWithUnion();
+    testClosedRecordDefinedRestField();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

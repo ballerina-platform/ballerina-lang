@@ -23,3 +23,9 @@ const map<int> CIMap1 = { v1 : 1 + 2, v2 : 2 * 5}; // const expressions are not 
 const int CI3  = 1/0; // invalid constant expression, reason '/ by zero'
 
 const int CI4  = 0/0; // invalid constant expression, reason '/ by zero'
+
+const int CI5  = *(5 + 10); // expression is not a constant expression
+
+const string CS1 = +("hello" + "world"); // operator '+' not defined for 'string'
+
+const boolean CB1 = !(10); // operator '!' not defined for 'int'

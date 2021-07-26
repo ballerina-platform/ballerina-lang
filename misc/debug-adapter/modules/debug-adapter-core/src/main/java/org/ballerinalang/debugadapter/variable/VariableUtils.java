@@ -23,6 +23,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -141,6 +142,21 @@ public class VariableUtils {
     }
 
     /**
+     * Verifies whether a given JDI value is a ballerina service variable instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina service variable instance.
+     */
+     static boolean isService(Value value) {
+        try {
+            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
+                (JVMValueType.BTYPE_SERVICE.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
+    }
+
+    /**
      * Verifies whether a given JDI value is a ballerina JSON variable instance.
      *
      * @param value JDI value instance.
@@ -200,11 +216,35 @@ public class VariableUtils {
      * @return the JDI method instance of a any given method which exists in the given JDI object reference.
      */
     public static Optional<Method> getMethod(Value parent, String methodName) throws DebugVariableException {
+        return getMethod(parent, methodName, "");
+    }
+
+    /**
+     * Returns a JDI method instance of a any given method which exists in the given JDI object reference.
+     *
+     * @param parent     parent JDI value instance.
+     * @param methodName method name.
+     * @param signature  method signature.
+     * @return the JDI method instance of a any given method which exists in the given JDI object reference.
+     */
+    public static Optional<Method> getMethod(Value parent, String methodName, String signature)
+        throws DebugVariableException {
+        List<Method> methods = new ArrayList<>();
         if (!(parent instanceof ObjectReference)) {
             return Optional.empty();
         }
         ObjectReference parentRef = (ObjectReference) parent;
-        List<Method> methods = parentRef.referenceType().methodsByName(methodName);
+
+        if (signature.isEmpty()) {
+            methods = parentRef.referenceType().methodsByName(methodName);
+        } else {
+            List<Method> signatureMethods = parentRef.referenceType().methodsByName(methodName);
+            for (Method method : signatureMethods) {
+                if (method.signature().matches(signature)) {
+                    methods.add(method);
+                }
+            }
+        }
         if (methods.isEmpty()) {
             throw new DebugVariableException(String.format("No methods found for name: \"%s\", in %s",
                     methodName, parent));

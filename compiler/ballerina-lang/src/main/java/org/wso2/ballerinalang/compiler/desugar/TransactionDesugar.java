@@ -205,10 +205,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BLangStatementExpression statementExpression =
                 createStatementExpression(transactionNode.transactionBody, nilLiteral);
-        statementExpression.type = symTable.nilType;
+        statementExpression.setBType(symTable.nilType);
 
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
-        trapExpr.type = transactionReturnType;
+        trapExpr.setBType(transactionReturnType);
         trapExpr.expr = statementExpression;
 
         //error? $trapResult = trap <Transaction Body>
@@ -235,7 +235,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         BLangTypeTestExpr isErrorTest =
                 ASTBuilderUtil.createTypeTestExpr(pos, trapResultRef, desugar.getErrorTypeNode());
-        isErrorTest.type = symTable.booleanType;
+        isErrorTest.setBType(symTable.booleanType);
 
         //if($trapResult$ is error) {
         //     fail $trapResult$;
@@ -418,15 +418,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BType errorType = transactionErrorSymbol.type;
 
         BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
-        trxErrorTypeNode.type = errorType;
+        trxErrorTypeNode.setBType(errorType);
         BLangSimpleVarRef trxResultRef = ASTBuilderUtil.createVariableRef(pos, trxFuncResultSymbol);
 
         // $trxError$ is TransactionError
         BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, trxResultRef, trxErrorTypeNode);
-        testExpr.type = symTable.booleanType;
+        testExpr.setBType(symTable.booleanType);
 
         BLangGroupExpr transactionErrorCheckGroupExpr = new BLangGroupExpr();
-        transactionErrorCheckGroupExpr.type = symTable.booleanType;
+        transactionErrorCheckGroupExpr.setBType(symTable.booleanType);
         // !($trxError$ is TransactionError)
         transactionErrorCheckGroupExpr.expression =  desugar.createNotBinaryExpression(pos, testExpr);
 
@@ -458,7 +458,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangExpressionStmt transactionExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         transactionExprStmt.pos = pos;
         transactionExprStmt.expr = checkedExpr;
-        transactionExprStmt.type = symTable.nilType;
+        transactionExprStmt.setBType(symTable.nilType);
         rollbackCheck.body.stmts.add(transactionExprStmt);
 
         // at this point;
@@ -512,7 +512,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         cleanUpTrx.expr = createCleanupTrxStmt(pos, trxBlockId);
         BLangStatementExpression rollbackStmtExpr = createStatementExpression(rollbackBlockStmt,
                 ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
-        rollbackStmtExpr.type = symTable.nilType;
+        rollbackStmtExpr.setBType(symTable.nilType);
 
         //at this point,
         //
@@ -578,9 +578,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // }
         BLangIf commitResultValidationIf = ASTBuilderUtil.createIfStmt(pos, failureHandlerBlockStatement);
         BLangGroupExpr commitResultValidationGroupExpr = new BLangGroupExpr();
-        commitResultValidationGroupExpr.type = symTable.booleanType;
+        commitResultValidationGroupExpr.setBType(symTable.booleanType);
         BLangValueType stringType = (BLangValueType) TreeBuilder.createValueTypeNode();
-        stringType.type = symTable.stringType;
+        stringType.setBType(symTable.stringType);
         stringType.typeKind = TypeKind.STRING;
         commitResultValidationGroupExpr.expression = ASTBuilderUtil.createTypeTestExpr(pos, commitResultVarRef,
                 stringType);
@@ -602,7 +602,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         //}
         BLangIf failureValidationIf = ASTBuilderUtil.createIfStmt(pos, commitBlockStatement);
         BLangGroupExpr failureValidationGroupExpr = new BLangGroupExpr();
-        failureValidationGroupExpr.type = symTable.booleanType;
+        failureValidationGroupExpr.setBType(symTable.booleanType);
         BLangSimpleVarRef failureValidationExprVarRef = ASTBuilderUtil.createVariableRef(pos,
                 isTransactionFailedVariable.symbol);
         List<BType> paramTypes = new ArrayList<>();
@@ -631,7 +631,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         // }
         BLangStatementExpression stmtExpr = createStatementExpression(commitBlockStatement,
                 outputVarRef);
-        stmtExpr.type = symTable.errorOrNilType;
+        stmtExpr.setBType(symTable.errorOrNilType);
         return stmtExpr;
     }
 

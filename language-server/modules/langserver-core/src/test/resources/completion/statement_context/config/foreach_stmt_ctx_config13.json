@@ -141,6 +141,25 @@
       }
     },
     {
+      "label": "concat(string... strs)(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "concat",
+      "insertText": "concat(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "equalsIgnoreCaseAscii(string str2)(boolean)",
       "kind": "Function",
       "detail": "Function",
@@ -213,13 +232,13 @@
       }
     },
     {
-      "label": "iterator()(object {public isolated function next() returns record {| string value; |}? ;})",
+      "label": "iterator()(object {public isolated function next() returns record {| string:Char value; |}? ;})",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| string value; |}? ;}`   \n- a new iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| string:Char value; |}? ;}`   \n- a new iterator object  \n  \n"
         }
       },
       "sortText": "D",

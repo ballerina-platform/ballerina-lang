@@ -277,6 +277,15 @@ public abstract class AbstractParserErrorHandler {
     }
 
     /**
+     * Returns the context stack.
+     *
+     * @return context stack
+     */
+    protected ArrayDeque<ParserRuleContext> getContextStack() {
+        return this.ctxStack;
+    }
+
+    /**
      * Search for matching token sequences within the given alternative paths, and find the most optimal solution.
      *
      * @param lookahead        Position of the next token to consider, relative to the position of the original error

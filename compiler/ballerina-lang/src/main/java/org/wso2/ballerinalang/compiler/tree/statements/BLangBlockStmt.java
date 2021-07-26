@@ -38,7 +38,8 @@ public class BLangBlockStmt extends BLangStatement implements BlockStatementNode
 
     public BVarSymbol mapSymbol;
 
-    public boolean isBreakable;
+    public FailureBreakMode failureBreakMode = FailureBreakMode.NOT_BREAKABLE;
+
     /**
      * We need to keep a reference to the block statements scope here.
      * This is the only place where we have a link from the node to a scope
@@ -79,5 +80,21 @@ public class BLangBlockStmt extends BLangStatement implements BlockStatementNode
         StringJoiner sj = new StringJoiner("; ");
         this.stmts.forEach(stmt -> sj.add(stmt.toString()));
         return sj.toString();
+    }
+
+    /**
+     * Mode of transferring control flow across block statements from {@code BLangFail}.
+     * Supported Types:
+     * <ul>
+     * <li>NOT_BREAKABLE - Do not transfer control flow</li>
+     * <li>BREAK_WITHIN_BLOCK - Transfer control flow to the end of current block statement</li>
+     * <li>BREAK_TO_OUTER_BLOCK - Transfer control flow to the immediate outer block statement</li>
+     * </ul>
+     * @since Swan Lake
+     */
+    public enum FailureBreakMode {
+        NOT_BREAKABLE,
+        BREAK_WITHIN_BLOCK,
+        BREAK_TO_OUTER_BLOCK
     }
 }

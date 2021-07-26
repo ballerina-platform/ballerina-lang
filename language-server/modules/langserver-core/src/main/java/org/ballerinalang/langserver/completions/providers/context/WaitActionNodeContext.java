@@ -137,10 +137,13 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
         for (LSCompletionItem lsCompletionItem : completionItems) {
             CompletionItem completionItem = lsCompletionItem.getCompletionItem();
             int rank;
-            if (lsCompletionItem instanceof SymbolCompletionItem
-                    && ((SymbolCompletionItem) lsCompletionItem).getSymbol() != null) {
+            if (this.isValidSymbolCompletionItem(lsCompletionItem)) {
                 SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) lsCompletionItem;
-                Symbol symbol = symbolCompletionItem.getSymbol();
+                /*
+                 * Since the validity check considers the empty check of the symbol, we do not need to add the
+                 * isPresent check here explicitly
+                 */
+                Symbol symbol = symbolCompletionItem.getSymbol().get();
                 if (symbol.kind() == WORKER) {
                     rank = 1;
                 } else if (symbol.kind() == VARIABLE
@@ -154,5 +157,10 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             }
             completionItem.setSortText(SortingUtil.genSortText(rank));
         }
+    }
+    
+    private boolean isValidSymbolCompletionItem(LSCompletionItem lsCompletionItem) {
+        return lsCompletionItem instanceof SymbolCompletionItem
+                && ((SymbolCompletionItem) lsCompletionItem).getSymbol().isPresent();
     }
 }

@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - stage-slbeta1
   workflow_dispatch:
 
 jobs:
@@ -17,9 +16,10 @@ jobs:
           uses: actions/checkout@v2
 
       -   name: Set up JDK 11
-          uses: actions/setup-java@v1
+          uses: actions/setup-java@v2
           with:
-            java-version: 11
+            distribution: 'adopt' 
+            java-version: '11'
 
       -   name: Initialize Sub Modules
           run: git submodule update --init
@@ -35,8 +35,8 @@ jobs:
 
       -   name: Build and Publish
           env:
-            packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
-            packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
+            publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
+            publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           run: |
             ./gradlew clean build publish -x createJavadoc --scan --continue --rerun-tasks
             ./gradlew createCodeCoverageReport

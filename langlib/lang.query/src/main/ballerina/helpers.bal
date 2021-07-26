@@ -97,7 +97,7 @@ function toArray(stream<Type, CompletionType> strm, Type[] arr) returns Type[]|e
     return arr;
 }
 
-function toXML(stream<Type, CompletionType> strm) returns xml {
+function toXML(stream<Type, CompletionType> strm) returns xml|error {
     xml result = 'xml:concat();
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
@@ -107,10 +107,13 @@ function toXML(stream<Type, CompletionType> strm) returns xml {
         }
         v = strm.next();
     }
+    if (v is error) {
+        return v;
+    }
     return result;
 }
 
-function toString(stream<Type, CompletionType> strm) returns string {
+function toString(stream<Type, CompletionType> strm) returns string|error {
     string result = "";
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
@@ -119,6 +122,9 @@ function toString(stream<Type, CompletionType> strm) returns string {
             result += value;
         }
         v = strm.next();
+    }
+    if (v is error) {
+        return v;
     }
     return result;
 }

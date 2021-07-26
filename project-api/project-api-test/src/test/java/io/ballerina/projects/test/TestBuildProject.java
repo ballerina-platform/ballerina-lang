@@ -79,7 +79,7 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
-public class TestBuildProject {
+public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
     private final String dummyContent = "function foo() {\n}";
 
@@ -913,6 +913,52 @@ public class TestBuildProject {
         Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 9);
     }
 
+    @Test(description = "test editing Ballerina.toml")
+    public void testModifyDependenciesToml() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageDep =
+                project.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()
+                        .stream().filter(resolvedPackageDependency -> resolvedPackageDependency
+                        .packageInstance().packageName().toString().equals("package_dep")).findFirst().get();
+        Assert.assertEquals(packageDep.packageInstance().packageVersion().toString(), "0.1.0");
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
+                .get().modify().withContent("" +
+                        "[[dependency]]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"package_dep\"\n" +
+                        "version = \"0.1.1\"\n").apply();
+        TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 1);
+
+        PackageCompilation newCompilation = project.currentPackage().getCompilation();
+        ResolvedPackageDependency packageDepNew =
+                project.currentPackage().getResolution().dependencyGraph().toTopologicallySortedList()
+                        .stream().filter(resolvedPackageDependency -> resolvedPackageDependency
+                        .packageInstance().packageName().toString().equals("package_dep")).findFirst().get();
+        Assert.assertEquals(packageDepNew.packageInstance().packageVersion().toString(), "0.1.1");
+        Assert.assertEquals(newCompilation.diagnosticResult().diagnosticCount(), 1);
+
+        // Set the old version again
+        project.currentPackage().dependenciesToml()
+                .get().modify().withContent("" +
+                "[[dependency]]\n" +
+                "org = \"foo\"\n" +
+                "name = \"package_dep\"\n" +
+                "version = \"0.1.0\"\n").apply();
+        PackageCompilation newCompilation2 = project.currentPackage().getCompilation();
+        Assert.assertEquals(newCompilation2.diagnosticResult().diagnosticCount(), 0);
+    }
+
     @Test(description = "tests if other documents can be edited ie. Dependencies.toml, Package.md")
     public void testOtherDocumentModify() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
@@ -1125,7 +1171,7 @@ public class TestBuildProject {
 
     @Test
     public void testEditDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_module_edit_tests/package_with_dependencies");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_with_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b, string c) returns string {\n" +
                 "\treturn a + b;\n" +
                 "}\n";
@@ -1160,7 +1206,7 @@ public class TestBuildProject {
 
     @Test
     public void testRemoveDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_module_edit_tests/package_with_dependencies");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_with_dependencies");
 
         // 1) Initialize the project instance
         BuildProject project = null;
@@ -1193,7 +1239,7 @@ public class TestBuildProject {
     @Test
     public void testEditTransitivelyDependantModuleDocument() {
         Path projectPath = RESOURCE_DIRECTORY
-                .resolve("projects_for_module_edit_tests/package_with_transitive_dependencies");
+                .resolve("projects_for_edit_api_tests/package_with_transitive_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
                 "\treturn a + b;\n" +
                 "}\n";
@@ -1230,7 +1276,7 @@ public class TestBuildProject {
     @Test
     public void testEditPackageWithCyclicDependency() {
         Path projectPath = RESOURCE_DIRECTORY
-                .resolve("projects_for_module_edit_tests/package_with_cyclic_dependencies");
+                .resolve("projects_for_edit_api_tests/package_with_cyclic_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
                 "\treturn a + b;\n" +
                 "}\n";

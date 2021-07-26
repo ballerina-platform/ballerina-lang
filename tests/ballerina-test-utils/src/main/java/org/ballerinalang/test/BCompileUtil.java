@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -58,18 +59,38 @@ public class BCompileUtil {
     private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
     public static Project loadProject(String sourceFilePath) {
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        return loadProject(sourceFilePath, buildOptionsBuilder.build());
+    }
+
+    public static Project loadProject(String sourceFilePath, BuildOptions buildOptions) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.build());
+        return ProjectLoader.loadProject(projectPath, buildOptions);
     }
 
     public static CompileResult compile(String sourceFilePath) {
         Project project = loadProject(sourceFilePath);
+
+        Package currentPackage = project.currentPackage();
+        JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            return new CompileResult(currentPackage, jBallerinaBackend);
+        }
+
+        CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
+        invokeModuleInit(compileResult);
+        return compileResult;
+    }
+
+    public static CompileResult compileOffline(String sourceFilePath) {
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions buildOptions = buildOptionsBuilder.offline(Boolean.TRUE).build();
+        Project project = loadProject(sourceFilePath, buildOptions);
 
         Package currentPackage = project.currentPackage();
         JBallerinaBackend jBallerinaBackend = jBallerinaBackend(currentPackage);
@@ -116,6 +137,10 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileAndCacheBala(String sourceFilePath) {
+        return compileAndCacheBala(sourceFilePath, testBuildDirectory.resolve(DIST_CACHE_DIRECTORY));
+    }
+
+    public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
@@ -134,7 +159,7 @@ public class BCompileUtil {
         }
 
         Path balaCachePath = balaCachePath(currentPackage.packageOrg().toString(),
-                currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
+                currentPackage.packageName().toString(), currentPackage.packageVersion().toString(), repoPath);
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaCachePath);
         Path balaFilePath;
         try {
@@ -177,7 +202,8 @@ public class BCompileUtil {
                                                 String org,
                                                 String pkgName,
                                                 String version) throws IOException {
-        Path targetPath = balaCachePath(org, pkgName, version).resolve("any");
+        Path targetPath = balaCachePath(org, pkgName, version, testBuildDirectory.resolve(DIST_CACHE_DIRECTORY))
+                .resolve("any");
         if (Files.isDirectory(targetPath)) {
             ProjectUtils.deleteDirectory(targetPath);
         }
@@ -208,10 +234,10 @@ public class BCompileUtil {
 
     private static Path balaCachePath(String org,
                                       String pkgName,
-                                      String version) {
+                                      String version,
+                                      Path repoPath) {
         try {
-            Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path balaDirPath = distributionCache.resolve("bala")
+            Path balaDirPath = repoPath.resolve("bala")
                     .resolve(org)
                     .resolve(pkgName)
                     .resolve(version);

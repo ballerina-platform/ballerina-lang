@@ -66,7 +66,8 @@ public class BindgenCommandTest extends CommandTest {
             "specified in the Ballerina.toml file")
     public void testExistingPlatformLibraries() throws IOException, MavenResolverException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.Object", "org.apache.log4j.Logger"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.Object", "org.apache.log4j.Logger"};
 
         // Platform libraries specified through maven dependencies should be automatically resolved.
         // Explicitly add a jar to test the platform libraries specified as a path.
@@ -78,7 +79,7 @@ public class BindgenCommandTest extends CommandTest {
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina project detected at:"));
+        Assert.assertTrue(output.contains("Ballerina package detected at:"));
         Assert.assertTrue(output.contains("Following jars were added to the classpath:"));
         Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
         Assert.assertTrue(output.contains("commons-logging-1.1.1.jar"));
@@ -136,27 +137,43 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test a scenario where the output path resides inside a project")
     public void testOutputPathInsideProject() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject", "tests").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.String"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.String"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("Ballerina project detected at: "));
+        Assert.assertTrue(output.contains("Ballerina package detected at: "));
+        File file = new File(Paths.get(testResources.toString(), "balProject", "modules", "java.lang",
+                "String.bal").toString());
+        Assert.assertTrue(file.exists());
     }
 
-    @Test(description = "Test if the correct error is given when the output path is provided with the modules flag")
-    public void testOutputPathWithModulesFlag() throws IOException {
+    @Test(description = "Test if the directory flag works as expected for generating bindings inside a project")
+    public void testDirectoryFlagInsideProject() {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "-m", "java.lang.Object"};
+        String[] args = {"-o=" + projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
-        String output = readOutput(true);
-        Assert.assertTrue(output.contains("error: output path is not supported together with the modules flag"));
+        File file = new File(Paths.get(projectDir, "Object.bal").toString());
+        Assert.assertTrue(file.exists());
+    }
+
+    @Test(description = "Test if the directory flag works as expected for generating bindings outside a project")
+    public void testDirectoryFlagOutsideProject() {
+        String[] args = {"-o=" + testResources.toString(), "java.lang.Object"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        File file = new File(Paths.get(testResources.toString(), "Object.bal").toString());
+        Assert.assertTrue(file.exists());
     }
 
     @Test(description = "Test if the correct error is given when no class names are provided")
@@ -174,22 +191,23 @@ public class BindgenCommandTest extends CommandTest {
 
     @Test(description = "Test if the correct error is given when a user tries to generate " +
             "module level mappings outside a ballerina project")
-    public void testModuleFlagWithoutProject() throws IOException {
-        String[] args = {"-m", "java.lang.Object"};
-
+    public void testModuleMappingsWithoutProject() throws IOException {
+        String[] args = {"java.lang.Object"};
+        String projectDir = Paths.get(testResources.toString()).toString();
+        System.setProperty("user.dir", projectDir);
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
         String output = readOutput(true);
-        Assert.assertTrue(output.contains("error: module level mappings can only be generated " +
-                "inside a ballerina project"));
+        Assert.assertTrue(output.contains("unable to detect a Ballerina package: bindings should either be"));
     }
 
     @Test(description = "Test if the correct error is given for invalid class names")
     public void testInvalidClassNames() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.Objec", "java.lang.Apple", "java.lang.String"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.Objec", "java.lang.Apple", "java.lang.String"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -205,7 +223,8 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for failed method generations")
     public void testFailedMethodGenerations() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "org.ballerinalang.bindgen.MethodsTestResource", "java.invalid.Class"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"org.ballerinalang.bindgen.MethodsTestResource", "java.invalid.Class"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
@@ -223,7 +242,8 @@ public class BindgenCommandTest extends CommandTest {
     @Test(description = "Test if the correct error is given for a failure in the project loading")
     public void testFailedProjectLoad() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-o=" + projectDir, "java.lang.Object"};
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.lang.Object"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
@@ -234,7 +254,7 @@ public class BindgenCommandTest extends CommandTest {
                 bindgenCommand.execute();
                 String output = readOutput(true);
                 file.setReadable(true);
-                Assert.assertTrue(output.contains("error: unable to load the project ["));
+                Assert.assertTrue(output.contains("error: unable to load the Ballerina package ["));
                 Assert.assertTrue(output.contains("Ballerina.toml' does not have read permissions"));
             }
         }
@@ -258,6 +278,29 @@ public class BindgenCommandTest extends CommandTest {
                 Assert.assertTrue(output.contains("Object.bal (Permission denied)"));
             }
         }
+    }
+
+    @Test(description = "Test to make sure only complete class implementations are not replaced by empty bindings")
+    public void testOverwriting() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+
+        // Scenario 1: ensure that complete implementations are not replaced by empty bindings
+        String[] args1 = {"-o" + projectDir, "java.io.FileInputStream"};
+        BindgenCommand bindgenCommand1 = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand1).parseArgs(args1);
+        bindgenCommand1.execute();
+        String balFileContent1 = Files.readString(Paths.get(projectDir, "File.bal"));
+        Assert.assertFalse(balFileContent1.contains("This is an empty Ballerina class autogenerated to represent " +
+                "the `java.io.File` Java class."));
+
+        // Scenario 2: ensure that bindings are replaced by complete implementations
+        String[] args2 = {"-o" + projectDir, "java.io.File"};
+        BindgenCommand bindgenCommand2 = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand2).parseArgs(args2);
+        bindgenCommand2.execute();
+        String balFileContent2 = Files.readString(Paths.get(projectDir, "File.bal"));
+        Assert.assertTrue(balFileContent2.contains("The function that maps to the `compareTo` method " +
+                "of `java.io.File`."));
     }
 
     @AfterClass

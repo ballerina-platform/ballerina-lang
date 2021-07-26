@@ -90,7 +90,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     private int warnCount;
     private TreeSet<Diagnostic> diagnostics;
 
-    public RepoHierarchy repos;
     public ModuleContextDataHolder moduleContextDataHolder;
 
     public BLangPackage() {

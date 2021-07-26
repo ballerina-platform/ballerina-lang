@@ -28,6 +28,8 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -188,7 +190,7 @@ public class BuildCommand implements BLauncherCmd {
         if (FileUtils.hasExtension(this.projectPath)) {
             if (coverage != null && coverage) {
                 this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
-                        "and continuing the test run...");
+                        "and continuing the test run...\n");
             }
             coverage = false;
         }
@@ -226,6 +228,15 @@ public class BuildCommand implements BLauncherCmd {
                 project = BuildProject.load(this.projectPath, buildOptions);
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
+
+        if (!(this.compile && project.currentPackage().compilerPluginToml().isPresent())) {
+            if (isProjectEmpty(project)) {
+                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file", null,
+                        false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -295,6 +306,16 @@ public class BuildCommand implements BLauncherCmd {
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean isProjectEmpty(Project project) {
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BuildOptions constructBuildOptions() {

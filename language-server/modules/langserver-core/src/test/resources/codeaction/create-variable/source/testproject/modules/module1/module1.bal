@@ -7,3 +7,7 @@ public function getCountry() returns module2:Country {
 public function getCountryWithError() returns module2:Country|error {
     return {name: "Sri Lanka"};
 }
+
+function callGetCountry() {
+    getCountry();
+}

@@ -31,6 +31,7 @@ import org.ballerinalang.bindgen.utils.BindgenMvnResolver;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -248,16 +249,19 @@ public class BindingsGenerator {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance, env);
-                        String filePath;
+                        Path filePath;
                         if (env.getModulesFlag()) {
                             String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
                             createDirectory(outputFile);
-                            filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
+                            filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION);
                         } else {
-                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
-                                    + BAL_EXTENSION).toString();
+                            filePath = Paths.get(modulePath.toString(), jClass.getShortClassName() + BAL_EXTENSION);
                         }
-                        outputSyntaxTreeFile(jClass, env, filePath, false);
+                        // Prevent the overwriting of existing class implementations with partially generated classes.
+                        if (Files.exists(filePath) && !env.isDirectJavaClass()) {
+                            return;
+                        }
+                        outputSyntaxTreeFile(jClass, env, filePath.toString(), false);
                         outStream.println("\t" + c);
                     }
                 }

@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -90,12 +92,17 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literal) {
-        this.result = new BLangConstantValue(literal.value, literal.type);
+        this.result = new BLangConstantValue(literal.value, literal.getBType());
     }
 
     @Override
     public void visit(BLangNumericLiteral literal) {
-        this.result = new BLangConstantValue(literal.value, literal.type);
+        this.result = new BLangConstantValue(literal.value, literal.getBType());
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
+        this.result = ((BConstantSymbol) constRef.symbol).value;
     }
 
     @Override
@@ -156,24 +163,26 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             mapConstVal.put(key, value);
         }
 
-        this.result = new BLangConstantValue(mapConstVal, recordLiteral.type);
+        this.result = new BLangConstantValue(mapConstVal, recordLiteral.getBType());
     }
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-
         BLangConstantValue lhs = visitExpr(binaryExpr.lhsExpr);
         BLangConstantValue rhs = visitExpr(binaryExpr.rhsExpr);
         this.result = calculateConstValue(lhs, rhs, binaryExpr.opKind);
     }
 
     public void visit(BLangGroupExpr groupExpr) {
-
         this.result = visitExpr(groupExpr.expression);
     }
 
-    private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
+    public void visit(BLangUnaryExpr unaryExpr) {
+        BLangConstantValue value = visitExpr(unaryExpr.expr);
+        this.result = evaluateUnaryOperator(value, unaryExpr.operator);
+    }
 
+    private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
         if (lhs == null || rhs == null || lhs.value == null || rhs.value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
@@ -209,6 +218,26 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             // Ignore. This will be handled as a compiler error.
         } catch (ArithmeticException ae) {
             dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
+        }
+        // This is a compilation error already logged.
+        // This is to avoid NPE exceptions in sub-sequent validations.
+        return new BLangConstantValue(null, this.currentConstSymbol.type);
+    }
+
+    private BLangConstantValue evaluateUnaryOperator(BLangConstantValue value, OperatorKind kind) {
+        try {
+            switch (kind) {
+                case ADD:
+                    return new BLangConstantValue(value.value, currentConstSymbol.type);
+                case SUB:
+                    return calculateNegation(value);
+                case BITWISE_COMPLEMENT:
+                    return calculateBitWiseComplement(value);
+                case NOT:
+                    return calculateBooleanComplement(value);
+            }
+        } catch (ClassCastException ce) {
+            // Ignore. This will be handled as a compiler error.
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
@@ -254,7 +283,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateSubtract(BLangConstantValue lhs, BLangConstantValue rhs) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -298,7 +326,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue calculateDivision(BLangConstantValue lhs, BLangConstantValue rhs) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -321,7 +348,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     // TODO : Not working at the moment.
     private BLangConstantValue calculateMod(BLangConstantValue lhs, BLangConstantValue rhs) {
-
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
@@ -342,8 +368,42 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
-    private BLangConstantValue visitExpr(BLangExpression node) {
+    private BLangConstantValue calculateNegation(BLangConstantValue value) {
+        Object result = null;
+        switch (this.currentConstSymbol.type.tag) {
+            case TypeTags.INT:
+                result = -1 * ((Long) (value.value));
+                break;
+            case TypeTags.FLOAT:
+                result = String.valueOf(-1 * Double.parseDouble(String.valueOf(value.value)));
+                break;
+            case TypeTags.DECIMAL:
+                BigDecimal valDecimal = new BigDecimal(String.valueOf(value.value), MathContext.DECIMAL128);
+                BigDecimal negDecimal = new BigDecimal(String.valueOf(-1), MathContext.DECIMAL128);
+                BigDecimal resultDecimal = valDecimal.multiply(negDecimal, MathContext.DECIMAL128);
+                result = resultDecimal.toPlainString();
+                break;
+        }
+        return new BLangConstantValue(result, currentConstSymbol.type);
+    }
 
+    private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
+        Object result = null;
+        if (this.currentConstSymbol.type.tag == TypeTags.INT) {
+            result = ~((Long) (value.value));
+        }
+        return new BLangConstantValue(result, currentConstSymbol.type);
+    }
+
+    private BLangConstantValue calculateBooleanComplement(BLangConstantValue value) {
+        Object result = null;
+        if (this.currentConstSymbol.type.tag == TypeTags.BOOLEAN) {
+            result = !((Boolean) (value.value));
+        }
+        return new BLangConstantValue(result, currentConstSymbol.type);
+    }
+
+    private BLangConstantValue visitExpr(BLangExpression node) {
         if (!node.typeChecked) {
             return null;
         }
@@ -354,6 +414,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
             case BINARY_EXPR:
             case GROUP_EXPR:
+            case UNARY_EXPR:
                 BLangConstantValue prevResult = this.result;
                 Location prevPos = this.currentPos;
                 this.currentPos = node.pos;

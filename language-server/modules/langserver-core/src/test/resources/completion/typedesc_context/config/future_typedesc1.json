@@ -6,38 +6,6 @@
   "source": "typedesc_context/source/future_typedesc1.bal",
   "items": [
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -49,11 +17,51 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TEST_CONST",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "M",
+      "insertText": "TEST_CONST",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap1",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "M",
       "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -125,6 +133,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "record",
       "insertText": "record ",
       "insertTextFormat": "Snippet"
     },
@@ -133,6 +142,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -141,6 +151,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {${1}}",
       "insertTextFormat": "Snippet"
     },
@@ -149,6 +160,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "record",
       "insertText": "record {|${1}|}",
       "insertTextFormat": "Snippet"
     },
@@ -157,6 +169,7 @@
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
+      "filterText": "distinct",
       "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
@@ -165,7 +178,26 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "O",
+      "filterText": "object",
       "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "true",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "true",
+      "insertText": "true",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "false",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "filterText": "false",
+      "insertText": "false",
       "insertTextFormat": "Snippet"
     },
     {

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
+import org.eclipse.lsp4j.CompletionParams;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface BallerinaCompletionContext extends CompletionContext {
+public interface BallerinaCompletionContext extends CompletionContext, BallerinaEnclosedPositionContext {
 
     /**
      * Set the token at the completion's cursor position.
@@ -81,4 +82,10 @@ public interface BallerinaCompletionContext extends CompletionContext {
      */
     Optional<TypeSymbol> getContextType();
 
+    /**
+     * Get the Completion Parameters.
+     * 
+     * @return {@link CompletionParams}
+     */
+    CompletionParams getCompletionParams();
 }

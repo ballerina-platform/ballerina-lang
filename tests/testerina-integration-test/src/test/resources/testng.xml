@@ -47,6 +47,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.ModuleExecutionTest" />
             <class name="org.ballerinalang.testerina.test.CodeCoverageReportTest" />
             <class name="org.ballerinalang.testerina.test.SourcelessTestExecutionTests"/>
+            <class name="org.ballerinalang.testerina.test.DataProviderTest"/>
         </classes>
     </test>
 </suite>

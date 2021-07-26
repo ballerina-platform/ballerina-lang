@@ -234,6 +234,11 @@ public class ErrorVariableDefinitionTest {
     }
 
     @Test
+    public void testLocalErrorType() {
+        BRunUtil.invoke(result, "testLocalErrorType");
+    }
+
+    @Test
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
