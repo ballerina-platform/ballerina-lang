@@ -423,9 +423,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         " not supported."));
 
         // unsupported expressions
-        debugTestRunner.assertEvaluationError(context, "error(\"name\")",
+        debugTestRunner.assertEvaluationError(context, "function(int a) returns int {return a;};",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'error(\"name\")' - ERROR_CONSTRUCTOR"));
+                        "'function(int a) returns int {return a;}' - EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION"));
     }
 
     @Override
