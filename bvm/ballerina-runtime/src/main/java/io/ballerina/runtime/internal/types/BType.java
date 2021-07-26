@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
@@ -44,7 +43,7 @@ public abstract class BType implements Type {
     private int hashCode;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
-        this.typeName = IdentifierUtils.decodeIdentifier(typeName);
+        this.typeName = typeName;
         this.pkg = pkg;
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {

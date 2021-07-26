@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.model.elements.PackageID;
@@ -197,6 +198,7 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String IDENTIFIER_UTILS = "io/ballerina/runtime/api/utils/IdentifierUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -351,9 +353,6 @@ public class JvmConstants {
     public static final int TYPE_FLAG_NILABLE = 1;
     public static final int TYPE_FLAG_ANYDATA = 2;
     public static final int TYPE_FLAG_PURETYPE = 4;
-
-    // ballerina error reasons for ASM operations.
-    public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
 
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";

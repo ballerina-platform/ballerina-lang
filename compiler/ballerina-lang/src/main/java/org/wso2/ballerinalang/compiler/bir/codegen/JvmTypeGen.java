@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -845,7 +846,7 @@ public class JvmTypeGen {
 
         // Load type name
         String name = getFullName(recordType);
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package path
         // TODO: get it from the type
@@ -1116,13 +1117,10 @@ public class JvmTypeGen {
      */
     private void addCyclicFlag(MethodVisitor mv, BType userDefinedType) {
         loadCyclicFlag(mv, userDefinedType);
-        switch (userDefinedType.tag) {
-            case TypeTags.TUPLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-                break;
-            case TypeTags.UNION:
-                mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-                break;
+        if (userDefinedType.tag == TypeTags.TUPLE) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
+        } else if (userDefinedType.tag == TypeTags.UNION) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
         }
     }
 
@@ -1198,7 +1196,7 @@ public class JvmTypeGen {
                                                    BObjectType objType, BIRVarToJVMIndexMap indexMap,
                                                    SymbolTable symbolTable) {
         // Create the attached function array
-        mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
+        mv.visitLdcInsn(attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, METHOD_TYPE_IMPL);
         int i = 0;
@@ -1444,7 +1442,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load error type name
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package
         mv.visitTypeInsn(NEW, MODULE);
@@ -1907,9 +1905,9 @@ public class JvmTypeGen {
 
     private boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {
         if ((unionType.tsymbol != null) && (unionType.tsymbol.name != null)) {
-            mv.visitLdcInsn(unionType.tsymbol.name.getValue());
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.tsymbol.name.getValue()));
         } else if (unionType.name != null) {
-            mv.visitLdcInsn(unionType.name.getValue());
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.name.getValue()));
         } else {
             return false;
         }
@@ -1917,13 +1915,10 @@ public class JvmTypeGen {
     }
 
     private void loadCyclicFlag(MethodVisitor mv, BType valueType) {
-        switch (valueType.tag) {
-            case TypeTags.UNION:
-                mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
-            case TypeTags.TUPLE:
-                mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
+        if (valueType.tag == TypeTags.UNION) {
+            mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+        } else if (valueType.tag == TypeTags.TUPLE) {
+            mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
         }
     }
 
@@ -2244,7 +2239,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = toNameString(finiteType);
+        String name = IdentifierUtils.decodeIdentifier(toNameString(finiteType));
         mv.visitLdcInsn(name);
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
