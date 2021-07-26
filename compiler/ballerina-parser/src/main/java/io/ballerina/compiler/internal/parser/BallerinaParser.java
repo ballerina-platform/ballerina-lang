@@ -65,7 +65,6 @@ import io.ballerina.compiler.internal.parser.tree.STTypeTestExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STTypedBindingPatternNode;
 import io.ballerina.compiler.internal.parser.tree.STUnaryExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
-import io.ballerina.compiler.internal.parser.tree.STXMLStepExpressionNode;
 import io.ballerina.compiler.internal.parser.utils.ConditionalExprResolver;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -5359,14 +5358,6 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         SyntaxKind lhsExprKind = lhsExpr.kind;
         Solution solution;
-        // This is to prevent recovering xmlStepStart infinitely.
-        if (lhsExprKind == SyntaxKind.XML_STEP_EXPRESSION &&
-                ((STXMLStepExpressionNode) lhsExpr).xmlStepStart.isMissing()) {
-            insertToken(SyntaxKind.SEMICOLON_TOKEN, ParserRuleContext.SEMICOLON);
-            return parseExpressionRhsInternal(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
-                    isInConditionalExpr);
-        }
-
         if (lhsExprKind == SyntaxKind.QUALIFIED_NAME_REFERENCE || lhsExprKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             solution = recover(token, ParserRuleContext.VARIABLE_REF_RHS);
         } else {
