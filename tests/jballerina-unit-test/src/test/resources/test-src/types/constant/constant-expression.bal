@@ -90,6 +90,9 @@ const int ZERO_EXT_3 = 3 >> 3;
 const int ZERO_EXT_4 = 3 >> 4;
 const int ZERO_EXT_5 = 3 >> 5;
 
+const TAG_MASK = 0xff;
+const TAG_LEFT_SHIFT = 0x38;
+const TAG_RIGHT_SHIFT = 0x2;
 
 function testBitwiseConstExpressions() {
     assertEqual(SHIFTED, 0x8001);
@@ -112,6 +115,11 @@ function testBitwiseConstExpressions() {
     assertEqual(ZERO_EXT_3, 0x0);
     assertEqual(ZERO_EXT_4, 0x0);
     assertEqual(ZERO_EXT_5, 0x0);
+
+    assertEqual(TAG_MASK << TAG_LEFT_SHIFT, -0x0100000000000000);
+    assertEqual(TAG_MASK >> TAG_RIGHT_SHIFT, 0x3f);
+    assertEqual(~(TAG_MASK << TAG_LEFT_SHIFT), 0xffffffffffffff);
+    assertEqual(~(TAG_MASK >> TAG_RIGHT_SHIFT), 0xc0);
 }
 
 const int CUI1 = -(10);
