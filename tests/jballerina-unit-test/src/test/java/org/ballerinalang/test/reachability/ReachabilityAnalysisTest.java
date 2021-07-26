@@ -74,7 +74,10 @@ public class ReachabilityAnalysisTest {
                 "testReachableCodeWithWhile2",
                 "testReachableCodeWithWhile3",
                 "testReachableCodeWithWhile4",
-                "testUnreachableCodeWithFail"
+                "testReachableCodeWithFail",
+                "testWhileCompletingNormally",
+                "testCallStmtFuncReturningNever",
+                "testForeachCompletingNormally"
         };
     }
 
@@ -124,8 +127,15 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 272, 17);
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 274, 16);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 281, 5);
-        Assert.assertEquals(result.getErrorCount(), i - 8);
-        Assert.assertEquals(result.getHintCount(), 7);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 291, 12);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 295, 5);
+        validateError(result, i++, ERROR_MUST_RETURN_A_RESULT, 296, 1);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 300, 5);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 313, 12);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 317, 9);
+        validateError(result, i++, ERROR_INVALID_ERROR_UNREACHABLE_INVOCATION, 339, 9);
+        Assert.assertEquals(result.getErrorCount(), i - 10);
+        Assert.assertEquals(result.getHintCount(), 9);
         Assert.assertEquals(result.getWarnCount(), 1);
     }
 }

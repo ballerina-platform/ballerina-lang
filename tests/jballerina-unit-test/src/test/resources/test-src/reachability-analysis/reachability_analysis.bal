@@ -348,7 +348,7 @@ function foo2() returns int {
     return 4;
 }
 
-function testUnreachableCodeWithFail() returns error? {
+function testReachableCodeWithFail() returns error? {
     boolean? v = false;
     int i = 0;
     string str = "";
@@ -377,9 +377,173 @@ function testUnreachableCodeWithFail() returns error? {
     }
 }
 
+function testWhileCompletingNormally() {
+    assertEqual(foo3("ABC"), "a is int -> end. -> parameter:ABC");
+    string|error res = foo4();
+    assertEqual(res is string, true);
+    if (res is string) {
+        assertEqual(res, "a is int -> Loop continued with digit: 1 -> Loop continued with digit: 2 -> " +
+                         "Loop continued with digit: 3 -> Loop broke with digit: 4");
+    }
+    assertEqual(foo5(), "a is string -> ABCDEF -> a is string -> ABCDEF -> end.");
+    assertEqual(foo6(), "a is int -> end.");
+}
+
+function foo3(string p) returns string {
+    string str = "";
+    while true {
+        int|string a = 12;
+        if a is int {
+            str += "a is int";
+            break;
+        }
+        string b = a;
+        if a is string {
+            str += "a is string";
+            panic error("Error");
+        }
+        error:unreachable();
+    }
+    string x = " -> end.";
+    return str + x + " -> parameter:" + p;
+}
+
+function foo4() returns error|string {
+    string str = "";
+    while true {
+        int|string a = 12;
+        if a is int {
+            str += "a is int -> ";
+            fail error("Fail");
+        }
+        string b = a;
+        if a is string {
+            str += "a is string";
+            panic error("Panic");
+        }
+        error:unreachable();
+    } on fail error e1 {
+        foreach int digit in 1 ... 5 {
+            do {
+                fail getError();
+            } on fail error e2 {
+                if (digit < 4) {
+                    str += "Loop continued with digit: " + digit.toString() + " -> ";
+                    continue;
+                } else {
+                    str += "Loop broke with digit: " + digit.toString();
+                    break;
+                }
+            }
+        }
+        return str;
+    }
+    error:unreachable();
+}
+
+function foo5() returns string {
+    string str = "";
+    int i = 1;
+    while i < 3 {
+        int|string a = "DEF";
+        if a is int {
+            str += "a is int -> ";
+            panic getError();
+        }
+        string b = a;
+        if a is string {
+            str += "a is string";
+        }
+        str += " -> ABC" + b + " -> ";
+        i += 1;
+    }
+    str += "end.";
+    return str;
+}
+
+function foo6() returns string {
+    string str = "";
+    int i = 1;
+    while i < 5 {
+        int|string a = 12;
+        if a is int {
+            str += "a is int -> ";
+            break;
+        }
+        string b = a;
+        if a is string {
+            str += "a is string -> ";
+            continue;
+        }
+        error:unreachable();
+    }
+    str += "end.";
+    return str;
+}
+
+function testCallStmtFuncReturningNever() {
+    error? e = trap foo7();
+    assertEqual(e is error, true);
+    if (e is error) {
+        assertEqual(e.message(), "Something impossible happened.");
+    }
+}
+
+function foo7() {
+    impossible();
+    error:unreachable();
+}
+
+function testForeachCompletingNormally() {
+    assertEqual(foo8(), "a is int -> end.");
+    assertEqual(foo9(), "a is int -> outside while -> a is int -> outside while -> a is int -> outside while -> " +
+                        "a is int -> outside while -> a is int -> outside while ->  -> end.");
+}
+
+function foo8() returns string {
+    string str = "";
+    int i = 1;
+    foreach int idx in 1...5 {
+        int|string a = 12;
+        if a is int {
+            str += "a is int -> ";
+            break;
+        }
+        string b = a;
+        if a is string {
+            str += "a is string -> ";
+            continue;
+        }
+        error:unreachable();
+    }
+    str += "end.";
+    return str;
+}
+
+function foo9() returns string {
+    string str = "";
+    int i = 1;
+    foreach int idx in 1...5 {
+        int|string a = 12;
+        while true {
+            if a is int {
+                str += "a is int -> ";
+                break;
+            }
+        }
+        str += "outside while -> ";
+    }
+    str += " -> end.";
+    return str;
+}
+
 function getError() returns error {
     error err = error("Custom Error");
     return err;
+}
+
+function impossible() returns never {
+    panic error("Something impossible happened.");
 }
 
 function assertEqual(any actual, any expected) {

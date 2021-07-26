@@ -281,7 +281,67 @@ function testUnreachableCodeWithFail() returns error? {
     string w = "A"; // unreachable code
 }
 
+function testUnreachableCodeWithFail2() returns error {
+    while true {
+        int|string a = 12;
+        if a is int {
+            fail getError();
+        }
+        string b = a;
+        if a is string {
+            panic error("Error");
+        }
+    }
+    string x = "ABC"; // unreachable code
+}
+
+function testUnreachableCodeWithCallStmtFuncReturningNever() {
+    impossible();
+    string x = "ABC"; // unreachable code
+}
+
+function testUnreachableCodeWithWhile6() {
+    string str = "";
+    int i = 1;
+    while i < 5 {
+        int|string a = 12;
+        if a is int {
+            str += "a is int -> ";
+            panic getError();
+        }
+        string b = a;
+        if a is string {
+            str += "a is string";
+            impossible();
+        }
+        string x = "ABC"; // unreachable code
+        i += 1;
+    }
+    string y = "ABC";
+}
+
 function getError() returns error {
     error err = error("Custom Error");
     return err;
+}
+
+function testUnreachableCodeWithForeach() returns string {
+    string str = "";
+    int i = 1;
+    foreach int idx in 1...5 {
+        int|string a = 12;
+        while true {
+            if a is int {
+                str += "a is int -> ";
+                break;
+            }
+        }
+        error:unreachable(); // not unreachable
+    }
+    str += "end.";
+    return str;
+}
+
+function impossible() returns never {
+    panic error("Something impossible happened.");
 }
