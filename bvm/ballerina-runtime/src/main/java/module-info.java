@@ -66,6 +66,5 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime;
     exports io.ballerina.runtime.observability.metrics.noop;
     exports io.ballerina.runtime.observability.tracer.noop;
-    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc;
     exports io.ballerina.runtime.internal.configurable.providers.toml;
 }

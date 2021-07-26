@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -78,6 +79,7 @@ public class ModuleGen {
     static final Module MODFRONT = new Module("wso2", "nballerina.front", "0.1.0");
     static final Module MODBIR = new Module("wso2", "nballerina.bir", "0.1.0");
     static final Module MODTYPES = new Module("wso2", "nballerina.types", "0.1.0");
+    static final Module MODERROR = new Module("wso2", "nballerina.err", "0.1.0");
     private static UnionType stmtTyp;
     private static UnionType exprTyp;
     private static UnionType defTyp;
@@ -89,6 +91,7 @@ public class ModuleGen {
     private static BasicBlock nextBlock;
     private static BasicBlock endBlock;
     private static BasicBlock bb;
+    private static JNModule jnmod;
 
     PrintStream console = System.out;
 
@@ -113,28 +116,33 @@ public class ModuleGen {
     }
 
     public JNModule genMod(BLangPackage astPkg) {
-        JNModule jnmod = new JNModule();
-        astPkg.functions.forEach(func -> {
+        jnmod = new JNModule();
+        jnmod.moduleId.organization = "wso2";
+        jnmod.moduleId.names.add("baltest");
+
+        for (BLangFunction func : astPkg.functions) {
             boolean acc = func.getFlags().contains(Flag.PUBLIC);
             String name = func.getName().toString();
-            TypeKind ret = func.returnTypeNode.type.getKind();
-            FunctionDefn funcDefn = new FunctionDefn(acc, name, ret);
+            TypeKind ret = func.returnTypeNode.getBType().getKind();
+            Position position = new Position(func.getPosition().lineRange().startLine().line() + 1,
+                    func.getPosition().textRange().startOffset() + 9);
+            FunctionDefn funcDefn = new FunctionDefn(acc, name, ret, position);
             func.getParameters().forEach(param -> {
-                funcDefn.signature.paramTypes.add(param.type.getKind());
+                funcDefn.signature.paramTypes.add(param.getBType().getKind());
             });
             jnmod.functionDefns.put(name, funcDefn);
-        });
-        astPkg.functions.forEach(func -> {
+        }
+        for (BLangFunction func : astPkg.functions) {
             FunctionCode fcode = new FunctionCode();
             BasicBlock startBlock = fcode.createBasicBlock();
             func.getParameters().forEach(param -> {
-                fcode.createRegister(param.type.getKind(), param.getName().toString());
+                fcode.createRegister(param.getBType().getKind(), param.getName().toString());
             });
             curBlock = startBlock;
             ((BLangBlockFunctionBody) func.body).getStatements().forEach(stmt -> codeGenStmt(stmt, fcode));
             endBlock = curBlock;
             jnmod.code.add(fcode);
-        });
+        }
         return jnmod;
         //return astPkg.accept(this);
     }
@@ -148,6 +156,8 @@ public class ModuleGen {
         } else if (stmt instanceof BLangSimpleVariableDef) {
 
             curBlock = null;
+        } else if (stmt instanceof BLangExpressionStmt) {
+            codeGenExpr(((BLangExpressionStmt) stmt).getExpression(), code);
         }
     }
 
@@ -179,7 +189,14 @@ public class ModuleGen {
                     return result;
                 case SUB:
                     Register reg2 = code.createRegister(TypeKind.INT, null);
-                    curBlock.insns.add(new IntNegateInsn(operand.register, reg2));
+                    IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
+                    ins.op = "-";
+                    ins.result = reg2;
+                    Operand zeroOp = new Operand(false);
+                    zeroOp.value = 0;
+                    ins.operands[0] = zeroOp;
+                    ins.operands[1] = operand;
+                    curBlock.insns.add(ins);
                     result.register = reg2;
                     return result;
             }
@@ -197,17 +214,42 @@ public class ModuleGen {
                     ins.result = reg;
                     ins.operands[0] = lhs;
                     ins.operands[1] = rhs;
+                    ins.position = new Position(bexpr.getPosition().lineRange().startLine().line() + 1,
+                            bexpr.getPosition().textRange().startOffset());
                     curBlock.insns.add(ins);
                     result.register = reg;
                     return result;
             }
         } else if (expr instanceof BLangInvocation) {
             BLangInvocation funcCall = (BLangInvocation) expr;
-            if (funcCall.pkgAlias.getValue().equals("")) {
-                return null;
-            }
+            return codegenFunctionCall(funcCall, code);
         }
         return null;
+    }
+
+    Operand codegenFunctionCall(BLangInvocation funcCall, FunctionCode code) {
+        FunctionRef ref;
+        Operand result = new Operand(true);
+        if (funcCall.pkgAlias.getValue().equals("")) {
+            FunctionDefn def = jnmod.functionDefns.get(funcCall.getName().getValue());
+            ref  = new FunctionRef(def.symbol, def.signature);
+        } else {
+            FunctionSignature signature = new FunctionSignature();
+            signature.returnType = funcCall.getBType().getKind();
+            for (BLangExpression arg: funcCall.requiredArgs) {
+                signature.paramTypes.add(arg.getBType().getKind());
+            }
+            ExternalSymbol symbol = new ExternalSymbol(jnmod.moduleId, funcCall.getName().getValue());
+            ref = new FunctionRef(symbol, signature);
+        }
+
+        ArrayList<Operand> args = new ArrayList<>();
+        funcCall.getArgumentExpressions().forEach(arg -> args.add(codeGenExpr((BLangExpression) arg, code)));
+        Register reg = code.createRegister(ref.signature.returnType , null);
+        CallInsn callInsn = new CallInsn(reg, ref, args);
+        curBlock.insns.add(callInsn);
+        result.register = reg;
+        return result;
     }
 
     static long convertSimpleSemType(TypeKind typeKind) {
@@ -338,12 +380,12 @@ public class ModuleGen {
         BArray args = ValueCreator.createArrayValue(typDescArrTyp);
         BArray rets = ValueCreator.createArrayValue(typDescArrTyp);
         astFunc.getParameters().forEach(param -> {
-            String arg = param.type.getKind().typeName();
+            String arg = param.getBType().getKind().typeName();
             if (arg.equals(TypeKind.NIL.typeName())) {
                 arg = "()";
             }
             args.append(new BmpStringValue(arg)); });
-        String ret = astFunc.getReturnTypeNode().type.getKind().typeName();
+        String ret = astFunc.getReturnTypeNode().getBType().getKind().typeName();
         if (ret.equals(TypeKind.NIL.typeName())) {
             ret = "()";
         }

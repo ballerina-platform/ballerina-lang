@@ -6,6 +6,8 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TupleType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -21,7 +23,7 @@ import java.util.Map;
 class JNModule {
     public ArrayList<FunctionCode> code = new ArrayList<>();
     public Map<String, FunctionDefn> functionDefns = new LinkedHashMap<>();
-    public ModuleId moduleId;
+    public ModuleId moduleId = new ModuleId();
 
     BArray getFuncDefsArray() {
         BMap<BString, Object> tmpVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
@@ -47,14 +49,17 @@ class ModuleId {
     ArrayList<String> names = new ArrayList<>();
 
     BMap<BString, Object> getRecord() {
-        ArrayType arrTyp = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
-        BArray arr = ValueCreator.createArrayValue(arrTyp);
-        names.forEach(name -> arr.append(new BmpStringValue(name)));
+        ArrayList<Type> typarr = new ArrayList<>();
+        typarr.add(PredefinedTypes.TYPE_STRING);
+        TupleType tupTyp = TypeCreator.createTupleType(typarr, PredefinedTypes.TYPE_STRING, 6, false);
+        BArray tup = ValueCreator.createTupleValue(tupTyp);
+
+        names.forEach(name -> tup.append(new BmpStringValue(name)));
         Map<String, Object> fields = new HashMap<>();
         if (organization != null) {
             fields.put("organization", new BmpStringValue(organization));
         }
-        fields.put("names", arr);
+        fields.put("names", tup);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.MODULE_ID, fields);
     }
 }
@@ -62,17 +67,20 @@ class ModuleId {
 class FunctionDefn {
     InternalSymbol symbol = new InternalSymbol();
     FunctionSignature signature = new FunctionSignature();
+    Position position;
 
-    public FunctionDefn(boolean isPublic, String identifier, TypeKind returnType) {
+    public FunctionDefn(boolean isPublic, String identifier, TypeKind returnType, Position position) {
         this.symbol.isPublic = isPublic;
         this.symbol.identifier = identifier;
         this.signature.returnType = returnType;
+        this.position = position;
     }
 
     BMap<BString, Object> getRecord() {
         Map<String, Object> fields = new HashMap<>();
         fields.put("symbol", symbol.getRecord());
         fields.put("signature", signature.getRecord());
+        fields.put("position", position.getRecord());
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.FUNCTION_DEFN, fields);
     }
 }
@@ -95,10 +103,11 @@ class FunctionSignature {
     }
 }
 
-class InternalSymbol {
+class InternalSymbol extends Symbol {
     public boolean isPublic;
     public String identifier;
 
+    @Override
     public BMap<BString, Object> getRecord() {
         Map<String, Object> fields = new HashMap<>();
         fields.put("isPublic", isPublic);
@@ -184,9 +193,9 @@ class BasicBlock {
                 new HashMap<>());
         BMap<BString, Object> tmpVal2 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.BOOLNOT_INSN, new HashMap<>());
-        BMap<BString, Object> tmpVal3 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.INTNEG_INSN, new HashMap<>()); //TODO add other insns
-        UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType());
+        BMap<BString, Object> tmpVal4 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.INT_ARITHMETIC_BINARY_INSN, new HashMap<>()); //TODO add other insns
+        UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal4.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         BArray arr = ValueCreator.createArrayValue(arrTyp);
         insns.forEach(insn -> arr.append(insn.getRecord()));
@@ -207,6 +216,7 @@ class IntArithmeticBinaryInsn extends InsnBase {
     public String op;
     public Register result;
     public Operand[] operands = new Operand[2];
+    public Position position;
 
     @Override
     public BMap<BString, Object> getRecord() {
@@ -220,6 +230,7 @@ class IntArithmeticBinaryInsn extends InsnBase {
         Map<String, Object> fields = new HashMap<>();
         fields.put("op", new BmpStringValue(op));
         fields.put("result", result.getRecord());
+        fields.put("position", position.getRecord());
         fields.put("operands", arr); //TODO create Ballerina array
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INT_ARITHMETIC_BINARY_INSN, fields);
     }
@@ -288,5 +299,89 @@ class Operand {
 
     public Object getOperand() {
         return (this.isReg ? this.register.getRecord() : this.value);
+    }
+}
+
+class FunctionRef {
+    public Symbol symbol;
+    public FunctionSignature signature;
+
+    public FunctionRef(Symbol symbol, FunctionSignature signature) {
+        this.symbol = symbol;
+        this.signature = signature;
+    }
+
+    public Object getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("symbol", symbol.getRecord());
+        fields.put("signature", signature.getRecord());
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.FUNCTION_REF, fields);
+    }
+}
+
+abstract class Symbol {
+    public abstract Object getRecord();
+};
+
+class ExternalSymbol extends Symbol {
+    ModuleId module;
+    String identifier;
+
+    public ExternalSymbol(ModuleId module, String identifier) {
+        this.module = module;
+        this.identifier = identifier;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("module", module.getRecord());
+        fields.put("identifier", new BmpStringValue(identifier));
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.EXTERNAL_SYMBOL, fields);
+    }
+}
+
+class CallInsn extends InsnBase {
+    Register result;
+    FunctionRef func;
+    ArrayList<Operand> args;
+
+    public CallInsn(Register result, FunctionRef func, ArrayList<Operand> args) {
+        this.result = result;
+        this.func = func;
+        this.args = args;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_NULL, PredefinedTypes.TYPE_STRING);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        args.forEach(arg -> arr.append(arg.getOperand()));
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("result", result.getRecord());
+        fields.put("func", func.getRecord());
+        fields.put("args", arr);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.CALL_INSN, fields);
+    }
+}
+
+class Position {
+    int lineNumber;
+    int indexInLine;
+
+    public Position(int lineNumber, int indexInLine) {
+        this.lineNumber = lineNumber;
+        this.indexInLine = indexInLine;
+    }
+
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("lineNumber", lineNumber);
+        fields.put("indexInLine", indexInLine);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODERROR, NBTypeNames.POSITION, fields);
     }
 }
