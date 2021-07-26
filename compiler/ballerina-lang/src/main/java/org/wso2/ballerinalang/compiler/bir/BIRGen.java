@@ -1425,6 +1425,9 @@ public class BIRGen extends BLangNodeVisitor {
         addToTrapStack(thenBB);
         this.env.enclBasicBlocks.add(thenBB);
 
+        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
+        this.currentScope = newScope;
+
 
         // TODO: make vCall a new instruction to avoid package id in vCall
         if (invocationExpr.functionPointerInvocation) {
@@ -1447,6 +1450,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
                     thenBB, calleeAnnots, bInvokableSymbol.getFlags());
+            setScope(this.env.enclBB.terminator);
         }
         this.env.enclBB = thenBB;
     }
@@ -2444,6 +2448,10 @@ public class BIRGen extends BLangNodeVisitor {
     private void setScopeAndEmit(BIRNonTerminator instruction) {
         instruction.scope = this.currentScope;
         this.env.enclBB.instructions.add(instruction);
+    }
+
+    private void setScope(BIRTerminator terminator) {
+        terminator.scope = this.currentScope;
     }
 
     private InstructionKind getBinaryInstructionKind(OperatorKind opKind) {

@@ -138,6 +138,9 @@ public class BIRInstructionWriter extends BIRVisitor {
 
         // write pos and kind
         writePosition(terminator.pos);
+        if (terminator.kind == InstructionKind.CALL) {
+            writeScopes(terminator);
+        }
         buf.writeByte(terminator.kind.getValue());
         // write instruction
         terminator.accept(this);

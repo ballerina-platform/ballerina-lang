@@ -101,6 +101,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.SIPUSH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
@@ -469,18 +470,20 @@ public class MethodGen {
                     .getLastScopeFromBBInsGen(mv, labelGen, instGen, localVarOffset, funcName, bb,
                                               visitedScopesSet, lastScope);
 
-            Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
-            mv.visitLabel(bbEndLabel);
 
             BIRTerminator terminator = bb.terminator;
             pushShort(mv, stateVarIndex, caseIndex);
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator, jvmTypeGen, localVarOffset);
+            lastScope = getLastScopeFromProcessTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
                                   returnVarRefIndex, attachedType);
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
+
+            Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+            mv.visitLabel(bbEndLabel);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
@@ -510,6 +513,18 @@ public class MethodGen {
                                                                                 MODULE_INIT_CLASS_NAME),
                               MODULE_STARTED, "Z");
         }
+    }
+
+    private static BirScope getLastScopeFromProcessTerminator(MethodVisitor mv, BIRBasicBlock bb, String funcName,
+                                         LabelGenerator labelGen, BirScope lastScope, Set<BirScope> visitedScopesSet) {
+        BirScope scope = bb.terminator.scope;
+        if (scope != null && scope != lastScope) {
+            lastScope = scope;
+            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
+            mv.visitLabel(scopeLabel);
+            visitedScopesSet.add(scope);
+        }
+        return lastScope;
     }
 
     private boolean isModuleTestInitFunction(BIRFunction func) {
@@ -927,6 +942,9 @@ public class MethodGen {
             mv.visitLocalVariable("self", String.format("L%s;", B_OBJECT), null, methodStartLabel, methodEndLabel, 0);
         }
         BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
+        if (endBB.terminator.thenBB != null) {
+            endBB = endBB.terminator.thenBB;
+        }
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
@@ -937,7 +955,7 @@ public class MethodGen {
             // local vars have visible range information
             if (localVar.kind == VarKind.LOCAL) {
                 if (localVar.startBB != null) {
-                    startLabel = labelGen.getLabel(funcName + JvmCodeGenUtil.SCOPE_PREFIX + localVar.insScope.id);
+                    startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
                     endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
