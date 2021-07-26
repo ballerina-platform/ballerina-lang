@@ -91,6 +91,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testMapping");
         BRunUtil.invoke(compileResult, "testFromCodePointIntInSurrogateRange");
         BRunUtil.invoke(compileResult, "testFromCodePointIntsInSurrogateRange");
+        BRunUtil.invoke(compileResult, "testToCodePointWithChaType");
 
     }
 

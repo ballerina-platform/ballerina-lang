@@ -157,6 +157,11 @@ function testFromCodePointIntsInSurrogateRange() {
     test:assertValueEqual("Invalid codepoint: 55551", (<error>ch1).message());
 }
 
+function testToCodePointWithChaType() {
+    int backslash = ("\\").toCodePointInt();
+    test:assertValueEqual(92, backslash);
+}
+
 function insertListValue(string[] list, int pos, string value) {
     list[pos] = value;
 }

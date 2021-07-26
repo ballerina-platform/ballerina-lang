@@ -631,7 +631,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (literalType.tag == TypeTags.DECIMAL) {
             return decimalLiteral(literalValue, literalExpr, expType);
         } else if (literalType.tag == TypeTags.STRING && types.isCharLiteralValue((String) literalValue)) {
-            if (expType.tag == TypeTags.CHAR_STRING) {
+            if (expType.tag == TypeTags.CHAR_STRING || expType == symTable.noType) {
                 return symTable.charStringType;
             }
             if (expType.tag == TypeTags.UNION) {
