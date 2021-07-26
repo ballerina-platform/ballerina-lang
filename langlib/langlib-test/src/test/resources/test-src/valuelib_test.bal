@@ -959,6 +959,14 @@ function testCloneWithTypeArrayToTuple() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(messageString, "'int[]' value cannot be converted to '[string,lang.string:Char,(string|lang.string:Char)]'");
+
+    [map<int>, [string, int]...]|error g = arr.cloneWithType();
+    assert(g is error, true);
+    err = <error> g;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[map<int>,[string,int]...]'");
 }
 
 function testCloneWithTypeTuple() {

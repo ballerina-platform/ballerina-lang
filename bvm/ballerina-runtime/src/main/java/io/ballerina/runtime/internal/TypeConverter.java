@@ -455,14 +455,9 @@ public class TypeConverter {
                 return true;
             }
         }
-        Set<Type> convertibleTypes;
+
         for (int i = 0; i < source.size(); i++) {
-            convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues);
-            if (convertibleTypes.isEmpty()) {
-                return false;
-            }
-            if (convertibleTypes.size() != 1 && !convertibleTypes.contains(TypeChecker.getType(source.get(i)))
-                    && !hasIntegerSubTypes(convertibleTypes)) {
+            if (!isConvertibleToArrayInstance(source.get(i), targetTypeElementType, unresolvedValues)) {
                 return false;
             }
         }
@@ -488,28 +483,29 @@ public class TypeConverter {
             return false;
         }
 
-        Set<Type> convertibleTypes;
-
         for (int i = 0; i < targetTypeSize; i++) {
-            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetTypes.get(i), unresolvedValues);
-            if (convertibleTypes.isEmpty()) {
-                return false;
-            }
-            if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(source.getRefValue(i)))
-                    && !hasIntegerSubTypes(convertibleTypes)) {
+            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetTypes.get(i), unresolvedValues)) {
                 return false;
             }
         }
 
         for (int i = targetTypeSize; i < sourceTypeSize; i++) {
-            convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetRestType, unresolvedValues);
-            if (convertibleTypes.isEmpty()) {
+            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetRestType, unresolvedValues)) {
                 return false;
             }
-            if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(source.getRefValue(i)))
-                    && !hasIntegerSubTypes(convertibleTypes)) {
-                return false;
-            }
+        }
+        return true;
+    }
+
+    private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
+                                                        List<TypeValuePair> unresolvedValues) {
+        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, unresolvedValues);
+        if (convertibleTypes.isEmpty()) {
+            return false;
+        }
+        if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(sourceElement))
+                && !hasIntegerSubTypes(convertibleTypes)) {
+            return false;
         }
         return true;
     }

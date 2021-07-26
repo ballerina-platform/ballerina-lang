@@ -860,14 +860,14 @@ public class O1 {
 function testTupleConversion1() {
     T1 a = {};
     T2 b = {};
-    [T1, T2] x1 = [a, b];
-    [T1, T1] x2;
+    T1_T2 x1 = [a, b];
+    T1_T1 x2;
     anydata y = x1;
     x2 = checkpanic y.cloneWithType(T1_T1);
 
     T1 c = {};
-    [T1, T1] x3 = [a, c];
-    [T1, T2] x4;
+    T1_T1 x3 = [a, c];
+    T1_T2 x4;
     anydata z = x3;
     x4 = checkpanic z.cloneWithType(T1_T2);
 
