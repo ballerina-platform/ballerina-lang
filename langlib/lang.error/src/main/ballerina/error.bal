@@ -114,4 +114,6 @@ public isolated function toBalString(error e) returns string = @java:Method {
   name: "toBalString"
 } external;
 
-public function unreachable() returns never {}
+public function unreachable() returns never {
+    panic error("Unreachable Code");
+}
