@@ -38,6 +38,7 @@ public class DebugOutputListener extends TimerTask {
     public DebugOutputListener(TestDAPClientConnector connector) {
         this.connector = connector;
         this.debugOutputFound = false;
+        this.outputs = new OutputEventArguments[0];
     }
 
     public OutputEventArguments getLastOutputContext() {
@@ -60,7 +61,7 @@ public class DebugOutputListener extends TimerTask {
     public void run() {
         ConcurrentLinkedQueue<OutputEventArguments> events = connector.getServerEventHolder().getOutputEvents();
         while (!events.isEmpty() && connector.isConnected()) {
-            OutputEventArguments[] outputEvents = events.toArray(events.toArray(new OutputEventArguments[0]));
+            OutputEventArguments[] outputEvents = events.toArray(new OutputEventArguments[0]);
             events.clear();
             if (outputEvents.length == 0) {
                 continue;

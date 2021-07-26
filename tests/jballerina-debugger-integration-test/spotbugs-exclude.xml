@@ -17,4 +17,10 @@
   -->
 
 <FindBugsFilter>
+    <Match>
+        <And>
+            <Class name="org.ballerinalang.debugger.test.utils.DebugOutputListener"/>
+            <Bug pattern="EI_EXPOSE_REP"/>
+        </And>
+    </Match>
 </FindBugsFilter>
