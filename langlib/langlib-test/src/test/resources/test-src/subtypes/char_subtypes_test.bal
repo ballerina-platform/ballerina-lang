@@ -126,6 +126,37 @@ function testMapping() {
     record { string i;} t3 = rec;
     test:assertError(trap updateRecord(t3, "abc"));
 }
+
+function testFromCodePointIntInSurrogateRange() {
+    int cp1 = 0xD800;
+    s:Char|error ch1 = s:fromCodePointInt(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55296", (<error>ch1).message());
+    cp1 = 0xDFFF;
+    ch1 = s:fromCodePointInt(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 57343", (<error>ch1).message());
+    cp1 = 0xD8FF;
+    ch1 = s:fromCodePointInt(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55551", (<error>ch1).message());
+}
+
+function testFromCodePointIntsInSurrogateRange() {
+    int[] cp1 = [0xA3456, 0xD800, 0xB51F];
+    string|error ch1 = s:fromCodePointInts(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55296", (<error>ch1).message());
+    cp1 = [0xA3456, 0xDFFF, 0xB51F];
+    ch1 = s:fromCodePointInts(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 57343", (<error>ch1).message());
+    cp1 = [0xA3456, 0xD8FF, 0xB51F];
+    ch1 = s:fromCodePointInts(cp1);
+    test:assertTrue(ch1 is error);
+    test:assertValueEqual("Invalid codepoint: 55551", (<error>ch1).message());
+}
+
 function insertListValue(string[] list, int pos, string value) {
     list[pos] = value;
 }
