@@ -49,8 +49,6 @@ import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_FORMAT;
 
-import static org.ballerinalang.central.client.CentralClientConstants.ENABLE_OUTPUT_STREAM;
-
 /**
  * This class represents the "bal build" command.
  *
@@ -278,8 +276,6 @@ public class BuildCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
-
-        System.setProperty(ENABLE_OUTPUT_STREAM, "true");
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (!project.buildOptions().skipTests() && this.debugPort != null) {

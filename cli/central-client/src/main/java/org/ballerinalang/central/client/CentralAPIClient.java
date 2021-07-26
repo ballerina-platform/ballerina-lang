@@ -280,7 +280,7 @@ public class CentralAPIClient {
 
             // Successfully pushed
             if (packagePushResponse.code() == HTTP_NO_CONTENT) {
-                if (!enableOutputStream) {
+                if (enableOutputStream) {
                     this.outStream.println(packageSignature + " pushed to central successfully");
                 }
                 return;
