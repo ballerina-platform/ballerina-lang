@@ -24,7 +24,6 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.utils.QuotedIdentifier;
@@ -33,6 +32,8 @@ import io.ballerina.shell.utils.StringUtils;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.VAR_TYPE_DESC;
 
 /**
  * These will be variable declarations.
@@ -109,10 +110,12 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
     }
 
     /**
-     * Returns syntax node kind.
+     * Returns true if declared with a var.
+     *
+     * @return Declared with a var or without a var.
      */
-    public SyntaxKind getSyntaxKind() {
-        return rootNode.typedBindingPattern()
+    public boolean isDeclaredWithVar() {
+        return VAR_TYPE_DESC == rootNode.typedBindingPattern()
                 .typeDescriptor().kind();
     }
 }

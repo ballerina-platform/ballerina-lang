@@ -38,12 +38,12 @@ public class VariableContext {
 
     private static final String VAR = "var";
 
-    private VariableContext(String prefix, String name, String type, boolean isAssignedWithVar,
+    private VariableContext(String prefix, String name, String type, boolean isDeclaredWithVar,
                             boolean isNew, boolean isAny) {
         this.prefix = prefix;
         this.name = StringUtils.quoted(name);
         this.type = type;
-        this.isAssignedWithVar = isAssignedWithVar;
+        this.isAssignedWithVar = isDeclaredWithVar;
         this.isNew = isNew;
         this.isAny = isAny;
     }
@@ -57,7 +57,7 @@ public class VariableContext {
     public static VariableContext newVar(GlobalVariable variableEntry) {
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
                 variableEntry.getVariableName().getName(), variableEntry.getType(),
-                variableEntry.isAssignedWithVar(), true,
+                variableEntry.isDeclaredWithVar(), true,
                 variableEntry.isAssignableToAny());
     }
 
@@ -70,7 +70,7 @@ public class VariableContext {
     public static VariableContext oldVar(GlobalVariable variableEntry) {
         return new VariableContext(variableEntry.getQualifiersAndMetadata(),
                 variableEntry.getVariableName().getName(), variableEntry.getType(),
-                variableEntry.isAssignedWithVar(), false,
+                variableEntry.isDeclaredWithVar(), false,
                 variableEntry.isAssignableToAny());
     }
 
