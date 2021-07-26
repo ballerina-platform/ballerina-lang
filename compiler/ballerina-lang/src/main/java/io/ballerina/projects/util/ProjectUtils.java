@@ -22,16 +22,16 @@ import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
@@ -58,7 +58,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -555,27 +554,43 @@ public class ProjectUtils {
     /**
      * Get `Dependencies.toml` content as a string.
      *
-     * @param pkgGraphDependencies    direct dependencies of the package dependency graph
+     * @param pkgDependencies direct dependencies of the package dependency graph
      * @return Dependencies.toml` content
      */
-    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgGraphDependencies) {
+    public static String getDependenciesTomlContent(List<Dependency> pkgDependencies) {
         StringBuilder content = new StringBuilder();
-
         // write dependencies from package dependency graph
-        pkgGraphDependencies.forEach(graphDependency -> {
-            PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
-            addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
-                    descriptor.version().value().toString());
+        pkgDependencies.forEach(dependency -> {
+            addDependencyContent(content, dependency.getOrg(), dependency.getName(),
+                    dependency.getVersion(), getDependencyScope(dependency.getScope()), dependency.getDependencies());
             content.append("\n");
         });
         return String.valueOf(content);
     }
 
-    private static void addDependencyContent(StringBuilder content, String org, String name, String version) {
-        content.append("[[dependency]]\n");
+    private static void addDependencyContent(StringBuilder content, String org, String name, String version,
+                                             String scope, List<Dependency> dependencies) {
+        content.append("[[package]]\n");
         content.append("org = \"").append(org).append("\"\n");
         content.append("name = \"").append(name).append("\"\n");
         content.append("version = \"").append(version).append("\"\n");
+        if (scope != null) {
+            content.append("scope = \"").append(scope).append("\"\n");
+        }
+        if (!dependencies.isEmpty()) {
+            for (Dependency transDependency : dependencies) {
+                content.append("[[package.dependencies]]").append("\n");
+                content.append("org = \"").append(transDependency.getOrg()).append("\"\n");
+                content.append("name = \"").append(transDependency.getName()).append("\"\n");
+            }
+        }
+    }
+
+    private static String getDependencyScope(PackageDependencyScope scope) {
+        if (scope == PackageDependencyScope.TEST_ONLY) {
+            return "testOnly";
+        }
+        return null;
     }
 
     public static List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
