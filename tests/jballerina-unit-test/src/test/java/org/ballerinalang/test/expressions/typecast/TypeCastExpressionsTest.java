@@ -339,10 +339,11 @@ public class TypeCastExpressionsTest {
     }
 
     @DataProvider
-    public Object[][] futureCastNegativeTests() {
-        return new Object[][] {
-                {"testFutureCastNegative"},
-                {"testFutureOfFutureValueCastNegative"}
+    public Object[] futureCastTests() {
+        return new String[] {
+                "testFutureWithoutFutureConstraintCastPositive",
+                "testFutureCastNegative",
+                "testFutureOfFutureValueCastNegative"
         };
     }
 
@@ -386,8 +387,8 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, functionName);
     }
 
-    @Test(dataProvider = "futureCastNegativeTests")
-    public void testFutureCastNegative(String function) {
+    @Test(dataProvider = "futureCastTests")
+    public void testFutureCast(String function) {
         BRunUtil.invoke(result, function);
     }
 
