@@ -193,7 +193,7 @@ public function main() {
     Student clientObjectVar = new Student();
 
     typedesc<int> typedescVar = int;
-    stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
+    stream<int, error?> oddNumberStream = new stream<int, error?>(new OddNumberGenerator());
 
     //------------------------ Other types ------------------------//
 
