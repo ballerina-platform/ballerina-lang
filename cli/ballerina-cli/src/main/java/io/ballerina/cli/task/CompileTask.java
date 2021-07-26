@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.central.client.CentralClientConstants;
 
 import java.io.PrintStream;
 
@@ -60,6 +61,8 @@ public class CompileTask implements Task {
         }
         // Print the source
         this.out.println("\t" + sourceName);
+
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "false");
 
         try {
             long start = 0;
