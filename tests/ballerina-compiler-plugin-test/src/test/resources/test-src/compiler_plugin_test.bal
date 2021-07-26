@@ -79,23 +79,23 @@ public class ABC {
     }
 
     public function 'start() returns error? {
-        return ();
+        return;
     }
 
     public function gracefulStop() returns error? {
-        return ();
+        return;
     }
 
     public function immediateStop() returns error? {
-        return ();
+        return;
     }
 
     public function attach(service object {} s, string|string[]? name = ()) returns error? {
-        return ();
+        return;
     }
 
     public function detach(service object {} s) returns error? {
-        return ();
+        return;
     }
 }
 
