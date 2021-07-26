@@ -65,6 +65,7 @@ import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SemanticTokensParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
@@ -142,6 +143,8 @@ public class TestUtil {
     private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
 
     private static final String DOCUMENT_EXEC_POSITIONS = "ballerinaDocument/executorPositions";
+
+    private static final String SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full";
 
     private static final Gson GSON = new Gson();
 
@@ -428,6 +431,12 @@ public class TestUtil {
         BallerinaProjectParams executorPositionsRequest = new BallerinaProjectParams();
         executorPositionsRequest.setDocumentIdentifier(getTextDocumentIdentifier(filePath));
         return getResponseString(serviceEndpoint.request(DOCUMENT_EXEC_POSITIONS, executorPositionsRequest));
+    }
+
+    public static String getSemanticTokensResponse(Endpoint serviceEndpoint, String filePath) {
+
+        SemanticTokensParams semanticTokensParams = new SemanticTokensParams(getTextDocumentIdentifier(filePath));
+        return getResponseString(serviceEndpoint.request(SEMANTIC_TOKENS_FULL, semanticTokensParams));
     }
 
     /**
