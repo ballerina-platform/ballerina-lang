@@ -587,4 +587,3 @@ class BallerinaTextDocumentService implements TextDocumentService {
         });
     }
 }
-
