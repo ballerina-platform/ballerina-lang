@@ -323,10 +323,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean queryToTableWithKey;
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private int workerSystemMovementSequence;
-    private ReachabilityAnalysis reachabilityAnalysis;
+    private final ReachabilityAnalysis reachabilityAnalysis;
     private boolean inWhileOrIfBlock;
     private boolean inElseBlock;
-    private boolean notCompletedNormally;
+    private boolean breakStmtFound;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -536,7 +536,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!isNeverOrNilableReturn && !this.statementReturns && !this.notCompletedNormally) {
+            if (!isNeverOrNilableReturn && !this.statementReturns) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
@@ -555,7 +555,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
         this.transactionalFuncCheckStack.pop();
-        reachabilityAnalysis.resetNotCompletedNormally();
     }
 
     private Location getEndCharPos(Location pos) {
@@ -818,7 +817,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         boolean ifStmtReturns = this.statementReturns;
         boolean currentErrorThrown = this.errorThrown;
-        boolean currentLastStatement = this.lastStatement;
         if (!reachabilityAnalysis.conditionIsConstTrue()) {
             reachabilityAnalysis.resetStatementReturns();
             reachabilityAnalysis.resetErrorThrown();
@@ -837,10 +835,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (!reachabilityAnalysis.conditionIsConstTrue()) {
                 this.statementReturns = ifStmtReturns && this.statementReturns;
                 this.errorThrown = currentErrorThrown && this.errorThrown;
-                this.lastStatement = currentLastStatement && this.lastStatement;
             }
-        } else if (ifStmt.elseStmt == null && reachabilityAnalysis.conditionIsConstFalse() && statementReturns) {
-            notCompletedNormally = true;
         }
         analyzeExpr(ifStmt.expr);
         this.inWhileOrIfBlock = false;
@@ -2299,6 +2294,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.statementReturns = statementReturns;
         this.failureHandled = failureHandled;
         reachabilityAnalysis.resetLastStatement();
+        this.breakStmtFound = false;
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
         foreach.body.failureBreakMode = foreach.onFailClause != null ?
@@ -2322,11 +2318,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount++;
         analyzeNode(whileNode.body, env);
         this.loopCount--;
-        if (!reachabilityAnalysis.conditionIsConstTrue()) {
+        if (!reachabilityAnalysis.conditionIsConstTrue() || this.breakStmtFound) {
             this.statementReturns = statementReturns;
         }
         this.failureHandled = failureHandled;
         reachabilityAnalysis.resetLastStatement();
+        this.breakStmtFound = false;
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
         analyzeOnFailClause(whileNode.onFailClause);
@@ -2754,6 +2751,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         this.lastStatement = true;
+        this.breakStmtFound = true;
     }
 
     public void visit(BLangThrow throwNode) {
@@ -2774,6 +2772,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         reachabilityAnalysis.checkStatementExecutionValidity(exprStmtNode);
         analyzeExpr(exprStmtNode.expr);
         validateExprStatementExpression(exprStmtNode);
+
+        if (exprStmtNode.expr.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) exprStmtNode.expr;
+            if (invocation.symbol != null && !((invocation.symbol.flags & Flags.LANG_LIB) ==
+                            Flags.LANG_LIB && invocation.name.value.equals("unreachable")) &&
+                    types.isNeverTypeOrStructureTypeWithARequiredNeverMember(invocation.getBType())) {
+                this.statementReturns = true;
+            }
+        }
     }
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
@@ -3263,14 +3270,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(invocationExpr.expr);
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
-        reachabilityAnalysis.resetNotCompletedNormally();
-
-        if (invocationExpr.getBType() != null && invocationExpr.symbol != null &&
-                !((invocationExpr.symbol.flags & Flags.LANG_LIB) ==
-                Flags.LANG_LIB && invocationExpr.name.value.equals("unreachable")) &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(invocationExpr.getBType())) {
-            notCompletedNormally = true;
-        }
 
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
@@ -4770,16 +4769,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             errorThrown = false;
         }
 
-        private void resetNotCompletedNormally() {
-            notCompletedNormally = false;
-        }
-
         private void resetUnreachableBlock() {
             unreachableBlock = false;
-        }
-
-        private boolean conditionIsConstFalse() {
-            return BooleanConst.FALSE.equals(isConstantTrueOrFalse);
         }
 
         private boolean conditionIsConstTrue() {
