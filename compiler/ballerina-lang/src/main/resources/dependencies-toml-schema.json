@@ -5,6 +5,29 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "ballerina": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_.]*$",
+          "message": {
+            "pattern": "invalid 'version' under [ballerina]: 'version' should only contain alphanumeric characters"
+          }
+        },
+        "dependencies-toml-version": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_.]*$",
+          "message": {
+            "pattern": "invalid 'toml-version' under [ballerina]: 'toml-version' should be a string"
+          }
+        }
+      },
+      "required": ["version","dependencies-toml-version"],
+      "message": {
+        "required": "'${property}' under [ballerina] is missing"
+      }
+    },
     "dependency": {
       "type": "array",
       "items": {
