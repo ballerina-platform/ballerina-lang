@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
@@ -39,7 +38,6 @@ import java.util.Map;
  */
 @Test(groups = "http-test")
 public class SslProtocolTest extends BaseTest {
-    private static final ConfigRegistry registry = ConfigRegistry.getInstance();
 
     @Test(description = "Test ssl protocols")
     public void testSslProtocols() throws Exception {
@@ -54,7 +52,6 @@ public class SslProtocolTest extends BaseTest {
 
         Map<String, String> runtimeParams = new HashMap<>();
         runtimeParams.put("truststore", trustStore);
-        registry.initRegistry(runtimeParams, null, null);
         CompileResult result = BCompileUtil.compile(balFile);
 
         BValue[] responses = BRunUtil.invoke(result, "testSslProtocol", new Object[] {});
