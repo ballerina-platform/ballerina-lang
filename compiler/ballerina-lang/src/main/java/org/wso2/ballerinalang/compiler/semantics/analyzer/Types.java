@@ -3576,7 +3576,7 @@ public class Types {
         boolean matchFound = false;
         for (BType lhsType : lhsTypes) {
             for (BType rhsType : rhsTypes) {
-                if (isSameType(lhsType, rhsType) || isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
+                if (isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
                     matchFound = true;
                     break;
                 }
