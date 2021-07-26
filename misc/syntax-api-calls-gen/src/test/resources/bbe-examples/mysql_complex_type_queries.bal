@@ -30,7 +30,7 @@ function queryBinaryType(mysql:Client mysqlClient) {
     // The name and type of the attributes within the record from the
     // `resultStream` will be automatically identified based on the column
     // name and type of the query result.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         mysqlClient->query("Select * from BINARY_TYPES");
 
     io:println("Result 1:");
@@ -46,7 +46,7 @@ function queryBinaryType(mysql:Client mysqlClient) {
     // Since the `rowType` is provided as a `BinaryType`, the `resultStream` will
     // have `BinaryType` records.
     resultStream = mysqlClient->query("Select * from BINARY_TYPES", BinaryType);
-    stream<BinaryType, sql:Error> binaryResultStream =
+    stream<BinaryType, sql:Error?> binaryResultStream =
         <stream<BinaryType, sql:Error>>resultStream;
 
     io:println("Result 2:");
@@ -67,7 +67,7 @@ function queryDateTimeType(mysql:Client mysqlClient) {
     // The name and type of the attributes within the record from the
     // `resultStream` will be automatically identified based on the column
     // name and type of the query result.
-    stream<record{}, error> resultStream =
+    stream<record{}, error?> resultStream =
         mysqlClient->query("Select * from DATE_TIME_TYPES");
 
     io:println("Result 1:");

@@ -48,6 +48,8 @@ public class ProjectRenameTest extends AbstractRenameTest {
                 {"rename_package_alias_result3.json", "mod"},
                 {"rename_package_alias_result4.json", "mod1"},
                 {"rename_package_alias_result5.json", "mod1"},
+                {"rename_to_keyword1.json", "string"},
+                {"rename_to_keyword2.json", "string"},
 
                 // Negative/invalid cases
                 {"rename_keyword_result1.json", "kw"},

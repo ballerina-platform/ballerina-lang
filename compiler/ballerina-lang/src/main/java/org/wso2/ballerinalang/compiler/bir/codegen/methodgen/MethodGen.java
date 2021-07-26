@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -137,10 +138,12 @@ public class MethodGen {
     private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
+    private final CompilerContext compilerContext;
 
-    public MethodGen(JvmPackageGen jvmPackageGen) {
+    public MethodGen(JvmPackageGen jvmPackageGen, CompilerContext compilerContext) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
+        this.compilerContext = compilerContext;
     }
 
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
@@ -149,7 +152,7 @@ public class MethodGen {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                                                          jvmTypeGen, jvmCastGen, stringConstantsGen, moduleClassName,
-                                                         asyncDataCollector);
+                                                         asyncDataCollector, compilerContext);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, stringConstantsGen, moduleClassName,
                                attachedType, asyncDataCollector);
@@ -215,7 +218,8 @@ public class MethodGen {
         addCasesForBasicBlocks(func, funcName, labelGen, labels, states);
 
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
-                                                          jvmCastGen, stringConstantsGen, asyncDataCollector);
+                                                          jvmCastGen, stringConstantsGen, asyncDataCollector,
+                                                          compilerContext);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);

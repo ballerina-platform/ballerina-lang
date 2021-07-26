@@ -197,7 +197,7 @@ public class JDIEventProcessor {
                 context.getDebuggeeVM().resume();
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint at " +
+            context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional breakpoint at " +
                     "line: %d, due to timeout while evaluating the condition:'%s'.", lineNumber, condition));
             if (!logMessage.isEmpty()) {
                 context.getOutputLogger().sendProgramOutput(logMessage);
@@ -372,11 +372,11 @@ public class JDIEventProcessor {
                 String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();
                 return condition.equalsIgnoreCase(CONDITION_TRUE);
             } catch (EvaluationException e) {
-                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
+                context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional breakpoint " +
                         "at line: %d, due to: %s%s", lineNumber, System.lineSeparator(), e.getMessage()));
                 return false;
             } catch (Exception e) {
-                context.getOutputLogger().sendConsoleOutput(String.format("Warning: Skipping conditional breakpoint " +
+                context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional breakpoint " +
                         "at line: %d, due to an internal error", lineNumber));
                 return false;
             }

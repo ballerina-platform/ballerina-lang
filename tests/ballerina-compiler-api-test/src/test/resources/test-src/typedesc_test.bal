@@ -238,3 +238,9 @@ type FooReadOnly readonly & record {
 function testIntersectionTypeRef(FooObj & readonly f, Foo & readonly g) {
     FooReadOnly recR = g;
 }
+
+type bar function(string, int) returns boolean;
+
+type Obj object {
+    function(string, string) barObj;
+};
