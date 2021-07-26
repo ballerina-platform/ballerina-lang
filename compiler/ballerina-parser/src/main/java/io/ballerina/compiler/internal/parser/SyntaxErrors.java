@@ -100,7 +100,6 @@ public class SyntaxErrors {
             case FUNC_BODY_BLOCK:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case FUNC_DEF:
-            case FUNC_DEF_START:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
@@ -357,7 +356,6 @@ public class SyntaxErrors {
             case XML_NAMESPACE_DECLARATION:
                 return DiagnosticErrorCode.ERROR_MISSING_XMLNS_KEYWORD;
             case ANNOTATION_KEYWORD:
-            case ANNOTATION_DECL_START:
                 return DiagnosticErrorCode.ERROR_MISSING_ANNOTATION_KEYWORD;
             case TYPE_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_KEYWORD;

@@ -136,7 +136,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_DEF_FIRST_QUALIFIER };
 
     private static final ParserRuleContext[] FUNC_DEF_WITHOUT_FIRST_QUALIFIER =
-            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_DEF_SECOND_QUALIFIER};
+            { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_DEF_SECOND_QUALIFIER };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -662,7 +662,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER, ParserRuleContext.MAPPING_FIELD };
 
     private static final ParserRuleContext[] LISTENERS_LIST_END =
-            { ParserRuleContext.OBJECT_CONSTRUCTOR_BLOCK, ParserRuleContext.COMMA};
+            { ParserRuleContext.OBJECT_CONSTRUCTOR_BLOCK, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] FUNC_TYPE_DESC_START =
             { ParserRuleContext.FUNCTION_KEYWORD, ParserRuleContext.FUNC_TYPE_FIRST_QUALIFIER };
@@ -2747,8 +2747,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             // statement. So assume the fix for this is a REMOVE operation and continue from the next token.
             Result result = seekMatchInSubTree(ParserRuleContext.STATEMENT, lookahead + 1, currentDepth + 1,
                     isEntryPoint);
-            result.pushFix(new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString(),
-                    currentDepth + 1));
+            result.pushFix(new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString(), currentDepth));
             return getFinalResult(currentMatches, result);
         }
 
@@ -5529,7 +5528,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_BODY_BLOCK:
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEF:
-            case FUNC_DEF_START:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
@@ -5614,8 +5612,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_MATCH_PATTERN:
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
-            case ANNOTATION_DECL_START:
-                return SyntaxKind.ANNOTATION_KEYWORD;
             default:
                 return getExpectedSeperatorTokenKind(ctx);
         }
