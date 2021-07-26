@@ -2705,7 +2705,8 @@ public class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.XML_PI_TAG:
-                return XmlFactory.isEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && XmlFactory.isEqual((XmlValue) lhsValue,
+                        (XmlValue) rhsValue);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:

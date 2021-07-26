@@ -37,4 +37,6 @@ public abstract class TomlValueNode extends TomlNode {
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
     }
+    
+    public abstract Object toNativeValue();
 }

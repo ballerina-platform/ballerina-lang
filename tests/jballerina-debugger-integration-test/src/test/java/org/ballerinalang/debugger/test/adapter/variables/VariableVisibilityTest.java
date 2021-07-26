@@ -153,7 +153,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test for global variables")
     public void globalVariableVisibilityTest() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 292));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 295));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 270));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
@@ -276,7 +276,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "tableWithoutKeyVar", "table<Employee> (entries = 3)", "table");
 
         // stream variable visibility test
-        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error>", "stream");
+        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error?>", "stream");
 
         // variables with quoted identifiers visibility test
         debugTestRunner.assertVariable(localVariables, " /:@[`{~π_var", "\"IL with special characters in var\"",
