@@ -21,7 +21,6 @@ dependencies {
    implementation 'org.apache.maven:maven-plugin-api'
    implementation 'org.codehaus.plexus:plexus-utils'
    implementation 'org.apache.commons:commons-lang3'
-   implementation project(':ballerina-config')
    implementation project(':ballerina-cli')
    implementation project(':ballerina-lang')
    implementation project(':docerina')

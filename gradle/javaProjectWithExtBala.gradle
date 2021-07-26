@@ -80,7 +80,6 @@ test {
     systemProperty "enableJBallerinaTests", "true"
 
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "LANG_REPO_BUILD", "true"
 
     useTestNG() {

@@ -23,10 +23,6 @@ import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.config.cipher.AESCipherTool;
-import org.ballerinalang.config.cipher.AESCipherToolException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -50,8 +46,6 @@ public class Main {
 
     private static PrintStream errStream = System.err;
     private static PrintStream outStream = System.out;
-
-    private static final Logger breLog = LoggerFactory.getLogger(Main.class);
 
     public static void main(String... args) {
         try {
@@ -362,95 +356,6 @@ public class Main {
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
-        }
-    }
-
-
-    /**
-     * Represents the encrypt command which can be used to make use of the AES cipher tool. This is for the users to be
-     * able to encrypt sensitive values before adding them to config files.
-     *
-     * @since 0.966.0
-     */
-    @CommandLine.Command(name = "encrypt", description = "encrypt sensitive data")
-    public static class EncryptCmd implements BLauncherCmd {
-
-        @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
-        private boolean helpFlag;
-
-        @Override
-        public void execute() {
-            if (helpFlag) {
-                printUsageInfo(BallerinaCliCommands.ENCRYPT);
-                return;
-            }
-
-            String value;
-            if ((value = promptForInput("Enter value: ")).trim().isEmpty()) {
-                if (value.trim().isEmpty()) {
-                    value = promptForInput("Value cannot be empty; enter value: ");
-                    if (value.trim().isEmpty()) {
-                        throw LauncherUtils.createLauncherException("encryption failed: empty value.");
-                    }
-                }
-            }
-
-            String secret;
-            if ((secret = promptForInput("Enter secret: ")).trim().isEmpty()) {
-                if (secret.trim().isEmpty()) {
-                    secret = promptForInput("Secret cannot be empty; enter secret: ");
-                    if (secret.trim().isEmpty()) {
-                        throw LauncherUtils.createLauncherException("encryption failed: empty secret.");
-                    }
-                }
-            }
-
-            String secretVerifyVal = promptForInput("Re-enter secret to verify: ");
-
-            if (!secret.equals(secretVerifyVal)) {
-                throw LauncherUtils.createLauncherException("secrets did not match.");
-            }
-
-            try {
-                AESCipherTool cipherTool = new AESCipherTool(secret);
-                String encryptedValue = cipherTool.encrypt(value);
-
-                errStream.println("Add the following to the configuration file:");
-                errStream.println("<key>=\"@encrypted:{" + encryptedValue + "}\"");
-            } catch (AESCipherToolException e) {
-                throw LauncherUtils.createLauncherException("failed to encrypt value: " + e.getMessage());
-            }
-        }
-
-        @Override
-        public String getName() {
-            return BallerinaCliCommands.ENCRYPT;
-        }
-
-        @Override
-        public void printLongDesc(StringBuilder out) {
-            out.append("The encrypt command can be used to encrypt sensitive data.\n\n");
-            out.append("When the command is executed, the user will be prompted to\n");
-            out.append("enter the value to be encrypted and a secret. The secret will be used in \n");
-            out.append("encrypting the value.\n\n");
-            out.append("Once encrypted, the user can place the encrypted value in the config files,\n");
-            out.append("similar to the following example:\n");
-            out.append("\tuser.password=\"@encrypted:{UtD9d+o6eHpqFnBxtvhb+RWXey7qm7xLMt6+6mrt9w0=}\"\n\n");
-            out.append("The Ballerina Config API will automatically decrypt the values on-demand.\n");
-        }
-
-        @Override
-        public void printUsage(StringBuilder out) {
-            out.append("  ballerina encrypt\n");
-        }
-
-        @Override
-        public void setParentCmdParser(CommandLine parentCmdParser) {
-        }
-
-        private String promptForInput(String msg) {
-            errStream.println(msg);
-            return new String(System.console().readPassword());
         }
     }
 

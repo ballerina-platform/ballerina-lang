@@ -49,7 +49,6 @@ type Person1 record {|
 
 type Person2 record {|
     int|json unionField;
-    json jsonField;
 |};
 
 type Person3 record {|
@@ -59,6 +58,11 @@ type Person3 record {|
 type Person4 record {|
     string name;
     Person1 person;
+|};
+
+type Person5 record {|
+    json field1;
+    json field2;
 |};
 
 type Colors "Red" | "Green";
@@ -72,6 +76,7 @@ configurable Person1 person1 = ?;
 configurable Person2 person2 = ?;
 configurable Person3 person3 = ?;
 configurable Person4 person4 = ?;
+configurable Person5 person5 = ?;
 
 // Unsupported table constraint
 configurable table<map<json>> tableVar1 = ?;

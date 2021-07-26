@@ -1034,6 +1034,20 @@ public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
     return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
 }
 
+function testXmlStringNegative() {
+    anydata x1 = xml `<book>The Lost World</book>`;
+    anydata x2 = "<book>The Lost World</book>";
+    anydata x3 = xml `Hello, world!`;
+    anydata x4 = "Hello, world!";
+    anydata x5 = xml `<?target data?>`;
+    anydata x6 = "<?target data?>";
+    anydata x7 = xml `<!-- I'm comment -->`;
+    anydata x8 = "<!-- I'm comment -->";
+    boolean result =  x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7
+     != x8) || x2 == x1 || !(x2 != x1) || x4 == x3 || !(x4 != x3) || x6 == x5 || !(x6 != x5) || x8 == x7 || !(x8 != x7);
+     assert(result, false);
+}
+
 public function testJsonRecordMapEqualityPositive() returns boolean {
     OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
 

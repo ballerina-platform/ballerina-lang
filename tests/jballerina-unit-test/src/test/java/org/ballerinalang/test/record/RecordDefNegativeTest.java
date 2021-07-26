@@ -20,6 +20,7 @@ package org.ballerinalang.test.record;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -28,6 +29,9 @@ import static org.testng.Assert.assertEquals;
  * Test cases for user record definition negative test.
  */
 public class RecordDefNegativeTest {
+
+    private static final String INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION =
+            "cannot use 'check' in the default expression of a record field";
 
     @Test(description = "Test usage of duplicate keys in record definition")
     public void duplicateKeyTest() {
@@ -81,5 +85,49 @@ public class RecordDefNegativeTest {
         BAssertUtil.validateError(compileResult, indx++, "'_' is a keyword, and may not be used as an identifier",
                 27, 31);
         assertEquals(compileResult.getErrorCount(), indx);
+    }
+
+    @Test
+    public void testInvalidUsageOfCheckInRecordFieldDefaultValue() {
+        CompileResult compileResult = BCompileUtil.
+                compile("test-src/record/negative/record_field_default_value_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                22, 13);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                23, 21);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                24, 23);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                36, 25);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                39, 17);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                46, 19);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                52, 17);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                53, 18);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                54, 12);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                55, 16);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                60, 23);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                66, 21);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                67, 21);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                67, 42);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                68, 16);
+        BAssertUtil.validateError(compileResult, i++, "cannot use 'check' in an object field initializer of an object" +
+                " with no 'init' method", 70, 27);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                76, 13);
+        BAssertUtil.validateError(compileResult, i++, INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION,
+                80, 13);
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 }

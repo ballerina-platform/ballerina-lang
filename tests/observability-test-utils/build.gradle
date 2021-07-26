@@ -95,7 +95,6 @@ test {
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
-    systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'ballerina.agent.path', configurations.testUtils.asPath
     systemProperty 'observability.test.utils.bala', "$buildDir/ballerina-src/target/testobserve.zip"
     systemProperty 'observability.test.utils.jar', tasks.shadowJar.archiveFile.get().asFile
