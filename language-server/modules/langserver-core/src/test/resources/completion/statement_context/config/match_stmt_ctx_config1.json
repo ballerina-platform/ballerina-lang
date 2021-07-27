@@ -479,14 +479,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "p",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",

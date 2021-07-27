@@ -675,14 +675,6 @@
       }
     },
     {
-      "label": "varToMatch",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "varToMatch",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "worker",
       "kind": "Snippet",
       "detail": "Snippet",
