@@ -4,6 +4,8 @@ nestedInlineTableRoot = { nested = { greeting = "hello"}, another = "Another one
 
 inline = { parent.child = "hello" }
 
+emptyInline = {}
+
 [table]
 inlineTable = { nested = { greeting = "hello"}, another = "Another one" }
 

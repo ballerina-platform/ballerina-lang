@@ -149,9 +149,11 @@ public class TomlParser extends AbstractParser {
     }
 
     /**
-     * Parsing Inline Table. Key is a identifier. Value should be surrounded by braces. It could contain any toml top
-     * level node inside.
-     * Ex - table = { key = "value" , key2 = "value2"}
+     * Parse inline table.
+     * <p>
+     * Key is an identifier. Value should be surrounded by braces. It could contain any toml top level node inside.
+     * <br>
+     * e.g. table = { key = "value" , key2 = "value2"}
      *
      * @return TableNode
      */
@@ -163,21 +165,35 @@ public class TomlParser extends AbstractParser {
     }
 
     private STNode parseInlineKeyValuePairs() {
-        startContext(ParserRuleContext.INLINE_TABLE_START);
-        STToken token = peek();
+        startContext(ParserRuleContext.INLINE_TABLE_LIST);
+        STToken nextToken = peek();
 
-        if (isEndOfInlineTable(token)) {
+        if (isEndOfInlineTable(nextToken)) {
             STNode values = STNodeFactory.createEmptyNodeList();
             endContext();
             return values;
         }
+        ArrayList<STNode> valuesList = new ArrayList<>();
+        
+        STNode value = parseInlineKeyValuePair();
+        valuesList.add(value);
 
-        STNode firstValue = parseInlineKeyValuePair();
-        if (firstValue == null) {
-            return STNodeFactory.createEmptyNodeList();
+        nextToken = peek();
+        while (!(isEndOfInlineTable(nextToken))) {
+            STNode valueEnd = parseInlineTableEntryEnd();
+            if (valueEnd == null) {
+                // null marks the end of values
+                break;
+            }
+            
+            valuesList.add(valueEnd);
+            value = parseInlineKeyValuePair();
+            valuesList.add(value);
+
+            nextToken = peek();
         }
-
-        return parseInlineKeyValuePairs(firstValue);
+        endContext();
+        return STNodeFactory.createNodeList(valuesList);
     }
 
     private STNode parseInlineKeyValuePair() {
@@ -191,8 +207,6 @@ public class TomlParser extends AbstractParser {
             case DECIMAL_INT_TOKEN:
             case DECIMAL_FLOAT_TOKEN:
                 return parseKeyValue(true);
-            case CLOSE_BRACE_TOKEN:
-                return null;
             default:
                 recover(peek(), ParserRuleContext.INLINE_TABLE_ENTRY_START);
                 return parseInlineKeyValuePair();
@@ -201,30 +215,6 @@ public class TomlParser extends AbstractParser {
 
     private boolean isEndOfInlineTable(STToken token) {
         return token.kind == SyntaxKind.CLOSE_BRACE_TOKEN || token.kind == EOF_TOKEN;
-    }
-
-    private STNode parseInlineKeyValuePairs(STNode firstValue) {
-        ArrayList<STNode> valuesList = new ArrayList<>();
-        valuesList.add(firstValue);
-
-        STToken nextToken = peek();
-        while (!(isEndOfInlineTable(nextToken))) {
-            STNode valueEnd = parseInlineTableEntryEnd();
-            if (valueEnd == null) {
-                // null marks the end of values
-                break;
-            }
-
-            STNode curValue = parseInlineKeyValuePair();
-            if (curValue != null) {
-                valuesList.add(valueEnd);
-                valuesList.add(curValue);
-            }
-
-            nextToken = peek();
-        }
-        endContext();
-        return STNodeFactory.createNodeList(valuesList);
     }
 
     private STNode parseInlineTableEntryEnd() {

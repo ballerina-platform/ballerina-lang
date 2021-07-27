@@ -388,6 +388,7 @@ public class KeyValueTest {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/inline-tables.toml");
         Toml read = Toml.read(inputStream);
+        Assert.assertEquals(read.getTable("emptyInline").get().rootNode().entries().size(), 0);
         TomlStringValueNode first = (TomlStringValueNode) read.get("rootInline.first").get();
         TomlStringValueNode last = (TomlStringValueNode) read.get("rootInline.last").get();
         Assert.assertEquals(first.getValue(), "Tom");
