@@ -1,0 +1,29 @@
+simplekv = "simplekv value"
+simplekv1 = "simplekv1 value"
+simpleint = 11
+simplefloat = 1.5
+simplebool = false
+simpleArr = [1,5,7]
+
+[table]
+tableKv = "table kv"
+tableKv1 = "table kv1"
+
+[table.child]
+tableKvChild = "table kv child"
+tableKv1Child = "table kv1 child"
+
+[table.child.grandchild]
+tableKvGrandChild = "table kv grandchild"
+tableKv1GrandChild = "table kv1 grandchild"
+
+[[tableArr]]
+tableKv = "tableArr kv first"
+tableKv1 = "tableArr kv1 first"
+
+[[tableArr]]
+tableKv = "tableArr kv2 second"
+
+[[tableArr]]
+tableKv = "tableArr kv third"
+tableKv1 = "tableArr kv1 third"

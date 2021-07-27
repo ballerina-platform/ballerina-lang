@@ -771,6 +771,11 @@ public class TypeTestExprTest {
     }
 
     @Test
+    public void testBuiltInSubTypeTypeTestAgainstFiniteType() {
+        BRunUtil.invoke(result, "testBuiltInSubTypeTypeTestAgainstFiniteType");
+    }
+
+    @Test
     public void testIfElseWithTypeTest() {
         BRunUtil.invoke(result, "testIfElseWithTypeTest");
     }

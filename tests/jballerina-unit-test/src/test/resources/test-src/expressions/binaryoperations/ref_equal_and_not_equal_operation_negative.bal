@@ -63,15 +63,11 @@ function checkRefEqualityOfRecordsOfIncompatibleTypes() returns boolean {
 }
 
 function checkRefEqualityWithJsonForIncompatibleType() returns boolean {
-    [string, int] t = ["Hi", 1];
+    record {xml x;}|[string, xml] e = ["Hi", xml `hi`];
     json j = "Hi 1";
-    boolean bool1 = t === j && !(j !== t);
-
-    Employee|[string, int] e = ["Hi", 1];
-    j = "Hi 1";
     boolean bool2 = e === j && !(e !== j);
 
-    return bool1 && bool2;
+    return bool2;
 }
 
 function checkRefEqualityOfObjectsOfIncompatibleTypes() returns boolean {
@@ -80,15 +76,15 @@ function checkRefEqualityOfObjectsOfIncompatibleTypes() returns boolean {
     return a === d && !(d !== a);
 }
 
-type Employee record {
+type Employee record {|
     string name;
     int id = 0;
-};
+|};
 
-type Person record {
+type Person record {|
     string name;
     int area = 0;
-};
+|};
 
 class Abc {
     public string name;

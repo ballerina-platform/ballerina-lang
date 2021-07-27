@@ -1212,6 +1212,21 @@ function testRecordIntersectionWithFunctionFields() {
     assertFalse(recordIntersectionWithFunctionFields());
 }
 
+type Colour "r"|"g"|"b";
+type Ints 1|2;
+
+function testBuiltInSubTypeTypeTestAgainstFiniteType() {
+    string:Char a = "r";
+    assertTrue(a is Colour);
+    a = "x";
+    assertFalse(a is Colour);
+
+    int:Unsigned16 b = 1;
+    assertTrue(b is Ints);
+    b = 4;
+    assertFalse(b is Ints);
+}
+
 public type SomeRecord record {
     int intField;
 };

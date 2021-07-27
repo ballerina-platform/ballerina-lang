@@ -59,3 +59,5 @@ type Grades record {
     int physics;
     int chemistry;
 };
+
+function exprBodyScope(string myStr) returns string => myStr

@@ -478,6 +478,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
+    public BSymbol resolveInvocableObjectField(Location pos, SymbolEnv env, Name fieldName,
+                                               BObjectTypeSymbol objectTypeSymbol) {
+        return lookupMemberSymbol(pos, objectTypeSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    }
+
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
         return resolveTypeNode(typeNode, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
@@ -621,6 +626,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
+            case TypeTags.BYTE:
                 bSymbol = lookupMethodInModule(symTable.langIntModuleSymbol, name, env);
                 break;
             case TypeTags.MAP:
@@ -672,6 +678,29 @@ public class SymbolResolver extends BLangNodeVisitor {
                 } else {
                     bSymbol = symTable.notFoundSymbol;
                 }
+                break;
+            case TypeTags.FINITE:
+                if (types.isAssignable(type, symTable.intType)) {
+                    return lookupLangLibMethod(symTable.intType, name);
+                }
+
+                if (types.isAssignable(type, symTable.stringType)) {
+                    return lookupLangLibMethod(symTable.stringType, name);
+                }
+
+                if (types.isAssignable(type, symTable.decimalType)) {
+                    return lookupLangLibMethod(symTable.decimalType, name);
+                }
+
+                if (types.isAssignable(type, symTable.floatType)) {
+                    return lookupLangLibMethod(symTable.floatType, name);
+                }
+
+                if (types.isAssignable(type, symTable.booleanType)) {
+                    return lookupLangLibMethod(symTable.booleanType, name);
+                }
+
+                bSymbol = symTable.notFoundSymbol;
                 break;
             default:
                 bSymbol = symTable.notFoundSymbol;
@@ -1658,7 +1687,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
-                                                BLangBinaryExpr binaryExpr) {
+                                                BLangBinaryExpr binaryExpr, SymbolEnv env) {
         boolean validEqualityIntersectionExists;
         switch (opKind) {
             case EQUAL:
@@ -1668,7 +1697,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             case REF_EQUAL:
             case REF_NOT_EQUAL:
                 validEqualityIntersectionExists =
-                        types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
+                        types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionTestContext(),
+                                lhsType, rhsType, env) != symTable.semanticError;
                 break;
             default:
                 return symTable.notFoundSymbol;
@@ -2166,6 +2196,26 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean isModuleLevelVar(BSymbol symbol) {
         return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
+    }
+
+    public Set<BVarSymbol> getConfigVarSymbolsIncludingImportedModules(BPackageSymbol packageSymbol) {
+        Set<BVarSymbol> configVars = new HashSet<>();
+        populateConfigurableVars(packageSymbol, configVars);
+        if (!packageSymbol.imports.isEmpty()) {
+            for (BPackageSymbol importSymbol : packageSymbol.imports) {
+                populateConfigurableVars(importSymbol, configVars);
+            }
+        }
+        return configVars;
+    }
+
+    private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
+        for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
+            BSymbol symbol = entry.symbol;
+            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                configVars.add((BVarSymbol) symbol);
+            }
+        }
     }
 
     private static class ParameterizedTypeInfo {
