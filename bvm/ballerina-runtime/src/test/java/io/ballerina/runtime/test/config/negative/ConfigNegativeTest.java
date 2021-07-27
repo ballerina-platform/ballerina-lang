@@ -49,8 +49,8 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
  */
 public class ConfigNegativeTest {
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
-    private static final Module MODULE = new Module("org", "mod1", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1");
+    private static final Module MODULE = new Module("org", "mod1", "1");
 
     @Test(dataProvider = "different-config-use-cases-data-provider")
     public void testConfigErrors(String[] args, String tomlFilePath, VariableKey[] varKeys, int errorCount,

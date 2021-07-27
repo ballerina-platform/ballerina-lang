@@ -53,9 +53,9 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPath;
  */
 public class ConfigTest {
 
-    private static final Module module = new Module("myOrg", "test_module", "1.0.0");
+    private static final Module module = new Module("myOrg", "test_module", "1");
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1");
     private static final Type[] COLOR_ENUM_MEMBERS = new Type[]{
             new BFiniteType("Colors", Set.of(StringUtils.fromString("RED")), 0),
             new BFiniteType("Colors", Set.of(StringUtils.fromString("GREEN")), 0)};

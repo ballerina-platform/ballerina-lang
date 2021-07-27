@@ -53,9 +53,9 @@ import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
  */
 public class TomlProviderNegativeTest {
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1.0.0");
-    private final Module subModule = new Module("rootOrg", "test_module.util.foo", "1.0.0");
-    private final Module importedModule = new Module("myOrg", "mod", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1");
+    private final Module subModule = new Module("rootOrg", "test_module.util.foo", "1");
+    private final Module importedModule = new Module("myOrg", "mod", "1");
 
     @Test(dataProvider = "path-test-provider")
     public void testPathErrors(String tomlFileName, String errorMsg, int warningCount) {
@@ -273,16 +273,16 @@ public class TomlProviderNegativeTest {
         VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
         VariableKey[] importedVariableKeys = getSimpleVariableKeys(importedModule);
 
-        Module clashingModule1 = new Module("myOrg", "test_module", "1.0.0");
+        Module clashingModule1 = new Module("myOrg", "test_module", "1");
         VariableKey[] clashingVariableKeys1 = getSimpleVariableKeys(clashingModule1);
 
-        Module clashingModule2 = new Module("myOrg", "test_module.util.foo", "1.0.0");
+        Module clashingModule2 = new Module("myOrg", "test_module.util.foo", "1");
         VariableKey[] clashingVariableKeys2 = getSimpleVariableKeys(clashingModule2);
 
-        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        Module clashingModule3 = new Module("test_module", "util.foo", "1");
         VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
 
-        Module clashingModule4 = new Module("test_module", "util", "1.0.0");
+        Module clashingModule4 = new Module("test_module", "util", "1");
         VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
 
         return new Object[][]{
@@ -336,7 +336,7 @@ public class TomlProviderNegativeTest {
     @Test
     public void testClashingOrgSubModules() {
         VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
-        Module clashingModule = new Module("test_module", "util.foo", "1.0.0");
+        Module clashingModule = new Module("test_module", "util.foo", "1");
         VariableKey[] clashingVariableKeys = getSimpleVariableKeys(clashingModule);
         Map<Module, VariableKey[]> variableMap =
                 Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule, clashingVariableKeys));
