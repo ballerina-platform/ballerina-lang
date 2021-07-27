@@ -31,4 +31,6 @@ public class NBTypeNames {
     static final String READONLY = " & readonly";
     static final String POSITION = "record {| int lineNumber; int indexInLine; |}";
     static final String OPERAND = "";
+    static final String CATCH_INSN = "record {| INSN_CATCH name; Register result; anydata...; |}";
+    static final String ABN_RET_INSN = "record {| INSN_ABNORMAL_RET name; Register operand; anydata...; |}";
 }

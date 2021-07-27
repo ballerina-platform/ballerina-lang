@@ -141,6 +141,7 @@ public class ModuleGen {
             if (curBlock != null) {
                 curBlock.insns.add(new NullRetInsn());
             }
+            createPanicBlock(fcode);
             jnmod.code.add(fcode);
         }
         return jnmod;
@@ -156,9 +157,9 @@ public class ModuleGen {
 
         } else if (stmt instanceof BLangSimpleVariableDef) {
             BLangSimpleVariableDef varDec = (BLangSimpleVariableDef) stmt;
+            Operand operand = codeGenExpr(varDec.var.getInitialExpression(), code);
             Register result = code.createRegister(varDec.getVariable().typeNode.getBType().getKind(),
                     varDec.getVariable().getName().toString());
-            Operand operand = codeGenExpr(varDec.var.getInitialExpression(), code);
             curBlock.insns.add(new AssignInsn(result, operand));
 
         } else if (stmt instanceof BLangExpressionStmt) {
@@ -193,6 +194,7 @@ public class ModuleGen {
                 case SUB:
                     Register reg2 = code.createRegister(TypeKind.INT, null);
                     IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
+                    curBlock.ppb = true;
                     ins.op = "-";
                     ins.result = reg2;
                     Operand zeroOp = new Operand(false);
@@ -215,12 +217,13 @@ public class ModuleGen {
                 case ADD: case SUB: case MUL: case DIV: case MOD:
                     Register reg = code.createRegister(TypeKind.INT, null);
                     IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
+                    curBlock.ppb = true;
                     ins.op = op.toString();
                     ins.result = reg;
                     ins.operands[0] = lhs;
                     ins.operands[1] = rhs;
-                    ins.position = new Position(bexpr.opSymbol.getPosition().lineRange().startLine().line() + 1,
-                            bexpr.opSymbol.getPosition().textRange().endOffset());
+                    ins.position = new Position(bexpr.getPosition().lineRange().startLine().line() + 1,
+                            bexpr.getPosition().textRange().startOffset());
                     curBlock.insns.add(ins);
                     result.register = reg;
                     return result;
@@ -270,6 +273,25 @@ public class ModuleGen {
         return result;
     }
 
+    void createPanicBlock(FunctionCode code) {
+        boolean panic = false;
+        int onPanicLabel = code.blocks.size();
+        for (BasicBlock block : code.blocks) {
+            if (block.ppb) {
+                panic = true;
+                block.onPanic = onPanicLabel;
+            }
+        }
+        if (panic) {
+            BasicBlock onPanicBlock = code.createBasicBlock();
+            Register reg = code.createRegister(TypeKind.ERROR, null);
+            CatchInsn catchInsn = new CatchInsn(reg);
+            AbnormalRetInsn abnRetInsn = new AbnormalRetInsn(reg);
+            onPanicBlock.insns.add(catchInsn);
+            onPanicBlock.insns.add(abnRetInsn);
+        }
+    }
+
     static long convertSimpleSemType(TypeKind typeKind) {
         switch (typeKind) {
             case INT:
@@ -280,6 +302,8 @@ public class ModuleGen {
                 return 1L;
             case ARRAY:
                 return 262144L;
+            case ERROR:
+                return 2048L;
             default:
                 throw new BallerinaException("Semtype not implemented for type");
         }

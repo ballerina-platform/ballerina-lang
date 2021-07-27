@@ -185,6 +185,7 @@ class Register {
 class BasicBlock {
     public int label;
     public int onPanic;
+    public boolean ppb;
     public ArrayList<InsnBase> insns = new ArrayList<>();
 
     public BasicBlock(int label) {
@@ -203,15 +204,23 @@ class BasicBlock {
         BMap<BString, Object> tmpVal5 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.ASSIGN_INSN, new HashMap<>());
         BMap<BString, Object> tmpVal6 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.LIST_CON_INSN, new HashMap<>()); //TODO add other insns
+                NBTypeNames.LIST_CON_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal7 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.CATCH_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal8 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.ABN_RET_INSN, new HashMap<>()); //TODO add other insns
         UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType(),
-                tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType());
+                tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
+        //TODO Move to a singleton
         BArray arr = ValueCreator.createArrayValue(arrTyp);
         insns.forEach(insn -> arr.append(insn.getRecord()));
         Map<String, Object> fields = new HashMap<>();
         fields.put("label", label);
         fields.put("insns", arr);
+        if (ppb) {
+            fields.put("onPanic", onPanic);
+        }
         return ValueCreator.createRecordValue(ModuleGen.MODBIR, "BasicBlock", fields);
     }
 }
@@ -427,6 +436,36 @@ class CallInsn extends InsnBase {
         fields.put("func", func.getRecord());
         fields.put("args", arr);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.CALL_INSN, fields);
+    }
+}
+
+class CatchInsn extends InsnBase {
+    Register result;
+
+    public CatchInsn(Register result) {
+        this.result = result;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("result", result.getRecord());
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.CATCH_INSN, fields);
+    }
+}
+
+class AbnormalRetInsn extends InsnBase {
+    Register operand;
+
+    public AbnormalRetInsn(Register operand) {
+        this.operand = operand;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("operand", operand.getRecord());
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.ABN_RET_INSN, fields);
     }
 }
 
