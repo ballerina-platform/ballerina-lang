@@ -52,12 +52,8 @@ public class QueryExpressionContextTest extends CompletionTest {
                 "query_expr_ctx_onconflict_clause_config1a.json",
                 // Order By [asc/desc]
                 "query_expr_ctx_orderby_clause_config4.json",
-                "query_expr_ctx_config4.json", // issue #31449
-
-                // TODO: Enable bellow tests. Disabled due to lookahead limit 4 in errorHandler.
-                "query_expr_ctx_config1.json",
-                "query_expr_ctx_config3.json",
-                "query_expr_ctx_config5a.json"
+                "query_expr_ctx_config3.json", // issue #31449
+                "query_expr_ctx_config4.json" // issue #31449
         );
     }
 

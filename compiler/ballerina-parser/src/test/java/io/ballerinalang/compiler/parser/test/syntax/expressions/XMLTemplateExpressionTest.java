@@ -160,7 +160,7 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
         testFile("xml-template/xml_template_source_22.bal", "xml-template/xml_template_assert_22.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testComplexInvalidInterpolations() {
         testFile("xml-template/xml_template_source_24.bal", "xml-template/xml_template_assert_24.json");
     }

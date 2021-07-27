@@ -150,7 +150,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b where select d", "query-expr/query_expr_assert_24.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testQueryLetClauseWithMissingLetKeyword() {
         test("from int a in b int c = d select e", "query-expr/query_expr_assert_25.json");
         test("from int a in b @A{} int c = d select e", "query-expr/query_expr_assert_26.json");

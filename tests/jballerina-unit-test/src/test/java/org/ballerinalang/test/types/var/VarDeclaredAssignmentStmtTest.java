@@ -153,15 +153,15 @@ public class VarDeclaredAssignmentStmtTest {
         BAssertUtil.validateError(res, 0, "initializer required for variables declared with var", 2, 5);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testVarDeclarationWithStructFieldAssignmentLHSExpr() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-invalid-usage-struct-field-negative.bal");
         Assert.assertEquals(res.getErrorCount(), 5);
-        BAssertUtil.validateError(res, 0, "initializer required for variables declared with var", 9, 4);
-        BAssertUtil.validateError(res, 1, "redeclared symbol 'human'", 9, 8);
-        BAssertUtil.validateError(res, 2, "missing semicolon token", 9, 13);
-        BAssertUtil.validateError(res, 3, "invalid token '.'", 9, 14);
-        BAssertUtil.validateError(res, 4, "undefined symbol 'name'", 9, 14);
+        BAssertUtil.validateError(res, 0, "redeclared symbol 'human'", 9, 8);
+        BAssertUtil.validateError(res, 1, "missing equal token", 9, 13);
+        BAssertUtil.validateError(res, 2, "missing identifier", 9, 13);
+        BAssertUtil.validateError(res, 3, "missing identifier", 9, 19);
+        BAssertUtil.validateError(res, 4, "missing semicolon token", 9, 19);
     }
 
     @Test

@@ -148,7 +148,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     }
 
     @Override
-    @Test
+    @Test(enabled = false) // issue: #31871
     public void functionCallEvaluationTest() throws BallerinaTestException {
 
         debugTestRunner.assertEvaluationError(context, "calculate(5, 6)", EvaluationExceptionKind.PREFIX +

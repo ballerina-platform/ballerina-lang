@@ -214,7 +214,7 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[3].stringValue(), "{}");
     }
 
-    @Test(description = "Test white space between the type name and ellipsis in rest descriptor", enabled = false)
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_delimiter.bal");
         int i = 0;
@@ -229,8 +229,10 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, i++, "invalid token '}'", 19, 28);
         BAssertUtil.validateError(result, i++, "invalid token '||'", 21, 27);
         BAssertUtil.validateError(result, i++, "invalid token '||'", 23, 28);
-        BAssertUtil.validateError(result, i++, "invalid token '|'", 25, 29);
-        BAssertUtil.validateError(result, i++, "invalid token '|'", 25, 29);;
+        BAssertUtil.validateError(result, i++, "missing close brace token", 25, 25);
+        BAssertUtil.validateError(result, i++, "missing type descriptor", 25, 27);;
+        BAssertUtil.validateError(result, i++, "missing object keyword", 25, 29);;
+        BAssertUtil.validateError(result, i++, "missing open brace token", 25, 29);;
     }
 
     @Test(description = "Test ambiguous type resolution negative cases")

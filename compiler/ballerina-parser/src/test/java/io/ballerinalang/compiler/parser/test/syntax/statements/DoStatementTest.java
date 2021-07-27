@@ -49,12 +49,12 @@ public class DoStatementTest extends AbstractStatementTest {
         testFile("do-stmt/do_stmt_source_05.bal", "do-stmt/do_stmt_assert_05.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testDoOnFailClauseRecovery() {
         testFile("do-stmt/do_stmt_source_06.bal", "do-stmt/do_stmt_assert_06.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testDoWithMissingDoKeyword() {
         testFile("do-stmt/do_stmt_source_07.bal", "do-stmt/do_stmt_assert_07.json");
         testFile("do-stmt/do_stmt_source_08.bal", "do-stmt/do_stmt_assert_08.json");

@@ -33,7 +33,7 @@ public class ResiliencyTest extends AbstractMiscTest {
         testFile("resiliency/resiliency_source_01.bal", "resiliency/resiliency_assert_01.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testParsingJavaHelloWorld() {
         testFile("resiliency/resiliency_source_02.bal", "resiliency/resiliency_assert_02.json");
     }

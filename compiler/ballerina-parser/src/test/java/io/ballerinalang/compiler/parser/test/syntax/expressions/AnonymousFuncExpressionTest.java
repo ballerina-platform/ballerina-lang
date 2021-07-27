@@ -60,12 +60,12 @@ public class AnonymousFuncExpressionTest extends AbstractExpressionsTest {
 
     // Recovery test
 
-    @Test(enabled = false)
+    @Test
     public void testErrorsInExplicitFuncWithEmptyBlockBody() {
         testFile("anon-func/anon_func_source_03.bal", "anon-func/anon_func_assert_03.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMissingExprInExpressionFuncBody() {
         testFile("anon-func/anon_func_source_05.bal", "anon-func/anon_func_assert_05.json");
     }

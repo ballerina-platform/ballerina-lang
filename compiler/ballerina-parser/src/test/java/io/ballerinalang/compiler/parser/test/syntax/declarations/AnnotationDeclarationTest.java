@@ -40,7 +40,7 @@ public class AnnotationDeclarationTest extends AbstractDeclarationTest {
 
     // Recovery tests
 
-    @Test(enabled = false)
+    @Test
     public void testAnnotTag() {
         testFile("annot-decl/annot_decl_source_03.bal", "annot-decl/annot_decl_assert_03.json");
     }
@@ -75,7 +75,7 @@ public class AnnotationDeclarationTest extends AbstractDeclarationTest {
         testFile("annot-decl/annot_decl_source_09.bal", "annot-decl/annot_decl_assert_09.json");
     }
     
-    @Test(enabled = false)
+    @Test
     public void testInvalidOrIncompleteAttachPointIdent() {
         testFile("annot-decl/annot_decl_source_10.bal", "annot-decl/annot_decl_assert_10.json");
         test("annot-decl/annot_decl_source_11.bal", "annot-decl/annot_decl_assert_11.json");
