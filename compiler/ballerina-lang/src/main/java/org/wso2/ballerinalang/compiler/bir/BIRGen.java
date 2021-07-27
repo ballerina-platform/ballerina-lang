@@ -1027,7 +1027,6 @@ public class BIRGen extends BLangNodeVisitor {
             setScopeAndEmit(new Move(birFunc.pos, this.env.targetOperand, varRef));
 
             this.env.enclBB.terminator = new BIRTerminator.Return(birFunc.pos);
-            setScope(this.env.enclBB.terminator);
         }
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.requiredParams.add(parameter);
@@ -1475,7 +1474,6 @@ public class BIRGen extends BLangNodeVisitor {
             addToTrapStack(returnBB);
             returnBB.terminator = new BIRTerminator.Return(astReturnStmt.pos);
             this.env.returnBB = returnBB;
-            setScope(this.env.returnBB.terminator);
         }
         if (this.env.enclBB.terminator == null) {
             this.env.unlockVars.forEach(s -> {
@@ -1507,7 +1505,6 @@ public class BIRGen extends BLangNodeVisitor {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             addToTrapStack(returnBB);
             returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
-            setScope(returnBB.terminator);
             this.env.returnBB = returnBB;
         }
         this.env.enclBB.terminator = new BIRTerminator.Panic(panicNode.pos, this.env.targetOperand);
