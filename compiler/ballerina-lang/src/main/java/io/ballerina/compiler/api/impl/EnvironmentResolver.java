@@ -17,8 +17,10 @@
  */
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -112,14 +114,17 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangCompilationUnit compUnit) {
-        compUnit.getTopLevelNodes().forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode, this.symbolEnv));
+        compUnit.getTopLevelNodes().stream().filter(
+                node -> !(node instanceof BLangFunction && ((BLangFunction) node).flagSet.contains(Flag.WORKER)))
+                .forEach(topLevelNode -> this.acceptNode((BLangNode) topLevelNode, this.symbolEnv));
     }
 
     @Override
     public void visit(BLangService serviceNode) {
-        if (PositionUtil.withinBlock(this.linePosition, serviceNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, serviceNode.getPosition())
+                && isNarrowerEnclosure(serviceNode.getPosition())) {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.getServiceClass().symbol.scope,
-                    this.symbolEnv);
+                                                              this.symbolEnv);
             this.scope = serviceEnv;
             serviceNode.getServiceClass().getFunctions().forEach(function -> this.acceptNode(function, serviceEnv));
             return;
@@ -134,7 +139,8 @@ public class EnvironmentResolver extends BaseVisitor {
         //  at: https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is concluded
         if ((funcNode.getBody() != null && funcNode.getBody().getKind() == NodeKind.EXPR_FUNCTION_BODY &&
                 PositionUtil.withinRightInclusive(this.linePosition, funcNode.getPosition()))
-                || PositionUtil.withinBlock(this.linePosition, funcNode.getPosition())) {
+                || (PositionUtil.withinBlock(this.linePosition, funcNode.getPosition())
+                && isNarrowerEnclosure(funcNode.getPosition()))) {
             SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
             this.scope = funcEnv;
             this.acceptNode(funcNode.getBody(), funcEnv);
@@ -151,7 +157,8 @@ public class EnvironmentResolver extends BaseVisitor {
     // TODO: Add the expression and the external
     @Override
     public void visit(BLangBlockFunctionBody blockFuncBody) {
-        if (PositionUtil.withinBlock(this.linePosition, blockFuncBody.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, blockFuncBody.getPosition())
+                && isNarrowerEnclosure(blockFuncBody.getPosition())) {
             SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(blockFuncBody, this.symbolEnv);
             this.scope = funcBodyEnv;
             blockFuncBody.getStatements().forEach(bLangStatement -> this.acceptNode(bLangStatement, funcBodyEnv));
@@ -166,7 +173,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        if (PositionUtil.withinBlock(this.linePosition, classDefinition.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, classDefinition.getPosition())
+                && isNarrowerEnclosure(classDefinition.getPosition())) {
             SymbolEnv env = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, this.symbolEnv);
             this.scope = env;
             classDefinition.getFunctions().forEach(function -> this.acceptNode(function, env));
@@ -178,7 +186,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
-        if (PositionUtil.withinBlock(this.linePosition, objectTypeNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, objectTypeNode.getPosition())
+                && isNarrowerEnclosure(objectTypeNode.getPosition())) {
             SymbolEnv env = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, this.symbolEnv);
             this.scope = env;
             objectTypeNode.getFunctions().forEach(function -> this.acceptNode(function, env));
@@ -192,7 +201,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        if (PositionUtil.withinBlock(this.linePosition, recordTypeNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, recordTypeNode.getPosition())
+                && isNarrowerEnclosure(recordTypeNode.getPosition())) {
             BSymbol recordSymbol = recordTypeNode.symbol;
             SymbolEnv recordEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, recordSymbol.scope, symbolEnv);
             this.scope = recordEnv;
@@ -228,7 +238,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        if (PositionUtil.withinBlock(this.linePosition, blockNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, blockNode.getPosition())
+                && isNarrowerEnclosure(blockNode.getPosition())) {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, symbolEnv);
             this.scope = blockEnv;
             for (BLangStatement statement : blockNode.stmts) {
@@ -246,7 +257,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangExprFunctionBody exprFuncBody) {
-        if (PositionUtil.withinBlock(this.linePosition, exprFuncBody.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, exprFuncBody.getPosition())
+                && isNarrowerEnclosure(exprFuncBody.getPosition())) {
             SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
             this.scope = exprBodyEnv;
             this.acceptNode(exprFuncBody.expr, exprBodyEnv);
@@ -299,7 +311,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangIf ifNode) {
-        if (PositionUtil.withinBlock(this.linePosition, ifNode.getBody().getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, ifNode.getBody().getPosition())
+                && isNarrowerEnclosure(ifNode.getBody().getPosition())) {
             this.scope = this.symbolEnv;
             this.acceptNode(ifNode.body, this.symbolEnv);
         }
@@ -311,7 +324,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        if (PositionUtil.withinBlock(this.linePosition, whileNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, whileNode.getPosition())
+                && isNarrowerEnclosure(whileNode.getPosition())) {
             this.scope = this.symbolEnv;
             this.acceptNode(whileNode.body, this.symbolEnv);
             this.acceptNode(whileNode.onFailClause, symbolEnv);
@@ -320,7 +334,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        if (PositionUtil.withinBlock(this.linePosition, transactionNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, transactionNode.getPosition())
+                && isNarrowerEnclosure(transactionNode.getPosition())) {
             SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, this.symbolEnv);
             this.acceptNode(transactionNode.transactionBody, transactionEnv);
             this.acceptNode(transactionNode.onFailClause, symbolEnv);
@@ -329,7 +344,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        if (PositionUtil.withinBlock(this.linePosition, forkJoin.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, forkJoin.getPosition())
+                && isNarrowerEnclosure(forkJoin.getPosition())) {
             SymbolEnv forkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
             this.scope = forkJoinEnv;
             forkJoin.workers.forEach(e -> this.acceptNode(e, forkJoinEnv));
@@ -360,7 +376,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        if (!PositionUtil.withinBlock(this.linePosition, annAttachmentNode.getPosition())) {
+        if (!PositionUtil.withinBlock(this.linePosition, annAttachmentNode.getPosition())
+                || !isNarrowerEnclosure(annAttachmentNode.getPosition())) {
             return;
         }
         SymbolEnv annotationAttachmentEnv = new SymbolEnv(annAttachmentNode, symbolEnv.scope);
@@ -380,7 +397,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {
-        if (!PositionUtil.withinBlock(this.linePosition, recordLiteral.getPosition())) {
+        if (!PositionUtil.withinBlock(this.linePosition, recordLiteral.getPosition())
+                || !isNarrowerEnclosure(recordLiteral.getPosition())) {
             return;
         }
         SymbolEnv recordLiteralEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
@@ -417,7 +435,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, queryAction.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, queryAction.getPosition())
+                || !isNarrowerEnclosure(queryAction.getPosition())) {
             return;
         }
         for (BLangNode clause : queryAction.queryClauseList) {
@@ -428,7 +447,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangDoClause doClause) {
-        if (PositionUtil.withinBlock(this.linePosition, doClause.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, doClause.getPosition())
+                && isNarrowerEnclosure(doClause.getPosition())) {
             this.scope = doClause.env;
             this.acceptNode(doClause.body, doClause.env);
         }
@@ -436,7 +456,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, fromClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, fromClause.getPosition())
+                || !isNarrowerEnclosure(fromClause.getPosition())) {
             return;
         }
         this.scope = fromClause.env;
@@ -446,7 +467,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangLetClause letClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, letClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, letClause.getPosition())
+                || !isNarrowerEnclosure(letClause.getPosition())) {
             return;
         }
         this.scope = letClause.env;
@@ -457,7 +479,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, selectClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, selectClause.getPosition())
+                || !isNarrowerEnclosure(selectClause.getPosition())) {
             return;
         }
         this.scope = selectClause.env;
@@ -466,7 +489,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, whereClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, whereClause.getPosition())
+                || !isNarrowerEnclosure(whereClause.getPosition())) {
             return;
         }
         this.scope = whereClause.env;
@@ -475,7 +499,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        if (PositionUtil.withinBlock(this.linePosition, letExpr.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, letExpr.getPosition())
+                && isNarrowerEnclosure(letExpr.getPosition())) {
             SymbolEnv letExprEnv = letExpr.env.createClone();
             this.scope = letExprEnv;
 
@@ -494,7 +519,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, queryExpr.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, queryExpr.getPosition())
+                || !isNarrowerEnclosure(queryExpr.getPosition())) {
             return;
         }
         for (BLangNode clause : queryExpr.queryClauseList) {
@@ -509,7 +535,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangDo doNode) {
-        if (PositionUtil.withinBlock(this.linePosition, doNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, doNode.getPosition())
+                && isNarrowerEnclosure(doNode.getPosition())) {
             this.acceptNode(doNode.body, symbolEnv);
             this.acceptNode(doNode.onFailClause, symbolEnv);
         }
@@ -517,7 +544,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatementNode) {
-        if (PositionUtil.withinBlock(this.linePosition, matchStatementNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, matchStatementNode.getPosition())
+                && isNarrowerEnclosure(matchStatementNode.getPosition())) {
             matchStatementNode.getMatchClauses()
                     .forEach(bLangMatchClause -> this.acceptNode(bLangMatchClause, this.symbolEnv));
         }
@@ -525,7 +553,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        if (PositionUtil.withinBlock(this.linePosition, retryNode.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, retryNode.getPosition())
+                && isNarrowerEnclosure(retryNode.getPosition())) {
             this.acceptNode(retryNode.retryBody, symbolEnv);
             this.acceptNode(retryNode.onFailClause, symbolEnv);
         }
@@ -533,14 +562,16 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        if (PositionUtil.withinBlock(this.linePosition, retryTransaction.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, retryTransaction.getPosition())
+                && isNarrowerEnclosure(retryTransaction.getPosition())) {
             this.acceptNode(retryTransaction.transaction, symbolEnv);
         }
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, joinClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, joinClause.getPosition())
+                || !isNarrowerEnclosure(joinClause.getPosition())) {
             return;
         }
         this.scope = joinClause.env;
@@ -550,7 +581,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, onClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, onClause.getPosition())
+                || !isNarrowerEnclosure(onClause.getPosition())) {
             return;
         }
         if (onClause.equalsKeywordPos == null ||
@@ -568,7 +600,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, orderByClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, orderByClause.getPosition())
+                || !isNarrowerEnclosure(orderByClause.getPosition())) {
             return;
         }
         this.scope = orderByClause.env;
@@ -584,7 +617,8 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
-        if (PositionUtil.withinBlock(this.linePosition, matchClause.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, matchClause.getPosition())
+                && isNarrowerEnclosure(matchClause.getPosition())) {
             SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, this.symbolEnv);
             this.scope = blockEnv;
             this.acceptNode(matchClause.blockStmt, blockEnv);
@@ -599,5 +633,15 @@ public class EnvironmentResolver extends BaseVisitor {
         this.symbolEnv = env;
         node.accept(this);
         this.symbolEnv = prevEnv;
+    }
+
+    private boolean isNarrowerEnclosure(Location nodePosition) {
+        // Have to special case the pkg node since its position is (0,0,0,0). Plus any other node would for sure will
+        // be a narrower enclosure than the package.
+        if (this.scope == null || this.scope.node.getKind() == NodeKind.PACKAGE) {
+            return true;
+        }
+
+        return PositionUtil.withinRange(nodePosition.lineRange(), this.scope.node.getPosition());
     }
 }
