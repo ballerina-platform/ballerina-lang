@@ -5763,14 +5763,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol =
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
 
-        int indexOfDot = -1;
         if (funcSymbol == symTable.notFoundSymbol) {
-            indexOfDot = funcName.value.indexOf('.');
-        }
-        if (indexOfDot > 0 && funcName.value.length() > indexOfDot) {
-            String fieldName = funcName.value.substring(indexOfDot + 1);
             BSymbol invocableField = symResolver.resolveInvocableObjectField(
-                    iExpr.pos, env, names.fromString(fieldName), (BObjectTypeSymbol) objectType.tsymbol);
+                    iExpr.pos, env, names.fromIdNode(iExpr.name), (BObjectTypeSymbol) objectType.tsymbol);
 
             if (invocableField != symTable.notFoundSymbol && invocableField.kind == SymbolKind.FUNCTION) {
                 funcSymbol = invocableField;
@@ -5826,6 +5821,16 @@ public class TypeChecker extends BLangNodeVisitor {
         Name actionName = names.fromIdNode(aInv.name);
         BSymbol remoteFuncSymbol = symResolver
                 .lookupMemberSymbol(aInv.pos, epSymbol.type.tsymbol.scope, env, remoteMethodQName, SymTag.FUNCTION);
+
+        if (remoteFuncSymbol == symTable.notFoundSymbol) {
+            BSymbol invocableField = symResolver.resolveInvocableObjectField(
+                    aInv.pos, env, names.fromIdNode(aInv.name), (BObjectTypeSymbol) expType.tsymbol);
+
+            if (invocableField != symTable.notFoundSymbol && invocableField.kind == SymbolKind.FUNCTION) {
+                remoteFuncSymbol = invocableField;
+                aInv.functionPointerInvocation = true;
+            }
+        }
 
         if (remoteFuncSymbol == symTable.notFoundSymbol && !checkLangLibMethodInvocationExpr(aInv, expType)) {
             dlog.error(aInv.name.pos, DiagnosticErrorCode.UNDEFINED_METHOD_IN_OBJECT, aInv.name.value, expType);
