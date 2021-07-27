@@ -3530,10 +3530,8 @@ public class Types {
         }
 
         for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
-            if (memType.tag == TypeTags.FINITE) {
-                if (isAssignableToFiniteType(memType, expr)) {
-                    return true;
-                }
+            if (isAssignableToFiniteType(memType, expr)) {
+                return true;
             }
         }
         return false;
