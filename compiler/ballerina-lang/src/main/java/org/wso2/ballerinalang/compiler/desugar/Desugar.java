@@ -325,6 +325,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createLiter
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -871,7 +872,7 @@ public class Desugar extends BLangNodeVisitor {
         String moduleName = env.enclPkg.packageID.name.getValue();
         BLangLiteral moduleNameLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, moduleName);
-        String versionNumber = env.enclPkg.packageID.version.getValue();
+        String versionNumber = getMajorVersion(env.enclPkg.packageID.version.getValue());
         BLangLiteral versionLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, versionNumber);
         String configVarName = configurableVar.name.getValue();
