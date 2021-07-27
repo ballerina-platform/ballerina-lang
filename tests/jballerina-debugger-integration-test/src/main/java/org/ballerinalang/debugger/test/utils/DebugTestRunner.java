@@ -387,7 +387,7 @@ public class DebugTestRunner {
      * @return pair of the debug point and context details.
      * @throws BallerinaTestException if a debug point is not found within the given time.
      */
-    public Pair<String, OutputEventArguments> waitForDebugOutput(long timeoutMillis) throws BallerinaTestException {
+    public Pair<String, OutputEventArguments> waitForLastDebugOutput(long timeoutMillis) throws BallerinaTestException {
         DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(outputListener, 0, 1000);
@@ -400,7 +400,36 @@ public class DebugTestRunner {
         if (!outputListener.isDebugOutputFound()) {
             throw new BallerinaTestException("Timeout expired waiting for the debugger output");
         }
-        return new ImmutablePair<>(outputListener.getLastOutputLog(), outputListener.getDebugOutputContext());
+        return new ImmutablePair<>(outputListener.getLastOutputLog(), outputListener.getLastOutputContext());
+    }
+
+    /**
+     * Waits for a debugger output within the given timeout.
+     *
+     * @param timeoutMillis timeout.
+     * @return pair of the debug point and context details.
+     * @throws BallerinaTestException if a debug point is not found within the given time.
+     */
+    public List<Pair<String, OutputEventArguments>> waitForDebugOutputs(long timeoutMillis)
+            throws BallerinaTestException {
+        DebugOutputListener outputListener = new DebugOutputListener(debugClientConnector);
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(outputListener, 0, 1000);
+        try {
+            Thread.sleep(timeoutMillis);
+        } catch (InterruptedException ignored) {
+        }
+        timer.cancel();
+
+        if (!outputListener.isDebugOutputFound()) {
+            throw new BallerinaTestException("Timeout expired waiting for the debugger output");
+        }
+
+        List<Pair<String, OutputEventArguments>> debugOutputs = new ArrayList<>();
+        for (OutputEventArguments outputEvent : outputListener.getAllDebugOutputs()) {
+            debugOutputs.add(new ImmutablePair<>(outputEvent.getOutput(), outputEvent));
+        }
+        return debugOutputs;
     }
 
     /**
@@ -589,7 +618,7 @@ public class DebugTestRunner {
         Variable result = evaluateExpression(context, expression);
         if (assertionMode == AssertionMode.HARD_ASSERT) {
             if (result.getType() == null) {
-                Pair<String, OutputEventArguments> output = waitForDebugOutput(2000);
+                Pair<String, OutputEventArguments> output = waitForLastDebugOutput(2000);
                 String errorOutput = output.getLeft();
                 if (errorOutput.endsWith(System.lineSeparator())) {
                     errorOutput = errorOutput.replaceAll(System.lineSeparator() + "$", "");
@@ -604,7 +633,7 @@ public class DebugTestRunner {
             }
         } else if (assertionMode == AssertionMode.SOFT_ASSERT) {
             if (result.getType() == null) {
-                Pair<String, OutputEventArguments> output = waitForDebugOutput(2000);
+                Pair<String, OutputEventArguments> output = waitForLastDebugOutput(2000);
                 String errorOutput = output.getLeft();
                 if (errorOutput.endsWith(System.lineSeparator())) {
                     errorOutput = errorOutput.replaceAll(System.lineSeparator() + "$", "");
