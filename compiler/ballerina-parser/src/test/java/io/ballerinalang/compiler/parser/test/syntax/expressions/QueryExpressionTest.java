@@ -202,11 +202,11 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
                 "query-expr/query_expr_assert_38.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testQueryWithOrderByClauseRecovery() {
         test("from int a in b order by select c", "query-expr/query_expr_assert_42.json");
         test("from int a in b order c select d", "query-expr/query_expr_assert_43.json");
-        test("from int a in b order by c ascending d e select f", "query-expr/query_expr_assert_44.json");
+        test("from int a in b order by c ascending d select f", "query-expr/query_expr_assert_44.json");
         test("from int a in b by c select d", "query-expr/query_expr_assert_45.json");
         test("from int a in b order by ascending select e", "query-expr/query_expr_assert_46.json");
     }
