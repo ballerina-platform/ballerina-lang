@@ -1658,7 +1658,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol getBinaryEqualityForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType,
-                                                BLangBinaryExpr binaryExpr) {
+                                                BLangBinaryExpr binaryExpr, SymbolEnv env) {
         boolean validEqualityIntersectionExists;
         switch (opKind) {
             case EQUAL:
@@ -1668,7 +1668,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             case REF_EQUAL:
             case REF_NOT_EQUAL:
                 validEqualityIntersectionExists =
-                        types.isAssignable(lhsType, rhsType) || types.isAssignable(rhsType, lhsType);
+                        types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionTestContext(),
+                                lhsType, rhsType, env) != symTable.semanticError;
                 break;
             default:
                 return symTable.notFoundSymbol;
