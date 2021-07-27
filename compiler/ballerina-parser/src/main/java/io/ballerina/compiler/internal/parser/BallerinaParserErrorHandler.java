@@ -145,7 +145,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.SEMICOLON, ParserRuleContext.QUESTION_MARK, ParserRuleContext.ASSIGN_OP };
 
     private static final ParserRuleContext[] FIELD_OR_REST_DESCIPTOR_RHS =
-            { ParserRuleContext.ELLIPSIS, ParserRuleContext.VARIABLE_NAME };
+            { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.ELLIPSIS };
 
     private static final ParserRuleContext[] RECORD_BODY_START =
             { ParserRuleContext.CLOSED_RECORD_BODY_START, ParserRuleContext.OPEN_BRACE };
