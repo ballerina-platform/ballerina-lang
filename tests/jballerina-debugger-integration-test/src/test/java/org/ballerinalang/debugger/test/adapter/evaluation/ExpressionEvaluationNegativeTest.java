@@ -187,22 +187,32 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void methodCallEvaluationTest() throws BallerinaTestException {
-
-        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
         // undefined object methods.
-        // debugTestRunner.assertEvaluationError(context, OBJECT_VAR + ".calculate()",
-        // EvaluationExceptionKind.PREFIX + "Undefined function 'calculate' in type 'object'");
+        debugTestRunner.assertEvaluationError(context, OBJECT_VAR + ".calculate()",
+                EvaluationExceptionKind.PREFIX + "Undefined function 'calculate' in type 'object'");
 
-        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
         // undefined lang library methods.
-        // debugTestRunner.assertEvaluationError(context, INT_VAR + ".foo()",
-        // EvaluationExceptionKind.PREFIX + "Undefined function 'foo' in type 'int'");
+        debugTestRunner.assertEvaluationError(context, INT_VAR + ".foo()",
+                EvaluationExceptionKind.PREFIX + "Undefined function 'foo' in type 'int'");
     }
 
     @Override
     @Test
     public void errorConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, "error()", EvaluationExceptionKind.PREFIX +
+                "Syntax errors found: " + System.lineSeparator() + "missing arg within parenthesis");
+        debugTestRunner.assertEvaluationError(context, "error(1)", EvaluationExceptionKind.PREFIX +
+                "incompatible types: expected 'string', found 'int' for error message");
+        debugTestRunner.assertEvaluationError(context, "error(count=2)", EvaluationExceptionKind.PREFIX +
+                "Syntax errors found: " + System.lineSeparator() + "missing error message in error constructor");
+        debugTestRunner.assertEvaluationError(context, "error(...strArray)", EvaluationExceptionKind.PREFIX +
+                "Syntax errors found: " + System.lineSeparator() + "missing error message in error constructor" +
+                System.lineSeparator() + "rest arg in error constructor");
+        debugTestRunner.assertEvaluationError(context, "error(\"Simple Error\",2)", EvaluationExceptionKind.PREFIX +
+                "incompatible types: expected 'error?', found 'int' for error cause");
+        debugTestRunner.assertEvaluationError(context, "error(\"Simple Error\",...strArray)",
+                EvaluationExceptionKind.PREFIX + "Syntax errors found: " + System.lineSeparator() +
+                        "rest arg in error constructor");
     }
 
     @Override
@@ -413,9 +423,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                         " not supported."));
 
         // unsupported expressions
-        debugTestRunner.assertEvaluationError(context, "error(\"name\")",
+        debugTestRunner.assertEvaluationError(context, "function(int a) returns int {return a;};",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'error(\"name\")' - ERROR_CONSTRUCTOR"));
+                        "'function(int a) returns int {return a;}' - EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION"));
     }
 
     @Override

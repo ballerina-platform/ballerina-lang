@@ -3431,7 +3431,6 @@ public class TypeChecker extends BLangNodeVisitor {
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
         retTypeMembers.addAll(types.getAllTypes(streamType.completionType));
-        retTypeMembers.add(symTable.nilType);
 
         BUnionType unionType = BUnionType.create(null);
         unionType.addAll(retTypeMembers);
