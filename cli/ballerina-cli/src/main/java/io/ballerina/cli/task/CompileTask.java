@@ -62,7 +62,7 @@ public class CompileTask implements Task {
         // Print the source
         this.out.println("\t" + sourceName);
 
-        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "false");
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
             long start = 0;

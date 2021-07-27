@@ -206,7 +206,7 @@ public class Utils {
                 try (InputStream inputStream = body.get().byteStream();
                      FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
                     if (outStream == null) {
-                        writeAndHandleProgressWithoutLogging(inputStream, outputStream);
+                        writeAndHandleProgressQuietly(inputStream, outputStream);
                     } else {
                         writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName,
                                 outStream, logFormatter);
@@ -260,7 +260,8 @@ public class Utils {
      * @param logFormatter  log formatter
      */
     private static void writeAndHandleProgress(InputStream inputStream, FileOutputStream outputStream,
-            long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter) {
+            long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter)
+            throws IOException {
         int count;
         byte[] buffer = new byte[1024];
 
@@ -271,14 +272,12 @@ public class Utils {
                 outputStream.write(buffer, 0, count);
                 progressBar.step();
             }
-        } catch (IOException e) {
-            outStream.println(logFormatter.formatLog(fullPkgName + "pulling the package from central failed"));
         } finally {
             outStream.println(logFormatter.formatLog(fullPkgName + " pulled from central successfully"));
         }
     }
 
-    private static void writeAndHandleProgressWithoutLogging(InputStream inputStream, FileOutputStream outputStream)
+    private static void writeAndHandleProgressQuietly(InputStream inputStream, FileOutputStream outputStream)
             throws IOException {
         int count;
         byte[] buffer = new byte[1024];
