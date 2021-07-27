@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
@@ -88,9 +89,6 @@ public class ModuleGen {
     private static ArrayType stmtArrTyp;
     private static ArrayType typDescArrTyp;
     private static BasicBlock curBlock;
-    private static BasicBlock nextBlock;
-    private static BasicBlock endBlock;
-    private static BasicBlock bb;
     private static JNModule jnmod;
 
     PrintStream console = System.out;
@@ -140,7 +138,9 @@ public class ModuleGen {
             });
             curBlock = startBlock;
             ((BLangBlockFunctionBody) func.body).getStatements().forEach(stmt -> codeGenStmt(stmt, fcode));
-            endBlock = curBlock;
+            if (curBlock != null) {
+                curBlock.insns.add(new NullRetInsn());
+            }
             jnmod.code.add(fcode);
         }
         return jnmod;
@@ -151,11 +151,16 @@ public class ModuleGen {
         if (stmt instanceof BLangReturn) {
             BLangReturn retStmt = (BLangReturn) stmt;
             Operand operand = codeGenExpr(retStmt.expr, code);
-            nextBlock.insns.add(new RetInsn(operand));
+            curBlock.insns.add(new RetInsn(operand));
             curBlock = null;
-        } else if (stmt instanceof BLangSimpleVariableDef) {
 
-            curBlock = null;
+        } else if (stmt instanceof BLangSimpleVariableDef) {
+            BLangSimpleVariableDef varDec = (BLangSimpleVariableDef) stmt;
+            Register result = code.createRegister(varDec.getVariable().typeNode.getBType().getKind(),
+                    varDec.getVariable().getName().toString());
+            Operand operand = codeGenExpr(varDec.var.getInitialExpression(), code);
+            curBlock.insns.add(new AssignInsn(result, operand));
+
         } else if (stmt instanceof BLangExpressionStmt) {
             codeGenExpr(((BLangExpressionStmt) stmt).getExpression(), code);
         }
@@ -163,12 +168,10 @@ public class ModuleGen {
 
     Operand codeGenExpr(BLangExpression expr, FunctionCode code) {
         if (expr instanceof BLangLiteral) {
-            nextBlock = curBlock;
             Operand op = new Operand(false);
             op.value = ((BLangLiteral) expr).getValue();
             return op;
         } else if (expr instanceof BLangSimpleVarRef) {
-            nextBlock = curBlock;
             String name = ((BLangSimpleVarRef) expr).variableName.getValue();
             Operand op = new Operand(true);
             if (!code.registers.containsKey(name)) {
@@ -196,6 +199,8 @@ public class ModuleGen {
                     zeroOp.value = 0;
                     ins.operands[0] = zeroOp;
                     ins.operands[1] = operand;
+                    ins.position = new Position(unexpr.opSymbol.getPosition().lineRange().startLine().line() + 1,
+                            unexpr.opSymbol.getPosition().textRange().startOffset());
                     curBlock.insns.add(ins);
                     result.register = reg2;
                     return result;
@@ -214,8 +219,8 @@ public class ModuleGen {
                     ins.result = reg;
                     ins.operands[0] = lhs;
                     ins.operands[1] = rhs;
-                    ins.position = new Position(bexpr.getPosition().lineRange().startLine().line() + 1,
-                            bexpr.getPosition().textRange().startOffset());
+                    ins.position = new Position(bexpr.opSymbol.getPosition().lineRange().startLine().line() + 1,
+                            bexpr.opSymbol.getPosition().textRange().endOffset());
                     curBlock.insns.add(ins);
                     result.register = reg;
                     return result;
@@ -223,6 +228,16 @@ public class ModuleGen {
         } else if (expr instanceof BLangInvocation) {
             BLangInvocation funcCall = (BLangInvocation) expr;
             return codegenFunctionCall(funcCall, code);
+        } else if (expr instanceof BLangListConstructorExpr) {
+            BLangListConstructorExpr listExpr = (BLangListConstructorExpr) expr;
+            ArrayList<Operand> operands = new ArrayList<>();
+            listExpr.exprs.forEach(ex -> operands.add(codeGenExpr(ex, code)));
+            Operand result = new Operand(true);
+            Register reg = code.createRegister(TypeKind.ARRAY, null);
+            result.register = reg;
+            ListConstructInsn ins = new ListConstructInsn(reg, operands);
+            curBlock.insns.add(ins);
+            return result;
         }
         return null;
     }
@@ -238,6 +253,9 @@ public class ModuleGen {
             signature.returnType = funcCall.getBType().getKind();
             for (BLangExpression arg: funcCall.requiredArgs) {
                 signature.paramTypes.add(arg.getBType().getKind());
+            }
+            if (!funcCall.restArgs.isEmpty()) {
+                signature.restParamType = funcCall.restArgs.get(0).getBType().getKind();
             }
             ExternalSymbol symbol = new ExternalSymbol(jnmod.moduleId, funcCall.getName().getValue());
             ref = new FunctionRef(symbol, signature);
@@ -255,11 +273,13 @@ public class ModuleGen {
     static long convertSimpleSemType(TypeKind typeKind) {
         switch (typeKind) {
             case INT:
-                return 4L;
+                return 128L;
             case BOOLEAN:
                 return 2L;
             case NIL:
                 return 1L;
+            case ARRAY:
+                return 262144L;
             default:
                 throw new BallerinaException("Semtype not implemented for type");
         }
