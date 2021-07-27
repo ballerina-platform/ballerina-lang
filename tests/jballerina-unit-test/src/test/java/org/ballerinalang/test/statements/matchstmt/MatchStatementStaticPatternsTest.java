@@ -350,12 +350,13 @@ public class MatchStatementStaticPatternsTest {
         Assert.assertEquals(returns[0].stringValue(), "no-match");
     }
 
-    @Test(description = "Test pattern will not be matched", enabled = false)
+    @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatchedSemanticsNegative() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 4);
         int i = -1;
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid token '('", 27, 15);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid token ')'", 27, 15);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "missing colon token", 27, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "missing comma token", 27, 15);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "missing identifier", 27, 15);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "variable 'a' should be declared as constant", 37, 9);
     }
 

@@ -54,12 +54,7 @@ public class StatementContextTest extends CompletionTest {
                 "match_stmt_ctx_config8.json",
                 "match_stmt_ctx_config9.json",
                 "match_stmt_ctx_config10.json",
-                "match_stmt_ctx_config11.json",
-
-                // TODO: Enable bellow tests. Disabled due to lookahead limit 4 in errorHandler.
-                "match_stmt_ctx_config7.json",
-                "match_stmt_ctx_config5.json",
-                "match_stmt_ctx_config6.json"
+                "match_stmt_ctx_config11.json"
         );
     }
 

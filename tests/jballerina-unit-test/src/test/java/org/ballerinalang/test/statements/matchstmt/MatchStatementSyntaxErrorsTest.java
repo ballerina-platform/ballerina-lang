@@ -17,6 +17,7 @@
 package org.ballerinalang.test.statements.matchstmt;
 
 import org.ballerinalang.test.BAssertUtil;
+import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -29,15 +30,14 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class MatchStatementSyntaxErrorsTest {
-    // TODO: Enable bellow test. Disabled due to lookahead limit 4 in errorHandler.
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-//        result = BCompileUtil.compile("test-src/statements/matchstmt/match-stmt-syntax-errors.bal");
+        result = BCompileUtil.compile("test-src/statements/matchstmt/match-stmt-syntax-errors.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testSyntaxErrors() {
         Assert.assertEquals(result.getErrorCount(), 19);
 

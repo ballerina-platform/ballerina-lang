@@ -110,12 +110,12 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         testFile("service-decl/service_decl_source_11.bal", "service-decl/service_decl_assert_11.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testKeywordsInListenersList() {
         testFile("service-decl/service_decl_source_13.bal", "service-decl/service_decl_assert_13.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAbsoluteResourcePathRecovery() {
         testFile("service-decl/service_decl_source_12.bal", "service-decl/service_decl_assert_12.json");
     }
@@ -155,7 +155,7 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
         testFile("service-decl/service_decl_source_21.bal", "service-decl/service_decl_assert_21.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMethodQualifierRecoveryWhenTyping() {
         testFile("service-decl/service_decl_source_22.bal", "service-decl/service_decl_assert_22.json");
     }

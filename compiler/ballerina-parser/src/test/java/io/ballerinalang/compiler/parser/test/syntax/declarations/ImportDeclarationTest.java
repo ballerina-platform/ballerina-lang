@@ -128,10 +128,10 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
 
     @Test
     public void testInvalidTokenAfterOrgName() {
-        test("import-decl/import_decl_source_20.bal", "import-decl/import_decl_assert_20.json");
+        testFile("import-decl/import_decl_source_20.bal", "import-decl/import_decl_assert_20.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testInvalidTokensEverywhere() {
         test("import-decl/import_decl_source_21.bal", "import-decl/import_decl_assert_21.json");
     }

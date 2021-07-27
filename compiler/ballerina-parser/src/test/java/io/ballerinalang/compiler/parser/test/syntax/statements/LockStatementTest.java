@@ -76,7 +76,7 @@ public class LockStatementTest extends AbstractStatementTest {
         "lock-stmt/lock_stmt_assert_07.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testLockOnFailClauseRecovery() {
         testFile("lock-stmt/lock_stmt_source_09.bal", "lock-stmt/lock_stmt_assert_09.json");
     }

@@ -1,3 +1,3 @@
 function foo() {
-    int x = check a() b();
+    int x = check a()    b();
 }
