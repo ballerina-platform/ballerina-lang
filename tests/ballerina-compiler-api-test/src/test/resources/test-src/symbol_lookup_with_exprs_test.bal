@@ -24,3 +24,5 @@ function test() {
 
     'object:RawTemplate rawTemp = `a raw template: ${aString}`;
 }
+
+function exprBodyScope(string myStr) returns string => m

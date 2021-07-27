@@ -599,6 +599,22 @@
       "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
