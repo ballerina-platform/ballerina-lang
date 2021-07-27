@@ -5753,6 +5753,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
         BSymbol funcSymbol =
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
+
+        if (funcSymbol == symTable.notFoundSymbol) {
+            BSymbol invocableField = symResolver.resolveInvocableObjectField(
+                    iExpr.pos, env, names.fromIdNode(iExpr.name), (BObjectTypeSymbol) objectType.tsymbol);
+
+            if (invocableField != symTable.notFoundSymbol && invocableField.kind == SymbolKind.FUNCTION) {
+                funcSymbol = invocableField;
+                iExpr.functionPointerInvocation = true;
+            }
+        }
+
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
                 dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_METHOD_IN_OBJECT, iExpr.name.value,
@@ -5801,6 +5812,16 @@ public class TypeChecker extends BLangNodeVisitor {
         Name actionName = names.fromIdNode(aInv.name);
         BSymbol remoteFuncSymbol = symResolver
                 .lookupMemberSymbol(aInv.pos, epSymbol.type.tsymbol.scope, env, remoteMethodQName, SymTag.FUNCTION);
+
+        if (remoteFuncSymbol == symTable.notFoundSymbol) {
+            BSymbol invocableField = symResolver.resolveInvocableObjectField(
+                    aInv.pos, env, names.fromIdNode(aInv.name), (BObjectTypeSymbol) expType.tsymbol);
+
+            if (invocableField != symTable.notFoundSymbol && invocableField.kind == SymbolKind.FUNCTION) {
+                remoteFuncSymbol = invocableField;
+                aInv.functionPointerInvocation = true;
+            }
+        }
 
         if (remoteFuncSymbol == symTable.notFoundSymbol && !checkLangLibMethodInvocationExpr(aInv, expType)) {
             dlog.error(aInv.name.pos, DiagnosticErrorCode.UNDEFINED_METHOD_IN_OBJECT, aInv.name.value, expType);

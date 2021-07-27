@@ -478,6 +478,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
+    public BSymbol resolveInvocableObjectField(Location pos, SymbolEnv env, Name fieldName,
+                                               BObjectTypeSymbol objectTypeSymbol) {
+        return lookupMemberSymbol(pos, objectTypeSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    }
+
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
         return resolveTypeNode(typeNode, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
