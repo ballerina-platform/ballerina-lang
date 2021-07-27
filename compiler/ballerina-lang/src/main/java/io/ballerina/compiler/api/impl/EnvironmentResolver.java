@@ -435,8 +435,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, queryAction.getPosition())
-                || !isNarrowerEnclosure(queryAction.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, queryAction.getPosition())) {
             return;
         }
         for (BLangNode clause : queryAction.queryClauseList) {
@@ -447,8 +446,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangDoClause doClause) {
-        if (PositionUtil.withinBlock(this.linePosition, doClause.getPosition())
-                && isNarrowerEnclosure(doClause.getPosition())) {
+        if (PositionUtil.withinBlock(this.linePosition, doClause.getPosition())) {
             this.scope = doClause.env;
             this.acceptNode(doClause.body, doClause.env);
         }
@@ -456,8 +454,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, fromClause.getPosition())
-                || !isNarrowerEnclosure(fromClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, fromClause.getPosition())) {
             return;
         }
         this.scope = fromClause.env;
@@ -467,8 +464,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangLetClause letClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, letClause.getPosition())
-                || !isNarrowerEnclosure(letClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, letClause.getPosition())) {
             return;
         }
         this.scope = letClause.env;
@@ -479,8 +475,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, selectClause.getPosition())
-                || !isNarrowerEnclosure(selectClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, selectClause.getPosition())) {
             return;
         }
         this.scope = selectClause.env;
@@ -489,8 +484,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, whereClause.getPosition())
-                || !isNarrowerEnclosure(whereClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, whereClause.getPosition())) {
             return;
         }
         this.scope = whereClause.env;
@@ -519,8 +513,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, queryExpr.getPosition())
-                || !isNarrowerEnclosure(queryExpr.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, queryExpr.getPosition())) {
             return;
         }
         for (BLangNode clause : queryExpr.queryClauseList) {
@@ -570,8 +563,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, joinClause.getPosition())
-                || !isNarrowerEnclosure(joinClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, joinClause.getPosition())) {
             return;
         }
         this.scope = joinClause.env;
@@ -581,8 +573,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangOnClause onClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, onClause.getPosition())
-                || !isNarrowerEnclosure(onClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, onClause.getPosition())) {
             return;
         }
         if (onClause.equalsKeywordPos == null ||
@@ -600,8 +591,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, orderByClause.getPosition())
-                || !isNarrowerEnclosure(orderByClause.getPosition())) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, orderByClause.getPosition())) {
             return;
         }
         this.scope = orderByClause.env;
