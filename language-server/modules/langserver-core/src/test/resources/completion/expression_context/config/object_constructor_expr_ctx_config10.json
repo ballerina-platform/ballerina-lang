@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "D",
+      "sortText": "AB",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -159,7 +159,7 @@
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
-      "sortText": "AK",
+      "sortText": "M",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
@@ -219,7 +219,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Return** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "E",
+      "sortText": "AC",
       "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
