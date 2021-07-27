@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
-import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaProjectParams;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNodeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
@@ -79,7 +78,6 @@ import org.eclipse.lsp4j.jsonrpc.Launcher;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
-import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
