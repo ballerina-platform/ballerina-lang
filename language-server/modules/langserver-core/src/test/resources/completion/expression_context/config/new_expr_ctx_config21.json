@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 28
+    "line": 3,
+    "character": 24
   },
-  "source": "module_var_context/source/source1.bal",
+  "source": "expression_context/source/new_expr_ctx_source21.bal",
   "items": [
     {
       "label": "start",
@@ -42,11 +42,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "module1",
+      "label": "testMod",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module1",
+      "insertText": "testMod",
       "insertTextFormat": "Snippet"
     },
     {
@@ -54,7 +54,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "insertText": "test",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -68,7 +68,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -448,11 +448,58 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "AK",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject2",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "AK",
+      "insertText": "TestObject2",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "P",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test",
+      "kind": "Variable",
+      "detail": "TestObject2",
+      "sortText": "AB",
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testNewFunction()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "testNewFunction",
+      "insertText": "testNewFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestStream2",
+      "kind": "TypeParameter",
+      "detail": "Stream",
+      "sortText": "P",
+      "insertText": "TestStream2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -464,6 +511,14 @@
       },
       "sortText": "O",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestStream1",
+      "kind": "TypeParameter",
+      "detail": "Stream",
+      "sortText": "P",
+      "insertText": "TestStream1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -523,30 +578,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testClient",
-      "kind": "Variable",
-      "detail": "module1:Client",
-      "sortText": "AB",
-      "insertText": "testClient",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "new(string url)",
+      "label": "new()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "E",
-      "insertText": "new(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "new()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
