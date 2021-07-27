@@ -1114,3 +1114,41 @@ function testBitwiseXor() {
     test:assertValueEqual(-1555, z);
 }
 
+type X 1|2;
+type Y -1|1|128;
+type Z -1|1|"foo";
+
+function testFiniteTypeAsIntSubType() {
+    X a = 1;
+    int:Signed32 b = a;
+    test:assertValueEqual(1, b);
+    test:assertValueEqual(true, a is int:Signed32);
+
+    X[] c = [1, 1, 2];
+    int:Signed8[] d = c;
+    test:assertValueEqual(true, c is byte[]);
+    test:assertValueEqual(true, c is int:Signed32[]);
+    test:assertValueEqual(true, c is int:Unsigned32[]);
+    test:assertValueEqual(true, <any> d is int:Unsigned32[]);
+
+    Y[] e = [1, 1, -1];
+    int:Signed16[] f = e;
+    test:assertValueEqual(false, <any> e is byte[]);
+    test:assertValueEqual(true, e is int:Signed32[]);
+    test:assertValueEqual(false, <any> e is int:Unsigned32[]);
+    test:assertValueEqual(false, <any> f is int:Unsigned32[]);
+    test:assertValueEqual(false, f is int:Signed8[]);
+
+    Z g = -1;
+    string|int:Signed8 h = g;
+    test:assertValueEqual(true, g is int:Signed32);
+    test:assertValueEqual(true, h is int:Signed32);
+    test:assertValueEqual(false, g is int:Unsigned32);
+    test:assertValueEqual(false, <any> h is int:Unsigned32);
+
+    Z[] i = [];
+    (float|string|int:Signed8)[] j = i;
+    test:assertValueEqual(true, i is (string|int:Signed8)[]);
+    test:assertValueEqual(true, i is (float|string|int:Signed8)[]);
+    test:assertValueEqual(true, j is (string|int:Signed8)[]);
+}

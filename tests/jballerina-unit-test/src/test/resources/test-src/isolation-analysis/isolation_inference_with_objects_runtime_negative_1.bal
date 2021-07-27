@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -13,8 +13,11 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.array;
-isolated class InvalidIsolatedClassWithNonPrivateMutableFields {
+import ballerina/jballerina.java;
+
+class NonIsolatedClassWithNonPrivateMutableFields {
     int a;
     public map<int> b;
     private final string c = "invalid";
@@ -25,9 +28,7 @@ isolated class InvalidIsolatedClassWithNonPrivateMutableFields {
     }
 }
 
-type IsolatedObject isolated object {};
-
-IsolatedObject invalidIsolatedObjectConstructorWithNonPrivateMutableFields = isolated object {
+object {} nonIsolatedObjectConstructorWithNonPrivateMutableFields = object {
     int a;
     public map<int> b;
     private final string c = "invalid";
@@ -38,13 +39,13 @@ IsolatedObject invalidIsolatedObjectConstructorWithNonPrivateMutableFields = iso
     }
 };
 
-type IsolatedObjectType isolated object {
+type ObjectType object {
     int a;
     string[] b;
 };
 
-isolated class InvalidIsolatedClassNotOverridingMutableFieldsInIncludedIsolatedObject {
-    *IsolatedObjectType;
+class NonIsolatedClassNotOverridingMutableFieldsInIncludedIsolatedObject {
+    *ObjectType;
 
     function init() {
         self.a = 1;
@@ -52,14 +53,14 @@ isolated class InvalidIsolatedClassNotOverridingMutableFieldsInIncludedIsolatedO
     }
 }
 
-IsolatedObject invalidIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject = isolated object IsolatedObjectType {
-   function init() {
-       self.a = 1;
-       self.b = [];
-   }
+object {} nonIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject = object ObjectType {
+    function init() {
+        self.a = 1;
+        self.b = [];
+    }
 };
 
-isolated class InvalidIsolatedClassAccessingMutableFieldsOutsideLock {
+class NonIsolatedClassAccessingMutableFieldsOutsideLock {
     final int a = 1;
     private string b = "hello";
     private int[] c;
@@ -82,8 +83,8 @@ isolated class InvalidIsolatedClassAccessingMutableFieldsOutsideLock {
     }
 }
 
-function testInvalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock() {
-    isolated object {} invalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock = isolated object {
+function testNonIsolatedObjectConstructorAccessingMutableFieldsOutsideLock() {
+    object {} nonIsolatedObjectConstructorAccessingMutableFieldsOutsideLock = object {
         final int a = 1;
         private string b = "hello";
         private int[] c = [];
@@ -101,19 +102,25 @@ function testInvalidIsolatedObjectConstructorAccessingMutableFieldsOutsideLock()
             return self.c;
         }
     };
+
+    assertFalse(<any> nonIsolatedObjectConstructorAccessingMutableFieldsOutsideLock is isolated object {});
+    assertTrue(isMethodIsolated(nonIsolatedObjectConstructorAccessingMutableFieldsOutsideLock, "getB"));
+    assertTrue(isMethodIsolated(nonIsolatedObjectConstructorAccessingMutableFieldsOutsideLock, "setB"));
+    assertTrue(isMethodIsolated(nonIsolatedObjectConstructorAccessingMutableFieldsOutsideLock, "updateAndGetC"));
 }
 
 int[] globIntArr = [1200, 12, 12345];
 int[] globIntArrCopy = globIntArr;
 int[] globIntArrCopy2 = globIntArrCopy;
-string globStr = "global string";
+string globStr = "1";
+string globStr2 = "1.0";
 map<boolean> globBoolMap = {a: true, b: false};
 
 function accessGlobBoolMap(string s) {
     _ = (globBoolMap["a"] ?: true) && (globStr == s);
 }
 
-isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
+class NonIsolatedClassWithNonUniqueInitializerExprs {
     private int[][] a;
     private map<boolean> b = globBoolMap;
     private record {} c = {[globStr]: accessGlobBoolMap(globStr)};
@@ -132,12 +139,12 @@ isolated class InvalidIsolatedClassWithNonUniqueInitializerExprs {
         record {} rec = {"a": 1, "b": 2.0};
         anydata ad = rec;
         self.c = rec;
-        self.h = check 'float:fromString(globStr);
+        self.h = check 'float:fromString(globStr2);
     }
 }
 
-function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
-    isolated object {} invalidIsolatedObjectWithNonUniqueInitializerExprs = isolated object {
+function testNonIsolatedObjectWithNonUniqueInitializerExprs() {
+    object {} nonIsolatedObjectWithNonUniqueInitializerExprs = object {
         private int[][] a = [globIntArr, globIntArr];
         private map<boolean> b = globBoolMap;
         private record {} c = {[globStr]: accessGlobBoolMap(globStr)};
@@ -158,9 +165,13 @@ function testInvalidIsolatedObjectWithNonUniqueInitializerExprs() {
             self.h = checkpanic 'float:fromString(globStr);
         }
     };
+
+    assertFalse(<any> nonIsolatedObjectWithNonUniqueInitializerExprs is isolated object {});
+    // https://github.com/ballerina-platform/ballerina-lang/issues/31371
+    // assertFalse(isMethodIsolated(nonIsolatedObjectWithNonUniqueInitializerExprs, "init"));
 }
 
-isolated class InvalidIsolatedClassWithInvalidCopyIn {
+class NonIsolatedClassWithInvalidCopyIn {
     public final record {} & readonly a;
     private int b;
     private map<boolean>[] c;
@@ -198,7 +209,7 @@ isolated class InvalidIsolatedClassWithInvalidCopyIn {
     }
 }
 
-IsolatedObject invalidIsolatedObjectWithInvalidCopyIn = isolated object {
+object {} nonIsolatedObjectWithInvalidCopyIn = object {
     public final record {} & readonly a = {"type": "final"};
     private int b = 0;
     private map<boolean>[] c = [];
@@ -230,7 +241,7 @@ IsolatedObject invalidIsolatedObjectWithInvalidCopyIn = isolated object {
     }
 };
 
-isolated class InvalidIsolatedClassWithInvalidCopyOut {
+class NonIsolatedClassWithInvalidCopyOut {
     public final record {} & readonly a = {"type": "final"};
     private int b = 1;
     private map<boolean>[] c;
@@ -266,8 +277,8 @@ isolated class InvalidIsolatedClassWithInvalidCopyOut {
     }
 }
 
-function testInvalidIsolatedObjectWithInvalidCopyOut() {
-    isolated object {} invalidIsolatedObjectWithInvalidCopyOut = isolated object {
+function testNonIsolatedObjectWithInvalidCopyOut() {
+    object {} nonIsolatedObjectWithInvalidCopyOut = object {
         private map<boolean>[] c = [];
 
         isolated function invalidCopyOutOne(map<boolean>[] boolMaps) returns map<boolean> {
@@ -296,9 +307,13 @@ function testInvalidIsolatedObjectWithInvalidCopyOut() {
             }
         }
     };
+
+    assertFalse(<any> nonIsolatedObjectWithInvalidCopyOut is isolated object {});
+    assertTrue(isMethodIsolated(nonIsolatedObjectWithInvalidCopyOut, "invalidCopyOutOne"));
+    assertFalse(isMethodIsolated(nonIsolatedObjectWithInvalidCopyOut, "invalidCopyOutTwo"));
 }
 
-isolated class InvalidIsolatedClassWithNonIsolatedFunctionInvocation {
+class NonIsolatedClassWithNonIsolatedFunctionInvocation {
     private int[] x = [];
 
     function testInvalidNonIsolatedInvocation() {
@@ -314,7 +329,7 @@ isolated class InvalidIsolatedClassWithNonIsolatedFunctionInvocation {
     }
 }
 
-IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = isolated object {
+object {} nonIsolatedObjectWithNonIsolatedFunctionInvocation = object {
     private int[] x = [];
 
     function testInvalidNonIsolatedInvocation() {
@@ -330,7 +345,7 @@ IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = isolated
     }
 };
 
-isolated class InvalidIsolatedClassWithInvalidObjectFields {
+class NonIsolatedClassWithInvalidObjectFields {
     IsolatedClass a = new; // Should be `final`
     isolated object {} b = isolated object { // Should be `final`
         final int i = 1;
@@ -338,7 +353,9 @@ isolated class InvalidIsolatedClassWithInvalidObjectFields {
     };
     final object {} c = object {}; // should be an `isolated object`
 }
+
 int globInt = 1;
+
 isolated class IsolatedClass {
     function nonIsolatedFunc() returns int => globInt;
 }
@@ -347,7 +364,7 @@ function nonIsolatedFunc() returns int[] {
     return [1, 2, 3];
 }
 
-isolated class InvalidIsolatedClassWithCopyInInsideBlock {
+class NonIsolatedClassWithCopyInInsideBlock {
     private string[] uniqueGreetings = [];
 
     isolated function add(string[] greetings) {
@@ -359,7 +376,7 @@ isolated class InvalidIsolatedClassWithCopyInInsideBlock {
     }
 }
 
-isolated class InvalidIsolatedClassWithInvalidCopyingWithClone {
+class NonIsolatedClassWithInvalidCopyingWithClone {
     private anydata[] arr = [];
     private anydata[] arr2 = [];
 
@@ -396,7 +413,7 @@ isolated function outerAdd(anydata val) { }
 
 decimal globDecimal = 0;
 
-isolated class CurrentConfig {
+class CurrentConfig {
     private decimal[2] x = [1, 2.0];
     private record {
         int[] a;
@@ -429,7 +446,7 @@ isolated class CurrentConfig {
 int[] y = [];
 readonly & int[] z = [];
 
-isolated class IsolatedClassWithInvalidVarRefs {
+class NonIsolatedClassWithInvalidVarRefs {
     private int[][] x;
     private int[] y;
     private any[] z;
@@ -446,16 +463,16 @@ isolated class IsolatedClassWithInvalidVarRefs {
         }
     }
 
-    isolated function nested() {
+    function nested() {
         any[] arr = let int[] v = y in [v];
 
         lock {
-            self.z = let int[] v = y in [v, let int[] w = y in isolated function () returns int[2][] { return [w, v]; }];
+            self.z = let int[] v = y in [v, let int[] w = y in function () returns int[2][] { return [w, v]; }];
         }
     }
 }
 
-isolated service class InvalidIsolatedServiceClassWithNonPrivateMutableFields {
+service class NonIsolatedServiceClassWithNonPrivateMutableFields {
     int a;
     public map<int> b;
     private final string c = "invalid";
@@ -466,7 +483,7 @@ isolated service class InvalidIsolatedServiceClassWithNonPrivateMutableFields {
     }
 }
 
-client isolated class InvalidIsolatedClientClassWithCopyInInsideBlock {
+client class InvalidIsolatedClientClassWithCopyInInsideBlock {
     private string[] uniqueGreetings = [];
 
     isolated function add(string[] greetings) {
@@ -478,13 +495,13 @@ client isolated class InvalidIsolatedClientClassWithCopyInInsideBlock {
     }
 }
 
-type IsolatedServiceObjectType isolated service object {
+type ServiceObjectType service object {
     int a;
     string[] b;
 };
 
-service isolated class InvalidIsolatedServiceClassNotOverridingMutableFieldsInIncludedIsolatedServiceObject {
-    *IsolatedServiceObjectType;
+service class NonIsolatedServiceClassNotOverridingMutableFieldsInIncludedIsolatedServiceObject {
+    *ServiceObjectType;
 
     function init() {
         self.a = 1;
@@ -492,9 +509,9 @@ service isolated class InvalidIsolatedServiceClassNotOverridingMutableFieldsInIn
     }
 }
 
-isolated int[] isolatedArr = [];
+int[] isolatedArr = [];
 
-isolated service / on new Listener() {
+service "s1" on new Listener() {
     int[] x = [];
 
     remote function foo() {
@@ -509,11 +526,11 @@ isolated service / on new Listener() {
         self.x = [2, 3];
     }
 
-    isolated function qux() {
+    function qux() {
         globIntArr = [];
     }
 
-    isolated resource function get quux() {
+    resource function get quux() {
         globIntArr = [];
     }
 
@@ -525,7 +542,7 @@ isolated service / on new Listener() {
     }
 }
 
-service object {} ser = isolated service object {
+service object {} ser = service object {
     int[] x = [];
 
     remote function foo() {
@@ -540,11 +557,11 @@ service object {} ser = isolated service object {
         self.x = [2, 3];
     }
 
-    isolated function qux() {
+    function qux() {
         globIntArr = [];
     }
 
-    isolated resource function get quux() {
+    resource function get quux() {
         globIntArr = [];
     }
 
@@ -556,7 +573,7 @@ service object {} ser = isolated service object {
     }
 };
 
-isolated service class ServiceClass {
+service class ServiceClass {
     int[] x = [];
 
     remote function foo() {
@@ -571,11 +588,11 @@ isolated service class ServiceClass {
         self.x = [2, 3];
     }
 
-    isolated function qux() {
+    function qux() {
         globIntArr = [];
     }
 
-    isolated resource function get quux() {
+    resource function get quux() {
         globIntArr = [];
     }
 
@@ -604,16 +621,31 @@ public class Listener {
 
     public function detach(service object {} s) returns error? {}
 
-    public function attach(service object {} s, string[]? name = ()) returns error? {}
-}
-
-isolated int[] x = [];
-
-function testInvalidCopyInWithNonObjectSelf1(int[] 'self) {
-    lock {
-        x = 'self;
+    public function attach(service object {} s, string name) returns error? {
+        if name == "s1" {
+            assertFalse(<any> s is isolated object {});
+            assertTrue(isRemoteMethodIsolated(s, "foo"));
+            assertTrue(isResourceIsolated(s, "get", "bar"));
+            assertTrue(isMethodIsolated(s, "baz"));
+            assertFalse(isMethodIsolated(s, "qux"));
+            assertFalse(isResourceIsolated(s, "get", "quux"));
+            assertFalse(isResourceIsolated(s, "get", "corge"));
+        } else if name == "s2" {
+            assertTrue(<any> s is isolated object {});
+            assertFalse(isResourceIsolated(s, "post", "foo"));
+        } else {
+            panic error(string `expected s1 or s2, found ${name}`);
+        }
     }
 }
+
+int[] x = [];
+
+//function testInvalidCopyInWithNonObjectSelf1(int[] 'self) {
+//    lock {
+//        x = 'self;
+//    }
+//}
 
 function testInvalidCopyInWithNonObjectSelf2() {
     lock {
@@ -622,17 +654,7 @@ function testInvalidCopyInWithNonObjectSelf2() {
     }
 }
 
-public isolated class IsolatedClassWithBoundMethodAccess {
-
-    public isolated function bar() {
-        isolated function () fn = self.baz;
-    }
-
-    isolated function baz() {
-    }
-}
-
-isolated class IsolatedClassWithInvalidCopyInInMethodCall {
+class NonIsolatedClassWithInvalidCopyInInMethodCall {
     private map<int> m = {};
 
     isolated function baz() returns map<int>[] {
@@ -654,10 +676,10 @@ isolated class IsolatedClassWithInvalidCopyInInMethodCall {
     }
 }
 
-var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
+var nonIsolatedObjectWithInvalidCopyInInMethodCall = object {
     private map<int> m = {};
 
-    isolated function baz() returns map<int>[] {
+    function baz() returns map<int>[] {
         map<int>[] y = [];
 
         lock {
@@ -675,10 +697,10 @@ var isolatedObjectWithInvalidCopyInInMethodCall = isolated object {
     }
 };
 
-isolated class IsolatedClassWithInvalidCopyOut2 {
+class IsolatedClassWithInvalidCopyOut2 {
     private map<int> m = {};
 
-    isolated function baz() returns map<int>[] {
+    function baz() returns map<int>[] {
         map<int>[] y = [];
         map<int> z;
         lock {
@@ -691,17 +713,17 @@ isolated class IsolatedClassWithInvalidCopyOut2 {
 }
 
 const fromMobile = "";
-configurable string toMobile = ?;
+configurable string toMobile = "";
 
-isolated NonIsolatedClient cl = new;
+NonIsolatedClient cl = new;
 
-service / on new Listener() {
-   isolated resource function post foo() returns error? {
-      Response resp;
-      lock {
-         resp = check cl->sendMessage(fromMobile, toMobile, "Hi!");
-      }
-   }
+service "s2" on new Listener() {
+    resource function post foo() returns error? {
+        Response resp;
+        lock {
+            resp = check cl->sendMessage(fromMobile, toMobile, "Hi!");
+        }
+    }
 }
 
 type Response record {|
@@ -710,13 +732,13 @@ type Response record {|
 |};
 
 public client class NonIsolatedClient {
-   int i = 1;
+    int i = 1;
 
-   isolated remote function sendMessage(string x, string y, string z)
-      returns Response|error => {message: "Hello", id: 0};
+    isolated remote function sendMessage(string x, string y, string z)
+        returns Response|error => {message: "Hello", id: 0};
 }
 
-isolated class IsolatedClassWithQueryExprAsTransferOut {
+class NonIsolatedClassWithQueryExprAsTransferOut {
     private isolated object {}[] arr = [];
 
     function getArr() returns isolated object {}[] {
@@ -726,7 +748,7 @@ isolated class IsolatedClassWithQueryExprAsTransferOut {
     }
 }
 
-isolated class IsolatedClassWithInvalidRawTemplateTransfer {
+class NonIsolatedClassWithInvalidRawTemplateTransfer {
     private int[] arr = [];
     private isolated object {}[] arr2 = [];
 
@@ -750,78 +772,179 @@ isolated class IsolatedClassWithInvalidRawTemplateTransfer {
     }
 }
 
-isolated class IsolatedClassWithInvalidQueryExpTransfer {
-    private int[][] arrs = [];
+function testIsolatedInference() {
+    NonIsolatedClassWithNonPrivateMutableFields a = new NonIsolatedClassWithNonPrivateMutableFields(1, {});
+    assertFalse(<any> a is isolated object {});
+    assertTrue(isMethodIsolated(a, "init"));
 
-    function f1() returns int[][] {
-        lock {
-            int[][] x = self.arrs;
-            return from var item in x select item;
-        }
-    }
+    assertFalse(<any> nonIsolatedObjectConstructorWithNonPrivateMutableFields is isolated object {});
+    // https://github.com/ballerina-platform/ballerina-lang/issues/31371
+    // assertTrue(isMethodIsolated(nonIsolatedObjectConstructorWithNonPrivateMutableFields, "init"));
 
-    function f2(int[][] arr) {
-        int[][] outerArr;
-        lock {
-            int[][] x = [];
+    NonIsolatedClassNotOverridingMutableFieldsInIncludedIsolatedObject c = new;
+    assertFalse(<any> c is isolated object {});
+    assertTrue(isMethodIsolated(c, "init"));
 
-            foreach var item in arr {
-                if let int[] p = item in p.length() == 0 {
-                    self.arrs.push(item);
-                }
-            }
+    assertFalse(<any> nonIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject is isolated object {});
+    // https://github.com/ballerina-platform/ballerina-lang/issues/31371
+    // assertTrue(isMethodIsolated(nonIsolatedObjectNotOverridingMutableFieldsInIncludedIsolatedObject, "init"));
 
-            outerArr = from int[] item in x
-                            join var item2 in arr.clone() on item equals item2
-                            let int[] p = item where p[p.length()] == 0
-                            select p;
-        }
-    }
+    NonIsolatedClassAccessingMutableFieldsOutsideLock d = new ([]);
+    assertFalse(<any> d is isolated object {});
+    assertTrue(isMethodIsolated(d, "init"));
+    assertTrue(isMethodIsolated(d, "getB"));
+    assertTrue(isMethodIsolated(d, "setB"));
+    assertTrue(isMethodIsolated(d, "updateAndGetC"));
 
-    function f3(int[][] arr) {
-        lock {
-            int[][] listResult = from var e in arr
-                    order by e[0] ascending
-                    select e;
+    testNonIsolatedObjectConstructorAccessingMutableFieldsOutsideLock();
 
-            error? res = from var e in self.arrs do {
-                arr.push(e);
-            };
+    NonIsolatedClassWithNonUniqueInitializerExprs e = checkpanic new (());
+    assertFalse(<any> e is isolated object {});
+    assertFalse(isMethodIsolated(e, "init"));
 
-            foreach var f in self.arrs {
-                arr.push(f);
-            }
+    testNonIsolatedObjectWithNonUniqueInitializerExprs();
 
-            int[][] innerArr = [];
-            res = from var e in arr do {
-                innerArr.push(e.clone());
-            };
-            arr.push(...innerArr);
-        }
-    }
+    NonIsolatedClassWithInvalidCopyIn f = new ({}, 1, []);
+    assertFalse(<any> f is isolated object {});
+    assertTrue(isMethodIsolated(f, "init"));
+    assertFalse(isMethodIsolated(f, "invalidCopyInOne"));
+    assertTrue(isMethodIsolated(f, "invalidCopyInTwo"));
 
-    function f4() returns int[][] {
-        lock {
-            int[][] x = self.arrs;
-            // Not yet allowed, may be allowed in the future.
-            // https://github.com/ballerina-platform/ballerina-spec/issues/855#issuecomment-847829558
-            return from var item in x select item.clone();
-        }
-    }
+    assertFalse(<any> nonIsolatedObjectWithInvalidCopyIn is isolated object {});
+    assertTrue(isMethodIsolated(nonIsolatedObjectWithInvalidCopyIn, "invalidCopyInOne"));
+    assertFalse(isMethodIsolated(nonIsolatedObjectWithInvalidCopyIn, "invalidCopyInTwo"));
 
-    function f5(int[][] arr, int[] a, int[] b) {
-        lock {
-            int[][] x = [];
+    NonIsolatedClassWithInvalidCopyOut g = new;
+    assertFalse(<any> g is isolated object {});
+    assertTrue(isMethodIsolated(g, "init"));
+    assertFalse(isMethodIsolated(g, "invalidCopyOutOne"));
+    assertTrue(isMethodIsolated(g, "invalidCopyOutTwo"));
 
-            self.arrs = from int[] item in x
-                            join var item2 in arr.clone() on item equals a
-                            let int[] p = item where p[p.length()] == 0
-                            select p;
+    testNonIsolatedObjectWithInvalidCopyOut();
 
-            self.arrs = from int[] item in x
-                            join var item2 in arr.clone() on b equals a
-                            let int[] p = item where p[p.length()] == 0
-                            select p;
-        }
-    }
+    NonIsolatedClassWithNonIsolatedFunctionInvocation h = new;
+    assertFalse(<any> h is isolated object {});
+    assertFalse(isMethodIsolated(h, "testInvalidNonIsolatedInvocation"));
+
+    assertFalse(<any> nonIsolatedObjectWithNonIsolatedFunctionInvocation is isolated object {});
+    assertFalse(isMethodIsolated(nonIsolatedObjectWithNonIsolatedFunctionInvocation, "testInvalidNonIsolatedInvocation"));
+
+    NonIsolatedClassWithInvalidObjectFields i = new;
+    assertFalse(<any> i is isolated object {});
+
+    NonIsolatedClassWithCopyInInsideBlock j = new;
+    assertFalse(<any> j is isolated object {});
+    assertTrue(isMethodIsolated(j, "add"));
+
+    NonIsolatedClassWithInvalidCopyingWithClone k = new;
+    assertFalse(<any> k is isolated object {});
+    assertTrue(isMethodIsolated(k, "add"));
+    assertTrue(isMethodIsolated(k, "addAgain"));
+
+    CurrentConfig l = new;
+    assertFalse(<any> l is isolated object {});
+    assertFalse(isMethodIsolated(l, "foo"));
+    assertTrue(isMethodIsolated(l, "bar"));
+
+    NonIsolatedClassWithInvalidVarRefs m = new;
+    assertFalse(<any> m is isolated object {});
+    assertFalse(isMethodIsolated(m, "init"));
+    assertFalse(isMethodIsolated(m, "push"));
+    assertFalse(isMethodIsolated(m, "nested"));
+
+    NonIsolatedServiceClassWithNonPrivateMutableFields n = new (1, {});
+    assertFalse(<any> n is isolated object {});
+    assertTrue(isMethodIsolated(n, "init"));
+
+    InvalidIsolatedClientClassWithCopyInInsideBlock o = new;
+    assertFalse(<any> o is isolated object {});
+    assertTrue(isMethodIsolated(o, "add"));
+
+    NonIsolatedServiceClassNotOverridingMutableFieldsInIncludedIsolatedServiceObject p = new;
+    assertFalse(<any> p is isolated object {});
+    assertTrue(isMethodIsolated(p, "init"));
+
+    assertFalse(<any> ser is isolated object {});
+    assertTrue(isRemoteMethodIsolated(ser, "foo"));
+    assertTrue(isResourceIsolated(ser, "get", "bar"));
+    assertTrue(isMethodIsolated(ser, "baz"));
+    assertFalse(isMethodIsolated(ser, "qux"));
+    assertFalse(isResourceIsolated(ser, "get", "quux"));
+    assertFalse(isResourceIsolated(ser, "get", "corge"));
+
+    ServiceClass q = new;
+    assertFalse(<any> q is isolated object {});
+    assertTrue(isRemoteMethodIsolated(q, "foo"));
+    assertTrue(isResourceIsolated(q, "get", "bar"));
+    assertTrue(isMethodIsolated(q, "baz"));
+    assertFalse(isMethodIsolated(q, "qux"));
+    assertFalse(isResourceIsolated(q, "get", "quux"));
+    assertFalse(isResourceIsolated(q, "get", "corge"));
+    assertFalse(isMethodIsolated(q, "quuz"));
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/31365.
+    // assertFalse(<any> testInvalidCopyInWithNonObjectSelf1 is isolated function);
+    assertFalse(<any> testInvalidCopyInWithNonObjectSelf2 is isolated function);
+
+    NonIsolatedClassWithInvalidCopyInInMethodCall r = new;
+    assertFalse(<any> r is isolated object {});
+    assertTrue(isMethodIsolated(r, "baz"));
+    assertTrue(isMethodIsolated(r, "qux"));
+
+    assertFalse(<any> nonIsolatedObjectWithInvalidCopyInInMethodCall is isolated object {});
+    assertTrue(isMethodIsolated(nonIsolatedObjectWithInvalidCopyInInMethodCall, "baz"));
+    assertTrue(isMethodIsolated(nonIsolatedObjectWithInvalidCopyInInMethodCall, "qux"));
+
+    IsolatedClassWithInvalidCopyOut2 s = new;
+    assertFalse(<any> s is isolated object {});
+    assertTrue(isMethodIsolated(s, "baz"));
+
+    NonIsolatedClassWithQueryExprAsTransferOut t = new;
+    assertFalse(<any> t is isolated object {});
+    assertTrue(isMethodIsolated(t, "getArr"));
+
+    NonIsolatedClassWithInvalidRawTemplateTransfer u = new;
+    assertFalse(<any> u is isolated object {});
+    assertTrue(isMethodIsolated(u, "getArrOne"));
+    assertTrue(isMethodIsolated(u, "getArrTwo"));
+    assertTrue(isMethodIsolated(u, "getArrs"));
 }
+
+isolated function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+isolated function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
+isolated function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isResourceIsolated(service object {}|typedesc val, string resourceMethodName,
+     string resourcePath) returns boolean = @java:Method {
+                        'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+                        paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString"]
+                    } external;
+
+isolated function isRemoteMethodIsolated(object {}|typedesc val, string methodName) returns boolean = @java:Method {
+                                            'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+                                             paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString"]
+                                        } external;
+
+isolated function isMethodIsolated(object {}|typedesc val, string methodName) returns boolean = @java:Method {
+                                            'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+                                            paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString"]
+                                        } external;
