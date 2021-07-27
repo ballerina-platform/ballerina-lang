@@ -44,7 +44,7 @@ public class LSClientConfig {
         this.codeLens = new CodeLensConfig();
         this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
         this.enableTelemetry = balTelemetry == null || Boolean.parseBoolean(balTelemetry);
-        this.enableSemanticHighlighting = false;
+        this.enableSemanticHighlighting = true;
     }
 
     /**

@@ -29,5 +29,7 @@ public class SemanticTokensConstants {
 
     public static final String REQUEST_METHOD = "textDocument/semanticTokens";
 
-    public static final String SELF = "self";
+    protected static final String SELF = "self";
+
+    protected static final String READONLY = "readonly";
 }

@@ -276,23 +276,19 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientConfigHolder.getInstance(serverContext).register(new ClientConfigListener() {
             @Override
             public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
-
-                boolean isEnabled = newConfig.isEnableSemanticHighlighting();
-                if (isEnabled ^ oldConfig.isEnableSemanticHighlighting()) {
-                    ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
-                    if (isEnabled) {
-                        SemanticTokensWithRegistrationOptions options =
-                                SemanticTokensUtils.getSemanticTokensRegistrationOptions();
-                        Registration registration = new Registration(SemanticTokensConstants.REGISTRATION_ID,
-                                SemanticTokensConstants.REQUEST_METHOD, options);
-                        languageClient.registerCapability(
-                                new RegistrationParams(Collections.singletonList(registration)));
-                    } else {
-                        Unregistration unregistration = new Unregistration(SemanticTokensConstants.REGISTRATION_ID,
-                                SemanticTokensConstants.REQUEST_METHOD);
-                        languageClient.unregisterCapability(
-                                new UnregistrationParams(Collections.singletonList(unregistration)));
-                    }
+                ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
+                if (newConfig.isEnableSemanticHighlighting()) {
+                    SemanticTokensWithRegistrationOptions options =
+                            SemanticTokensUtils.getSemanticTokensRegistrationOptions();
+                    Registration registration = new Registration(SemanticTokensConstants.REGISTRATION_ID,
+                            SemanticTokensConstants.REQUEST_METHOD, options);
+                    languageClient.registerCapability(
+                            new RegistrationParams(Collections.singletonList(registration)));
+                } else {
+                    Unregistration unregistration = new Unregistration(SemanticTokensConstants.REGISTRATION_ID,
+                            SemanticTokensConstants.REQUEST_METHOD);
+                    languageClient.unregisterCapability(
+                            new UnregistrationParams(Collections.singletonList(unregistration)));
                 }
             }
         });
