@@ -24,16 +24,14 @@ import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.model.Scope;
 import org.ballerinalang.test.BCompileUtil;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -387,10 +385,10 @@ public class PackageResolutionTests extends BaseTest {
         moduleRequests.add(new ImportModuleRequest(PackageOrg.from("ballerina"), "sample.module"));
 
         //dummyResponse
-        Map<ImportModuleRequest, ImportModuleResponse>  moduleResponse = new HashMap<>();
+        List<ImportModuleResponse>  moduleResponse = new ArrayList<>();
         for (ImportModuleRequest request: moduleRequests ) {
             String[] parts = request.moduleName().split("[.]");
-            moduleResponse.put(request, new ImportModuleResponse(request.packageOrg(), PackageName.from(parts[0])));
+            moduleResponse.add(new ImportModuleResponse(request.packageOrg(), PackageName.from(parts[0]), request));
         }
 
         when(mockResolver.resolvePackageNames(any())).thenReturn(moduleResponse);

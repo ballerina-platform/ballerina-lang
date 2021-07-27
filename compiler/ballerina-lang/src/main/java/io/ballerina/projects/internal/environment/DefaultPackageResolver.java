@@ -25,6 +25,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -107,14 +108,15 @@ public class DefaultPackageResolver implements PackageResolver {
         return resolutionResponses;
     }
 
+
     @Override
-    public Map<ImportModuleRequest, ImportModuleResponse> resolvePackageNames(
-            List<ImportModuleRequest> importModuleRequests) {
+    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
         return null;
     }
 
     @Override
-    public DependencyGraph<PackageDescriptor> resolveDependencies(List<ResolutionRequest> packageLoadRequests) {
+    public DependencyGraph<PackageDescriptor> resolveDependencies(List<ResolutionRequest> packageLoadRequests,
+                                                                  PackageLockingMode packageLockingMode) {
         return null;
     }
 
