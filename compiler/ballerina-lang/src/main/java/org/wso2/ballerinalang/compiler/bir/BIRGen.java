@@ -1027,6 +1027,7 @@ public class BIRGen extends BLangNodeVisitor {
             setScopeAndEmit(new Move(birFunc.pos, this.env.targetOperand, varRef));
 
             this.env.enclBB.terminator = new BIRTerminator.Return(birFunc.pos);
+            setScope(this.env.enclBB.terminator);
         }
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         birFunc.requiredParams.add(parameter);
@@ -1114,6 +1115,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBasicBlocks.add(unlockBB);
             BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null, unlockBB);
             this.env.enclBB.terminator = unlock;
+            setScope(this.env.enclBB.terminator);
             unlock.relatedLock = toUnlock.getLock(numLocks - 1);
             this.env.enclBB = unlockBB;
             numLocks--;
@@ -1255,6 +1257,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerReceive(workerReceive.pos, names.fromString(channel),
                                                                      lhsOp, isOnSameStrand, thenBB);
+        setScope(this.env.enclBB.terminator);
 
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -1273,6 +1276,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(
                 workerSend.pos, names.fromString(channelName), this.env.targetOperand, isOnSameStrand, false, null,
                 thenBB);
+        setScope(this.env.enclBB.terminator);
 
         this.env.enclBB = thenBB;
     }
@@ -1295,6 +1299,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.enclBB.terminator = new BIRTerminator.WorkerSend(syncSend.pos, names.fromString(channelName),
                                                                   dataOp, isOnSameStrand, true, lhsOp, thenBB);
+        setScope(this.env.enclBB.terminator);
 
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -1322,6 +1327,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
 
         this.env.enclBB.terminator = new BIRTerminator.Flush(flushExpr.pos, channels, lhsOp, thenBB);
+        setScope(this.env.enclBB.terminator);
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
     }
@@ -1345,6 +1351,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.targetOperand = lhsOp;
 
         this.env.enclBB.terminator = new BIRTerminator.Wait(waitExpr.pos, exprList, lhsOp, thenBB);
+        setScope(this.env.enclBB.terminator);
 
         this.env.enclBasicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -1425,14 +1432,12 @@ public class BIRGen extends BLangNodeVisitor {
         addToTrapStack(thenBB);
         this.env.enclBasicBlocks.add(thenBB);
 
-        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
-        this.currentScope = newScope;
-
 
         // TODO: make vCall a new instruction to avoid package id in vCall
         if (invocationExpr.functionPointerInvocation) {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, transactional, thenBB);
+            setScope(this.env.enclBB.terminator);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
@@ -1442,6 +1447,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
                     args, lhsOp, thenBB, annots, calleeAnnots, bInvokableSymbol.getFlags());
+            setScope(this.env.enclBB.terminator);
         } else {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
@@ -1469,6 +1475,7 @@ public class BIRGen extends BLangNodeVisitor {
             addToTrapStack(returnBB);
             returnBB.terminator = new BIRTerminator.Return(astReturnStmt.pos);
             this.env.returnBB = returnBB;
+            setScope(this.env.returnBB.terminator);
         }
         if (this.env.enclBB.terminator == null) {
             this.env.unlockVars.forEach(s -> {
@@ -1500,6 +1507,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             addToTrapStack(returnBB);
             returnBB.terminator = new BIRTerminator.Return(panicNode.pos);
+            setScope(returnBB.terminator);
             this.env.returnBB = returnBB;
         }
         this.env.enclBB.terminator = new BIRTerminator.Panic(panicNode.pos, this.env.targetOperand);
@@ -1528,6 +1536,7 @@ public class BIRGen extends BLangNodeVisitor {
         // This is the end of the current basic block.
         BIRTerminator.Branch branchIns = new BIRTerminator.Branch(astIfStmt.pos, ifExprResult, thenBB, null);
         this.env.enclBB.terminator = branchIns;
+        setScope(this.env.enclBB.terminator);
 
         // Visit the then-block
         this.env.enclBB = thenBB;
@@ -1604,6 +1613,7 @@ public class BIRGen extends BLangNodeVisitor {
         // Add the branch instruction to the while expression basic block.
         this.env.enclBB.terminator =
                 new BIRTerminator.Branch(astWhileStmt.pos, whileExprResult, whileBodyBB, whileEndBB);
+        setScope(this.env.enclBB.terminator);
 
         // Visit while body
         this.env.enclBB = whileBodyBB;
@@ -2061,6 +2071,7 @@ public class BIRGen extends BLangNodeVisitor {
             valueExprs.add(valueRegIndex);
         }
         this.env.enclBB.terminator = new BIRTerminator.WaitAll(waitLiteral.pos, toVarRef, keys, valueExprs, thenBB);
+        setScope(this.env.enclBB.terminator);
         this.env.targetOperand = toVarRef;
         this.env.enclFunc.basicBlocks.add(thenBB);
         this.env.enclBB = thenBB;
@@ -2406,6 +2417,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBasicBlocks.add(lockedBB);
         BIRTerminator.Lock lock = new BIRTerminator.Lock(null, lockedBB);
         this.env.enclBB.terminator = lock;
+        setScope(this.env.enclBB.terminator);
         lockStmtMap.put(lockStmt, lock); // Populate the cache.
         this.env.unlockVars.peek().addLock(lock);
         populateBirLockWithGlobalVars(lockStmt);
