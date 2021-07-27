@@ -3640,11 +3640,18 @@ public class Types {
             return true;
         }
 
-        boolean matchFound = lhsTypes
-                .stream()
-                .anyMatch(s -> rhsTypes
-                        .stream()
-                        .anyMatch(t -> isSameType(s, t)));
+        boolean matchFound = false;
+        for (BType lhsType : lhsTypes) {
+            for (BType rhsType : rhsTypes) {
+                if (isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
+                    matchFound = true;
+                    break;
+                }
+            }
+            if (matchFound) {
+                break;
+            }
+        }
 
         if (!matchFound) {
             matchFound = equalityIntersectionExistsForComplexTypes(lhsTypes, rhsTypes);

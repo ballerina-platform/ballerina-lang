@@ -14,11 +14,32 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'value;
-type Error0 distinct error;
-type Error1 distinct error<map<value:Cloneable>>;
-type Error2 distinct (Error0|Error1);
+import ballerina/test;
 
-type SomeUnion distinct (Error0|Error1|record {| string key; string val; |});
-type TheInt distinct int;
-type TheTypeDesc distinct typedesc<int>;
+# Before Suite Function
+
+@test:BeforeSuite
+function beforeSuiteFunc() {}
+
+# Before test function
+
+function beforeFunc() {}
+
+# Test function
+
+@test:Config {
+    before: beforeFunc,
+    after: afterFunc
+}
+function testFunction() {
+    test:assertTrue(true, msg = "Failed!");
+}
+
+# After test function
+
+function afterFunc() {}
+
+# After Suite Function
+
+@test:AfterSuite {}
+function afterSuiteFunc() {}
