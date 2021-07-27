@@ -48,6 +48,7 @@ public class JvmConstants {
     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
+    public static final String FUNCTION_PARAMETER = "io/ballerina/runtime/api/Parameter";
     public static final String B_STRING_VALUE = "io/ballerina/runtime/api/values/BString";
     public static final String NON_BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/NonBmpStringValue";
     public static final String BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/BmpStringValue";

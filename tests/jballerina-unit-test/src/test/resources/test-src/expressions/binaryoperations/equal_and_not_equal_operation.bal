@@ -1034,6 +1034,20 @@ public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
     return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
 }
 
+function testXmlStringNegative() {
+    anydata x1 = xml `<book>The Lost World</book>`;
+    anydata x2 = "<book>The Lost World</book>";
+    anydata x3 = xml `Hello, world!`;
+    anydata x4 = "Hello, world!";
+    anydata x5 = xml `<?target data?>`;
+    anydata x6 = "<?target data?>";
+    anydata x7 = xml `<!-- I'm comment -->`;
+    anydata x8 = "<!-- I'm comment -->";
+    boolean result =  x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7
+     != x8) || x2 == x1 || !(x2 != x1) || x4 == x3 || !(x4 != x3) || x6 == x5 || !(x6 != x5) || x8 == x7 || !(x8 != x7);
+     assert(result, false);
+}
+
 public function testJsonRecordMapEqualityPositive() returns boolean {
     OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };
 
@@ -1363,6 +1377,30 @@ function testTableEquality() {
 
 function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
+}
+
+function testTupleJSONEquality() {
+    [string, int] t = ["Hi", 1];
+    json j = "Hi 1";
+    boolean bool1 = t == j && t != j;
+    assert(bool1, false);
+
+    [string, int][] e = [["Hi", 1]];
+    bool1 = e == j && e != j;
+    assert(bool1, false);
+
+    [string, int...] k = ["Hi", 1];
+    bool1 = k == j && k != j;
+    assert(bool1, false);
+
+    j = ["Hi", 1];
+    assert(j == t, true);
+    assert(j == k, true);
+    j = [["Hi", 1]];
+    assert(j == e, true);
+    j = true;
+    [boolean, string|()] l = [true];
+    assert(j != l, true);
 }
 
 function assert(anydata actual, anydata expected) {

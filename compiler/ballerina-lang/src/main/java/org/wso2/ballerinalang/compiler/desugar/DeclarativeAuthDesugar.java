@@ -73,6 +73,7 @@ public class DeclarativeAuthDesugar {
 
     private static final String ORG_NAME = "ballerina";
     private static final String HTTP_PACKAGE_NAME = "http";
+    private static final String GRPC_PACKAGE_NAME = "grpc";
     private static final String WEBSOCKET_PACKAGE_NAME = "websocket";
     private static final String AUTHENTICATE_RESOURCE = "authenticateResource";
 
@@ -98,6 +99,8 @@ public class DeclarativeAuthDesugar {
     void desugarFunction(BLangFunction functionNode, SymbolEnv env, List<BType> expressionTypes) {
         if (isDefinedInStdLibPackage(expressionTypes, HTTP_PACKAGE_NAME)) {
             addAuthDesugarFunctionInvocation(functionNode, env, HTTP_PACKAGE_NAME);
+        } else if (isDefinedInStdLibPackage(expressionTypes, GRPC_PACKAGE_NAME)) {
+            addAuthDesugarFunctionInvocation(functionNode, env, GRPC_PACKAGE_NAME);
         } else if (isDefinedInStdLibPackage(expressionTypes, WEBSOCKET_PACKAGE_NAME)) {
             addAuthDesugarFunctionInvocation(functionNode, env, WEBSOCKET_PACKAGE_NAME);
         }
@@ -143,16 +146,16 @@ public class DeclarativeAuthDesugar {
             return;
         }
         BInvokableSymbol invocationSymbol = (BInvokableSymbol) methodSym;
-        BLangResourceFunction resourceNode = (BLangResourceFunction) functionNode;
-        Location pos = resourceNode.getPosition();
+        Location pos = functionNode.getPosition();
 
         // Create method invocation.
-        BLangSimpleVarRef selfRef = ASTBuilderUtil.createVariableRef(pos, resourceNode.symbol.receiverSymbol);
+        BLangSimpleVarRef selfRef = ASTBuilderUtil.createVariableRef(pos, functionNode.symbol.receiverSymbol);
 
         ArrayList<BLangExpression> args = new ArrayList<>();
         args.add(selfRef);
 
         if (packageName.equals(HTTP_PACKAGE_NAME)) {
+            BLangResourceFunction resourceNode = (BLangResourceFunction) functionNode;
             BLangLiteral methodNameLiteral = ASTBuilderUtil.createLiteral(
                     pos, symTable.stringType, resourceNode.methodName.value);
 
@@ -177,8 +180,8 @@ public class DeclarativeAuthDesugar {
         statements.add(0, result);
 
         BVarSymbol resultSymbol = new BVarSymbol(0, names.fromIdNode(result.var.name), env.enclPkg.packageID,
-                                                 result.var.getBType(), resourceNode.symbol, pos, VIRTUAL);
-        resourceNode.symbol.scope.define(resultSymbol.name, resultSymbol);
+                                                 result.var.getBType(), functionNode.symbol, pos, VIRTUAL);
+        functionNode.symbol.scope.define(resultSymbol.name, resultSymbol);
         result.var.symbol = resultSymbol;
     }
 

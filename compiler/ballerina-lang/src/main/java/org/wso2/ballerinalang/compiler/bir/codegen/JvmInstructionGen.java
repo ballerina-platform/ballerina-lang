@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
@@ -44,7 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -92,7 +93,6 @@ import static org.objectweb.asm.Opcodes.IF_ICMPLT;
 import static org.objectweb.asm.Opcodes.IF_ICMPNE;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INEG;
-import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -179,6 +179,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  */
 public class JvmInstructionGen {
 
+    public static final String TO_UNSIGNED_LONG = "toUnsignedLong";
     //this anytype is currently set from package gen class
     static BType anyType;
     private final MethodVisitor mv;
@@ -191,10 +192,12 @@ public class JvmInstructionGen {
     private final JvmBStringConstantsGen stringConstantsGen;
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
+    private final JvmTypeTestGen typeTestGen;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                             JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector) {
+                             JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector,
+                             CompilerContext compilerContext) {
         this.mv = mv;
         this.indexMap = indexMap;
         this.currentPackage = currentPackage;
@@ -205,6 +208,7 @@ public class JvmInstructionGen {
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
         this.stringConstantsGen = stringConstantsGen;
+        typeTestGen = new JvmTypeTestGen(this, compilerContext, mv, jvmTypeGen);
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -326,16 +330,16 @@ public class JvmInstructionGen {
             case TypeTags.UNSIGNED8_INT:
                 mv.visitInsn(L2I);
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedLong", "(B)J", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, TO_UNSIGNED_LONG, "(B)J", false);
                 return;
             case TypeTags.UNSIGNED16_INT:
                 mv.visitInsn(L2I);
                 mv.visitInsn(I2S);
-                mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, "toUnsignedLong", "(S)J", false);
+                mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, TO_UNSIGNED_LONG, "(S)J", false);
                 return;
             case TypeTags.UNSIGNED32_INT:
                 mv.visitInsn(L2I);
-                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
         }
     }
 
@@ -654,9 +658,9 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
             if (opcode == IFLT) {
                 this.mv.visitJumpInsn(IF_ICMPLT, label1);
-            } else if (opcode != IFGT) {
+            } else if (opcode == IFGT) {
                 this.mv.visitJumpInsn(IF_ICMPGT, label1);
-            } else if (opcode != IFLE) {
+            } else if (opcode == IFLE) {
                 this.mv.visitJumpInsn(IF_ICMPLE, label1);
             } else if (opcode == IFGE) {
                 this.mv.visitJumpInsn(IF_ICMPGE, label1);
@@ -1008,13 +1012,13 @@ public class JvmInstructionGen {
 
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             if (opType1Tag == TypeTags.BYTE) {
-                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
             }
 
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             if (opType2Tag == TypeTags.BYTE) {
-                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
             }
 
@@ -1517,64 +1521,6 @@ public class JvmInstructionGen {
         this.storeToVar(typeCastIns.lhsOp.variableDcl);
     }
 
-    void generateTypeTestIns(BIRNonTerminator.TypeTest typeTestIns) {
-        var sourceValue = typeTestIns.rhsOp.variableDcl;
-        BType targetType = typeTestIns.type;
-        if (canOptimizeType(sourceValue, targetType)) {
-            handleErrorUnionType(typeTestIns);
-            return;
-        }
-        this.loadVar(sourceValue);
-        jvmTypeGen.loadType(this.mv, targetType);
-
-        this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkIsType",
-                                String.format("(L%s;L%s;)Z", OBJECT, TYPE), false);
-        this.storeToVar(typeTestIns.lhsOp.variableDcl);
-    }
-
-    private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
-        loadVar(typeTestIns.rhsOp.variableDcl);
-        mv.visitTypeInsn(INSTANCEOF, BERROR);
-        if (typeTestIns.type.tag != TypeTags.ERROR) {
-            generateNegateBoolean();
-        }
-        storeToVar(typeTestIns.lhsOp.variableDcl);
-    }
-
-    private boolean canOptimizeType(BIRNode.BIRVariableDcl rhsVar, BType type) {
-        BType rhsType = rhsVar.type;
-        if (rhsType.tag != TypeTags.UNION) {
-            return false;
-        }
-        var unionMemberTypes = ((BUnionType) rhsType).getMemberTypes();
-        if (unionMemberTypes.size() != 2) {
-            return false;
-        }
-        BType errorType = null;
-        BType otherType = null;
-        int foundError = 0;
-        for (BType bType : unionMemberTypes) {
-            if (bType.tag == TypeTags.ERROR) {
-                errorType = bType;
-                foundError++;
-            } else {
-                otherType = bType;
-            }
-        }
-        return foundError == 1 && (type.equals(errorType) || type.equals(otherType));
-    }
-
-    private void generateNegateBoolean() {
-        Label ifLabel = new Label();
-        mv.visitJumpInsn(IFNE, ifLabel);
-        mv.visitInsn(ICONST_1);
-        Label gotoLabel = new Label();
-        mv.visitJumpInsn(GOTO, gotoLabel);
-        mv.visitLabel(ifLabel);
-        mv.visitInsn(ICONST_0);
-        mv.visitLabel(gotoLabel);
-    }
-
     void generateIsLikeIns(BIRNonTerminator.IsLike isLike) {
         // load source value
         this.loadVar(isLike.rhsOp.variableDcl);
@@ -1919,11 +1865,11 @@ public class JvmInstructionGen {
         this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
     }
 
-    private void loadVar(BIRNode.BIRVariableDcl varDcl) {
+    void loadVar(BIRNode.BIRVariableDcl varDcl) {
         generateVarLoad(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
     }
 
-    private void storeToVar(BIRNode.BIRVariableDcl varDcl) {
+    void storeToVar(BIRNode.BIRVariableDcl varDcl) {
         generateVarStore(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
     }
 
@@ -2011,7 +1957,7 @@ public class JvmInstructionGen {
                     generateIsLikeIns((BIRNonTerminator.IsLike) inst);
                     break;
                 case TYPE_TEST:
-                    generateTypeTestIns((BIRNonTerminator.TypeTest) inst);
+                    typeTestGen.generateTypeTestIns((BIRNonTerminator.TypeTest) inst);
                     break;
                 case OBJECT_STORE:
                     generateObjectStoreIns((FieldAccess) inst);
