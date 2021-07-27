@@ -1,3 +1,3 @@
-type Foo + client + abstract abstract object {
+type Foo + client + abstract object {
     string name;
 };

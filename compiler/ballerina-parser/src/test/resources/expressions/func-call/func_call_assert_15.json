@@ -1,73 +1,39 @@
 {
-  "kind": "BINARY_EXPRESSION",
-  "hasDiagnostics": true,
+  "kind": "FUNCTION_CALL",
   "children": [
     {
-      "kind": "FUNCTION_CALL",
+      "kind": "SIMPLE_NAME_REFERENCE",
       "children": [
         {
-          "kind": "SIMPLE_NAME_REFERENCE",
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        }
+      ]
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "POSITIONAL_ARG",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "foo"
-            }
-          ]
-        },
-        {
-          "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-          "kind": "LIST",
-          "children": [
-            {
-              "kind": "POSITIONAL_ARG",
+              "kind": "NUMERIC_LITERAL",
               "children": [
                 {
-                  "kind": "NUMERIC_LITERAL",
-                  "children": [
-                    {
-                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                      "value": "1"
-                    }
-                  ]
+                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                  "value": "1"
                 }
               ]
             }
           ]
-        },
-        {
-          "kind": "CLOSE_PAREN_TOKEN"
         }
       ]
     },
     {
-      "kind": "PLUS_TOKEN",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_BINARY_OPERATOR"
-      ]
-    },
-    {
-      "kind": "BRACED_EXPRESSION",
-      "children": [
-        {
-          "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-          "kind": "NUMERIC_LITERAL",
-          "children": [
-            {
-              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-              "value": "2"
-            }
-          ]
-        },
-        {
-          "kind": "CLOSE_PAREN_TOKEN"
-        }
-      ]
+      "kind": "CLOSE_PAREN_TOKEN"
     }
   ]
 }
