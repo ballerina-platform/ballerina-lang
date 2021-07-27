@@ -58,7 +58,8 @@ public class PullModuleExecutorTest {
     private final Gson gson = new Gson();
     private final JsonParser parser = new JsonParser();
 
-    private final Path sourcesDir = new File(getClass().getClassLoader().getResource("command").getFile()).toPath();
+    private final Path sourcesDir = new File(getClass().getClassLoader()
+            .getResource("command").getFile()).toPath();
 
     @BeforeClass
     public void init() {
@@ -90,9 +91,11 @@ public class PullModuleExecutorTest {
         }
 
         // Check for unresolved module diagnostic
-        DiagnosticResult diagnosticResult = workspaceManager.waitAndGetPackageCompilation(sourcePath).get().diagnosticResult();
+        DiagnosticResult diagnosticResult = workspaceManager.waitAndGetPackageCompilation(sourcePath)
+                .get().diagnosticResult();
         long unresolvedModCount = diagnosticResult.diagnostics().stream()
-                .filter(diagnostic -> DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId().equals(diagnostic.diagnosticInfo().code()))
+                .filter(diagnostic -> DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId()
+                        .equals(diagnostic.diagnosticInfo().code()))
                 .count();
         Assert.assertEquals(unresolvedModCount, 1);
 
@@ -100,13 +103,14 @@ public class PullModuleExecutorTest {
         args.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
 
         JsonObject response = getCommandResponse(args, PullModuleExecutor.COMMAND);
-        System.out.println(response);
-
+        Assert.assertNotNull(response);
+        
         Thread.sleep(60 * 1000);
 
         diagnosticResult = workspaceManager.waitAndGetPackageCompilation(sourcePath).get().diagnosticResult();
         unresolvedModCount = diagnosticResult.diagnostics().stream()
-                .filter(diagnostic -> DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId().equals(diagnostic.diagnosticInfo().code()))
+                .filter(diagnostic -> DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId()
+                        .equals(diagnostic.diagnosticInfo().code()))
                 .count();
         Assert.assertEquals(unresolvedModCount, 0);
 
@@ -122,7 +126,8 @@ public class PullModuleExecutorTest {
     private JsonObject getCommandResponse(List<Object> args, String command) {
         List argsList = argsToJson(args);
         ExecuteCommandParams params = new ExecuteCommandParams(command, argsList);
-        String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint).replace("\\r\\n", "\\n");
+        String response = TestUtil.getExecuteCommandResponse(params, this.serviceEndpoint)
+                .replace("\\r\\n", "\\n");
         JsonObject responseJson = parser.parse(response).getAsJsonObject();
         responseJson.remove("id");
         return responseJson;
