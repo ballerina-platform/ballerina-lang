@@ -1145,7 +1145,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             defineAllUnresolvedCyclicTypesInScope(env);
 
-            Set<BLangIdentifier> reDeclaredCyclicTypeDef = new HashSet<>();
+            Set<BLangIdentifier> reDeclaredTypeDefs = new HashSet<>();
             for (BLangNode unresolvedTypeNode : unresolvedTypes) {
                 if (unresolvedTypeNode.getKind() != NodeKind.TYPE_DEFINITION) {
                     defineNode(unresolvedTypeNode, env);
@@ -1153,7 +1153,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 // Prevent defining re-declared nodes
                 BLangTypeDefinition typeDefNode = (BLangTypeDefinition) unresolvedTypeNode;
-                if (reDeclaredCyclicTypeDef.add(typeDefNode.name)) {
+                if (reDeclaredTypeDefs.add(typeDefNode.name)) {
                     defineNode(unresolvedTypeNode, env);
                 }
             }
