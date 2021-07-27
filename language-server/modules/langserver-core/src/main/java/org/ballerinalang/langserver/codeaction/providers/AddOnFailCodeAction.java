@@ -35,6 +35,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * On fail suggestion Code Action for check expressions.
@@ -62,15 +63,16 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
         String commandTitle;
 
-        FailStatementResolver finder = new FailStatementResolver();
-        Node failStatementNode = finder.getRegComNSmtNode(nodeAtDiagnostic);
+        FailStatementResolver finder = new FailStatementResolver(diagnostic);
+        Optional<Node> failStatementResolverNode = finder.getRegComNSmtNode(nodeAtDiagnostic);
         
-        if (failStatementNode != null && failStatementNode.kind() == SyntaxKind.WHILE_KEYWORD) {
+        if (failStatementResolverNode.isPresent()
+                && failStatementResolverNode.get().kind() == SyntaxKind.WHILE_KEYWORD) {
             return Collections.emptyList();
         }
         
-        if (failStatementNode != null) {
-            LinePosition regComStmtLinePosition = failStatementNode.lineRange().endLine();
+        if (failStatementResolverNode.isPresent()) {
+            LinePosition regComStmtLinePosition = failStatementResolverNode.get().lineRange().endLine();
             Position onFailPosLine = new Position(regComStmtLinePosition.line(), regComStmtLinePosition.offset());
 
             String spaces = " ".repeat(regComStmtLinePosition.offset() - 1);

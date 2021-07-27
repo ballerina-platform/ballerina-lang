@@ -21,55 +21,66 @@ import io.ballerina.compiler.syntax.tree.LockStatementNode;
 import io.ballerina.compiler.syntax.tree.MatchStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LineRange;
+
+import java.util.Optional;
 
 /**
  * This visitor is used to resolve the regular compound statement node of a given node.
  * 
  * @since 2.0.0
  */
-public class FailStatementResolver extends NodeTransformer<Node> {
+public class FailStatementResolver extends NodeTransformer<Optional<Node>> {
     
-    public Node getRegComNSmtNode(Node node) {
+    private Diagnostic diagnostic;
+    
+    public FailStatementResolver(Diagnostic diagnostic) {
+        this.diagnostic = diagnostic;
+    }
+    
+    public Optional<Node> getRegComNSmtNode(Node node) {
         return node.apply(this);
     }
 
     @Override
-    public Node transform(WhileStatementNode whileStatementNode) {
-        Node whileStatementConditionNode = whileStatementNode.condition();
-        if (whileStatementConditionNode.kind() == SyntaxKind.CHECK_EXPRESSION 
-                || whileStatementConditionNode.kind() == SyntaxKind.FAIL_STATEMENT) {
-            return whileStatementNode.whileKeyword();
+    public Optional<Node> transform(WhileStatementNode whileStatementNode) {
+        LineRange diagnosticLineRange = diagnostic.location().lineRange();
+        LineRange whileStmtConLineRange = whileStatementNode.condition().lineRange();
+        if (diagnosticLineRange.startLine().line() == whileStmtConLineRange.startLine().line()
+                && diagnosticLineRange.startLine().offset() > whileStmtConLineRange.startLine().offset() 
+                && diagnosticLineRange.endLine().offset() < whileStmtConLineRange.endLine().offset()) {
+            return Optional.of(whileStatementNode.whileKeyword());
         }
-        return whileStatementNode;
+        return Optional.of(whileStatementNode);
     }
     
     @Override
-    public Node transform(DoStatementNode doStatementNode) {
-        return doStatementNode;
+    public Optional<Node> transform(DoStatementNode doStatementNode) {
+        return Optional.of(doStatementNode);
     }
     
     @Override
-    public Node transform(MatchStatementNode matchStatementNode) {
-        return matchStatementNode;
+    public Optional<Node> transform(MatchStatementNode matchStatementNode) {
+        return Optional.of(matchStatementNode);
     }
     
     @Override
-    public Node transform(ForEachStatementNode forEachStatementNode) {
-        return forEachStatementNode;
+    public Optional<Node> transform(ForEachStatementNode forEachStatementNode) {
+        return Optional.of(forEachStatementNode);
     }
     
     @Override
-    public Node transform(LockStatementNode lockStatementNode) {
-        return lockStatementNode;
+    public Optional<Node> transform(LockStatementNode lockStatementNode) {
+        return Optional.of(lockStatementNode);
     }
     
     @Override
-    protected Node transformSyntaxNode(Node node) {
+    protected Optional<Node> transformSyntaxNode(Node node) {
         if (node.parent() != null) {
             return node.parent().apply(this);
         }
-        return null;
+        return Optional.empty();
     }
 }
