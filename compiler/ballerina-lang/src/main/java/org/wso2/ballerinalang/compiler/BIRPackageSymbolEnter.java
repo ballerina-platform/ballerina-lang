@@ -733,38 +733,16 @@ public class BIRPackageSymbolEnter {
         BType varType = readBType(dataInStream);
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
-        if (dataInStream.readBoolean()) {
+        if (varType.tag == TypeTags.INVOKABLE) {
+            // Here we don't set the required-params, defaultable params and the rest param of
+            // the symbol. Because, for the function pointers we directly read the param types
+            // from the varType (i.e: from InvokableType).
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
                                              this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
                                              toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
             invokableSymbol.retType = ((BInvokableType) invokableSymbol.type).retType;
-
-            if (dataInStream.readBoolean()) {
-                int params = dataInStream.readInt();
-                for (int i = 0; i < params; i++) {
-                    String fieldName = getStringCPEntryValue(dataInStream);
-                    var paramFlags = dataInStream.readLong();
-
-                    BVarSymbol paramSymbol = new BVarSymbol(paramFlags, names.fromString(fieldName),
-                                                            this.env.pkgSymbol.pkgID,
-                                                            ((BInvokableType) invokableSymbol.type).paramTypes.get(i),
-                                                            invokableSymbol, symTable.builtinPos, COMPILED_SOURCE);
-                    paramSymbol.isDefaultable = ((paramFlags & Flags.OPTIONAL) == Flags.OPTIONAL);
-                    invokableSymbol.params.add(paramSymbol);
-                }
-
-                if (dataInStream.readBoolean()) { //if rest param exist
-                    String fieldName = getStringCPEntryValue(dataInStream);
-
-                    BVarSymbol restParamSymbol = new BVarSymbol(0, names.fromString(fieldName),
-                                                                this.env.pkgSymbol.pkgID,
-                                                                ((BInvokableType) invokableSymbol.type).restType,
-                                                                invokableSymbol, symTable.builtinPos, COMPILED_SOURCE);
-                    invokableSymbol.restParam = restParamSymbol;
-                }
-            }
             varSymbol = invokableSymbol;
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
@@ -990,7 +968,8 @@ public class BIRPackageSymbolEnter {
             return readBType(inputStream);
         }
 
-        private BInvokableType setTSymbolForInvokableType(BInvokableType bInvokableType) throws IOException {
+        private BInvokableType setTSymbolForInvokableType(BInvokableType bInvokableType,
+                                                          BType retType) throws IOException {
             BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, bInvokableType.flags,
                                                                              env.pkgSymbol.pkgID, null,
                                                                              env.pkgSymbol.owner, symTable.builtinPos,
@@ -1027,7 +1006,7 @@ public class BIRPackageSymbolEnter {
                 tSymbol.restParam = varSymbol;
             }
 
-            tSymbol.returnType = readTypeFromCp();
+            tSymbol.returnType = retType;
 
             int defaultValues = inputStream.readInt();
             for (int i = 0; i < defaultValues; i++) {
@@ -1232,7 +1211,7 @@ public class BIRPackageSymbolEnter {
                         bInvokableType.restType = readTypeFromCp();
                     }
                     bInvokableType.retType = readTypeFromCp();
-                    return setTSymbolForInvokableType(bInvokableType);
+                    return setTSymbolForInvokableType(bInvokableType, bInvokableType.retType);
                 // All the above types are branded types
                 case TypeTags.ANY:
                     BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);

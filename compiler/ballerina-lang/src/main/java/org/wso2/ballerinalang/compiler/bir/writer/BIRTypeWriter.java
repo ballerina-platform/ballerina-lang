@@ -223,8 +223,6 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(restParam.type);
         }
 
-        writeTypeCpIndex(bInvokableType.retType);
-
         buff.writeInt(invokableTypeSymbol.defaultValues.size());
         invokableTypeSymbol.defaultValues.forEach((k, v) -> {
             buff.writeInt(addStringCPEntry(k));

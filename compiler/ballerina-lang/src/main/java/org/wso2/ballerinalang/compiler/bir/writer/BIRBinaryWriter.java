@@ -38,8 +38,6 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -166,37 +164,6 @@ public class BIRBinaryWriter {
 
             // Function type as a CP Index
             writeType(buf, birGlobalVar.type);
-
-            boolean isInvokableType = birGlobalVar.type.tag == TypeTags.INVOKABLE;
-            buf.writeBoolean(isInvokableType);
-            if (!isInvokableType) {
-                continue;
-            }
-
-            boolean hasTSymbol = birGlobalVar.type.tsymbol != null;
-            buf.writeBoolean(hasTSymbol);
-            if (!hasTSymbol) {
-                continue;
-            }
-            BInvokableTypeSymbol invokableTypeSymbol;
-            if (birGlobalVar.type.tsymbol instanceof BInvokableTypeSymbol) {
-                invokableTypeSymbol = (BInvokableTypeSymbol) birGlobalVar.type.tsymbol;
-            } else {
-                continue;
-            }
-
-            buf.writeInt(invokableTypeSymbol.params.size());
-            for (BVarSymbol symbol : invokableTypeSymbol.params) {
-                buf.writeInt(addStringCPEntry(symbol.name.value));
-                buf.writeLong(symbol.flags);
-            }
-
-            BVarSymbol restParam = invokableTypeSymbol.restParam;
-            boolean restParamExist = restParam != null;
-            buf.writeBoolean(restParamExist);
-            if (restParamExist) {
-                buf.writeInt(addStringCPEntry(restParam.name.value));
-            }
         }
     }
 
