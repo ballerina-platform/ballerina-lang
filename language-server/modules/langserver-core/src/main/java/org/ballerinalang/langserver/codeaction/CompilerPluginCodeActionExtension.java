@@ -15,12 +15,16 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.CodeActionManager;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionContextImpl;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
@@ -30,6 +34,7 @@ import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -63,6 +68,8 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
 
         Position position = context.cursorPosition();
         LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
+        Document document = context.currentDocument().get();
+        SemanticModel semanticModel = context.currentSemanticModel().get();
 
         CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
 
@@ -72,24 +79,29 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 .filter(diag -> CommonUtil.isWithinRange(context.cursorPosition(),
                         CommonUtil.toRange(diag.location().lineRange())))
                 .forEach(diagnostic -> {
-                    CodeActionContext codeActionContext =
-                            CodeActionContextImpl.from(context.fileUri(),
-                                    context.filePath(), linePosition, context.currentDocument().get(),
-                                    context.currentSemanticModel().get(), diagnostic);
+                    CodeActionContext codeActionContext = CodeActionContextImpl.from(context.fileUri(),
+                            context.filePath(), linePosition, document, semanticModel, diagnostic);
+                    try {
+                        codeActionManager.codeActions(codeActionContext).stream()
+                                .map(codeActionCommand -> {
+                                    CodeAction action = new CodeAction(codeActionCommand.getTitle());
 
-                    codeActionManager.codeActions(codeActionContext).stream()
-                            .map(codeActionCommand -> {
-                                CodeAction action = new CodeAction(codeActionCommand.getTitle());
-
-                                List<Object> arguments = new LinkedList<>();
-                                arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI,
-                                        context.fileUri()));
-                                arguments.addAll(codeActionCommand.getArguments());
-                                action.setCommand(new Command(codeActionCommand.getTitle(),
-                                        codeActionCommand.getProviderName(), arguments));
-                                return action;
-                            })
-                            .forEach(codeActions::add);
+                                    List<Object> arguments = new LinkedList<>();
+                                    arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI,
+                                            context.fileUri()));
+                                    arguments.addAll(codeActionCommand.getArguments());
+                                    action.setCommand(new Command(codeActionCommand.getTitle(),
+                                            codeActionCommand.getProviderName(), arguments));
+                                    return action;
+                                })
+                                .forEach(codeActions::add);
+                    } catch (Throwable t) {
+                        // We catch any error thrown by compiler plugins here to avoid breaking usual flow
+                        LSClientLogger.getInstance(context.languageServercontext())
+                                .logError(LSContextOperation.TXT_CODE_ACTION,
+                                        "Exception thrown while getting compiler plugin code actions",
+                                        t, new TextDocumentIdentifier(context.fileUri()));
+                    }
                 });
 
         return codeActions;
