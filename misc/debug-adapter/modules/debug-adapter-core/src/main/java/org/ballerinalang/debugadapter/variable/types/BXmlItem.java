@@ -43,11 +43,7 @@ public class BXmlItem extends NamedCompoundVariable {
 
     @Override
     public String computeValue() {
-        try {
-            return getStringValue(context, jvmValue);
-        } catch (Exception ignored) {
-            return UNKNOWN_VALUE;
-        }
+        return "XMLItem";
     }
 
     @Override
