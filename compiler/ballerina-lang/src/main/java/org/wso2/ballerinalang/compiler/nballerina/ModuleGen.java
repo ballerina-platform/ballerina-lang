@@ -164,6 +164,14 @@ public class ModuleGen {
 
         } else if (stmt instanceof BLangExpressionStmt) {
             codeGenExpr(((BLangExpressionStmt) stmt).getExpression(), code);
+        } else if (stmt instanceof BLangAssignment) {
+            BLangAssignment assign = (BLangAssignment) stmt;
+            if (assign.varRef instanceof BLangSimpleVarRef) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) assign.varRef;
+                Register reg = code.registers.get(varRef.variableName.getValue());
+                Operand operand = codeGenExpr(assign.expr, code);
+                curBlock.insns.add(new AssignInsn(reg, operand));
+            }
         }
     }
 

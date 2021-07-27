@@ -121,7 +121,7 @@ class InternalSymbol extends Symbol {
 
 class FunctionCode {
     public ArrayList<BasicBlock> blocks = new ArrayList<>();
-    public Map<Object, Register> registers = new LinkedHashMap<>();
+    public Map<String, Register> registers = new LinkedHashMap<>();
 
     BasicBlock createBasicBlock() {
         BasicBlock bb = new BasicBlock(this.blocks.size());
