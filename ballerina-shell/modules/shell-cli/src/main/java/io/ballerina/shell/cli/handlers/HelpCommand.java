@@ -18,13 +18,12 @@
 
 package io.ballerina.shell.cli.handlers;
 
-
 import io.ballerina.shell.cli.BallerinaShell;
 import io.ballerina.shell.cli.PropertiesLoader;
-import io.ballerina.shell.cli.handlers.help.HelpProvider;
-import io.ballerina.shell.cli.handlers.help.HelpProviderException;
-import io.ballerina.shell.cli.handlers.help.RemoteBbeHelpProvider;
+import io.ballerina.shell.cli.handlers.help.BbeHelpProvider;
 import io.ballerina.shell.cli.utils.FileUtils;
+
+import java.util.Arrays;
 
 import static io.ballerina.shell.cli.PropertiesLoader.HELP_FILE;
 
@@ -34,11 +33,21 @@ import static io.ballerina.shell.cli.PropertiesLoader.HELP_FILE;
  * @since 2.0.0
  */
 public class HelpCommand extends AbstractCommand {
-    private final HelpProvider helpProvider;
+
+    private static final String URL = "https://ballerina.io/learn/by-example/";
+    private static final String SPACE = " ";
+    private static final String TAGS = "<br/>";
+    private static final String EMPTY_STRING = "";
+    private static final String NEW_LINE = "\n";
+    private static final String DESCRIPTION_PREFIX = NEW_LINE + "Topic Description :"
+            + NEW_LINE;
+    private static final String URL_PREFIX = NEW_LINE + "For Examples Visit : ";
+
+    BbeHelpProvider bbeHelpProvider;
 
     public HelpCommand(BallerinaShell ballerinaShell) {
         super(ballerinaShell);
-        helpProvider = new RemoteBbeHelpProvider();
+        bbeHelpProvider = new BbeHelpProvider();
     }
 
     @Override
@@ -47,13 +56,17 @@ public class HelpCommand extends AbstractCommand {
             String helpFile = PropertiesLoader.getProperty(HELP_FILE);
             String helpContent = FileUtils.readResource(helpFile);
             ballerinaShell.outputInfo(helpContent);
+
         } else {
-            try {
-                StringBuilder content = new StringBuilder();
-                helpProvider.getTopic(args, content);
-                ballerinaShell.outputInfo(content.toString());
-            } catch (HelpProviderException e) {
-                ballerinaShell.outputError(e.getMessage());
+            String topic = String.join(SPACE, Arrays.copyOfRange(args, 0, args.length));
+
+            if (bbeHelpProvider.getDescription(topic) != null) {
+                ballerinaShell.outputInfo(DESCRIPTION_PREFIX + bbeHelpProvider.getDescription(topic)
+                        .replaceAll(TAGS, EMPTY_STRING));
+                ballerinaShell.outputInfo(URL_PREFIX + URL + bbeHelpProvider.getUrl(topic));
+            } else {
+                ballerinaShell.outputError(NEW_LINE + topic + " TOPIC not found " + NEW_LINE
+                        + URL_PREFIX + URL);
             }
         }
     }
