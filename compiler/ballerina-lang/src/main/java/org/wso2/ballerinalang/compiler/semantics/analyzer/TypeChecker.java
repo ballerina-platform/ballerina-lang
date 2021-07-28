@@ -7286,8 +7286,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
-            indexBasedAccessExpr.originalType = symTable.stringType;
-            actualType = symTable.stringType;
+            indexBasedAccessExpr.originalType = symTable.charStringType;
+            actualType = symTable.charStringType;
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (indexBasedAccessExpr.isLValue) {
                 indexExpr.setBType(symTable.semanticError);
