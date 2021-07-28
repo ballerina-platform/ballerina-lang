@@ -22,7 +22,6 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -1785,8 +1784,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
         this.acceptNode(bLangMatchExpression.expr);
-        bLangMatchExpression.patternClauses.forEach(pattern ->
-        {
+        bLangMatchExpression.patternClauses.forEach(pattern -> {
             this.acceptNode(pattern.expr);
             this.acceptNode(pattern.variable);
         });

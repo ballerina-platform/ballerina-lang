@@ -266,7 +266,7 @@ public class BStreamValueTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'stream<Foo>' cannot be "
-                            +"cast to 'stream<Foo,error>'.*")
+                            + "cast to 'stream<Foo,error>'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(result, "testInvalidCast");
     }
