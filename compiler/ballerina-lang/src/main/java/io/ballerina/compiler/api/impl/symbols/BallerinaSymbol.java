@@ -90,11 +90,6 @@ public class BallerinaSymbol implements Symbol {
     }
 
     @Override
-    public Optional<String> getOriginalName() {
-        return Optional.ofNullable(this.name);
-    }
-
-    @Override
     public Optional<ModuleSymbol> getModule() {
         if (this.module != null || this.moduleEvaluated) {
             return Optional.ofNullable(this.module);
@@ -137,6 +132,22 @@ public class BallerinaSymbol implements Symbol {
     }
 
     @Override
+    public boolean nameEquals(Optional<String> name) {
+        Optional<String> symbolName = this.getName();
+        Optional<String> symbolOriginalName = Optional.of(this.name);
+
+        if (name.isEmpty() || symbolName.isEmpty()) {
+            return false;
+        }
+
+        if (name.get().equals(symbolName.get())) {
+            return true;
+        }
+
+        return name.get().equals(symbolOriginalName.get());
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -147,7 +158,7 @@ public class BallerinaSymbol implements Symbol {
         }
 
         Symbol symbol = (Symbol) obj;
-        return isSameName(this.getName(), symbol.getName())
+        return nameEquals(symbol.getName())
                 && isSameModule(this.getModule(), symbol.getModule())
                 && isSameLocation(this.getLocation(), symbol.getLocation())
                 && this.kind().equals(symbol.kind());
@@ -166,14 +177,6 @@ public class BallerinaSymbol implements Symbol {
 
     Documentation getDocAttachment(BSymbol symbol) {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
-    }
-
-    private boolean isSameName(Optional<String> name1, Optional<String> name2) {
-        if (name1.isEmpty() || name2.isEmpty()) {
-            return false;
-        }
-
-        return name1.get().equals(name2.get());
     }
 
     private boolean isSameModule(Optional<ModuleSymbol> mod1, Optional<ModuleSymbol> mod2) {

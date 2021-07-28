@@ -43,11 +43,6 @@ public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements
     }
 
     @Override
-    public Optional<String> getOriginalName() {
-        return Optional.of(Names.STRING_CHAR);
-    }
-
-    @Override
     public String signature() {
         return "string:" + Names.STRING_CHAR;
     }

@@ -100,11 +100,6 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     }
 
     @Override
-    public Optional<String> getOriginalName() {
-        return Optional.of(this.definitionName);
-    }
-
-    @Override
     public Optional<ModuleSymbol> getModule() {
         if (this.module != null || this.moduleEvaluated) {
             return Optional.ofNullable(this.module);

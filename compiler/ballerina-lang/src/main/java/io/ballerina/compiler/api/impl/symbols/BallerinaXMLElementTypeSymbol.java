@@ -49,11 +49,6 @@ public class BallerinaXMLElementTypeSymbol extends AbstractTypeSymbol implements
     }
 
     @Override
-    public Optional<String> getOriginalName() {
-        return Optional.of(Names.STRING_XML_ELEMENT);
-    }
-
-    @Override
     public String signature() {
         return "xml:" + Names.STRING_XML_ELEMENT;
     }

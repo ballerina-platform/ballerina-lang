@@ -63,11 +63,6 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public Optional<String> getOriginalName() {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<ModuleSymbol> getModule() {
         return Optional.empty();
     }
@@ -105,6 +100,11 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     public boolean assignableTo(TypeSymbol targetType) {
         Types types = Types.getInstance(this.context);
         return types.isAssignable(this.bType, getTargetBType(targetType));
+    }
+
+    @Override
+    public boolean nameEquals(Optional<String> name) {
+        return false;
     }
 
     @Override
