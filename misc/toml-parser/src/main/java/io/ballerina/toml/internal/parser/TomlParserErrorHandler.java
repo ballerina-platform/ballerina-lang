@@ -232,7 +232,6 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
                 case VALUE:
-                case INLINE_TABLE_ENTRY_START:
                     alternativeRules = VALUE;
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, alternativeRules,
                             isEntryPoint);
@@ -342,6 +341,8 @@ public class TomlParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.VALUE;
             case NEWLINE:
                 return ParserRuleContext.TOP_LEVEL_NODE;
+            case INLINE_TABLE_ENTRY_START:
+                return ParserRuleContext.KEY_VALUE_PAIR;
             case KEY_VALUE_PAIR:
             case TABLE_START:
             case ARRAY_TABLE_SECOND_START:

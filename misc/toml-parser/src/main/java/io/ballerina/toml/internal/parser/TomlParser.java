@@ -173,10 +173,10 @@ public class TomlParser extends AbstractParser {
             endContext();
             return values;
         }
-        ArrayList<STNode> valuesList = new ArrayList<>();
+        ArrayList<STNode> keyValuePairList = new ArrayList<>();
         
-        STNode value = parseInlineKeyValuePair();
-        valuesList.add(value);
+        STNode keyValuePair = parseInlineKeyValuePair();
+        keyValuePairList.add(keyValuePair);
 
         nextToken = peek();
         while (!(isEndOfInlineTable(nextToken))) {
@@ -186,14 +186,14 @@ public class TomlParser extends AbstractParser {
                 break;
             }
             
-            valuesList.add(valueEnd);
-            value = parseInlineKeyValuePair();
-            valuesList.add(value);
+            keyValuePairList.add(valueEnd);
+            keyValuePair = parseInlineKeyValuePair();
+            keyValuePairList.add(keyValuePair);
 
             nextToken = peek();
         }
         endContext();
-        return STNodeFactory.createNodeList(valuesList);
+        return STNodeFactory.createNodeList(keyValuePairList);
     }
 
     private STNode parseInlineKeyValuePair() {

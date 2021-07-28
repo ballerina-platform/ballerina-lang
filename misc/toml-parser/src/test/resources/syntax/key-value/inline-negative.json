@@ -47,9 +47,6 @@
             {
               "kind": "INLINE_TABLE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_NEW_LINE"
-              ],
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN",
@@ -62,6 +59,7 @@
                 },
                 {
                   "kind": "LIST",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "KEY_VALUE",
@@ -122,79 +120,83 @@
                           ]
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CLOSE_BRACE_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "KEY",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": [
+                    },
                     {
-                      "kind": "IDENTIFIER_LITERAL",
+                      "kind": "COMMA_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COMMA_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "KEY_VALUE",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "value": "last",
+                          "kind": "KEY",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_LITERAL",
+                                      "value": "last",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
                             }
                           ]
+                        },
+                        {
+                          "kind": "STRING_LITERAL",
+                          "children": [
+                            {
+                              "kind": "DOUBLE_QUOTE_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "Preston-Werner"
+                            },
+                            {
+                              "kind": "DOUBLE_QUOTE_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
                         }
                       ]
                     }
                   ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "STRING_LITERAL",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_TOKEN"
-              ],
-              "children": [
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "value": "Preston-Werner"
-                },
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN",
+                  "kind": "CLOSE_BRACE_TOKEN",
                   "trailingMinutiae": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
                     }
                   ]
                 }
@@ -333,28 +335,6 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "BOOLEAN",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "FALSE_KEYWORD",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_VALUE"
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "DOT_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_DOT_TOKEN"
-                                  ]
-                                },
-                                {
                                   "kind": "IDENTIFIER_LITERAL",
                                   "hasDiagnostics": true,
                                   "children": [
@@ -479,9 +459,6 @@
             {
               "kind": "INLINE_TABLE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_NEW_LINE"
-              ],
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN",
@@ -554,6 +531,79 @@
                           ]
                         }
                       ]
+                    },
+                    {
+                      "kind": "COMMA_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "KEY_VALUE",
+                      "children": [
+                        {
+                          "kind": "KEY",
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_LITERAL",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_LITERAL",
+                                      "value": "last",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "STRING_LITERAL",
+                          "children": [
+                            {
+                              "kind": "DOUBLE_QUOTE_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_LITERAL",
+                              "value": "Preston-Werner"
+                            },
+                            {
+                              "kind": "DOUBLE_QUOTE_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                },
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 },
@@ -563,70 +613,6 @@
                   "hasDiagnostics": true,
                   "diagnostics": [
                     "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "KEY_VALUE",
-          "children": [
-            {
-              "kind": "KEY",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_LITERAL",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_LITERAL",
-                          "value": "last",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "EQUAL_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "STRING_LITERAL",
-              "children": [
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_LITERAL",
-                  "value": "Preston-Werner"
-                },
-                {
-                  "kind": "DOUBLE_QUOTE_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    },
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
                   ]
                 }
               ]

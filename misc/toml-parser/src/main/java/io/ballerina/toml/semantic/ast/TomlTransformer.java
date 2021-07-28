@@ -79,27 +79,27 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
 
         NodeList<DocumentMemberDeclarationNode> members = documentNode.members();
         for (DocumentMemberDeclarationNode rootNode : members) {
-            //DocumentMemberDeclarationNode contains root level nodes in the document. This could contain
-            //1. Table
-            //2. Array of Tables
-            //3. Key Value Pair
+            // DocumentMemberDeclarationNode contains root level nodes in the document. This could contain
+            // 1. Table
+            // 2. Array of Tables
+            // 3. Key Value Pair
             TomlNode transformedChild = rootNode.apply(this);
             switch (transformedChild.kind()) {
-                //Since Syntax tree contains a flat hierarchy this case will be called for any table defined in the 
+                // Since Syntax tree contains a flat hierarchy this case will be called for any table defined in the 
                 // toml file. This will be called for both the following scenarios
                 // [table] , [table.child]
                 case TABLE:
                     TomlTableNode tableChild = (TomlTableNode) transformedChild;
                     addChildTableToParent(rootTable, tableChild);
                     break;
-                //Since Syntax tree contains a flat hierarchy this case will be called for any table array defined in 
+                // Since Syntax tree contains a flat hierarchy this case will be called for any table array defined in 
                 // the toml file. This will be called for both the following scenarios
                 // [[tableArr]] , [[tableArr.child]]
                 case TABLE_ARRAY:
                     TomlTableArrayNode transformedArray = (TomlTableArrayNode) transformedChild;
                     addChildParentArrayToParent(rootTable, transformedArray);
                     break;
-                //Key Value in Root Document Node. This won't get called if the key value pair is inside a table.
+                // Key Value in Root Document Node. This won't get called if the key value pair is inside a table.
                 case KEY_VALUE:
                     TomlKeyValueNode transformedKeyValuePair = (TomlKeyValueNode) transformedChild;
                     addChildKeyValueToParent(rootTable, transformedKeyValuePair);
