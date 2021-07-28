@@ -143,8 +143,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
         // write pos and kind
         writePosition(terminator.pos);
-        if (terminator.kind != InstructionKind.GOTO && terminator.kind != InstructionKind.PANIC
-                && terminator.kind != InstructionKind.RETURN) {
+        if (terminator.kind != InstructionKind.RETURN) {
             writeScopes(terminator);
         }
         buf.writeByte(terminator.kind.getValue());

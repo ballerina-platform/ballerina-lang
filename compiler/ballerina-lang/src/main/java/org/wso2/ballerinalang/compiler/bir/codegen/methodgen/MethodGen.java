@@ -482,10 +482,10 @@ public class MethodGen {
 
             lastScope = getLastScopeFromProcessTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
-            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
-
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
+
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
@@ -944,9 +944,6 @@ public class MethodGen {
             mv.visitLocalVariable("self", String.format("L%s;", B_OBJECT), null, methodStartLabel, methodEndLabel, 0);
         }
         BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
-        if (endBB.terminator.thenBB != null) {
-            endBB = endBB.terminator.thenBB;
-        }
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
