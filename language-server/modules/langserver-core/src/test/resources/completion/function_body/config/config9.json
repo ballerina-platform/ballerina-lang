@@ -364,30 +364,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "S",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -496,11 +478,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "arg1",
       "kind": "Variable",
       "detail": "string",
       "sortText": "D",
       "insertText": "arg1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "gInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "gInt",
       "insertTextFormat": "Snippet"
     },
     {
@@ -512,6 +510,22 @@
       },
       "sortText": "O",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "arg2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "arg2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "mInt",
       "insertTextFormat": "Snippet"
     },
     {
@@ -532,38 +546,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "mInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "mInt",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "arg2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "arg2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "gInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "gInt",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "readonly",

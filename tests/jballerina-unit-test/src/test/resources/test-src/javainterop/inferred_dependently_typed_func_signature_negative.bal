@@ -14,11 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function query(string q, typedesc<record {|int...;|}> rowType = <>) returns stream<rowType, error> = external;
+function query(string q, typedesc<record {|int...;|}> rowType = <>) returns stream<rowType, error?> = external;
 
 function testInvalidArgForInferTypedesc() {
-    stream<OpenRecord, error> stm = query("");
-    stream<OpenRecord, error> stm2 = query("", OpenRecord);
+    stream<OpenRecord, error?> stm = query("");
+    stream<OpenRecord, error?> stm2 = query("", OpenRecord);
 }
 
 type OpenRecord record {
@@ -26,18 +26,18 @@ type OpenRecord record {
 };
 
 function queryWithMultipleInferTypedescs(string q, typedesc<record {|int...;|}> rowType = <>,
-                                         typedesc<error> errorType = <>) returns stream<rowType, errorType> = external;
+                                         typedesc<error> errorType = <>) returns stream<rowType, errorType?> = external;
 
 class ClassWithMethodWithMultipleInferTypedescs {
     function queryWithMultipleInferTypedescs(typedesc<record {}> rowType = <>, typedesc<error> errorType = <>)
-                returns stream<rowType, errorType> = external;
+                returns stream<rowType, errorType?> = external;
 }
 
-stream<record {| int x; |}, error> stm = queryWithMultipleInferTypedescs("");
+stream<record {| int x; |}, error?> stm = queryWithMultipleInferTypedescs("");
 
 ClassWithMethodWithMultipleInferTypedescs cl = new;
-stream<record {| int x; |}, error> stm2 = cl.queryWithMultipleInferTypedescs();
-stream<record {| int x; |}, error> stm3 = cl.queryWithMultipleInferTypedescs(rowType = OpenRecord);
+stream<record {| int x; |}, error?> stm2 = cl.queryWithMultipleInferTypedescs();
+stream<record {| int x; |}, error?> stm3 = cl.queryWithMultipleInferTypedescs(rowType = OpenRecord);
 
 function func1(typedesc<string[]> t = <>) returns t|int[] = external;
 

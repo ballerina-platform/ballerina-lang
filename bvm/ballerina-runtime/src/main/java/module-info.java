@@ -10,8 +10,6 @@ module io.ballerina.runtime {
     requires java.transaction.xa;
     requires slf4j.api;
     requires axiom.impl;
-    requires io.ballerina.config;
-    requires io.ballerina.logging;
     requires io.ballerina.toml;
     requires io.ballerina.tools.api;
 

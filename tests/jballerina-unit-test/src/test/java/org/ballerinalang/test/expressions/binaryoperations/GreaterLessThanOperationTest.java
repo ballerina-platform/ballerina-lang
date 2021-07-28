@@ -272,6 +272,11 @@ public class GreaterLessThanOperationTest {
                 "'[float,int,string,float...]' and '[float,int,float...]'", 272, 18);
     }
 
+    @Test(description = "Test byte greater than, less than expression")
+    public void testByteComparison() {
+        BRunUtil.invoke(result, "testByteComparison");
+    }
+
     @Test(description = "Test decimal greater than, less than expression")
     public void testDecimalComparison() {
         BRunUtil.invoke(result, "testDecimalComparison");

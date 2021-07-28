@@ -564,7 +564,15 @@ public class BByteValueTest {
         invokeUnsignedRightShiftOperatorTestFunction(a, i, j);
     }
 
-    private void invokeUnsignedRightShiftOperatorTestFunction(byte a, long i, long j) {
+    @Test(description = "Test bitwise unsigned right shift operator 2")
+    public void testBitwiseUnsignedRightShiftOperator3() {
+        int a = 0xff;
+        long i = -23445834;
+        long j = 5;
+        invokeUnsignedRightShiftOperatorTestFunction(a, i, j);
+    }
+
+    private void invokeUnsignedRightShiftOperatorTestFunction(int a, long i, long j) {
         BValue[] args = {new BByte(a), new BInteger(i), new BInteger(j)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseUnsignedRightShiftOperator", args);
         Assert.assertEquals(returns.length, 2);
@@ -582,6 +590,8 @@ public class BByteValueTest {
         long j = 7;
         invokeLeftShiftOperatorTestFunction1(a, b, i, j);
         invokeLeftShiftOperatorTestFunction2(a, b, i, j);
+        invokeLeftShiftOperatorTestFunction1(0xff, 56, 0xff, 56);
+        invokeLeftShiftOperatorTestFunction2(0xff, 56, 0xff, 56);
     }
 
 
@@ -593,6 +603,8 @@ public class BByteValueTest {
         long j = 4;
         invokeLeftShiftOperatorTestFunction1(a, b, i, j);
         invokeLeftShiftOperatorTestFunction2(a, b, i, j);
+        invokeLeftShiftOperatorTestFunction1(0xff, 56, 0xff, 56);
+        invokeLeftShiftOperatorTestFunction2(0xff, 56, 0xff, 56);
     }
 
     private void invokeLeftShiftOperatorTestFunction1(int a, int b, long i, long j) {
@@ -602,9 +614,9 @@ public class BByteValueTest {
         BInteger bInteger1 = (BInteger) returns[0];
         BInteger bInteger2 = (BInteger) returns[1];
         BInteger bInteger3 = (BInteger) returns[2];
-        Assert.assertEquals(bInteger1.intValue(), a << b, "Invalid result");
+        Assert.assertEquals(bInteger1.intValue(), (long) a << b, "Invalid result");
         Assert.assertEquals(bInteger2.intValue(), i << j, "Invalid result");
-        Assert.assertEquals(bInteger3.intValue(), a << j, "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), (long) a << j, "Invalid result");
     }
 
     private void invokeLeftShiftOperatorTestFunction2(int a, int b, long i, long j) {
@@ -614,9 +626,9 @@ public class BByteValueTest {
         BInteger bInteger1 = (BInteger) returns[0];
         BInteger bInteger2 = (BInteger) returns[1];
         BInteger bInteger3 = (BInteger) returns[2];
-        Assert.assertEquals(bInteger1.intValue(), a << b, "Invalid result");
+        Assert.assertEquals(bInteger1.intValue(), (long) a << b, "Invalid result");
         Assert.assertEquals(bInteger2.intValue(), i << j, "Invalid result");
-        Assert.assertEquals(bInteger3.intValue(), a << j, "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), (long) a << j, "Invalid result");
     }
 
     @Test(description = "Test byte shift")
@@ -630,6 +642,11 @@ public class BByteValueTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         BInteger bInteger = (BInteger) returns[0];
         Assert.assertEquals(bInteger.intValue(), d, "Invalid byte value returned.");
+    }
+
+    @Test(description = "Test byte shift by large value")
+    public void testByteShiftWithLargeValue() {
+        BRunUtil.invoke(result, "testByteShiftWithLargeValue");
     }
 
     @Test(description = "Test bitwise Complement operator 1")

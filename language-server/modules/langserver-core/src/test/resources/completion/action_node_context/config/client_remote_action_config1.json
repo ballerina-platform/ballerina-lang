@@ -313,30 +313,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -430,25 +412,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cl",
-      "kind": "Variable",
-      "detail": "module1:Client",
-      "sortText": "B",
-      "insertText": "cl",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -469,6 +432,25 @@
       "sortText": "C",
       "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cl",
+      "kind": "Variable",
+      "detail": "module1:Client",
+      "sortText": "B",
+      "insertText": "cl",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

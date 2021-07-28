@@ -33,6 +33,9 @@ public service class Service {
         return i.toString() + j;
     }
 
+    remote function getRemoteCounter(int num, decimal value, string msg = "test message") {
+    }
+
     resource function get [A:T t]() returns string {
         return t;
     }

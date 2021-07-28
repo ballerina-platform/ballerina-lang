@@ -153,6 +153,31 @@ function testChainedStringFunctions() returns string {
     return foo;
 }
 
+function testLangLibCallOnStringSubTypes() {
+    string a = "hello";
+    string:Char b = "h";
+
+    boolean b1 = a.startsWith("h");
+    boolean b2 = b.startsWith("h");
+    boolean b3 = a.startsWith("a");
+    boolean b4 = b.startsWith("a");
+
+    assertEquals(true, b1);
+    assertEquals(true, b2);
+    assertEquals(false, b3);
+    assertEquals(false, b4);
+}
+
+type Strings "a"|"bc";
+
+function testLangLibCallOnFiniteType() {
+    Strings x = "bc";
+    boolean b = x.startsWith("bc");
+    assertEquals(true, b);
+    assertEquals(false, x.startsWith("a"));
+}
+
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {

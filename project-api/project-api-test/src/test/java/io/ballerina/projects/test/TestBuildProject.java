@@ -312,7 +312,7 @@ public class TestBuildProject extends BaseTest {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
         DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
 
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 5);
 
         Collection<PlatformLibrary> platformLibraries = jBallerinaBackend.platformLibraryDependencies(
                 currentPackage.packageId(), PlatformLibraryScope.DEFAULT);
