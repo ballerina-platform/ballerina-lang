@@ -191,7 +191,7 @@ public class UnaryExprTest {
 
     @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
@@ -200,6 +200,10 @@ public class UnaryExprTest {
                  34, 24);
         BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'int:Signed8', found 'int'",
                 35, 22);
+        BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'byte', found 'int'",
+                38, 15);
+        BAssertUtil.validateError(resultNegative, 7, "incompatible types: expected 'int:Unsigned8', found 'int'",
+                41, 24);
     }
 
     @AfterClass
