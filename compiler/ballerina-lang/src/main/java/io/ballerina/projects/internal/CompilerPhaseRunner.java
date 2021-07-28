@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
-import org.wso2.ballerinalang.compiler.diagnostic.CompilerDiagnostic;
+import org.wso2.ballerinalang.compiler.diagnostic.CompilerBadSadDiagnostic;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
@@ -255,6 +255,6 @@ public class CompilerPhaseRunner {
     }
 
     public void addDiagnosticForUnhandledException(BLangPackage pkgNode, Throwable throwable) {
-        pkgNode.addDiagnostic(new CompilerDiagnostic(pkgNode.pos, throwable));
+        pkgNode.addDiagnostic(new CompilerBadSadDiagnostic(pkgNode.pos, throwable));
     }
 }

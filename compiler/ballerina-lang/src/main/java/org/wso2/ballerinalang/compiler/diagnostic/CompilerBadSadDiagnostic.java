@@ -31,10 +31,8 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class CompilerDiagnostic extends Diagnostic {
+public class CompilerBadSadDiagnostic extends Diagnostic {
 
-    private static final String UNHANDLED_EXCEPTION_DIAGNOSTIC_TEXT = "Unhandled exception has occurred "
-            + "during compilation";
     private final Location location;
     private final String msg;
     private final DiagnosticCode diagnosticCode = DiagnosticErrorCode.BAD_SAD_FROM_COMPILER;
@@ -42,9 +40,10 @@ public class CompilerDiagnostic extends Diagnostic {
             diagnosticCode.messageKey(), diagnosticCode.severity());
     private final Object exception;
 
-    public CompilerDiagnostic(Location location, Throwable throwable) {
+    public CompilerBadSadDiagnostic(Location location, Throwable throwable) {
         this.location = location;
-        this.msg = throwable.getMessage() != null ? throwable.getMessage() : UNHANDLED_EXCEPTION_DIAGNOSTIC_TEXT;
+        this.msg = "Compilation failed due to" + (throwable.getMessage() != null ? ": " + throwable.getMessage() :
+                " unhandled exception");
         this.exception = throwable;
     }
 
