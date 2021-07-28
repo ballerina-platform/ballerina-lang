@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli.jline;
 
 import io.ballerina.shell.cli.PropertiesLoader;
+import io.ballerina.shell.cli.handlers.help.BbeHelpProvider;
 import io.ballerina.shell.cli.utils.FileUtils;
 import org.jline.builtins.Completers;
 import org.jline.reader.Candidate;
@@ -36,7 +37,6 @@ import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_PREFIX;
 import static io.ballerina.shell.cli.PropertiesLoader.HELP_DESCRIPTION_POSTFIX;
 import static io.ballerina.shell.cli.PropertiesLoader.HELP_EXAMPLE_POSTFIX;
 import static io.ballerina.shell.cli.PropertiesLoader.KEYWORDS_FILE;
-import static io.ballerina.shell.cli.PropertiesLoader.TOPICS_FILE;
 
 /**
  * A simple completer to give completions based on the input line.
@@ -53,7 +53,8 @@ public class JlineSimpleCompleter implements Completer {
     private final Completers.FileNameCompleter fileNameCompleter;
 
     public JlineSimpleCompleter() {
-        List<String> topicsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(TOPICS_FILE));
+        BbeHelpProvider bbeHelpProvider = new BbeHelpProvider();
+        List<String> topicsKeywords = bbeHelpProvider.getCommandList();
         List<String> commandsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(COMMANDS_FILE));
         List<String> codeKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(KEYWORDS_FILE));
         this.topicsCompleter = new StringsCompleter(topicsKeywords);
@@ -85,4 +86,5 @@ public class JlineSimpleCompleter implements Completer {
     private boolean hasPropertyPrefix(ParsedLine line, String propertyName) {
         return line.line().trim().startsWith(PropertiesLoader.getProperty(propertyName));
     }
+
 }
