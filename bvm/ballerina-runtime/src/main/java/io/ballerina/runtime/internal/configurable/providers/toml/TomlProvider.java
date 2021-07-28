@@ -32,7 +32,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -63,11 +62,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getModuleKey;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getTomlTypeString;
-import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isPrimitiveType;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isSimpleType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
@@ -287,7 +287,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateValue(TomlNode tomlValue, String variableName, Type type) {
-        if (isPrimitiveType(type.getTag()) || isXMLType(type)) {
+        if (isSimpleType(type.getTag()) || isXMLType(type)) {
             validatePrimitiveValue(tomlValue, variableName, type);
         } else {
             validateStructuredValue(tomlValue, variableName, type);
@@ -358,7 +358,7 @@ public class TomlProvider implements ConfigProvider {
         if (value == null) {
             return Optional.empty();
         }
-        return getTomlConfigValue(TypeConverter.stringToXml((String) value), key);
+        return getTomlConfigValue(createReadOnlyXmlValue((String) value), key);
     }
 
     private Object getPrimitiveTomlValue(Module module, VariableKey key) {
@@ -567,7 +567,7 @@ public class TomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue));
         }
         Type type = convertibleTypes.get(0);
-        if (isPrimitiveType(type.getTag()) || isXMLType(type)) {
+        if (isSimpleType(type.getTag()) || isXMLType(type)) {
             return;
         }
 
@@ -584,7 +584,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void validateArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
-        if (isPrimitiveType(elementType.getTag())) {
+        if (isSimpleType(elementType.getTag())) {
             if (tomlValue.kind() != TomlType.KEY_VALUE) {
                 invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,

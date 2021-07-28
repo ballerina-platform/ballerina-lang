@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
@@ -33,6 +34,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
@@ -63,8 +65,8 @@ import java.util.Set;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_ANYDATA;
+import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
-import static io.ballerina.runtime.internal.util.RuntimeUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
@@ -228,7 +230,7 @@ public class Utils {
         }
     }
 
-    static boolean isPrimitiveType(int typeTag) {
+    static boolean isSimpleType(int typeTag) {
         return typeTag <= TypeTags.BOOLEAN_TAG;
     }
 
@@ -306,7 +308,7 @@ public class Utils {
             throwMemberAmbiguityError(unionType, invalidTomlLines, variableName, tomlNode);
         }
         Double value = tomlNode.getValue();
-        if (hasFloat || containsType(unionType, TypeTags.FINITE_TYPE_TAG)) {
+        if (hasFloat) {
             return value;
         }
         return ValueCreator.createDecimalValue(BigDecimal.valueOf(value));
@@ -336,7 +338,15 @@ public class Utils {
 
     private static boolean containsType(BUnionType unionType, int tag) {
         for (Type type : unionType.getMemberTypes()) {
-            if (getEffectiveType(type).getTag() == tag) {
+            int typeTag = getEffectiveType(type).getTag();
+            if (typeTag == TypeTags.FINITE_TYPE_TAG) {
+                for (Object obj : ((FiniteType) type).getValueSpace()) {
+                    if (TypeChecker.getType(obj).getTag() == tag) {
+                        return true;
+                    }
+                }
+            }
+            if (typeTag == tag) {
                 return true;
             }
         }
@@ -371,7 +381,7 @@ public class Utils {
         return TypeTags.isXMLTypeTag(getEffectiveType(type).getTag());
     }
 
-    private static Type getEffectiveType(Type type) {
+    static Type getEffectiveType(Type type) {
         if (type.getTag() == TypeTags.INTERSECTION_TAG) {
             return ((IntersectionType) type).getEffectiveType();
         }

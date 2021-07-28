@@ -21,9 +21,11 @@ package io.ballerina.runtime.test.config.negative;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
@@ -518,7 +520,7 @@ public class TomlProviderNegativeTest {
     @Test(dataProvider = "union-ambiguity-provider")
     public void testTomlValueAmbiguityForUnionType(String errorMsg, VariableKey variableKey) {
         validateTomlProviderErrors("UnionAmbiguousType", errorMsg, Map.ofEntries(Map.entry(ROOT_MODULE,
-                new VariableKey[]{variableKey})), 1, 4);
+                new VariableKey[]{variableKey})), 1, 5);
     }
 
     @DataProvider(name = "union-ambiguity-provider")
@@ -533,10 +535,16 @@ public class TomlProviderNegativeTest {
         VariableKey floatUnion =  new VariableKey(ROOT_MODULE, "var2", new BIntersectionType(ROOT_MODULE,
                 new Type[]{unionType2, PredefinedTypes.TYPE_READONLY}, unionType2, 1, true), true);
 
+        FiniteType decimals = TypeCreator.createFiniteType("Decimals", Set.of(ValueCreator.createDecimalValue("1.2"),
+                ValueCreator.createDecimalValue("3.4")), 1);
+        UnionType unionType4 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT, decimals), true);
+        VariableKey finiteUnion =  new VariableKey(ROOT_MODULE, "var3", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType4, PredefinedTypes.TYPE_READONLY}, unionType4, 1, true), true);
+
         MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
         UnionType unionType3 = TypeCreator.createUnionType(List.of(TypeCreator.createArrayType(mapType),
                 TypeCreator.createTableType(mapType, true)), true);
-        VariableKey tableUnion =  new VariableKey(ROOT_MODULE, "var3", new BIntersectionType(ROOT_MODULE,
+        VariableKey tableUnion =  new VariableKey(ROOT_MODULE, "var4", new BIntersectionType(ROOT_MODULE,
                 new Type[]{unionType3, PredefinedTypes.TYPE_READONLY}, unionType3, 1, true), true);
 
         return new Object[][]{
@@ -545,9 +553,11 @@ public class TomlProviderNegativeTest {
                         ".xml:ProcessingInstruction|lang.xml:Text)>)'", stringUnion},
                 {"[UnionAmbiguousType.toml:(2:8,2:13)] ambiguous target types found for configurable variable 'var2' " +
                         "with type '(float|decimal)'", floatUnion},
-                {"[UnionAmbiguousType.toml:(3:1,5:7)] ambiguous target types found for configurable variable 'var3' " +
+                {"[UnionAmbiguousType.toml:(3:8,3:11)] ambiguous target types found for configurable variable 'var3' " +
+                        "with type '(float|Decimals)'", finiteUnion},
+                {"[UnionAmbiguousType.toml:(4:1,6:7)] ambiguous target types found for configurable variable 'var4' " +
                         "with type '(map<anydata>[]|table<map<(anydata & readonly)> & readonly> & readonly)'",
-                        tableUnion}
+                        tableUnion},
         };
     }
 
