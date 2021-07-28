@@ -30,6 +30,7 @@ public class STInvalidNodeMinutiae extends STMinutiae {
     STInvalidNodeMinutiae(STInvalidTokenMinutiaeNode invalidNode) {
         super(SyntaxKind.INVALID_NODE_MINUTIAE, invalidNode.toSourceCode());
         this.invalidNode = invalidNode;
+        updateDiagnostics(invalidNode);
     }
 
     public STNode invalidNode() {
@@ -45,5 +46,11 @@ public class STInvalidNodeMinutiae extends STMinutiae {
     public String toString() {
         // TODO for testing purpose only
         return " INVALID[" + this.text() + "]";
+    }
+
+    private void updateDiagnostics(STInvalidTokenMinutiaeNode invalidNode) {
+        if (invalidNode.flags.contains(STNodeFlags.HAS_DIAGNOSTICS)) {
+            this.flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+        }
     }
 }
