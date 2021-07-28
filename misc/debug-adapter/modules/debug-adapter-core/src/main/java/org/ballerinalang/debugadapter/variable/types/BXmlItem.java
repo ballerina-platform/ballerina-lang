@@ -25,9 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
 /**
  * Ballerina xml variable type.
@@ -43,7 +41,7 @@ public class BXmlItem extends NamedCompoundVariable {
 
     @Override
     public String computeValue() {
-        return "XMLItem";
+        return "XMLElement";
     }
 
     @Override
@@ -62,7 +60,7 @@ public class BXmlItem extends NamedCompoundVariable {
 
     @Override
     public int getChildrenCount() {
-        // maximum children size will be 2 (children and attributes).
+        // maximum children size will be 2 ('children' and 'attributes').
         return 2;
     }
 }
