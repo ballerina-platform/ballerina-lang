@@ -231,6 +231,7 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT, 31, 17);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT, 32, 20);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT, 33, 20);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT, 33, 24);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 39, 25);
         Assert.assertEquals(result.getErrorCount(), i);
 
