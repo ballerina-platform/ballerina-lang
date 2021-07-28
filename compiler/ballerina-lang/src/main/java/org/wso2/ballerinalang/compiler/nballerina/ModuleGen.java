@@ -131,8 +131,7 @@ public class ModuleGen {
         }
         for (BLangFunction func : astPkg.functions) {
             FunctionCode fcode = new FunctionCode();
-            BasicBlock startBlock = fcode.createBasicBlock();
-            BasicBlock curBlock = startBlock;
+            BasicBlock curBlock = fcode.createBasicBlock();
             func.getParameters().forEach(param -> {
                 fcode.createRegister(param.getBType().getKind(), param.getName().toString());
             });
@@ -276,15 +275,18 @@ public class ModuleGen {
                 signature.paramTypes.add(arg.getBType().getKind());
             }
             if (!funcCall.restArgs.isEmpty()) {
-                signature.restParamType = funcCall.restArgs.get(0).getBType().getKind();
+                //signature.restParamType = funcCall.restArgs.get(0).getBType().getKind();
+                signature.paramTypes.add(TypeKind.OTHER);
             }
-            ExternalSymbol symbol = new ExternalSymbol(jnmod.moduleId, funcCall.getName().getValue());
+            ModuleId mod = new ModuleId();
+            mod.organization = funcCall.symbol.pkgID.orgName.getValue();
+            mod.names.add(funcCall.symbol.pkgID.name.getValue());
+            ExternalSymbol symbol = new ExternalSymbol(mod, funcCall.getName().getValue());
             ref = new FunctionRef(symbol, signature);
         }
         BasicBlock curBlock = bb;
         ArrayList<Operand> args = new ArrayList<>();
-        funcCall.getArgumentExpressions().forEach(arg -> {
-            ; });
+
         for (BLangExpression arg : funcCall.argExprs) {
             OpBlockHolder opb = codeGenExpr(arg, code, curBlock);
             curBlock = opb.nextBlock;
@@ -328,6 +330,8 @@ public class ModuleGen {
                 return 262144L;
             case ERROR:
                 return 2048L;
+            case OTHER:
+                return 8388607L;
             default:
                 throw new BallerinaException("Semtype not implemented for type");
         }
