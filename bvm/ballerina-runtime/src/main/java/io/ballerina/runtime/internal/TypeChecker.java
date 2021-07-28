@@ -934,7 +934,9 @@ public class TypeChecker {
             return false;
         }
         return checkConstraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                               unresolvedTypes);
+                unresolvedTypes)
+                && checkConstraints(((BStreamType) sourceType).getCompletionType(), targetType.getCompletionType(),
+                unresolvedTypes);
     }
 
     private static boolean checkIsTableType(Type sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {

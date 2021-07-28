@@ -445,3 +445,9 @@ function functionWithStreamArgs(stream<any|error?> str) returns boolean {
     }
     return false;
 }
+
+function testInvalidCast() {
+    Foo[] fooArr = [{v: "foo1"}, {v: "foo2"}];
+    stream<Foo, error?> fooStream = fooArr.toStream();
+    stream<Foo, error> barStream = <stream<Foo, error>>fooStream;
+}
