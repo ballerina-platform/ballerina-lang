@@ -44,6 +44,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     public BLangType returnTypeNode;
     public Set<Flag> flagSet = new HashSet<>();
     public BSymbol symbol;
+    public boolean isInTypeDefinitionContext;
     public boolean analyzed;
 
     public boolean returnsKeywordExists = false;

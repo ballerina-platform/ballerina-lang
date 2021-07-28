@@ -1597,7 +1597,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 invokableTypeSymbol.name =
                         names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
                 symbolEnter.defineSymbol(functionTypeNode.pos, invokableTypeSymbol, env);
-                if (env.node.getKind() != NodeKind.PACKAGE) {
+                if (env.node.getKind() != NodeKind.PACKAGE || !functionTypeNode.isInTypeDefinitionContext) {
                     symbolEnter.defineNode(functionTypeNode, env);
                 }
                 invokableType = (BInvokableType) invokableTypeSymbol.type;
