@@ -372,6 +372,16 @@ class Operand {
     }
 }
 
+class OpBlockHolder {
+    public Operand operand;
+    public BasicBlock nextBlock;
+
+    public OpBlockHolder(Operand operand, BasicBlock nextBlock) {
+        this.operand = operand;
+        this.nextBlock = nextBlock;
+    }
+}
+
 class FunctionRef {
     public Symbol symbol;
     public FunctionSignature signature;

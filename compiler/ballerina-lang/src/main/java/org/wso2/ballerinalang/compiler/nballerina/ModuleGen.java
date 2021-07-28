@@ -88,7 +88,6 @@ public class ModuleGen {
     private static UnionType conTypeDescTyp;
     private static ArrayType stmtArrTyp;
     private static ArrayType typDescArrTyp;
-    private static BasicBlock curBlock;
     private static JNModule jnmod;
 
     PrintStream console = System.out;
@@ -133,11 +132,13 @@ public class ModuleGen {
         for (BLangFunction func : astPkg.functions) {
             FunctionCode fcode = new FunctionCode();
             BasicBlock startBlock = fcode.createBasicBlock();
+            BasicBlock curBlock = startBlock;
             func.getParameters().forEach(param -> {
                 fcode.createRegister(param.getBType().getKind(), param.getName().toString());
             });
-            curBlock = startBlock;
-            ((BLangBlockFunctionBody) func.body).getStatements().forEach(stmt -> codeGenStmt(stmt, fcode));
+            for (BLangStatement stmt : ((BLangBlockFunctionBody) func.body).getStatements()) {
+                curBlock = codeGenStmt(stmt, fcode, curBlock);
+            }
             if (curBlock != null) {
                 curBlock.insns.add(new NullRetInsn());
             }
@@ -148,38 +149,42 @@ public class ModuleGen {
         //return astPkg.accept(this);
     }
 
-    void codeGenStmt(BLangStatement stmt, FunctionCode code) {
+    BasicBlock codeGenStmt(BLangStatement stmt, FunctionCode code, BasicBlock startBlock) {
         if (stmt instanceof BLangReturn) {
             BLangReturn retStmt = (BLangReturn) stmt;
-            Operand operand = codeGenExpr(retStmt.expr, code);
-            curBlock.insns.add(new RetInsn(operand));
-            curBlock = null;
+            OpBlockHolder opb = codeGenExpr(retStmt.expr, code, startBlock);
+            opb.nextBlock.insns.add(new RetInsn(opb.operand));
+            return null;
 
         } else if (stmt instanceof BLangSimpleVariableDef) {
             BLangSimpleVariableDef varDec = (BLangSimpleVariableDef) stmt;
-            Operand operand = codeGenExpr(varDec.var.getInitialExpression(), code);
+            OpBlockHolder opb = codeGenExpr(varDec.var.getInitialExpression(), code, startBlock);
             Register result = code.createRegister(varDec.getVariable().typeNode.getBType().getKind(),
                     varDec.getVariable().getName().toString());
-            curBlock.insns.add(new AssignInsn(result, operand));
+            opb.nextBlock.insns.add(new AssignInsn(result, opb.operand));
+            return opb.nextBlock;
 
         } else if (stmt instanceof BLangExpressionStmt) {
-            codeGenExpr(((BLangExpressionStmt) stmt).getExpression(), code);
+            return codeGenExpr(((BLangExpressionStmt) stmt).getExpression(), code, startBlock).nextBlock;
         } else if (stmt instanceof BLangAssignment) {
             BLangAssignment assign = (BLangAssignment) stmt;
             if (assign.varRef instanceof BLangSimpleVarRef) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) assign.varRef;
                 Register reg = code.registers.get(varRef.variableName.getValue());
-                Operand operand = codeGenExpr(assign.expr, code);
-                curBlock.insns.add(new AssignInsn(reg, operand));
+                OpBlockHolder opb = codeGenExpr(assign.expr, code, startBlock);
+                opb.nextBlock.insns.add(new AssignInsn(reg, opb.operand));
+                return opb.nextBlock;
             }
         }
+
+        throw new BallerinaException("Statement not recognized");
     }
 
-    Operand codeGenExpr(BLangExpression expr, FunctionCode code) {
+    OpBlockHolder codeGenExpr(BLangExpression expr, FunctionCode code, BasicBlock bb) {
         if (expr instanceof BLangLiteral) {
             Operand op = new Operand(false);
             op.value = ((BLangLiteral) expr).getValue();
-            return op;
+            return new OpBlockHolder(op, bb);
         } else if (expr instanceof BLangSimpleVarRef) {
             String name = ((BLangSimpleVarRef) expr).variableName.getValue();
             Operand op = new Operand(true);
@@ -187,73 +192,78 @@ public class ModuleGen {
                 throw new BallerinaException("variable '" + name + "' not found");
             }
             op.register = code.registers.get(name);
-            return op;
+            return new OpBlockHolder(op, bb);
         } else if (expr instanceof BLangUnaryExpr) {
             BLangUnaryExpr unexpr = (BLangUnaryExpr) expr;
-            Operand operand = codeGenExpr(unexpr.expr, code);
+            OpBlockHolder opb = codeGenExpr(unexpr.expr, code, bb);
             Operand result = new Operand(true);
             OperatorKind op = unexpr.operator;
             switch (op) {
                 case NOT:
                     Register reg1 = code.createRegister(TypeKind.BOOLEAN, null);
-                    curBlock.insns.add(new BoolNotInsn(operand.register, reg1));
+                    bb.insns.add(new BoolNotInsn(opb.operand.register, reg1));
                     result.register = reg1;
-                    return result;
+                    return new OpBlockHolder(result, opb.nextBlock);
                 case SUB:
                     Register reg2 = code.createRegister(TypeKind.INT, null);
                     IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
-                    curBlock.ppb = true;
+                    bb.ppb = true;
                     ins.op = "-";
                     ins.result = reg2;
                     Operand zeroOp = new Operand(false);
                     zeroOp.value = 0;
                     ins.operands[0] = zeroOp;
-                    ins.operands[1] = operand;
+                    ins.operands[1] = opb.operand;
                     ins.position = new Position(unexpr.opSymbol.getPosition().lineRange().startLine().line() + 1,
                             unexpr.opSymbol.getPosition().textRange().startOffset());
-                    curBlock.insns.add(ins);
+                    bb.insns.add(ins);
                     result.register = reg2;
-                    return result;
+                    return new OpBlockHolder(result, opb.nextBlock);
             }
         } else if (expr instanceof BLangBinaryExpr) {
             BLangBinaryExpr bexpr = (BLangBinaryExpr) expr;
-            Operand lhs = codeGenExpr(bexpr.lhsExpr, code);
-            Operand rhs = codeGenExpr(bexpr.rhsExpr, code);
+            OpBlockHolder lhs = codeGenExpr(bexpr.lhsExpr, code, bb);
+            OpBlockHolder rhs = codeGenExpr(bexpr.rhsExpr, code, lhs.nextBlock);
             Operand result = new Operand(true);
             OperatorKind op = bexpr.opKind;
             switch (op) {
                 case ADD: case SUB: case MUL: case DIV: case MOD:
                     Register reg = code.createRegister(TypeKind.INT, null);
                     IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
-                    curBlock.ppb = true;
+                    bb.ppb = true;
                     ins.op = op.toString();
                     ins.result = reg;
-                    ins.operands[0] = lhs;
-                    ins.operands[1] = rhs;
+                    ins.operands[0] = lhs.operand;
+                    ins.operands[1] = rhs.operand;
                     ins.position = new Position(bexpr.getPosition().lineRange().startLine().line() + 1,
                             bexpr.getPosition().textRange().startOffset());
-                    curBlock.insns.add(ins);
+                    bb.insns.add(ins);
                     result.register = reg;
-                    return result;
+                    return new OpBlockHolder(result, rhs.nextBlock);
             }
         } else if (expr instanceof BLangInvocation) {
             BLangInvocation funcCall = (BLangInvocation) expr;
-            return codegenFunctionCall(funcCall, code);
+            return codegenFunctionCall(funcCall, code, bb);
         } else if (expr instanceof BLangListConstructorExpr) {
             BLangListConstructorExpr listExpr = (BLangListConstructorExpr) expr;
             ArrayList<Operand> operands = new ArrayList<>();
-            listExpr.exprs.forEach(ex -> operands.add(codeGenExpr(ex, code)));
+            BasicBlock nextBlock = bb;
+            for (BLangExpression ex : listExpr.exprs) {
+                OpBlockHolder opb = codeGenExpr(ex, code, nextBlock);
+                operands.add(opb.operand);
+                nextBlock = opb.nextBlock;
+            }
             Operand result = new Operand(true);
             Register reg = code.createRegister(TypeKind.ARRAY, null);
             result.register = reg;
             ListConstructInsn ins = new ListConstructInsn(reg, operands);
-            curBlock.insns.add(ins);
-            return result;
+            nextBlock.insns.add(ins);
+            return new OpBlockHolder(result, nextBlock);
         }
         return null;
     }
 
-    Operand codegenFunctionCall(BLangInvocation funcCall, FunctionCode code) {
+    OpBlockHolder codegenFunctionCall(BLangInvocation funcCall, FunctionCode code, BasicBlock bb) {
         FunctionRef ref;
         Operand result = new Operand(true);
         if (funcCall.pkgAlias.getValue().equals("")) {
@@ -271,14 +281,20 @@ public class ModuleGen {
             ExternalSymbol symbol = new ExternalSymbol(jnmod.moduleId, funcCall.getName().getValue());
             ref = new FunctionRef(symbol, signature);
         }
-
+        BasicBlock curBlock = bb;
         ArrayList<Operand> args = new ArrayList<>();
-        funcCall.getArgumentExpressions().forEach(arg -> args.add(codeGenExpr((BLangExpression) arg, code)));
+        funcCall.getArgumentExpressions().forEach(arg -> {
+            ; });
+        for (BLangExpression arg : funcCall.argExprs) {
+            OpBlockHolder opb = codeGenExpr(arg, code, curBlock);
+            curBlock = opb.nextBlock;
+            args.add(opb.operand);
+        }
         Register reg = code.createRegister(ref.signature.returnType , null);
         CallInsn callInsn = new CallInsn(reg, ref, args);
         curBlock.insns.add(callInsn);
         result.register = reg;
-        return result;
+        return new OpBlockHolder(result, curBlock);
     }
 
     void createPanicBlock(FunctionCode code) {
