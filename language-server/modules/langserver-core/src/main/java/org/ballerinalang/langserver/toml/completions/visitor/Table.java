@@ -73,4 +73,9 @@ public class Table implements TomlNode {
     private String getIndentation() {
         return " ".repeat(SPACING);
     }
+
+    @Override
+    public String toString() {
+        return this.getKey();
+    }
 }

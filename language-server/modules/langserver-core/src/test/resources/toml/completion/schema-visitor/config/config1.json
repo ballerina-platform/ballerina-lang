@@ -1,0 +1,151 @@
+{
+  "source": "schema1.json",
+  "expected": {
+    "package": {
+      "license": {
+        "label": "license",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "keywords": {
+        "label": "keywords",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "org": {
+        "label": "org",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "name": {
+        "label": "name",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "repository": {
+        "label": "repository",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "version": {
+        "label": "version",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "export": {
+        "label": "export",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "authors": {
+        "label": "authors",
+        "kind": "Snippet",
+        "detail": "Array",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "build-options": {
+      "cloud": {
+        "label": "cloud",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "offline": {
+        "label": "offline",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "testReport": {
+        "label": "testReport",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "taintCheck": {
+        "label": "taintCheck",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "skipTests": {
+        "label": "skipTests",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "codeCoverage": {
+        "label": "codeCoverage",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "observabilityIncluded": {
+        "label": "observabilityIncluded",
+        "kind": "Snippet",
+        "detail": "Boolean",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      }
+    },
+    "platform.java11.dependency": {
+      "path": {
+        "label": "path",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "groupId": {
+        "label": "groupId",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "scope": {
+        "label": "scope",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "artifactId": {
+        "label": "artifactId",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      },
+      "version": {
+        "label": "version",
+        "kind": "Snippet",
+        "detail": "String",
+        "sortText": "A",
+        "insertTextFormat": "Snippet"
+      }
+    }
+  }
+}

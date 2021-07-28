@@ -17,11 +17,9 @@
  */
 package org.ballerinalang.langserver.toml.completions;
 
-import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
 import org.ballerinalang.langserver.toml.completions.visitor.TomlNode;
 import org.eclipse.lsp4j.CompletionItem;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,41 +44,4 @@ public abstract class AbstractTomlSnippetManager {
      */
     public abstract String getValidationSchema();
 
-    /**
-     * Remove redundant completion items.
-     *
-     * @param completions
-     * @return
-     */
-    protected Map<TomlNode, Map<String, CompletionItem>> optimizeCompletionsWithOnlyTables(
-            Map<TomlNode, Map<String, CompletionItem>> completions) {
-        Map<TomlNode, Map<String, CompletionItem>> optimizedCompletions = new HashMap<>();
-        for (Map.Entry<TomlNode, Map<String, CompletionItem>> entry : completions.entrySet()) {
-            TomlNode key = entry.getKey();
-            Map<String, CompletionItem> completionItemList = entry.getValue();
-            if (!isContainsOnlyTable(completionItemList)) {
-                optimizedCompletions.put(key, completionItemList);
-            }
-        }
-
-        return optimizedCompletions;
-    }
-
-    /**
-     * Returns whether the set of completions items. Todo: check what is this?
-     *
-     * @param value
-     * @return
-     */
-    protected boolean isContainsOnlyTable(Map<String, CompletionItem> value) {
-        boolean isRedundant = true;
-        for (Map.Entry<String, CompletionItem> childEntry : value.entrySet()) {
-            CompletionItem completionItem = childEntry.getValue();
-            if (!(completionItem.getDetail().equals(TomlSyntaxTreeUtil.TABLE) ||
-                    completionItem.getDetail().equals(TomlSyntaxTreeUtil.TABLE_ARRAY))) {
-                isRedundant = false;
-            }
-        }
-        return isRedundant;
-    }
 }
