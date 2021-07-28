@@ -40,7 +40,7 @@ import java.util.Optional;
  */
 public class ReturnTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
-    private SemanticModel semanticModel;
+    private final SemanticModel semanticModel;
 
     public ReturnTypeFinder(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
@@ -52,7 +52,7 @@ public class ReturnTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(FunctionDefinitionNode functionDefinitionNode) {
-        return semanticModel.symbol(functionDefinitionNode)
+        return semanticModel.symbol(functionDefinitionNode.functionName())
                 .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().returnTypeDescriptor());
     }
 

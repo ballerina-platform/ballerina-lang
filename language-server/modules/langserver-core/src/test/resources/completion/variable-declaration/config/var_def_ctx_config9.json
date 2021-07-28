@@ -6,24 +6,6 @@
   "source": "variable-declaration/source/var_def_ctx_source9.bal",
   "items": [
     {
-      "label": "module1:TestClass1(int field1, int field2)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
-        }
-      },
-      "sortText": "C",
-      "insertText": "module1:TestClass1(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
