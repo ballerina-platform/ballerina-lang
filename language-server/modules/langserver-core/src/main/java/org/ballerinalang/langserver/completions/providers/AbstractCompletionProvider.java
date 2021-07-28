@@ -434,8 +434,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
-                        symbol.kind() == PATH_PARAMETER || symbol.kind() == FUNCTION ||
-                        symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
+                        symbol.kind() == FUNCTION || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
                         && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
