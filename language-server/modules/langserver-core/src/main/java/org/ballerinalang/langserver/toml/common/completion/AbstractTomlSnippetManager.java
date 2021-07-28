@@ -15,9 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.toml.completions;
+package org.ballerinalang.langserver.toml.common.completion;
 
-import org.ballerinalang.langserver.toml.completions.visitor.TomlNode;
+import org.ballerinalang.langserver.toml.common.completion.visitor.TomlNode;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.Map;

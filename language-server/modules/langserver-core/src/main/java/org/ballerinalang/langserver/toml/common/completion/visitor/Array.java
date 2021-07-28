@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.toml.completions.visitor;
+package org.ballerinalang.langserver.toml.common.completion.visitor;
 
 /**
  * Represents Toml Array node in {@link TomlSchemaVisitor}.
@@ -25,7 +25,6 @@ package org.ballerinalang.langserver.toml.completions.visitor;
 public class Array extends KeyValuePair {
 
     private String qName;
-    private static final int SPACING = 4;
 
     public Array(String name, String qName, ValueType valueType) {
         super(name, valueType);

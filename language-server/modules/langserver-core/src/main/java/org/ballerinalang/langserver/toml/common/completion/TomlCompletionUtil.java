@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.toml.completions;
+package org.ballerinalang.langserver.toml.common.completion;
 
 import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -28,10 +28,10 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.commons.toml.AbstractTomlCompletionContext;
-import org.ballerinalang.langserver.toml.TomlCommonUtil;
-import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
-import org.ballerinalang.langserver.toml.completions.visitor.TomlNode;
-import org.ballerinalang.langserver.toml.completions.visitor.TomlNodeType;
+import org.ballerinalang.langserver.toml.common.TomlCommonUtil;
+import org.ballerinalang.langserver.toml.common.TomlSyntaxTreeUtil;
+import org.ballerinalang.langserver.toml.common.completion.visitor.TomlNode;
+import org.ballerinalang.langserver.toml.common.completion.visitor.TomlNodeType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.Position;
@@ -76,8 +76,7 @@ public abstract class TomlCompletionUtil {
     }
 
     /**
-     * Returns the filtered completion items in the table array context.
-     * todo: provide an example.
+     * Returns the filtered completion items in the provided top-level node context.
      *
      * @param topLevelNode The toplevel node to which the completion items belong to.
      * @param snippets     Set of completion items to be filtered.
@@ -95,7 +94,7 @@ public abstract class TomlCompletionUtil {
             documentNode = (DocumentNode) topLevelNode.getLeft().parent();
         } else {
             tableKey = TomlSyntaxTreeUtil.toQualifiedName(topLevelNode.getRight().identifier().value());
-            fields = topLevelNode.getLeft().fields();
+            fields = topLevelNode.getRight().fields();
             documentNode = (DocumentNode) topLevelNode.getRight().parent();
         }
 

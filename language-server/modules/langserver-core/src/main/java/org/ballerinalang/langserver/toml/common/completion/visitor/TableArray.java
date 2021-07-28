@@ -15,10 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.toml.completions.visitor;
-
-import java.util.ArrayList;
-import java.util.List;
+package org.ballerinalang.langserver.toml.common.completion.visitor;
 
 /**
  * Represents Toml TableArray in {@link TomlSchemaVisitor}.
@@ -28,27 +25,16 @@ import java.util.List;
 public class TableArray implements TomlNode {
 
     private String name;
-    private List<TomlNode> nodes;
-    private static final int SPACING = 4;
 
     public TableArray(String name) {
         this.name = name;
-        this.nodes = new ArrayList<>();
-    }
-
-    public TableArray(String name, List<TomlNode> nodes) {
-        this.name = name;
-        this.nodes = nodes;
     }
 
     @Override
     public String getTomlSyntax() {
-        StringBuilder prettyString = new StringBuilder();
-        prettyString.append("[[").append(name).append("]]").append(System.lineSeparator());
-        for (TomlNode node : nodes) {
-            prettyString.append(getIndentation()).append(node.getTomlSyntax()).append(System.lineSeparator());
-        }
-        return prettyString.toString();
+        StringBuilder tomlSyntax = new StringBuilder();
+        tomlSyntax.append("[[").append(name).append("]]");
+        return tomlSyntax.toString();
     }
 
     @Override
@@ -59,10 +45,6 @@ public class TableArray implements TomlNode {
     @Override
     public TomlNodeType type() {
         return TomlNodeType.TABLE_ARRAY;
-    }
-
-    private String getIndentation() {
-        return " ".repeat(SPACING);
     }
 
     @Override

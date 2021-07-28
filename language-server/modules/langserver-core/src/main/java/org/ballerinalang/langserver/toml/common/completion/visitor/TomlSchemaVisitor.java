@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.toml.completions.visitor;
+package org.ballerinalang.langserver.toml.common.completion.visitor;
 
 import io.ballerina.toml.validator.schema.AbstractSchema;
 import io.ballerina.toml.validator.schema.ArraySchema;
@@ -25,8 +25,8 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.toml.validator.schema.SchemaVisitor;
 import io.ballerina.toml.validator.schema.StringSchema;
 import io.ballerina.toml.validator.schema.Type;
-import org.ballerinalang.langserver.toml.TomlCommonUtil;
-import org.ballerinalang.langserver.toml.TomlSyntaxTreeUtil;
+import org.ballerinalang.langserver.toml.common.TomlCommonUtil;
+import org.ballerinalang.langserver.toml.common.TomlSyntaxTreeUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -153,6 +153,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
 
     private CompletionItem generateCompletionItem(TomlNode node, String nodeType) {
         CompletionItem item = new CompletionItem();
+        item.setInsertText(node.getTomlSyntax());
         item.setDetail(TomlSyntaxTreeUtil.TABLE);
         item.setLabel(node.getKey());
         item.setKind(CompletionItemKind.Snippet);

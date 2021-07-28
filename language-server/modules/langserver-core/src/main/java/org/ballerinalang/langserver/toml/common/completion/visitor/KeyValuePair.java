@@ -15,10 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.toml.completions.visitor;
+package org.ballerinalang.langserver.toml.common.completion.visitor;
+
+import org.ballerinalang.langserver.toml.common.TomlSyntaxTreeUtil;
 
 /**
  * Represents Toml KeyValuePair node in {@link TomlSchemaVisitor}.
+ *
  * @since 2.0.0
  */
 public class KeyValuePair implements TomlNode {
@@ -39,7 +42,8 @@ public class KeyValuePair implements TomlNode {
         this.key = key;
         this.type = type;
         this.id = 1;
-        this.defaultValue = "";
+        this.defaultValue =
+                TomlSyntaxTreeUtil.getDefaultValueForType(type);
     }
 
     @Override

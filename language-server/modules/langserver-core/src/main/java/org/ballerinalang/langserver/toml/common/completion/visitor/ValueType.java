@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.toml.completions.visitor;
+package org.ballerinalang.langserver.toml.common.completion.visitor;
 
 /**
  * Represents a value type in toml.

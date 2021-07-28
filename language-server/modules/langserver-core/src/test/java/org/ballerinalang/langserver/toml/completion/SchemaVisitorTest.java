@@ -1,12 +1,12 @@
-package org.ballerinalang.langserver.toml;
+package org.ballerinalang.langserver.toml.completion;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.toml.validator.schema.Schema;
-import org.ballerinalang.langserver.toml.completions.visitor.TomlNode;
-import org.ballerinalang.langserver.toml.completions.visitor.TomlSchemaVisitor;
+import org.ballerinalang.langserver.toml.common.completion.visitor.TomlNode;
+import org.ballerinalang.langserver.toml.common.completion.visitor.TomlSchemaVisitor;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.eclipse.lsp4j.CompletionItem;
 import org.testng.Assert;
@@ -25,13 +25,13 @@ public class SchemaVisitorTest {
     @Test(dataProvider = "testDataProvider")
     public void test(String configFileName) throws IOException {
         String configPath = FileUtils.RES_DIR.resolve("toml").resolve("completion")
-                .resolve("schema-visitor").resolve("config").resolve(configFileName).toString();
+                .resolve("schema_visitor").resolve("config").resolve(configFileName).toString();
         JsonObject configJson =
                 FileUtils.fileContentAsObject(configPath);
         String schemaFile = configJson.getAsJsonPrimitive("source").getAsString();
         JsonObject expected = configJson.getAsJsonObject("expected");
         String schemaString = FileUtils.fileContent(FileUtils.RES_DIR.resolve("toml").resolve("completion")
-                .resolve("schema-visitor").resolve("schema").resolve(schemaFile).toString());
+                .resolve("schema_visitor").resolve("schema").resolve(schemaFile).toString());
 
         Gson gson = new Gson();
         Type collectionType = new TypeToken<Map<String, Map<String, CompletionItem>>>() {

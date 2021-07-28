@@ -46,7 +46,8 @@ under the License.
             <package name="org.ballerinalang.langserver.packages.*"/>
             <package name="org.ballerinalang.langserver.stnode.*"/>
             <package name="org.ballerinalang.langserver.execpositions.*"/>
-            <package name="org.ballerinalang.langserver.toml.*"/>
+            <package name="org.ballerinalang.langserver.toml.completion.*"/>
+            <package name="org.ballerinalang.langserver.toml.completion.ballerinatoml.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager"/>

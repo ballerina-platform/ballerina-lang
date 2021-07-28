@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.toml;
+package org.ballerinalang.langserver.toml.common;
 
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
 import io.ballerina.toml.syntax.tree.SeparatedNodeList;
 import io.ballerina.toml.syntax.tree.ValueNode;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.langserver.toml.common.completion.visitor.ValueType;
 
 /**
  * Utility class used as a helper for Toml Syntax tree related usage.
@@ -52,7 +53,7 @@ public class TomlSyntaxTreeUtil {
     }
 
     /**
-     * Check if a given position is with in the text range of a given node.
+     * Check if a given position is within the text range of a given node.
      *
      * @param position
      * @param node
@@ -82,4 +83,17 @@ public class TomlSyntaxTreeUtil {
         }
         return resourcePath;
     }
+
+    public static String getDefaultValueForType(ValueType type) {
+        switch (type) {
+            case NUMBER:
+                return "0";
+            case BOOLEAN:
+                return "false";
+            case STRING:
+            default:
+                return "";
+        }
+    }
+
 }
