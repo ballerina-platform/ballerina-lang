@@ -117,6 +117,18 @@ public class DefaultPackageResolver implements PackageResolver {
     @Override
     public DependencyGraph<PackageDescriptor> resolveDependencies(List<ResolutionRequest> packageLoadRequests,
                                                                   PackageLockingMode packageLockingMode) {
+        // Foreach repo
+        // resolve immediate dependencies
+        // if version is not there resolve latest major version
+        // if version is there owner locking mode
+        //      if SOFT resolve to latest compatible minor
+        //      if MEDIUM resolve to latest compatible patch
+        //      if HARD resolve to exact match
+
+        // each repo will send a dependency graph it can support
+        // some of the dependencies might not exists so we should have an unresolved package descriptor
+        // Once we have all the graphs from different repos we should consolidate
+        //      When consolidating we will use the locking rules
         return null;
     }
 
