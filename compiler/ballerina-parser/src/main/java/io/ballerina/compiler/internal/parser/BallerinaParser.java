@@ -1970,8 +1970,8 @@ public class BallerinaParser extends AbstractParser {
                     paramsList.add(param);
                 } else {
                     paramOrderErrorPresent = true;
-                    updateLastNodeInListWithInvalidNode(paramsList, paramEnd, paramOrderError);
-                    updateLastNodeInListWithInvalidNode(paramsList, param, null);
+                    updateLastNodeInListWithInvalidNode(paramsList, paramEnd, null);
+                    updateLastNodeInListWithInvalidNode(paramsList, param, paramOrderError);
                 }
             }
 
