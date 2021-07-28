@@ -46,23 +46,6 @@
               ]
             },
             {
-              "kind": "ASTERISK_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "PIPE_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_PIPE_TOKEN"
-              ]
-            },
-            {
               "kind": "ASTERISK_TOKEN"
             }
           ]

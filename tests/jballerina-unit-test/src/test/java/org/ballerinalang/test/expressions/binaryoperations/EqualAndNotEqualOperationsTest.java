@@ -661,6 +661,11 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testXmlStringNegative() {
+        BRunUtil.invoke(result, "testXmlStringNegative");
+    }
+
+    @Test
     public void testReferenceEqualityXml() {
         BRunUtil.invoke(result, "testReferenceEqualityXml");
     }
@@ -826,6 +831,11 @@ public class EqualAndNotEqualOperationsTest {
     @Test
     public void testTupleJSONEquality() {
         BRunUtil.invoke(result, "testTupleJSONEquality");
+    }
+
+    @Test
+    public void testIntersectingUnionEquality() {
+        BRunUtil.invoke(result, "testIntersectingUnionEquality");
     }
 
     @Test
@@ -1110,4 +1120,5 @@ public class EqualAndNotEqualOperationsTest {
     public void testTableEquality() {
         BRunUtil.invoke(result, "testTableEquality");
     }
+
 }

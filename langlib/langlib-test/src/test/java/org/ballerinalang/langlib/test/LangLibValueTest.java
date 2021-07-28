@@ -230,6 +230,16 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testToStringOnSubTypes() {
+        BRunUtil.invoke(compileResult, "testToStringOnSubTypes");
+    }
+
+    @Test
+    public void testToStringOnFiniteTypes() {
+        BRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
+    }
+
+    @Test
     public void testXMLToStringWithXMLTextContainingAngleBrackets() {
         BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
     }

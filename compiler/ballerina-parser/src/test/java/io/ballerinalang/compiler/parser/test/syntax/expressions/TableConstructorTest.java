@@ -113,6 +113,7 @@ public class TableConstructorTest extends AbstractExpressionsTest {
 
     @Test
     public void testTableKeywordOnly() {
-        test("table-constructor/table_constructor_source_26.bal", "table-constructor/table_constructor_assert_26.json");
+        testFile("table-constructor/table_constructor_source_26.bal",
+                "table-constructor/table_constructor_assert_26.json");
     }
 }
