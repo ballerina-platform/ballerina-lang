@@ -43,7 +43,7 @@ public class CompilerBadSadDiagnostic extends Diagnostic {
     public CompilerBadSadDiagnostic(Location location, Throwable throwable) {
         this.location = location;
         this.msg = "Compilation failed due to" + (throwable.getMessage() != null ? ": " + throwable.getMessage() :
-                " unhandled exception");
+                " an unhandled exception");
         this.exception = throwable;
     }
 
