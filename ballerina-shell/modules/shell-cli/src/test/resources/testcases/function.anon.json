@@ -4,18 +4,9 @@
     "code": "function (string, string) returns string concat = function (string x, string y) returns string { return x + y; };"
   },
   {
-    "description": "Define anonymous function with var.",
-    "code": "var add = function (int v1, int v2) returns int { return v1 + v2; };"
-  },
-  {
     "description": "Use concat function.",
     "code": "concat(\"Hello \", \"World!\")",
     "expr": "\"Hello World!\""
-  },
-  {
-    "description": "Use add function.",
-    "code": "add(5, 10)",
-    "expr": "15"
   },
   {
     "description": "Exit terminal.",

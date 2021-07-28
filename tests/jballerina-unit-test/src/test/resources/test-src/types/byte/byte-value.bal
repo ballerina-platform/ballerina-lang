@@ -267,8 +267,18 @@ function testByteShift() returns int {
     return d;
 }
 
-function testBitwiseNotOperator(byte b, int i) returns [int, int] {
-    int a = ~b;
+function testByteShiftWithLargeValue() {
+    byte a = 12;
+    byte b = 5;
+    byte c = 5;
+    byte x = b >>> a;
+    byte y = c >> a;
+    assert(x, 0);
+    assert(y, 0);
+}
+
+function testBitwiseNotOperator(byte b, int i) returns [byte, int] {
+    byte a = ~b;
     int j = ~i;
     return [a, j];
 }

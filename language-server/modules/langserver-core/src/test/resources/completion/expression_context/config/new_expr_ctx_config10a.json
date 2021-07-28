@@ -253,6 +253,24 @@
       "sortText": "R",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1(int field1, int field2)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
+        }
+      },
+      "sortText": "C",
+      "insertText": "TestObject1(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
