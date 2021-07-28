@@ -33,4 +33,7 @@ public class NBTypeNames {
     static final String OPERAND = "";
     static final String CATCH_INSN = "record {| INSN_CATCH name; Register result; anydata...; |}";
     static final String ABN_RET_INSN = "record {| INSN_ABNORMAL_RET name; Register operand; anydata...; |}";
+    static final String COND_BRANCH_INSN = "record {| INSN_COND_BRANCH name; Register operand; int ifTrue;" +
+            " int ifFalse; anydata...; |}";
+    static final String BRANCH_INSN = "record {| INSN_BRANCH name; int dest; anydata...; |}";
 }

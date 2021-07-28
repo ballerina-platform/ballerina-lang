@@ -174,6 +174,22 @@ public class ModuleGen {
                 opb.nextBlock.insns.add(new AssignInsn(reg, opb.operand));
                 return opb.nextBlock;
             }
+        } else if (stmt instanceof BLangIf) {
+            BLangIf ifStmt = (BLangIf) stmt;
+            OpBlockHolder branch = codeGenExpr(ifStmt.expr, code, startBlock);
+            BasicBlock ifBlock = code.createBasicBlock();
+            BasicBlock ifContBlock = null, contBlock;
+            for (BLangStatement st : ifStmt.getBody().getStatements()) {
+                ifContBlock = codeGenStmt(st, code, ifBlock);
+            }
+            if (ifStmt.elseStmt == null) {
+                contBlock = code.createBasicBlock();
+                branch.nextBlock.insns.add(new CondBranchInsn(branch.operand.register, ifBlock.label, contBlock.label));
+                if (ifContBlock != null) {
+                    ifContBlock.insns.add(new BranchInsn(contBlock.label));
+                }
+                return contBlock;
+            }
         }
 
         throw new BallerinaException("Statement not recognized");

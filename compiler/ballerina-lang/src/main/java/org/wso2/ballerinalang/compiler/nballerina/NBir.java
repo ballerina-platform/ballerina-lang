@@ -208,9 +208,15 @@ class BasicBlock {
         BMap<BString, Object> tmpVal7 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.CATCH_INSN, new HashMap<>());
         BMap<BString, Object> tmpVal8 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.ABN_RET_INSN, new HashMap<>()); //TODO add other insns
+                NBTypeNames.ABN_RET_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal9 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.COND_BRANCH_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal10 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.BRANCH_INSN, new HashMap<>()); //TODO add other insns
+
         UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType(),
-                tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType());
+                tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType(),
+                tmpVal9.getType(), tmpVal10.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         //TODO Move to a singleton
         BArray arr = ValueCreator.createArrayValue(arrTyp);
@@ -229,6 +235,42 @@ abstract class InsnBase {
     public String name; //InsnName
     public abstract BMap<BString, Object> getRecord();
 
+}
+
+class CondBranchInsn extends InsnBase {
+    public Register operand;
+    int ifTrue;
+    int ifFalse;
+
+    public CondBranchInsn(Register operand, int ifTrue, int ifFalse) {
+        this.operand = operand;
+        this.ifTrue = ifTrue;
+        this.ifFalse = ifFalse;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("operand", operand.getRecord());
+        fields.put("ifTrue", ifTrue);
+        fields.put("ifFalse", ifFalse);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.COND_BRANCH_INSN, fields);
+    }
+}
+
+class BranchInsn extends InsnBase {
+    int dest;
+
+    public BranchInsn(int dest) {
+        this.dest = dest;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("dest", dest);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.BRANCH_INSN, fields);
+    }
 }
 
 class IntArithmeticBinaryInsn extends InsnBase {
