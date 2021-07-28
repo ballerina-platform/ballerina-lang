@@ -85,9 +85,11 @@ public class FunctionPointersNegativeTest {
     public void testFPInvalidInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
                 "/fp_invalid_invocation_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertEquals(result.getErrorCount(), 3);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "undefined field 'getFullName' in record 'Person'", 35, 20);
+        BAssertUtil.validateError(result, i++, "function invocation on type 'Person' is not supported", 35, 20);
+        BAssertUtil.validateError(result, i++, "function invocation on type 'Person' is not supported", 36, 20);
+        BAssertUtil.validateError(result, i++, "function invocation on type 'Person' is not supported", 68, 20);
     }
 
     @Test
