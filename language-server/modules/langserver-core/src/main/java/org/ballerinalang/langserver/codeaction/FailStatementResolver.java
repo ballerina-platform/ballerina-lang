@@ -40,7 +40,7 @@ public class FailStatementResolver extends NodeTransformer<Optional<Node>> {
         this.diagnostic = diagnostic;
     }
     
-    public Optional<Node> getRegComNSmtNode(Node node) {
+    public Optional<Node> getRegularCompoundStatementNode(Node node) {
         return node.apply(this);
     }
 

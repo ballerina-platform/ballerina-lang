@@ -64,42 +64,57 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         String commandTitle;
 
         FailStatementResolver finder = new FailStatementResolver(diagnostic);
-        Optional<Node> failStatementResolverNode = finder.getRegComNSmtNode(nodeAtDiagnostic);
+        Optional<Node> failStatementResolverNode = finder.getRegularCompoundStatementNode(nodeAtDiagnostic);
         
         if (failStatementResolverNode.isPresent()
                 && failStatementResolverNode.get().kind() == SyntaxKind.WHILE_KEYWORD) {
-            return Collections.emptyList();
+            while (nodeAtDiagnostic.kind() == SyntaxKind.WHILE_STATEMENT) {
+                nodeAtDiagnostic = nodeAtDiagnostic.parent();
+            }
+            edits.add(getSurroundWithOnFailEditText(nodeAtDiagnostic));
+            commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
+            return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         
         if (failStatementResolverNode.isPresent()) {
-            LinePosition regComStmtLinePosition = failStatementResolverNode.get().lineRange().endLine();
-            Position onFailPosLine = new Position(regComStmtLinePosition.line(), regComStmtLinePosition.offset());
+            LinePosition regularCompoundStmtLinePosition = failStatementResolverNode.get().lineRange().endLine();
+            Position onFailPosLine = new Position(regularCompoundStmtLinePosition.line(), 
+                    regularCompoundStmtLinePosition.offset());
 
-            String spaces = " ".repeat(regComStmtLinePosition.offset() - 1);
+            String spaces = " ".repeat(regularCompoundStmtLinePosition.offset() - 1);
             String editText = " on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
                     + CommonUtil.LINE_SEPARATOR + spaces + "}";
             edits.add(new TextEdit(new Range(onFailPosLine, onFailPosLine), editText));
             commandTitle = CommandConstants.CREATE_ON_FAIL_CLAUSE;
         } else {
-            while (!StatementNode.class.isAssignableFrom(nodeAtDiagnostic.getClass())) {
-                nodeAtDiagnostic = nodeAtDiagnostic.parent();
-            }
-            LinePosition linePosition = nodeAtDiagnostic.lineRange().startLine();
-            Position positionDo = new Position(linePosition.line(), linePosition.offset());
-            Position posCheckLineStart = new Position(linePosition.line() + 1, 0);
-
-            String spaces = " ".repeat(linePosition.offset());
-            String insideDoStatement = nodeAtDiagnostic.toString();
-            String editTextDo = "do {" + CommonUtil.LINE_SEPARATOR + "\t" + insideDoStatement
-                    + spaces + "} on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
-                    + CommonUtil.LINE_SEPARATOR + spaces + "}" + CommonUtil.LINE_SEPARATOR;
-            edits.add(new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo));
+            edits.add(getSurroundWithOnFailEditText(nodeAtDiagnostic));
             commandTitle = CommandConstants.SURROUND_WITH_DO_ON_FAIL;
         }
 
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
  
+    public TextEdit getSurroundWithOnFailEditText(Node node) {
+        while (!StatementNode.class.isAssignableFrom(node.getClass())) {
+            node = node.parent();
+        }
+        LinePosition startLinePosition = node.lineRange().startLine();
+        LinePosition endLinePosition = node.lineRange().endLine();
+        Position positionDo = new Position(startLinePosition.line(), startLinePosition.offset());
+        Position posCheckLineStart = new Position(endLinePosition.line(), endLinePosition.offset());
+
+        String spaces = " ".repeat(startLinePosition.offset());
+        String insideDoStatement = node.toSourceCode();
+        String tabShiftedDoStatement = insideDoStatement.substring(0, insideDoStatement.length() - 1)
+                .replace("\n", "\n\t") + "\n";
+        String editTextDo = "do {" + CommonUtil.LINE_SEPARATOR + "\t"
+                + tabShiftedDoStatement + spaces
+                + "} on fail var e {" + CommonUtil.LINE_SEPARATOR + spaces + "\t"
+                + CommonUtil.LINE_SEPARATOR + spaces + "}";
+        TextEdit textEdit = new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo);
+        return textEdit;
+    }
+    
     @Override
     public String getName() {
         return NAME;

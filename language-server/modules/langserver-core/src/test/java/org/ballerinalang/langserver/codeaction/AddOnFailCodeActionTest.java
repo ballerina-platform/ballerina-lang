@@ -39,6 +39,7 @@ public class AddOnFailCodeActionTest extends AbstractCodeActionTest {
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"on_fail_codeaction_for_check_stmt_config1.json", "on_fail_codeaction_for_check_stmt_source1.bal"},
+                {"on_fail_codeaction_for_check_stmt_config1a.json", "on_fail_codeaction_for_check_stmt_source1a.bal"},
                 {"on_fail_codeaction_for_check_stmt_config2.json", "on_fail_codeaction_for_check_stmt_source2.bal"},
                 {"on_fail_codeaction_for_check_stmt_config3.json", "on_fail_codeaction_for_check_stmt_source3.bal"},
                 {"on_fail_codeaction_for_check_stmt_config4.json", "on_fail_codeaction_for_check_stmt_source4.bal"},

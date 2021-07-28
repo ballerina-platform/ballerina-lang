@@ -12,11 +12,11 @@
               "character": 4
             },
             "end": {
-              "line": 2,
-              "character": 0
+              "line": 1,
+              "character": 38
             }
           },
-          "newText": "do {\n\t    testFunction1(check checkError());\n    } on fail var e {\n    \t\n    }\n"
+          "newText": "do {\n\t    testFunction1(check checkError());\n    } on fail var e {\n    \t\n    }"
         }
       ]
     }
