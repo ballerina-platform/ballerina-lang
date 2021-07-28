@@ -43,3 +43,21 @@ type RType service object {
 service class RTypeImpl {
     *RType;
 }
+
+
+service class DoDone {
+    resource function 'do f() returns int => 0;
+
+    resource function done f() returns int => 0;
+
+    public function 'do() returns int => 0;
+}
+
+service class Do {
+    *DoDone;
+    public function 'do() returns int => 0;
+}
+
+function checkObjectAssignability() {
+    Do 'do = new DoDone();
+}
