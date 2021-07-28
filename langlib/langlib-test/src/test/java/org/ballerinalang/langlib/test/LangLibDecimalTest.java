@@ -301,4 +301,9 @@ public class LangLibDecimalTest {
     public void testFromStringWithStringArg() {
         BRunUtil.invoke(compileResult, "testFromStringWithStringArg");
     }
+
+    @Test
+    public void testLangLibCallOnFiniteType() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
 }

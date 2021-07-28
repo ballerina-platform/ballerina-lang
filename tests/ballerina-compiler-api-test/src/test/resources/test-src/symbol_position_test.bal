@@ -73,3 +73,5 @@ function typeNarrowing() {
         string s = val;
     }
 }
+
+function exprBodyScope(string myStr) returns string => m

@@ -322,15 +322,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
