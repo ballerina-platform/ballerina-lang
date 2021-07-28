@@ -273,4 +273,13 @@ public class LangLibStringTest {
         assertEquals(returns[0].stringValue(), "foo1foo2foo3foo4");
     }
 
+    @Test
+    public void testLangLibCallOnStringSubTypes() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnStringSubTypes");
+    }
+
+    @Test
+    public void testLangLibCallOnFiniteType() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
 }

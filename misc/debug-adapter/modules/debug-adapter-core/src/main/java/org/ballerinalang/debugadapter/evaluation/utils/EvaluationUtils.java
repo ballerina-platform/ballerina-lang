@@ -129,6 +129,7 @@ public class EvaluationUtils {
     public static final String CREATE_XML_ITEM = "createXmlItem";
     public static final String CREATE_XML_VALUE_METHOD = "createXmlValue";
     public static final String CREATE_OBJECT_VALUE_METHOD = "createObjectValue";
+    public static final String CREATE_ERROR_VALUE_METHOD = "createErrorValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";

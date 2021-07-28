@@ -156,6 +156,7 @@ public class ImmutableTypeCloner {
             }
 
             typeField.symbol.flags |= Flags.FINAL;
+            classField.flagSet.add(Flag.FINAL);
         }
     }
 

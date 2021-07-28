@@ -138,6 +138,16 @@ public class TypeDefBuilderHelper {
                                                                    Name suffix,
                                                                    SymbolTable symTable,
                                                                    BType type) {
+        return createInitFunctionForStructureType(location, symbol, env, names, suffix, type, symTable.nilType);
+    }
+
+    public static BLangFunction createInitFunctionForStructureType(Location location,
+                                                                   BSymbol symbol,
+                                                                   SymbolEnv env,
+                                                                   Names names,
+                                                                   Name suffix,
+                                                                   BType type,
+                                                                   BType returnType) {
         String structTypeName = type.tsymbol.name.value;
         BLangFunction initFunction = ASTBuilderUtil
                 .createInitFunctionWithNilReturn(location, structTypeName, suffix);
@@ -153,7 +163,7 @@ public class TypeDefBuilderHelper {
         initFunction.flagSet.add(Flag.ATTACHED);
 
         // Create the function type
-        initFunction.setBType(new BInvokableType(new ArrayList<>(), symTable.nilType, null));
+        initFunction.setBType(new BInvokableType(new ArrayList<>(), returnType, null));
 
         // Create the function symbol
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
@@ -179,8 +189,8 @@ public class TypeDefBuilderHelper {
 
         receiverSymbol.owner = initFunction.symbol;
 
-        // Add return type as nil to the symbol
-        initFunction.symbol.retType = symTable.nilType;
+        // Add return type to the symbol
+        initFunction.symbol.retType = returnType;
 
         return initFunction;
     }

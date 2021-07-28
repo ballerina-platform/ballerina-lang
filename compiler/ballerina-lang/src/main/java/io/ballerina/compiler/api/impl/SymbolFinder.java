@@ -1517,6 +1517,15 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangRecordLiteral.BLangRecordKey recordKey) {
+        if (setEnclosingNode(recordKey.fieldSymbol, recordKey.pos)) {
+            return;
+        }
+
+        lookupNode(recordKey.expr);
+    }
+
+    @Override
     public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
         lookupNode(spreadOperatorField.expr);
     }
