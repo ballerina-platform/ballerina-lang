@@ -33,28 +33,27 @@ import java.util.stream.Stream;
  * Helper class to initialize functions related to help /TOPIC command.
  *
  */
-public class HelpInitiator {
+public class BbeHelpProvider {
 
     private static final String BALLERINA_HOME =
             System.getProperty("ballerina.home");
     private static final String BBE_PATH = "/examples/";
     private static final String DESCRIPTION = ".description";
+    private static final String INDEX_FILE = "index.json";
 
     private final HashMap<String, String> helpMap;
     private final List<String> listCommands;
     private final HashMap<String, String> urlList;
 
-    public HelpInitiator() {
+    public BbeHelpProvider() {
         helpMap = new HashMap<>();
         listCommands = new ArrayList<>();
         urlList = new HashMap<>();
-        initHelpTopicFile();
+        initHelpTopicCommand();
     }
 
-    private void initHelpTopicFile() {
-        // System.getProperty("ballerina.home");
-        String file = "./examples/index.json";
-        String bbePrefix = "./examples/";
+    private void initHelpTopicCommand() {
+        String file = BALLERINA_HOME + BBE_PATH + INDEX_FILE;
         String jsonString = readFileAsString(file).trim();
 
         Gson gson = new Gson();
@@ -65,7 +64,7 @@ public class HelpInitiator {
             BbeRecord[] samples = bbeTitle.getSamples();
             Stream<BbeRecord> sampleList = Arrays.stream(samples);
             sampleList.forEach((bbeRecordElement) -> {
-                String bbePath = bbePrefix + bbeRecordElement.getUrl() +
+                String bbePath = BBE_PATH + bbeRecordElement.getUrl() +
                         "/" + String.join("_", bbeRecordElement.getUrl().split("-"))
                         + DESCRIPTION;
                 listCommands.add(bbeRecordElement.getName());
@@ -93,7 +92,7 @@ public class HelpInitiator {
         try {
             content = Files.readString(Paths.get(file));
         } catch (IOException e) {
-            content = "None";
+            return null;
         }
         return content;
     }
