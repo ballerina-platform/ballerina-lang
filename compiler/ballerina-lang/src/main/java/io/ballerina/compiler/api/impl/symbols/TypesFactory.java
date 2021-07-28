@@ -220,7 +220,8 @@ public class TypesFactory {
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
                 if (Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)) {
-                    return symbolFactory.createClassSymbol((BClassSymbol) tSymbol, tSymbol.name.value, objType);
+                    BTypeSymbol classSymbol = tSymbol.isLabel ? tSymbol.type.tsymbol : tSymbol;
+                    return symbolFactory.createClassSymbol((BClassSymbol) classSymbol, classSymbol.name.value, objType);
                 }
                 return objType;
             case RECORD:
