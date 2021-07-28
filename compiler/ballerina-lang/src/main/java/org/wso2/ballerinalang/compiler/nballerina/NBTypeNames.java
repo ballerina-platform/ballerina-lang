@@ -36,4 +36,6 @@ public class NBTypeNames {
     static final String COND_BRANCH_INSN = "record {| INSN_COND_BRANCH name; Register operand; int ifTrue;" +
             " int ifFalse; anydata...; |}";
     static final String BRANCH_INSN = "record {| INSN_BRANCH name; int dest; anydata...; |}";
+    static final String TYPECAST_INSN = "record {| INSN_TYPE_CAST name; Register result; Register operand; " +
+            "wso2/nballerina.types:0.1.0:SemType semType; Position position; anydata...; |}";
 }

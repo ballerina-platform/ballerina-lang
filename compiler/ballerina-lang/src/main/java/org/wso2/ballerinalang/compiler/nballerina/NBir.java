@@ -220,11 +220,13 @@ class BasicBlock {
         BMap<BString, Object> tmpVal9 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.COND_BRANCH_INSN, new HashMap<>());
         BMap<BString, Object> tmpVal10 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.BRANCH_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal11 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.BRANCH_INSN, new HashMap<>()); //TODO add other insns
 
         UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType(),
                 tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType(),
-                tmpVal9.getType(), tmpVal10.getType());
+                tmpVal9.getType(), tmpVal10.getType(), tmpVal11.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         //TODO Move to a singleton
         BArray arr = ValueCreator.createArrayValue(arrTyp);
@@ -326,6 +328,36 @@ class NullRetInsn extends InsnBase {
     @Override
     public BMap<BString, Object> getRecord() {
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN, new HashMap<>());
+    }
+}
+
+class TypeCastInsn extends InsnBase {
+    public Register result;
+    public Register operand;
+    public TypeKind semType;
+    public Position position;
+
+    public TypeCastInsn(Register result, Register operand, TypeKind semType, Position position) {
+        this.result = result;
+        this.operand = operand;
+        this.semType = semType;
+        this.position = position;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        ObjectType complexSem = TypeCreator.createObjectType("ComplexSemType", ModuleGen.MODTYPES, 268435489);
+        UnionType typ = TypeCreator.createUnionType(complexSem, PredefinedTypes.TYPE_INT_UNSIGNED_32);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        arr.append(ModuleGen.convertSimpleSemType(semType));
+
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("result", result.getRecord());
+        fields.put("operand", operand.getRecord());
+        fields.put("semType", arr.get(0));
+        fields.put("position", position.getRecord());
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.TYPECAST_INSN, fields);
     }
 }
 

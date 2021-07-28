@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -82,13 +83,7 @@ public class ModuleGen {
     static final Module MODBIR = new Module("wso2", "nballerina.bir", "0.1.0");
     static final Module MODTYPES = new Module("wso2", "nballerina.types", "0.1.0");
     static final Module MODERROR = new Module("wso2", "nballerina.err", "0.1.0");
-    private static UnionType stmtTyp;
-    private static UnionType exprTyp;
-    private static UnionType defTyp;
-    private static UnionType typeDescTyp;
-    private static UnionType conTypeDescTyp;
-    private static ArrayType stmtArrTyp;
-    private static ArrayType typDescArrTyp;
+
     private static JNModule jnmod;
 
     PrintStream console = System.out;
@@ -104,13 +99,6 @@ public class ModuleGen {
 
     private ModuleGen(CompilerContext context) {
         context.put(MOD_GEN, this);
-        stmtTyp = getStmtTyp();
-        exprTyp = getExprTyp();
-        defTyp = getDefTyp();
-        conTypeDescTyp = getConstructorTypDescTyp();
-        typeDescTyp = getTypeDescTyp();
-        stmtArrTyp = TypeCreator.createArrayType(stmtTyp);
-        typDescArrTyp = TypeCreator.createArrayType(typeDescTyp);
     }
 
     public JNModule genMod(BLangPackage astPkg) {
@@ -227,7 +215,7 @@ public class ModuleGen {
             if (loopEnd != null) {
                 loopEnd.insns.add(branchLoopHead);
             }
-            return exitReachable? exit : null;
+            return exitReachable ? exit : null;
         }
 
         throw new BallerinaException("Statement not recognized");
@@ -314,8 +302,23 @@ public class ModuleGen {
             return new OpBlockHolder(result, nextBlock);
         } else if (expr instanceof BLangGroupExpr) {
             return codeGenExpr(((BLangGroupExpr) expr).expression, code, bb);
+        } else if (expr instanceof BLangTypeConversionExpr) {
+            BLangTypeConversionExpr tcExpr = (BLangTypeConversionExpr) expr;
+            OpBlockHolder opb = codeGenExpr(tcExpr.expr, code, bb);
+            if (opb.operand.isReg) {
+                Register reg = code.createRegister(null, null);
+                Position pos = new Position(tcExpr.pos.lineRange().startLine().line() + 1,
+                        tcExpr.pos.textRange().startOffset());
+                bb.insns.add(new TypeCastInsn(reg, opb.operand.register, tcExpr.targetType.getKind(), pos));
+                Operand regOp = new Operand(true);
+                regOp.register = reg;
+                return new OpBlockHolder(regOp, opb.nextBlock);
+            } else {
+                return opb;
+            }
         }
-        return null;
+
+        throw new BallerinaException("Expression not recognized");
     }
 
     OpBlockHolder codegenFunctionCall(BLangInvocation funcCall, FunctionCode code, BasicBlock bb) {
@@ -388,305 +391,11 @@ public class ModuleGen {
                 return 2048L;
             case OTHER:
                 return 8388607L;
+            case ANY:
+                return 8386559L;
             default:
                 throw new BallerinaException("Semtype not implemented for type");
         }
 
-    }
-
-    private static UnionType getStmtTyp() {
-        RecordType varDeclStmt = TypeCreator.createRecordType("VarDeclStmt", MODFRONT, 1,
-                true, 0);
-        RecordType assignStmt = TypeCreator.createRecordType("AssignStmt", MODFRONT, 1,
-                true, 6);
-        RecordType funcCallExpr = TypeCreator.createRecordType("FunctionCallExpr", MODFRONT, 1,
-                true, 6);
-        RecordType returnStmt = TypeCreator.createRecordType("ReturnStmt", MODFRONT, 1,
-                true, 6);
-        RecordType ifElseStmt = TypeCreator.createRecordType("IfElseStmt", MODFRONT, 1,
-                true, 0);
-        RecordType whileStmt = TypeCreator.createRecordType("WhileStmt", MODFRONT, 1,
-                true, 0);
-        LinkedHashSet breakSet = new LinkedHashSet();
-        breakSet.add(new BmpStringValue("break"));
-        FiniteType breakStmt = TypeCreator.createFiniteType("BreakStmt", breakSet, 6);
-        LinkedHashSet continueSet = new LinkedHashSet();
-        continueSet.add(new BmpStringValue("continue"));
-        FiniteType continueStmt = TypeCreator.createFiniteType("ContinueStmt", continueSet, 6);
-        return TypeCreator.createUnionType(varDeclStmt, assignStmt, funcCallExpr, returnStmt, ifElseStmt, whileStmt,
-                breakStmt, continueStmt);
-    }
-
-    private static UnionType getDefTyp() {
-        RecordType typeDef = TypeCreator.createRecordType("TypeDef", MODFRONT, 1,
-                true, 0);
-        RecordType funcDef = TypeCreator.createRecordType("FunctionDef", MODFRONT, 1,
-                true, 0);
-        return TypeCreator.createUnionType(funcDef, typeDef);
-    }
-
-    private static UnionType getExprTyp() {
-        RecordType simpleConstExpr = TypeCreator.createRecordType("SimpleConstExpr", MODFRONT, 1,
-                true, 6);
-        RecordType binaryExpr = TypeCreator.createRecordType("BinaryExpr", MODFRONT, 1,
-                true, 6);
-        RecordType unaryExpr = TypeCreator.createRecordType("UnaryExpr", MODFRONT, 1,
-                true, 6);
-        RecordType functionCallExpr = TypeCreator.createRecordType("FunctionCallExpr", MODFRONT, 1,
-                true, 6);
-        RecordType varRefExpr = TypeCreator.createRecordType("VarRefExpr", MODFRONT, 1,
-                true, 6);
-        return TypeCreator.createUnionType(simpleConstExpr, binaryExpr, unaryExpr, functionCallExpr, varRefExpr);
-    }
-
-    private static UnionType getTypeDescTyp() {
-        LinkedHashSet typeSet = new LinkedHashSet();
-        typeSet.addAll(Arrays.asList(new BmpStringValue("any"), new BmpStringValue("boolean"),
-                new BmpStringValue("decimal"), new BmpStringValue("error"), new BmpStringValue("float"),
-                new BmpStringValue("handle"), new BmpStringValue("int"), new BmpStringValue("json"),
-                new BmpStringValue("never"), new BmpStringValue("readonly"), new BmpStringValue("string"),
-                new BmpStringValue("typedesc"), new BmpStringValue("xml"), new BmpStringValue("()")));
-        FiniteType builtInTypeDesc = TypeCreator.createFiniteType("BuiltInTypeDesc", typeSet, 6);
-        FiniteType builtinIntSubtypeDesc = TypeCreator.createFiniteType("BuiltinIntSubtypeDesc");
-        UnionType leafTypeDesc = TypeCreator.createUnionType(builtInTypeDesc, builtinIntSubtypeDesc);
-
-        RecordType binaryTypeDesc = TypeCreator.createRecordType("BinaryTypeDesc", MODFRONT, 1,
-                true, 6);
-        UnionType constructorTypeDesc = conTypeDescTyp;
-        RecordType typeDescRef = TypeCreator.createRecordType("TypeDescRef", MODFRONT, 1,
-                true, 6);
-        RecordType singletonTypeDesc = TypeCreator.createRecordType("SingletonTypeDesc", MODFRONT, 1,
-                true, 6);
-
-        return TypeCreator.createUnionType(leafTypeDesc, binaryTypeDesc, constructorTypeDesc,
-                typeDescRef, singletonTypeDesc);
-    }
-
-    private static UnionType getConstructorTypDescTyp() {
-        RecordType listTypeDesc = TypeCreator.createRecordType("ListTypeDesc", MODFRONT, 1,
-                true, 0);
-        RecordType mappingTypeDesc = TypeCreator.createRecordType("MappingTypeDesc", MODFRONT, 1,
-                true, 0);
-        RecordType functionTypeDesc = TypeCreator.createRecordType("FunctionTypeDesc", MODFRONT, 1,
-                true, 0);
-        RecordType errorTypeDesc = TypeCreator.createRecordType("ErrorTypeDesc", MODFRONT, 1,
-                true, 0);
-        return TypeCreator.createUnionType(listTypeDesc, mappingTypeDesc, functionTypeDesc, errorTypeDesc);
-    }
-
-    public Object visit(BLangPackage astPkg) {
-        RecordType impTyp = TypeCreator.createRecordType("ImportDecl", MODFRONT, 1, false, 6);
-        ArrayType impArrTyp = TypeCreator.createArrayType(impTyp);
-        BArray imps = ValueCreator.createArrayValue(impArrTyp);
-
-        ArrayType defArrTyp = TypeCreator.createArrayType(defTyp);
-        BArray defs = ValueCreator.createArrayValue(defArrTyp);
-
-        astPkg.imports.forEach(impPkg -> imps.append(impPkg.accept(this)));
-        astPkg.functions.forEach(astFunc -> defs.append(astFunc.accept(this)));
-        astPkg.typeDefinitions.forEach(astTypDef -> defs.append(astTypDef.accept(this)));
-
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        if (imps.size() > 0) {
-            mapInitialValueEntries.put("importDecl", imps.get(0));
-        }
-        mapInitialValueEntries.put("defs", defs);
-        return ValueCreator.createRecordValue(MODFRONT, "ModulePart", mapInitialValueEntries);
-    }
-
-    public Object visit(BLangFunction astFunc) {
-        String name = astFunc.getName().toString();
-        ArrayType paramArrTyp = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING);
-        BArray paramNames = ValueCreator.createArrayValue(paramArrTyp);
-        astFunc.getParameters().forEach(param -> paramNames.append(new BmpStringValue(param.getName().toString())));
-
-        BArray body = (BArray) astFunc.body.accept(this);
-        boolean accessor = astFunc.getFlags().contains(Flag.PUBLIC);
-        int lineNumber = astFunc.pos.lineRange().startLine().line() + 1;
-        int indexInLine = astFunc.pos.textRange().startOffset() + 9;
-
-        BArray args = ValueCreator.createArrayValue(typDescArrTyp);
-        BArray rets = ValueCreator.createArrayValue(typDescArrTyp);
-        astFunc.getParameters().forEach(param -> {
-            String arg = param.getBType().getKind().typeName();
-            if (arg.equals(TypeKind.NIL.typeName())) {
-                arg = "()";
-            }
-            args.append(new BmpStringValue(arg)); });
-        String ret = astFunc.getReturnTypeNode().getBType().getKind().typeName();
-        if (ret.equals(TypeKind.NIL.typeName())) {
-            ret = "()";
-        }
-        rets.append(new BmpStringValue(ret));
-
-        Map<String, Object> funcTypeDefMap = new HashMap<>();
-        funcTypeDefMap.put("args", args);
-        funcTypeDefMap.put("ret", rets.get(0));
-        BMap<BString, Object> td = ValueCreator.createRecordValue(MODFRONT, "FunctionTypeDesc",
-                funcTypeDefMap);
-
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        if (accessor) {
-            indexInLine += 7;
-            mapInitialValueEntries.put("vis", new BmpStringValue("public"));
-        }
-        mapInitialValueEntries.put("name", new BmpStringValue(name));
-        mapInitialValueEntries.put("paramNames", paramNames);
-        mapInitialValueEntries.put("body", body);
-        mapInitialValueEntries.put("typeDesc", td);
-        mapInitialValueEntries.put("tempLineNumber", lineNumber);
-        mapInitialValueEntries.put("tempIndexInLine", indexInLine);
-        return ValueCreator.createRecordValue(MODFRONT, "FunctionDef", mapInitialValueEntries);
-    }
-    
-    public Object visit(BLangExpressionStmt exprStmtNode) {
-        return exprStmtNode.expr.accept(this);
-    }
-
-    public Object visit(BLangTypeDefinition typeDef) {
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("name", new BmpStringValue(typeDef.name.getValue()));
-
-        return null;
-    }
-    public Object visit(BLangStatementExpression statementExpression) {
-        return statementExpression.stmt.accept(this);
-    }
-
-    public BMap<BString, Object> visit(BLangReturn astReturnStmt) {
-        Object exp = astReturnStmt.expr.accept(this);
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("returnExpr", exp);
-
-        return ValueCreator.createRecordValue(MODFRONT, "ReturnStmt", mapInitialValueEntries);
-    }
-
-    public Object visit(BLangIf bLangIf) {
-        Object expr = bLangIf.expr.accept(this);
-        BArray ifTrue = ValueCreator.createArrayValue(stmtArrTyp);
-        BArray ifFalse = ValueCreator.createArrayValue(stmtArrTyp);
-        bLangIf.getBody().getStatements().forEach(stmt -> ifTrue.append(stmt.accept(this)));
-        ((BLangBlockStmt) bLangIf.elseStmt).getStatements().forEach(stmt -> {
-            ifFalse.append(stmt.accept(this)); });
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("condition", expr);
-        mapInitialValueEntries.put("ifTrue", ifTrue);
-        mapInitialValueEntries.put("ifFalse", ifFalse);
-
-        return ValueCreator.createRecordValue(MODFRONT, "IfElseStmt",
-                mapInitialValueEntries);
-    }
-
-    public Object visit(BLangWhile bLangWhile) {
-        Object exp =  bLangWhile.expr.accept(this);
-        BArray stmts = ValueCreator.createArrayValue(stmtArrTyp);
-        bLangWhile.body.getStatements().forEach(stmt -> stmts.append(stmt.accept(this)));
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("condition", exp);
-        mapInitialValueEntries.put("body", stmts);
-
-        return ValueCreator.createRecordValue(MODFRONT, "WhileStmt",
-                mapInitialValueEntries);
-    }
-
-    public Object visit(BLangBreak bLangBreak) {
-        return new BmpStringValue("break");
-    }
-
-    public Object visit(BLangContinue bLangContinue) {
-        return new BmpStringValue("continue");
-    }
-
-    public Object visit(BLangInvocation bLangInvocation) {
-        ArrayType arrTyp = TypeCreator.createArrayType(exprTyp);
-        BArray exprs = ValueCreator.createArrayValue(arrTyp);
-        bLangInvocation.argExprs.forEach(expr -> exprs.append(expr.accept(this)));
-
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        String prefix = bLangInvocation.pkgAlias.getValue();
-        if (!prefix.equals("")) {
-            mapInitialValueEntries.put("prefix", new BmpStringValue(prefix));
-        }
-        mapInitialValueEntries.put("funcName", new BmpStringValue(bLangInvocation.name.getValue()));
-        mapInitialValueEntries.put("args", exprs);
-
-        return ValueCreator.createRecordValue(MODFRONT, "FunctionCallExpr",
-                mapInitialValueEntries);
-    }
-
-    public Object visit(BLangSimpleVariableDef varDec) {
-        String varName = varDec.var.symbol.name.value;
-        Object initExpr = varDec.var.expr.accept(this);
-        BArray tds = ValueCreator.createArrayValue(typDescArrTyp);
-        tds.append(new BmpStringValue(varDec.var.symbol.type.getKind().typeName()));
-
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("varName", new BmpStringValue(varName));
-        mapInitialValueEntries.put("initExpr", initExpr);
-        mapInitialValueEntries.put("td", tds.get(0));
-        return ValueCreator.createRecordValue(MODFRONT, "VarDeclStmt", mapInitialValueEntries);
-    }
-
-    public Object visit(BLangSimpleVarRef varRef) {
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("varName", new BmpStringValue(varRef.variableName.getValue()));
-        return ValueCreator.createRecordValue(MODFRONT, "VarRefExpr", mapInitialValueEntries);
-    }
-
-    public Object visit(BLangAssignment bLangAssignment) {
-        return null;
-    }
-
-    public Object visit(BLangImportPackage bLangImportPackage) {
-
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("org", bLangImportPackage.symbol.pkgID.orgName.getValue());
-        mapInitialValueEntries.put("module", bLangImportPackage.symbol.pkgID.name.getValue());
-
-        return ValueCreator.createRecordValue(MODFRONT, "ImportDecl",
-                mapInitialValueEntries);
-    }
-
-    public Object visit(BLangNode bLangNode) {
-        console.println("generic visitor" + bLangNode.toString());
-        return null;
-    }
-
-    public Object visit(BLangBlockFunctionBody astBody) {
-        BArray stmts = ValueCreator.createArrayValue(stmtArrTyp);
-        astBody.getStatements().forEach(stmt -> {
-            Object x = stmt.accept(this);
-            stmts.append(x);
-        });
-        return stmts;
-    }
-
-    public Object visit(BLangLiteral bLangLiteral) {
-        Object val = bLangLiteral.getValue();
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("value", val);
-
-        return ValueCreator.createRecordValue(MODFRONT, "SimpleConstExpr", mapInitialValueEntries);
-    }
-
-    public Object visit(BLangUnaryExpr bLangUnaryExpr) {
-        Object operand = bLangUnaryExpr.expr.accept(this);
-        BmpStringValue op = new BmpStringValue(bLangUnaryExpr.operator.value());
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("op", op);
-        mapInitialValueEntries.put("operand", operand);
-
-        return ValueCreator.createRecordValue(MODFRONT, "UnaryExpr", mapInitialValueEntries);
-    }
-
-    public Object visit(BLangBinaryExpr bLangBinaryExpr) {
-        Object lhs = bLangBinaryExpr.lhsExpr.accept(this);
-        Object rhs = bLangBinaryExpr.rhsExpr.accept(this);
-        BmpStringValue op = new BmpStringValue(bLangBinaryExpr.opKind.value());
-        Map<String, Object> mapInitialValueEntries = new HashMap<>();
-        mapInitialValueEntries.put("op", op);
-        mapInitialValueEntries.put("left", lhs);
-        mapInitialValueEntries.put("right", rhs);
-        return ValueCreator.createRecordValue(MODFRONT, "BinaryExpr", mapInitialValueEntries);
     }
 }
