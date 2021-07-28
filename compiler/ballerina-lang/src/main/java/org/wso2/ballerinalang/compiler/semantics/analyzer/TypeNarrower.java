@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -51,7 +50,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -90,40 +88,6 @@ public class TypeNarrower extends BLangNodeVisitor {
             typeNarrower = new TypeNarrower(context);
         }
         return typeNarrower;
-    }
-
-    /**
-     * Add type-narrowed symbols of the parent environments to the the given environment.
-     * Searching for narrowed typed symbol stops when traversal meets the enclosing invokable.
-     *
-     * @param env The environment to which the all upper env type-narrowed symbols are added.
-     */
-    public void addHigherEnvTypeNarrowedSymbols(SymbolEnv env) {
-
-        Set<Name> varNames = new HashSet<>();
-        env.scope.entries.forEach((key, value) -> varNames.add(key));
-
-        SymbolEnv parent = env.enclEnv;
-
-        while (env.enclInvokable != parent.node) {
-            // Filter out already narrowed symbols if any
-            parent.scope.entries.entrySet().stream().filter(entry -> !varNames.contains(entry.getKey()))
-                    .map(Map.Entry::getValue).forEach(scopeEntry -> {
-                while (scopeEntry != Scope.NOT_FOUND_ENTRY) {
-                    BSymbol symbol = scopeEntry.symbol;
-                    if (symbol.kind == SymbolKind.VARIABLE) {
-                        BVarSymbol varSymbol = (BVarSymbol) symbol;
-                        // Define only the narrowed symbols which were in higher environments.
-                        if (varSymbol != getOriginalVarSymbol(varSymbol)) {
-                            symbolEnter.defineTypeNarrowedSymbol(scopeEntry.symbol.pos, env,
-                                    getOriginalVarSymbol(varSymbol), varSymbol.type, varSymbol.origin == VIRTUAL);
-                        }
-                    }
-                    scopeEntry = scopeEntry.next;
-                }
-            });
-            parent = parent.enclEnv;
-        }
     }
 
     /**
