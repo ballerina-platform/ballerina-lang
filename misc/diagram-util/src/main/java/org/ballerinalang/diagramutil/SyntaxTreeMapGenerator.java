@@ -180,7 +180,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
                 RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
                 Optional<Symbol> expressionSymbol = this.semanticModel.symbol(remoteMethodCallActionNode.expression());
-                if (expressionSymbol.isPresent()) {
+                if (expressionSymbol.isPresent() && expressionSymbol.get() instanceof VariableSymbol) {
                     VariableSymbol variableSymbol = (VariableSymbol) expressionSymbol.get();
                     markVisibleEp(variableSymbol, symbolJson, remoteMethodCallActionNode.expression(), true);
                 }
