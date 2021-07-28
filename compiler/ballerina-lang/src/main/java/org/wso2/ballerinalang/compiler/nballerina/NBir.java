@@ -122,6 +122,7 @@ class InternalSymbol extends Symbol {
 class FunctionCode {
     public ArrayList<BasicBlock> blocks = new ArrayList<>();
     public Map<String, Register> registers = new LinkedHashMap<>();
+    public LoopContext loopContext;
 
     BasicBlock createBasicBlock() {
         BasicBlock bb = new BasicBlock(this.blocks.size());
@@ -153,6 +154,13 @@ class FunctionCode {
         fields.put("registers", rArr);
         return ValueCreator.createRecordValue(ModuleGen.MODBIR, "FunctionCode", fields);
     }
+}
+
+class LoopContext {
+    public BasicBlock onBreak;
+    public BasicBlock onContinue;
+    public LoopContext enclosing;
+    public boolean breakUsed = false;
 }
 
 class Register {

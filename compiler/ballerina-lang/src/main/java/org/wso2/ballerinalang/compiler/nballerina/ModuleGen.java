@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -176,12 +177,14 @@ public class ModuleGen {
             }
         } else if (stmt instanceof BLangIf) {
             BLangIf ifStmt = (BLangIf) stmt;
-            OpBlockHolder branch = codeGenExpr(ifStmt.expr, code, startBlock);
+            OpBlockHolder branch = codeGenExpr(ifStmt.getCondition(), code, startBlock);
             BasicBlock ifBlock = code.createBasicBlock();
-            BasicBlock ifContBlock = null, contBlock;
+            BasicBlock ifContBlock, contBlock;
+            BasicBlock curBlock = ifBlock;
             for (BLangStatement st : ifStmt.getBody().getStatements()) {
-                ifContBlock = codeGenStmt(st, code, ifBlock);
+                curBlock = codeGenStmt(st, code, curBlock);
             }
+            ifContBlock = curBlock;
             if (ifStmt.elseStmt == null) {
                 contBlock = code.createBasicBlock();
                 branch.nextBlock.insns.add(new CondBranchInsn(branch.operand.register, ifBlock.label, contBlock.label));
@@ -190,6 +193,41 @@ public class ModuleGen {
                 }
                 return contBlock;
             }
+        } else if (stmt instanceof BLangWhile) {
+            BLangWhile whileStmt = (BLangWhile) stmt;
+            BasicBlock loopHead = code.createBasicBlock();
+            BasicBlock exit = code.createBasicBlock();
+            BranchInsn branchLoopHead = new BranchInsn(loopHead.label);
+            startBlock.insns.add(branchLoopHead);
+            OpBlockHolder conditionOpb = codeGenExpr(whileStmt.expr, code, loopHead);
+            LoopContext lc = new LoopContext();
+            lc.onBreak = exit;
+            lc.onContinue = loopHead;
+            lc.enclosing = code.loopContext;
+            code.loopContext = lc;
+            boolean exitReachable;
+            if (conditionOpb.operand.isReg) {
+                BasicBlock afterCondition = code.createBasicBlock();
+                conditionOpb.nextBlock.insns.add(new CondBranchInsn(conditionOpb.operand.register,
+                        exit.label, afterCondition.label));
+                conditionOpb.nextBlock = afterCondition;
+                exitReachable = true;
+            } else {
+                exitReachable = false;
+            }
+            BasicBlock curBlock = conditionOpb.nextBlock;
+            for (BLangStatement st : whileStmt.body.getStatements()) {
+                curBlock = codeGenStmt(st, code, curBlock);
+            }
+            BasicBlock loopEnd = curBlock;
+            if (code.loopContext.breakUsed) {
+                exitReachable = true;
+            }
+            code.loopContext = code.loopContext.enclosing;
+            if (loopEnd != null) {
+                loopEnd.insns.add(branchLoopHead);
+            }
+            return exitReachable? exit : null;
         }
 
         throw new BallerinaException("Statement not recognized");
@@ -274,6 +312,8 @@ public class ModuleGen {
             ListConstructInsn ins = new ListConstructInsn(reg, operands);
             nextBlock.insns.add(ins);
             return new OpBlockHolder(result, nextBlock);
+        } else if (expr instanceof BLangGroupExpr) {
+            return codeGenExpr(((BLangGroupExpr) expr).expression, code, bb);
         }
         return null;
     }
