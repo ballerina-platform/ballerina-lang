@@ -25,9 +25,11 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
@@ -40,6 +42,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.StringValue;
+import io.ballerina.runtime.internal.values.TypedescValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
@@ -216,6 +220,31 @@ public class DebuggerRuntime {
         BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue(PredefinedTypes.TYPE_ERROR_DETAIL,
                 errorDetailEntries.toArray(errorDetailEntries.toArray(new BMapInitialValueEntry[0])));
         return ErrorCreator.createError(bErrorType, (StringValue) message, (ErrorValue) cause, errorDetailsMap);
+    }
+
+    /**
+     * Returns the annotation value with the given name, w.r.t. a given typedesc value.
+     *
+     * @param typedescValue  typedesc value
+     * @param annotationName name of the annotation
+     * @return annotation value with the given name
+     */
+    public static Object getAnnotationValue(Object typedescValue, String annotationName) {
+        if (!(typedescValue instanceof TypedescValue)) {
+            return ErrorCreator.createError(StringUtils.fromString("Incompatible types: expected 'typedesc`, found '"
+                    + typedescValue.toString() + "'."));
+        }
+        Type type = ((TypedescValue) typedescValue).getDescribingType();
+        if (type instanceof AnnotatableType) {
+            return ((AnnotatableType) type).getAnnotations().entrySet()
+                    .stream()
+                    .filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName))
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElse(null);
+        }
+        return ErrorCreator.createError(StringUtils.fromString("type: '" + type.toString() + "' does not support " +
+                "annotation access."));
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {

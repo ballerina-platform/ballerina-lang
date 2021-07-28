@@ -41,6 +41,10 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
         this.annotations = annotations;
     }
 
+    public BMap<BString, Object> getAnnotations() {
+        return this.annotations;
+    }
+
     public Object getAnnotation(BString key) {
         return this.annotations.get(key);
     }
