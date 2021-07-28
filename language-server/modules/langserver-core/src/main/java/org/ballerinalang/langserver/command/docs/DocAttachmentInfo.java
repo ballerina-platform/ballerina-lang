@@ -120,7 +120,7 @@ public class DocAttachmentInfo implements Documentation {
         StringBuilder result = new StringBuilder();
         String[] descriptionLines = this.description.trim().split("(\r)?\n");
         for (String descriptionLine : descriptionLines) {
-            result.append(String.format("# %s%n", descriptionLine.trim()));
+            result.append(String.format("%s# %s%n", padding, descriptionLine.trim()));
         }
 
         if (!parameters.isEmpty()) {
