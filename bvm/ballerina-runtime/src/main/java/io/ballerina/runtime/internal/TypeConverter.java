@@ -476,10 +476,7 @@ public class TypeConverter {
         int targetTypeSize = targetTypes.size();
         Type targetRestType = targetType.getRestType();
 
-        if (sourceTypeSize < targetTypeSize) {
-            return false;
-        }
-        if (targetRestType == null && sourceTypeSize > targetTypeSize) {
+        if (sourceTypeSize < targetTypeSize || (targetRestType == null && sourceTypeSize > targetTypeSize)) {
             return false;
         }
 
@@ -500,9 +497,13 @@ public class TypeConverter {
     private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
                                                         List<TypeValuePair> unresolvedValues) {
         Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, unresolvedValues);
-        if (convertibleTypes.isEmpty()) {
+        if (convertibleTypes.isEmpty() || !isConvertible(convertibleTypes, sourceElement)) {
             return false;
         }
+        return true;
+    }
+
+    private static boolean isConvertible(Set<Type> convertibleTypes, Object sourceElement) {
         if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(sourceElement))
                 && !hasIntegerSubTypes(convertibleTypes)) {
             return false;
