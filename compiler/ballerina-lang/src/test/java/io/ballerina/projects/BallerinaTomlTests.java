@@ -279,7 +279,7 @@ public class BallerinaTomlTests {
                                                              BAL_TOML_REPO.resolve("dependencies-non-array.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().errors().iterator().next().message(),
-                            "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+                            "incompatible type for key 'package': expected 'ARRAY', found 'OBJECT'");
     }
 
     @Test(dataProvider = "semverVersions", dataProviderClass = SemverDataProvider.class)
