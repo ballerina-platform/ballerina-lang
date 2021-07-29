@@ -1,6 +1,6 @@
 {
-  "line": 8,
-  "character": 16,
+  "line": 3,
+  "character": 9,
   "expected": [
     {
       "title": "Update documentation",
@@ -13,12 +13,12 @@
             "key": "node.range",
             "value": {
               "start": {
-                "line": 2,
-                "character": 4
+                "line": 1,
+                "character": 0
               },
               "end": {
-                "line": 9,
-                "character": 5
+                "line": 5,
+                "character": 1
               }
             }
           }
