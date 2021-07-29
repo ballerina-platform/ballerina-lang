@@ -2755,7 +2755,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private VariableDefinitionNode createBLangVarDef(Location location,
-                                                TypedBindingPatternNode typedBindingPattern,
+                                                 TypedBindingPatternNode typedBindingPattern,
                                                 Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer,
                                                 Optional<Token> finalKeyword) {
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();

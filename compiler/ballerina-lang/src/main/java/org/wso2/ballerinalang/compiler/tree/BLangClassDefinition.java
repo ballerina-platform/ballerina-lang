@@ -30,6 +30,8 @@ import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -56,11 +58,13 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public List<BLangAnnotationAttachment> annAttachments;
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public List<BLangSimpleVariable> referencedFields;
+    public List<BLangSimpleVarRef.BLangLocalVarRef> localVarRefs;
     public int precedence;
     public boolean isServiceDecl;
 
     public OCEDynamicEnvironmentData oceEnvData = null;
     public boolean isObjectContructorDecl = false;
+    public BObjectType objectType = null;
 
     public BLangClassDefinition() {
         this.functions = new ArrayList<>();

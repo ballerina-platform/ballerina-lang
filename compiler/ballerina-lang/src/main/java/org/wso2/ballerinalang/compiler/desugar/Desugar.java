@@ -1045,7 +1045,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-
         classDefinition.annAttachments.forEach(attachment ->  rewrite(attachment, env));
 
         // Merge the fields defined within the object and the fields that
@@ -1065,7 +1064,7 @@ public class Desugar extends BLangNodeVisitor {
             if (field.expr != null && field.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
                 if (varRef.symbol.closure) {
-//                    visit((BLangSimpleVarRef) field.expr);
+                    visit((BLangSimpleVarRef) field.expr);
 //                    field.expr = (BLangExpression) result;
                     continue;
                 }
@@ -1096,11 +1095,13 @@ public class Desugar extends BLangNodeVisitor {
 
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
         // gets defined before its first use.
+        SymbolEnv env = classDefinition.isObjectContructorDecl ?
+                classDefinition.oceEnvData.capturedClosureEnv : this.env;
         for (BLangFunction fn : classDefinition.functions) {
-            rewrite(fn, this.env);
+            rewrite(fn, env);
         }
-        rewrite(classDefinition.generatedInitFunction, this.env);
-        rewrite(classDefinition.initFunction, this.env);
+        rewrite(classDefinition.generatedInitFunction, env);
+        rewrite(classDefinition.initFunction, env);
 
         result = classDefinition;
 
@@ -6430,6 +6431,9 @@ public class Desugar extends BLangNodeVisitor {
             invocation.expr = ASTBuilderUtil.createVariableRef(invocation.pos, invocation.exprSymbol);
             invocation.expr = rewriteExpr(invocation.expr);
         }
+
+
+
         switch (invocation.expr.getBType().tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
@@ -6447,6 +6451,13 @@ public class Desugar extends BLangNodeVisitor {
                 break;
         }
 
+        if (invocation.expr.getBType().tag == TypeTags.OBJECT) {
+            BObjectType initializingObject = (BObjectType) invocation.expr.getBType();
+            if (Symbols.isFlagOn(invocation.expr.getBType().flags, Flags.OBJECT_CTOR)) {
+                initializingObject.classDef.oceEnvData.attachedFunctionInvocation =
+                        (BLangAttachedFunctionInvocation) result;
+            }
+        }
         fixTypeCastInTypeParamInvocation(invocation, invRef);
     }
 

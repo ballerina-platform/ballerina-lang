@@ -28,7 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -177,7 +176,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private static final String BLOCK_MAP_SYM_NAME = "$map$block$" + UNDERSCORE;
     private static final String FUNCTION_MAP_SYM_NAME = "$map$func$" + UNDERSCORE;
-    private static final String OBJECT_CTOR_MAP_SYM_NAME = "$map$objectCtor$" + UNDERSCORE;
+    private static final String OBJECT_CTOR_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE;
     private static final String PARAMETER_MAP_NAME = "$paramMap$" + UNDERSCORE;
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
@@ -222,18 +221,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
                     && ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.LAMBDA)) {
                 continue;
             }
-            if ((pkgLevelNode.getKind() == NodeKind.CLASS_DEFN && ((BLangClassDefinition) pkgLevelNode).isObjectContructorDecl)) {
-                continue;
+            if (isObjectConstructorRelated(pkgLevelNode)) {
+//                continue;
             }
             rewrite((BLangNode) pkgLevelNode, pkgEnv);
         }
 
-        for (BLangClassDefinition classDef : pkgNode.classDefinitions) {
-            if (classDef.isObjectContructorDecl) {
-                updateClassClosureMap(classDef);
-            }
-        }
-        
         // Reverse the lambdas since in Desugar they are visited from inner to outer lambdas.
         List<BLangLambdaFunction> lambdasCollected = new ArrayList<>(pkgNode.lambdaFunctions);
         Collections.reverse(lambdasCollected);
@@ -241,6 +234,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
             lambdaFunction.function = rewrite(lambdaFunction.function, lambdaFunction.capturedClosureEnv);
+        }
+
+        for (BLangClassDefinition classDef : pkgNode.classDefinitions) {
+            if (classDef.isObjectContructorDecl) {
+                updateClassClosureMap(classDef);
+            }
         }
 
         // Update function parameters.
@@ -255,61 +254,88 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-    private BLangAssignment createClosureMapUpdateExpression(BLangClassDefinition classDef) {
-        var function = classDef.generatedInitFunction;
-        var oceEnvData = classDef.oceEnvData;
-        var selfSymbol = function.receiver.symbol;
+    private boolean isObjectConstructorRelated(TopLevelNode pkgLevelNode) {
+
+        if ((pkgLevelNode.getKind() == NodeKind.CLASS_DEFN &&
+                ((BLangClassDefinition) pkgLevelNode).isObjectContructorDecl)) {
+            return true;
+        }
+        if (pkgLevelNode.getKind() == NodeKind.FUNCTION &&
+                ((BLangFunction) pkgLevelNode).flagSet.contains(Flag.OBJECT_CTOR)) {
+            return false;
+        }
+        return false;
+    }
+
+    private void createClosureMapUpdateExpression(BLangClassDefinition classDef) {
+
+        OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
+        BVarSymbol oceMap = oceEnvData.mapSymbol;
+
+        // block map has block level closure variables
         BVarSymbol blockMap = getMapSymbol(oceEnvData.capturedClosureEnv.enclEnv.node);
         if (blockMap == CLOSURE_MAP_NOT_FOUND || blockMap == null) {
-            return null;
+            return;
         }
-        var classMap = oceEnvData.mapSymbol;
+
+        SymbolEnv env = oceEnvData.capturedClosureEnv;
+        BLangFunction enclInvokable = (BLangFunction) env.enclInvokable;
+        oceEnvData.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
+        oceEnvData.enclMapSymbols = collectClosureMapSymbols(env, enclInvokable, false);
+
+        System.out.println("283 -- ");
+        System.out.println(oceEnvData.paramMapSymbolsOfEnclInvokable);
+        System.out.println(oceEnvData.enclMapSymbols);
+        System.out.println(oceEnvData.closureVarSymbols);
+
+        BLangFunction function = classDef.generatedInitFunction;
+//        function.paramClosureMap = oceEnvData.mapSymbol;
+
+        // self
+        BVarSymbol selfSymbol = function.receiver.symbol;
         BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
+        // $map$block$_2
         BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, blockMap);
 
+        // $map$objectCtor
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(classDef.pos, oceEnvData.mapSymbol.name.value,
                 oceEnvData.mapSymbol.type, null, oceEnvData.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(oceEnvData.mapSymbol.type);
 
-        // self.$map$objectCtor$_4
+        System.out.println("C:289 : " + mapVar);
+
+        // self.$map$objectCtor
         BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, mapVar.name);
         fieldAccess.symbol = mapVar.symbol;
         fieldAccess.setBType(mapVar.getBType());
         fieldAccess.isStoreOnCreation = true;
         fieldAccess.isLValue = true;
+        System.out.println("C:297 : " + fieldAccess);
 
+        // self.$map$objectCtor = $map$block$_2
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignmentStmt.expr = refToBlockClosureMap;
         assignmentStmt.pos = function.pos;
         assignmentStmt.setVariable(fieldAccess);
 
-        return assignmentStmt; // self.$map$objectCtor$_4 = $map$block$_2
-    }
-
-    private void updateClassClosureMap(BLangClassDefinition classDef) {
-        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
-        var env = oceData.capturedClosureEnv;
-        BVarSymbol blockMap = getMapSymbol(oceData.capturedClosureEnv.enclEnv.node);
-        if (blockMap == CLOSURE_MAP_NOT_FOUND || blockMap == null) {
-            return;
-        }
-        // eg : $map$block$_<num2>
-        BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, blockMap);
-
-        // eg: $map$objectCtor$_<num1> - TODO : make both numbers same for easy debugging (not needed for feature)
-        oceData.mapSymbol = createMapSymbol(OBJECT_CTOR_MAP_SYM_NAME + blockClosureMapCount,
-                oceData.capturedClosureEnv);
+        System.out.println("C:305 : " + assignmentStmt);
 
         BLangFunction generatedInitFunction = classDef.generatedInitFunction;
         BLangBlockFunctionBody generatedInitFnBody = (BLangBlockFunctionBody) generatedInitFunction.body;
 
-        // self.$map$objectCtor$_<num1> = $map$block$_<num2>
-        BLangAssignment assignment = createClosureMapUpdateExpression(classDef);
-
         // self[$map$objectCtor$_<num1>] = $map$block$_<num2>
-        desugar.rewrite(assignment, env);
-        generatedInitFnBody.stmts.add(0, assignment);
 
+        generatedInitFnBody.stmts.add(0, assignmentStmt);
+
+        desugar.rewrite(assignmentStmt, env);
+        System.out.println("C:315 : " + assignmentStmt);
+    }
+
+    private void addBlockClosureMapToInit(BVarSymbol blockMap, BLangClassDefinition classDef) {
+
+        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+        // eg : $map$block$_<num2>
+        BLangSimpleVarRef refToBlockClosureMap = ASTBuilderUtil.createVariableRef(classDef.pos, blockMap);
         BLangTypeInit typeInit = oceData.typeInit;
         BLangInvocation function = typeInit.initInvocation;
         if (typeInit.argsExpr == null) {
@@ -321,71 +347,97 @@ public class ClosureDesugar extends BLangNodeVisitor {
         function.requiredArgs.add(refToBlockClosureMap);
         function.argExprs.add(refToBlockClosureMap);
 
+        /// may be we can instead update paramClosureMap
         visit(typeInit);
+    }
 
-        BLangLiteral stringLit = new BLangLiteral(oceData.mapSymbol.name.value, symTable.stringType);
-        stringLit.pos = classDef.pos;
+    private void updateClassClosureMap(BLangClassDefinition classDef) {
 
-        var selfSymbol = classDef.generatedInitFunction.receiver.symbol;
-        var initPos = classDef.generatedInitFunction.pos;
-        Map<BSymbol, BLangStatement> initFuncStmts = classDef.generatedInitFunction.initFunctionStmts;
-
-        BLangSimpleVarRef classClosureMapVarRef = ASTBuilderUtil.createVariableRef(initPos, oceData.mapSymbol);
-
-        for (BLangSimpleVariable field : classDef.fields) {
-            if (field.expr == null) {
-                continue;
-            }
-            if (field.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                continue;
-            }
-            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
-            if (!varRef.symbol.closure) {
-                continue;
-            }
-
-            BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
-            BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, field.name);
-            fieldAccess.symbol = field.symbol;
-            fieldAccess.setBType(field.getBType());
-            fieldAccess.isStoreOnCreation = true;
-
-            BLangIndexBasedAccess accessExpr =
-                    ASTBuilderUtil.createIndexBasesAccessExpr(field.pos, field.getBType(), oceData.mapSymbol,
-                            ASTBuilderUtil
-                                    .createLiteral(field.pos, symTable.stringType,
-                                            field.name.value));
-            BLangIndexBasedAccess accessExpr2 =
-                    ASTBuilderUtil.createIndexBasesAccessExpr(field.pos, field.getBType(),
-                            classDef.generatedInitFunction.receiver.symbol,
-                            ASTBuilderUtil
-                                    .createLiteral(field.pos, symTable.stringType,
-                                            field.name.value));
-            accessExpr.setBType(((BMapType) oceData.mapSymbol.type).constraint);
-            accessExpr.isLValue = true;
-
-            BLangIndexBasedAccess accessExprForInit =
-                    ASTBuilderUtil.createIndexBasesAccessExpr(field.pos, field.getBType(), blockMap,
-                            ASTBuilderUtil
-                                    .createLiteral(varRef.pos, symTable.stringType,
-                                            varRef.symbol.name.value));
-            accessExprForInit.isLValue = false;
-
-//            var assignFromPassedMapToInternalMap = ASTBuilderUtil.createAssignmentStmt(field.pos, accessExpr,
-//                    accessExprForInit);
-            var assignFromPassedMapToInternalMap = ASTBuilderUtil.createAssignmentStmt(field.pos, accessExpr,
-                    classClosureMapVarRef);
-            SymbolEnv initFuncEnv = SymbolEnv.createFunctionEnv(classDef.generatedInitFunction, 
-                    classDef.generatedInitFunction.symbol.scope, env);
-            initFuncStmts.put(field.symbol, assignFromPassedMapToInternalMap);
-            generatedInitFnBody.stmts.add(0, assignFromPassedMapToInternalMap);
-
-            desugar.rewrite(assignFromPassedMapToInternalMap, initFuncEnv);
-            System.out.println(assignFromPassedMapToInternalMap);
+        OCEDynamicEnvironmentData oceData = classDef.oceEnvData;
+        SymbolEnv env = oceData.capturedClosureEnv;
+        BVarSymbol blockMap = getMapSymbol(env.enclEnv.node);
+        if (blockMap == CLOSURE_MAP_NOT_FOUND || blockMap == null) {
+            return;
         }
 
+        // eg: $map$objectCtor$_<num1>
+        oceData.mapSymbol = createMapSymbolIfAbsent(classDef, blockClosureMapCount);
+
+        BLangFunction generatedInitFunction = classDef.generatedInitFunction;
+//        BLangBlockFunctionBody generatedInitFnBody = (BLangBlockFunctionBody) generatedInitFunction.body;
+
+        // self.$map$objectCtor = $map$block$_<num2>
+        // self[$map$objectCtor] = $map$block$_<num2>
+        BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(classDef.pos, oceData.mapSymbol.name.value,
+                oceData.mapSymbol.type, null, oceData.mapSymbol);
+//        BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(classDef.pos, mapVar);
+        classDef.fields.add(0, mapVar);
+        createClosureMapUpdateExpression(classDef);
+
+        // new AnonCLass($map$block$_<num2>)
+        addBlockClosureMapToInit(blockMap, classDef);
+
+//        BLangLiteral stringLit = new BLangLiteral(oceData.mapSymbol.name.value, symTable.stringType);
+//        stringLit.pos = classDef.pos;
+//
+//        var selfSymbol = classDef.generatedInitFunction.receiver.symbol;
+//        var initPos = classDef.generatedInitFunction.pos;
+//        Map<BSymbol, BLangStatement> initFuncStmts = classDef.generatedInitFunction.initFunctionStmts;
+//
+//        int i = 1;
+//        for (BLangSimpleVariable field : classDef.fields) {
+//            if (field.expr == null) {
+//                continue;
+//            }
+//            if (field.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+//                continue;
+//            }
+//            BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
+//            if (!varRef.symbol.closure) {
+//                continue;
+//            }
+//
+//            // self.x
+//            BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(classDef.pos, selfSymbol);
+//            BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, field.name);
+//            fieldAccess.symbol = field.symbol;
+//            fieldAccess.setBType(field.getBType());
+//            fieldAccess.isStoreOnCreation = true;
+//
+//            // $map$objectCtor$_<num>[x]
+//            BLangIndexBasedAccess accessExpr =
+//                    ASTBuilderUtil.createIndexBasesAccessExpr(field.pos, field.getBType(), oceData.mapSymbol,
+//                            ASTBuilderUtil
+//                                    .createLiteral(field.pos, symTable.stringType,
+//                                            varRef.symbol.name));
+//            accessExpr.setBType(((BMapType) oceData.mapSymbol.type).constraint);
+//
+////            accessExpr.isLValue = true;
+//            // self[x]
+//            BLangIndexBasedAccess accessExpr2 =
+//                    ASTBuilderUtil.createIndexBasesAccessExpr(field.pos, field.getBType(),
+//                            classDef.generatedInitFunction.receiver.symbol,
+//                            ASTBuilderUtil
+//                                    .createLiteral(field.pos, symTable.stringType,
+//                                            field.name.value));
+//            accessExpr2.setBType(((BMapType) oceData.mapSymbol.type).constraint);
+//            accessExpr2.isLValue = true;
+//
+//            var assignFromPassedMapToInternalMap = ASTBuilderUtil.createAssignmentStmt(field.pos, accessExpr2,
+//                    accessExpr);
+//
+//            SymbolEnv initFuncEnv = SymbolEnv.createFunctionEnv(classDef.generatedInitFunction,
+//                    classDef.generatedInitFunction.symbol.scope, env);
+//            initFuncStmts.put(field.symbol, assignFromPassedMapToInternalMap);
+//            generatedInitFnBody.stmts.add(i, assignFromPassedMapToInternalMap);
+//
+//            desugar.rewrite(assignFromPassedMapToInternalMap, initFuncEnv);
+//            System.out.println(assignFromPassedMapToInternalMap);
+//            i = i + 1;
+//        }
+//
         desugar.rewrite(classDef.generatedInitFunction, oceData.capturedClosureEnv);
-        rewrite(classDef, oceData.capturedClosureEnv);
+        rewrite(classDef, env);
     }
 
     private BLangAssignment createStructFieldUpdate(BLangFunction function, BLangSimpleVariable variable,
@@ -728,28 +780,36 @@ public class ClosureDesugar extends BLangNodeVisitor {
             result = classDefinition;
             return;
         }
+
         OCEDynamicEnvironmentData oceData = classDefinition.oceEnvData;
-        BLangFunction enclInvokable = (BLangFunction) oceData.capturedClosureEnv.enclInvokable;
-//        BVarSymbol mapSymbol = createMapSymbolIfAbsent(classDefinition, blockClosureMapCount);
         BVarSymbol mapSymbol = oceData.mapSymbol;
         if (mapSymbol == null) {
-            desugar.visit(classDefinition);
+            // This cannot happen.
             result = classDefinition;
             return;
         }
 
-        var env = oceData.capturedClosureEnv;
+        // method we create the object constructor expression
+        BLangFunction enclInvokable = (BLangFunction) oceData.capturedClosureEnv.enclInvokable;
+
+        // this is the dynamic environment for object ctor.
+        SymbolEnv env = oceData.capturedClosureEnv;
+
+        // collect all map symbols from this env
         oceData.enclMapSymbols = collectClosureMapSymbols(oceData.capturedClosureEnv, enclInvokable, false);
 
         // update init method
-        // int x  = i ==> self[x] = i; ==> self[x] = self[$map$objectCtor$_4[x]]
-
+        // int x = i
+        // self[x] = i --- this is the usual way
+        // self[x] = self[$map$objectCtor$_4[x]]
         var initFunction = classDefinition.generatedInitFunction;
 
         // add each closure field info to class level map
-         for (BLangSimpleVariable field : classDefinition.fields) {
-             BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
-             if (varRef != null && varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        for (BLangSimpleVariable field : classDefinition.fields) {
+
+            // field has a default value which is a simple var ref
+            if (field.expr != null && field.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
                 if (varRef.symbol.closure) {
                     BLangIndexBasedAccess fieldMapAccessExpr =
                             ASTBuilderUtil.createIndexBasesAccessExpr(field.pos, field.getBType(), mapSymbol,
@@ -765,7 +825,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
         }
 
-        rewrite(initFunction.body, env);
+//        rewrite(initFunction.body, env);
 
         //BInvokableSymbol dupFuncSymbol = ASTBuilderUtil.duplicateInvokableSymbol(initFunction.symbol);
 //        BInvokableSymbol dupFuncSymbol = initFunction.symbol;
@@ -781,7 +841,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 //        }
         //rewrite(initFunction.body, env);
         // propagate to attached methods
-//        desugar.visit(classDefinition);
+
+        desugar.visit(classDefinition.generatedInitFunction);
         result = classDefinition;
     }
 
@@ -1071,11 +1132,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-//        List<BLangExpression> exprList = new ArrayList<>(tableMultiKeyExpr.multiKeyIndexExprs.size());
-//        tableMultiKeyExpr.multiKeyIndexExprs.forEach(expression -> exprList.add(rewriteExpr(expression)));
-//        tableMultiKeyExpr.multiKeyIndexExprs = exprList;
-        // TODO: check
-        rewriteExprs(tableMultiKeyExpr.multiKeyIndexExprs);
+
+        List<BLangExpression> exprList = new ArrayList<>();
+        tableMultiKeyExpr.multiKeyIndexExprs.forEach(expression -> exprList.add(rewriteExpr(expression)));
+        tableMultiKeyExpr.multiKeyIndexExprs = exprList;
         result = tableMultiKeyExpr;
     }
 
@@ -1149,6 +1209,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+
         SymbolEnv symbolEnv = env.createClone();
         bLangLambdaFunction.capturedClosureEnv = symbolEnv;
         BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
@@ -1156,6 +1217,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
         bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
         boolean isWorker = bLangLambdaFunction.function.flagSet.contains(Flag.WORKER);
         bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(symbolEnv, enclInvokable, isWorker);
+
+        System.out.println("1208 START -- ");
+        System.out.println("bLangLambdaFunction : " + bLangLambdaFunction);
+        System.out.println("paramMapSymbolsOfEnclInvokable : " + bLangLambdaFunction.paramMapSymbolsOfEnclInvokable);
+        System.out.println("enclMapSymbols : " + bLangLambdaFunction.enclMapSymbols);
+        System.out.println("1208 END -- ");
+
         result = bLangLambdaFunction;
     }
 
@@ -1280,7 +1348,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             result = localVarRef;
             return;
         }
-
+        System.out.println("####### localVarRef : " + localVarRef);
         // If it is marked as a closure variable then the following calculations are carried out.
         // 1) Find the resolved level i.e. the absolute level : level the variable was resolved from.
         int absoluteLevel = findResolvedLevel(env, (BVarSymbol) localVarRef.varSymbol);
@@ -1318,16 +1386,24 @@ public class ClosureDesugar extends BLangNodeVisitor {
         } else {
             // It is resolved from a parameter map.
             // Add parameter map symbol if one is not added.
-            ((BLangFunction) env.enclInvokable).paramClosureMap.putIfAbsent(absoluteLevel, createMapSymbol(
+            BLangFunction invokableFunc = (BLangFunction) env.enclInvokable;
+            invokableFunc.paramClosureMap.putIfAbsent(absoluteLevel, createMapSymbol(
                     PARAMETER_MAP_NAME + absoluteLevel, env));
 
+            if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR) && invokableFunc.flagSet.contains(Flag.ATTACHED)) {
+                // a + b ==> a + $map$objectCtor_4[i]
+                BLangClassDefinition classDef = (BLangClassDefinition) invokableFunc.parent;
+                updateClosureVarsForAttachedObjects(classDef, localVarRef);
+            }
             // Update the closure vars.
             updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
-
         }
 
         // 3) Add the resolved level of the closure variable to the preceding function maps.
         updatePrecedingFunc(env, absoluteLevel);
+
+        System.out.println("1386 : localVarRef : " + localVarRef);
+        System.out.println("1386 : paramClosureMap : " + ((BLangFunction) env.enclInvokable).paramClosureMap);
     }
 
     @Override
@@ -1383,6 +1459,30 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
             // If the node is a function, update it accordingly.
             BLangFunction bLangFunction = (BLangFunction) symbolEnv.node;
+            if (bLangFunction.flagSet.contains(Flag.OBJECT_CTOR) && bLangFunction.flagSet.contains(Flag.ATTACHED)) {
+                BLangClassDefinition classDef = (BLangClassDefinition) bLangFunction.parent;
+
+                BLangFunction function = classDef.generatedInitFunction;
+                BVarSymbol selfSymbol = function.receiver.symbol;
+                OCEDynamicEnvironmentData oceEnvData = classDef.oceEnvData;
+                BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
+                BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(classDef.pos, oceEnvData.mapSymbol.name.value,
+                        oceEnvData.mapSymbol.type, null, oceEnvData.mapSymbol);
+                mapVar.typeNode = ASTBuilderUtil.createTypeNode(oceEnvData.mapSymbol.type);
+                // self.$map$objectCtor
+                BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, mapVar.name);
+                fieldAccess.symbol = mapVar.symbol;
+                fieldAccess.setBType(mapVar.getBType());
+
+                BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+                assignmentStmt.expr = fieldAccess;
+                assignmentStmt.pos = function.pos;
+                assignmentStmt.setVariable(fieldAccess);
+
+                BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(function.pos, mapVar);
+                ((BLangBlockFunctionBody) bLangFunction.body).stmts.add(0, mapVarDef);
+                ((BLangBlockFunctionBody) bLangFunction.body).stmts.add(1, assignmentStmt);
+            }
             if (symbolEnv.enclInvokable == env.enclInvokable) {
                 symbolEnv = symbolEnv.enclEnv;
                 continue;
@@ -1417,12 +1517,41 @@ public class ClosureDesugar extends BLangNodeVisitor {
      */
     private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
         // Create the index based access expression.
+        System.out.println("\n>>>>> START updateClosureVars ###########");
+        System.out.println("1477 : " + varRefExpr);
         BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
                 varRefExpr.varSymbol.name.value);
         BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos,
-                                                                                     varRefExpr.getBType(),
-                                                                                     mapSymbol, indexExpr);
+                varRefExpr.getBType(),
+                mapSymbol, indexExpr);
+
         result = rewriteExpr(accessExpr);
+        System.out.println("1487 accessExpr : " + accessExpr);
+        System.out.println("<<<<< END updateClosureVars ###########\n");
+    }
+
+    /**
+     * Update the closure maps with the relevant map access expression.
+     *
+     * @param varRefExpr closure variable reference to be updated
+     * @param classDef OCE class definition
+     */
+    private void updateClosureVarsForAttachedObjects(BLangClassDefinition classDef, BLangSimpleVarRef varRefExpr) {
+        System.out.println("\n>>>>> START updateClosureVars ###########");
+        BVarSymbol mapSymbol = createMapSymbolIfAbsent(classDef, blockClosureMapCount);
+
+        BLangLiteral indexExpr = ASTBuilderUtil.createLiteral(varRefExpr.pos, symTable.stringType,
+                varRefExpr.varSymbol.name.value);
+        BLangIndexBasedAccess accessExpr = ASTBuilderUtil.createIndexBasesAccessExpr(varRefExpr.pos,
+                varRefExpr.getBType(),
+                mapSymbol, indexExpr);
+
+//        BLangFunction function = classDef.generatedInitFunction;
+//        BVarSymbol selfSymbol = function.receiver.symbol;
+//        BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(function.pos, selfSymbol);
+        result = rewriteExpr(accessExpr);
+        System.out.println("1487 accessExpr : " + accessExpr);
+        System.out.println("<<<<< END updateClosureVars ###########\n");
     }
 
     @Override

@@ -3199,7 +3199,9 @@ public class TypeChecker extends BLangNodeVisitor {
         BObjectType actualObjectType = (BObjectType) actualType;
         List<BLangType> typeRefs = classNode.typeRefs;
         SymbolEnv typeDefEnv = SymbolEnv.createObjectConstructorObjectEnv(classNode, classNode.symbol.scope, env);
-        classNode.oceEnvData = new OCEDynamicEnvironmentData(typeDefEnv, objectCtorExpression.typeInit);
+//        classNode.oceEnvData = new OCEDynamicEnvironmentData(typeDefEnv, objectCtorExpression.typeInit);
+        classNode.oceEnvData.typeInit = objectCtorExpression.typeInit;
+        classNode.oceEnvData.capturedClosureEnv = typeDefEnv;
         if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
             handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, false);
         } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).getBType().flags,
@@ -5705,17 +5707,19 @@ public class TypeChecker extends BLangNodeVisitor {
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             }
         }
-        // TODO: refactor into parent child without looping
+
         BLangNode node = env.node;
         SymbolEnv cEnv = env;
         while (node != null && node.getKind() != NodeKind.FUNCTION) {
             if (node.getKind() == NodeKind.CLASS_DEFN &&
                     ((BLangClassDefinition) node).isObjectContructorDecl) {
+                BLangClassDefinition classDef = (BLangClassDefinition) node;
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     resolvedSymbol.closure = true;
+                    classDef.oceEnvData.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
                     ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
                 }
                 break;
