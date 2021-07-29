@@ -19,7 +19,7 @@
 package io.ballerina.shell.cli.jline;
 
 import io.ballerina.shell.cli.PropertiesLoader;
-import io.ballerina.shell.cli.handlers.help.BbeHelpProvider;
+import io.ballerina.shell.cli.handlers.help.BbeCompletionProvider;
 import io.ballerina.shell.cli.utils.FileUtils;
 import org.jline.builtins.Completers;
 import org.jline.reader.Candidate;
@@ -46,15 +46,16 @@ import static io.ballerina.shell.cli.PropertiesLoader.KEYWORDS_FILE;
  * @since 2.0.0
  */
 public class JlineSimpleCompleter implements Completer {
-    private final StringsCompleter topicsCompleter;
     private final StringsCompleter topicsOptionCompleter;
     private final StringsCompleter commandsCompleter;
     private final StringsCompleter keywordsCompleter;
     private final Completers.FileNameCompleter fileNameCompleter;
+    private final StringsCompleter topicsCompleter;
 
     public JlineSimpleCompleter() {
-        BbeHelpProvider bbeHelpProvider = new BbeHelpProvider();
-        List<String> topicsKeywords = bbeHelpProvider.getCommandList();
+
+        BbeCompletionProvider bbeHelpProvider = new BbeCompletionProvider();
+        List<String> topicsKeywords = bbeHelpProvider.getTopicList();
         List<String> commandsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(COMMANDS_FILE));
         List<String> codeKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(KEYWORDS_FILE));
         this.topicsCompleter = new StringsCompleter(topicsKeywords);
