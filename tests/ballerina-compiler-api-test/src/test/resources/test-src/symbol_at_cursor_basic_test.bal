@@ -119,3 +119,5 @@ public const CONST1 = 12;
 function func1(string a, int b) returns function (int,function (int, int) r)  {
 
 }
+
+function exprBodyScope(string myStr) returns string => myStr

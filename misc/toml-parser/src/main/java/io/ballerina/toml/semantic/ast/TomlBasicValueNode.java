@@ -45,4 +45,9 @@ public abstract class TomlBasicValueNode<T> extends TomlValueNode {
     public String toString() {
         return String.valueOf(value);
     }
+
+    @Override
+    public T toNativeValue() {
+        return value;
+    }
 }

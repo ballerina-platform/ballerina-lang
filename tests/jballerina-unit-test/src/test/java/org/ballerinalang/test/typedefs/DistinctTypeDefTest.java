@@ -40,6 +40,12 @@ public class DistinctTypeDefTest {
 
     @Test
     public void testDistinctTypeNegative() {
+        BAssertUtil.validateError(neg, 0,
+                "distinct typing is only supported for object type and error type", 22, 1);
+        BAssertUtil.validateError(neg, 1,
+                "distinct typing is only supported for object type and error type", 23, 1);
+        BAssertUtil.validateError(neg, 2,
+                "distinct typing is only supported for object type and error type", 24, 1);
         int i  = 0;
         BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 6, 26);
         BAssertUtil.validateError(neg, i++, "distinct typing is only supported for object type and error type", 7, 22);

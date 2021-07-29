@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -325,6 +326,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private int workerSystemMovementSequence;
 
+    private DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
+
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
         if (codeGenerator == null) {
@@ -342,7 +345,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
     }
 
     private void resetFunction() {
@@ -423,7 +426,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
         for (BLangSimpleVariable field : classDefinition.fields) {
+            DefaultValueState prevDefaultValueState = this.defaultValueState;
+            this.defaultValueState = DefaultValueState.OBJECT_FIELD_INITIALIZER;
             analyzeNode(field, objectEnv);
+            this.defaultValueState = prevDefaultValueState;
         }
 
         List<BLangFunction> bLangFunctionList = new ArrayList<>(classDefinition.functions);
@@ -543,7 +549,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
+
+            DefaultValueState prevDefaultValueState = this.defaultValueState;
+            if (this.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                    this.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+                this.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
+            }
             analyzeNode(funcNode.body, invokableEnv);
+            this.defaultValueState = prevDefaultValueState;
 
             boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
                     funcNode.symbol.type.getReturnType().isNullable();
@@ -3671,7 +3684,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangArrowFunction bLangArrowFunction) {
 
+        DefaultValueState prevDefaultValueState = this.defaultValueState;
+        if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            this.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
+        }
         analyzeExpr(bLangArrowFunction.body.expr);
+        this.defaultValueState = prevDefaultValueState;
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
@@ -3693,7 +3712,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         for (BLangSimpleVariable field : recordTypeNode.fields) {
+            DefaultValueState prevDefaultValueState = this.defaultValueState;
+            this.defaultValueState = DefaultValueState.RECORD_FIELD_DEFAULT;
             analyzeNode(field, recordEnv);
+            this.defaultValueState = prevDefaultValueState;
         }
     }
 
@@ -3834,7 +3856,43 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType exprType = env.enclInvokable.getReturnTypeNode().getBType();
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+
+        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
+        if (equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty()) {
+            if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
+                dlog.error(checkedExpr.pos,
+                           DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
+                return;
+            }
+
+            if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+                BAttachedFunction initializerFunc =
+                        ((BObjectTypeSymbol) env.node.getBType().tsymbol).initializerFunc;
+
+                if (initializerFunc == null) {
+                    dlog.error(checkedExpr.pos,
+                            DiagnosticErrorCode
+                                    .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
+                    return;
+                }
+
+                BType exprErrorTypes = getErrorTypes(checkedExpr.expr.getBType());
+                BType initMethodReturnType = initializerFunc.type.retType;
+                if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
+                    dlog.error(checkedExpr.pos, DiagnosticErrorCode
+                            .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
+                            initMethodReturnType, exprErrorTypes);
+                }
+                return;
+            }
+        }
+
+        if (enclInvokable == null) {
+            return;
+        }
+
+        BType exprType = enclInvokable.getReturnTypeNode().getBType();
 
         if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.getBType()), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
@@ -4621,5 +4679,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             return value;
         }
+    }
+
+    private enum DefaultValueState {
+        NOT_IN_DEFAULT_VALUE,
+        RECORD_FIELD_DEFAULT,
+        OBJECT_FIELD_INITIALIZER,
+        FUNCTION_IN_DEFAULT_VALUE
     }
 }

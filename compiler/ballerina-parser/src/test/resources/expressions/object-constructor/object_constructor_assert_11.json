@@ -179,52 +179,18 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_INVALID_TOKEN",
-                    "ERROR_INVALID_TOKEN"
-                  ],
-                  "value": "rc",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                        "children": [
-                          {
-                            "kind": "OPEN_BRACE_TOKEN"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    },
-                    {
-                      "kind": "INVALID_NODE_MINUTIAE",
-                      "invalidNode": {
-                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                        "children": [
-                          {
-                            "kind": "CLOSE_BRACE_TOKEN"
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
+                    "ERROR_MISSING_IDENTIFIER"
                   ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
                   ]
                 }
               ]
@@ -233,10 +199,25 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "trailingMinutiae": [
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_INVALID_TOKEN"
+          ],
+          "leadingMinutiae": [
             {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "OPEN_BRACE_TOKEN"
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
             }
           ]
         }

@@ -8,6 +8,21 @@ intStringVar=12345
 anydataArray = ["hello", 1, 2, 3.4, false]
 number="three"
 
+[configUnionTypes.recordUnionVar]
+name = "Manu"
+age = 12
+
+[[configUnionTypes.tableUnionVar]]
+name = "Nadeeshan"
+age = 11
+
+[[configUnionTypes.tableUnionVar]]
+name = "Gabilan"
+
+[[configUnionTypes.tableUnionVar]]
+name = "Hinduja"
+age = 15
+
 [configUnionTypes.httpResponse]
 httpVersion = "HTTP_2"
 [configUnionTypes.country]

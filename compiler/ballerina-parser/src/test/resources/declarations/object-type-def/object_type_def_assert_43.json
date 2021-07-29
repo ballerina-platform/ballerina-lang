@@ -561,32 +561,10 @@
                                     },
                                     {
                                       "kind": "SEMICOLON_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_INVALID_TOKEN"
-                                      ],
-                                      "leadingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        },
-                                        {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "CLOSE_BRACE_TOKEN"
-                                              }
-                                            ]
-                                          }
-                                        }
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
+                                        "ERROR_MISSING_SEMICOLON_TOKEN"
                                       ]
                                     }
                                   ]
@@ -594,7 +572,13 @@
                               ]
                             },
                             {
-                              "kind": "CLOSE_BRACE_TOKEN"
+                              "kind": "CLOSE_BRACE_TOKEN",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -620,21 +604,17 @@
                   ]
                 },
                 {
-                  "kind": "CLOSE_BRACE_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                  ]
+                  "kind": "CLOSE_BRACE_TOKEN"
                 }
               ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true,
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_SEMICOLON_TOKEN"
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
               ]
             }
           ]

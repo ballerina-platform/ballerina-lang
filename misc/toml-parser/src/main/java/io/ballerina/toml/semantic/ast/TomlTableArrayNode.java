@@ -25,6 +25,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -91,5 +92,14 @@ public class TomlTableArrayNode extends TopLevelNode {
             return true;
         }
         return tableArrayNode.identifier().isMissing();
+    }
+
+    @Override
+    public List<Map<String, Object>> toNativeObject() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (TomlTableNode child : children) {
+            list.add(child.toNativeObject());
+        }
+        return list;
     }
 }

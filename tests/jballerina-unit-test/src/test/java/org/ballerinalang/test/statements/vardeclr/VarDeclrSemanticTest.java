@@ -48,9 +48,11 @@ public class VarDeclrSemanticTest {
         validateError(result, indx++, "listener variable incompatible types: 'foo' is not a Listener object", 17, 1);
         validateError(result, indx++, "incompatible types: expected '(function|error)', found '()'", 19, 13);
         validateError(result, indx++, "missing equal token", 19, 13);
-        validateError(result, indx++, "missing class keyword", 19, 16);
-        validateError(result, indx++, "missing identifier", 19, 16);
+        validateError(result, indx++, "invalid record binding pattern with type 'other'", 19, 16);
         validateError(result, indx++, "missing semicolon token", 19, 16);
+        validateError(result, indx++, "missing type descriptor", 19, 16);
+        validateError(result, indx++, "missing semicolon token", 22, 1);
+        validateError(result, indx++, "variable declaration having binding pattern must be initialized", 22, 1);
         assertEquals(result.getErrorCount(), indx);
     }
 
@@ -63,14 +65,11 @@ public class VarDeclrSemanticTest {
                       17, 1);
         validateError(result, indx++, "missing object keyword", 18, 1);
         validateError(result, indx++, "missing open brace token", 18, 1);
-        validateError(result, indx++, "missing object keyword", 19, 23);
         validateError(result, indx++, "missing semicolon token", 19, 23);
-        validateError(result, indx++, "missing close brace token", 22, 1);
+        validateError(result, indx++, "invalid token '{'", 21, 1);
         validateError(result, indx++, "missing equal token", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
-        validateError(result, indx++, "missing identifier", 22, 1);
-        validateError(result, indx++, "missing semicolon token", 22, 1);
         validateError(result, indx++, "missing semicolon token", 22, 1);
         assertEquals(result.getErrorCount(), indx);
     }

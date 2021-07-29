@@ -94,6 +94,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STInlineTableNode transform(
+            STInlineTableNode inlineTableNode) {
+        STNode openBrace = modifyNode(inlineTableNode.openBrace);
+        STNode values = modifyNode(inlineTableNode.values);
+        STNode closeBrace = modifyNode(inlineTableNode.closeBrace);
+        return inlineTableNode.modify(
+                openBrace,
+                values,
+                closeBrace);
+    }
+
+    @Override
     public STStringLiteralNode transform(
             STStringLiteralNode stringLiteralNode) {
         STNode startDoubleQuote = modifyNode(stringLiteralNode.startDoubleQuote);
@@ -173,7 +185,26 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     // Misc
 
     public STNode transform(STNodeList nodeList) {
-        return transformSyntaxNode(nodeList);
+        if (nodeList.isEmpty()) {
+            return nodeList;
+        }
+
+        boolean nodeModified = false;
+        STNode[] newSTNodes = new STNode[nodeList.size()];
+        for (int index = 0; index < nodeList.size(); index++) {
+            STNode oldNode = nodeList.get(index);
+            STNode newNode = modifyNode(oldNode);
+            if (oldNode != newNode) {
+                nodeModified = true;
+            }
+            newSTNodes[index] = newNode;
+        }
+        
+        if (!nodeModified) {
+            return nodeList;
+        }
+
+        return STNodeFactory.createNodeList(newSTNodes);
     }
 
     @Override

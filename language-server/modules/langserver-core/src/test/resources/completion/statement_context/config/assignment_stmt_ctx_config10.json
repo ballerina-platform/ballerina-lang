@@ -364,30 +364,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "S",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -496,6 +478,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "hello",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "hello",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "func()",
       "kind": "Function",
       "detail": "string",
@@ -511,38 +501,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "O",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "myInt",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "paramStr",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "AB",
-      "insertText": "paramStr",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "hello",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "AB",
-      "insertText": "hello",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "AN",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -554,19 +517,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myType",
-      "kind": "Variable",
-      "detail": "MyType",
-      "sortText": "D",
-      "insertText": "myType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "AN",
-      "insertText": "Thread",
+      "label": "MyType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "O",
+      "insertText": "MyType",
       "insertTextFormat": "Snippet"
     },
     {
@@ -589,6 +544,14 @@
       }
     },
     {
+      "label": "myInt",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "myInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "myFunction(function () returns string func, string paramStr, MyType myType)",
       "kind": "Function",
       "detail": "()",
@@ -608,11 +571,30 @@
       }
     },
     {
-      "label": "MyType",
+      "label": "myType",
+      "kind": "Variable",
+      "detail": "MyType",
+      "sortText": "D",
+      "insertText": "myType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "paramStr",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "paramStr",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
       "sortText": "O",
-      "insertText": "MyType",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

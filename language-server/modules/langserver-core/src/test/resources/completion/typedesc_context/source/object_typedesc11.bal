@@ -6,5 +6,5 @@ function testObjectTypeDefinition() {
 }
 
 type ObjectName client object {
-    remote function testName() returns
+    remote function testName() returns 
 };

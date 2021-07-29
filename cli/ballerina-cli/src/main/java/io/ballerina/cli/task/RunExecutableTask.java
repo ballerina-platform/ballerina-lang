@@ -42,6 +42,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
  * Task for running the executable.
@@ -96,6 +97,8 @@ public class RunExecutableTask implements Task {
         try {
             List<String> commands = new ArrayList<>();
             commands.add(System.getProperty("java.command"));
+            commands.add("-XX:+HeapDumpOnOutOfMemoryError");
+            commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
             // Sets classpath with executable thin jar and all dependency jar paths.
             commands.add("-cp");
             commands.add(getAllClassPaths(jarResolver));

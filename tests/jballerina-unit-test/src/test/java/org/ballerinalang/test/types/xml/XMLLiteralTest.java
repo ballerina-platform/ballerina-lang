@@ -182,6 +182,17 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(int|float|decimal|string|boolean)', found 'error'", 111, 37);
 
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:Element', found 'xml<xml<xml:Element>>'", 116, 22);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:Comment', found 'xml<xml<xml<xml:Comment>>>'", 118, 22);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:ProcessingInstruction', found 'xml<xml<xml<xml:ProcessingInstruction>>>'", 120, 36);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:Text', found 'xml'", 122, 19);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:Text', found 'xml<xml>'", 124, 19);
+
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
@@ -397,5 +408,15 @@ public class XMLLiteralTest {
         BXml xml = XmlFactory.parse("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
+    }
+
+    @Test
+    public void testXMLSequenceValueAssignment() {
+        BRunUtil.invoke(result, "testXMLSequenceValueAssignment");
+    }
+
+    @Test
+    public void testXMLTextValueAssignment() {
+        BRunUtil.invoke(result, "testXMLTextValueAssignment");
     }
 }

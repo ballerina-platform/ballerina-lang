@@ -51,8 +51,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node)
             throws LSCompletionException {
-
-
+        
         if (this.onExpressionContext(context, node)) {
             List<LSCompletionItem> completionItems = this.getExpressionContextCompletions(context);
             this.sort(context, node, completionItems);
@@ -64,10 +63,15 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         Eg:
         (1). object {
                 i<cursor>
+                table<Country> <cursor>
+            }
+        (2). public class {
+                i<cursor>
+                table<Country> <cursor>
             }
          Return from here, since the sorting will be handled by the parent.
          */
-        return CompletionUtil.route(context, node.parent());
+        return CompletionUtil.route(context, node.typeName());
     }
 
     private List<LSCompletionItem> getExpressionContextCompletions(BallerinaCompletionContext ctx) {
@@ -79,7 +83,9 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         List<LSCompletionItem> completionItems = new ArrayList<>(this.expressionCompletions(ctx));
         Optional<TypeSymbol> contextType = ctx.getContextType();
         if (contextType.isPresent() && contextType.get().kind() == SymbolKind.CLASS) {
-            completionItems.add(this.getImplicitNewCompletionItem((ClassSymbol) contextType.get(), ctx));
+            LSCompletionItem implicitNewCompletionItem =
+                    this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), ctx);
+            completionItems.add(implicitNewCompletionItem);
         }
 
         return completionItems;
