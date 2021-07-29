@@ -151,7 +151,8 @@ public class VariableFactory {
             return new BTuple(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ERROR_VALUE.getString())) {
             return new BError(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString()) || valueTypeName.contains(TYPEDESC_IDENTIFIER)) {
+        } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())
+                || valueTypeName.contains(TYPEDESC_IDENTIFIER)) {
             return new BTypeDesc(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.TABLE_VALUE.getString())) {
             return new BTable(context, varName, value);
