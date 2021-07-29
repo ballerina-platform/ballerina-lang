@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "retry|transaction",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -249,6 +249,25 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestRec2",
       "kind": "Struct",
       "detail": "Record",
@@ -262,25 +281,6 @@
       "detail": "Record",
       "sortText": "M",
       "insertText": "TestRec",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -655,14 +655,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "rec",
-      "kind": "Variable",
-      "detail": "TestRec",
-      "sortText": "B",
-      "insertText": "rec",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "main(TestRec rec)",
       "kind": "Function",
       "detail": "()",
@@ -680,6 +672,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "rec",
+      "kind": "Variable",
+      "detail": "TestRec",
+      "sortText": "B",
+      "insertText": "rec",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "worker",

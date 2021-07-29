@@ -299,23 +299,10 @@
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_INVALID_TOKEN"
-                                  ],
-                                  "value": "out",
-                                  "leadingMinutiae": [
-                                    {
-                                      "kind": "INVALID_NODE_MINUTIAE",
-                                      "invalidNode": {
-                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                        "children": [
-                                          {
-                                            "kind": "DOT_TOKEN"
-                                          }
-                                        ]
-                                      }
-                                    }
+                                    "ERROR_MISSING_IDENTIFIER"
                                   ]
                                 },
                                 {
@@ -346,7 +333,7 @@
                                       "diagnostics": [
                                         "ERROR_INVALID_TOKEN"
                                       ],
-                                      "value": "println",
+                                      "value": "out",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
@@ -365,10 +352,23 @@
                                 },
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                    "ERROR_INVALID_TOKEN"
+                                  ],
+                                  "value": "println",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "DOT_TOKEN"
+                                          }
+                                        ]
+                                      }
+                                    }
                                   ]
                                 },
                                 {

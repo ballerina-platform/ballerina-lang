@@ -103,7 +103,6 @@ public class ProjectConstants {
     public static final String DIFF_UTILS_JAR = "java-diff-utils-4.5.jar";
     public static final String REPORT_DIR_NAME = "report";
 
-    public static final String BALLERINA_OFFLINE_FLAG = "ballerina.offline.flag";
     public static final String BALA_DOCS_DIR = "docs";
     public static final String REPOSITORIES_DIR = "repositories";
     public static final String LOCAL_REPOSITORY_NAME = "local";

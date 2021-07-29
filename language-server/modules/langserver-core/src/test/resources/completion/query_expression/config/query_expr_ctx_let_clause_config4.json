@@ -313,30 +313,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -430,85 +412,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c1",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c2",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c3",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "person",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Person",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "Person",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "outputNameString",
       "kind": "Variable",
       "detail": "string",
       "sortText": "B",
       "insertText": "outputNameString",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "onConflictError",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "B",
-      "insertText": "onConflictError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testIterableOperation()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testIterableOperation",
-      "insertText": "testIterableOperation()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -536,11 +444,34 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p2",
+      "label": "onConflictError",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "B",
+      "insertText": "onConflictError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "person",
       "kind": "Variable",
       "detail": "Person",
       "sortText": "B",
-      "insertText": "p2",
+      "insertText": "person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testIterableOperation()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "testIterableOperation",
+      "insertText": "testIterableOperation()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -552,6 +483,41 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "personList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "personList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c3",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Person",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "p1",
       "kind": "Variable",
       "detail": "Person",
@@ -560,11 +526,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "personList",
+      "label": "p2",
       "kind": "Variable",
-      "detail": "Person[]",
+      "detail": "Person",
       "sortText": "B",
-      "insertText": "personList",
+      "insertText": "p2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c1",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c2",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c2",
       "insertTextFormat": "Snippet"
     },
     {

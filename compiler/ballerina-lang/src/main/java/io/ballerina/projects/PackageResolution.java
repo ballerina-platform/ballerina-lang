@@ -241,7 +241,8 @@ public class PackageResolution {
         // 1) Create ResolutionRequest instances for each direct dependency of the bala
         LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
         for (PackageDescriptor packageDescriptor : directDependenciesOfBALA) {
-            resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT));
+            resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT,
+                    rootPackageContext.project().buildOptions().offlineBuild()));
         }
 
         // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALAs
@@ -503,7 +504,8 @@ public class PackageResolution {
         }
 
         private ResolutionResponse resolvePackage(PackageDescriptor pkgDesc, PackageDependencyScope scope) {
-            ResolutionRequest resolutionRequest = ResolutionRequest.from(pkgDesc, scope);
+            ResolutionRequest resolutionRequest = ResolutionRequest
+                    .from(pkgDesc, scope, rootPkgContext.project().buildOptions().offlineBuild());
             return packageResolver.resolvePackages(
                     List.of(resolutionRequest), rootPkgContext.project()).get(0);
         }

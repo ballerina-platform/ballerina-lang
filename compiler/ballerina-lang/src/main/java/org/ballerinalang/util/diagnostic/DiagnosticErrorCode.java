@@ -217,9 +217,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE("BCE2422", "invalid.function.pointer.invocation.with.type"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("BCE2423", "type.cast.not.yet.supported.for.type"),
-    EQUALITY_NOT_YET_SUPPORTED("BCE2424", "equality.not.yet.supported.for.type"),
-    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("BCE2425", "let.expression.not.yet.supported.record.field"),
-    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("BCE2426", "let.expression.not.yet.supported.object.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("BCE2424", "let.expression.not.yet.supported.record.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("BCE2425", "let.expression.not.yet.supported.object.field"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("BCE2500", "incompatible.types.cast"),
@@ -717,7 +716,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "unimplemented.referenced.method.in.service.declaration"),
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4006", "unimplemented.referenced.method.in.object.constructor"),
     UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4007", "unsupported.remote.method.name.in.scope"),
-    WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY("BCE4008", "wild.card.binding.pattern.only.supports.type.any")
+    WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY("BCE4008", "wild.card.binding.pattern.only.supports.type.any"),
+    CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY("BCE4009", "configurable.variable.module.ambiguity"),
+
+    INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION("BCE4010",
+            "invalid.usage.of.check.in.record.field.default.expression"),
+    INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD("BCE4011",
+            "invalid.usage.of.check.in.object.field.initializer.in.object.with.no.init.method"),
+    INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH("BCE4012",
+            "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch")
     ;
 
     private String diagnosticId;

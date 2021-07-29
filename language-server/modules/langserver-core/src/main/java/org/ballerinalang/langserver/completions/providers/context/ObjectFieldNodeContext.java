@@ -51,8 +51,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node)
             throws LSCompletionException {
-
-
+        
         if (this.onExpressionContext(context, node)) {
             List<LSCompletionItem> completionItems = this.getExpressionContextCompletions(context);
             this.sort(context, node, completionItems);
@@ -63,6 +62,10 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         If the cursor is at the following position, we route to the parent since it is a common and ideal place.
         Eg:
         (1). object {
+                i<cursor>
+                table<Country> <cursor>
+            }
+        (2). public class {
                 i<cursor>
                 table<Country> <cursor>
             }
@@ -80,7 +83,9 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         List<LSCompletionItem> completionItems = new ArrayList<>(this.expressionCompletions(ctx));
         Optional<TypeSymbol> contextType = ctx.getContextType();
         if (contextType.isPresent() && contextType.get().kind() == SymbolKind.CLASS) {
-            completionItems.add(this.getImplicitNewCompletionItem((ClassSymbol) contextType.get(), ctx));
+            LSCompletionItem implicitNewCompletionItem =
+                    this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), ctx);
+            completionItems.add(implicitNewCompletionItem);
         }
 
         return completionItems;

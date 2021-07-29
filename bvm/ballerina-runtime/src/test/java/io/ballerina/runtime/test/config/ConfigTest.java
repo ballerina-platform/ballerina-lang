@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
+import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
@@ -58,7 +59,7 @@ public class ConfigTest {
     private static final Type[] COLOR_ENUM_MEMBERS = new Type[]{
             new BFiniteType("Colors", Set.of(StringUtils.fromString("RED")), 0),
             new BFiniteType("Colors", Set.of(StringUtils.fromString("GREEN")), 0)};
-    private static final Type COLOR_ENUM_UNION = new BUnionType(COLOR_ENUM_MEMBERS, COLOR_ENUM_MEMBERS, 0, false,
+    public static final Type COLOR_ENUM_UNION = new BUnionType(COLOR_ENUM_MEMBERS, COLOR_ENUM_MEMBERS, 0, false,
                                                                SymbolFlags.ENUM);
     public static final Type COLOR_ENUM = new BIntersectionType(module, new Type[]{}, COLOR_ENUM_UNION, 0, true);
     private final Set<Module> moduleSet = Set.of(module);
@@ -72,10 +73,10 @@ public class ConfigTest {
         configVarMap.put(module, keys);
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                                                            Arrays.asList(configProvider));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-        Assert.assertTrue(expectedJClass.isInstance(configValueMap.get(key)),
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Assert.assertTrue(expectedJClass.isInstance(configValueMap.get(key).getValue()),
                 "Invalid value provided for variable : " + key.variable);
-        Assert.assertEquals(configValueMap.get(key), expectedValue);
+        Assert.assertEquals(configValueMap.get(key).getValue(), expectedValue);
     }
 
     @DataProvider(name = "simple-type-values-data-provider")
@@ -136,10 +137,6 @@ public class ConfigTest {
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 13579L,
                         new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579")},
-                // Enum value given with toml
-                {new VariableKey(module, "color", COLOR_ENUM,
-                                 true), BString.class, StringUtils.fromString("RED"),
-                        new TomlFileProvider(ROOT_MODULE, getConfigPath("EnumTypeConfig.toml"), moduleSet)},
                 // Enum value given with cli
                 {new VariableKey(module, "color", COLOR_ENUM,
                                  true), BString.class, StringUtils.fromString("GREEN"),

@@ -8,11 +8,11 @@
 
 {{#varDclns}}
     {{#isAny }}
-        {{{prefix}}} {{{type}}} {{{name}}} = // value
+        {{{prefix}}} {{{typeLHS}}} {{{name}}} = // value
         <{{{type}}}> __recall_any("");
     {{/isAny}}
     {{^isAny }}
-        {{{prefix}}} {{{type}}} {{{name}}} = // value
+        {{{prefix}}} {{{typeLHS}}} {{{name}}} = // value
         <{{{type}}}> __recall_any_error("");
     {{/isAny}}
 {{/varDclns}}

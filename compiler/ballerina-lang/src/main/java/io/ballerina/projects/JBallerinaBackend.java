@@ -155,16 +155,20 @@ public class JBallerinaBackend extends CompilerBackend {
         diagnostics.addAll(this.packageContext.getResolution().diagnosticResult().allDiagnostics);
         // add ballerina toml diagnostics
         diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
-        // add compilation diagnostics
+        // collect compilation diagnostics
+        List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             // We can't generate backend code when one of its dependencies have errors.
-            if (hasNoErrors(diagnostics)) {
+            if (hasNoErrors(moduleDiagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                moduleDiagnostics.add(
+                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
+        // add compilation diagnostics
+        diagnostics.addAll(moduleDiagnostics);
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
 

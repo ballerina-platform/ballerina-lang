@@ -877,8 +877,15 @@ public class Desugar extends BLangNodeVisitor {
         String configVarName = configurableVar.name.getValue();
         BLangLiteral configNameLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, configVarName);
+        BType type = configurableVar.getBType();
+        BType typedescType = new BTypedescType(type, symTable.typeDesc.tsymbol);
 
-        return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral));
+        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+        typedescExpr.resolvedType = type;
+        typedescExpr.setBType(typedescType);
+
+        return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral,
+                typedescExpr));
     }
 
     private List<BLangVariable> desugarGlobalVariables(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
@@ -9124,7 +9131,7 @@ public class Desugar extends BLangNodeVisitor {
             if (opSymbol == symTable.notFoundSymbol) {
                 opSymbol = symResolver
                         .getBinaryEqualityForTypeSets(OperatorKind.EQUAL, symTable.anydataType, expression.getBType(),
-                                                      binaryExpr);
+                                                      binaryExpr, env);
             }
             binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
         }
@@ -9770,16 +9777,23 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction createInitFunctionForClassDefn(BLangClassDefinition classDefinition, SymbolEnv env) {
+        BType returnType = symTable.nilType;
+        BLangFunction userDefinedInitMethod = classDefinition.initFunction;
+
+        if (userDefinedInitMethod != null) {
+            returnType = userDefinedInitMethod.getBType().getReturnType();
+        }
+
         BLangFunction initFunction =
                 TypeDefBuilderHelper.createInitFunctionForStructureType(classDefinition.pos, classDefinition.symbol,
                                                                         env, names, Names.GENERATED_INIT_SUFFIX,
-                                                                        symTable, classDefinition.getBType());
+                                                                        classDefinition.getBType(), returnType);
         BObjectTypeSymbol typeSymbol = ((BObjectTypeSymbol) classDefinition.getBType().tsymbol);
         typeSymbol.generatedInitializerFunc = new BAttachedFunction(Names.GENERATED_INIT_SUFFIX, initFunction.symbol,
                                                                     (BInvokableType) initFunction.getBType(),
                                                                     classDefinition.pos);
         classDefinition.generatedInitFunction = initFunction;
-        initFunction.returnTypeNode.setBType(symTable.nilType);
+        initFunction.returnTypeNode.setBType(returnType);
         return rewrite(initFunction, env);
     }
 

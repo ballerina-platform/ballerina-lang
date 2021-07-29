@@ -73,7 +73,7 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testConditionalWithMissingColon() {
-        test("a ? (b)  c", "conditional-expr/conditional_expr_assert_10.json");
+        testFile("conditional-expr/conditional_expr_source_10.bal", "conditional-expr/conditional_expr_assert_10.json");
     }
 
     @Test

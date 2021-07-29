@@ -230,6 +230,16 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testToStringOnSubTypes() {
+        BRunUtil.invoke(compileResult, "testToStringOnSubTypes");
+    }
+
+    @Test
+    public void testToStringOnFiniteTypes() {
+        BRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
+    }
+
+    @Test
     public void testXMLToStringWithXMLTextContainingAngleBrackets() {
         BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
     }
@@ -323,6 +333,10 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
                 { "testCloneWithTypeNumeric7" },
+                { "testCloneWithTypeToArrayOfRecord" },
+                { "testCloneWithTypeToArrayOfMap" },
+                { "testCloneWithTypeIntArrayToUnionArray" },
+                { "testCloneWithTypeIntSubTypeArray" },
                 { "testCloneWithTypeStringArray" },
                 { "testCloneWithTypeWithInferredArgument" },
                 { "testCloneWithTypeWithImmutableTypes" },
@@ -330,7 +344,15 @@ public class LangLibValueTest {
                 {"testCloneWithTypeDecimalToIntNegative"},
                 { "testCloneWithTypeDecimalToByte"},
                 { "testCloneWithTypeDecimalToIntSubType"},
+                { "testCloneWithTypeTupleToJSON"},
                 { "testCloneWithTypeImmutableStructuredTypes"},
+                {"testCloneWithTypeWithFiniteArrayTypeFromIntArray"},
+                { "testCloneWithTypeWithFiniteType" },
+                { "testCloneWithTypeWithUnionOfFiniteType" },
+                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
+                { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
+                { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
+                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
         };
     }
 

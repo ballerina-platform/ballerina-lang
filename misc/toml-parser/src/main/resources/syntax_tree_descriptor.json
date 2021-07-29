@@ -134,6 +134,26 @@
             ]
         },
         {
+            "name": "InlineTableNode",
+            "base": "ValueNode",
+            "kind": "INLINE_TABLE",
+            "attributes": [
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "values",
+                    "type": "KeyValueNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "StringLiteralNode",
             "base": "ValueNode",
             "kind": "STRING_LITERAL",

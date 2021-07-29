@@ -30,6 +30,7 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
@@ -66,7 +67,7 @@ public class EvaluationUtils {
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
-    public static final String B_DEBUGGER_HELPER_UTILS_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
+    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
     public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
@@ -79,6 +80,7 @@ public class EvaluationUtils {
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
     public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
+    public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
@@ -122,9 +124,12 @@ public class EvaluationUtils {
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";
     public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
+    public static final String CREATE_ARRAY_TYPE_METHOD = "createArrayType";
     public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
     public static final String CREATE_XML_ITEM = "createXmlItem";
     public static final String CREATE_XML_VALUE_METHOD = "createXmlValue";
+    public static final String CREATE_OBJECT_VALUE_METHOD = "createObjectValue";
+    public static final String CREATE_ERROR_VALUE_METHOD = "createErrorValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
@@ -134,6 +139,7 @@ public class EvaluationUtils {
     public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
     public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
     public static final String CREATE_INT_RANGE_METHOD = "createIntRange";
+    public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
@@ -210,8 +216,8 @@ public class EvaluationUtils {
         try {
             ClassType classType = (ClassType) evaluationContext.getAttachedVm().classesByName(JAVA_LANG_CLASS).get(0);
             if (classType == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "jvm " +
-                        "class instance for the function invocation couldn't be loaded due to an internal error."));
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
+                        methodName));
             }
             Method forNameMethod = null;
             List<Method> methods = classType.methodsByName(FOR_NAME_METHOD);
@@ -221,8 +227,8 @@ public class EvaluationUtils {
                 }
             }
             if (forNameMethod == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "jvm " +
-                        "class instance for the function invocation couldn't be loaded due to an internal error."));
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
+                        methodName));
             }
 
             // Do not use unmodifiable lists because the list will be modified by JPDA.
@@ -234,8 +240,8 @@ public class EvaluationUtils {
                     forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
             return ((ClassObjectReference) classReference).reflectedType();
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load required classes to execute the function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
+                    methodName));
         }
     }
 
@@ -346,6 +352,45 @@ public class EvaluationUtils {
             default:
                 return variable.getJvmValue();
         }
+    }
+
+    /**
+     * Check whether a given value belongs to the given type.
+     *
+     * @param sourceVal  value to check the type
+     * @param targetType type to be test against
+     * @return true if the value belongs to the given type, false otherwise
+     */
+    public static boolean checkIsType(SuspendedContext context, Value sourceVal, Value targetType)
+            throws EvaluationException {
+        List<String> methodArgTypeNames = new ArrayList<>();
+        methodArgTypeNames.add(JAVA_OBJECT_CLASS);
+        methodArgTypeNames.add(B_TYPE_CLASS);
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, CHECK_IS_TYPE_METHOD,
+                methodArgTypeNames);
+
+        List<Value> methodArgs = new ArrayList<>();
+        methodArgs.add(getValueAsObject(context, sourceVal));
+        methodArgs.add(targetType);
+        method.setArgValues(methodArgs);
+        return Boolean.parseBoolean(new BExpressionValue(context, method.invokeSafely()).getStringValue());
+    }
+
+    /**
+     * Creates a "BUnionType" instance by combining all member types.
+     *
+     * @param resolvedTypes member types
+     * @return a 'BUnionType' instance by combining all its member types
+     */
+    public static Value getUnionTypeFrom(SuspendedContext context, List<Value> resolvedTypes)
+            throws EvaluationException {
+        List<String> methodArgTypeNames = new ArrayList<>();
+        methodArgTypeNames.add(B_TYPE_ARRAY_CLASS);
+        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS, CREATE_UNION_TYPE_METHOD,
+                methodArgTypeNames);
+        List<Value> methodArgs = new ArrayList<>(resolvedTypes);
+        method.setArgValues(methodArgs);
+        return method.invokeSafely();
     }
 
     /**
