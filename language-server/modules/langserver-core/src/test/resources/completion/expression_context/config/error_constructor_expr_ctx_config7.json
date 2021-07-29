@@ -313,30 +313,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -430,6 +412,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
@@ -443,6 +433,29 @@
       "detail": "Error",
       "sortText": "L",
       "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main1()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "main1",
+      "insertText": "main1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "err",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "B",
+      "insertText": "err",
       "insertTextFormat": "Snippet"
     },
     {
@@ -469,37 +482,6 @@
       "sortText": "C",
       "filterText": "getStringVal",
       "insertText": "getStringVal()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "main1()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "main1",
-      "insertText": "main1()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "err",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "B",
-      "insertText": "err",
       "insertTextFormat": "Snippet"
     },
     {

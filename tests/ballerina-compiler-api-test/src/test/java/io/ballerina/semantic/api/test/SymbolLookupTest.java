@@ -191,7 +191,7 @@ public class SymbolLookupTest {
 
     @DataProvider(name = "PositionProvider4")
     public Object[][] getPositionsForExprs() {
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "test");
+        List<String> moduleLevelSymbols = asList("aString", "anInt", "test", "exprBodyScope");
         return new Object[][]{
                 {20, 12, getSymbolNames(moduleLevelSymbols, "b")},
                 {20, 16, getSymbolNames(moduleLevelSymbols, "b")},
@@ -200,6 +200,7 @@ public class SymbolLookupTest {
                 {20, 42, getSymbolNames(moduleLevelSymbols, "b", "x", "z")},
                 {22, 50, getSymbolNames(moduleLevelSymbols, "b", "strTemp")},
                 {24, 53, getSymbolNames(moduleLevelSymbols, "b", "strTemp", "rawTemp")},
+                {27, 56, getSymbolNames(moduleLevelSymbols, "myStr")},
         };
     }
 

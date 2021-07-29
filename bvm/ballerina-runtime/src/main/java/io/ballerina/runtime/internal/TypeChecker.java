@@ -63,6 +63,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlSequence;
@@ -1050,6 +1051,18 @@ public class TypeChecker {
 
                 if (!recordType.sealed) {
                     return checkIsJSONType(recordType.restFieldType, unresolvedTypes);
+                }
+                return true;
+            case TypeTags.TUPLE_TAG:
+                BTupleType sourceTupleType = (BTupleType) sourceType;
+                for (Type memberType : sourceTupleType.getTupleTypes()) {
+                    if (!checkIsJSONType(memberType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                Type tupleRestType = sourceTupleType.getRestType();
+                if (tupleRestType != null) {
+                    return checkIsJSONType(tupleRestType, unresolvedTypes);
                 }
                 return true;
             case TypeTags.UNION_TAG:
@@ -2464,6 +2477,13 @@ public class TypeChecker {
                 }
             }
             return true;
+        } else if (sourceType.getTag() == TypeTags.TUPLE_TAG) {
+            for (Object obj : ((TupleValueImpl) sourceValue).getValues()) {
+                if (!checkIsLikeType(obj, targetType, unresolvedValues, allowNumericConversion)) {
+                    return false;
+                }
+            }
+            return true;
         }
         return false;
     }
@@ -2685,7 +2705,8 @@ public class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.XML_PI_TAG:
-                return XmlFactory.isEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+                return TypeTags.isXMLTypeTag(rhsValTypeTag) && XmlFactory.isEqual((XmlValue) lhsValue,
+                        (XmlValue) rhsValue);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:

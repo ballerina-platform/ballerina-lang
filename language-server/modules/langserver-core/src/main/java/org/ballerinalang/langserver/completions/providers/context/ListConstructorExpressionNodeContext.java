@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -25,9 +26,11 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link ListConstructorExpressionNode} context.
@@ -54,7 +57,34 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ListConstructorExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem lsCItem : completionItems) {
+            Optional<TypeSymbol> contextType = context.getContextType();
+            String sortText;
+            if (contextType.isEmpty()) {
+                // Added for safety.
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem, 2));
+            } else if (!SortingUtil.isTypeCompletionItem(lsCItem)) {
+                /*
+                Here the sort text is three-fold.
+                First we will assign the highest priority (Symbols over the others such as keywords),
+                then we sort with the resolved type,
+                Then we again append the sorting among the symbols (ex: functions over variable).
+                 */
+                sortText = SortingUtil.genSortText(1)
+                        + SortingUtil.genSortTextByAssignability(lsCItem, contextType.get())
+                        + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+            } else {
+                sortText = SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+            }
+
+            lsCItem.getCompletionItem().setSortText(sortText);
+        }
     }
 }

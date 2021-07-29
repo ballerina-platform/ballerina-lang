@@ -377,6 +377,14 @@ function testFutureCastPositive() returns boolean {
     return s1 === s2;
 }
 
+function testFutureWithoutFutureConstraintCastPositive() {
+    future f1 = start getNewEmployee();
+    any a = f1;
+    future<anydata> f2 = <future<anydata>> a;
+    anydata|error b = wait f2;
+    test:assertEquals(checkpanic b, {"name": "John","id": 15634});
+}
+
 function testFutureCastNegative() {
     future<int> s1 = start testFutureFunc();
     any a = s1;
@@ -402,6 +410,11 @@ function testFutureOfFutureValueCastNegative() {
 function foo() returns future<int> {
     future<int> f = start testFutureFunc();
     return f;
+}
+
+function getNewEmployee() returns Employee {
+    Employee employee = {name: "John", id: 15634};
+    return employee;
 }
 
 function testObjectCastPositive() returns boolean {
@@ -913,6 +926,24 @@ function assertErrorForTypeCastFailure(error? res) {
     error err1 = <error> res;
     assertEquality("{ballerina}TypeCastError", err1.message());
     assertEquality("incompatible types: 'any[]' cannot be cast to 'byte[]'", err1.detail()["message"]);
+}
+
+type Baz "foo"|1;
+
+function testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
+    Baz a = 1;
+    var b = <int:Signed16|float> a;
+    assertTrue(b is int:Signed16);
+    assertTrue(b is int);
+    assertEquality(1, b);
+
+    Baz c = "foo";
+    var d = trap <int:Signed16|float> c;
+    assertTrue(d is error);
+    error e = <error> d;
+    assertEquality("{ballerina}TypeCastError", e.message());
+    assertEquality("incompatible types: 'string' cannot be cast to '(lang.int:Signed16|float)'",
+                   <string> checkpanic e.detail()["message"]);
 }
 
 // Util functions

@@ -4,7 +4,7 @@ function testFunction() {
     int[] list1 = [1, 2];
     int value2 = 20;
     
-    var test = table key<>
+    var test = table key()
 
     int value3 = 1;
 }

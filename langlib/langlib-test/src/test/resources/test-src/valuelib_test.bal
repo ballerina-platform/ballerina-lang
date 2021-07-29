@@ -517,6 +517,60 @@ type Person2 record {
     int age;
 };
 
+function testCloneWithTypeTupleToJSON() {
+    [string, string, string] tupleValue1 = ["Mohan", "single", "LK2014"];
+    json|error jsonValue = tupleValue1.cloneWithType();
+
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, string, xml] tupleValue2 = ["Mohan", "single"];
+    jsonValue = tupleValue2.cloneWithType();
+    assert(jsonValue is error, true);
+    error err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,string,xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>]' value cannot be converted to 'json'");
+
+    [string, xml|int] tupleValue3 = ["text1", 1];
+    jsonValue = tupleValue3.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, anydata...] tupleValue4 = [""];
+    jsonValue = tupleValue4.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, int|xml...] tupleValue5 = ["text"];
+    jsonValue = tupleValue5.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    [string, int|xml...] tupleValue6 = ["text", xml `text`, 1];
+    jsonValue = tupleValue6.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,(int|xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>)...]' value cannot be converted to 'json'");
+
+    [string, anydata...] tupleValue7 = ["", xml `text`, true];
+    jsonValue = tupleValue7.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,anydata...]' value cannot be converted to 'json'");
+
+    [string, xml|int] tupleValue8 = ["text1", xml `</elem>`];
+    jsonValue = tupleValue8.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
+         "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
+}
+
 function testCloneWithTypeJsonRec1() {
     Person2  p = {name: "N", age: 3};
     json|error ss = p.cloneWithType(json);
@@ -1719,14 +1773,14 @@ function testToStringOnCycles() {
 }
 
 function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+    if (expected == actual) {
+        return;
     }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(reason);
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
@@ -2045,4 +2099,47 @@ function foo(*KeyVals kvPairs) returns string {
 public function testDestructuredNamedArgs() returns any {
    string actual =  foo(message = "This is a sample message", a = "foo", b = "bar", c = 100);
    assertEquality("{\"message\":\"This is a sample message\",\"a\":\"foo\",\"b\":\"bar\",\"c\":100}", actual);
+}
+
+type Ints 12|21;
+type Strings "a"|"bc";
+type True true;
+type Boolean false|true;
+type Combo 1|2f|"abc"|false|true;
+
+function testToStringOnSubTypes() {
+    int a = 12;
+    byte b = 12;
+    int:Signed8 c = 12;
+
+    string s1 = a.toString();
+    string s2 = b.toString();
+    string s3 = c.toString();
+
+    assertEquality("12", s1);
+    assertEquality(s1, s2);
+    assertEquality(s1, s3);
+
+    string:Char e = "x";
+    assertEquality("x", e.toString());
+}
+
+function testToStringOnFiniteTypes() {
+    Ints d = 21;
+    assertEquality("21", d.toString());
+
+    Strings f = "bc";
+    assertEquality("bc", f.toString());
+
+    Ints|Strings g = 21;
+    assertEquality("21", g.toString());
+
+    True h = true;
+    assertEquality("true", h.toString());
+
+    Boolean i = false;
+    assertEquality("false", i.toString());
+
+    Combo j = 2.0;
+    assertEquality("2.0", j.toString());
 }

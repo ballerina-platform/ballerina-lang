@@ -85,7 +85,7 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testExternalFuncDefWithParenthesis() {
-        test("func-definition/func_def_source_09.bal", "func-definition/func_def_assert_09.json");
+        testFile("func-definition/func_def_source_09.bal", "func-definition/func_def_assert_09.json");
     }
 
     @Test
@@ -120,7 +120,7 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testFuncDefWithOnlyFunctionKeyword() {
-        test("func-definition/func_def_source_16.bal", "func-definition/func_def_assert_16.json");
+        testFile("func-definition/func_def_source_16.bal", "func-definition/func_def_assert_16.json");
     }
 
     @Test

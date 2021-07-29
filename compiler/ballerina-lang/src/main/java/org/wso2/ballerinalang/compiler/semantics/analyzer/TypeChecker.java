@@ -230,8 +230,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private static Set<String> listLengthModifierFunctions = new HashSet<>();
     private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
 
-    private static final String TABLE_TNAME = "table";
-
     private static final String LIST_LANG_LIB = "lang.array";
     private static final String MAP_LANG_LIB = "lang.map";
     private static final String TABLE_LANG_LIB = "lang.table";
@@ -3431,7 +3429,6 @@ public class TypeChecker extends BLangNodeVisitor {
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
         retTypeMembers.addAll(types.getAllTypes(streamType.completionType));
-        retTypeMembers.add(symTable.nilType);
 
         BUnionType unionType = BUnionType.create(null);
         unionType.addAll(retTypeMembers);
@@ -4066,12 +4063,16 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getBinaryBitwiseOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
                         opSymbol = symResolver.getArithmeticOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
                         opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
-                                binaryExpr);
+                                binaryExpr, env);
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
@@ -4082,12 +4083,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
                                 lhsType, rhsType);
                     } else {
-                        if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
-                                (couldHoldTableValues(lhsType, new ArrayList<>()) &&
-                                        couldHoldTableValues(rhsType, new ArrayList<>()))) {
-                            dlog.error(binaryExpr.pos, DiagnosticErrorCode.EQUALITY_NOT_YET_SUPPORTED, TABLE_TNAME);
-                        }
-
                         binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                         actualType = opSymbol.type.getReturnType();
                     }
@@ -5762,6 +5757,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 names.fromString(Symbols.getAttachedFuncSymbolName(objectType.tsymbol.name.value, iExpr.name.value));
         BSymbol funcSymbol =
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
+
+        if (funcSymbol == symTable.notFoundSymbol) {
+            BSymbol invocableField = symResolver.resolveInvocableObjectField(
+                    iExpr.pos, env, names.fromIdNode(iExpr.name), (BObjectTypeSymbol) objectType.tsymbol);
+
+            if (invocableField != symTable.notFoundSymbol && invocableField.kind == SymbolKind.FUNCTION) {
+                funcSymbol = invocableField;
+                iExpr.functionPointerInvocation = true;
+            }
+        }
+
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
                 dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_METHOD_IN_OBJECT, iExpr.name.value,
@@ -5810,6 +5816,16 @@ public class TypeChecker extends BLangNodeVisitor {
         Name actionName = names.fromIdNode(aInv.name);
         BSymbol remoteFuncSymbol = symResolver
                 .lookupMemberSymbol(aInv.pos, epSymbol.type.tsymbol.scope, env, remoteMethodQName, SymTag.FUNCTION);
+
+        if (remoteFuncSymbol == symTable.notFoundSymbol) {
+            BSymbol invocableField = symResolver.resolveInvocableObjectField(
+                    aInv.pos, env, names.fromIdNode(aInv.name), (BObjectTypeSymbol) expType.tsymbol);
+
+            if (invocableField != symTable.notFoundSymbol && invocableField.kind == SymbolKind.FUNCTION) {
+                remoteFuncSymbol = invocableField;
+                aInv.functionPointerInvocation = true;
+            }
+        }
 
         if (remoteFuncSymbol == symTable.notFoundSymbol && !checkLangLibMethodInvocationExpr(aInv, expType)) {
             dlog.error(aInv.name.pos, DiagnosticErrorCode.UNDEFINED_METHOD_IN_OBJECT, aInv.name.value, expType);
@@ -6365,7 +6381,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (keyValueField) {
                     BLangRecordKeyValueField keyValField = (BLangRecordKeyValueField) field;
                     BLangRecordKey key = keyValField.key;
-                    fieldType = checkRecordLiteralKeyExpr(key.expr, key.computedKey, (BRecordType) mappingType);
+                    TypeSymbolPair typeSymbolPair = checkRecordLiteralKeyExpr(key.expr, key.computedKey,
+                                                                              (BRecordType) mappingType);
+                    fieldType = typeSymbolPair.determinedType;
+                    key.fieldSymbol = typeSymbolPair.fieldSymbol;
                     readOnlyConstructorField = keyValField.readonly;
                     pos = key.expr.pos;
                     fieldName = getKeyValueFieldName(keyValField);
@@ -6389,12 +6408,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     boolean errored = false;
                     for (BField bField : ((BRecordType) spreadExprType).fields.values()) {
                         BType specFieldType = bField.type;
-                        BType expectedFieldType = checkRecordLiteralKeyByName(spreadExpr.pos, this.env, bField.name,
+                        BSymbol fieldSymbol = symResolver.resolveStructField(spreadExpr.pos, this.env, bField.name,
+                                                                             mappingType.tsymbol);
+                        BType expectedFieldType = checkRecordLiteralKeyByName(spreadExpr.pos, fieldSymbol, bField.name,
                                                                               (BRecordType) mappingType);
                         if (expectedFieldType != symTable.semanticError &&
                                 !types.isAssignable(specFieldType, expectedFieldType)) {
                             dlog.error(spreadExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_FIELD,
-                                    expectedFieldType, bField.name, specFieldType);
+                                       expectedFieldType, bField.name, specFieldType);
                             if (!errored) {
                                 errored = true;
                             }
@@ -6403,7 +6424,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     return errored ? symTable.semanticError : symTable.noType;
                 } else {
                     BLangRecordVarNameField varNameField = (BLangRecordVarNameField) field;
-                    fieldType = checkRecordLiteralKeyExpr(varNameField, false, (BRecordType) mappingType);
+                    TypeSymbolPair typeSymbolPair = checkRecordLiteralKeyExpr(varNameField, false,
+                                                                              (BRecordType) mappingType);
+                    fieldType = typeSymbolPair.determinedType;
                     readOnlyConstructorField = varNameField.readonly;
                     pos = varNameField.pos;
                     fieldName = getVarNameFieldName(varNameField);
@@ -6494,14 +6517,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return checkExpr(exprToCheck, this.env, fieldType);
     }
 
-    private BType checkRecordLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey, BRecordType recordType) {
+    private TypeSymbolPair checkRecordLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey,
+                                                     BRecordType recordType) {
         Name fieldName;
 
         if (computedKey) {
             checkExpr(keyExpr, this.env, symTable.stringType);
 
             if (keyExpr.getBType() == symTable.semanticError) {
-                return symTable.semanticError;
+                return new TypeSymbolPair(null, symTable.semanticError);
             }
 
             LinkedHashSet<BType> fieldTypes = recordType.fields.values().stream()
@@ -6512,7 +6536,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 fieldTypes.add(recordType.restFieldType);
             }
 
-            return BUnionType.create(null, fieldTypes);
+            return new TypeSymbolPair(null, BUnionType.create(null, fieldTypes));
         } else if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) keyExpr;
             fieldName = names.fromIdNode(varRef.variableName);
@@ -6520,23 +6544,25 @@ public class TypeChecker extends BLangNodeVisitor {
             fieldName = names.fromString((String) ((BLangLiteral) keyExpr).value);
         } else {
             dlog.error(keyExpr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_KEY);
-            return symTable.semanticError;
+            return new TypeSymbolPair(null, symTable.semanticError);
         }
 
         // Check whether the struct field exists
-        return checkRecordLiteralKeyByName(keyExpr.pos, this.env, fieldName, recordType);
+        BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, this.env, fieldName, recordType.tsymbol);
+        BType type = checkRecordLiteralKeyByName(keyExpr.pos, fieldSymbol, fieldName, recordType);
+
+        return new TypeSymbolPair(fieldSymbol instanceof BVarSymbol ? (BVarSymbol) fieldSymbol : null, type);
     }
 
-    private BType checkRecordLiteralKeyByName(Location location, SymbolEnv env, Name key,
+    private BType checkRecordLiteralKeyByName(Location location, BSymbol fieldSymbol, Name key,
                                               BRecordType recordType) {
-        BSymbol fieldSymbol = symResolver.resolveStructField(location, env, key, recordType.tsymbol);
         if (fieldSymbol != symTable.notFoundSymbol) {
             return fieldSymbol.type;
         }
 
         if (recordType.sealed) {
             dlog.error(location, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE, key,
-                    recordType.tsymbol.type.getKind().typeName(), recordType);
+                       recordType.tsymbol.type.getKind().typeName(), recordType);
             return symTable.semanticError;
         }
 
@@ -8253,6 +8279,16 @@ public class TypeChecker extends BLangNodeVisitor {
             this.types = types;
             this.required = required;
             this.readonly = readonly;
+        }
+    }
+
+    private static class TypeSymbolPair {
+        private BVarSymbol fieldSymbol;
+        private BType determinedType;
+
+        public TypeSymbolPair(BVarSymbol fieldSymbol, BType determinedType) {
+            this.fieldSymbol = fieldSymbol;
+            this.determinedType = determinedType;
         }
     }
 }

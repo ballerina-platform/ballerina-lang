@@ -65,7 +65,7 @@ public class LogPointTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(2));
-        Pair<String, OutputEventArguments> outputInfo = debugTestRunner.waitForDebugOutput(1000);
+        Pair<String, OutputEventArguments> outputInfo = debugTestRunner.waitForLastDebugOutput(1000);
         Assert.assertEquals(outputInfo.getLeft(), "LogPoint: 1" + System.lineSeparator());
         Assert.assertEquals(outputInfo.getRight().getCategory(), OutputEventArgumentsCategory.STDOUT);
 
@@ -76,7 +76,7 @@ public class LogPointTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(4));
         try {
-            outputInfo = debugTestRunner.waitForDebugOutput(1000);
+            outputInfo = debugTestRunner.waitForLastDebugOutput(1000);
         } catch (BallerinaTestException e) {
             Assert.assertEquals(e.getMessage(), "Timeout expired waiting for the debugger output");
         }
@@ -85,7 +85,7 @@ public class LogPointTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(6));
-        outputInfo = debugTestRunner.waitForDebugOutput(1000);
+        outputInfo = debugTestRunner.waitForLastDebugOutput(1000);
         Assert.assertEquals(outputInfo.getLeft(), "LogPoint: 3" + System.lineSeparator());
         Assert.assertEquals(outputInfo.getRight().getCategory(), OutputEventArgumentsCategory.STDOUT);
     }

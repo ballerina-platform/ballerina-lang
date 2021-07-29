@@ -222,6 +222,11 @@ public class TypeGuardTest {
                 "string s; |} & readonly)?'", 499, 21);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(Bar & readonly)' does not support " +
                 "field access for non-required field 'baz'", 500, 50);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g', found 'r|g|b'", 512, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '1', found '1|2'", 518, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '2|3', found '1|2'", 524, 18);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r', found 'r|g|b'", 530, 18);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g|x', found 'r|g|b'", 536, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), i - 2);
         Assert.assertEquals(negativeResult.getWarnCount(), 2);
     }
@@ -678,7 +683,8 @@ public class TypeGuardTest {
                 "testRecordIntersectionWithDefaultValues",
                 "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2",
                 "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField", "testSameVarNameInDifferentScopes",
-                "testNarrowedTypeResetWithNestedTypeGuards", "testNarrowedTypeResetWithMultipleBranches"};
+                "testNarrowedTypeResetWithNestedTypeGuards", "testNarrowedTypeResetWithMultipleBranches",
+                "testIntersectionOfBuiltInSubTypeWithFiniteType"};
     }
 
     @Test
