@@ -155,8 +155,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
     MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE2117", "missing.key.expr.in.member.access.expr"),
     ARRAY_SIZE_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
-            "BCE2116", "array.size.greater.that.2147483637.not.yet.supported"),
-    INVALID_ARRAY_LENGTH("BCE2117", "invalid.array.length"),
+            "BCE2118", "array.size.greater.that.2147483637.not.yet.supported"),
+    INVALID_ARRAY_LENGTH("BCE2119", "invalid.array.length"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
