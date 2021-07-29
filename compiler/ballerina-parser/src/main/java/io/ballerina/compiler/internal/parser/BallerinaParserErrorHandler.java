@@ -5079,7 +5079,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.CALL_STMT) {
-            return ParserRuleContext.ARG_LIST;
+            return ParserRuleContext.ARG_LIST_OPEN_PAREN;
         }
         return ParserRuleContext.VARIABLE_REF_RHS;
     }
