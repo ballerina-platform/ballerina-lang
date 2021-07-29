@@ -50,7 +50,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,7 +115,7 @@ public class BallerinaDocGenerator {
                         File versionFile = moduleFile.listFiles()[0];
                         Path docJsonPath = Paths.get(versionFile.getAbsolutePath(), API_DOCS_JSON);
                         if (docJsonPath.toFile().exists()) {
-                            try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
+                            try (BufferedReader br = Files.newBufferedReader(docJsonPath, Charset.defaultCharset())) {
                                 ApiDocsJson apiDocsJson = gson.fromJson(br, ApiDocsJson.class);
                                 if (apiDocsJson.docsData.modules.isEmpty()) {
                                     log.warn("No packages found at: " + docJsonPath.toString());
@@ -164,8 +164,8 @@ public class BallerinaDocGenerator {
         String stdIndexJson = gson.toJson(centralLib);
         File stdIndexJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_INDEX_JSON).toFile();
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdIndexJsonFile),
-                StandardCharsets.UTF_8)) {
-            writer.write(new String(stdIndexJson.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                Charset.defaultCharset())) {
+            writer.write(new String(stdIndexJson.getBytes(Charset.defaultCharset()), Charset.defaultCharset()));
         } catch (IOException e) {
             log.error("Failed to create {} file.", CENTRAL_STDLIB_INDEX_JSON, e);
         }
@@ -174,8 +174,8 @@ public class BallerinaDocGenerator {
         String stdSearchJson = gson.toJson(genSearchJson(moduleLib));
         File stdSearchJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_SEARCH_JSON).toFile();
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdSearchJsonFile),
-                StandardCharsets.UTF_8)) {
-            writer.write(new String(stdSearchJson.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                Charset.defaultCharset())) {
+            writer.write(new String(stdSearchJson.getBytes(Charset.defaultCharset()), Charset.defaultCharset()));
         } catch (IOException e) {
             log.error("Failed to create {} file.", CENTRAL_STDLIB_SEARCH_JSON, e);
         }
@@ -293,17 +293,17 @@ public class BallerinaDocGenerator {
         String json = gson.toJson(apiDocsJson);
         if (!excludeUI) {
             try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsFile),
-                    StandardCharsets.UTF_8)) {
+                    Charset.defaultCharset())) {
                 String js = "var apiDocsJson = " + json + ";";
-                writer.write(new String(js.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                writer.write(new String(js.getBytes(Charset.defaultCharset()), Charset.defaultCharset()));
             } catch (IOException e) {
                 log.error("Failed to create {} file.", API_DOCS_JS, e);
             }
         }
 
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile),
-                StandardCharsets.UTF_8)) {
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                Charset.defaultCharset())) {
+            writer.write(new String(json.getBytes(Charset.defaultCharset()), Charset.defaultCharset()));
         } catch (IOException e) {
             log.error("Failed to create {} file.", API_DOCS_JSON, e);
         }
