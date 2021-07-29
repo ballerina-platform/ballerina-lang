@@ -1077,10 +1077,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                     int length;
                     long lengthCheck = Long.parseLong(sizeConstSymbol.type.toString());
-                    if (lengthCheck > MAX_ARRAY_SIZE) { // due to the JVM limitations
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
                         length = 0;
                         dlog.error(size.pos,
-                                DiagnosticErrorCode.GREATER_THAN_SIGNED_INT32_MAX_ARRAY_SIZES_NOT_YET_SUPPORTED);
+                                DiagnosticErrorCode.ARRAY_SIZE_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
                     } else {
                         length = (int) lengthCheck;
                     }

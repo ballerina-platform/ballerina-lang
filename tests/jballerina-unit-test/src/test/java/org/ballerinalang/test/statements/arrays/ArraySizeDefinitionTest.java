@@ -36,7 +36,7 @@ public class ArraySizeDefinitionTest {
     private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
     private String undefinedSymbolError = "undefined symbol 'length'";
     private String invalidArrayLengthError = "invalid array length";
-    private String sizeLimitError = "greater than signed int32 max array sizes not yet supported";
+    private static final String SIZE_LIMIT_ERROR = "array size greater that '2147483637' not yet supported";
 
     @Test(groups = { "disableOnOldParser" })
     public void testCompilationSizeReferenceErrors() {
@@ -70,10 +70,10 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 43, 5);
         BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 44, 23);
         BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 8);
-        BAssertUtil.validateError(resultNegative, index++, sizeLimitError, 47, 9);
-        BAssertUtil.validateError(resultNegative, index++, sizeLimitError, 48, 9);
-        BAssertUtil.validateError(resultNegative, index++, sizeLimitError, 50, 9);
-        BAssertUtil.validateError(resultNegative, index++, sizeLimitError, 51, 9);
+        BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 47, 9);
+        BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 48, 9);
+        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 50, 9);
+        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 51, 9);
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 

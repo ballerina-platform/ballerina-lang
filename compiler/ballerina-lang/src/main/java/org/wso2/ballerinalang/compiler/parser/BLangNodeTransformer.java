@@ -3438,38 +3438,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
                     int length = 0;
+                    long lengthCheck = 0;
                     Token literalToken = ((BasicLiteralNode) keyExpr).literalToken();
-                    if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        double lengthCheck = Double.parseDouble(literalToken.text());
-                        if (lengthCheck > MAX_ARRAY_SIZE) {
-                            length = 0;
-                            dlog.error(((Node) literalToken).location(),
-                                    DiagnosticErrorCode.GREATER_THAN_SIGNED_INT32_MAX_ARRAY_SIZES_NOT_YET_SUPPORTED);
+
+                    try {
+                        if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                            lengthCheck = Long.parseLong(literalToken.text());
                         } else {
-                            length = (int) lengthCheck;
+                            lengthCheck = Long.parseLong(literalToken.text().substring(2), 16);
                         }
-                        sizes.add(new BLangLiteral(length, symTable.intType));
-                    } else {
-                        int textLen = literalToken.text().length();
-                        boolean isIntOverflow = false;
-                        for (int i = 2; i < textLen; i++) {
-                            if (textLen - i > 8) {
-                                String s = literalToken.text().substring(i, i + 1);
-                                if (!s.equals("0")) {
-                                    isIntOverflow = true;
-                                    break;
-                                }
-                            } else {
-                                length = Integer.parseInt(literalToken.text().substring(2), 16);
-                                break;
-                            }
-                        }
-                        if (isIntOverflow || length > MAX_ARRAY_SIZE) {
-                            dlog.error(((Node) literalToken).location(),
-                                    DiagnosticErrorCode.GREATER_THAN_SIGNED_INT32_MAX_ARRAY_SIZES_NOT_YET_SUPPORTED);
-                        }
-                        sizes.add(new BLangLiteral(length, symTable.intType));
+                    } catch (NumberFormatException e) {
+                        dlog.error(((Node) literalToken).location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     }
+
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
+                        dlog.error(((Node) literalToken).location(),
+                                DiagnosticErrorCode.ARRAY_SIZE_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
+                    sizes.add(new BLangLiteral(length, symTable.intType));
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
                     sizes.add(new BLangLiteral(INFERRED_ARRAY_INDICATOR, symTable.intType));
                 } else {
