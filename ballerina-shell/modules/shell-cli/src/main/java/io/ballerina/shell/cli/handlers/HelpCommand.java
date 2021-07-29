@@ -21,6 +21,7 @@ package io.ballerina.shell.cli.handlers;
 import io.ballerina.shell.cli.BallerinaShell;
 import io.ballerina.shell.cli.PropertiesLoader;
 import io.ballerina.shell.cli.handlers.help.BbeHelpProvider;
+import io.ballerina.shell.cli.handlers.help.HelpProviderException;
 import io.ballerina.shell.cli.utils.FileUtils;
 
 import java.util.Arrays;
@@ -58,15 +59,23 @@ public class HelpCommand extends AbstractCommand {
             ballerinaShell.outputInfo(helpContent);
 
         } else {
+            try {
+                bbeHelpProvider.readBbeFile();
+            } catch (HelpProviderException e) {
+                ballerinaShell.outputError("Error Occurred While Executing The Command");
+            }
             String topic = String.join(SPACE, Arrays.copyOfRange(args, 0, args.length));
 
-            if (bbeHelpProvider.getDescription(topic) != null) {
-                ballerinaShell.outputInfo(DESCRIPTION_PREFIX + bbeHelpProvider.getDescription(topic)
-                        .replaceAll(TAGS, EMPTY_STRING));
-                ballerinaShell.outputInfo(URL_PREFIX + URL + bbeHelpProvider.getUrl(topic));
-            } else {
-                ballerinaShell.outputError(NEW_LINE + topic + " TOPIC not found " + NEW_LINE
-                        + URL_PREFIX + URL);
+            try {
+                if (bbeHelpProvider.containsTopic(topic)) {
+                    ballerinaShell.outputInfo(DESCRIPTION_PREFIX + bbeHelpProvider.getDescription(topic)
+                            .replaceAll(TAGS, EMPTY_STRING));
+                    ballerinaShell.outputInfo(URL_PREFIX + URL + bbeHelpProvider.getUrl(topic));
+                } else {
+                    ballerinaShell.outputError("Topic Not Found" + URL_PREFIX + URL);
+                }
+            } catch (HelpProviderException e) {
+                ballerinaShell.outputError("Error Occurred While Executing The Command");
             }
         }
     }
