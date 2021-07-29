@@ -29,10 +29,14 @@ public class ImportModuleResponse {
     // TODO can we replace this with Vertex?
     private final PackageOrg packageOrg;
     private final PackageName packageName;
+    private final ImportModuleRequest importModuleRequest;
 
-    public ImportModuleResponse(PackageOrg packageOrg, PackageName packageName) {
+    public ImportModuleResponse(PackageOrg packageOrg,
+                                PackageName packageName,
+                                ImportModuleRequest importModuleRequest) {
         this.packageOrg = packageOrg;
         this.packageName = packageName;
+        this.importModuleRequest = importModuleRequest;
     }
 
     public PackageOrg packageOrg() {
@@ -41,5 +45,9 @@ public class ImportModuleResponse {
 
     public PackageName packageName() {
         return packageName;
+    }
+
+    public ImportModuleRequest importModuleRequest() {
+        return importModuleRequest;
     }
 }
