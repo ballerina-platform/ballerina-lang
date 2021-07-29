@@ -20,7 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
-import io.ballerina.toml.syntax.tree.ArrayNode;
+import io.ballerina.toml.syntax.tree.InlineTableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
@@ -28,16 +28,16 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Represents Toml Array in AST. Used to support nested and mixed arrays.
+ * Represents toml inline table value in AST.
  *
  * @since 2.0.0
  */
-public class TomlArrayValueNode extends TomlValueNode {
+public class TomlInlineTableValueNode extends TomlValueNode {
 
-    private final List<TomlValueNode> elements;
+    private final List<TopLevelNode> elements;
 
-    public TomlArrayValueNode(ArrayNode arrayNode, List<TomlValueNode> elements, TomlNodeLocation location) {
-        super(arrayNode, TomlType.ARRAY, location);
+    public TomlInlineTableValueNode(InlineTableNode table, List<TopLevelNode> elements, TomlNodeLocation location) {
+        super(table, TomlType.INLINE_TABLE, location);
         this.elements = elements;
     }
 
@@ -48,12 +48,12 @@ public class TomlArrayValueNode extends TomlValueNode {
      * @param <T> Type of the element
      * @return Element object
      */
-    public <T extends TomlValueNode> T get(int index) {
-        TomlValueNode tomlValue = elements.get(index);
+    public <T extends TopLevelNode> T get(int index) {
+        TopLevelNode tomlValue = elements.get(index);
         return (T) tomlValue;
     }
 
-    public List<TomlValueNode> elements() {
+    public List<TopLevelNode> elements() {
         return elements;
     }
 
@@ -70,7 +70,7 @@ public class TomlArrayValueNode extends TomlValueNode {
     @Override
     public Set<Diagnostic> diagnostics() {
         Set<Diagnostic> tomlDiagnostics = diagnostics;
-        for (TomlValueNode child : elements) {
+        for (TopLevelNode child : elements) {
             tomlDiagnostics.addAll(child.diagnostics());
         }
         return tomlDiagnostics;
@@ -79,25 +79,25 @@ public class TomlArrayValueNode extends TomlValueNode {
     @Override
     public void clearDiagnostics() {
         super.diagnostics.clear();
-        for (TomlValueNode child : elements) {
+        for (TopLevelNode child : elements) {
             child.clearDiagnostics();
         }
     }
 
     @Override
     public boolean isMissingNode() {
-        ArrayNode arrayNode = (ArrayNode) externalTreeNode();
-        if (arrayNode.isMissing()) {
+        InlineTableNode inlineNode = (InlineTableNode) externalTreeNode();
+        if (inlineNode.isMissing()) {
             return true;
         }
-        return arrayNode.openBracket().isMissing() || arrayNode.closeBracket().isMissing();
+        return inlineNode.openBrace().isMissing() || inlineNode.closeBrace().isMissing();
     }
 
     @Override
     public List<Object> toNativeValue() {
         List<Object> list = new ArrayList<>();
-        for (TomlValueNode element : elements) {
-            list.add(element.toNativeValue());
+        for (TopLevelNode element : elements) {
+            list.add(element.toNativeObject());
         }
         return list;
     }

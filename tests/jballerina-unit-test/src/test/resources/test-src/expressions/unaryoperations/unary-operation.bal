@@ -71,6 +71,34 @@ function testComplementOperator() {
     assertEquality(-1, complementOperator(0));
     assertEquality(-6, complementOperator(5));
     assertEquality(4, complementOperator(-5));
+
+    byte a1 = 0;
+    int b1 = ~a1;
+    assertEquality(b1, -1);
+
+    int:Unsigned8 a2 = 0;
+    int b2 = ~a2;
+    assertEquality(b2, -1);
+
+    int:Unsigned16 a3 = 0;
+    int b3 = ~a2;
+    assertEquality(b3, -1);
+
+    int:Unsigned32 a4 = 0;
+    int b4 = ~a2;
+    assertEquality(b4, -1);
+
+    int:Signed8 a5 = 0;
+    int b5 = ~a5;
+    assertEquality(b5, -1);
+
+    int:Signed16 a6 = 0;
+    int b6 = ~a6;
+    assertEquality(b6, -1);
+
+    int:Signed32 a7 = 0;
+    int b7 = ~a7;
+    assertEquality(b7, -1);
 }
 
 function testUnaryOperationsWithIntSubtypes() {
@@ -119,7 +147,7 @@ function testUnaryOperationsWithIntSubtypes() {
     byte x16 = 7;
     int y7 = ~x16;
     byte x17 = +7;
-    assertEquality(248, y7);
+    assertEquality(-8, y7);
     assertEquality(7, x17);
 }
 
