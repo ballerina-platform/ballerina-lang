@@ -146,7 +146,7 @@ public class LangLibStringTest {
     public void testToCodepointInts(String st1, int[] expected) {
         BValue[] args = {new BString(st1)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToCodepointInts", args);
-        assertEquals((returns[0]).size(), expected.length);
+        assertEquals(returns[0].size(), expected.length);
         int[] codePoints = toIntArray((BValueArray) returns[0]);
         assertEquals(codePoints, expected);
     }
@@ -155,14 +155,14 @@ public class LangLibStringTest {
     public void testFromCodePointInts(long[] array, String expected) {
         BValue[] args = {new BValueArray(array)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals((returns[0]).stringValue(), expected);
+        assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test
     public void testFromCodePointIntsNegative() {
         BValue[] args = {new BValueArray(new long[]{0x10FFFF, 0x10FFFF + 1})};
         BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals((returns[0]).stringValue(), "Invalid codepoint: 1114112 {}");
+        assertEquals(returns[0].stringValue(), "Invalid codepoint: 1114112 {}");
     }
 
     private int[] toIntArray(BValueArray array) {
@@ -304,5 +304,23 @@ public class LangLibStringTest {
                 {emojiValue, new long[]{emojiValue}},
                 {encodedValue, new long[]{encodedValue}},
         };
+    }
+
+    @Test(dataProvider = "StringPrefixProvider")
+    public void testConcatNonBMPStrings(String prefix) {
+        BString bString = new BString(prefix);
+        BString resultString = new BString(prefix + "👋world🤷!");
+        BRunUtil.invoke(compileResult, "concatNonBMP", new BValue[]{bString, resultString});
+    }
+
+    @Test(dataProvider = "StringPrefixProvider")
+    public void testCharIterator(String prefix) {
+        BString bString = new BString(prefix + "👋world🤷!");
+        BRunUtil.invoke(compileResult, "testCharIterator", new BValue[]{bString});
+    }
+
+    @DataProvider(name = "StringPrefixProvider")
+    public Object[] testBMPStringProvider() {
+        return new String[]{"ascii~?", "£ßóµ¥", "ęЯλĢŃ", "☃✈௸ऴᛤ", "😀🄰🍺" };
     }
 }

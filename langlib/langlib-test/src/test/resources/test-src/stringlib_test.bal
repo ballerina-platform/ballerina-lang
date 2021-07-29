@@ -206,6 +206,19 @@ function testIteratorWithUnicodeChar(int codePoint, int[] expected) returns erro
     }
 }
 
+function testCharIterator(string stringValue) {
+    string result = "";
+    foreach var ch in stringValue {
+        result = result + ch;
+    }
+    assertEquals(stringValue, result);
+}
+
+function concatNonBMP(string prefix, string expected) {
+    string s = "👋world🤷!";
+    assertEquals(expected, prefix + s);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {

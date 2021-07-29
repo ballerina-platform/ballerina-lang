@@ -73,7 +73,10 @@
         if (str instanceof NonBmpStringValue) {
             NonBmpStringValue other = (NonBmpStringValue) str;
             int[] both = Arrays.copyOf(surrogates, surrogates.length + other.surrogates.length);
-            System.arraycopy(other.surrogates, 0, both, surrogates.length, other.surrogates.length);
+            int length = length();
+            for (int i = 0; i < other.surrogates.length; i++) {
+                both[i + surrogates.length] = other.surrogates[i] + length;
+            }
             return new NonBmpStringValue(this.value + other.value, both);
         } else if (str instanceof BmpStringValue) {
             BmpStringValue other = (BmpStringValue) str;

@@ -21,10 +21,9 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-
-import java.text.BreakIterator;
 
 /**
  * Native implementation of lang.string.StringIterator:next().
@@ -37,25 +36,19 @@ public class Next {
     }
 
     //TODO: refactor hard coded values
-    public static Object next(BObject m) {
-        String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();
-        BreakIterator breakIterator = (BreakIterator) m.getNativeData("&iterator&");
-        if (breakIterator == null) {
-            breakIterator = BreakIterator.getCharacterInstance();
-            breakIterator.setText(s);
-            m.addNativeData("&iterator&", breakIterator);
+    public static Object next(BObject stringObject) {
+        BIterator charIterator = (BIterator) stringObject.getNativeData("&iterator&");
+        if (charIterator == null) {
+            BString bString = ((BString) stringObject.get(StringUtils.fromString("m")));
+            charIterator = bString.getIterator();
+            stringObject.addNativeData("&iterator&", charIterator);
         }
-        Integer startIndex = (Integer) m.getNativeData("&predecessor&");
-        if (startIndex == null) {
-            startIndex = 0;
-        }
-        int currentIndex = breakIterator.next();
-        if (currentIndex != BreakIterator.DONE) {
-            m.addNativeData("&predecessor&", currentIndex);
-            Object charAsStr = StringUtils.fromString(s.substring(startIndex, currentIndex));
+
+        if (charIterator.hasNext()) {
+            Object element = StringUtils.fromString((String) charIterator.next());
             return ValueCreator
                     .createRecordValue(ValueCreator.createMapValue(PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
-                                                  charAsStr);
+                            element);
         }
         return null;
     }

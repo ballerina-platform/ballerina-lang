@@ -18,8 +18,8 @@
 
 package io.ballerina.runtime.internal.values;
 
- import io.ballerina.runtime.api.values.BLink;
- import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BString;
 
  /**
   * Represent ballerina strings containing only unicode basic multilingual plane characters.
@@ -54,6 +54,12 @@ package io.ballerina.runtime.internal.values;
          if (str instanceof BmpStringValue) {
              return new BmpStringValue(this.value + ((BmpStringValue) str).value);
          } else if (str instanceof NonBmpStringValue) {
+             int[] otherSurrogates = ((NonBmpStringValue) str).getSurrogates();
+             int[] newSurrogates = new int[otherSurrogates.length];
+             int length = length();
+             for (int i = 0; i < otherSurrogates.length; i++) {
+                 newSurrogates[i] = otherSurrogates[i] + length;
+             }
              return new NonBmpStringValue(this.value + str.getValue(), ((NonBmpStringValue) str).getSurrogates());
          } else {
              throw new RuntimeException("not impl yet");

@@ -44,4 +44,9 @@ public interface StringValue extends BString, SimpleValue {
     default Object frozenCopy(Map<Object, Object> refs) {
         return this;
     }
+
+    @Override
+    default IteratorValue getIterator() {
+        return new CharIterator(this);
+    }
 }
