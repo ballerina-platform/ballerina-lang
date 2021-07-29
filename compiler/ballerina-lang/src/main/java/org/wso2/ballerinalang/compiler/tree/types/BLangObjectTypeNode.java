@@ -37,7 +37,7 @@ import java.util.Set;
  *
  * @since 0.971.0
  */
-public class    BLangObjectTypeNode extends BLangStructureTypeNode implements ObjectTypeNode {
+public class BLangObjectTypeNode extends BLangStructureTypeNode implements ObjectTypeNode {
 
     public List<BLangFunction> functions;
     public BLangFunction initFunction;
