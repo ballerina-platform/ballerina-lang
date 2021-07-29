@@ -97,22 +97,24 @@ public class SyntaxErrors {
         switch (currentCtx) {
             case EXTERNAL_FUNC_BODY:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
-            case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
-            case FUNC_BODY:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case FUNC_DEF:
             case FUNC_DEF_OR_FUNC_TYPE:
             case FUNC_TYPE_DESC:
             case FUNC_TYPE_DESC_OR_ANON_FUNC:
             case IDENT_AFTER_OBJECT_IDENT:
+            case FUNC_DEF_FIRST_QUALIFIER:
+            case FUNC_DEF_SECOND_QUALIFIER:
+            case FUNC_TYPE_FIRST_QUALIFIER:
+            case FUNC_TYPE_SECOND_QUALIFIER:
+            case OBJECT_METHOD_FIRST_QUALIFIER:
+            case OBJECT_METHOD_SECOND_QUALIFIER:
+            case OBJECT_METHOD_THIRD_QUALIFIER:
+            case OBJECT_METHOD_FOURTH_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
-            case VAR_DECL_STMT_RHS:
-            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case IMPORT_SUB_VERSION:
-            case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
-            case ATTACH_POINT_IDENT:
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_ATTACH_POINT_NAME;
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -122,22 +124,19 @@ public class SyntaxErrors {
             case ASSIGNMENT_OR_VAR_DECL_STMT:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
-            case CLASS_MEMBER_WITHOUT_METADATA:
-            case OBJECT_MEMBER_WITHOUT_METADATA:
-            case RECORD_FIELD_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
             case ARRAY_TYPE_DESCRIPTOR:
             case SIMPLE_TYPE_DESC_IDENTIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
+            case TYPE_REFERENCE:
+                return DiagnosticErrorCode.ERROR_MISSING_TYPE_REFERENCE;
             case TYPE_NAME:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case FIELD_ACCESS_IDENTIFIER:
             case CLASS_NAME:
             case FUNC_NAME:
-            case FUNCTION_KEYWORD_RHS:
             case VARIABLE_NAME:
-            case TYPE_NAME_OR_VAR_NAME:
             case IMPORT_MODULE_NAME:
             case IMPORT_ORG_OR_MODULE_NAME:
             case IMPORT_PREFIX:
@@ -154,12 +153,9 @@ public class SyntaxErrors {
             case FIELD_BINDING_PATTERN_NAME:
             case XML_ATOMIC_NAME_IDENTIFIER:
             case MAPPING_FIELD_NAME:
-            case MAPPING_FIELD:
-            case ANNOT_DECL_OPTIONAL_TYPE:
             case WORKER_NAME:
             case NAMED_WORKERS:
             case ANNOTATION_TAG:
-            case CONST_DECL_TYPE:
             case AFTER_PARAMETER_TYPE:
             case MODULE_ENUM_NAME:
             case ENUM_MEMBER_NAME:
@@ -175,9 +171,11 @@ public class SyntaxErrors {
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
-            case BINDING_PATTERN_OR_EXPR_RHS:
             case NAMED_ARG_BINDING_PATTERN:
-            case TYPE_DESC_RHS_OR_BP_RHS:
+            case MODULE_VAR_FIRST_QUAL:
+            case MODULE_VAR_SECOND_QUAL:
+            case MODULE_VAR_THIRD_QUAL:
+            case OBJECT_MEMBER_VISIBILITY_QUAL:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -186,18 +184,12 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case STRING_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            case ARRAY_LENGTH:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case SIGNED_INT_OR_FLOAT_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case HEX_INTEGER_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_INTEGER_LITERAL;
-            case CONSTANT_EXPRESSION:
-                return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
-            case CONSTANT_EXPRESSION_START:
-            case XML_NAMESPACE_PREFIX_DECL:
             case OBJECT_FIELD_RHS:
-            case OPTIONAL_FIELD_INITIALIZER:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case NIL_LITERAL:
             case ERROR_MATCH_PATTERN:
@@ -208,17 +200,10 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_HEX_FLOATING_POINT_LITERAL;
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
-            case ENUM_MEMBER_RHS:
-            case ENUM_MEMBER_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
-            case MATCH_PATTERN_LIST_MEMBER_RHS:
-            case OPTIONAL_MATCH_GUARD:
-                return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
             case XML_COMMENT_CONTENT:
             case XML_PI_DATA:
                 return DiagnosticErrorCode.ERROR_MISSING_XML_TEXT_CONTENT;
-            case CLASS_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
             default:
                 return getSeperatorTokenErrorCode(currentCtx);
         }
@@ -230,8 +215,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_BITWISE_AND_TOKEN;
             case EQUAL_OR_RIGHT_ARROW:
             case ASSIGN_OP:
-            case STMT_START_WITH_EXPR_RHS:
-            case CONST_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case BINARY_OPERATOR:
             case UNARY_OPERATOR:
@@ -241,8 +224,6 @@ public class SyntaxErrors {
             case PLUS_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_BINARY_OPERATOR;
             case CLOSE_BRACE:
-            case RECORD_BODY_END:
-            case RECORD_FIELD_OR_RECORD_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
             case CLOSE_PARENTHESIS:
             case ARG_LIST_CLOSE_PAREN:
@@ -252,35 +233,28 @@ public class SyntaxErrors {
             case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACE:
-            case TRANSACTION_STMT_RHS_OR_TYPE_REF:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
-            case ERROR_CONSTRUCTOR_RHS:
-            case ERROR_BINDING_PATTERN_ERROR_KEYWORD_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
             case OBJECT_FIELD_RHS:
-            case EXPR_STMT_RHS:
-            case ATTACH_POINT_END:
-            case FIELD_DESCRIPTOR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case ASTERISK:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_PIPE_TOKEN;
             case CLOSED_RECORD_BODY_START:
-            case RECORD_BODY_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_PIPE_TOKEN;
             case ELLIPSIS:
                 return DiagnosticErrorCode.ERROR_MISSING_ELLIPSIS_TOKEN;
             case QUESTION_MARK:
                 return DiagnosticErrorCode.ERROR_MISSING_QUESTION_MARK_TOKEN;
             case CLOSE_BRACKET:
-            case MEMBER_ACCESS_KEY_EXPR_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACKET_TOKEN;
             case DOT:
+            case METHOD_CALL_DOT:
                 return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
             case OPEN_BRACKET:
             case TUPLE_TYPE_DESC_START:
@@ -306,6 +280,7 @@ public class SyntaxErrors {
             case XML_START_OR_EMPTY_TAG:
             case XML_END_TAG:
             case INFERRED_TYPEDESC_DEFAULT_START_LT:
+            case STREAM_TYPE_PARAM_START_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_LT_TOKEN;
             case SYNC_SEND_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_SYNC_SEND_TOKEN;
@@ -375,6 +350,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_LISTENER_KEYWORD;
             case SERVICE_KEYWORD:
             case SERVICE_IDENT:
+            case SERVICE_DECL_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_SERVICE_KEYWORD;
             case XMLNS_KEYWORD:
             case XML_NAMESPACE_DECLARATION:
@@ -389,13 +365,17 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
             case OBJECT_KEYWORD:
             case OBJECT_IDENT:
+            case OBJECT_TYPE_DESCRIPTOR:
+            case FIRST_OBJECT_CONS_QUALIFIER:
+            case SECOND_OBJECT_CONS_QUALIFIER:
+            case FIRST_OBJECT_TYPE_QUALIFIER:
+            case SECOND_OBJECT_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
             case AS_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
             case ON_KEYWORD:
-            case ANNOT_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
             case FINAL_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FINAL_KEYWORD;
@@ -516,14 +496,11 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_VAR_KEYWORD;
             case MAP_KEYWORD:
             case NAMED_WORKER_DECL:
-            case PARAMETERIZED_TYPE:
+            case MAP_TYPE_DESCRIPTOR:
                 return DiagnosticErrorCode.ERROR_MISSING_MAP_KEYWORD;
-            case FUTURE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_FUTURE_KEYWORD;
-            case TYPEDESC_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_TYPEDESC_KEYWORD;
             case ERROR_KEYWORD:
             case ERROR_BINDING_PATTERN:
+            case PARAMETERIZED_TYPE:
                 return DiagnosticErrorCode.ERROR_MISSING_ERROR_KEYWORD;
             case STREAM_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_STREAM_KEYWORD;
@@ -531,8 +508,13 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_READONLY_KEYWORD;
             case DISTINCT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DISTINCT_KEYWORD;
+            case CLASS_KEYWORD:
+            case FIRST_CLASS_TYPE_QUALIFIER:
+            case SECOND_CLASS_TYPE_QUALIFIER:
+            case THIRD_CLASS_TYPE_QUALIFIER:
+            case FOURTH_CLASS_TYPE_QUALIFIER:
+                return DiagnosticErrorCode.ERROR_MISSING_CLASS_KEYWORD;
             default:
-                assert false : "Error code not defined";
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }
@@ -562,6 +544,23 @@ public class SyntaxErrors {
             default:
                 return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
         }
+    }
+
+    /**
+     * Update the all nodes inside {@code STNodeList} with a given diagnostic.
+     *
+     * @param nodeList  the STNodeList to be updated
+     * @param errorCode the invalid node
+     * @return updated STNodeList as a STNode
+     */
+    public static STNode updateAllNodesInNodeListWithDiagnostic(STNodeList nodeList, DiagnosticErrorCode errorCode) {
+        List<STNode> newList = new ArrayList<>();
+        for (int i = 0; i < nodeList.size(); i++) {
+            STNode updatedNode = addDiagnostic(nodeList.get(i), errorCode);
+            newList.add(updatedNode);
+        }
+
+        return STNodeFactory.createNodeList(newList);
     }
 
     /**

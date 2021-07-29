@@ -20,13 +20,11 @@ package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -62,8 +60,8 @@ public class ConfigResolver {
         this.diagnosticLog = diagnosticLog;
     }
 
-    public Map<VariableKey, Object> resolveConfigs() {
-        Map<VariableKey, Object> configValueMap = new HashMap<>();
+    public Map<VariableKey, ConfigValue> resolveConfigs() {
+        Map<VariableKey, ConfigValue> configValueMap = new HashMap<>();
         if (configVarMap.isEmpty()) {
             return configValueMap;
         }
@@ -82,7 +80,7 @@ public class ConfigResolver {
             VariableKey[] variableKeys = entry.getValue();
             for (VariableKey varKey : variableKeys) {
                 Optional<?> configValue = getConfigValue(module, varKey);
-                configValue.ifPresent(o -> configValueMap.put(varKey, o));
+                configValue.ifPresent(o -> configValueMap.put(varKey, (ConfigValue) o));
             }
         }
         for (ConfigProvider provider : runtimeConfigProviders) {
@@ -137,17 +135,10 @@ public class ConfigResolver {
                     case TypeTags.XML_TEXT_TAG:
                         return getConfigValue(key, configProvider -> configProvider
                                 .getAsXmlAndMark(module, key));
+                    case TypeTags.ANYDATA_TAG:
                     case TypeTags.UNION_TAG:
-                        BUnionType unionType = (BUnionType) effectiveType;
-                        //Todo : Move the enum check to provider impl, once runtime support configuring union types.
-                        // Issue : https://github.com/ballerina-platform/ballerina-lang/issues/30390
-                        if (SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
-                            return getConfigValue(key, configProvider -> configProvider
+                        return getConfigValue(key, configProvider -> configProvider
                                     .getAsUnionAndMark(module, key));
-                        }
-                        diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                            IdentifierUtils.decodeIdentifier(effectiveType.toString()));
-                        break;
                     default:
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
                                             IdentifierUtils.decodeIdentifier(effectiveType.toString()));
@@ -155,7 +146,7 @@ public class ConfigResolver {
                 break;
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
-                                    IdentifierUtils.decodeIdentifier(type.toString()));;
+                                    IdentifierUtils.decodeIdentifier(type.toString()));
         }
         return Optional.empty();
     }

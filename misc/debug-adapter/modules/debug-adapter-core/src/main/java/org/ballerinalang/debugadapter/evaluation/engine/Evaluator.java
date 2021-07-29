@@ -27,7 +27,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
  */
 public abstract class Evaluator {
 
-    SuspendedContext context;
+    public SuspendedContext context;
 
     public Evaluator(SuspendedContext context) {
         this.context = context;

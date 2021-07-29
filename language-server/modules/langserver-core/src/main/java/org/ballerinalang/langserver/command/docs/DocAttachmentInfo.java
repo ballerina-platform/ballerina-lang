@@ -95,22 +95,30 @@ public class DocAttachmentInfo implements Documentation {
         if (!this.parameters.isEmpty()) {
             parameters.forEach((key, value) -> newParamsMap.put(key, other.parameterMap().getOrDefault(key, value)));
         }
-        String returnValueDescription = other.returnDescription().orElse(this.returnDesc);
-        String deprecatedDescription = other.deprecatedDescription().orElse(this.deprecatedDesc);
 
-        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, deprecatedDescription, 
+        // Check if no return type present -> handles removal of return type descriptor
+        String returnValueDescription = null;
+        if (this.returnDesc != null) {
+            returnValueDescription = other.returnDescription().orElse(this.returnDesc);
+        }
+
+        // Check if deprecated description is present -> handles removal of deprecated description
+        String deprecatedDescription = null;
+        if (this.deprecatedDesc != null) {
+            deprecatedDescription = other.deprecatedDescription().orElse(this.deprecatedDesc);
+        }
+
+        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, deprecatedDescription,
                 docStart, padding);
     }
 
     public String getDocumentationString() {
         return getDocumentationString(true);
     }
-    
+
     public String getDocumentationString(boolean newlineAtEnd) {
         StringBuilder result = new StringBuilder();
-        // TODO: Seems like the parser isn't honoring the platform specific line separator. Therefore, splitting with
-        //      "/n" for now
-        String[] descriptionLines = this.description.trim().split("\n");
+        String[] descriptionLines = this.description.trim().split("(\r)?\n");
         for (String descriptionLine : descriptionLines) {
             result.append(String.format("# %s%n", descriptionLine.trim()));
         }
@@ -129,7 +137,10 @@ public class DocAttachmentInfo implements Documentation {
 
         if (deprecatedDesc != null) {
             result.append(String.format("%s# # Deprecated%n", padding));
-            result.append(String.format("%s# %s%n", padding, deprecatedDesc));
+            String[] deprecatedDescLines = deprecatedDesc.trim().split("(\r)?\n");
+            for (String deprecatedLine : deprecatedDescLines) {
+                result.append(String.format("%s# %s%n", padding, deprecatedLine));
+            }
         }
 
         if (newlineAtEnd) {

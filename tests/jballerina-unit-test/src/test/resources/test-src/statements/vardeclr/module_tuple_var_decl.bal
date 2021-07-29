@@ -145,6 +145,101 @@ public function testVariableForwardReferencing() {
     assertEquality(20, m);
 }
 
+// Test rest type inference and rest param value resolution.
+[[string, Bar, boolean...], string, boolean...] t1 = [["Ballerina", {id: 34, flag: true}, false], "A", true, false];
+var [[q1, ...q2], ...q3] = t1;
+
+function testModuleLevelTupleRest1() {
+    assertEquality("Ballerina", q1);
+    assertEquality("typedesc [Bar,boolean...]", (typeof q2).toString());
+    assertEquality(2, q2.length());
+    assertEquality(34, q2[0].id);
+    assertEquality(true, q2[0].flag);
+    assertEquality("typedesc [string,boolean...]", (typeof q3).toString());
+    assertEquality(3, q3.length());
+    assertEquality("A", q3[0]);
+    assertEquality(true, q3[1]);
+    assertEquality(false, q3[2]);
+}
+
+FooObj fooObj1 = new ("Fooo", 3.7, 23);
+BarObj barObj1 = new (true, 56);
+[[string, [error, map<string>, int, (FooObj|BarObj)...], Bar, (byte|float)...], string, boolean...] t2 =
+            [["Ballerina", [error("Error", detail1= 12, detail2= true), {firstName: "John", lastName: "Damon"},
+            12, fooObj1, barObj1], {id: 34, flag: true}, 10.5, 20], "A", true, false];
+var [[g1, [g2, ...g3], ...g4], ...g5] = t2;
+
+function testModuleLevelTupleRest2() {
+    assertEquality("typedesc string", (typeof g1).toString());
+    assertEquality("typedesc error", (typeof g2).toString());
+    assertEquality("typedesc [map<string>,int,(FooObj|BarObj)...]", (typeof g3).toString());
+    assertEquality("typedesc [Bar,(byte|float)...]", (typeof g4).toString());
+    assertEquality("typedesc [string,boolean...]", (typeof g5).toString());
+    assertEquality("Ballerina", g1);
+    assertEquality("Error", g2.message());
+    assertEquality(12, g2.detail()["detail1"]);
+    assertEquality(true, g2.detail()["detail2"]);
+    assertEquality(4, g3.length());
+    assertEquality("John", g3[0]["firstName"]);
+    assertEquality("Damon", g3[0]["lastName"]);
+    assertEquality(12, g3[1]);
+    assertEquality(fooObj1, g3[2]);
+    assertEquality(barObj1, g3[3]);
+    assertEquality(3, g4.length());
+    assertEquality(34, g4[0].id);
+    assertEquality(true, g4[0].flag);
+    assertEquality(10.5, g4[1]);
+    assertEquality(20, g4[2]);
+    assertEquality(3, g5.length());
+    assertEquality("A", g5[0]);
+    assertEquality(true, g5[1]);
+    assertEquality(false, g5[2]);
+}
+
+int[5] t3 = [10, 20, 30, 40, 50];
+var [h1, h2, ...h3] = t3;
+
+function testModuleLevelTupleRest3() {
+    assertEquality("typedesc int", (typeof h1).toString());
+    assertEquality("typedesc int", (typeof h2).toString());
+    assertEquality("typedesc [int,int,int]", (typeof h3).toString());
+    assertEquality(10, h1);
+    assertEquality(20, h2);
+    assertEquality(3, h3.length());
+    assertEquality(30, h3[0]);
+    assertEquality(40, h3[1]);
+    assertEquality(50, h3[2]);
+}
+
+[[string, [FooObj, Bar...], int, float...], boolean[3], string...] [[i1, [...i2], ...i3], ...i4] =
+            [["Ballerina", [fooObj1, {id: 34, flag: true}, {id: 35, flag: false}], 453, 10.5, 20.5],
+            [false, true, true], "Ballerina", "Hello"];
+
+function testModuleLevelTupleRest4() {
+    assertEquality("typedesc string", (typeof i1).toString());
+    assertEquality("typedesc [FooObj,Bar...]", (typeof i2).toString());
+    assertEquality("typedesc [int,float...]", (typeof i3).toString());
+    assertEquality("typedesc [boolean[3],string...]", (typeof i4).toString());
+    assertEquality("Ballerina", i1);
+    assertEquality(3, i2.length());
+    assertEquality(fooObj1, i2[0]);
+    assertEquality(34, i2[1].id);
+    assertEquality(true, i2[1].flag);
+    assertEquality(35, i2[2].id);
+    assertEquality(false, i2[2].flag);
+    assertEquality(3, i3.length());
+    assertEquality(453, i3[0]);
+    assertEquality(10.5, i3[1]);
+    assertEquality(20.5, i3[2]);
+    assertEquality(3, i4.length());
+    assertEquality(3, i4[0].length());
+    assertEquality(false, i4[0][0]);
+    assertEquality(true, i4[0][1]);
+    assertEquality(true, i4[0][2]);
+    assertEquality("Ballerina", i4[1]);
+    assertEquality("Hello", i4[2]);
+}
+
 // Support codes
 type Foo record {
     string name;

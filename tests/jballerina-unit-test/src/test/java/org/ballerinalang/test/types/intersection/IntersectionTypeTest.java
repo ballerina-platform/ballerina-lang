@@ -70,8 +70,7 @@ public class IntersectionTypeTest {
 
         validateError(result, index++, "invalid intersection type with 'readonly', 'future<int>' can never be " +
                 "'readonly'", 19, 5);
-        validateError(result, index++, "invalid intersection type 'json & int', intersection types are currently " +
-                "supported only with 'readonly'", 23, 5);
+        validateError(result, index++, "unsupported intersection 'json & int'", 23, 5);
         validateError(result, index++, "invalid intersection type '(Bar & readonly)': no intersection", 26,
                       45);
         validateError(result, index++, "invalid intersection type '(Baz & readonly)': no intersection", 32,
@@ -127,8 +126,23 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testIntersectionOfSameSetOfErrorShapes() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfSameSetOfErrorShapes");
+    }
+
+    @Test
     public void testDistinctErrorWithSameTypeIdsButDifferentTypes() {
         BRunUtil.invoke(errorIntersectionResults, "testDistinctErrorWithSameTypeIdsButDifferentTypes");
+    }
+
+    @Test
+    public void testSingleErrorIntersectionWithReadOnly() {
+        BRunUtil.invoke(errorIntersectionResults, "testSingleErrorIntersectionWithReadOnly");
+    }
+
+    @Test
+    public void testMultipleErrorIntersectionWithReadOnly() {
+        BRunUtil.invoke(errorIntersectionResults, "testMultipleErrorIntersectionWithReadOnly");
     }
 
     @Test
@@ -150,11 +164,11 @@ public class IntersectionTypeTest {
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 72, 33);
         validateError(result, index++,
-                "invalid intersection type '$anonType$_2 & $anonType$_3': no intersection", 74, 39);
+                "invalid intersection type 'error<DetailX> & error<DetailY>': no intersection", 74, 39);
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 74, 39);
         validateError(result, index++,
-                "invalid intersection type '$anonType$_4 & $anonType$_5 & ErrorX': no intersection", 76, 44);
+                "invalid intersection type 'error<DetailY> & error<DetailX> & ErrorX': no intersection", 76, 44);
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 76, 61);
         validateError(result, index++,
@@ -169,7 +183,33 @@ public class IntersectionTypeTest {
                 "invalid intersection type 'E & ErrorX': no intersection", 82, 22);
         validateError(result, index++,
                 "invalid intersection: field 'x' contains a default value in type 'DetailX'", 82, 26);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 92, 39);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 93, 48);
+        validateError(result, index++, "error constructor does not accept additional detail args 'c' when error " +
+                "detail type 'record {| int code; anydata...; |}' contains individual field descriptors", 93, 60);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 94, 47);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 95, 47);
+        validateError(result, index++, "missing error detail arg for error detail field 'code'", 96, 47);
+        validateError(result, index++, "error constructor does not accept additional detail args 'oth' when error " +
+                "detail type 'record {| boolean fatal?; int code; int...; |}' contains individual field descriptors",
+                96, 59);
 
+        assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testUnsupportedIntersectionNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/types/intersection/unsupported_intersection_negative.bal");
+        int index = 0;
+        validateError(result, index++, "unsupported intersection 'int & string'", 17, 8);
+        validateError(result, index++, "unsupported intersection 'int & int'", 18, 9);
+        validateError(result, index++,
+                "unsupported intersection 'function()returns(int) & function()returns(2 | 3)'", 19, 9);
+        validateError(result, index++, "unsupported intersection 'int & int'", 21, 1);
+        validateError(result, index++, "unknown type 'A'", 23, 14);
+        validateError(result, index++, "unknown type 'II'", 23, 19);
+        validateError(result, index++, "unsupported intersection 'int & int'", 23, 25);
         assertEquals(result.getErrorCount(), index);
     }
 

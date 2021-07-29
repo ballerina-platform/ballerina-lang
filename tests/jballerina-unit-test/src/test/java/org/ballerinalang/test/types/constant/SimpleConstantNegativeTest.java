@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 61);
+        Assert.assertEquals(compileResult.getErrorCount(), 64);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -47,12 +47,13 @@ public class SimpleConstantNegativeTest {
                 5, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'",
                 6, 27);
-        BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
+        BAssertUtil.validateError(compileResult, index++, "'_' is a keyword, and may not be used as an identifier",
                 9, 14);
-        BAssertUtil.validateError(compileResult, index++, "underscore is not allowed here",
+        BAssertUtil.validateError(compileResult, index++, "'_' is a keyword, and may not be used as an identifier",
                 10, 7);
-        BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'invalidType'," +
-                " expected a simple basic types or a map of a simple basic type", 12, 7);
+        BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'invalidType', " +
+                        "expected a subtype of 'anydata' that is not 'never'",
+                12, 7);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'invalidType'",
                 12, 7);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 26, 5);
@@ -137,7 +138,14 @@ public class SimpleConstantNegativeTest {
                 "type 'int:Signed32'", 282, 14);
         BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
                 "type 'int:Unsigned16'", 284, 14);
-        BAssertUtil.validateError(compileResult, index, "constant declaration not yet supported for " +
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
                 "type 'string:Char'", 286, 14);
+        BAssertUtil.validateError(compileResult, index++, "cannot declare a constant with type 'Bar', " +
+                        "expected a subtype of 'anydata' that is not 'never'",
+                294, 7);
+        BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression",
+                294, 17);
+        BAssertUtil.validateError(compileResult, index, "constant declarations are allowed only at module level",
+                298, 1);
     }
 }

@@ -138,8 +138,6 @@ public enum Snippet {
 
 
     // Expressions Snippets
-    EXPR_MATCH(SnippetGenerator.getMatchExpressionSnippet()),
-
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
 
     EXPR_OBJECT_CONSTRUCTOR(SnippetGenerator.getObjectConstructorSnippet()),
@@ -330,6 +328,8 @@ public enum Snippet {
     STMT_NAMESPACE_DECLARATION(SnippetGenerator.getXMLNSDeclarationSnippet()),
 
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
+
+    STMT_RETURN_SC(SnippetGenerator.getReturnSCStatementSnippet()),
 
     STMT_PANIC(SnippetGenerator.getPanicStatementSnippet()),
 

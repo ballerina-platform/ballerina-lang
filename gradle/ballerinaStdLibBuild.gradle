@@ -153,6 +153,12 @@ ext {
     }
 }
 
+def ballerinaConfigFile = new File("${project.projectDir}/src/main/ballerina/Ballerina.toml")
+def ballerinaConfigFileContent = ballerinaConfigFile.text
+def modOrg = (ballerinaConfigFileContent =~ /org = "(.+)"/)[0][1]
+def modVersion = (ballerinaConfigFileContent =~ /version = "(.+)"/)[0][1]
+def jarFileName = modOrg + "-" + modName + "-" + modVersion
+
 
 task copyBallerinaProject(type: Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
@@ -175,7 +181,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     dependsOn jar
     inputs.files("src/main/ballerina")
     outputs.file("$buildDir/ballerina-src/target/" + modName + ".zip")
-    outputs.file("$buildDir/ballerina-src/target/" + modName + ".jar")
+    outputs.file("$buildDir/ballerina-src/target/${jarFileName}.jar")
     outputs.cacheIf { true }
     classpath += files(jar.archivePath)
 }
@@ -184,7 +190,7 @@ artifacts {
     distributionBala file("$buildDir/ballerina-src/target/" + modName + ".zip"), {
         builtBy(ballerinaLangLibBuild)
     }
-    distributionBirJar file("$buildDir/ballerina-src/target/" + modName + ".jar"), {
+    distributionBirJar file("$buildDir/ballerina-src/target/${jarFileName}.jar"), {
         builtBy(ballerinaLangLibBuild)
     }
     balDoc file("$buildDir/ballerina-src/target/apidocs/"), {

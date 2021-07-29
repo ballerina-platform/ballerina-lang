@@ -151,6 +151,22 @@ public class InstanceMethods {
         return "handle ret";
     }
 
+    public byte[] unionWithErrorReturnByteArray() throws InterruptedException {
+        byte[] byteArray = "Byte Test".getBytes();
+        if (false) {
+            throw new InterruptedException();
+        }
+        return byteArray;
+    }
+
+    public String[] anyOrErrorReturnStringArray() throws InterruptedException {
+        String[] strArray = {"makes", "integration", "easy"};
+        if (false) {
+            throw new InterruptedException();
+        }
+        return strArray;
+    }
+
     public void errorDetail() throws JavaInteropTestCheckedException {
         JavaInteropTestCheckedException e = new JavaInteropTestCheckedException("Custom error");
         e.initCause(new Throwable("Interop Throwable"));

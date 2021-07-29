@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completion;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -80,17 +81,7 @@ public abstract class CompletionTest {
         boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-//            JsonObject obj = new JsonObject();
-//            obj.add("position", configJsonObject.get("position"));
-//            obj.add("source", configJsonObject.get("source"));
-//            obj.add("items", resultList);
-//            String objStr = obj.toString().concat(System.lineSeparator());
-//            java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
-//                                      objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-//
-//             //This will print nice comparable text in IDE
-//            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),
-//                        "Failed Test for: " + configJsonPath);
+//            updateConfig(configJsonPath, configJsonObject, resultList, expectedList, responseItemList);
             Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
@@ -102,9 +93,12 @@ public abstract class CompletionTest {
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
+        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
+        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
 
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position, this.serviceEndpoint);
+        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
+                this.serviceEndpoint, triggerChar);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         return responseString;
@@ -152,5 +146,54 @@ public abstract class CompletionTest {
             Assert.fail("Unable to load test config", e);
             return new Object[0][];
         }
+    }
+
+    /**
+     * Update the config JSON while preserving the order of the existing completion items.
+     */
+    private void updateConfig(String configJsonPath, JsonObject configJsonObject, JsonArray resultList,
+                              List<CompletionItem> expectedItemList, List<CompletionItem> responseItemList)
+            throws IOException {
+        JsonObject obj = new JsonObject();
+        obj.add("position", configJsonObject.get("position"));
+        obj.add("source", configJsonObject.get("source"));
+
+        JsonArray results = new JsonArray();
+        JsonArray copyOfResultList = resultList.deepCopy();
+        JsonArray expectedList = configJsonObject.get("items").getAsJsonArray();
+        for (JsonElement expectedItem : expectedList) {
+            String expectedInsertText = expectedItem.getAsJsonObject().get("insertText").getAsString();
+
+            // Find this item in results
+            int i = 0;
+            for (; i < copyOfResultList.size(); i++) {
+                String actualInsertText = copyOfResultList.get(i).getAsJsonObject().get("insertText").getAsString();
+                if (expectedInsertText.equals(actualInsertText)) {
+                    break;
+                }
+            }
+
+            // Add if found and remove it from the result list
+            if (i != copyOfResultList.size()) {
+                results.add(copyOfResultList.get(i));
+                copyOfResultList.remove(i);
+            }
+        }
+
+        // Add the rest of the items
+        copyOfResultList.forEach(results::add);
+
+        obj.add("items", results);
+
+        if (configJsonObject.get("triggerCharacter") != null) {
+            obj.add("triggerCharacter", configJsonObject.get("triggerCharacter"));
+        }
+        String objStr = obj.toString().concat(System.lineSeparator());
+        java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
+                objStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+        //This will print nice comparable text in IDE
+        Assert.assertEquals(responseItemList.toString(), expectedItemList.toString(),
+                "Failed Test for: " + configJsonPath);
     }
 }

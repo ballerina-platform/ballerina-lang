@@ -25,7 +25,6 @@ configurations {
 dependencies {
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-logging')
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-runtime')
@@ -60,7 +59,6 @@ description = 'Ballerina - Compiler plugin tests'
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
-    systemProperty "java.util.logging.manager", "org.ballerinalang.logging.BLogManager"
     systemProperty "enableJBallerinaTests", "true"
 
     useTestNG() {

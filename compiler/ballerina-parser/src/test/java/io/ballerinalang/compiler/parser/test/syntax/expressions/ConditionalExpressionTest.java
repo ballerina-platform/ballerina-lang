@@ -54,7 +54,7 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testConditionalExprWithModuleFunctionCall() {
+    public void testConditionalExprAmbiguity() {
         testFile("conditional-expr/conditional_expr_source_26.bal", "conditional-expr/conditional_expr_assert_26.json");
     }
 
@@ -73,7 +73,7 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testConditionalWithMissingColon() {
-        test("a ? (b)  c", "conditional-expr/conditional_expr_assert_10.json");
+        testFile("conditional-expr/conditional_expr_source_10.bal", "conditional-expr/conditional_expr_assert_10.json");
     }
 
     @Test
@@ -92,5 +92,10 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("?(b):c", "conditional-expr/conditional_expr_assert_14.json");
         test("{foo : ?(b):c}", "conditional-expr/conditional_expr_assert_15.json");
         test("[foo, ?(b):c]", "conditional-expr/conditional_expr_assert_16.json");
+    }
+
+    @Test
+    public void testConditionalExprAmbiguityRecovery() {
+        testFile("conditional-expr/conditional_expr_source_27.bal", "conditional-expr/conditional_expr_assert_27.json");
     }
 }

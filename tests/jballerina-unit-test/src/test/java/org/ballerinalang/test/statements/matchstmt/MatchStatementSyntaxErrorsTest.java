@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class MatchStatementSyntaxErrorsTest {
-
     private CompileResult result;
 
     @BeforeClass
@@ -40,7 +39,7 @@ public class MatchStatementSyntaxErrorsTest {
 
     @Test
     public void testSyntaxErrors() {
-        Assert.assertEquals(result.getErrorCount(), 15);
+        Assert.assertEquals(result.getErrorCount(), 19);
 
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined symbol 'v'", 5, 9);
@@ -58,6 +57,10 @@ public class MatchStatementSyntaxErrorsTest {
         BAssertUtil.validateError(result, ++i, "missing colon token", 21, 11);
         BAssertUtil.validateError(result, ++i, "missing identifier", 21, 11);
         BAssertUtil.validateError(result, ++i, "variable '$missingNode$_1' should be declared as constant", 21, 11);
+        BAssertUtil.validateError(result, ++i, "variable '$missingNode$_2' should be declared as constant", 27, 1);
+        BAssertUtil.validateError(result, ++i, "missing match pattern", 27, 9);
+        BAssertUtil.validateError(result, ++i, "variable '$missingNode$_3' should be declared as constant", 30, 1);
+        BAssertUtil.validateError(result, ++i, "missing match pattern", 30, 9);
     }
 
     @AfterClass

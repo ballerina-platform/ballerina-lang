@@ -192,7 +192,7 @@ public class DefaultPackageResolver implements PackageResolver {
         // Load the latest version
         ResolutionRequest newResolutionReq = ResolutionRequest.from(
                 PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
-                        latestVersion), resolutionRequest.scope());
+                        latestVersion), resolutionRequest.scope(), resolutionRequest.offline());
 
         // Check if the package is already in cache to avoid
         // duplicating package instances in the WritablePackageCache.
@@ -215,8 +215,11 @@ public class DefaultPackageResolver implements PackageResolver {
             } else {
                 ResolutionRequest newResolutionReq = ResolutionRequest.from(
                         PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
-                                versionList.get(0)), resolutionRequest.scope());
-                resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
+                                versionList.get(0)), resolutionRequest.scope(), resolutionRequest.offline());
+                resolvedPackage = Optional.ofNullable(loadFromCache(newResolutionReq));
+                if (resolvedPackage.isEmpty()) {
+                    resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
+                }
             }
         }
 

@@ -46,7 +46,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
@@ -154,7 +154,7 @@ public class DocCommand implements BLauncherCmd {
         // check if there are too many arguments.
         if (this.argList != null && this.argList.size() > 1) {
             CommandUtil.printError(this.errStream,
-                    "too many arguments.",
+                    "too many arguments",
                     "bal doc <project_path> [--offline]\n",
                     false);
             CommandUtil.exitError(true);
@@ -184,7 +184,7 @@ public class DocCommand implements BLauncherCmd {
         options.put(LOCK_ENABLED, "true");
         options.put(SKIP_TESTS, "true");
         options.put(TEST_ENABLED, "false");
-        options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(EXPERIMENTAL, Boolean.toString(this.experimentalFlag));
         options.put(PRESERVE_WHITESPACE, "true");
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()

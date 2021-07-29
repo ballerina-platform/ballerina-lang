@@ -21,3 +21,14 @@ function func4(any v) {
         {a} => {}
     }
 }
+
+function func5(any v) {
+    match v {
+        => {
+            
+        }
+        if true => {
+                    
+        }
+    }
+}

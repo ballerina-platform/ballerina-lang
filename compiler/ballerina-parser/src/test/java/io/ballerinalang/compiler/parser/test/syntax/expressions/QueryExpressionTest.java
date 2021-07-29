@@ -94,6 +94,11 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
                 "query-expr/query_expr_assert_55.json");
     }
 
+    @Test
+    public void testNestedQueryExpr() {
+        testFile("query-expr/query_expr_source_67.bal", "query-expr/query_expr_assert_67.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -201,7 +206,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testQueryWithOrderByClauseRecovery() {
         test("from int a in b order by select c", "query-expr/query_expr_assert_42.json");
         test("from int a in b order c select d", "query-expr/query_expr_assert_43.json");
-        test("from int a in b order by c ascending d e select f", "query-expr/query_expr_assert_44.json");
+        test("from int a in b order by c ascending d select f", "query-expr/query_expr_assert_44.json");
         test("from int a in b by c select d", "query-expr/query_expr_assert_45.json");
         test("from int a in b order by ascending select e", "query-expr/query_expr_assert_46.json");
     }
@@ -235,5 +240,15 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testIncompleteClauses() {
         testFile("query-expr/query_expr_source_65.bal", "query-expr/query_expr_assert_65.json");
         testFile("query-expr/query_expr_source_66.bal", "query-expr/query_expr_assert_66.json");
+    }
+
+    @Test
+    public void testIntermediateClauseStartRecovery() {
+        testFile("query-expr/query_expr_source_68.bal", "query-expr/query_expr_assert_68.json");
+    }
+
+    @Test
+    public void testSelectClauseStartRecovery() {
+        testFile("query-expr/query_expr_source_69.bal", "query-expr/query_expr_assert_69.json");
     }
 }

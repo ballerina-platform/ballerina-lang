@@ -25,6 +25,7 @@ import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
@@ -107,6 +108,8 @@ public class PullCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+
         String resourceName = argList.get(0);
         String orgName;
         String packageName;
@@ -115,7 +118,7 @@ public class PullCommand implements BLauncherCmd {
         // Get org name
         String[] moduleInfo = resourceName.split("/");
         if (moduleInfo.length != 2) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -132,7 +135,7 @@ public class PullCommand implements BLauncherCmd {
             packageName = moduleNameAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -140,13 +143,13 @@ public class PullCommand implements BLauncherCmd {
 
         // Validate package org, name and version
         if (!validateOrgName(orgName)) {
-            CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid organization. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (!validatePackageName(packageName)) {
-            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization ",
+            CommandUtil.printError(errStream, "invalid package name. Provide the package name with the organization.",
                                    USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -211,7 +214,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("download modules to the user repository \n");
+        out.append("Download modules to the user repository \n");
     }
 
     @Override

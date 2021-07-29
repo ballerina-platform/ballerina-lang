@@ -37,7 +37,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.XML_ATTRIBUTE, ParserRuleContext.XML_START_OR_EMPTY_TAG_END };
 
     private static final ParserRuleContext[] XML_START_OR_EMPTY_TAG_END =
-            { ParserRuleContext.SLASH, ParserRuleContext.GT_TOKEN };
+            { ParserRuleContext.GT_TOKEN , ParserRuleContext.SLASH };
 
     private static final ParserRuleContext[] XML_ATTRIBUTE_VALUE_ITEM =
             { ParserRuleContext.XML_ATTRIBUTE_VALUE_TEXT, ParserRuleContext.XML_QUOTE_END };
@@ -240,6 +240,12 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
+    }
+
+    @Override
+    protected Solution getInsertSolution(ParserRuleContext ctx) {
+        SyntaxKind expectedTokenKind = getExpectedTokenKind(ctx);
+        return new Solution(Action.INSERT, ctx, expectedTokenKind, ctx.toString());
     }
 
     @Override

@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -60,11 +61,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -116,7 +114,6 @@ public class TypesFactory {
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
-    private final Map<BType, TypeSymbol> typeCache;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
@@ -124,7 +121,6 @@ public class TypesFactory {
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
-        this.typeCache = new HashMap<>();
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -155,10 +151,11 @@ public class TypesFactory {
      * @return {@link TypeSymbol} generated
      */
     public TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
-        return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true);
+        return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true, false);
     }
 
-    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType) {
+    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
+                                 boolean typeRefFromIntersectType) {
         if (bType == null || bType.tag == NONE) {
             return null;
         }
@@ -174,26 +171,11 @@ public class TypesFactory {
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol);
-        }
-
-        if (this.typeCache.containsKey(bType)) {
-            TypeSymbol typeSymbol = this.typeCache.get(bType);
-
-            // Have to special case invokable types since equals() is overridden in BInvokableType.
-            if (bType.tag != TypeTags.INVOKABLE) {
-                return typeSymbol;
-            }
-
-            if (bType == ((AbstractTypeSymbol) typeSymbol).getBType()) {
-                return typeSymbol;
-            }
+            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
+                    typeRefFromIntersectType);
         }
 
         TypeSymbol typeSymbol = createTypeDescriptor(bType, tSymbol, moduleID);
-
-        // Because of the above explained reason, equivalent invokable types won't get cached either here.
-        typeCache.putIfAbsent(bType, typeSymbol);
         return typeSymbol;
     }
 
@@ -275,6 +257,8 @@ public class TypesFactory {
                 return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
+            case NONE:
+                return new BallerinaNoneTypeSymbol(this.context, moduleID, (BNoType) bType);
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             default:

@@ -59,6 +59,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "minutiae_test_04.bal",
                 "minutiae_test_05.bal",
                 "minutiae_test_05_with_no_newlines.bal",
+                "invalid_token_minutiae_test_01.bal",
+                "invalid_token_minutiae_test_02.bal",
                 "doc_source_15.bal",
                 "doc_source_06.bal",
                 "module_var_decl_source_16.bal",
@@ -68,6 +70,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "annotations_source_04.bal", // could be considered an invalid scenario
                 "receive_action_source_01.bal", // issue #26376
                 "doc_source_21.bal", // issue #28172
+                "module_var_decl_source_18.bal", // issue #31307
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
                 "service_decl_source_20.bal",

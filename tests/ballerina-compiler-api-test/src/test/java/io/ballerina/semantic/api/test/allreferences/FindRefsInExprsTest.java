@@ -99,6 +99,7 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 },
                 {92, 15, location(92, 15, 19),
                         List.of(location(92, 15, 19),
+                                location(94, 17, 21),
                                 location(95, 18, 22))
                 },
                 {93, 12, location(93, 12, 15),
@@ -113,6 +114,7 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 },
                 {98, 26, location(92, 15, 19),
                         List.of(location(92, 15, 19),
+                                location(94, 17, 21),
                                 location(95, 18, 22))
                 },
                 // Query exprs
@@ -127,11 +129,17 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 },
                 {115, 20, location(102, 11, 15),
                         List.of(location(102, 11, 15),
+                                location(108, 18, 22),
+                                location(109, 18, 22),
+                                location(110, 18, 22),
                                 location(115, 17, 21),
                                 location(116, 25, 29))
                 },
                 {116, 28, location(102, 11, 15),
                         List.of(location(102, 11, 15),
+                                location(108, 18, 22),
+                                location(109, 18, 22),
+                                location(110, 18, 22),
                                 location(115, 17, 21),
                                 location(116, 25, 29))
                 },
@@ -139,7 +147,24 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {121, 15, location(120, 8, 11),
                         List.of(location(120, 8, 11),
                                 location(121, 14, 17))
-                }
+                },
+                // Keys in mapping constructor
+                {128, 8, location(144, 11, 15),
+                        List.of(location(128, 8, 12),
+                                location(144, 11, 15))
+                },
+                {131, 11, location(125, 12, 16),
+                        List.of(location(125, 12, 16),
+                                location(131, 11, 15))
+                },
+                {154, 11, location(154, 11, 15),
+                        List.of(location(135, 8, 12),
+                                location(154, 11, 15))
+                },
+                {158, 15, location(158, 15, 19),
+                        List.of(location(137, 18, 22),
+                                location(158, 15, 19))
+                },
         };
     }
 

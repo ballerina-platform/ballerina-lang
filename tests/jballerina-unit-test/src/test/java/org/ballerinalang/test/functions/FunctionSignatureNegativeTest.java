@@ -32,15 +32,15 @@ public class FunctionSignatureNegativeTest {
     @Test
     public void testFuncSignatureSemanticsNegative() {
         int i = 0;
-        CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures" +
-                "-semantics-negative.bal");
+        CompileResult result =
+                BCompileUtil.compile("test-src/functions/different-function-signatures-semantics-negative.bal");
         String tooManyArguments = "too many arguments in call to ";
 
         BAssertUtil.validateError(result, i++, "redeclared symbol 'c'", 1, 73);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'float'", 29, 20);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 61);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 56);
         BAssertUtil.validateError(result, i++, "missing required parameter 'a' in call to " +
                 "'functionWithOnlyPositionalParams()'", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'b' in call to " +
@@ -111,7 +111,7 @@ public class FunctionSignatureNegativeTest {
     @Test
     public void testNegativeFuncSignature() {
         CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures-negative.bal");
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 3, 1);
         Assert.assertEquals(1, result.getErrorCount());
     }
 

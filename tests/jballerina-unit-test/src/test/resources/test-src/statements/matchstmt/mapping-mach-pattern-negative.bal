@@ -109,7 +109,14 @@ function testUnmatchedPatternAgainstClosedRecord(Person person) {
     match person {
         {x: var a, ...var rest} => {
         }
-        {id: var a, name: var b, ...var rest} => {
+    }
+}
+
+function testReachabilityAfterUnmatchedPattern(Person person) {
+    match person {
+        var {x, ...rest} => { // pattern will not be matched
+        }
+        var {id, name, ...rest} => {
         }
     }
 }

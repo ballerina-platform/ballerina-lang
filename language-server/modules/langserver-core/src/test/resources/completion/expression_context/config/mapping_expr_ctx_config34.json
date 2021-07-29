@@ -9,32 +9,34 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Ba1",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "G",
-      "insertText": "Ba1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Ba2",
       "kind": "Field",
-      "detail": "string",
+      "detail": "Bar.Ba2",
       "sortText": "G",
-      "insertText": "Ba2: \"${2}\"",
+      "insertText": "Ba2: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "Ba1",
+      "kind": "Field",
+      "detail": "Bar.Ba1",
+      "sortText": "G",
+      "insertText": "Ba1: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Bar Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
-      "insertText": "Ba1: 0,\nBa2: \"\"",
+      "detail": "Bar",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "Ba2: \"\",\nBa1: 0",
       "insertTextFormat": "Snippet"
     }
   ]

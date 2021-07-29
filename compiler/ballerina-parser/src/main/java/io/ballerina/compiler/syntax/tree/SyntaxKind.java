@@ -104,6 +104,7 @@ public enum SyntaxKind {
     BY_KEYWORD(249, "by"),
     ASCENDING_KEYWORD(250, "ascending"),
     DESCENDING_KEYWORD(251, "descending"),
+    UNDERSCORE_KEYWORD(252, "_"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -345,7 +346,7 @@ public enum SyntaxKind {
     NEVER_TYPE_DESC(2017),
     VAR_TYPE_DESC(2018),
     SERVICE_TYPE_DESC(2019),
-    PARAMETERIZED_TYPE_DESC(2020),
+    MAP_TYPE_DESC(2020),
     UNION_TYPE_DESC(2021),
     ERROR_TYPE_DESC(2022),
     STREAM_TYPE_DESC(2023),
@@ -359,6 +360,7 @@ public enum SyntaxKind {
     SINGLETON_TYPE_DESC(2031),
     TYPE_REFERENCE_TYPE_DESC(2032),
     TYPEDESC_TYPE_DESC(2033),
+    FUTURE_TYPE_DESC(2034),
 
 
     // Actions

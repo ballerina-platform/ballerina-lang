@@ -36,7 +36,7 @@ public class ModuleExecutionFlowTests {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj2");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module a\n" +
+        String expectedConsoleString = "Initializing module a" + System.lineSeparator() +
                 "Initializing module b";
         String expectedErrorString = "error: error returned while initializing module B {}";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
@@ -48,13 +48,13 @@ public class ModuleExecutionFlowTests {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj3");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                "Initializing module c\n" +
-                "Module c main function invoked\n" +
-                "a:ABC listener start called, service name - ModA\n" +
-                "a:ABC listener start called, service name - ModB\n" +
-                "a:ABC listener gracefulStop called, service name - ModB\n" +
+        String expectedConsoleString = "Initializing module a" + System.lineSeparator() +
+                "Initializing module b" + System.lineSeparator() +
+                "Initializing module c" + System.lineSeparator() +
+                "Module c main function invoked" + System.lineSeparator() +
+                "a:ABC listener start called, service name - ModA" + System.lineSeparator() +
+                "a:ABC listener start called, service name - ModB" + System.lineSeparator() +
+                "a:ABC listener gracefulStop called, service name - ModB" + System.lineSeparator() +
                 "a:ABC listener gracefulStop called, service name - ModA";
 
         String expectedErrorString = "error: error returned while starting module B {}";
@@ -67,9 +67,9 @@ public class ModuleExecutionFlowTests {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj4");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module a\n" +
+        String expectedConsoleString = "Initializing module a" + System.lineSeparator() +
                 "Initializing module b";
-        String expectedErrorString = "error: panicked while initializing module B\n" +
+        String expectedErrorString = "error: panicked while initializing module B" + System.lineSeparator() +
                 "\tat unit_tests.proj4.b.0_1_0:init(main.bal:6)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -93,8 +93,8 @@ public class ModuleExecutionFlowTests {
                 "test-src/execution/service_decl_listener_return_error_project");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "init invoked\n" +
-                "init invoked\n" +
+        String expectedConsoleString = "init invoked" + System.lineSeparator() +
+                "init invoked" + System.lineSeparator() +
                 "init invoked";
         String expectedErrorString = "error: ModA-inline-2 errored!!! {}";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
@@ -106,16 +106,16 @@ public class ModuleExecutionFlowTests {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj5");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                "Initializing module c\n" +
-                "Module c main function invoked\n" +
-                "a:ABC listener start called, service name - ModA\n" +
-                "a:ABC listener start called, service name - ModB\n" +
-                "a:ABC listener gracefulStop called, service name - ModB\n" +
+        String expectedConsoleString = "Initializing module a" + System.lineSeparator() +
+                "Initializing module b" + System.lineSeparator() +
+                "Initializing module c" + System.lineSeparator() +
+                "Module c main function invoked" + System.lineSeparator() +
+                "a:ABC listener start called, service name - ModA" + System.lineSeparator() +
+                "a:ABC listener start called, service name - ModB" + System.lineSeparator() +
+                "a:ABC listener gracefulStop called, service name - ModB" + System.lineSeparator() +
                 "a:ABC listener gracefulStop called, service name - ModA";
 
-        String expectedErrorString = "error: panicked while starting module B\n" +
+        String expectedErrorString = "error: panicked while starting module B" + System.lineSeparator() +
                 "\tat unit_tests.proj5.a.0_1_0.ABC:start(main.bal:21)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -126,9 +126,9 @@ public class ModuleExecutionFlowTests {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj7");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                "Initializing module c\n" +
+        String expectedString = "Initializing module a" + System.lineSeparator() +
+                "Initializing module b" + System.lineSeparator() +
+                "Initializing module c" + System.lineSeparator() +
                 "Module c main function invoked";
         String expectedErrorString = "error: error returned while executing main method {}";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
@@ -140,11 +140,11 @@ public class ModuleExecutionFlowTests {
         CompileResult compileResult = BCompileUtil.compileWithoutInitInvocation("test-src/execution/proj8");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedString = "Initializing module a\n" +
-                "Initializing module b\n" +
-                "Initializing module c\n" +
+        String expectedString = "Initializing module a" + System.lineSeparator() +
+                "Initializing module b" + System.lineSeparator() +
+                "Initializing module c" + System.lineSeparator() +
                 "Module c main function invoked";
-        String expectedErrorString = "error: panicked while executing main method\n" +
+        String expectedErrorString = "error: panicked while executing main method" + System.lineSeparator() +
                 "\tat unit_tests.proj8.0_1_0:main(main.bal:12)";
         Assert.assertEquals(output.consoleOutput, expectedString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");
@@ -156,18 +156,18 @@ public class ModuleExecutionFlowTests {
                 BCompileUtil.compileWithoutInitInvocation("test-src/execution/start_stop_failing_project");
         ExitDetails output = run(compileResult, new String[]{});
 
-        String expectedConsoleString = "Initializing module 'basic'\n" +
-                "Initializing module 'dependent'\n" +
-                "Initializing module 'current'\n" +
-                "main function invoked for current module\n" +
-                "basic:TestListener listener start called, service name - basic\n" +
-                "basic:TestListener listener start called, service name - dependent\n" +
-                "listener start panicked for service name - dependent\n" +
-                "basic:TestListener listener gracefulStop called, service name - dependent\n" +
-                "listener gracefulStop panicked, service name - dependent\n" +
+        String expectedConsoleString = "Initializing module 'basic'" + System.lineSeparator() +
+                "Initializing module 'dependent'" + System.lineSeparator() +
+                "Initializing module 'current'" + System.lineSeparator() +
+                "main function invoked for current module" + System.lineSeparator() +
+                "basic:TestListener listener start called, service name - basic" + System.lineSeparator() +
+                "basic:TestListener listener start called, service name - dependent" + System.lineSeparator() +
+                "listener start panicked for service name - dependent" + System.lineSeparator() +
+                "basic:TestListener listener gracefulStop called, service name - dependent" + System.lineSeparator() +
+                "listener gracefulStop panicked, service name - dependent" + System.lineSeparator() +
                 "basic:TestListener listener gracefulStop called, service name - basic";
 
-        String expectedErrorString = "error: panicked while starting module 'dependent'\n" +
+        String expectedErrorString = "error: panicked while starting module 'dependent'" + System.lineSeparator() +
                 "\tat testorg.start_stop_failing_project:start(basic.bal:35)";
         Assert.assertEquals(output.consoleOutput, expectedConsoleString, "evaluated to invalid value");
         Assert.assertEquals(output.errorOutput, expectedErrorString, "evaluated to invalid value");

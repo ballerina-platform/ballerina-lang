@@ -9,32 +9,34 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1f1",
-      "kind": "Field",
-      "detail": "RecordName2",
-      "sortText": "G",
-      "insertText": "rec1f1: {\n\trec2f1: ${1:0},\n\trec2f2: ${2:0}\n}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "rec1f2",
       "kind": "Field",
-      "detail": "int",
+      "detail": "RecordName.rec1f2",
       "sortText": "G",
-      "insertText": "rec1f2: ${2:0}",
+      "insertText": "rec1f2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "rec1f1",
+      "kind": "Field",
+      "detail": "RecordName.rec1f1",
+      "sortText": "G",
+      "insertText": "rec1f1: {\n\trec2f1: ${1:0},\n\trec2f2: ${2:0}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill RecordName Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
-      "insertText": "rec1f1: {rec2f1: 0, rec2f2: 0},\nrec1f2: 0",
+      "detail": "RecordName",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "rec1f2: 0,\nrec1f1: {rec2f1: 0, rec2f2: 0}",
       "insertTextFormat": "Snippet"
     }
   ]

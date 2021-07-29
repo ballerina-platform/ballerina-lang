@@ -270,7 +270,7 @@ public class SymbolTable {
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
 
         BLangLiteral trueLiteral = new BLangLiteral();
-        trueLiteral.type = this.booleanType;
+        trueLiteral.setBType(this.booleanType);
         trueLiteral.value = Boolean.TRUE;
 
         defineCyclicUnionBasedInternalTypes();
@@ -587,7 +587,6 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.SUB, decimalType, decimalType);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType);
-        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
     }
 
     private void defineIntegerUnaryOperations() {

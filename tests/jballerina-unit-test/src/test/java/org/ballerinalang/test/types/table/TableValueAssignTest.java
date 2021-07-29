@@ -51,8 +51,7 @@ public class TableValueAssignTest {
                 "testAssignKeylessTableValueToAnydata",
                 "testAssignKeylessTableValueToAny",
                 "testAssignKeylessTableValueToVar",
-                "testAssignKeylessTableValueToTableType",
-                "testAssignVariableRefAsKey"
+                "testAssignKeylessTableValueToTableType"
         };
     }
 }

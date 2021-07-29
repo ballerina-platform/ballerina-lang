@@ -74,14 +74,7 @@ public class LangLibStringTest {
 
     @Test
     public void testIterator() {
-        String[] expected = new String[]{"F", "o", "o", " ", "B", "a", "r"};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-        BValueArray arr = (BValueArray) returns[0];
-        long size = arr.size();
-
-        for (int i = 0; i < size; i++) {
-            assertEquals(arr.getString(i), expected[i]);
-        }
+        BRunUtil.invoke(compileResult, "testIterator");
     }
 
     @Test
@@ -280,4 +273,13 @@ public class LangLibStringTest {
         assertEquals(returns[0].stringValue(), "foo1foo2foo3foo4");
     }
 
+    @Test
+    public void testLangLibCallOnStringSubTypes() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnStringSubTypes");
+    }
+
+    @Test
+    public void testLangLibCallOnFiniteType() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
 }

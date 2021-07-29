@@ -50,7 +50,10 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.DebugInstructionTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LogPointTest"/>
+
             <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugOutputTest"/>
 
             <!--Debug Variables Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>

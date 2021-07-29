@@ -29,6 +29,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
@@ -37,13 +38,21 @@ import org.ballerinalang.central.client.model.PackageSearchResult;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import javax.net.ssl.HttpsURLConnection;
-
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
+import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
@@ -108,10 +117,7 @@ public class CentralAPIClient {
                 url = url + "/" + version;
             }
 
-            Request getPackageReq = getNewRequest(supportedPlatform, ballerinaVersion)
-                    .get()
-                    .url(url)
-                    .build();
+            Request getPackageReq = getNewRequest(supportedPlatform, ballerinaVersion).get().url(url).build();
             Call getPackageReqCall = client.newCall(getPackageReq);
             Response getPackageResponse = getPackageReqCall.execute();
 
@@ -120,24 +126,25 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // Package is found
-                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    if (getPackageResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), Package.class);
                     }
-    
+
                     // Package is not found
-                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                    if (getPackageResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage().contains("package not found for:")) {
                             throw new NoPackageException(error.getMessage());
                         } else {
-                            throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature +
-                                                             ". reason: " + error.getMessage());
+                            throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: "
+                                                                     + error.getMessage());
                         }
                     }
-    
+
                     // If request sent is wrong or error occurred at remote repository
-                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                        getPackageResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (getPackageResponse.code() == HTTP_BAD_REQUEST ||
+                        getPackageResponse.code() == HTTP_INTERNAL_ERROR ||
+                        getPackageResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
@@ -147,9 +154,12 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature);
+        } catch (SocketTimeoutException e) {
+            throw new ConnectionErrorException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
+                                                       e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
-                    e.getMessage());
+                                                     e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
@@ -188,12 +198,12 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // Package versions found
-                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    if (getVersionsResponse.code() == HTTP_OK) {
                         return getAsList(body.get().string());
                     }
     
                     // Package is not found
-                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                    if (getVersionsResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage().contains("package not found")) {
                             // if package not found return empty list
@@ -205,8 +215,9 @@ public class CentralAPIClient {
                     }
     
                     // If request sent is wrong or error occurred at remote repository
-                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                        getVersionsResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (getVersionsResponse.code() == HTTP_BAD_REQUEST ||
+                        getVersionsResponse.code() == HTTP_INTERNAL_ERROR ||
+                        getVersionsResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
                                                          ". reason: " + error.getMessage());
@@ -215,9 +226,12 @@ public class CentralAPIClient {
             }
 
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ".");
+        } catch (SocketTimeoutException | UnknownHostException e) {
+            throw new ConnectionErrorException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
+                                                       e.getMessage());
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                    e.getMessage());
+                                                     e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {
@@ -227,12 +241,21 @@ public class CentralAPIClient {
             }
         }
     }
-    
+
     /**
-     * Pushing a package to registry.
+     * Push a package to registry.
+     *
+     * @param balaPath              The path to the bala file.
+     * @param org                   The organization of the package.
+     * @param name                  The name of the package.
+     * @param version               The version of the package.
+     * @param supportedPlatform     The supported platform.
+     * @param ballerinaVersion      The ballerina version.
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
                             String ballerinaVersion) throws CentralClientException {
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature = org + "/" + name + ":" + version;
         String url = this.baseUrl + "/" + PACKAGES;
         Optional<ResponseBody> body = Optional.empty();
@@ -249,12 +272,13 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-    
+
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [project repo -> central]", this.outStream);
 
+            // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
-                    .post(balaFileReqBodyWithProgressBar)
+                    .post(enableOutputStream ? balaFileReqBodyWithProgressBar : balaFileReqBody)
                     .url(url)
                     .build();
 
@@ -262,14 +286,16 @@ public class CentralAPIClient {
             Response packagePushResponse = pushRequestCall.execute();
 
             // Successfully pushed
-            if (packagePushResponse.code() == HttpsURLConnection.HTTP_NO_CONTENT) {
-                this.outStream.println(packageSignature + " pushed to central successfully");
+            if (packagePushResponse.code() == HTTP_NO_CONTENT) {
+                if (enableOutputStream) {
+                    this.outStream.println(packageSignature + " pushed to central successfully");
+                }
                 return;
             }
 
             body = Optional.ofNullable(packagePushResponse.body());
             // Invalid access token to push
-            if (packagePushResponse.code() == HttpsURLConnection.HTTP_UNAUTHORIZED) {
+            if (packagePushResponse.code() == HTTP_UNAUTHORIZED) {
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -288,7 +314,7 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // When request sent is invalid
-                    if (packagePushResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+                    if (packagePushResponse.code() == HTTP_BAD_REQUEST) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             // Currently this error is returned from central when token is unauthorized. This will later
@@ -302,7 +328,8 @@ public class CentralAPIClient {
                     }
     
                     // When error occurred at remote repository
-                    if (packagePushResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (packagePushResponse.code() == HTTP_INTERNAL_ERROR ||
+                        packagePushResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature +
@@ -327,8 +354,23 @@ public class CentralAPIClient {
         }
     }
 
+    /**
+     * Pull a package from central.
+     *
+     * @param org                       The organization of the package.
+     * @param name                      The name of the package.
+     * @param version                   The version of the package.
+     * @param packagePathInBalaCache    The package path in Bala cache.
+     * @param supportedPlatform         The supported platform.
+     * @param ballerinaVersion          The ballerina version.
+     * @param isBuild                   If build option is enabled or not.
+     * @throws CentralClientException   Central Client exception.
+     */
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
-            String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild)
+            throws CentralClientException {
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature =  org + "/" + name;
         String url = this.baseUrl + "/" + PACKAGES + "/" + org + "/" + name;
         // append version to url if available
@@ -359,7 +401,7 @@ public class CentralAPIClient {
             Response packagePullResponse = packagePullReqCall.execute();
 
             // 302   - Package is found
-            if (packagePullResponse.code() == HttpsURLConnection.HTTP_MOVED_TEMP) {
+            if (packagePullResponse.code() == HTTP_MOVED_TEMP) {
                 // get redirect url from "location" header field
                 Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
                 Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
@@ -376,7 +418,7 @@ public class CentralAPIClient {
                     Response balaDownloadResponse = downloadBalaRequestCall.execute();
                     boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                     createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
-                            balaUrl.get(), balaFileName.get(), outStream, logFormatter);
+                            balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
                     return;
                 } else {
                     String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
@@ -390,8 +432,8 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // If request sent is invalid or when package is not found
-                    if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                        packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                    if (packagePullResponse.code() == HTTP_BAD_REQUEST ||
+                        packagePullResponse.code() == HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException("error: " + error.getMessage());
@@ -399,7 +441,8 @@ public class CentralAPIClient {
                     }
     
                     //  When error occurred at remote repository
-                    if (packagePullResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
+                        packagePullResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg =
@@ -448,12 +491,12 @@ public class CentralAPIClient {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
-                    if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    if (searchResponse.code() == HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
                     }
         
                     // If search request was sent wrongly
-                    if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+                    if (searchResponse.code() == HTTP_BAD_REQUEST) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(error.getMessage());
@@ -461,7 +504,8 @@ public class CentralAPIClient {
                     }
         
                     // If error occurred at remote repository
-                    if (searchResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                    if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
+                        searchResponse.code() == HTTP_UNAVAILABLE) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +

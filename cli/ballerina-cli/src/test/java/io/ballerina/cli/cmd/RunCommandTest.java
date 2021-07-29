@@ -1,11 +1,15 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.cli.launcher.RuntimePanicException;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -154,5 +158,47 @@ public class RunCommandTest extends BaseCommandTest {
 
         // No assertions required since the command will fail upon expected behavior
         runCommand.execute();
+    }
+
+    @Test(description = "Run a jar file")
+    public void testRunJarFile() {
+        Path projectPath = this.testResources.resolve("jar-file");
+        System.setProperty("user.dir", this.testResources.resolve("jar-file").toString());
+
+        // Run build command to generate jar file
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        buildCommand.execute();
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("foo.jar").toFile().exists());
+
+        // Try to run the har file
+        Path tempFile = projectPath.resolve("foo.jar");
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+
+        String args = "--offline";
+        new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
+                .parse(projectPath.toString(), args, tempFile.toString());
+
+        try {
+            runCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.assertTrue(e.getDetailedMessages().get(0)
+                    .contains("unsupported option(s) provided for jar execution"));
+        }
+    }
+
+    @Test(description = "Test the heap dump generation for a project with an OOM error")
+    public void testHeapDumpGenerationForOOM() {
+        Path projectPath = this.testResources.resolve("oom-project");
+        System.setProperty("user.dir", this.testResources.resolve("oom-project").toString());
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand);
+
+        try {
+            runCommand.execute();
+        } catch (RuntimePanicException e) {
+            File projectDir = new File(projectPath.toString());
+            FileFilter fileFilter = new WildcardFileFilter("java_pid*.hprof");
+            Assert.assertTrue(Objects.requireNonNull(projectDir.listFiles(fileFilter)).length > 0);
+        }
     }
 }

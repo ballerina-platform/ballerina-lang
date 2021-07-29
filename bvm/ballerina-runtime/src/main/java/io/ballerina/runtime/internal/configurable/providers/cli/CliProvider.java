@@ -19,19 +19,16 @@
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
+import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
@@ -99,26 +96,30 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<Long> getAsIntAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsIntAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         try {
-            return Optional.of(TypeConverter.stringToInt(cliArg.value));
+            return getCliConfigValue(TypeConverter.stringToInt(cliArg.value));
         } catch (NumberFormatException e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
+    private Optional<ConfigValue> getCliConfigValue(Object value) {
+        return Optional.of(new CliConfigValue(value));
+    }
+
     @Override
-    public Optional<Integer> getAsByteAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsByteAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         try {
-            return Optional.of(TypeConverter.stringToByte(cliArg.value));
+            return getCliConfigValue(TypeConverter.stringToByte(cliArg.value));
         } catch (NumberFormatException e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type,
                                       cliArg.value);
@@ -128,80 +129,55 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<Boolean> getAsBooleanAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsBooleanAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         try {
-            return Optional.of(TypeConverter.stringToBoolean(cliArg.value));
+            return getCliConfigValue(TypeConverter.stringToBoolean(cliArg.value));
         } catch (NumberFormatException e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
     @Override
-    public Optional<Double> getAsFloatAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsFloatAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         try {
-            return Optional.of(TypeConverter.stringToFloat(cliArg.value));
+            return getCliConfigValue(TypeConverter.stringToFloat(cliArg.value));
         } catch (NumberFormatException e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
     @Override
-    public Optional<BDecimal> getAsDecimalAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsDecimalAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         try {
-            return Optional.of(TypeConverter.stringToDecimal(cliArg.value));
+            return getCliConfigValue(TypeConverter.stringToDecimal(cliArg.value));
         } catch (NumberFormatException e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
     @Override
-    public Optional<BString> getAsStringAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsStringAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
-        return Optional.of(StringUtils.fromString(cliArg.value));
+        return getCliConfigValue(StringUtils.fromString(cliArg.value));
     }
 
     @Override
-    public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
-    }
-
-    @Override
-    public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
-    }
-
-    public Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key) {
-        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
-    }
-
-    @Override
-    public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsArrayAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
@@ -211,17 +187,46 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<Object> getAsUnionAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsRecordAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
+    @Override
+    public Optional<ConfigValue> getAsMapAndMark(Module module, VariableKey key) {
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
+    @Override
+    public Optional<ConfigValue> getAsTableAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
+    @Override
+    public Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key) {
+        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
+        if (!SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
+            throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
+        }
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         BString stringVal = StringUtils.fromString(cliArg.value);
-        BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
         List<Type> memberTypes = unionType.getMemberTypes();
         for (Type type : memberTypes) {
             if (((BFiniteType) type).valueSpace.contains(stringVal)) {
-                return Optional.of(stringVal);
+                return getCliConfigValue(stringVal);
             }
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
@@ -229,14 +234,14 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public Optional<BXml> getAsXmlAndMark(Module module, VariableKey key) {
+    public Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key) {
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
         try {
-            return Optional.of(TypeConverter.stringToXml(cliArg.value));
+            return getCliConfigValue(TypeConverter.stringToXml(cliArg.value));
         } catch (BError e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, effectiveType, cliArg.value);
         }

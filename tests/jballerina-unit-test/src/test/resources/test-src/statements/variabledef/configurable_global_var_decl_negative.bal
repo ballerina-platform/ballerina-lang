@@ -35,3 +35,63 @@ configurable [int, string] [intVar, stringVar] = ?;
 
 // 'final' qualifier not allowed: configurable variables are implicitly final
 final configurable string systemAlias = "Ballerina";
+
+// Unsupported configurable types from runtime
+
+type Person record {|
+    readonly string name;
+|};
+
+type Person1 record {|
+    json jsonField;
+    anydata anydataField;
+|};
+
+type Person2 record {|
+    int|json unionField;
+|};
+
+type Person3 record {|
+    json[] jsonArr;
+|};
+
+type Person4 record {|
+    string name;
+    Person1 person;
+|};
+
+type Person5 record {|
+    json field1;
+    json field2;
+|};
+
+type Colors "Red" | "Green";
+
+// Unsupported array of table
+configurable table<Person> key(name)[] tableArr1 = ?;
+configurable (table<Person> key(name) & readonly)[] tableArr2 = ?;
+
+// Unsupported record field
+configurable Person1 person1 = ?;
+configurable Person2 person2 = ?;
+configurable Person3 person3 = ?;
+configurable Person4 person4 = ?;
+configurable Person5 person5 = ?;
+
+// Unsupported table constraint
+configurable table<map<json>> tableVar1 = ?;
+configurable table<Person1> tableVar2 = ?;
+configurable table<json> tableVar3 = ?;
+
+// Unsupported array constraint
+configurable json[] arrayVar = ?;
+
+// Unsupported map constraint
+configurable map<json> & readonly mapVar = ?;
+
+// Unsupported union types
+configurable string|json unionVar1 = ?;
+configurable json unionVar2 = ?;
+
+// Unsupported tuple type
+configurable [int, string] tupleVar = ?;

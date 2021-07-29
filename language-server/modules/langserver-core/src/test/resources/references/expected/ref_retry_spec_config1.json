@@ -1,0 +1,37 @@
+{
+  "source": {
+    "file": "projectls/transactions.bal"
+  },
+  "position": {
+    "line": 3,
+    "character": 22
+  },
+  "result": [
+    {
+      "uri": "projectls/transactions.bal",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 24
+        },
+        "end": {
+          "line": 1,
+          "character": 43
+        }
+      }
+    },
+    {
+      "uri": "projectls/transactions.bal",
+      "range": {
+        "start": {
+          "line": 3,
+          "character": 16
+        },
+        "end": {
+          "line": 3,
+          "character": 35
+        }
+      }
+    }
+  ]
+}

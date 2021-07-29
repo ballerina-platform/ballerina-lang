@@ -198,6 +198,9 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (type.isAnyData != null) {
             return type.isAnyData;
         }
+        if (!visited.add(type)) {
+            return isAnydata;
+        }
         IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
         for (BType member : type.tupleTypes) {
             if (!isPureTypeUniqueVisitor.visit(member)) {
@@ -230,7 +233,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return type.isAnyData;
         }
         for (BLangExpression value : type.getValueSpace()) {
-            if (!visit(value.type)) {
+            if (!visit(value.getBType())) {
                 type.isAnyData = false;
                 return false;
             }

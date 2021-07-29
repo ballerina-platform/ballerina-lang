@@ -1,0 +1,430 @@
+[configOpenRecord.product]
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configOpenRecord.product.mapArr]]
+c = "c"
+d = 456
+
+[[configOpenRecord.productArr]]
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configOpenRecord.productArr.mapArr]]
+a = "a"
+b = 789
+
+[[configOpenRecord.productArr]]
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configOpenRecord.productArr.mapArr]]
+g = "g"
+h = 876
+
+[[configOpenRecord.productTable]]
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configOpenRecord.productTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configOpenRecord.productTable]]
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configOpenRecord.productTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configOpenRecord.productMap.entry1]
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configOpenRecord.productMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configOpenRecord.productMapTable.entry1]]
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configOpenRecord.productMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configOpenRecord.owner]
+id = 101
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configOpenRecord.owner.mapArr]]
+c = "c"
+d = 456
+
+[[configOpenRecord.ownerArr]]
+id = 102
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configOpenRecord.ownerArr.mapArr]]
+a = "a"
+b = 789
+
+[[configOpenRecord.ownerArr]]
+id = 103
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configOpenRecord.ownerArr.mapArr]]
+g = "g"
+h = 876
+
+[[configOpenRecord.ownerTable]]
+id = 104
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configOpenRecord.ownerTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configOpenRecord.ownerTable]]
+id = 105
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configOpenRecord.ownerTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configOpenRecord.ownerMap.entry1]
+id  = 106
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configOpenRecord.ownerMap.entry2]
+id = 107
+
+[[configOpenRecord.ownerMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configOpenRecord.ownerMapTable.entry1]]
+id = 108
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configOpenRecord.ownerMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configOpenRecord.member]
+id = 101
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configOpenRecord.member.mapArr]]
+c = "c"
+d = 456
+
+[[configOpenRecord.memberArr]]
+id = 102
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configOpenRecord.memberArr.mapArr]]
+a = "a"
+b = 789
+
+[[configOpenRecord.memberArr]]
+id = 103
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configOpenRecord.memberArr.mapArr]]
+g = "g"
+h = 876
+
+[[configOpenRecord.memberTable]]
+id = 104
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configOpenRecord.memberTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configOpenRecord.memberTable]]
+id = 105
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configOpenRecord.memberTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configOpenRecord.memberMap.entry1]
+id  = 106
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configOpenRecord.memberMap.entry2]
+id = 107
+
+[[configOpenRecord.memberMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configOpenRecord.memberMapTable.entry1]]
+id = 108
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configOpenRecord.memberMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[configOpenRecord.anonRecord]
+id = 123
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[[configOpenRecord.anonRecord.mapArr]]
+c = "c"
+d = 456
+
+[configOpenRecord.anonRecordMap.entry1]
+id  = 124
+intVal = 22
+floatVal = 22.33
+stringVal = "abc"
+arrVal = [1,2,3]
+mapVal.a = "a"
+mapVal.b = 123
+
+[configOpenRecord.anonRecordMap.entry2]
+id = 125
+
+[[configOpenRecord.anonRecordMap.entry2.mapArr]]
+c = "c"
+d = 456
+
+[[configOpenRecord.anonRecordMapTable.entry1]]
+id = 126
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[[configOpenRecord.anonRecordMapTable.entry1.mapArr]]
+y = "test"
+x = 204
+
+[[configOpenRecord.anonRecordArr]]
+id = 127
+intVal = 11
+floatVal = 99.77
+stringVal = "def"
+arrVal = [4.5, 6.7]
+mapVal.c = "c"
+mapVal.d = 456
+
+[[configOpenRecord.anonRecordArr.mapArr]]
+a = "a"
+b = 789
+
+[[configOpenRecord.anonRecordArr]]
+id = 128
+intVal = 33
+floatVal = 88.44
+stringVal = "ghi"
+arrVal = [8.9, 0.1]
+mapVal.e = "e"
+mapVal.f = 789
+
+[[configOpenRecord.anonRecordArr.mapArr]]
+g = "g"
+h = 876
+
+[[configOpenRecord.anonRecordTable]]
+id = 129
+intVal = 65
+floatVal = 9.12
+stringVal = "val"
+arrVal = ["4", "6"]
+mapVal.c = "ccc"
+mapVal.d = 43
+
+[[configOpenRecord.anonRecordTable.mapArr]]
+i = "iii"
+j = 21
+
+[[configOpenRecord.anonRecordTable]]
+id = 130
+intVal = 40
+floatVal = 13.57
+stringVal = "str"
+arrVal = [10, 20]
+mapVal.m = "mmm"
+mapVal.n = 68
+
+[[configOpenRecord.anonRecordTable.mapArr]]
+y = "yyy"
+x = 24
+
+[configOpenRecord.rest_fields.intRest]
+id = 11
+age = 26
+
+[configOpenRecord.rest_fields.floatRest]
+height = 161.5
+weight = 62.3
+
+[configOpenRecord.rest_fields.stringRest]
+name = "Hinduja"
+city = "Colombo"
+
+[configOpenRecord.rest_fields.booleanRest]
+isBoolean = true
+isByte = false
+
+[configOpenRecord.rest_fields.anyRest]
+intVal = 100
+floatVal = 103.507
+stringVal = "string"
+arrVal = [100, 200]
+mapVal.m = "value"
+mapVal.n = 608
+
+[configOpenRecord.rest_fields.player]
+id = 101
+teamMate.id = 102
+teamMate.teamMate.id = 103
+
+[[configOpenRecord.rest_fields.playerArr]]
+id = 104
+teamMate.id = 105
+teamMate.teamMate.id = 106
+
+[[configOpenRecord.rest_fields.playerArr]]
+id = 107
+teamMate.id = 108
+teamMate.teamMate.id = 109
+
+[[configOpenRecord.rest_fields.playerTable]]
+id = 110
+teamMate.id = 111
+teamMate.teamMate.id = 112
+
+[[configOpenRecord.rest_fields.playerTable]]
+id = 113
+teamMate.id = 114
+teamMate.teamMate.id = 115
+
+[configOpenRecord.rest_fields.playerMap.entry1]
+id = 116
+teamMate.id = 117
+teamMate.teamMate.id = 118
+
+[configOpenRecord.rest_fields.playerMap.entry2]
+id = 119
+
+[[configOpenRecord.rest_fields.playerMapTable.entry1]]
+id = 120
+
+[[configOpenRecord.rest_fields.playerMapTable.entry1]]
+id = 121
+teamMate.id = 122
+teamMate.teamMate.id = 123

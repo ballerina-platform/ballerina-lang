@@ -45,12 +45,12 @@ public class ClassDefContextTest extends CompletionTest {
     }
 
     @Override
-    public String getTestResourceDir() {
-        return "class_def";
+    public List<String> skipList() {
+        return Arrays.asList("config33.json", "config34.json");
     }
 
     @Override
-    public List<String> skipList() {
-        return Arrays.asList("config3.json", "config8.json", "config12.json", "config13.json");
+    public String getTestResourceDir() {
+        return "class_def";
     }
 }

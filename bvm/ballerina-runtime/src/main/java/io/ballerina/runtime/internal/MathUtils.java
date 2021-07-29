@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 /**
- * Common utility methods used for arithmatic operations.
+ * Common utility methods used for arithmetic operations.
  *
  * @since 1.0
  */
@@ -31,14 +31,12 @@ public class MathUtils {
 
     private static final BString DIVIDE_BY_ZERO_ERROR = StringUtils.fromString(" / by zero");
 
-    private static final BString INT_RANGE_OVERFLOW_ERROR = StringUtils.fromString(" int range overflow");
-
     public static long divide(long numerator, long denominator) {
         try {
             if (numerator == Long.MIN_VALUE && denominator == -1) {
                 // a panic will occur on division by zero or overflow,
                 // which happens if the first operand is -2^63 and the second operand is -1
-                throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, INT_RANGE_OVERFLOW_ERROR);
+                throw ErrorUtils.createIntOverflowError();
             }
             return numerator / denominator;
         } catch (ArithmeticException e) {
@@ -61,6 +59,30 @@ public class MathUtils {
                 throw ErrorCreator.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR,
                                                StringUtils.fromString(e.getMessage()));
             }
+        }
+    }
+
+    public static long addExact(long num1, long num2) {
+        try {
+            return Math.addExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw ErrorUtils.createIntOverflowError();
+        }
+    }
+
+    public static long subtractExact(long num1, long num2) {
+        try {
+            return Math.subtractExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw ErrorUtils.createIntOverflowError();
+        }
+    }
+
+    public static long multiplyExact(long num1, long num2) {
+        try {
+            return Math.multiplyExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw ErrorUtils.createIntOverflowError();
         }
     }
 }

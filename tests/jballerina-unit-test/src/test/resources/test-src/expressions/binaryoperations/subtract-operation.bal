@@ -2,6 +2,12 @@ function intSubtract(int a, int b) returns (int) {
     return a - b;
 }
 
+function overflowBySubtraction() {
+    int num1 = -9223372036854775808;
+    int num2 = 1;
+    int ans = num1 - num2;
+}
+
 function floatSubtract(float a, float b) returns (float) {
     return a - b;
 }
@@ -67,6 +73,18 @@ function testSubtractSingleton() {
     assertEqual(a1 - a5, 10);
     assertEqual(a1 - a6, 5);
     assertEqual(a1 - a7, 8);
+}
+
+function testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
+    float a1 = 10.0 - 5 - 2.0;
+    float a2 = 10 - 2;
+    decimal a3 = 30 - 15.0;
+    decimal a4 = 20.0 - 10.0 - 5;
+
+    assertEqual(a1, 3.0);
+    assertEqual(a2, 8.0);
+    assertEqual(a3, 15.0d);
+    assertEqual(a4, 5.0d);
 }
 
 function assertEqual(any actual, any expected) {

@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
+import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
@@ -58,10 +59,10 @@ public class CliConfigProviderTest {
         ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, arg)));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
-        Assert.assertEquals(configValueMap.get(keys[0]), expectedValue);
+        Assert.assertEquals(configValueMap.get(keys[0]).getValue(), expectedValue);
     }
 
     @DataProvider(name = "different-cli_args-data-provider")
@@ -96,5 +97,22 @@ public class CliConfigProviderTest {
                         "org453", "io.http2.socket_transport.uti123ls", "i\\$nt\\=va/*r\\=",
                         PredefinedTypes.TYPE_STRING, StringUtils.fromString("=abc~!@#$%^&*()_+=-210|}{?>\\=<")}
         };
+    }
+
+    @Test
+    public void testMultipleArgumentPrefixForModuleConfig() {
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        VariableKey a = new VariableKey(ROOT_MODULE, "a", PredefinedTypes.TYPE_STRING, true);
+        VariableKey b = new VariableKey(ROOT_MODULE, "b", PredefinedTypes.TYPE_STRING, true);
+        VariableKey c = new VariableKey(ROOT_MODULE, "c", PredefinedTypes.TYPE_STRING, true);
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{a, b, c})), diagnosticLog,
+                        List.of(new CliProvider(ROOT_MODULE, "-Ca=aaa", "-CrootMod.b=bbb", "-CrootOrg.rootMod.c=ccc")));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(configValueMap.get(a).getValue(), StringUtils.fromString("aaa"));
+        Assert.assertEquals(configValueMap.get(b).getValue(), StringUtils.fromString("bbb"));
+        Assert.assertEquals(configValueMap.get(c).getValue(), StringUtils.fromString("ccc"));
     }
 }

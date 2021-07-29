@@ -53,3 +53,9 @@ function test() {
                                        select k)
                 join int jj in (from int m in arr2 select m) on
 }
+
+type Person record {|
+    string firstName;
+    string lastName;
+    int age;
+|};

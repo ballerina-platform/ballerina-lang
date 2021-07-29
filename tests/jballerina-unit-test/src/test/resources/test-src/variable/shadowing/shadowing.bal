@@ -194,3 +194,15 @@ function testGeneratedNames() {
     test:assertFalse(serviceEPAvailable);
     test:assertValueEqual(LOCK_STORE, "lockStore");
 }
+
+type Foo int;
+
+public function testTypeAliasShadowingByLocalVar() returns string {
+    string Foo = "hello";
+    return Foo;
+}
+
+public function testBuiltInTypeShadowing() {
+    string foo = testTypeAliasShadowingByLocalVar();
+    test:assertValueEqual(foo, "hello");
+}

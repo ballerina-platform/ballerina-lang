@@ -258,7 +258,7 @@ public class WhileStmtTest {
         BAssertUtil.validateError(onfailNegativeCompileResult, 1, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 34, 4);
         BAssertUtil.validateError(onfailNegativeCompileResult, 2, "unreachable code", 68, 7);
-        BAssertUtil.validateError(onfailNegativeCompileResult, 3, "this function must return a result", 74, 1);
+        BAssertUtil.validateError(onfailNegativeCompileResult, 3, "this function must return a result", 83, 1);
         BAssertUtil.validateError(onfailNegativeCompileResult, 4, "incompatible error definition type: " +
                 "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 4);
         BAssertUtil.validateError(onfailNegativeCompileResult, 5, "unreachable code", 116, 9);

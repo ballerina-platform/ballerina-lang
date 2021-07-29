@@ -36,3 +36,67 @@ public enum HttpVersion {
 
 public type IntMap map<int>;
 public type ManagerMap map<Manager>;
+
+public type GrantConfig ClientCredentialsGrantConfig|PasswordGrantConfig|RefreshTokenGrantConfig;
+
+public type ClientCredentialsGrantConfig record {|
+    int|string clientId;
+    anydata clientSecret;
+    ClientConfiguration clientConfig;
+|};
+
+public type PasswordGrantConfig record {|
+    (string|int)[] password;
+    ClientConfiguration clientConfig?;
+|};
+
+public type RefreshTokenGrantConfig record {|
+    string token;
+    float|int timeLimit;
+    ClientConfiguration clientConfig;
+|};
+
+public type ClientConfiguration record {|
+    HttpVersion httpVersion?;
+    map<anydata> customHeaders;
+|};
+
+public type One 1;
+
+public type Two 2.5;
+
+public type Three "three";
+
+configurable int num4 = 8;
+configurable string word5 = "word";
+
+final string symbol1 = "!";
+configurable string symbol2 = "a";
+configurable string symbol3 = "a";
+
+public type Symbols record {|
+    string symbol1 = symbol1;
+    string symbol2 = symbol2;
+    string symbol3 = getSymbol();
+    string symbol4;
+|};
+
+public isolated function getWord() returns string {
+    return word5;
+}
+
+public isolated function getNumber() returns int {
+    return num4;
+}
+
+isolated function getSymbol() returns string {
+    return symbol3;
+}
+
+type Staff record {|
+    readonly int id;
+    readonly string name = "Default";
+    readonly float salary?;
+|};
+
+public type StaffTable table<Staff> key(id);

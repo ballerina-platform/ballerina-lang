@@ -1,40 +1,40 @@
 NAME
-       ballerina-grpc - Generate Ballerina sources for the given protobuf
+       ballerina-grpc - Generate Ballerina sources for the given Protocol Buffer
                         definition
 
 SYNOPSIS
-       bal grpc --input <proto-file-path> [--output <path>]
-                        [--mode client | service | proxy]
+       bal grpc [--input <proto-file-path>] [--output <path>]
+                        [--mode] (client | service | proxy)
 
 DESCRIPTION
-       GRPC generates the Ballerina gRPC client/service sources for a given
-       gRPC protocol buffer definition.
+       Generate the Ballerina gRPC client/service sources for a given
+       gRPC protocol buffer (Protobuf) definition.
 
 OPTIONS
        --input <proto-file-path>
-           Path of the input .proto file.
+           Path of the input `.proto` file.
 
        --output <path>
            Location of the generated Ballerina source files.
-           If output path is not specified, output will be written to a
+           If the output path is not specified, the output will be written to a
            directory corresponding to the package in the protocol buffer
-           definition. If package is not specified, output will be written
+           definition. If a package is not specified, the output will be written
            to a 'temp' directory in the current location.
 
        --mode client | service | proxy
-           Set client or service mode to generate sample code.
-           Set proxy mode to generate a gateway proxy.
+           Set the `client` or `service` mode to generate sample code.
+           Set the `proxy` mode to generate a gateway proxy.
            If not specified, only the stub file is generated.
 
 EXAMPLES
-       Generate the Ballerina gRPC stub file for the given .proto file to a
+       Generate the Ballerina gRPC stub file (for the given `.proto` file) in a
        'stub' directory.
           $ bal grpc --input chat.proto --output stub
 
-       Generate the Ballerina gRPC stub file and client sample code for the
-       given .proto file to a 'client' directory.
+       Generate the Ballerina gRPC stub file and client sample code (for the
+       given `.proto` file) in a 'client' directory.
           $ bal grpc --input chat.proto --output client --mode client
 
-       Generate the Ballerina gRPC stub file and service sample code for the
-       given .proto file to a 'service' directory.
+       Generate the Ballerina gRPC stub file and service sample code (for the
+       given `.proto` file) in a 'service' directory.
           $ bal grpc --input chat.proto --output service --mode service

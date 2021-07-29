@@ -32,6 +32,7 @@ dependencies {
     implementation 'info.picocli:picocli'
 
     implementation project(path: ':ballerina-test-utils')
+    implementation project(':ballerina-runtime')
 }
 
 task extractDistribution(type: Copy) {
@@ -41,10 +42,17 @@ task extractDistribution(type: Copy) {
 
 }
 
+task testUtilsJar(type: Jar) {
+    from sourceSets.test.runtimeClasspath
+    include "org/ballerinalang/testerina/utils/**"
+    archiveName "interops.jar"
+}
+
 // Integration tests for testerina
 test {
     mustRunAfter ':jballerina-integration-test:test'
     dependsOn extractDistribution
+    dependsOn testUtilsJar
     systemProperty 'enableTesterinaTests', 'true'
 
     maxParallelForks = 1
@@ -53,7 +61,6 @@ test {
     systemProperty 'server.zip', configurations.jballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/src/test/resources/logging.properties"
-    systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'

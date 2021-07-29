@@ -33,6 +33,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.VAR_TYPE_DESC;
+
 /**
  * These will be variable declarations.
  * Currently only module level variable declarations are accepted.
@@ -105,5 +107,15 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
             String unescapedIdentifier = StringUtils.unescapeUnicodeCodepoints(token.text());
             foundVariableIdentifiers.add(new QuotedIdentifier(unescapedIdentifier));
         }
+    }
+
+    /**
+     * Returns true if declared with a var.
+     *
+     * @return Declared with a var or without a var.
+     */
+    public boolean isDeclaredWithVar() {
+        return VAR_TYPE_DESC == rootNode.typedBindingPattern()
+                .typeDescriptor().kind();
     }
 }

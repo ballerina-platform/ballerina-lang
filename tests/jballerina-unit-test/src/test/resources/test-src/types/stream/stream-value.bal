@@ -51,7 +51,7 @@ function getRecordValue((record {| int value; |}|error?)|(record {| int value; |
 }
 
 EvenNumberGenerator evenGen = new();
-stream<int,error> evenNumberStream = new(evenGen);
+stream<int,error?> evenNumberStream = new(evenGen);
 
 function testGlobalStreamConstruct() returns boolean {
     boolean testPassed = true;
@@ -75,7 +75,7 @@ function testStreamConstruct() returns boolean {
     boolean testPassed = true;
 
     OddNumberGenerator oddGen = new();
-    var oddNumberStream = new stream<int,error>(oddGen);
+    var oddNumberStream = new stream<int,error?>(oddGen);
 
     record {| int value; |}? oddNumber = getRecordValue(oddNumberStream.next());
     testPassed = testPassed && (oddNumber?.value == 3);
@@ -193,8 +193,8 @@ function testIteratorWithCustomError() returns boolean {
     boolean testPassed = true;
 
     IteratorWithCustomError numGen = new();
-    var intStreamA = new stream<int, CustomError>(numGen);
-    stream<int, CustomError> intStreamB = new(numGen);
+    var intStreamA = new stream<int, CustomError?>(numGen);
+    stream<int, CustomError?> intStreamB = new(numGen);
 
     var returnedVal = getRecordValue(intStreamA.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 1);
@@ -229,8 +229,8 @@ function testIteratorWithGenericError() returns boolean {
     boolean testPassed = true;
 
     IteratorWithGenericError numGen = new();
-    var intStreamA = new stream<int, error>(numGen);
-    stream<int, error> intStreamB = new(numGen);
+    var intStreamA = new stream<int, error?>(numGen);
+    stream<int, error?> intStreamB = new(numGen);
 
     var returnedVal = getRecordValue(intStreamA.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 1);
@@ -302,8 +302,8 @@ function testIteratorWithErrorUnion() returns boolean {
     boolean testPassed = true;
 
     IteratorWithErrorUnion numGen = new();
-    var intStreamA = new stream<int, Error>(numGen);
-    stream<int, Error> intStreamB = new(numGen);
+    var intStreamA = new stream<int, Error?>(numGen);
+    stream<int, Error?> intStreamB = new(numGen);
 
     var returnedVal = getRecordValue(intStreamA.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 1);
@@ -388,12 +388,12 @@ function testEmptyStreamConstructs() returns boolean {
     stream<int> emptyStream1 = new;
     stream<int> emptyStream2 = new stream<int>();
     stream<int, ()> emptyStream3 = new;
-    stream<int, error> emptyStream4 = new;
+    stream<int, error?> emptyStream4 = new;
     stream<int, ()> emptyStream5 = new stream<int, ()>();
-    stream<int, error> emptyStream6 = new stream<int, error>();
+    stream<int, error?> emptyStream6 = new stream<int, error?>();
     var emptyStream7 = new stream<int>();
     var emptyStream8 = new stream<int, ()>();
-    var emptyStream9 = new stream<int, error>();
+    var emptyStream9 = new stream<int, error?>();
 
     testPassed = testPassed && (emptyStream1.next() === ());
     testPassed = testPassed && (emptyStream2.next() === ());
@@ -438,7 +438,7 @@ function testUnionOfStreamsAsFunctionParams() returns boolean {
     return testPassed;
 }
 
-function functionWithStreamArgs(stream<any|error> str) returns boolean {
+function functionWithStreamArgs(stream<any|error?> str) returns boolean {
     record {|any|error value;|}? res = str.next();
     if (res is record {|Foo value;|}) {
         return res.value == {v: "foo2"};

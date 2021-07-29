@@ -187,12 +187,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_NEVER_KEYWORD("BCE0288", "error.missing.never.keyword"),
     ERROR_MISSING_VAR_KEYWORD("BCE0289", "error.missing.var.keyword"),
     ERROR_MISSING_MAP_KEYWORD("BCE0290", "error.missing.map.keyword"),
-    ERROR_MISSING_FUTURE_KEYWORD("BCE0291", "error.missing.future.keyword"),
-    ERROR_MISSING_TYPEDESC_KEYWORD("BCE0292", "error.missing.typedesc.keyword"),
-    ERROR_MISSING_ERROR_KEYWORD("BCE0293", "error.missing.error.keyword"),
-    ERROR_MISSING_STREAM_KEYWORD("BCE0294", "error.missing.stream.keyword"),
-    ERROR_MISSING_READONLY_KEYWORD("BCE0295", "error.missing.readonly.keyword"),
-    ERROR_MISSING_DISTINCT_KEYWORD("BCE0296", "error.missing.distinct.keyword"),
+    ERROR_MISSING_ERROR_KEYWORD("BCE0291", "error.missing.error.keyword"),
+    ERROR_MISSING_STREAM_KEYWORD("BCE0292", "error.missing.stream.keyword"),
+    ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
+    ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
@@ -240,9 +238,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
     ERROR_MISSING_FIELD_NAME("BCE0522", "error.missing.field.name"),
     ERROR_MISSING_BUILTIN_TYPE("BCE0523", "error.missing.builtin.type"),
-    ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0524",
-            "error.metadata.not.attached.to.a.top.level.construct"),
-    ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER("BCE0525", "error.metadata.not.attached.to.a.object.member"),
+    ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT("BCE0524", "error.annotation.not.attached.to.a.construct"),
+    ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT("BCE0525", "error.documentation.not.attached.to.a.construct"),
+    ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
+    ERROR_MISSING_TYPE_REFERENCE("BCE0527", "error.missing.type.reference"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -325,13 +324,16 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INCOMPLETE_QUOTED_IDENTIFIER("BCE665", "error.incomplete.quoted.identifier"),
     ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD("BCE666",
             "error.inclusive.record.type.cannot.contain.rest.field"),
-    ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED("BCE667", "error.complex.variable.must.be.initialized"),
+    ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED("BCE667", "error.variable.decl.having.bp.must.be.initialized"),
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
     ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),
     ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression"),
     ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor"),
     ERROR_CONFIGURABLE_VAR_IMPLICITLY_FINAL("BCE673", "error.configurable.var.implicitly.final"),
+    ERROR_LOCAL_CONST_DECL_NOT_ALLOWED("BCE674", "error.local.const.decl.not.allowed"),
+    ERROR_FIELD_INITIALIZATION_NOT_ALLOWED_IN_OBJECT_TYPE("BCE675",
+            "error.field.initialization.not.allowed.in.object.type"),
     ;
 
     String diagnosticId;

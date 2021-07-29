@@ -36,7 +36,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -52,6 +51,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -74,7 +74,7 @@ public final class FunctionCompletionItemBuilder {
     public static CompletionItem build(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
-        if (functionSymbol != null) {
+        if (functionSymbol != null && functionSymbol.getName().isPresent()) {
             // Override function signature
             String funcName = functionSymbol.getName().get();
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
@@ -136,32 +136,34 @@ public final class FunctionCompletionItemBuilder {
      * @param context        LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem buildMethod(FunctionSymbol functionSymbol, BallerinaCompletionContext context) {
+    public static CompletionItem buildMethod(@Nonnull FunctionSymbol functionSymbol,
+                                             BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         setMeta(item, functionSymbol, context);
-        if (functionSymbol != null) {
-            String funcName = functionSymbol.getName().get();
-            Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
-            item.setInsertText("self." + functionSignature.getLeft());
-            item.setLabel("self." + functionSignature.getRight());
-            item.setFilterText("self." + funcName);
-        }
+        String funcName = functionSymbol.getName().get();
+        Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
+        item.setInsertText("self." + functionSignature.getLeft());
+        item.setLabel("self." + functionSignature.getRight());
+        item.setFilterText("self." + funcName);
+        
         return item;
     }
 
-    private static void setMeta(CompletionItem item, FunctionSymbol bSymbol, BallerinaCompletionContext ctx) {
+    private static void setMeta(CompletionItem item, FunctionSymbol functionSymbol, BallerinaCompletionContext ctx) {
         item.setInsertTextFormat(InsertTextFormat.Snippet);
-        item.setDetail(ItemResolverConstants.FUNCTION_TYPE);
         item.setKind(CompletionItemKind.Function);
-        if (bSymbol != null) {
-            List<String> funcArguments = getFuncArguments(bSymbol, ctx);
+        if (functionSymbol != null) {
+            FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
+            Optional<TypeSymbol> typeSymbol = functionTypeDesc.returnTypeDescriptor();
+            typeSymbol.ifPresent(symbol -> item.setDetail(CommonUtil.getModifiedTypeName(ctx, symbol)));
+            List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
             if (!funcArguments.isEmpty()) {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
                 item.setCommand(cmd);
             }
-            boolean skipFirstParam = skipFirstParam(ctx, bSymbol);
-            if (bSymbol.documentation().isPresent()) {
-                item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
+            boolean skipFirstParam = skipFirstParam(ctx, functionSymbol);
+            if (functionSymbol.documentation().isPresent()) {
+                item.setDocumentation(getDocumentation(functionSymbol, skipFirstParam, ctx));
             }
         }
     }
@@ -266,7 +268,6 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol == null) {
             return ImmutablePair.of(functionName + "()", functionName + "()");
         }
-        FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(functionName + "(");
         List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
@@ -276,14 +277,6 @@ public final class FunctionCompletionItemBuilder {
         }
         signature.append(")");
         insertText.append(")");
-        Optional<TypeSymbol> returnType = functionTypeDesc.returnTypeDescriptor();
-        String initString = "(";
-        String endString = ")";
-
-        if (returnType.isPresent() && returnType.get().typeKind() != TypeDescKind.NIL) {
-            signature.append(initString).append(CommonUtil.getModifiedTypeName(ctx, returnType.get()));
-            signature.append(endString);
-        }
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
     }
@@ -345,7 +338,10 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Whether we skip the first parameter being included as a label in the signature.
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
-     * showing the invocation over package of the langlib with the COLON we show the first param
+     * showing the invocation over package of the langlib with the COLON we show the first param.
+     * 
+     * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
+     * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
      *
      * @param context        context
      * @param functionSymbol invokable symbol

@@ -33,6 +33,7 @@ public class RuntimeConstants {
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
+    public static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     // Configs
     public static final String BALLERINA_ARGS_INIT_PREFIX = "--";
@@ -106,22 +107,14 @@ public class RuntimeConstants {
                                                                                          MathContext.DECIMAL128);
     public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775807.6",
                                                                                          MathContext.DECIMAL128);
-
-    // ballerina environment properties.
-    public static final String UTIL_LOGGING_CONFIG_CLASS_PROPERTY = "java.util.logging.config.class";
-    public static final String UTIL_LOGGING_MANAGER_CLASS_PROPERTY = "java.util.logging.manager";
-    public static final String UTIL_LOGGING_CONFIG_CLASS_VALUE = "org.ballerinalang.logging.util.LogConfigReader";
-    public static final String UTIL_LOGGING_MANAGER_CLASS_VALUE = "org.ballerinalang.logging.BLogManager";
-
     // runtime related error message constant values
     public static final String INTERNAL_ERROR_MESSAGE =
             "ballerina: Oh no, something really went wrong.\n" +
             "\n" +
-            "The `ballerina-internal.log` file located in the current directory\n" + 
-            "will indicate what the problem is.\n" +
-            "We really appreciate it if you can share with us, the code\n" +
-            "that broke Ballerina, together with this log file by creating a\n" +
-            "bug report in https://github.com/ballerina-platform/ballerina-lang/issues.\n";
+            "If you are able to share with us the code that broke Ballerina then\n" +
+            "we would REALLY appreciate if you would report this to us:\n" +
+            "go to https://github.com/ballerina-platform/ballerina-lang/issues and\n" +
+            "create a bug report with both this log and the sample code.\n";
 
     public static final String DEFAULT_LOG_FILE_HANDLER_PATTERN =
             "org.ballerinalang.logging.handlers.DefaultLogFileHandler.pattern";

@@ -141,6 +141,7 @@ public class LangLibXMLTest {
     public void testSetElementName() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetElementName");
         assertEquals(((BXML) returns[0]).stringValue(), "<el2 attr=\"attr1\">content</el2>");
+        assertEquals(((BXML) returns[1]).stringValue(), "<Elem xmlns=\"http://www.ballerina-schema.io/schema\"/>");
     }
 
     @Test
@@ -386,13 +387,13 @@ public class LangLibXMLTest {
         constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
         int i = 0;
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml:Element'",
-                20, 28);
+                20, 23);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:ProcessingInstruction', " +
-                "found 'xml:Element'", 21, 42);
+                "found 'xml:Element'", 21, 37);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>', found 'xml:Element'",
-                25, 33);
+                25, 28);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:ProcessingInstruction>'," +
-                " found 'xml:Element'", 26, 47);
+                " found 'xml:Element'", 26, 42);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml<xml:Element>'",
                 29, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml:Comment'",
@@ -404,21 +405,21 @@ public class LangLibXMLTest {
                 " found 'xml<(xml:Element|xml:Comment)>'", 41, 29);
 
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
-                45, 31);
+                45, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element'," +
-                " found 'xml:ProcessingInstruction'", 46, 18);
+                " found 'xml:ProcessingInstruction'", 46, 13);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Text'",
-                47, 18);
+                47, 13);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml<xml:Comment>'",
                 50, 13);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>', found 'xml:Element'",
-                52, 51);
+                52, 46);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>'," +
                 " found 'xml<xml:Element>'", 55, 28);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
-                60, 26);
+                60, 21);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
-                62, 34);
+                62, 29);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml<xml:Comment>'",
                 65, 19);
         assertEquals(constraintNegative.getErrorCount(), i);

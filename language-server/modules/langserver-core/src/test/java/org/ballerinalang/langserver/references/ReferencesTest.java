@@ -88,7 +88,8 @@ public class ReferencesTest {
                 {"ref_record_types_config1.json"},
                 // TODO type Err error; user defined types from other modules are not detected due to their parent
                 //  being set to lang.annotations.
-                {"ref_package_alias_config1.json"}
+                {"ref_package_alias_config1.json"},
+                {"ref_retry_spec_config1.json"},
         };
     }
 

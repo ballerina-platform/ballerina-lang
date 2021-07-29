@@ -619,6 +619,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangConstRef constRef) {
+        result = constRef;
+    }
+
+    @Override
     public void visit(BLangTupleVarRef varRefExpr) {
         rewrite(varRefExpr.expressions);
         result = varRefExpr;
@@ -1113,11 +1118,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
                             TreeBuilder.createTypeConversionNode();
                     implConversionExpr.expr = constRef;
                     implConversionExpr.pos = varRefExpr.impConversionExpr.pos;
-                    implConversionExpr.type = varRefExpr.impConversionExpr.type;
+                    implConversionExpr.setBType(varRefExpr.impConversionExpr.getBType());
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
-                    types.setImplicitCastExpr(constRef, constRef.type, varRefExpr.type);
+                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefExpr.getBType());
                 }
                 result = constRef;
                 return;

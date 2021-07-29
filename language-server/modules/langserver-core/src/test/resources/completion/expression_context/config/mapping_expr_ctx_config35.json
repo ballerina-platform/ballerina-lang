@@ -9,14 +9,15 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
+      "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "f1",
       "kind": "Field",
-      "detail": "int",
+      "detail": "Foo.f1",
       "sortText": "G",
       "insertText": "f1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -24,17 +25,18 @@
     {
       "label": "f2",
       "kind": "Field",
-      "detail": "string",
+      "detail": "Foo.f2",
       "sortText": "G",
       "insertText": "f2: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Add All Attributes",
+      "label": "Fill Foo Required Fields",
       "kind": "Property",
-      "detail": "none",
-      "sortText": "Q",
-      "insertText": "f1: 0,\nf2: \"\"",
+      "detail": "Foo",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "f1: 0",
       "insertTextFormat": "Snippet"
     }
   ]

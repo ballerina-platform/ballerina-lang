@@ -889,6 +889,9 @@ public class TypeParamAnalyzer {
         BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                 env.enclPkg.symbol.pkgID, expType, env.scope.owner, expType.tsymbol.pos, VIRTUAL);
 
+        BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) expType.tsymbol;
+        invokableTypeSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
+
         BType retType = expType.retType;
         BType matchingBoundType = getMatchingBoundType(retType, env, resolvedTypes);
         if (!hasDifferentType && retType != matchingBoundType) {
@@ -951,9 +954,14 @@ public class TypeParamAnalyzer {
                                                                     expFunc.symbol.name, env.enclPkg.packageID,
                                                                     matchType, actObjectSymbol, expFunc.pos, VIRTUAL);
             invokableSymbol.retType = invokableSymbol.getType().retType;
-            matchType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, invokableSymbol.flags, Names.EMPTY,
-                                                         env.enclPkg.symbol.pkgID, invokableSymbol.type,
-                                                         env.scope.owner, invokableSymbol.pos, VIRTUAL);
+            BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE,
+                    invokableSymbol.flags, Names.EMPTY,
+                    env.enclPkg.symbol.pkgID, invokableSymbol.type,
+                    env.scope.owner, invokableSymbol.pos, VIRTUAL);
+            BInvokableTypeSymbol origTSymbol = (BInvokableTypeSymbol) invokableSymbol.type.tsymbol;
+            typeSymbol.params = origTSymbol == null ? null : new ArrayList<>(origTSymbol.params);
+            matchType.tsymbol = typeSymbol;
+
             actObjectSymbol.attachedFuncs.add(duplicateAttachFunc(expFunc, matchType, invokableSymbol));
             String funcName = Symbols.getAttachedFuncSymbolName(actObjectSymbol.type.tsymbol.name.value,
                     expFunc.funcName.value);

@@ -53,10 +53,10 @@ public enum JVMValueType {
     XML_TEXT("io.ballerina.runtime.internal.values.XmlText"),
     XML_ATTRIB_MAP("io.ballerina.runtime.internal.values.AttributeMapValueImpl"),
     FP_VALUE("io.ballerina.runtime.internal.values.FPValue"),
-    ANON_SERVICE("anonService"),
     BTYPE_OBJECT("BObjectType"),
     BTYPE_RECORD("BRecordType"),
-    BTYPE_JSON("BJsonType");
+    BTYPE_JSON("BJsonType"),
+    BTYPE_SERVICE("BServiceType");
 
     private final String value;
 

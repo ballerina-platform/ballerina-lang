@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -134,7 +135,8 @@ public class JvmPackageGen {
     private final Set<PackageID> dependentModules;
     private final BLangDiagnosticLog dlog;
 
-    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog) {
+    JvmPackageGen(SymbolTable symbolTable, PackageCache packageCache, BLangDiagnosticLog dlog,
+                  CompilerContext compilerContext) {
         birFunctionMap = new HashMap<>();
         globalVarClassMap = new HashMap<>();
         externClassMap = new HashMap<>();
@@ -142,7 +144,7 @@ public class JvmPackageGen {
         this.symbolTable = symbolTable;
         this.packageCache = packageCache;
         this.dlog = dlog;
-        methodGen = new MethodGen(this);
+        methodGen = new MethodGen(this, compilerContext);
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         frameClassGen = new FrameClassGen();
@@ -183,6 +185,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.INTERNAL);
         dependentModuleArray.add(PackageID.ARRAY);
         dependentModuleArray.add(PackageID.DECIMAL);
+        dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.ERROR);
         dependentModuleArray.add(PackageID.FLOAT);
         dependentModuleArray.add(PackageID.FUTURE);
@@ -192,7 +195,6 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.STREAM);
         dependentModuleArray.add(PackageID.STRING);
         dependentModuleArray.add(PackageID.TABLE);
-        dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.XML);
         dependentModuleArray.add(PackageID.TYPEDESC);
         dependentModuleArray.add(PackageID.BOOLEAN);
@@ -472,7 +474,7 @@ public class JvmPackageGen {
                     asyncDataCollector, stringConstantsGen);
             cw.visitEnd();
 
-            byte[] bytes = getBytes(cw, moduleClass, module);
+            byte[] bytes = getBytes(cw, module);
             jarEntries.put(moduleClass + ".class", bytes);
         });
     }
@@ -668,7 +670,7 @@ public class JvmPackageGen {
         return externClassMap.get(pkgName + "/" + functionName);
     }
 
-    public byte[] getBytes(ClassWriter cw, String moduleClass, BIRNode node) {
+    public byte[] getBytes(ClassWriter cw, BIRNode node) {
 
         byte[] result;
         try {
@@ -677,7 +679,7 @@ public class JvmPackageGen {
             String funcName = e.getMethodName();
             BIRFunction func = findFunction(node, funcName);
             dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
-                    IdentifierUtils.decodeIdentifier(func.name.value));
+                       IdentifierUtils.decodeIdentifier(func.name.value));
             result = new byte[0];
         } catch (ClassTooLargeException e) {
             dlog.error(node.pos, DiagnosticErrorCode.FILE_TOO_LARGE,

@@ -16,9 +16,9 @@
 
 
 import configUnionTypes.mod1;
-import ballerina/jballerina.java;
 import configUnionTypes.mod2;
 import testOrg/configLib.mod1 as configLib;
+import testOrg/configLib.util;
 import ballerina/test;
 
 configurable configLib:HttpVersion & readonly httpVersion = ?;
@@ -29,13 +29,35 @@ type HttpResponse record {|
     configLib:HttpVersion httpVersion;
 |};
 
+type Person record {
+    string name;
+    int age?;
+};
+
 configurable HttpResponse httpResponse = ?;
 configurable mod1:Country country = ?;
+
+configurable anydata anydataVar = ?;
+configurable int|string intStringVar = 2;
+configurable anydata[] anydataArray = ?;
+configurable map<anydata> anydataMap = ?;
+configurable table<map<anydata>> anydataTable = ?;
+
+configurable configLib:One|configLib:Two|configLib:Three number = ?;
+configurable configLib:GrantConfig config1 = ?;
+configurable configLib:GrantConfig config2 = ?;
+configurable configLib:GrantConfig config3 = ?;
+
+configurable map<configLib:ClientCredentialsGrantConfig>|map<configLib:RefreshTokenGrantConfig> configMap1 = ?;
+configurable map<configLib:ClientCredentialsGrantConfig|configLib:PasswordGrantConfig> configMap2 = ?;
+
+configurable int|Person recordUnionVar = ?;
+configurable float|table<Person> key(name) tableUnionVar = ?;
 
 public function main() {
     testEnumValues();
     mod2:testEnumValues();
-    print("Tests passed");
+    util:print("Tests passed");
 }
 
 function testEnumValues() {
@@ -45,21 +67,35 @@ function testEnumValues() {
     test:assertEquals(country.countryCode, mod1:US);
     test:assertEquals(countryCodes[0], mod1:US);
     test:assertEquals(countryCodes[1], mod1:SL);
+    test:assertEquals(anydataVar, "hello");
+    test:assertEquals(intStringVar, 12345);
+    test:assertEquals(anydataArray.toString(), "[\"hello\",1,2,3.4,false]");
+    test:assertEquals(anydataMap.toString(), "{\"username\":\"waruna\",\"age\":14,\"marks\":85.67,\"isAdmin\":true}");
+    test:assertEquals(anydataTable.toString(), "[{\"username\":\"manu\",\"age\":12,\"marks\":123.456," +
+                                               "\"isAdmin\":false},{\"username\":\"hinduja\",\"age\":16,\"marks\":98" +
+                                               ".76,\"isAdmin\":true}]");
+    test:assertEquals(number.toString(), "three");
+    test:assertEquals(config1.toString(), "{\"clientId\":123456,\"clientSecret\":\"hello\"," +
+                                          "\"clientConfig\":{\"httpVersion\":\"HTTP_1_1\"," +
+                                          "\"customHeaders\":{\"header1\":\"header1\",\"header2\":\"header2\"}}}");
+    test:assertEquals(config2.toString(), "{\"token\":\"123456\",\"timeLimit\":12.5," +
+                                          "\"clientConfig\":{\"httpVersion\":\"HTTP_2\"," +
+                                          "\"customHeaders\":{\"header3\":\"header3\",\"header4\":\"header4\"}}}");
+    test:assertEquals(config3.toString(), "{\"password\":[\"1\",2,3]}");
+
+    test:assertEquals(configMap1.toString(), "{\"config1\":{\"clientId\":123456,\"clientSecret\":\"hello\"," +
+                                             "\"clientConfig\":{\"httpVersion\":\"HTTP_1_1\"," +
+                                             "\"customHeaders\":{\"header1\":\"header1\"," +
+                                             "\"header2\":\"header2\"}}},\"config2\":{\"clientId\":654321," +
+                                             "\"clientSecret\":\"hello\"," +
+                                             "\"clientConfig\":{\"httpVersion\":\"HTTP_2\"," +
+                                             "\"customHeaders\":{\"header3\":\"header3\"," +
+                                             "\"header4\":\"header4\"}}}}");
+    test:assertEquals(configMap2.toString(), "{\"config1\":{\"clientId\":123456,\"clientSecret\":\"hello\"," +
+                                             "\"clientConfig\":{\"httpVersion\":\"HTTP_1_1\"," +
+                                             "\"customHeaders\":{\"header1\":\"header1\"," +
+                                             "\"header2\":\"header2\"}}},\"config2\":{\"password\":[\"1\",2,3]}}");
+    test:assertEquals(recordUnionVar.toString(), "{\"name\":\"Manu\",\"age\":12}");
+    test:assertEquals(tableUnionVar.toString(), "[{\"name\":\"Nadeeshan\",\"age\":11},{\"name\":\"Gabilan\"}," +
+    "{\"name\":\"Hinduja\",\"age\":15}]");
 }
-
-function print(string value) {
-    handle strValue = java:fromString(value);
-    handle stdout1 = stdout();
-    printInternal(stdout1, strValue);
-}
-
-public function stdout() returns handle = @java:FieldGet {
-    name: "out",
-    'class: "java/lang/System"
-} external;
-
-public function printInternal(handle receiver, handle strValue) = @java:Method {
-    name: "println",
-    'class: "java/io/PrintStream",
-    paramTypes: ["java.lang.String"]
-} external;

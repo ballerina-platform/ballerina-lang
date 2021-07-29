@@ -31,6 +31,17 @@ type Teacher record {|
    string teacherId;
 |};
 
+type Department record {|
+   int id;
+   string name;
+|};
+
+type Employee record {|
+   string fname;
+   string lname;
+   int deptId;
+|};
+
 function testMultipleLetClausesWithSimpleVariable1() returns Person[] {
     Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ"};
@@ -89,7 +100,6 @@ function testMultipleLetClausesWithRecordVariable() returns Person[] {
 }
 
 function testMultipleVarDeclReuseLetClause() returns Teacher[] {
-
     Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ"};
 
@@ -105,4 +115,96 @@ function testMultipleVarDeclReuseLetClause() returns Teacher[] {
                    teacherId: "TER1200"
             };
     return  outputPersonList;
+}
+
+function getDept(Person p, stream<Department> dStream) returns Department? {
+    foreach var d in dStream {
+        if d.name == p.deptAccess {
+            return d;
+        }
+    }
+}
+
+function testQueryExpressionWithinLetClause() {
+    Person p1 = {deptAccess: "OP", firstName: "Ranjan", lastName: "Fonseka"};
+    Person p2 = {deptAccess: "MKT", firstName: "Alex", lastName: "George"};
+    Person p3 = {deptAccess: "ENG", firstName: "Grainier", lastName: "Perera"};
+    Department d1 = {id: 1, name:"ENG"};
+    Department d2 = {id: 2, name:"HR"};
+    Department d3 = {id: 3, name:"OP"};
+
+    Person[] personList = [p1, p2, p3];
+    Department[] deptList = [d1, d2, d3];
+
+    Employee[] empList =
+       from var person in personList
+       let stream<Department> dS = (stream from var dep in deptList where dep.name != "HR" select dep)
+       let Department? d = getDept(person, dS)
+       where d != ()
+       select {
+           fname : person.firstName,
+           lname : person.lastName,
+           deptId : d.id
+       };
+
+    Employee emp;
+    any res = empList;
+    assertEquality(true, res is Employee[]);
+    assertEquality(true, res is (any|error)[]);
+    assertEquality(2, empList.length());
+    emp = empList[0];
+    assertEquality("Ranjan", emp.fname);
+    assertEquality("Fonseka", emp.lname);
+    assertEquality(3, emp.deptId);
+    emp = empList[1];
+    assertEquality("Grainier", emp.fname);
+    assertEquality("Perera", emp.lname);
+    assertEquality(1, emp.deptId);
+}
+
+public function testwildcardBindingPatternInLetClause() {
+
+    Person p1 = {deptAccess: "OP", firstName: "Ranjan", lastName: "Fonseka"};
+    Person p2 = {deptAccess: "MKT", firstName: "Mark", lastName: "George"};
+    Person p3 = {deptAccess: "ENG", firstName: "Grainier", lastName: "Perera"};
+    Person[] personList = [p1, p2, p3];
+    Person[] outputPersonList = from var person in personList
+        let error error(_, msg = message1) = bar()
+        let var [_, name] = foo()
+        where person.deptAccess == "MKT" && person.firstName == name
+        select {
+            firstName: name,
+            lastName: person.lastName,
+            deptAccess: "WSO2"
+        };
+    assertEquality(1, outputPersonList.length());
+    Person p = outputPersonList[0];
+    assertEquality(p.firstName, "Mark");
+    assertEquality(p.lastName, "George");
+}
+
+function foo() returns [string, string] {
+  return ["Mark", "Mark"];
+}
+
+function bar() returns error {
+    return error("", msg = "asdasd");
+}
+
+//---------------------------------------------------------------------------------------------------------
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                      message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

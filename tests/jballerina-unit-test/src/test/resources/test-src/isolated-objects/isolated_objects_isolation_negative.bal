@@ -330,7 +330,7 @@ IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = isolated
     }
 };
 
-isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
+isolated class InvalidIsolatedClassWithInvalidObjectFields {
     IsolatedClass a = new; // Should be `final`
     isolated object {} b = isolated object { // Should be `final`
         final int i = 1;
@@ -338,9 +338,9 @@ isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
     };
     final object {} c = object {}; // should be an `isolated object`
 }
-
+int globInt = 1;
 isolated class IsolatedClass {
-    function nonIsolatedFunc() returns int => 1;
+    function nonIsolatedFunc() returns int => globInt;
 }
 
 function nonIsolatedFunc() returns int[] {
@@ -746,6 +746,82 @@ isolated class IsolatedClassWithInvalidRawTemplateTransfer {
         lock {
             any val = `arr: ${intArr}`;
             return `values: ${self.arr2}, ${"Hello"}, ${self.arr}, ${val}, ${self.arr.clone()}`;
+        }
+    }
+}
+
+isolated class IsolatedClassWithInvalidQueryExpTransfer {
+    private int[][] arrs = [];
+
+    function f1() returns int[][] {
+        lock {
+            int[][] x = self.arrs;
+            return from var item in x select item;
+        }
+    }
+
+    function f2(int[][] arr) {
+        int[][] outerArr;
+        lock {
+            int[][] x = [];
+
+            foreach var item in arr {
+                if let int[] p = item in p.length() == 0 {
+                    self.arrs.push(item);
+                }
+            }
+
+            outerArr = from int[] item in x
+                            join var item2 in arr.clone() on item equals item2
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
+        }
+    }
+
+    function f3(int[][] arr) {
+        lock {
+            int[][] listResult = from var e in arr
+                    order by e[0] ascending
+                    select e;
+
+            error? res = from var e in self.arrs do {
+                arr.push(e);
+            };
+
+            foreach var f in self.arrs {
+                arr.push(f);
+            }
+
+            int[][] innerArr = [];
+            res = from var e in arr do {
+                innerArr.push(e.clone());
+            };
+            arr.push(...innerArr);
+        }
+    }
+
+    function f4() returns int[][] {
+        lock {
+            int[][] x = self.arrs;
+            // Not yet allowed, may be allowed in the future.
+            // https://github.com/ballerina-platform/ballerina-spec/issues/855#issuecomment-847829558
+            return from var item in x select item.clone();
+        }
+    }
+
+    function f5(int[][] arr, int[] a, int[] b) {
+        lock {
+            int[][] x = [];
+
+            self.arrs = from int[] item in x
+                            join var item2 in arr.clone() on item equals a
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
+
+            self.arrs = from int[] item in x
+                            join var item2 in arr.clone() on b equals a
+                            let int[] p = item where p[p.length()] == 0
+                            select p;
         }
     }
 }
