@@ -184,16 +184,17 @@ public class TomlProvider implements ConfigProvider {
     @Override
     public Optional<ConfigValue> getAsByteAndMark(Module module, VariableKey key) {
         TomlNode valueNode = getBasicTomlValue(module, key);
-        if (valueNode != null) {
-            int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
-            if (!isByteLiteral(byteValue)) {
-                invalidTomlLines.add(valueNode.location().lineRange());
-                throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(valueNode),
-                                          key.variable, byteValue);
-            }
-            return getTomlConfigValue(byteValue, key);
+        if (valueNode == null) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
+        if (!isByteLiteral(byteValue)) {
+            invalidTomlLines.add(valueNode.location().lineRange());
+            throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(valueNode),
+                    key.variable, byteValue);
+        }
+        return getTomlConfigValue(byteValue, key);
+
     }
 
     @Override
@@ -625,14 +626,10 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.UNION_TAG:
                 validateUnionValueArray(tomlValue, variableName, arrayType, elementType);
                 break;
-            case TypeTags.INTERSECTION_TAG:
+            default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
                 validateNonPrimitiveArray(tomlValue, variableName, arrayType, effectiveType);
                 break;
-            default:
-                invalidTomlLines.add(tomlValue.location().lineRange());
-                throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, arrayType.toString());
-
         }
     }
 

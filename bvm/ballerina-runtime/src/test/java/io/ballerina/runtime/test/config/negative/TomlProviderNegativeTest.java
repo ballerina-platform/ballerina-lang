@@ -80,7 +80,6 @@ public class TomlProviderNegativeTest {
                 {"NoConfig.toml",
                         "warning: configuration file is not found in path '" +
                                 getConfigPathForNegativeCases("NoConfig.toml") + "'", 1},
-                {"Empty.toml", "error: value not provided for required configurable variable 'byteVar'", 0},
                 {"InvalidConfig.toml", "warning: invalid toml file : \n" +
                         "[InvalidConfig.toml:(1:8,1:8)] missing identifier\n" +
                         "[InvalidConfig.toml:(1:26,1:26)] missing identifier\n" +
@@ -106,8 +105,6 @@ public class TomlProviderNegativeTest {
                         "found for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 1},
                 {"InvalidModuleStructure2", "[InvalidModuleStructure2.toml:(1:1,2:7)] invalid toml structure found " +
                         "for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 1},
-                {"RequiredNegative",
-                        "value not provided for required configurable variable 'stringVar'", 1, 0},
                 {"PrimitiveTypeError", "[PrimitiveTypeError.toml:(2:10,2:14)] configurable variable 'intVar' is " +
                         "expected to be of type 'int', but found 'float'", 2, 0},
                 {"PrimitiveStructureError", "[PrimitiveStructureError.toml:(2:1,2:24)] configurable variable " +
@@ -559,6 +556,55 @@ public class TomlProviderNegativeTest {
                         "with type '(map<anydata>[]|table<map<(anydata & readonly)> & readonly> & readonly)'",
                         tableUnion},
         };
+    }
+
+    @Test(dataProvider = "value-negative-provider")
+    public void testTomlValueNotProvidedError(VariableKey variableKey) {
+        String errorMsg = "value not provided for required configurable variable '" + variableKey.variable + "'";
+        validateTomlProviderErrors("Empty", errorMsg, Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{variableKey})), 1, 1);
+    }
+
+    @DataProvider(name = "value-negative-provider")
+    public Object[] getVariablesWithoutValues() {
+        VariableKey intVar =  new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey byteVar =  new VariableKey(ROOT_MODULE, "byteVar", PredefinedTypes.TYPE_BYTE, true);
+        VariableKey booleanVar =  new VariableKey(ROOT_MODULE, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true);
+        VariableKey floatVar =  new VariableKey(ROOT_MODULE, "floatVar", PredefinedTypes.TYPE_FLOAT, true);
+        VariableKey decimalVar =  new VariableKey(ROOT_MODULE, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true);
+        VariableKey stringVar =  new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
+
+        BIntersectionType xmlIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{PredefinedTypes.TYPE_XML,
+                PredefinedTypes.TYPE_READONLY}, PredefinedTypes.TYPE_XML, 0, true);
+        VariableKey xmlVar =  new VariableKey(ROOT_MODULE, "xmlVar", xmlIntersection, true);
+
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true);
+        BIntersectionType arrayIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{arrayType,
+                PredefinedTypes.TYPE_READONLY}, arrayType, 0, true);
+        VariableKey arrayVar =  new VariableKey(ROOT_MODULE, "arrayVar", arrayIntersection, true);
+
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
+        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null,
+                true, 6);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, "recordVar", recordType, true);
+
+        MapType mapType = TypeCreator.createMapType("MapType", PredefinedTypes.TYPE_STRING, ROOT_MODULE, false);
+        IntersectionType mapIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{mapType,
+                PredefinedTypes.TYPE_READONLY}, mapType, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", mapIntersection, true);
+
+        TableType tableType = TypeCreator.createTableType(mapType, true);
+        IntersectionType tableIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
+                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
+        VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", tableIntersection, true);
+
+        BIntersectionType unionIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{TYPE_ANYDATA,
+                PredefinedTypes.TYPE_READONLY}, TYPE_ANYDATA, 0, true);
+        VariableKey unionVar = new VariableKey(ROOT_MODULE, "unionVar", unionIntersection, true);
+
+        return new VariableKey[]{intVar, byteVar, booleanVar, floatVar, decimalVar, stringVar, xmlVar, arrayVar,
+                recordVar, mapVar, tableVar, unionVar};
     }
 
     private VariableKey[] getSimpleVariableKeys(Module module) {
