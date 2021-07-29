@@ -61,3 +61,29 @@ service class Do {
 function checkObjectAssignability() {
     Do 'do = new DoDone();
 }
+
+service class Foo {
+    resource function get greeting() returns string => "hello";
+
+    remote function hello() {
+
+    }
+}
+
+service class Bar {
+    remote function hello() {
+
+    }
+}
+
+function positive() {
+    Foo f = new Bar();
+}
+
+service class Baz {
+
+}
+
+function negative() {
+    Foo f = new Baz();
+}

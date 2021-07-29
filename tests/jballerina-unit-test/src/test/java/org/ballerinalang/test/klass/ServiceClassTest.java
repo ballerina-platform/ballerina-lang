@@ -35,15 +35,15 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  */
 public class ServiceClassTest {
 
-    private CompileResult compileResult;
-
-    @BeforeClass
-    public void setup() {
-        compileResult = BCompileUtil.compile("test-src/klass/simple_service_class.bal");
+    @Test
+    public void testBasicStructAsObject() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/klass/simple_service_class.bal");
+        BRunUtil.invoke(compileResult, "testServiceObjectValue");
     }
 
     @Test
-    public void testBasicStructAsObject() {
+    public void testResourceMethodsDoesNotAffectAssignability() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/klass/resource-method-assignability-test.bal");
         BRunUtil.invoke(compileResult, "testServiceObjectValue");
     }
 
@@ -73,6 +73,7 @@ public class ServiceClassTest {
         validateError(result, index++, "resource method declarations are not allowed in an object type definition",
                 20, 5);
         validateError(result, index++, "no implementation found for the method 'onMesage' of class 'SClass'", 23, 1);
+        validateError(result, index++, "incompatible types: expected 'Foo', found 'Baz'", 88, 13);
         Assert.assertEquals(result.getErrorCount(), index);
     }
 
