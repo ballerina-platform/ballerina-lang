@@ -2,6 +2,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/log;
 import ballerina/graphql;
+import ballerina/test;
 
 // ** Service **
 service http:Service /foo on new http:Listener(9090) {
@@ -87,6 +88,7 @@ public function main() {
     io:println(names2);
 
     // 3. Same module level record reference in the same file (declaration after the reference)
+    final readonly & UniformTypeOps[] ops;
 
     // ** Object **
     // 1. Define object
@@ -156,4 +158,14 @@ class MyClass {
     function func() {
         self.n += 1;
     }
+}
+
+type UniformTypeOps readonly & record {| //BUG* missing readonly
+    BinOp union = binOpPanic;
+|};
+
+type BinOp function (any t1, any t2) returns string;
+
+function binOpPanic(any t1, any t2) returns string {
+    return "done";
 }

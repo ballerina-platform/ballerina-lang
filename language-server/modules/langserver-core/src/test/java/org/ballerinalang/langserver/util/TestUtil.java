@@ -65,6 +65,7 @@ import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
 import org.eclipse.lsp4j.SemanticTokensParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureHelpParams;
@@ -433,8 +434,14 @@ public class TestUtil {
         return getResponseString(serviceEndpoint.request(DOCUMENT_EXEC_POSITIONS, executorPositionsRequest));
     }
 
+    /**
+     * Returns semanticTokensFull API response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate semantic tokens
+     * @return {@link String} Document semantic tokens response
+     */
     public static String getSemanticTokensResponse(Endpoint serviceEndpoint, String filePath) {
-
         SemanticTokensParams semanticTokensParams = new SemanticTokensParams(getTextDocumentIdentifier(filePath));
         return getResponseString(serviceEndpoint.request(SEMANTIC_TOKENS_FULL, semanticTokensParams));
     }
@@ -626,6 +633,7 @@ public class TestUtil {
         renameCapabilities.setPrepareSupport(true);
         renameCapabilities.setHonorsChangeAnnotations(true);
         textDocumentClientCapabilities.setRename(renameCapabilities);
+        textDocumentClientCapabilities.setSemanticTokens(new SemanticTokensCapabilities(true));
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
 

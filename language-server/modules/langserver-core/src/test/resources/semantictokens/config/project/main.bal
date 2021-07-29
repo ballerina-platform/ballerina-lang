@@ -37,6 +37,8 @@ isolated function lookup(string s) returns readonly & Entry? {
     return m[s];
 }
 
+type EmployeeTable table<Employee> key(age); //BUG*
+
 public function main() {
 
     // ** Class **
@@ -70,9 +72,7 @@ public function main() {
     io:println(counter.get());
 
     // ** Object
-    // 1. Define object
-
-    // 2. Same module level object reference in the same file (declaration before the reference)
+    // 1. Same module level object reference in the same file (declaration before the reference)
     Person john = {
         name: "John Doe",
         age: 25,
@@ -89,10 +89,18 @@ public function main() {
     };
     io:println("City: ", john.address.city);
 
-    // 3. Same module level object reference, but in a separate file
-    // 4. Same module level object reference in the same file (declaration after the reference)
+    // 2. Same module level object reference, but in a separate file
+    DummyObject objectIns = object { // BUG: https://github.com/ballerina-platform/ballerina-lang/issues/31886
+        public string fieldOne = "";
+        public string fieldTwo = "";
 
-    // 5. Different module object reference
+        public function doThatOnObject(string paramOne) returns boolean {
+            return false;
+        }
+    };
+    // 3. Same module level object reference in the same file (declaration after the reference)
+
+    // 4. Different module object reference
     mod1:Address address = object { // BUG: https://github.com/ballerina-platform/ballerina-lang/issues/31886
         public string city;
         public string country;
@@ -111,8 +119,14 @@ public function main() {
 
     // ** Type
     // 1. Same module level type reference in the same file (declaration before the reference)
+    EmployeeTable employeeTab = table [
+            {age: 1, name: "John", salary: 300.50, married: false},
+            {age: 2, name: "Bella", salary: 500.50, married: false}
+        ];
 
     // 2. Same module level type reference, but in a separate file
+    CountryCode code = LK;
+
     // 3. Same module level type reference in the same file (declaration after the reference)
     ContextString contextString = {
         content: "",
@@ -279,6 +293,16 @@ public type ContextString record {|
     string content;
     map<string|string[]> headers;
 |};
+
+public const string LK = "LK";
+public const string US = "US";
+
+object {
+    public function __iterator() returns 
+        object {
+        public function next() returns record {|int value;|}?;
+    };
+} iterableObj = 25 ..< 28;
 
 // ** Annotation **
 @test:Mock {
