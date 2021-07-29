@@ -29,6 +29,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringVal
  */
 public class BTypeDesc extends BSimpleVariable {
 
+    private static final String TYPEDESC_VALUE_PREFIX = "typedesc ";
+
     public BTypeDesc(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.TYPE_DESC, value);
     }
@@ -36,7 +38,11 @@ public class BTypeDesc extends BSimpleVariable {
     @Override
     public String computeValue() {
         try {
-            return getStringValue(context, jvmValue);
+            String stringValue = getStringValue(context, jvmValue);
+            if (stringValue.startsWith(TYPEDESC_VALUE_PREFIX)) {
+                stringValue = stringValue.replaceAll(TYPEDESC_VALUE_PREFIX, "");
+            }
+            return stringValue;
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
