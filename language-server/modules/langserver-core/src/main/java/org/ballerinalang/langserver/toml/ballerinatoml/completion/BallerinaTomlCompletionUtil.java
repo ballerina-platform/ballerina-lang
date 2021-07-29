@@ -17,15 +17,15 @@
  */
 package org.ballerinalang.langserver.toml.ballerinatoml.completion;
 
+import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
-import io.ballerina.toml.syntax.tree.SyntaxKind;
 import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.toml.AbstractTomlCompletionContext;
-import org.ballerinalang.langserver.toml.common.completion.TomlCompletionUtil;
-import org.ballerinalang.langserver.toml.common.completion.visitor.TomlNode;
+import org.ballerinalang.langserver.commons.toml.TomlCompletionContext;
+import org.ballerinalang.langserver.commons.toml.common.completion.TomlCompletionUtil;
+import org.ballerinalang.langserver.commons.toml.visitor.TomlNode;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
@@ -41,13 +41,14 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaTomlCompletionUtil extends TomlCompletionUtil {
+public class BallerinaTomlCompletionUtil {
 
-    public static List<CompletionItem> getCompletionItems(AbstractTomlCompletionContext ctx,
+    public static List<CompletionItem> getCompletionItems(TomlCompletionContext ctx,
                                                           LanguageServerContext serverContext) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        fillNodeAtCursor(ctx);
-        completionItems.addAll(getCompletionItemsBasedOnPosition(ctx, serverContext));
+        //TomlCompletionUtilContext instance through servercontext.
+        TomlCompletionUtil.fillNodeAtCursor(ctx);
+        completionItems.addAll(getCompletionItemsBasedOnContext(ctx, serverContext));
         return completionItems;
     }
 
@@ -56,8 +57,8 @@ public class BallerinaTomlCompletionUtil extends TomlCompletionUtil {
      *
      * @return {@link List<CompletionItem>}completion items for the current context.
      */
-    public static List<CompletionItem> getCompletionItemsBasedOnPosition(AbstractTomlCompletionContext ctx,
-                                                                         LanguageServerContext serverContext) {
+    public static List<CompletionItem> getCompletionItemsBasedOnContext(TomlCompletionContext ctx,
+                                                                        LanguageServerContext serverContext) {
         Optional<NonTerminalNode> node = ctx.getNodeAtCursor();
         if (node.isEmpty()) {
             return Collections.emptyList();
@@ -67,20 +68,31 @@ public class BallerinaTomlCompletionUtil extends TomlCompletionUtil {
         //Get possible completions based on schema
         Map<String, CompletionItem> completions;
         Map<TomlNode, Map<String, CompletionItem>> snippets =
-                BallerinaTomlSnippetManager.getInstance(serverContext).getCompletions();
+                BallerinaTomlSnippetManager.getInstance(serverContext).getCompletionProposals();
 
-        //Filter snippets based on the reference node.
+        //Filter proposed snippets based on the reference node.
         while (reference != null) {
-            if (reference.kind() == SyntaxKind.TABLE) {
-                completions = getFilteredCompletions(Either.forLeft((TableNode) reference), snippets);
-                return new ArrayList<>(completions.values());
-            }
-            if (reference.kind() == SyntaxKind.TABLE_ARRAY) {
-                completions = getFilteredCompletions(Either.forRight((TableArrayNode) reference), snippets);
-                return new ArrayList<>(completions.values());
+            switch (reference.kind()) {
+                case TABLE:
+                    completions =
+                            TomlCompletionUtil.getFilteredCompletions(Either.forLeft((TableNode) reference), snippets);
+                    return new ArrayList<>(completions.values());
+                case TABLE_ARRAY:
+                    completions =
+                            TomlCompletionUtil.getFilteredCompletions(Either.forRight((TableArrayNode) reference),
+                                    snippets);
+                    return new ArrayList<>(completions.values());
+                case MODULE_PART:
+                    completions = new HashMap<>();
+                    TomlCompletionUtil.removeExistingTableKeys(TomlCompletionUtil.addTopLevelNodeCompletions(
+                            snippets.keySet(), completions), (DocumentNode) reference);
+                    return new ArrayList<>(completions.values());
+                default:
+                    break;
             }
             reference = reference.parent();
+
         }
-        return new ArrayList<>(addTopLevelNodeCompletions(snippets.keySet(), new HashMap<>()).values());
+        return Collections.emptyList();
     }
 }

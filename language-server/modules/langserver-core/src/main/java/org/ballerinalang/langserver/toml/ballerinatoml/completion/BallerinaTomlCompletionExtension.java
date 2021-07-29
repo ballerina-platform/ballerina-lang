@@ -21,7 +21,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.toml.AbstractTomlCompletionExtension;
+import org.ballerinalang.langserver.commons.toml.TomlCompletionExtension;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
 
@@ -36,7 +36,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.LanguageExtension")
-public class BallerinaTomlCompletionExtension extends AbstractTomlCompletionExtension {
+public class BallerinaTomlCompletionExtension implements TomlCompletionExtension {
 
     @Override
     public boolean validate(CompletionParams inputParams) {

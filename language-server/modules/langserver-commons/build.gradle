@@ -31,7 +31,8 @@ dependencies {
 description = 'Ballerina - Language server - Commons'
 
 test {
-    exclude '**/*'
+    systemProperty "ballerina.home", "$buildDir/"
+    systemProperty "ballerina.version", project.version
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

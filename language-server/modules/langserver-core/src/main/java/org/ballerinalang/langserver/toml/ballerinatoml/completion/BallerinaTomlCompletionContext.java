@@ -31,9 +31,9 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.toml.AbstractTomlCompletionContext;
+import org.ballerinalang.langserver.commons.toml.TomlCompletionContext;
+import org.ballerinalang.langserver.commons.toml.common.TomlCommonUtil;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.toml.common.TomlCommonUtil;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * Ballerina toml completion context.
  */
-public class BallerinaTomlCompletionContext extends AbstractTomlCompletionContext {
+public class BallerinaTomlCompletionContext implements TomlCompletionContext {
 
     private List<Symbol> visibleSymbols;
     private List<ImportDeclarationNode> currentDocImports;

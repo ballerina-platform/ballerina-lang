@@ -17,18 +17,12 @@
  */
 package org.ballerinalang.langserver.toml.ballerinatoml.completion;
 
-import io.ballerina.toml.validator.schema.Schema;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.toml.common.completion.AbstractTomlSnippetManager;
-import org.ballerinalang.langserver.toml.common.completion.visitor.TomlNode;
-import org.ballerinalang.langserver.toml.common.completion.visitor.TomlSchemaVisitor;
-import org.eclipse.lsp4j.CompletionItem;
+import org.ballerinalang.langserver.commons.toml.AbstractTomlSnippetManager;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Maintains all the supported snippets for Ballerina Toml.
@@ -39,23 +33,14 @@ public class BallerinaTomlSnippetManager extends AbstractTomlSnippetManager {
 
     private static final LanguageServerContext.Key<BallerinaTomlSnippetManager> BALLERINA_TOML_SNIPPET_MANAGER_KEY =
             new LanguageServerContext.Key<>();
-    private final Map<TomlNode, Map<String, CompletionItem>> completions;
 
     private BallerinaTomlSnippetManager(LanguageServerContext context) {
-        Schema c2cRootSchema = Schema.from(getValidationSchema());
-        TomlSchemaVisitor visitor = new TomlSchemaVisitor();
-        c2cRootSchema.accept(visitor);
-        this.completions = visitor.getAllCompletionSnippets();
+        super();
         context.put(BALLERINA_TOML_SNIPPET_MANAGER_KEY, this);
     }
 
-    @Override
-    public Map<TomlNode, Map<String, CompletionItem>> getCompletions() {
-        return Collections.unmodifiableMap(completions);
-    }
-
     /**
-     * Returns a single instance of concrete CloudTomlSnippetManager.
+     * Returns a single instance of concrete Snippet Manager.
      *
      * @return {@link AbstractTomlSnippetManager}
      */

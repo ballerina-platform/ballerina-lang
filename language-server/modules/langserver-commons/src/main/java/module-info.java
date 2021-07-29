@@ -22,4 +22,7 @@ module io.ballerina.language.server.commons {
     exports org.ballerinalang.langserver.commons.codelenses.spi;
     exports org.ballerinalang.langserver.commons.completion.spi;
     exports org.ballerinalang.langserver.commons.toml;
+    exports org.ballerinalang.langserver.commons.toml.visitor;
+    exports org.ballerinalang.langserver.commons.toml.common;
+    exports org.ballerinalang.langserver.commons.toml.common.completion;
 }
