@@ -6,68 +6,100 @@
   "additionalProperties": false,
   "properties": {
     "package": {
-      "type": "array",
-      "items": {
+      "ballerina": {
         "type": "object",
-        "additionalProperties": false,
         "properties": {
-          "org": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9_]*$",
-            "message" : {
-              "pattern" : "invalid 'org' under [[package]]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
-            }
-          },
-          "name": {
-            "type": "string",
-            "pattern": "^[a-zA-Z0-9_.]*$",
-            "message" : {
-              "pattern" : "invalid 'name' under [[package]]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
-            }
-          },
           "version": {
             "type": "string",
-            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+            "pattern": "^[a-zA-Z0-9_.]*$",
             "message": {
-              "pattern": "invalid 'version' under [[package]]: 'version' should be compatible with semver"
+              "pattern": "invalid 'version' under [ballerina]: 'version' should only contain alphanumeric characters"
             }
           },
-          "scope": {
-            "type": "string"
-          },
-          "transitive": {
-            "type": "boolean"
-          },
-          "repository": {
-            "type": "string"
-          },
-          "dependencies": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "org": {
-                  "type": "string",
-                  "pattern": "^[a-zA-Z0-9_]*$",
-                  "message" : {
-                    "pattern" : "invalid 'org' under 'dependencies': 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
-                  }
-                },
-                "name": {
-                  "type": "string",
-                  "pattern": "^[a-zA-Z0-9_.]*$",
-                  "message" : {
-                    "pattern" : "invalid 'name' under 'dependencies': 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+          "dependencies-toml-version": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_.]*$",
+            "message": {
+              "pattern": "invalid 'toml-version' under [ballerina]: 'toml-version' should be a string"
+            }
+          }
+        },
+        "required": [
+          "version",
+          "dependencies-toml-version"
+        ],
+        "message": {
+          "required": "'${property}' under [ballerina] is missing"
+        }
+      },
+      "package": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "org": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_]*$",
+              "message": {
+                "pattern": "invalid 'org' under [[package]]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+              }
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_.]*$",
+              "message": {
+                "pattern": "invalid 'name' under [[package]]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+              }
+            },
+            "version": {
+              "type": "string",
+              "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+              "message": {
+                "pattern": "invalid 'version' under [[package]]: 'version' should be compatible with semver"
+              }
+            },
+            "scope": {
+              "type": "string"
+            },
+            "transitive": {
+              "type": "boolean"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "dependencies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "org": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_]*$",
+                    "message": {
+                      "pattern": "invalid 'org' under 'dependencies': 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_.]*$",
+                    "message": {
+                      "pattern": "invalid 'name' under 'dependencies': 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+                    }
                   }
                 }
               }
             }
+          },
+          "required": [
+            "org",
+            "name",
+            "version"
+          ],
+          "message": {
+            "required": "'${property}' under [[package]] is missing"
           }
-        },
-        "required": ["org", "name", "version"],
-        "message": {
-          "required": "'${property}' under [[package]] is missing"
         }
       }
     }

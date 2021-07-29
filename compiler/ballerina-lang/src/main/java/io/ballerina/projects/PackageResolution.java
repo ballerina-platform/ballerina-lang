@@ -495,7 +495,8 @@ public class PackageResolution {
                     // Let's add it to the dependency graph.
                     addPackageToDependencyGraph(resolutionResponse, dependencyResolvedType, dependencyVersionKind);
                 }
-                responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg, possiblePkgName));
+                responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg,
+                        possiblePkgName, importModuleRequest));
                 return;
             }
 

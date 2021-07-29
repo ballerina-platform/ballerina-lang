@@ -18,17 +18,21 @@
 
 package io.ballerina.projects.internal.environment;
 
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,6 +106,30 @@ public class DefaultPackageResolver implements PackageResolver {
         }
 
         return resolutionResponses;
+    }
+
+
+    @Override
+    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+        return null;
+    }
+
+    @Override
+    public DependencyGraph<PackageDescriptor> resolveDependencies(List<ResolutionRequest> packageLoadRequests,
+                                                                  PackageLockingMode packageLockingMode) {
+        // Foreach repo
+        // resolve immediate dependencies
+        // if version is not there resolve latest major version
+        // if version is there owner locking mode
+        //      if SOFT resolve to latest compatible minor
+        //      if MEDIUM resolve to latest compatible patch
+        //      if HARD resolve to exact match
+
+        // each repo will send a dependency graph it can support
+        // some of the dependencies might not exists so we should have an unresolved package descriptor
+        // Once we have all the graphs from different repos we should consolidate
+        //      When consolidating we will use the locking rules
+        return null;
     }
 
     @Override
