@@ -341,18 +341,40 @@ public class LangLibValueTest {
                 { "testCloneWithTypeWithInferredArgument" },
                 { "testCloneWithTypeWithImmutableTypes" },
                 { "testCloneWithTypeDecimalToInt"},
-                {"testCloneWithTypeDecimalToIntNegative"},
+                { "testCloneWithTypeDecimalToIntNegative" },
                 { "testCloneWithTypeDecimalToByte"},
                 { "testCloneWithTypeDecimalToIntSubType"},
                 { "testCloneWithTypeTupleToJSON"},
                 { "testCloneWithTypeImmutableStructuredTypes"},
-                {"testCloneWithTypeWithFiniteArrayTypeFromIntArray"},
+                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
                 { "testCloneWithTypeWithFiniteType" },
                 { "testCloneWithTypeWithUnionOfFiniteType" },
                 { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
                 { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
                 { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
                 { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
+        };
+    }
+
+    @Test(dataProvider = "cloneWithTypeToTupleTypeFunctions")
+    public void testCloneWithTypeToTuple(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider(name = "cloneWithTypeToTupleTypeFunctions")
+    public Object[][] cloneWithTypeToTupleTypeFunctions() {
+        return new Object[][] {
+                { "testCloneWithTypeArrayToTupleWithRestType" },
+                { "testCloneWithTypeArrayToTupleWithRestTypeUnionType" },
+                { "testCloneWithTypeArrayToUnionTupleNegative" },
+                { "testCloneWithTypeArrayToTupleWithMoreTargetTypes" },
+                { "testCloneWithTypeArrayToTupleWithUnionRestTypeNegative" },
+                { "testCloneWithTypeArrayToTupleNegative" },
+                { "testCloneWithTypeArrayToTupleWithStructureRestTypeNegative" },
+                { "testCloneWithTypeTupleRestType" },
+                { "testCloneWithTypeUnionTuple" },
+                { "testCloneWithTypeTupleRestTypeNegative" },
+                { "testCloneWithTypeUnionTupleRestTypeNegative" }
         };
     }
 
