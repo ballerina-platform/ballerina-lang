@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
@@ -37,16 +38,21 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.task.Task;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
+import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
+import org.eclipse.lsp4j.ShowMessageRequestParams;
+import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkDoneProgressBegin;
 import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
 import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletionException;
 
@@ -67,12 +73,12 @@ public class PullModuleExecutor implements LSCommandExecutor {
      */
     @Override
     public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
-        String fileUri = null;
+        String uri = null;
         String moduleName = null;
         for (CommandArgument arg : context.getArguments()) {
             switch (arg.key()) {
                 case CommandConstants.ARG_KEY_DOC_URI:
-                    fileUri = arg.valueAs(String.class);
+                    uri = arg.valueAs(String.class);
                     break;
                 case CommandConstants.ARG_KEY_MODULE_NAME:
                     moduleName = arg.valueAs(String.class);
@@ -81,33 +87,92 @@ public class PullModuleExecutor implements LSCommandExecutor {
             }
         }
 
-        Optional<Project> optionalProject = CommonUtil.getPathFromURI(fileUri)
-                .flatMap(filePath -> context.workspace().project(filePath));
-        if (optionalProject.isEmpty()) {
-            throw new UserErrorException("Couldn't find project to pull modules");
+        String fileUri = uri;
+        Path filePath = CommonUtil.getPathFromURI(fileUri)
+                .orElseThrow(() -> new UserErrorException("Couldn't determine file path"));
+
+        Project project = context.workspace().project(filePath)
+                .orElseThrow(() -> new UserErrorException("Couldn't find project to pull modules"));
+
+        if (!isFileContentEqual(context, filePath)) {
+            saveFilesAndPullModules(fileUri, filePath, context, project);
+        } else {
+            schedulePullModuleTask(fileUri, context, project);
         }
-
-        Project project = optionalProject.get();
-
-        BackgroundTaskService taskService = BackgroundTaskService.getInstance(context.languageServercontext());
-        if (taskService.isRunning(project.currentPackage().packageId(), PullModuleTask.NAME)) {
-            CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Info,
-                    "A pull modules operation is already running for this project");
-            return new Object();
-        }
-
-        taskService.submit(project.currentPackage().packageId(),
-                new PullModuleTask(fileUri, project.sourceRoot(), context));
 
         return new Object();
     }
 
     /**
-     * {@inheritDoc}
+     * Check if the current file is saved to disk.
+     *
+     * @param context  Execute command context
+     * @param filePath Current file path
+     * @return True if the file is saved
      */
-    @Override
-    public String getCommand() {
-        return COMMAND;
+    private boolean isFileContentEqual(ExecuteCommandContext context, Path filePath) {
+        String content = context.workspace().syntaxTree(filePath).get().toSourceCode();
+        String contentOnDisk = null;
+        try {
+            contentOnDisk = Files.readString(filePath);
+        } catch (IOException e) {
+            CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error,
+                    "Unable to read source file");
+            LSClientLogger.getInstance(context.languageServercontext())
+                    .logError(LSContextOperation.TXT_CODE_ACTION,
+                            "Unable to read file from disk: " + filePath.toString(), e,
+                            new TextDocumentIdentifier(filePath.toUri().toString()));
+        }
+
+        return content.equals(contentOnDisk);
+    }
+
+    /**
+     * Shows a notification to save files first and once done, pull modules.
+     *
+     * @param fileUri  File uri
+     * @param filePath File path
+     * @param context  Execute command context
+     * @param project  project
+     */
+    private void saveFilesAndPullModules(String fileUri, Path filePath, ExecuteCommandContext context,
+                                         Project project) {
+        ExtendedLanguageClient languageClient =
+                context.languageServercontext().get(ExtendedLanguageClient.class);
+
+        ShowMessageRequestParams params = new ShowMessageRequestParams();
+        params.setMessage("Please save all open documents in workspace before pulling modules");
+        params.setType(MessageType.Info);
+        params.setActions(List.of(new MessageActionItem("Done"), new MessageActionItem("Cancel")));
+        languageClient.showMessageRequest(params)
+                .thenApply(item -> {
+                    if (item.getTitle().equals("Done")) {
+                        if (!isFileContentEqual(context, filePath)) {
+                            saveFilesAndPullModules(fileUri, filePath, context, project);
+                        } else {
+                            schedulePullModuleTask(fileUri, context, project);
+                        }
+                    }
+                    return new Object();
+                });
+    }
+
+    /**
+     * Schedule a pull module task.
+     *
+     * @param fileUri File URI
+     * @param context context
+     * @param project project
+     */
+    private void schedulePullModuleTask(String fileUri, ExecuteCommandContext context, Project project) {
+        BackgroundTaskService taskService = BackgroundTaskService.getInstance(context.languageServercontext());
+        if (taskService.isRunning(project.currentPackage().packageId(), PullModuleTask.NAME)) {
+            CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Info,
+                    "A pull modules operation is already running for this project");
+        }
+
+        taskService.submit(project.currentPackage().packageId(),
+                new PullModuleTask(fileUri, project.sourceRoot(), context));
     }
 
     protected static boolean isCancellation(Throwable t) {
@@ -118,7 +183,16 @@ public class PullModuleExecutor implements LSCommandExecutor {
     }
 
     /**
-     * Task to perform pull module operation.
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCommand() {
+        return COMMAND;
+    }
+
+    /**
+     * Task to perform pull module operation. This task will show a progress at vscode side and show success/error
+     * messages accordingly.
      */
     static class PullModuleTask extends Task {
 
