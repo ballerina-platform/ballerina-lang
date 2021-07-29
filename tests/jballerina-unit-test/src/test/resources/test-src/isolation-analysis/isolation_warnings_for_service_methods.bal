@@ -130,7 +130,7 @@ isolated service class Serv2 {
     }
 }
 
-// Not yet inferred isolated.
+// Inferred isolated.
 service class Serv3 {
     final int i = 0;
 

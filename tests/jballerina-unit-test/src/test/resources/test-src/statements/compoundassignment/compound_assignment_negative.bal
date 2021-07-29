@@ -170,3 +170,24 @@ function invalidUsageOfCompoundAssignmentAsExpr() {
     int f = a <<= 3;
     int g = a >>= 3;
 }
+
+type SomeType int|string;
+type SomeType2 12|"A";
+
+function incompatibleTypesInBinaryBitwiseOpInCompoundAssignment() {
+    int|string a = 5;
+    int b = 12;
+    a &= b;
+    a |= b;
+    a ^= b;
+
+    SomeType c = 12;
+    a &= c;
+    a |= c;
+    a ^= c;
+
+    SomeType2 d = 12;
+    a &= d;
+    a |= d;
+    a ^= d;
+}

@@ -22,6 +22,7 @@ import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
+import io.ballerina.toml.semantic.ast.TomlInlineTableValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
@@ -232,6 +233,72 @@ public class KeyValueTest {
 
         Assert.assertEquals(cfirst, Long.valueOf(5L));
         Assert.assertEquals(csecond, Long.valueOf(6L));
+
+        TomlArrayValueNode nestedArraysInts = (TomlArrayValueNode) read.get("nested_arrays_of_ints").get();
+        TomlArrayValueNode firstNestedArraysInts = nestedArraysInts.get(0);
+        TomlLongValueNode firstNestedArraysIntsValue = firstNestedArraysInts.get(0);
+        TomlLongValueNode secondNestedArraysIntsValue = firstNestedArraysInts.get(1);
+        Assert.assertEquals(firstNestedArraysIntsValue.getValue(), Long.valueOf(1L));
+        Assert.assertEquals(secondNestedArraysIntsValue.getValue(), Long.valueOf(2L));
+        TomlArrayValueNode secondNestedArraysInts = nestedArraysInts.get(1);
+        TomlLongValueNode nestedArraysIntsValue1 = secondNestedArraysInts.get(0);
+        TomlLongValueNode nestedArraysIntsValue2 = secondNestedArraysInts.get(1);
+        TomlLongValueNode nestedArraysIntsValue3 = secondNestedArraysInts.get(2);
+        Assert.assertEquals(nestedArraysIntsValue1.getValue(), Long.valueOf(3L));
+        Assert.assertEquals(nestedArraysIntsValue2.getValue(), Long.valueOf(4L));
+        Assert.assertEquals(nestedArraysIntsValue3.getValue(), Long.valueOf(5L));
+
+        TomlArrayValueNode nestedMixedArray = (TomlArrayValueNode) read.get("nested_mixed_array").get();
+        TomlArrayValueNode firstNestedMixedArray = nestedMixedArray.get(0);
+        TomlLongValueNode firstNestedMixedArrayValue1 = firstNestedMixedArray.get(0);
+        TomlLongValueNode firstNestedMixedArrayValue12 = firstNestedMixedArray.get(1);
+        Assert.assertEquals(firstNestedMixedArrayValue1.getValue(), Long.valueOf(1L));
+        Assert.assertEquals(firstNestedMixedArrayValue12.getValue(), Long.valueOf(2L));
+        TomlArrayValueNode secondNestedMixedArray = nestedMixedArray.get(1);
+        TomlStringValueNode firstNestedMixedArrayValue2 = secondNestedMixedArray.get(0);
+        TomlStringValueNode firstNestedMixedArrayValue22 = secondNestedMixedArray.get(1);
+        TomlStringValueNode firstNestedMixedArrayValue23 = secondNestedMixedArray.get(2);
+        Assert.assertEquals(firstNestedMixedArrayValue2.getValue(), "a");
+        Assert.assertEquals(firstNestedMixedArrayValue22.getValue(), "b");
+        Assert.assertEquals(firstNestedMixedArrayValue23.getValue(), "c");
+
+        TomlArrayValueNode stringArray = (TomlArrayValueNode) read.get("string_array").get();
+        TomlStringValueNode stringArrayVal1 = stringArray.get(0);
+        TomlStringValueNode stringArrayVal2 = stringArray.get(1);
+        TomlStringValueNode stringArrayVal3 = stringArray.get(2);
+        TomlStringValueNode stringArrayVal4 = stringArray.get(3);
+        Assert.assertEquals(stringArrayVal1.getValue(), "all");
+        Assert.assertEquals(stringArrayVal2.getValue(), "strings");
+        Assert.assertEquals(stringArrayVal3.getValue(), "are the same");
+        Assert.assertEquals(stringArrayVal4.getValue(), "type");
+
+        TomlArrayValueNode mixedNumbers = (TomlArrayValueNode) read.get("numbers").get();
+        TomlDoubleValueNodeNode mixedNumbersVal1 = mixedNumbers.get(0);
+        TomlDoubleValueNodeNode mixedNumbersVal2 = mixedNumbers.get(1);
+        TomlDoubleValueNodeNode mixedNumbersVal3 = mixedNumbers.get(2);
+        TomlLongValueNode mixedNumbersVal4 = mixedNumbers.get(3);
+        TomlLongValueNode mixedNumbersVal5 = mixedNumbers.get(4);
+        TomlLongValueNode mixedNumbersVal6 = mixedNumbers.get(5);
+        Assert.assertEquals(mixedNumbersVal1.getValue(), 0.1);
+        Assert.assertEquals(mixedNumbersVal2.getValue(), 0.2);
+        Assert.assertEquals(mixedNumbersVal3.getValue(), 0.5);
+        Assert.assertEquals(mixedNumbersVal4.getValue(), Long.valueOf(1L));
+        Assert.assertEquals(mixedNumbersVal5.getValue(), Long.valueOf(2L));
+        Assert.assertEquals(mixedNumbersVal6.getValue(), Long.valueOf(5L));
+
+        TomlArrayValueNode contributors = (TomlArrayValueNode) read.get("contributors").get();
+        TomlStringValueNode stringValue = contributors.get(0);
+        Assert.assertEquals(stringValue.getValue(), "Foo Bar <foo@example.com>");
+        TomlInlineTableValueNode inlineNode = contributors.get(1);
+        TomlKeyValueNode nameKV = inlineNode.get(0);
+        TomlKeyValueNode emailKV = inlineNode.get(1);
+        TomlKeyValueNode urlKV = inlineNode.get(2);
+        TomlStringValueNode nameVal = (TomlStringValueNode) nameKV.value();
+        TomlStringValueNode emailVal = (TomlStringValueNode) emailKV.value();
+        TomlStringValueNode urlVal = (TomlStringValueNode) urlKV.value();
+        Assert.assertEquals(nameVal.getValue(), "Baz Qux");
+        Assert.assertEquals(emailVal.getValue(), "bazqux@example.com");
+        Assert.assertEquals(urlVal.getValue(), "https://example.com/bazqux");
     }
 
     @Test
@@ -314,5 +381,32 @@ public class KeyValueTest {
                 ((TomlTableNode) ((TomlTableNode) read.rootNode().entries().get("root")).entries().get("first"))
                         .entries().get("third").location().lineRange();
         ParserTestUtils.assertLineRange(dottedKVPairNested2, 31, 0, 31, 22);
+    }
+
+    @Test
+    public void testInlineTables() throws IOException {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("syntax/key-value/inline-tables.toml");
+        Toml read = Toml.read(inputStream);
+        Assert.assertEquals(read.getTable("emptyInline").get().rootNode().entries().size(), 0);
+        TomlStringValueNode first = (TomlStringValueNode) read.get("rootInline.first").get();
+        TomlStringValueNode last = (TomlStringValueNode) read.get("rootInline.last").get();
+        Assert.assertEquals(first.getValue(), "Tom");
+        Assert.assertEquals(last.getValue(), "Preston-Werner");
+
+        TomlStringValueNode rootGreet = (TomlStringValueNode) read.get("nestedInlineTableRoot.nested.greeting").get();
+        TomlStringValueNode rootLast = (TomlStringValueNode) read.get("nestedInlineTableRoot.another").get();
+        Assert.assertEquals(rootGreet.getValue(), "hello");
+        Assert.assertEquals(rootLast.getValue(), "Another one");
+
+        TomlStringValueNode dotted = (TomlStringValueNode) read.get("inline.parent.child").get();
+        Assert.assertEquals(dotted.getValue(), "hello");
+
+        TomlStringValueNode arrVal1 =
+                (TomlStringValueNode) (read.getTables("tableArr").get(0).get("name.nested.greeting").get());
+        Assert.assertEquals(arrVal1.getValue(), "hello");
+        TomlStringValueNode arrVal2 =
+                (TomlStringValueNode) (read.getTables("tableArr").get(1).get("name.nested.greeting").get());
+        Assert.assertEquals(arrVal2.getValue(), "how are youu");
     }
 }

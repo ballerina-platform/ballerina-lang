@@ -21,24 +21,36 @@ package org.ballerinalang.debugadapter.runtime;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ErrorValue;
+import io.ballerina.runtime.internal.values.StringValue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
+
+import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
 
 /**
  * This class contains the set of runtime helper util methods to support debugger expression evaluation.
@@ -180,6 +192,32 @@ public class DebuggerRuntime {
         return ValueCreator.createArrayValue(values, arrayType);
     }
 
+    /**
+     * Creates an error with given message, cause and details.
+     *
+     * @param message error message
+     * @param cause   cause for the error
+     * @param details error details
+     * @return new error
+     */
+    public static Object createErrorValue(Object message, Object cause, Object... details) {
+        if (!(message instanceof BString)) {
+            return "incompatible types: expected 'string', found '" + getBTypeName(message) + "' for error message";
+        } else if (cause != null && !(cause instanceof BError)) {
+            return "incompatible types: expected 'error?', found '" + getBTypeName(cause) + "' for error cause";
+        }
+
+        List<BMapInitialValueEntry> errorDetailEntries = new ArrayList<>();
+        for (int i = 0; i < details.length; i += 2) {
+            errorDetailEntries.add(ValueCreator.createKeyFieldEntry(details[i], details[i + 1]));
+        }
+
+        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
+        BMap<BString, Object> errorDetailsMap = ValueCreator.createMapValue(PredefinedTypes.TYPE_ERROR_DETAIL,
+                errorDetailEntries.toArray(errorDetailEntries.toArray(new BMapInitialValueEntry[0])));
+        return ErrorCreator.createError(bErrorType, (StringValue) message, (ErrorValue) cause, errorDetailsMap);
+    }
+
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
         Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods())
                 .filter(method -> functionName.equals(method.getName()))
@@ -190,6 +228,20 @@ public class DebuggerRuntime {
             return declaredMethod;
         } else {
             throw new NoSuchMethodException(functionName + " is not found");
+        }
+    }
+
+    private static String getBTypeName(Object value) {
+        if (value instanceof Boolean) {
+            return "boolean";
+        } else if (value instanceof Integer || value instanceof Long) {
+            return "int";
+        } else if (value instanceof Float || value instanceof Double) {
+            return "float";
+        } else if (value instanceof BValue) {
+            return ((BValue) value).getType().getName();
+        } else {
+            return "unknown";
         }
     }
 
