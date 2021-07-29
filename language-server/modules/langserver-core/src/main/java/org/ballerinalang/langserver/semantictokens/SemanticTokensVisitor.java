@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -132,13 +133,17 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(functionDefinitionNode);
     }
 
-    public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+    public void visit(FunctionCallExpressionNode functionCallExpressionNode) { // TODO remove symbol ref
         Node functionName = functionCallExpressionNode.functionName();
         if (functionName instanceof QualifiedNameReferenceNode) {
             functionName = ((QualifiedNameReferenceNode) functionName).identifier();
         }
         processSymbols(functionName, functionName.location().lineRange().startLine());
         visitSyntaxNode(functionCallExpressionNode);
+    }
+
+    public void visit(MethodCallExpressionNode methodCallExpressionNode) { // TODO implement
+        visitSyntaxNode(methodCallExpressionNode);
     }
 
     public void visit(RequiredParameterNode requiredParameterNode) {
@@ -233,15 +238,22 @@ public class SemanticTokensVisitor extends NodeVisitor {
     }
 
     public void visit(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        //TODO: handle readonly modifier for document parameter
         int type;
-        SyntaxKind kind = markdownParameterDocumentationLineNode.parent().parent().parent().kind();
-        switch (kind) {
+        switch (markdownParameterDocumentationLineNode.parent().parent().parent().kind()) {
+            case RECORD_FIELD:
             case OBJECT_FIELD:
                 type = TokenTypes.PROPERTY.getId();
                 break;
-            case RECORD_FIELD:
             case TYPE_DEFINITION:
+                Node node = markdownParameterDocumentationLineNode.parent().parent().parent();
                 type = TokenTypes.TYPE_PARAMETER.getId();
+                if (node instanceof TypeDefinitionNode) {
+                    SyntaxKind kind = ((TypeDefinitionNode) node).typeDescriptor().kind();
+                    if (kind == SyntaxKind.OBJECT_TYPE_DESC || kind == SyntaxKind.RECORD_TYPE_DESC) {
+                        type = TokenTypes.PROPERTY.getId();
+                    }
+                }
                 break;
             default:
                 type = TokenTypes.PARAMETER.getId();
@@ -253,8 +265,20 @@ public class SemanticTokensVisitor extends NodeVisitor {
     }
 
     public void visit(TypeDefinitionNode typeDefinitionNode) {
-        this.addSemanticToken(typeDefinitionNode.typeName(), TokenTypes.TYPE.getId(),
-                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.TYPE.getId(), 0);
+        int type; //readonly ((IntersectionTypeDescriptorNode)typeDefinitionNode.typeDescriptor()).children()
+        switch (typeDefinitionNode.typeDescriptor().kind()) {
+            case OBJECT_TYPE_DESC:
+                type = TokenTypes.INTERFACE.getId();
+                break;
+            case RECORD_TYPE_DESC:
+                type = TokenTypes.STRUCT.getId();
+                break;
+            default:
+                type = TokenTypes.TYPE.getId();
+                break;
+        }
+        this.addSemanticToken(typeDefinitionNode.typeName(), type, TokenTypeModifiers.DECLARATION.getId(), true,
+                TokenTypes.TYPE.getId(), 0);
         visitSyntaxNode(typeDefinitionNode);
     }
 
@@ -273,16 +297,17 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 modifiers = TokenTypeModifiers.DECLARATION.getId();
                 refModifiers = 0;
             }
-            semanticToken.setProperties(length, TokenTypes.TYPE_PARAMETER.getId(), modifiers);
+            semanticToken.setProperties(length, TokenTypes.PROPERTY.getId(), modifiers);
             semanticTokens.add(semanticToken);
-            handleReferences(startLine, length, TokenTypes.TYPE_PARAMETER.getId(), refModifiers);
+            handleReferences(startLine, length, TokenTypes.PROPERTY.getId(), refModifiers);
         }
         visitSyntaxNode(recordFieldNode);
     }
 
     public void visit(ObjectFieldNode objectFieldNode) {
-        int type = objectFieldNode.parent().kind() == SyntaxKind.CLASS_DEFINITION ? TokenTypes.PROPERTY.getId() :
-                TokenTypes.TYPE_PARAMETER.getId();
+        SyntaxKind kind = objectFieldNode.parent().kind();
+        int type = kind == SyntaxKind.CLASS_DEFINITION || kind == SyntaxKind.OBJECT_TYPE_DESC ||
+                kind == SyntaxKind.RECORD_TYPE_DESC ? TokenTypes.PROPERTY.getId() : TokenTypes.TYPE_PARAMETER.getId();
         this.addSemanticToken(objectFieldNode.fieldName(), type, TokenTypeModifiers.DECLARATION.getId(), true, type,
                 0);
         visitSyntaxNode(objectFieldNode);
@@ -372,8 +397,18 @@ public class SemanticTokensVisitor extends NodeVisitor {
                     case TYPE:
                         if (symbol.get() instanceof TypeReferenceTypeSymbol) {
                             TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
-                            int type = typeDescriptor.kind() == SymbolKind.CLASS ? TokenTypes.CLASS.getId() :
-                                    TokenTypes.TYPE.getId();
+                            int type;
+                            switch (typeDescriptor.kind()) {
+                                case CLASS:
+                                    type = TokenTypes.CLASS.getId();
+                                    break;
+                                case RECORD_FIELD:
+                                    type = TokenTypes.STRUCT.getId();
+                                    break;
+                                default:
+                                    type = TokenTypes.TYPE.getId();
+                                    break;
+                            }
                             declarationType = type;
                             referenceType = type;
                             if (typeDescriptor instanceof ClassSymbol &&
@@ -391,8 +426,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
                         }
                         break;
                     case RECORD_FIELD:
-                        declarationType = TokenTypes.TYPE_PARAMETER.getId();
-                        referenceType = TokenTypes.TYPE_PARAMETER.getId();
+                        declarationType = TokenTypes.PROPERTY.getId();
+                        referenceType = TokenTypes.PROPERTY.getId();
                         if (symbol.get() instanceof RecordFieldSymbol &&
                                 ((RecordFieldSymbol) symbol.get()).qualifiers().contains(Qualifier.READONLY)) {
                             declarationModifiers = TokenTypeModifiers.DECLARATION.getId() |
@@ -406,11 +441,6 @@ public class SemanticTokensVisitor extends NodeVisitor {
                         declarationType = TokenTypes.ENUM_MEMBER.getId();
                         declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
                         referenceType = TokenTypes.ENUM_MEMBER.getId();
-                        break;
-                    case PARAMETER:
-                        declarationType = TokenTypes.PARAMETER.getId();
-                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
-                        referenceType = TokenTypes.PARAMETER.getId();
                         break;
                     case FUNCTION:
                         declarationType = TokenTypes.FUNCTION.getId();

@@ -30,10 +30,11 @@ public interface SemanticTokensContext extends DocumentServiceContext {
      */
     enum TokenTypes {
         NAMESPACE(0, SemanticTokenTypes.Namespace), TYPE(1, SemanticTokenTypes.Type), CLASS(2,
-                SemanticTokenTypes.Class), ENUM(3, SemanticTokenTypes.Enum), TYPE_PARAMETER(4,
-                SemanticTokenTypes.TypeParameter), PARAMETER(5, SemanticTokenTypes.Parameter), VARIABLE(6,
-                SemanticTokenTypes.Variable), PROPERTY(7, SemanticTokenTypes.Property), ENUM_MEMBER(8,
-                SemanticTokenTypes.EnumMember), FUNCTION(9, SemanticTokenTypes.Function), METHOD(10,
+                SemanticTokenTypes.Class), ENUM(3, SemanticTokenTypes.Enum), INTERFACE(4,
+                SemanticTokenTypes.Interface), STRUCT(5, SemanticTokenTypes.Struct), TYPE_PARAMETER(6,
+                SemanticTokenTypes.TypeParameter), PARAMETER(7, SemanticTokenTypes.Parameter), VARIABLE(8,
+                SemanticTokenTypes.Variable), PROPERTY(9, SemanticTokenTypes.Property), ENUM_MEMBER(10,
+                SemanticTokenTypes.EnumMember), FUNCTION(11, SemanticTokenTypes.Function), METHOD(12,
                 SemanticTokenTypes.Method);
 
         private final int id;
