@@ -1013,12 +1013,16 @@ public class JvmInstructionGen {
             if (opType1Tag == TypeTags.BYTE) {
                 this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
+            } else {
+                jvmCastGen.generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
             }
 
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             if (opType2Tag == TypeTags.BYTE) {
                 this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
+            } else {
+                jvmCastGen.generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
             }
 
             this.mv.visitInsn(LAND);

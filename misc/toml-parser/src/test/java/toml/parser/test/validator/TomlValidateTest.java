@@ -50,6 +50,17 @@ public class TomlValidateTest {
     }
 
     @Test
+    public void testBalClean() throws IOException {
+        Path resourceDirectory = basePath.resolve("dep-new.json");
+        Path sampleInput = basePath.resolve("bal-clean.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        int diagSize = toml.diagnostics().size();
+        Assert.assertEquals(diagSize, 0);
+    }
+
+    @Test
     public void testInvalidType() throws IOException {
         Path resourceDirectory = basePath.resolve("c2c-schema.json");
         Path sampleInput = basePath.resolve("c2c-invalid-type.toml");

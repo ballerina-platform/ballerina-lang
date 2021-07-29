@@ -119,7 +119,7 @@ function testBitwiseConstExpressions() {
     assertEqual(TAG_MASK << TAG_LEFT_SHIFT, -0x0100000000000000);
     assertEqual(TAG_MASK >> TAG_RIGHT_SHIFT, 0x3f);
     assertEqual(~(TAG_MASK << TAG_LEFT_SHIFT), 0xffffffffffffff);
-    assertEqual(~(TAG_MASK >> TAG_RIGHT_SHIFT), 0xc0);
+    assertEqual(~(TAG_MASK >> TAG_RIGHT_SHIFT), -64);
 }
 
 const int CUI1 = -(10);
