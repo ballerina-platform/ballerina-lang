@@ -6882,7 +6882,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, (BRecordType) varRefType);
         }
 
-        // If the type is not an record, it needs to be a union of records.
+        // If the type is not a record, it needs to be a union of records.
         // Resultant field type is calculated here.
         Set<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
 
@@ -6989,30 +6989,73 @@ public class TypeChecker extends BLangNodeVisitor {
         return nonMatchedRecordExists ? addNilForNillableAccessType(fieldType) : fieldType;
     }
 
+    private RecordUnionDiagnostics checkRecordUnion(BLangFieldBasedAccess fieldAccessExpr, Set<BType> memberTypes,
+                                                    Name fieldName) {
+
+        RecordUnionDiagnostics recordUnionDiagnostics = new RecordUnionDiagnostics();
+
+        for (BType memberType : memberTypes) {
+            BRecordType recordMember = (BRecordType) memberType;
+
+            if (recordMember.getFields().containsKey(fieldName.getValue())) {
+                // If the field being accessed is declared, checks if it is a required field in this record member type
+                BType individualFieldType = checkRecordRequiredFieldAccess(fieldAccessExpr, fieldName, recordMember);
+
+                if (individualFieldType == symTable.semanticError) {
+                    // If the field being accessed is declared as an optional field in this record member type
+                    recordUnionDiagnostics.optionalInRecords.add(recordMember);
+                }
+
+            } else {
+                // The field being accessed is not declared in this record member type
+                recordUnionDiagnostics.undeclaredInRecords.add(recordMember);
+            }
+
+        }
+
+        return recordUnionDiagnostics;
+    }
+
     private void logRhsFieldAccExprErrors(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         if (varRefType.tag == TypeTags.RECORD) {
+
             BRecordType recordVarRefType = (BRecordType) varRefType;
             boolean isFieldDeclared = recordVarRefType.getFields().containsKey(fieldName.getValue());
+
             if (isFieldDeclared) {
-                // Declared as an optional field
+                // The field being accessed using the field access expression is declared as an optional field
                 dlog.error(fieldAccessExpr.pos,
                         DiagnosticErrorCode.FIELD_ACCESS_CANNOT_BE_USED_TO_ACCESS_OPTIONAL_FIELDS);
             } else if (recordVarRefType.sealed) {
-                // Closed record
-                // Accessing an undeclared field
+                // Accessing an undeclared field in a close record
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDECLARED_FIELD_IN_RECORD, fieldName, varRefType);
 
             } else {
-                // Open record
-                // Not declared or maybe a rest
+                // The field accessed is either not declared or maybe declared as a rest field in an open record
                 dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.INVALID_FIELD_ACCESS_IN_RECORD_TYPE, fieldName,
                         varRefType);
             }
+
         } else {
-            // varRefType is a union of records
-            dlog.error(fieldAccessExpr.pos,
-                    DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_NON_REQUIRED_FIELD,
-                    varRefType, fieldName);
+            // If the type is not a record, it needs to be a union of records
+            LinkedHashSet<BType> memberTypes = ((BUnionType) varRefType).getMemberTypes();
+            RecordUnionDiagnostics recUnionInfo = checkRecordUnion(fieldAccessExpr, memberTypes, fieldName);
+
+            if (recUnionInfo.hasUndeclaredAndOptional()) {
+
+                dlog.error(fieldAccessExpr.pos,
+                        DiagnosticErrorCode.UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.undeclaredInRecords),
+                        recUnionInfo.recordsToString(recUnionInfo.optionalInRecords));
+            } else if (recUnionInfo.hasUndeclared()) {
+
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.UNDECLARED_FIELD_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.undeclaredInRecords));
+            } else if (recUnionInfo.hasOptional()) {
+
+                dlog.error(fieldAccessExpr.pos, DiagnosticErrorCode.OPTIONAL_FIELD_IN_UNION_OF_RECORDS, fieldName,
+                        recUnionInfo.recordsToString(recUnionInfo.optionalInRecords));
+            }
         }
     }
 
@@ -8279,6 +8322,48 @@ public class TypeChecker extends BLangNodeVisitor {
         public TypeSymbolPair(BVarSymbol fieldSymbol, BType determinedType) {
             this.fieldSymbol = fieldSymbol;
             this.determinedType = determinedType;
+        }
+    }
+
+    private static class RecordUnionDiagnostics {
+        // Set of record types which doesn't have the field name declared
+        Set<BRecordType> undeclaredInRecords = new LinkedHashSet<>();
+
+        // Set of record types which has the field name declared as optional
+        Set<BRecordType> optionalInRecords = new LinkedHashSet<>();
+
+        boolean hasUndeclaredAndOptional() {
+            return undeclaredInRecords.size() > 0 && optionalInRecords.size() > 0;
+        }
+
+        boolean hasUndeclared() {
+            return undeclaredInRecords.size() > 0;
+        }
+
+        boolean hasOptional() {
+            return optionalInRecords.size() > 0;
+        }
+
+        String recordsToString(Set<BRecordType> recordTypeSet) {
+            StringBuilder recordNames = new StringBuilder();
+            int recordSetSize = recordTypeSet.size();
+            int index = 0;
+
+            for (BRecordType recordType : recordTypeSet) {
+                index++;
+                recordNames.append(recordType.tsymbol.getName().getValue());
+
+                if (recordSetSize > 1) {
+
+                    if (index == recordSetSize - 1) {
+                        recordNames.append("', and '");
+                    } else if (index < recordSetSize) {
+                        recordNames.append("', '");
+                    }
+                }
+            }
+
+            return recordNames.toString();
         }
     }
 }
