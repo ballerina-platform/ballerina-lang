@@ -50,10 +50,10 @@ public class FieldAccessTest {
     public void testNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 17);
         int i = 0;
-        validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
-                              "for non-required field 'id'", 32, 9);
-        validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
-                              "for non-required field 'salary'", 33, 9);
+        validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
+                "field access or member access", 32, 9);
+        validateError(negativeResult, i++, "invalid field access: 'salary' is not a required field in record " +
+                "'Employee', use member access to access a field that may have been specified as a rest field", 33, 9);
         validateError(negativeResult, i++, "invalid operation: type '(Employee|Person)' does not support field access" +
                 " for non-required field 'salary'", 39, 9);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)'", 56, 17);
