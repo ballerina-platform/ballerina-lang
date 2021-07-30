@@ -117,8 +117,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
                 return Collections.emptyList();
             }
 
-            visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(), 
-                    LinePosition.from(position.getLine(),position.getCharacter()), DiagnosticState.VALID);
+            visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(),
+                    LinePosition.from(position.getLine(), position.getCharacter()), DiagnosticState.VALID);
         }
 
         return visibleSymbols;
