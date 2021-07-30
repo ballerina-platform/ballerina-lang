@@ -157,11 +157,11 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected number of compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(7:0,7:64)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(8:1,8:65)] "
                 + "could not locate dependency path '../libs/ballerina-runtime-api-2.0.0-beta.2-SNAPSHOT.jar'");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(4:10,4:15)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:11,5:16)] "
                 + "exported module 'abc' is not a module of the package");
-        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(4:17,4:22)] "
+        Assert.assertEquals(diagnosticIterator.next().toString(), "ERROR [Ballerina.toml:(5:18,5:23)] "
                 + "exported module 'xyz' is not a module of the package");
     }
 
