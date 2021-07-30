@@ -125,10 +125,10 @@ public class JvmDesugarPhase {
                 BIRBasicBlock trueBB = bbArray.get(0);
                 basicBlocks.addAll(bbArray);
                 BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, initMethodGen);
-                nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
+                nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB, null);
 
                 BIRBasicBlock lastBB = bbArray.get(bbArray.size() - 1);
-                lastBB.terminator = new GOTO(pos, falseBB);
+                lastBB.terminator = new GOTO(pos, falseBB, null);
 
                 nextBB = falseBB;
             }
@@ -146,7 +146,7 @@ public class JvmDesugarPhase {
 
         BIRBasicBlock firstBB = currentFunc.basicBlocks.get(0);
 
-        nextBB.terminator = new GOTO(pos, firstBB);
+        nextBB.terminator = new GOTO(pos, firstBB, null);
         basicBlocks.addAll(currentFunc.basicBlocks);
 
         currentFunc.basicBlocks = basicBlocks;

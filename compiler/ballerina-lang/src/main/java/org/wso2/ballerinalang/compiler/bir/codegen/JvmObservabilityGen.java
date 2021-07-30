@@ -381,7 +381,7 @@ class JvmObservabilityGen {
             BIRBasicBlock returnInsBB = insertBasicBlock(desugaredFunc, 1);
             callInsBB.terminator = new Call(asyncCallIns.pos, InstructionKind.CALL, asyncCallIns.isVirtual,
                     asyncCallIns.calleePkg, asyncCallIns.name, funcParamOperands, funcReturnOperand,
-                    returnInsBB, asyncCallIns.calleeAnnotAttachments, asyncCallIns.calleeFlags);
+                    returnInsBB, asyncCallIns.calleeAnnotAttachments, asyncCallIns.calleeFlags, null);
             returnInsBB.terminator = new Return(asyncCallIns.pos);
 
             // Updating terminator to call the generated lambda asynchronously
@@ -533,7 +533,7 @@ class JvmObservabilityGen {
                     injectReportErrorCall(errorReportBB, func.localVars, currentBB.terminator.pos, trappedErrorOperand,
                             FUNC_BODY_INSTRUMENTATION_TYPE);
                     injectStopObservationCall(observeEndBB, currentBB.terminator.pos);
-                    rePanicBB.terminator = new Panic(currentBB.terminator.pos, trappedErrorOperand);
+                    rePanicBB.terminator = new Panic(currentBB.terminator.pos, trappedErrorOperand, null);
 
                     BIRErrorEntry errorEntry = new BIRErrorEntry(currentBB, currentBB, trappedErrorOperand,
                             errorCheckBB);
@@ -583,7 +583,7 @@ class JvmObservabilityGen {
                         objectTypeOperand = generateGlobalConstantOperand(pkg, symbolTable.nilType, null);
                         action = callIns.name.value;
                     }
-                    currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB);
+                    currentBB.terminator = new GOTO(desugaredInsPosition, observeStartBB, null);
 
                     BIRBasicBlock observeEndBB;
                     boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
@@ -674,7 +674,7 @@ class JvmObservabilityGen {
                         injectReportErrorCall(errorReportBB, func.localVars, newCurrentBB.terminator.pos,
                                 trappedErrorOperand, INVOCATION_INSTRUMENTATION_TYPE);
                         injectStopObservationCall(observeEndBB, newCurrentBB.terminator.pos);
-                        rePanicBB.terminator = new Panic(newCurrentBB.terminator.pos, trappedErrorOperand);
+                        rePanicBB.terminator = new Panic(newCurrentBB.terminator.pos, trappedErrorOperand, null);
 
                         BIRErrorEntry errorEntry = new BIRErrorEntry(newCurrentBB, newCurrentBB,
                                 trappedErrorOperand, errorCheckBB);
@@ -791,7 +791,7 @@ class JvmObservabilityGen {
         BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
         TypeTest errorTypeTestInstruction = new TypeTest(pos, symbolTable.errorType, isErrorOperand, valueOperand);
         errorCheckBB.instructions.add(errorTypeTestInstruction);
-        errorCheckBB.terminator = new Branch(pos, isErrorOperand, isErrorBB, noErrorBB);
+        errorCheckBB.terminator = new Branch(pos, isErrorOperand, isErrorBB, noErrorBB, null);
     }
 
     /**

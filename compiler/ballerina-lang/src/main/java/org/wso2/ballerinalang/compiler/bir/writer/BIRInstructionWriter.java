@@ -94,10 +94,11 @@ public class BIRInstructionWriter extends BIRVisitor {
         writeScope(currentScope);
     }
 
-    void writeScopes(BIRTerminator terminator) {
-        BirScope currentScope = terminator.scope;
-
-        writeScope(currentScope);
+    void writeScope(BIRTerminator terminator) {
+        if (terminator.kind != InstructionKind.RETURN) {
+            BirScope currentScope = terminator.scope;
+            writeScope(currentScope);
+        }
     }
 
     private void writeScope(BirScope currentScope) {
@@ -143,9 +144,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
         // write pos and kind
         writePosition(terminator.pos);
-        if (terminator.kind != InstructionKind.RETURN) {
-            writeScopes(terminator);
-        }
+        writeScope(terminator);
         buf.writeByte(terminator.kind.getValue());
         // write instruction
         terminator.accept(this);

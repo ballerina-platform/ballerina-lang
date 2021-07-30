@@ -478,7 +478,6 @@ public class MethodGen {
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator, jvmTypeGen, localVarOffset);
-
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
                                   returnVarRefIndex, attachedType);
 
