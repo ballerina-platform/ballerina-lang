@@ -933,12 +933,12 @@ public class TestBuildProject extends BaseTest {
 
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
-                        "[[dependency]]\n" +
+                        "[[package]]\n" +
                         "org = \"foo\"\n" +
                         "name = \"package_dep\"\n" +
                         "version = \"0.1.1\"\n").apply();
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
-        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 1);
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("package")).children().size(), 1);
 
         PackageCompilation newCompilation = project.currentPackage().getCompilation();
         ResolvedPackageDependency packageDepNew =
@@ -951,7 +951,7 @@ public class TestBuildProject extends BaseTest {
         // Set the old version again
         project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
-                "[[dependency]]\n" +
+                "[[package]]\n" +
                 "org = \"foo\"\n" +
                 "name = \"package_dep\"\n" +
                 "version = \"0.1.0\"\n").apply();
@@ -973,16 +973,16 @@ public class TestBuildProject extends BaseTest {
         // 2) Check editing files
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
-                "[[dependency]]\n" +
+                "[[package]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_k\"\n" +
                 "version = \"1.1.0-alpha\"\n" +
-                "[[dependency]]\n" +
+                "[[package]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_p\"\n" +
                 "version = \"1.1.0-alpha\"").apply();
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
-        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 2);
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("package")).children().size(), 2);
 
         CloudToml newCloudToml = project.currentPackage().cloudToml().get().modify().withContent("" +
                 "[test]\n" +
@@ -1055,11 +1055,11 @@ public class TestBuildProject extends BaseTest {
 
         DocumentConfig dependenciesToml = DocumentConfig.from(
                 DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null),
-                        "[[dependency]]\n" +
+                        "[[package]]\n" +
                         "org = \"samjs\"\n" +
                         "name = \"package_k\"\n" +
                         "version = \"1.1.0-alpha\"\n" +
-                        "[[dependency]]\n" +
+                        "[[package]]\n" +
                         "org = \"samjs\"\n" +
                         "name = \"package_p\"\n" +
                         "version = \"1.1.0-alpha\"",
@@ -1069,7 +1069,7 @@ public class TestBuildProject extends BaseTest {
         currentPackage = currentPackage.modify().addDependenciesToml(dependenciesToml).apply();
         TomlTableNode dependenciesTomlTable = currentPackage.dependenciesToml().get().tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
-                .get("dependency")).children().size(), 2);
+                .get("package")).children().size(), 2);
 
         DocumentConfig cloudToml = DocumentConfig.from(
                 DocumentId.create(ProjectConstants.CLOUD_TOML, null),
@@ -1083,7 +1083,7 @@ public class TestBuildProject extends BaseTest {
         currentPackage = currentPackage.modify().addCloudToml(cloudToml).apply();
         TomlTableNode cloudTomlTable = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
-                .get("dependency")).children().size(), 2);
+                .get("package")).children().size(), 2);
 
         DocumentConfig compilerPluginToml = DocumentConfig.from(
                 DocumentId.create(ProjectConstants.COMPILER_PLUGIN_TOML, null),
