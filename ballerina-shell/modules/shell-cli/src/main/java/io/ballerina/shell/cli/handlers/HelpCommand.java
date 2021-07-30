@@ -59,14 +59,13 @@ public class HelpCommand extends AbstractCommand {
         } else {
             String topic = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
             try {
-                ballerinaShell.outputInfo(DESCRIPTION_PREFIX + NEW_LINE +
-                        bbeHelpProvider.getDescription(topic).replaceAll(TAGS, EMPTY_STRING));
-                ballerinaShell.outputInfo(URL_PREFIX + URL +
-                        topic.replaceAll(" ", "-"));
+                ballerinaShell.outputInfo(DESCRIPTION_PREFIX + NEW_LINE + bbeHelpProvider.getDescription(topic)
+                        .replaceAll(TAGS, EMPTY_STRING));
+                ballerinaShell.outputInfo(URL_PREFIX + URL + topic.replaceAll(" ", "-"));
 
             } catch (HelpProviderException e) {
-                ballerinaShell.outputError(NEW_LINE + "Can not find topic " + topic  + NEW_LINE +
-                        NEW_LINE + "For available topics please visit " + URL);
+                ballerinaShell.outputError(NEW_LINE + "Can not find topic " + topic  + NEW_LINE + NEW_LINE +
+                        "For available topics please visit " + URL);
             }
         }
     }

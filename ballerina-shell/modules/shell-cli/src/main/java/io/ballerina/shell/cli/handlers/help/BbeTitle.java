@@ -30,9 +30,7 @@ public class BbeTitle {
     private String category;
     private BbeRecord[] samples;
 
-
     public BbeTitle(String title, String column, String category, BbeRecord[] samples) {
-
         this.title = title;
         this.column = column;
         this.category = category;
