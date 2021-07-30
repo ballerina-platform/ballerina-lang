@@ -82,6 +82,7 @@ import java.util.Set;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * Helper class to create a clone of it.
@@ -419,7 +420,7 @@ public class ImmutableTypeCloner {
         Name origTupleTypeSymbolName = Names.EMPTY;
         if (!originalTypeName.isEmpty()) {
             origTupleTypeSymbolName = origTupleTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
-                    getImmutableTypeName(names, origTupleTypeSymbol.toString());
+                    getImmutableTypeName(names, getSymbolFQN(origTupleTypeSymbol));
             tupleEffectiveImmutableType.name = origTupleTypeSymbolName;
         }
 
@@ -627,7 +628,7 @@ public class ImmutableTypeCloner {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
-                        getImmutableTypeName(names, origRecordType.tsymbol.toString()),
+                        getImmutableTypeName(names,  getSymbolFQN(origRecordType.tsymbol)),
                         pkgID, null, env.scope.owner, pos, SOURCE);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
@@ -685,7 +686,7 @@ public class ImmutableTypeCloner {
 
         BObjectTypeSymbol objectSymbol = Symbols.createObjectSymbol(flags,
                                                                     getImmutableTypeName(names,
-                                                                                         origObjectTSymbol.toString()),
+                                                                            getSymbolFQN(origObjectTSymbol)),
                                                                     pkgID, null, env.scope.owner, pos, SOURCE);
 
         objectSymbol.scope = new Scope(objectSymbol);
@@ -767,7 +768,7 @@ public class ImmutableTypeCloner {
 
         String originalTypeName = origUnionTypeSymbol == null ? "" : origUnionTypeSymbol.name.getValue();
         if (!originalTypeName.isEmpty()) {
-            unionEffectiveImmutableType.name = getImmutableTypeName(names, origUnionTypeSymbol.toString());
+            unionEffectiveImmutableType.name = getImmutableTypeName(names,  getSymbolFQN(origUnionTypeSymbol));
         }
 
         for (BType memberType : originalMemberList) {
@@ -792,7 +793,7 @@ public class ImmutableTypeCloner {
             BTypeSymbol immutableUnionTSymbol =
                     getReadonlyTSymbol(origUnionTypeSymbol, env, pkgId, owner,
                                        origUnionTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
-                                               getImmutableTypeName(names, origUnionTypeSymbol.toString()));
+                                               getImmutableTypeName(names,  getSymbolFQN(origUnionTypeSymbol)));
             type.immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
             type.immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
 
@@ -843,6 +844,17 @@ public class ImmutableTypeCloner {
         return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
                                         immutableTypeName, env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                         originalTSymbol.pos, SOURCE);
+    }
+
+    private static String getSymbolFQN(BTypeSymbol originalTSymbol) {
+        PackageID pkgID = originalTSymbol.pkgID;
+        if (pkgID == PackageID.DEFAULT ||
+                pkgID.equals(PackageID.ANNOTATIONS) ||
+                pkgID.name == Names.DEFAULT_PACKAGE) {
+            return originalTSymbol.name.value;
+        }
+        return pkgID.orgName + Names.ORG_NAME_SEPARATOR.value + pkgID.name + Names.VERSION_SEPARATOR +
+                getMajorVersion(pkgID.version.value) + ":" + originalTSymbol.name;
     }
 
     private static Name getImmutableTypeName(Names names, BTypeSymbol originalTSymbol) {
