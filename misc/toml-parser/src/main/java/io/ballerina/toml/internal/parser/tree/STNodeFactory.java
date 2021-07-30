@@ -97,6 +97,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBracket);
     }
 
+    public static STNode createInlineTableNode(
+            STNode openBrace,
+            STNode values,
+            STNode closeBrace) {
+
+        return new STInlineTableNode(
+                openBrace,
+                values,
+                closeBrace);
+    }
+
     public static STNode createStringLiteralNode(
             STNode startDoubleQuote,
             STNode content,

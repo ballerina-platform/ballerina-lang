@@ -1206,7 +1206,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        if (!isClassDefForServiceDecl(classDefinition) &&
+        if (!isClassDefForServiceOrObjectCtr(classDefinition) &&
                 setEnclosingNode(classDefinition.symbol, classDefinition.name.pos)) {
             return;
         }
@@ -1567,8 +1567,9 @@ class SymbolFinder extends BaseVisitor {
         return false;
     }
 
-    private boolean isClassDefForServiceDecl(BLangClassDefinition clazz) {
-        return clazz.flagSet.contains(Flag.SERVICE) && clazz.flagSet.contains(Flag.ANONYMOUS);
+    private boolean isClassDefForServiceOrObjectCtr(BLangClassDefinition clazz) {
+        return clazz.flagSet.contains(Flag.SERVICE) && clazz.flagSet.contains(Flag.ANONYMOUS)
+                || clazz.flagSet.contains(Flag.OBJECT_CTOR);
     }
 
     private boolean isLambdaFunction(TopLevelNode node) {

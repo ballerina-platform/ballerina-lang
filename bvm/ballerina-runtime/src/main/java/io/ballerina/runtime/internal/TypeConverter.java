@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
@@ -264,6 +265,11 @@ public class TypeConverter {
                     convertibleTypes.add(targetType);
                 }
                 break;
+            case TypeTags.TUPLE_TAG:
+                if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues)) {
+                    convertibleTypes.add(targetType);
+                }
+                break;
             case TypeTags.RECORD_TYPE_TAG:
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, false, unresolvedValues)) {
                     convertibleTypes.add(targetType);
@@ -449,16 +455,58 @@ public class TypeConverter {
                 return true;
             }
         }
-        Set<Type> convertibleTypes;
+
         for (int i = 0; i < source.size(); i++) {
-            convertibleTypes = getConvertibleTypes(source.get(i), targetTypeElementType, unresolvedValues);
-            if (convertibleTypes.isEmpty()) {
+            if (!isConvertibleToArrayInstance(source.get(i), targetTypeElementType, unresolvedValues)) {
                 return false;
             }
-            if (convertibleTypes.size() != 1 && !convertibleTypes.contains(TypeChecker.getType(source.get(i)))
-                    && !hasIntegerSubTypes(convertibleTypes)) {
+        }
+        return true;
+    }
+
+    private static boolean isConvertibleToTupleType(Object sourceValue, BTupleType targetType,
+                                                    List<TypeValuePair> unresolvedValues) {
+        if (!(sourceValue instanceof ArrayValue)) {
+            return false;
+        }
+
+        ArrayValue source = (ArrayValue) sourceValue;
+        List<Type> targetTypes = targetType.getTupleTypes();
+        int sourceTypeSize = source.size();
+        int targetTypeSize = targetTypes.size();
+        Type targetRestType = targetType.getRestType();
+
+        if (sourceTypeSize < targetTypeSize || (targetRestType == null && sourceTypeSize > targetTypeSize)) {
+            return false;
+        }
+
+        for (int i = 0; i < targetTypeSize; i++) {
+            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetTypes.get(i), unresolvedValues)) {
                 return false;
             }
+        }
+
+        for (int i = targetTypeSize; i < sourceTypeSize; i++) {
+            if (!isConvertibleToArrayInstance(source.getRefValue(i), targetRestType, unresolvedValues)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
+                                                        List<TypeValuePair> unresolvedValues) {
+        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, unresolvedValues);
+        if (convertibleTypes.isEmpty() || !isConvertible(convertibleTypes, sourceElement)) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isConvertible(Set<Type> convertibleTypes, Object sourceElement) {
+        if (convertibleTypes.size() > 1 && !convertibleTypes.contains(TypeChecker.getType(sourceElement))
+                && !hasIntegerSubTypes(convertibleTypes)) {
+            return false;
         }
         return true;
     }

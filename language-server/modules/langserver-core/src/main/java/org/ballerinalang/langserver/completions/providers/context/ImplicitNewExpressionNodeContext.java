@@ -17,15 +17,18 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -34,6 +37,8 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ImplicitNewExpressionNode} context.
@@ -61,26 +66,29 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
             Supports the following
             (1) lhs = new <cursor>
             */
-            Optional<ClassSymbol> classSymbol = getClassSymbol(context);
+            List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
+                    .filter(this.getSymbolFilterPredicate(node))
+                    .collect(Collectors.toList());
+            filteredSymbols.forEach(symbol -> {
+                Optional<LSCompletionItem> cItem = this.getExplicitNewCompletionItem(symbol, context);
+                cItem.ifPresent(completionItems::add);
+            });
             completionItems.addAll(this.getModuleCompletionItems(context));
-            classSymbol.ifPresent(symbol -> completionItems.add(this.getExplicitNewCompletionItem(symbol, context)));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
-    private Optional<ClassSymbol> getClassSymbol(BallerinaCompletionContext context) {
-        Optional<TypeSymbol> contextType = context.getContextType();
-        if (contextType.isEmpty()) {
-            return Optional.empty();
-        }
-        TypeSymbol rawType = CommonUtil.getRawType(contextType.get());
-        if (rawType.kind() == SymbolKind.CLASS) {
-            return Optional.of((ClassSymbol) rawType);
+    private Predicate<Symbol> getSymbolFilterPredicate(Node node) {
+        if (node.parent().kind() == SyntaxKind.SERVICE_DECLARATION
+                || node.parent().kind() == SyntaxKind.LISTENER_DECLARATION) {
+            return symbol -> symbol.kind() == SymbolKind.CLASS && SymbolUtil.isListener(symbol);
         }
 
-        return Optional.empty();
+        return symbol -> symbol.kind() == SymbolKind.CLASS
+                || (symbol.kind() == SymbolKind.TYPE_DEFINITION
+                && ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.STREAM);
     }
 
     private boolean withinArgs(BallerinaCompletionContext context, ImplicitNewExpressionNode node) {
