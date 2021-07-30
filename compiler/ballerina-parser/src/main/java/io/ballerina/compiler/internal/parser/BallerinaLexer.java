@@ -499,8 +499,14 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'F':
                 case 'd':
                 case 'D':
+                    char nextNextChar = reader.peek(1);
                     // If there's more than one dot, only capture the integer
-                    if (reader.peek(1) == LexerTerminals.DOT) {
+                    if (nextNextChar == LexerTerminals.DOT) {
+                        break;
+                    }
+
+                    // If dot is followed by an identifier, only capture the integer. e.g. 2.toString()
+                    if (nextChar == LexerTerminals.DOT && isNumericFollowedByIdentifier(nextNextChar)) {
                         break;
                     }
 
@@ -534,6 +540,24 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
+    }
+
+    private boolean isNumericFollowedByIdentifier(char nextNextChar) {
+        switch (nextNextChar) {
+            case 'e':
+            case 'E':
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                char thirdChar = this.reader.peek(2);
+                if (thirdChar == LexerTerminals.PLUS || thirdChar == LexerTerminals.MINUS) {
+                    return false;
+                }
+                return isIdentifierInitialChar(thirdChar);
+            default:
+                return isIdentifierInitialChar(nextNextChar);
+        }
     }
 
     /**
