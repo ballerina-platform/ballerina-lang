@@ -47,3 +47,18 @@ function testLangLib() {
     string h = "abc";
     int y = h.toCodePointInt(); // Error
 }
+
+type X "ab"|"b";
+type Y -1|"e"|"f";
+
+function testFiniteTypeAsStringSubType() {
+    X a = "ab";
+    string:Char b = a;
+
+    X[] c = ["ab", "b"];
+    string:Char[] d = c;
+
+    Y[] e = ["e", "e", -1];
+    string:Char[] f = e;
+    (int:Unsigned8|string:Char)[] g = e;
+}

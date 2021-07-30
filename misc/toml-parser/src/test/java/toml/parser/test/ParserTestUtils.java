@@ -394,12 +394,18 @@ public class ParserTestUtils {
 
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
+            case "INLINE_TABLE":
+                return SyntaxKind.INLINE_TABLE;
             case "NEW_LINE":
                 return SyntaxKind.NEWLINE;
             case "TRUE_KEYWORD":
                 return SyntaxKind.TRUE_KEYWORD;
             case "FALSE_KEYWORD":
                 return SyntaxKind.FALSE_KEYWORD;
+            case "OPEN_BRACE_TOKEN":
+                return SyntaxKind.OPEN_BRACE_TOKEN;
+            case "CLOSE_BRACE_TOKEN":
+                return SyntaxKind.CLOSE_BRACE_TOKEN;
             case "OPEN_BRACKET_TOKEN":
                 return SyntaxKind.OPEN_BRACKET_TOKEN;
             case "CLOSE_BRACKET_TOKEN":

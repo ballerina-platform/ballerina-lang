@@ -1,34 +1,9 @@
 {
-  "kind": "BINARY_EXPRESSION",
-  "hasDiagnostics": true,
+  "kind": "STRING_LITERAL",
   "children": [
     {
-      "kind": "STRING_LITERAL",
-      "children": [
-        {
-          "kind": "STRING_LITERAL_TOKEN",
-          "value": "hello world"
-        }
-      ]
-    },
-    {
-      "kind": "PLUS_TOKEN",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_BINARY_OPERATOR"
-      ]
-    },
-    {
-      "kind": "NIL_LITERAL",
-      "children": [
-        {
-          "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-          "kind": "CLOSE_PAREN_TOKEN"
-        }
-      ]
+      "kind": "STRING_LITERAL_TOKEN",
+      "value": "hello world"
     }
   ]
 }

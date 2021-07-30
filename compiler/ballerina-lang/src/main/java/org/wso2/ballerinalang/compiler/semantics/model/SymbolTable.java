@@ -587,7 +587,6 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.SUB, decimalType, decimalType);
 
         defineUnaryOperator(OperatorKind.NOT, booleanType, booleanType);
-        defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
     }
 
     private void defineIntegerUnaryOperations() {

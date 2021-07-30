@@ -769,4 +769,9 @@ public class TypeTestExprTest {
     public void testRecordIntersectionWithFunctionFields() {
         BRunUtil.invoke(result, "testRecordIntersectionWithFunctionFields");
     }
+
+    @Test
+    public void testBuiltInSubTypeTypeTestAgainstFiniteType() {
+        BRunUtil.invoke(result, "testBuiltInSubTypeTypeTestAgainstFiniteType");
+    }
 }

@@ -39,7 +39,7 @@
     {
       "label": "getListener()",
       "kind": "Function",
-      "detail": "ballerina/module1:0.1.0:Listener",
+      "detail": "module1:Listener",
       "documentation": {
         "right": {
           "kind": "markdown",

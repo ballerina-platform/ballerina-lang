@@ -531,8 +531,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (executionManager != null) {
             String address = (executionManager.getHost().isPresent() && executionManager.getPort().isPresent()) ?
                     executionManager.getHost().get() + ":" + executionManager.getPort().get() : VALUE_UNKNOWN;
-            outputLogger.sendConsoleOutput(String.format(System.lineSeparator() + "Disconnected from the target VM, " +
-                    "address: '%s'", address));
+            outputLogger.sendDebugServerOutput(String.format(System.lineSeparator() + "Disconnected from the target " +
+                    "VM, address: '%s'", address));
         }
 
         // Exits from the debug server VM.
@@ -891,7 +891,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
             try (BufferedReader inputStream = context.getInputStream()) {
                 String line;
-                outputLogger.sendConsoleOutput("Waiting for debug process to start..." + System.lineSeparator()
+                outputLogger.sendDebugServerOutput("Waiting for debug process to start..." + System.lineSeparator()
                         + System.lineSeparator());
                 while ((line = inputStream.readLine()) != null) {
                     if (line.contains("Listening for transport dt_socket")) {
@@ -912,7 +912,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     portName = VALUE_UNKNOWN;
                 }
                 LOGGER.error(e.getMessage());
-                outputLogger.sendConsoleOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
+                outputLogger.sendDebugServerOutput(String.format("Failed to attach to the target VM, address: '%s:%s'.",
                         host, portName));
             }
         });

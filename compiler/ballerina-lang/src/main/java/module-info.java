@@ -63,6 +63,7 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.tree.clauses;
     exports org.ballerinalang.model.clauses;
     exports org.wso2.ballerinalang.compiler.diagnostic;
+    exports org.wso2.ballerinalang.compiler.diagnostic.properties;
     exports org.wso2.ballerinalang.compiler.tree.bindingpatterns;
     exports org.wso2.ballerinalang.compiler.tree.matchpatterns;
     exports io.ballerina.projects;
@@ -72,6 +73,7 @@ module io.ballerina.lang {
     exports io.ballerina.projects.bala;
     exports io.ballerina.projects.repos;
     exports io.ballerina.projects.plugins;
+    exports io.ballerina.projects.plugins.codeaction;
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
     exports io.ballerina.projects.internal.environment; // TODO Remove these exports
     exports io.ballerina.projects.internal to io.ballerina.cli;

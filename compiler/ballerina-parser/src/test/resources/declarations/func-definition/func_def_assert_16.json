@@ -1,5 +1,5 @@
 {
-  "kind": "MODULE_VAR_DECL",
+  "kind": "MODULE_PART",
   "hasDiagnostics": true,
   "children": [
     {
@@ -7,37 +7,91 @@
       "children": []
     },
     {
-      "kind": "TYPED_BINDING_PATTERN",
+      "kind": "LIST",
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "FUNCTION_TYPE_DESC",
+          "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
               "children": []
             },
             {
-              "kind": "FUNCTION_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
+              "children": [
                 {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
+                  "kind": "FUNCTION_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "FUNCTION_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "MAPPING_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACE_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_BRACE_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "kind": "CAPTURE_BINDING_PATTERN",
-          "hasDiagnostics": true,
-          "children": [
+            },
             {
-              "kind": "IDENTIFIER_TOKEN",
+              "kind": "EQUAL_TOKEN",
               "isMissing": true,
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
+                "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
+              ]
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
               ]
             }
           ]
@@ -45,12 +99,7 @@
       ]
     },
     {
-      "kind": "SEMICOLON_TOKEN",
-      "isMissing": true,
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_SEMICOLON_TOKEN"
-      ]
+      "kind": "EOF_TOKEN"
     }
   ]
 }

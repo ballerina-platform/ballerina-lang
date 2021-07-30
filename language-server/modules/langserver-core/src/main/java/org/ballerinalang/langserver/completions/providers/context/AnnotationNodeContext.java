@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -50,6 +51,8 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class AnnotationNodeContext extends AbstractCompletionProvider<AnnotationNode> {
+    
+    private static final String DIAGNOSTIC_CODE_ANNOTATION_NOT_ATTACHED = "BCE0524";
 
     public AnnotationNodeContext() {
         super(AnnotationNode.class);
@@ -62,7 +65,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.annotReference())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.annotReference();
-            completionItems.addAll(this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode));
+            completionItems.addAll(this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(),
+                    node, attachedNode));
         } else {
             // Fixme Temporarily disabled the caching usage
 //        LSAnnotationCache.getInstance().getAnnotationMapForSyntaxKind(attachedNode, context)
@@ -76,24 +80,26 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 //                    completionItems.add(cItem);
 //                }));
             completionItems.addAll(this.getModuleCompletionItems(context));
-            completionItems.addAll(this.getCurrentModuleAnnotations(context, attachedNode));
+            completionItems.addAll(this.getCurrentModuleAnnotations(context, node, attachedNode));
         }
         this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
-    private List<LSCompletionItem> getCurrentModuleAnnotations(BallerinaCompletionContext ctx, Node attachedNode) {
+    private List<LSCompletionItem> getCurrentModuleAnnotations(BallerinaCompletionContext ctx, 
+                                                               AnnotationNode annotationNode, 
+                                                               Node attachedNode) {
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
-                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode))
+                        && this.matchingAnnotation((AnnotationSymbol) symbol, annotationNode, attachedNode, ctx))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, ctx))
                 .collect(Collectors.toList());
     }
 
     private List<LSCompletionItem> getAnnotationsInModule(BallerinaCompletionContext context, String alias,
-                                                          Node attachedNode) {
+                                                          AnnotationNode annotationNode, Node attachedNode) {
         Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
         // TODO: Enable after annotation cache is supported
 //        if (moduleEntry.isEmpty()) {
@@ -110,7 +116,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
         return moduleEntry.orElseThrow().allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
-                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode))
+                        && this.matchingAnnotation((AnnotationSymbol) symbol, annotationNode, attachedNode, context))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, context))
                 .collect(Collectors.toList());
     }
@@ -123,10 +129,19 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         return node.parent();
     }
 
-    private boolean matchingAnnotation(AnnotationSymbol symbol, Node attachedNode) {
+    private boolean matchingAnnotation(AnnotationSymbol symbol, AnnotationNode annotationNode, 
+                                       Node attachedNode, BallerinaCompletionContext context) {
         if (symbol.attachPoints().isEmpty()) {
             return true;
         }
+
+        // Check if annotation node isn't attached to any node. If not attached, we should show all annotations
+        for (Diagnostic diagnostic : annotationNode.diagnostics()) {
+            if (DIAGNOSTIC_CODE_ANNOTATION_NOT_ATTACHED.equals(diagnostic.diagnosticInfo().code())) {
+                return true;
+            }
+        }
+
         switch (attachedNode.kind()) {
             case SERVICE_DECLARATION:
                 return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE);

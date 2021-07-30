@@ -153,7 +153,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
     @Test(description = "Variable visibility test for global variables")
     public void globalVariableVisibilityTest() throws BallerinaTestException {
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 292));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 295));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 270));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
@@ -213,9 +213,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "stringVar", "\"foo\"", "string");
 
         // xml variable visibility test
-        debugTestRunner.assertVariable(localVariables, "xmlVar",
-                "<person gender=\"male\"><firstname>Praveen</firstname><lastname>Nada</lastname></person>",
-                "xml");
+        debugTestRunner.assertVariable(localVariables, "xmlVar", "XMLElement", "xml");
 
         // array variable visibility test
         debugTestRunner.assertVariable(localVariables, "arrayVar", "any[4]", "array");
@@ -276,7 +274,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "tableWithoutKeyVar", "table<Employee> (entries = 3)", "table");
 
         // stream variable visibility test
-        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error>", "stream");
+        debugTestRunner.assertVariable(localVariables, "oddNumberStream", "stream<int, error?>", "stream");
 
         // variables with quoted identifiers visibility test
         debugTestRunner.assertVariable(localVariables, " /:@[`{~π_var", "\"IL with special characters in var\"",
@@ -298,7 +296,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // xml child variable visibility test
         Map<String, Variable> xmlChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("xmlVar"));
-        debugTestRunner.assertVariable(xmlChildVariables, "attributes", "map", "map");
+        debugTestRunner.assertVariable(xmlChildVariables, "attributes", "XMLAttributeMap (size = 16)", "map");
         debugTestRunner.assertVariable(xmlChildVariables, "children", "XMLSequence (size = 2)", "xml");
 
         // xml attributes child variable visibility test
@@ -309,8 +307,8 @@ public class VariableVisibilityTest extends BaseTestCase {
         // xml children variable visibility test
         Map<String, Variable> xmlChildrenVariables =
             debugTestRunner.fetchChildVariables(xmlChildVariables.get("children"));
-        debugTestRunner.assertVariable(xmlChildrenVariables, "[0]", "<firstname>Praveen</firstname>", "xml");
-        debugTestRunner.assertVariable(xmlChildrenVariables, "[1]", "<lastname>Nada</lastname>", "xml");
+        debugTestRunner.assertVariable(xmlChildrenVariables, "[0]", "XMLElement", "xml");
+        debugTestRunner.assertVariable(xmlChildrenVariables, "[1]", "XMLElement", "xml");
 
         // xml grand children variable visibility test
         Map<String, Variable> xmlGrandChildrenVariables =

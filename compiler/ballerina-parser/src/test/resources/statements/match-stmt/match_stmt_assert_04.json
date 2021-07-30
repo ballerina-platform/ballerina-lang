@@ -404,68 +404,38 @@
                     },
                     {
                       "kind": "START_KEYWORD",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_EXPRESSION_IN_START_ACTION"
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "RETURN_KEYWORD"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
-                            "children": [
-                              {
-                                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_INVALID_TOKEN"
-                                ],
-                                "value": "1"
-                              }
-                            ]
-                          }
                         }
                       ]
                     },
                     {
                       "kind": "FUNCTION_CALL",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
                             }
                           ]
                         },
                         {
                           "kind": "OPEN_PAREN_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_OPEN_PAREN_TOKEN"
+                          ]
                         },
                         {
                           "kind": "LIST",
@@ -473,7 +443,11 @@
                         },
                         {
                           "kind": "CLOSE_PAREN_TOKEN",
-                          "isMissing": true
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                          ]
                         }
                       ]
                     }
@@ -537,31 +511,49 @@
                             },
                             {
                               "kind": "LIST",
-                              "children": []
+                              "children": [
+                                {
+                                  "kind": "RETURN_STATEMENT",
+                                  "children": [
+                                    {
+                                      "kind": "RETURN_KEYWORD",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "NUMERIC_LITERAL",
+                                      "children": [
+                                        {
+                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                          "value": "1"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "SEMICOLON_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_INVALID_TOKEN"
-                              ],
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "INVALID_NODE_MINUTIAE",
-                                  "invalidNode": {
-                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                    "children": [
-                                      {
-                                        "kind": "SEMICOLON_TOKEN"
-                                      }
-                                    ]
-                                  }
-                                },
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",

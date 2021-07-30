@@ -118,6 +118,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stArrayNode.createUnlinkedFacade();
     }
 
+    public static InlineTableNode createInlineTableNode(
+            Token openBrace,
+            SeparatedNodeList<KeyValueNode> values,
+            Token closeBrace) {
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(values, "values must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+
+        STNode stInlineTableNode = STNodeFactory.createInlineTableNode(
+                openBrace.internalNode(),
+                values.underlyingListNode().internalNode(),
+                closeBrace.internalNode());
+        return stInlineTableNode.createUnlinkedFacade();
+    }
+
     public static StringLiteralNode createStringLiteralNode(
             Token startDoubleQuote,
             Token content,
