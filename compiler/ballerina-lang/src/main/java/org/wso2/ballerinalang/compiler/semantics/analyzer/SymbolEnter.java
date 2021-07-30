@@ -1506,7 +1506,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeDefSymbol = definedType.tsymbol;
         }
 
-        boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION);
+        boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION) && !label;;
         BType referenceConstraintType = types.getConstraintFromReferenceType(definedType);
         BType effectiveDefinedType = isNonLabelIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
@@ -1517,11 +1517,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
-//        if (isNonLabelIntersectionType) {
-//            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
-//            effectiveTypeSymbol.name = typeDefSymbol.name;
-//            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
-//        }
+        if (isNonLabelIntersectionType) {
+            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+            effectiveTypeSymbol.name = typeDefSymbol.name;
+            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
+        }
 
         if (isDistinctFlagPresent(typeDefinition)) {
             if (referenceConstraintType.getKind() == TypeKind.ERROR) {
