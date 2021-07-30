@@ -57,14 +57,9 @@ public class JlineSimpleCompleter implements Completer {
         BbeCompletionProvider bbeHelpProvider = new BbeCompletionProvider();
         List<String> topicsKeywords;
         topicsKeywords = bbeHelpProvider.getTopicList();
-        if (topicsKeywords.size() > 0) {
-            this.topicsCompleter = new StringsCompleter(topicsKeywords);
-        } else {
-            this.topicsCompleter = null;
-        }
+        this.topicsCompleter = new StringsCompleter(topicsKeywords);
         List<String> commandsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(COMMANDS_FILE));
         List<String> codeKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(KEYWORDS_FILE));
-
         this.commandsCompleter = new StringsCompleter(commandsKeywords);
         this.keywordsCompleter = new StringsCompleter(codeKeywords);
         String helpDescriptionPostfix = PropertiesLoader.getProperty(HELP_DESCRIPTION_POSTFIX);

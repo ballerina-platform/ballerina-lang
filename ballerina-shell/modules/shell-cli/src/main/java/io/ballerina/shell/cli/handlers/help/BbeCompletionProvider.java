@@ -35,8 +35,7 @@ import java.util.stream.Stream;
  */
 public class BbeCompletionProvider {
 
-    private static final String BALLERINA_HOME =
-            System.getProperty("ballerina.home");
+    private static final String BALLERINA_HOME = System.getProperty("ballerina.home");
     private static final String EXAMPLES = "examples";
     private static final String BBE_FILE = "index.json";
 
@@ -49,8 +48,7 @@ public class BbeCompletionProvider {
     public List<String> getTopicList() {
         Gson gson = new Gson();
 
-        String file = BALLERINA_HOME + File.separator + EXAMPLES +
-                File.separator + BBE_FILE;
+        String file = BALLERINA_HOME + File.separator + EXAMPLES + File.separator + BBE_FILE;
         String jsonString = readFileAsString(file);
 
         if (jsonString != null) {
@@ -58,11 +56,15 @@ public class BbeCompletionProvider {
             BbeTitle[] bbeTitles = gson.fromJson(jsonString, BbeTitle[].class);
             Stream<BbeTitle> streamList = Arrays.stream(bbeTitles);
             streamList.forEach((bbeTitle) -> {
-                BbeRecord[] samples = bbeTitle.getSamples();
-                Stream<BbeRecord> sampleList = Arrays.stream(samples);
-                sampleList.forEach((bbeRecordElement) -> {
-                    topicList.add(bbeRecordElement.getUrl().replaceAll("-", " "));
-                });
+                if (bbeTitle != null) {
+                    BbeRecord[] samples = bbeTitle.getSamples();
+                    Stream<BbeRecord> sampleList = Arrays.stream(samples);
+                    sampleList.forEach((bbeRecordElement) -> {
+                        if (bbeRecordElement != null) {
+                            topicList.add(bbeRecordElement.getUrl().replaceAll("-", " "));
+                        }
+                    });
+                }
             });
             return topicList;
         }
