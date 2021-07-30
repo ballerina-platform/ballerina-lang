@@ -34,7 +34,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.EMPTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
-import static io.ballerina.runtime.internal.util.RuntimeUtils.getMajorVersion;
 
 /**
  * A {@code ValueCreator} is an API that will be implemented by all the module init classed from jvm codegen.
@@ -81,7 +80,7 @@ public abstract class ValueCreator {
 
     public static ValueCreator getValueCreator(String key) {
         if (!runtimeValueCreators.containsKey(key)) {
-            throw new BallerinaException("Value creator object is not available");
+            throw new BallerinaException("Value creator object is not available for: " + key);
         }
         return runtimeValueCreators.get(key);
     }
