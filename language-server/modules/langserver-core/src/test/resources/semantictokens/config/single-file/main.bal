@@ -1,7 +1,6 @@
 import ballerina/io;
 import ballerina/http;
 import ballerina/log;
-import ballerina/graphql;
 import ballerina/test;
 
 // ** Service **
@@ -43,6 +42,23 @@ function add(int x, int y) returns int {
     return sum;
 }
 
+public enum Color {
+    YELLOW
+}
+
+# Description
+#
+# + city - Field Description
+# + country - Field Description
+public type Address object {
+    public string city;
+    public string country;
+
+    public function value() returns string;
+};
+
+type EmployeeTable table<Employee> key(age);
+
 public function main() {
     // ** Variable **
     // 1. Define variable
@@ -60,7 +76,10 @@ public function main() {
 
     // ** Enum **
     // 1. Same module level enum reference in the same file (declaration before the reference)
+    io:print(YELLOW);
+
     // 2. Same module level enum reference in the same file (declaration after the reference)
+    io:print(DOG);
 
     // ** Class **
     // 1. Same module level class reference in the same file (declaration before the reference)
@@ -75,6 +94,13 @@ public function main() {
 
     // ** Record **
     // 1. Define record
+    record {int x; int y;} recordObj = {
+        x: 1,
+        y: 2
+    };
+    int a = recordObj.y;
+    io:println(a);
+
     // 2. Same module level record reference in the same file (declaration before the reference)
     Person[] persons = [
         {first: "Melina", last: "Kodel", yearOfBirth: 1994},
@@ -92,41 +118,54 @@ public function main() {
 
     // ** Object **
     // 1. Define object
+    object {
+        *object:Iterable;
+        public function iterator() returns 
+            object {
+            public function next() returns record {|int value;|}?;
+        };
+    } iterableObj = 25 ..< 28;
+
     // 2. Same module level object reference in the same file (declaration before the reference)
-    // 3. Same module level object reference in the same file (declaration after the reference)
+    Address address = object {
+        public string city;
+        public string country;
+
+        public function init() {
+            self.city = "London";
+            self.country = "UK";
+        }
+
+        public function value() returns string {
+            return self.city + ", " + self.country;
+        }
+
+        function getCity() returns string => string `Default: ${self.city}`;
+    };
 
     // ** Type **
     // 1. Same module level type reference in the same file (declaration before the reference)
+    EmployeeTable employeeTab = table [
+            {age: 1, name: "John", salary: 300.50, married: false},
+            {age: 2, name: "Bella", salary: 500.50, married: false}
+        ];
+
     // 2. Same module level type reference in the same file (declaration after the reference)
+    CountryCode code = LK;
 
     // ** Function **
-    // 1. Define function
-    // 2. Same module level function reference in the same file (declaration before the reference)
+    // 1. Same module level function reference in the same file (declaration before the reference)
     io:print(add(10, 20));
 
-    // 3. Same module level function reference in the same file (declaration after the reference)
+    // 2. Same module level function reference in the same file (declaration after the reference)
     printLines(s);
 
-    // 4. Different module function reference
+    // 3. Different module function reference
     string st = "abc".substring(1, 2);
-    int n = st.length();
+    int p = st.length();
     int m = string:length(st);
 
     io:println([10, 20, 30] is int[]);
-}
-
-service /graphql on new graphql:Listener(4000) {
-    resource function get profile() returns Student {
-        return {
-            name: "Walter White",
-            age: 51,
-            address: {
-                number: "308",
-                street: "Negra Arroyo Lane",
-                city: "Albuquerque"
-            }
-        };
-    }
 }
 
 function printLines(string[] sv) {
@@ -139,12 +178,6 @@ public type Student record {
     string name;
     int age;
     Address address;
-};
-
-public type Address record {
-    string number;
-    string street;
-    string city;
 };
 
 int n = flag ? 1 : 2;
@@ -160,7 +193,7 @@ class MyClass {
     }
 }
 
-type UniformTypeOps readonly & record {| //BUG* missing readonly
+type UniformTypeOps readonly & record {|
     BinOp union = binOpPanic;
 |};
 
@@ -169,3 +202,19 @@ type BinOp function (any t1, any t2) returns string;
 function binOpPanic(any t1, any t2) returns string {
     return "done";
 }
+
+public enum PET {
+    DOG
+}
+
+public type Employee record {
+    string name;
+    readonly int age;
+    boolean married;
+    float salary;
+};
+
+public type CountryCode LK|US;
+
+public const string LK = "LK";
+public const string US = "USA";

@@ -37,7 +37,11 @@ isolated function lookup(string s) returns readonly & Entry? {
     return m[s];
 }
 
-type EmployeeTable table<Employee> key(age); //BUG*
+type EmployeeTable table<Employee> key(age);
+
+public enum NodeType {
+    Super = "super"
+}
 
 public function main() {
 
@@ -76,7 +80,7 @@ public function main() {
     Person john = {
         name: "John Doe",
         age: 25,
-        address: object Address { //BUG*
+        address: object Address {
             public function init() {
                 self.city = "Colombo";
                 self.country = "Sri Lanka";
@@ -90,7 +94,7 @@ public function main() {
     io:println("City: ", john.address.city);
 
     // 2. Same module level object reference, but in a separate file
-    DummyObject objectIns = object { // BUG: https://github.com/ballerina-platform/ballerina-lang/issues/31886
+    DummyObject objectIns = object {
         public string fieldOne = "";
         public string fieldTwo = "";
 
@@ -99,9 +103,10 @@ public function main() {
         }
     };
     // 3. Same module level object reference in the same file (declaration after the reference)
+    StringIterator iter;
 
     // 4. Different module object reference
-    mod1:Address address = object { // BUG: https://github.com/ballerina-platform/ballerina-lang/issues/31886
+    mod1:Address address = object {
         public string city;
         public string country;
 
@@ -138,6 +143,11 @@ public function main() {
 
     // ** Function
     // 1. Define function
+    function (string, string) returns string concat = 
+            function(string x, string y) returns string {
+        return x + y;
+    };
+
     // 2. Same module level function reference in the same file (declaration before the reference)
     io:println(lookup("france"));
 
@@ -151,8 +161,17 @@ public function main() {
 
     // ** Enum
     // 1. Same module level enum reference in the same file (declaration before the reference)
+    io:print(NodeType);
+    io:print(Super);
+
     // 2. Same module level enum reference, but in a separate file
+    io:print(PET);
+    io:print(DOG);
+
     // 3. Same module level enum reference in the same file (declaration after the reference)
+    io:print(OCCUPATION);
+    io:print(Doctor);
+
     // 4. Different module enum reference
     io:print(mod1:RED);
     io:print(mod1:Color);
@@ -191,7 +210,7 @@ public function main() {
     io:print(r.x);
 
     // 2. Same module level record reference in the same file (declaration before the reference)
-    Address adr = object { // BUG: https://github.com/ballerina-platform/ballerina-lang/issues/31886
+    Address adr = object {
         public string city;
         public string country;
 
@@ -312,12 +331,12 @@ object {
 string[] outputs = [];
 test:MockFunction mock_currentTime = new ();
 
-@test:BeforeSuite
-function beforeSuit() {
-    io:println("I'm the before suite function!");
-}
+type StringIterator object {
+    public isolated function next() returns record {|
+        int value;
+    |}?;
+};
 
-@test:AfterSuite {}
-function afterSuite() {
-    io:println("I'm the after suite function!");
+public enum OCCUPATION {
+    Doctor = "Dr."
 }

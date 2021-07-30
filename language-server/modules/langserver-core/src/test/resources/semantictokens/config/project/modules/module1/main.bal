@@ -33,7 +33,7 @@ class Person {
 
 # Description
 #
-# + x - Field Description
+# + x - Field Description //BUG*
 public type Coord record {
     readonly int x;
     # + y - Field Description
@@ -143,14 +143,14 @@ public function main() returns error? {
     // 1. Define object
     object {
         *object:Iterable;
-        public function iterator() returns
+        public function iterator() returns 
             object {
             public function next() returns record {|int value;|}?;
         };
     } iterableObj = 25 ..< 28;
 
     // 2. Same module level object reference in the same file (declaration before the reference)
-    Address address = object { // BUG: https://github.com/ballerina-platform/ballerina-lang/issues/31886
+    Address address = object {
         public string city;
         public string country;
 
@@ -184,7 +184,7 @@ public function main() returns error? {
     io:println(mapArr[0]);
 
     // 2. Same module level type reference, but in a separate file
-    AccountNotFoundError accountNotFoundError = error AccountNotFoundError("ACCOUNT_NOT_FOUND", count = 500); //BUG: https://github.com/ballerina-platform/ballerina-lang/issues/31885
+    AccountNotFoundError accountNotFoundError = error AccountNotFoundError("ACCOUNT_NOT_FOUND", count = 500);
 
     // 3. Same module level type reference in the same file (declaration after the reference)
     InvalidIdError invalidIdError = error InvalidIdError("Error", id = "");
@@ -323,10 +323,10 @@ enum Language {
     SI = "Sinhala"
 }
 
-service object {} ser =
+service object {} ser = 
 @serviceAnnotation {
     foo: "serviceAnnotation"
-}
+} 
 service object {
     int i = 1234;
     remote function name() {

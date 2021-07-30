@@ -43,3 +43,7 @@ public type DummyObject object {
     # the `doThatOnObject` function.
     public function doThatOnObject(string paramOne) returns boolean;
 };
+
+public enum PET {
+    DOG = "Dog"
+}
