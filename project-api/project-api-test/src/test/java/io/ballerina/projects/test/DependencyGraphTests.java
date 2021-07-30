@@ -21,19 +21,37 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionRequest;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Contains cases to test dependency graph changes with package edits.
@@ -236,5 +254,54 @@ public class DependencyGraphTests extends BaseTest {
 
         // verify that the package cache is not flushed
         Assert.assertNotNull(packageCache.getSymbol(packageID));
+    }
+
+    @Test
+    public void testVersionResolution() throws IOException {
+        // http -> io, cache -> io (1.4.2)
+        // dist => cache (0.1.0), io (1.4.2)
+        // central => cache (0.1.0), io (1.5.0)
+        Path customUserHome = Paths.get("build", "userHome");
+        Path centralCache = customUserHome.resolve("repositories/central.ballerina.io");
+        Files.createDirectories(centralCache);
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_jsonutils");
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_io_1_4_2");
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_cache");
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_cache", centralCache);
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/ultimate_package_resolution/package_io_1_5_0",
+                centralCache);
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/ultimate_package_resolution/package_http");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+
+        PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), null),
+                PackageDependencyScope.DEFAULT, true);
+        ResolutionRequest resolutionRequest2 = ResolutionRequest.from(
+                PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("cache"), null),
+                PackageDependencyScope.DEFAULT, true);
+        List<ResolutionRequest> resolutionRequestList = new ArrayList<>();
+        resolutionRequestList.add(resolutionRequest);
+        resolutionRequestList.add(resolutionRequest2);
+        List<PackageDescriptor> packageDescriptors = packageResolver.resolveDependencyVersions(
+                resolutionRequestList, PackageLockingMode.SOFT);
+        for (PackageDescriptor packageDescriptor : packageDescriptors) {
+            if (packageDescriptor.name().toString().equals("io")) {
+                Assert.assertEquals(packageDescriptor.version().toString(), "1.5.0");
+            } else {
+                Assert.assertEquals(packageDescriptor.version().toString(), "0.1.0");
+            }
+        }
+
     }
 }

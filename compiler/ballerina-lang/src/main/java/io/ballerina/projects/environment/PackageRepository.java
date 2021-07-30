@@ -19,6 +19,7 @@
 package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 
 import java.util.List;
@@ -37,4 +38,7 @@ public interface PackageRepository {
     List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest);
 
     Map<String, List<String>> getPackages();
+
+    List<PackageDescriptor> resolveDependencyVersions(
+            List<ResolutionRequest> packageLoadRequests, PackageLockingMode packageLockingMode);
 }

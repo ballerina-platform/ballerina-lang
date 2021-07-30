@@ -2,10 +2,12 @@ package io.ballerina.projects.internal.repositories;
 
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -136,5 +138,11 @@ public class RemotePackageRepository implements PackageRepository {
     public Map<String, List<String>> getPackages() {
         // We only return locally cached packages
         return fileSystemRepo.getPackages();
+    }
+
+    @Override
+    public List<PackageDescriptor> resolveDependencyVersions(
+            List<ResolutionRequest> packageLoadRequests, PackageLockingMode packageLockingMode) {
+        return fileSystemRepo.resolveDependencyVersions(packageLoadRequests, packageLockingMode);
     }
 }

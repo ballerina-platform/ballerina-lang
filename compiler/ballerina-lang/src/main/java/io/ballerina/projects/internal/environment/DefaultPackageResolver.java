@@ -18,7 +18,6 @@
 
 package io.ballerina.projects.internal.environment;
 
-import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
@@ -39,6 +38,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Default Package resolver for Ballerina project.
@@ -115,21 +117,26 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public DependencyGraph<PackageDescriptor> resolveDependencies(List<ResolutionRequest> packageLoadRequests,
-                                                                  PackageLockingMode packageLockingMode) {
-        // Foreach repo
-        // resolve immediate dependencies
-        // if version is not there resolve latest major version
-        // if version is there owner locking mode
-        //      if SOFT resolve to latest compatible minor
-        //      if MEDIUM resolve to latest compatible patch
-        //      if HARD resolve to exact match
+    public List<PackageDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests,
+                                                            PackageLockingMode packageLockingMode) {
+        List<PackageDescriptor> latestVersionInDist = ballerinaDistRepo
+                .resolveDependencyVersions(packageLoadRequests, packageLockingMode);
+        List<PackageDescriptor> latestVersionInCentral = ballerinaCentralRepo
+                .resolveDependencyVersions(packageLoadRequests, packageLockingMode);
 
-        // each repo will send a dependency graph it can support
-        // some of the dependencies might not exists so we should have an unresolved package descriptor
-        // Once we have all the graphs from different repos we should consolidate
-        //      When consolidating we will use the locking rules
-        return null;
+        List<PackageDescriptor> packageDescriptorList = new ArrayList<>(
+                Stream.of(latestVersionInDist, latestVersionInCentral).flatMap(List::stream).collect(Collectors.toMap(
+                        p -> p.org().toString() + "/" + p.name().toString(),
+                        Function.identity(),
+                        (PackageDescriptor x, PackageDescriptor y) -> {
+                            if (x.version().compareTo(y.version()).equals(
+                                    SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                                return y;
+                            }
+                            return x;
+                })).values());
+
+        return packageDescriptorList;
     }
 
     @Override
