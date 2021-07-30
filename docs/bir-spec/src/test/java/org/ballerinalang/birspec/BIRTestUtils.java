@@ -204,15 +204,13 @@ class BIRTestUtils {
                 putParentScopesAsWell(scopes, instructionScope.parent, instructionOffset);
 
             }
+            
             BIRTerminator terminator = bb.terminator;
             BirScope terminatorScope = terminator.scope;
-
             if (terminatorScope != null) {
-
                 if (visitedScopes.contains(terminatorScope)) {
                     continue;
                 }
-
                 visitedScopes.add(terminatorScope);
                 hasParent = terminatorScope.parent != null;
                 expectedScopeEntry = new ExpectedScopeEntry(terminatorScope.id, instructionOffset, hasParent ? 1 : 0,
