@@ -223,11 +223,13 @@ class BasicBlock {
         BMap<BString, Object> tmpVal11 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.BRANCH_INSN, new HashMap<>());
         BMap<BString, Object> tmpVal12 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.EQUALITY_INSN, new HashMap<>()); //TODO add other insns
+                NBTypeNames.EQUALITY_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal13 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.COMPARE_INSN, new HashMap<>()); //TODO add other insns
 
         UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType(),
                 tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType(),
-                tmpVal9.getType(), tmpVal10.getType(), tmpVal11.getType(), tmpVal12.getType());
+                tmpVal9.getType(), tmpVal10.getType(), tmpVal11.getType(), tmpVal12.getType(), tmpVal13.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         //TODO Move to a singleton
         BArray arr = ValueCreator.createArrayValue(arrTyp);
@@ -585,9 +587,41 @@ class EqualityInsn extends InsnBase {
 
         LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
         fields.put("op", new BmpStringValue(op));
-        fields.put("result", result);
+        fields.put("result", result.getRecord());
         fields.put("operands", arr);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.EQUALITY_INSN, fields);
+    }
+}
+
+class CompareInsn extends InsnBase {
+    String op;
+    String orderType;
+    Register result;
+    Operand[] operands = new Operand[2];
+
+    public CompareInsn(String op, String orderType, Register result) {
+        this.op = op;
+        this.orderType = orderType;
+        this.result = result;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_NULL);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ, 2);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        arr.add(0, operands[0].getOperand());
+        arr.add(1, operands[1].getOperand());
+
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("op", new BmpStringValue(op));
+        fields.put("orderType", new BmpStringValue(orderType));
+        fields.put("result", result.getRecord());
+        fields.put("operands", arr);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.COMPARE_INSN, fields);
     }
 }
 

@@ -40,4 +40,6 @@ public class NBTypeNames {
             "wso2/nballerina.types:0.1.0:SemType semType; Position position; anydata...; |}";
     static final String EQUALITY_INSN = "record {| INSN_EQUALITY name; ==|!=|===|!== op; Register result; " +
             "wso2/nballerina.bir:0.1.0:Operand[2] operands; anydata...; |}";
+    static final String COMPARE_INSN = "record {| INSN_COMPARE name; <=|>=|<|> op; int|boolean|string orderType; " +
+            "Register result; wso2/nballerina.bir:0.1.0:Operand[2] operands; anydata...; |}";
 }

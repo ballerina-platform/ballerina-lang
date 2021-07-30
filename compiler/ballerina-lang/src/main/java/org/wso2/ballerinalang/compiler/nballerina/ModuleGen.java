@@ -174,7 +174,7 @@ public class ModuleGen {
             if (conditionOpb.operand.isReg) {
                 BasicBlock afterCondition = code.createBasicBlock();
                 conditionOpb.nextBlock.insns.add(new CondBranchInsn(conditionOpb.operand.register,
-                        exit.label, afterCondition.label));
+                        afterCondition.label, exit.label));
                 conditionOpb.nextBlock = afterCondition;
                 exitReachable = true;
             } else {
@@ -264,6 +264,13 @@ public class ModuleGen {
                     eqi.operands[0] = lhs.operand;
                     eqi.operands[1] = rhs.operand;
                     bb.insns.add(eqi);
+                    return new OpBlockHolder(result, rhs.nextBlock);
+                case GREATER_THAN: case GREATER_EQUAL: case LESS_THAN: case LESS_EQUAL:
+                    result.register = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
+                    CompareInsn cmpi = new CompareInsn(op.toString(), typedOperandPair(TypeKind.INT), result.register);
+                    cmpi.operands[0] = lhs.operand;
+                    cmpi.operands[1] = rhs.operand;
+                    bb.insns.add(cmpi);
                     return new OpBlockHolder(result, rhs.nextBlock);
             }
         } else if (expr instanceof BLangInvocation) {
@@ -362,7 +369,7 @@ public class ModuleGen {
         }
     }
 
-    static long convertSimpleSemType(TypeKind typeKind) {
+    long convertSimpleSemType(TypeKind typeKind) {
         switch (typeKind) {
             case INT:
                 return 128L;
@@ -380,5 +387,18 @@ public class ModuleGen {
                 throw new BallerinaException("Semtype not implemented for type");
         }
 
+    }
+
+    String typedOperandPair(TypeKind typeKind) {  // temporarily get from expected type
+        switch (typeKind) {
+            case INT:
+                return "int";
+            case BOOLEAN:
+                return "boolean";
+            case STRING:
+                return "string";
+            default:
+                throw new BallerinaException("operands of relational operator are not ordered");
+        }
     }
 }
