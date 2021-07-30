@@ -240,12 +240,12 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     private Optional<Symbol> getSymbolByName(List<Symbol> visibleSymbols, String name) {
         return visibleSymbols.stream()
-                .filter((symbol -> symbol.nameEquals(Optional.of(name))))
+                .filter((symbol -> symbol.nameEquals(name)))
                 .findFirst();
     }
 
     private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name, @Nonnull Predicate<Symbol> predicate) {
-        Predicate<Symbol> namePredicate = symbol -> symbol.nameEquals(Optional.of(name));
+        Predicate<Symbol> namePredicate = symbol -> symbol.nameEquals(name);
         return visibleSymbols.stream()
                 .filter(namePredicate.and(predicate))
                 .findFirst().orElseThrow();

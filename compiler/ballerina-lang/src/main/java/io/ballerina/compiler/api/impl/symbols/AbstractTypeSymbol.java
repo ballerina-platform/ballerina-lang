@@ -103,7 +103,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
     }
 
     @Override
-    public boolean nameEquals(Optional<String> name) {
+    public boolean nameEquals(String name) {
         return false;
     }
 

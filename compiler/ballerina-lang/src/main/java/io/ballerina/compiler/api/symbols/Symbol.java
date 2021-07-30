@@ -68,10 +68,10 @@ public interface Symbol {
     Optional<Location> getLocation();
 
     /**
-     * Check whether the given name equals to the name of the symbol.
+     * Compare the symbol's name against the given name, according to the semantics of identifiers.
      *
-     * @param name The name that needs to be compared
+     * @param name The given name that needs to be compared
      * @return true if the name is similar to the symbol's name and false otherwise
      */
-    boolean nameEquals(Optional<String> name);
+    boolean nameEquals(String name);
 }

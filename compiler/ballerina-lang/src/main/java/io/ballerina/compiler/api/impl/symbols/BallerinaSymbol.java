@@ -132,19 +132,19 @@ public class BallerinaSymbol implements Symbol {
     }
 
     @Override
-    public boolean nameEquals(Optional<String> name) {
+    public boolean nameEquals(String name) {
         Optional<String> symbolName = this.getName();
-        Optional<String> symbolOriginalName = Optional.of(this.name);
+        String symbolOriginalName = this.name;
 
-        if (name.isEmpty() || symbolName.isEmpty()) {
+        if (symbolName.isEmpty() || name == null) {
             return false;
         }
 
-        if (name.get().equals(symbolName.get())) {
+        if (name.equals(symbolName.get())) {
             return true;
         }
 
-        return name.get().equals(symbolOriginalName.get());
+        return name.equals(symbolOriginalName);
     }
 
     @Override
@@ -158,7 +158,7 @@ public class BallerinaSymbol implements Symbol {
         }
 
         Symbol symbol = (Symbol) obj;
-        return nameEquals(symbol.getName())
+        return nameEquals(symbol.getName().orElse(null))
                 && isSameModule(this.getModule(), symbol.getModule())
                 && isSameLocation(this.getLocation(), symbol.getLocation())
                 && this.kind().equals(symbol.kind());
