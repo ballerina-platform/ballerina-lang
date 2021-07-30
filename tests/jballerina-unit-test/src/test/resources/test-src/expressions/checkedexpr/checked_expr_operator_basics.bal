@@ -307,6 +307,13 @@ function testCheckWithMixOfDefaultErrorAndDistinctErrors() {
     assertTrue(result is Err && result.message() == "Err");
 }
 
+function testCheckInLetExpression() returns error? {
+    float location =
+        let var statusSuccess = check openFileSuccess("/home/sameera/foo.txt")
+        in 5.33;
+    assertEquality(5.33, location);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {

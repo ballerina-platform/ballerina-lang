@@ -7732,8 +7732,8 @@ public class Desugar extends BLangNodeVisitor {
                 getSafeAssignSuccessPattern(checkedExprVar.pos, checkedExprVar.symbol.type, true,
                                             checkedExprVar.symbol, null);
         BLangMatchTypedBindingPatternClause patternErrorCase =
-                getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList,
-                                          isCheckPanic);
+                getSafeAssignErrorPattern(checkedExpr.pos, this.env.enclInvokable.symbol,
+                        checkedExpr.equivalentErrorTypeList, isCheckPanic);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
