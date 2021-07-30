@@ -36,12 +36,10 @@ import static io.ballerina.shell.cli.PropertiesLoader.HELP_FILE;
 public class HelpCommand extends AbstractCommand {
 
     private static final String URL = "https://ballerina.io/learn/by-example/";
-    private static final String SPACE = " ";
     private static final String TAGS = "<br/>";
     private static final String EMPTY_STRING = "";
     private static final String NEW_LINE = "\n";
-    private static final String DESCRIPTION_PREFIX = NEW_LINE + "Topic Description :"
-            + NEW_LINE;
+    private static final String DESCRIPTION_PREFIX = NEW_LINE + "Topic Description :";
     private static final String URL_PREFIX = NEW_LINE + "For Examples Visit : ";
 
     BbeHelpProvider bbeHelpProvider;
@@ -59,23 +57,16 @@ public class HelpCommand extends AbstractCommand {
             ballerinaShell.outputInfo(helpContent);
 
         } else {
+            String topic = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
             try {
-                bbeHelpProvider.readBbeFile();
-            } catch (HelpProviderException e) {
-                ballerinaShell.outputError("Error Occurred While Executing The Command");
-            }
-            String topic = String.join(SPACE, Arrays.copyOfRange(args, 0, args.length));
+                ballerinaShell.outputInfo(DESCRIPTION_PREFIX + NEW_LINE +
+                        bbeHelpProvider.getDescription(topic).replaceAll(TAGS, EMPTY_STRING));
+                ballerinaShell.outputInfo(URL_PREFIX + URL +
+                        topic.replaceAll(" ", "-"));
 
-            try {
-                if (bbeHelpProvider.containsTopic(topic)) {
-                    ballerinaShell.outputInfo(DESCRIPTION_PREFIX + bbeHelpProvider.getDescription(topic)
-                            .replaceAll(TAGS, EMPTY_STRING));
-                    ballerinaShell.outputInfo(URL_PREFIX + URL + bbeHelpProvider.getUrl(topic));
-                } else {
-                    ballerinaShell.outputError("Topic Not Found" + URL_PREFIX + URL);
-                }
             } catch (HelpProviderException e) {
-                ballerinaShell.outputError("Error Occurred While Executing The Command");
+                ballerinaShell.outputError(NEW_LINE + "Can Not Find Topic " + topic  + NEW_LINE +
+                        NEW_LINE + "For Available Topics Please Visit " + URL);
             }
         }
     }

@@ -18,14 +18,10 @@
 
 package io.ballerina.shell.cli.handlers.help;
 
-import com.google.gson.Gson;
-
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.stream.Stream;
 
 /**
  * Helper class to initialize functions related to help /TOPIC command.
@@ -35,47 +31,20 @@ public class BbeHelpProvider {
 
     private static final String BALLERINA_HOME =
             System.getProperty("ballerina.home");
-    private static final String BBE_PATH = "/examples/";
+    private static final String EXAMPLES = "examples";
     private static final String DESCRIPTION = ".description";
-    private static final String INDEX_FILE = "index.json";
-
-    private final HashMap<String, String> urlList;
 
     public BbeHelpProvider() {
-        urlList = new HashMap<>();
-    }
-
-    public void readBbeFile() throws HelpProviderException {
-        Gson gson = new Gson();
-        String file = BALLERINA_HOME + BBE_PATH + INDEX_FILE;
-        String jsonString = readFileAsString(file).trim();
-        BbeTitle[] bbeTitles = gson.fromJson(jsonString, BbeTitle[].class);
-        Stream<BbeTitle> streamList = Arrays.stream(bbeTitles);
-
-        streamList.forEach((bbeTitle) -> {
-            BbeRecord[] samples = bbeTitle.getSamples();
-            Stream<BbeRecord> sampleList = Arrays.stream(samples);
-            sampleList.forEach((bbeRecordElement) -> {
-                urlList.put(bbeRecordElement.getName(), bbeRecordElement.getUrl());
-            });
-        });
     }
 
     public String getDescription(String topic) throws HelpProviderException {
-        String bbePrefix = BBE_PATH;
-        String bbePath = bbePrefix + urlList.get(topic) +
-                "/" + String.join("_", urlList.get(topic).split("-"))
+        String topicUrl = topic.replace(" ", "-");
+        String bbePrefix = BALLERINA_HOME + File.separator + EXAMPLES + File.separator;
+        String bbePath = bbePrefix + topicUrl +
+                File.separator + String.join("_", topicUrl.split("-"))
                 + DESCRIPTION;
         String description = readFileAsString(bbePath).trim();
         return description.replaceAll("//", "");
-    }
-
-    public String getUrl(String topic) {
-        return urlList.get(topic);
-    }
-
-    public boolean containsTopic(String topic) {
-        return urlList.containsKey(topic);
     }
 
     private static String readFileAsString(String file) throws HelpProviderException {
@@ -83,7 +52,7 @@ public class BbeHelpProvider {
         try {
             content = Files.readString(Paths.get(file));
         } catch (IOException e) {
-            throw new HelpProviderException("Error Occurred While Executing Command");
+            throw new HelpProviderException(" Error Occurred While Executing the Command");
         }
         return content;
     }
