@@ -230,8 +230,8 @@ public class JarResolver {
      */
     public static String getQualifiedClassName(String orgName, String packageName, String version, String className) {
         if (!DOT.equals(packageName)) {
-            className =
-                    encodeNonFunctionIdentifier(packageName) + "." + CompilerUtils.getMajorVersion(version) + "." + className;
+            className = encodeNonFunctionIdentifier(packageName) + "." +
+                    CompilerUtils.getMajorVersion(version) + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
             className = encodeNonFunctionIdentifier(orgName) + "." + className;
