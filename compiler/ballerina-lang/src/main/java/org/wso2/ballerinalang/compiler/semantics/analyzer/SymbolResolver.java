@@ -478,6 +478,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, objectSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
 
+    public BSymbol resolveInvocableObjectField(Location pos, SymbolEnv env, Name fieldName,
+                                               BObjectTypeSymbol objectTypeSymbol) {
+        return lookupMemberSymbol(pos, objectTypeSymbol.scope, env, fieldName, SymTag.VARIABLE);
+    }
+
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
         return resolveTypeNode(typeNode, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
@@ -621,6 +626,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.UNSIGNED32_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
+            case TypeTags.BYTE:
                 bSymbol = lookupMethodInModule(symTable.langIntModuleSymbol, name, env);
                 break;
             case TypeTags.MAP:
@@ -672,6 +678,29 @@ public class SymbolResolver extends BLangNodeVisitor {
                 } else {
                     bSymbol = symTable.notFoundSymbol;
                 }
+                break;
+            case TypeTags.FINITE:
+                if (types.isAssignable(type, symTable.intType)) {
+                    return lookupLangLibMethod(symTable.intType, name);
+                }
+
+                if (types.isAssignable(type, symTable.stringType)) {
+                    return lookupLangLibMethod(symTable.stringType, name);
+                }
+
+                if (types.isAssignable(type, symTable.decimalType)) {
+                    return lookupLangLibMethod(symTable.decimalType, name);
+                }
+
+                if (types.isAssignable(type, symTable.floatType)) {
+                    return lookupLangLibMethod(symTable.floatType, name);
+                }
+
+                if (types.isAssignable(type, symTable.booleanType)) {
+                    return lookupLangLibMethod(symTable.booleanType, name);
+                }
+
+                bSymbol = symTable.notFoundSymbol;
                 break;
             default:
                 bSymbol = symTable.notFoundSymbol;
@@ -1762,6 +1791,44 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
             }
             return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    public BSymbol getBinaryBitwiseOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        boolean validIntTypesExists;
+        switch (opKind) {
+            case BITWISE_AND:
+            case BITWISE_OR:
+            case BITWISE_XOR:
+                validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+        if (validIntTypesExists) {
+            switch (opKind) {
+                case BITWISE_AND:
+                    switch (lhsType.tag) {
+                        case TypeTags.UNSIGNED8_INT:
+                        case TypeTags.BYTE:
+                        case TypeTags.UNSIGNED16_INT:
+                        case TypeTags.UNSIGNED32_INT:
+                            return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                    }
+                    switch (rhsType.tag) {
+                        case TypeTags.UNSIGNED8_INT:
+                        case TypeTags.BYTE:
+                        case TypeTags.UNSIGNED16_INT:
+                        case TypeTags.UNSIGNED32_INT:
+                            return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
+                    }
+                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                case BITWISE_OR:
+                case BITWISE_XOR:
+                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+            }
         }
         return symTable.notFoundSymbol;
     }

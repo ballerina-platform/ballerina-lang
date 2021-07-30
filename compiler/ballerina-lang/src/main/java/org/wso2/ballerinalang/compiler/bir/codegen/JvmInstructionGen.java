@@ -98,7 +98,6 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IOR;
-import static org.objectweb.asm.Opcodes.ISHL;
 import static org.objectweb.asm.Opcodes.ISHR;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.IUSHR;
@@ -1014,12 +1013,16 @@ public class JvmInstructionGen {
             if (opType1Tag == TypeTags.BYTE) {
                 this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
+            } else {
+                jvmCastGen.generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
             }
 
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             if (opType2Tag == TypeTags.BYTE) {
                 this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
+            } else {
+                jvmCastGen.generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
             }
 
             this.mv.visitInsn(LAND);
@@ -1091,21 +1094,18 @@ public class JvmInstructionGen {
     private void generateBitwiseLeftShiftIns(BIRNonTerminator.BinaryOp binaryIns) {
 
         this.loadVar(binaryIns.rhsOp1.variableDcl);
-        this.loadVar(binaryIns.rhsOp2.variableDcl);
+        BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
+        if (firstOpType.tag == TypeTags.BYTE) {
+            this.mv.visitInsn(I2L);
+        }
 
+        this.loadVar(binaryIns.rhsOp2.variableDcl);
         BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
 
-        BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-        if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
-            this.mv.visitInsn(LSHL);
-        } else {
-            this.mv.visitInsn(ISHL);
-            this.mv.visitInsn(I2L);
-        }
-
+        this.mv.visitInsn(LSHL);
         this.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 

@@ -330,7 +330,7 @@ IsolatedObject invalidIsolatedObjectWithNonIsolatedFunctionInvocation = isolated
     }
 };
 
-isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
+isolated class InvalidIsolatedClassWithInvalidObjectFields {
     IsolatedClass a = new; // Should be `final`
     isolated object {} b = isolated object { // Should be `final`
         final int i = 1;
@@ -338,9 +338,9 @@ isolated class InvalidIsolatedClassWithNonInvalidObjectFields {
     };
     final object {} c = object {}; // should be an `isolated object`
 }
-
+int globInt = 1;
 isolated class IsolatedClass {
-    function nonIsolatedFunc() returns int => 1;
+    function nonIsolatedFunc() returns int => globInt;
 }
 
 function nonIsolatedFunc() returns int[] {

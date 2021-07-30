@@ -17,29 +17,38 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
+import com.sun.jdi.IntegerValue;
+import com.sun.jdi.LongValue;
+import com.sun.jdi.Method;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
-import org.ballerinalang.debugadapter.variable.VariableUtils;
+import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_XML_SEQUENCE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
 
 /**
  * Ballerina xml variable type.
  */
 public class BXmlSequence extends IndexedCompoundVariable {
 
-    private int elementsCount = -1;
-    private static final String FIELD_CHILDREN = "children";
-    private static final String FIELD_ELEMENT_DATA = "elementData";
+    private int childrenCount = -1;
+    private static final String GET_CHILDREN_LIST_METHOD = "getChildrenList";
+    private static final String GET_XML_CHILD_METHOD = "getXmlChildrenInRange";
+    private static final String SIZE_METHOD = "size";
 
     public BXmlSequence(SuspendedContext context, String name, Value value) {
         super(context, name, BVariableType.XML, value);
@@ -58,21 +67,23 @@ public class BXmlSequence extends IndexedCompoundVariable {
     public Either<Map<String, Value>, List<Value>> computeChildVariables(int start, int count) {
         List<Value> childValues = new ArrayList<>();
         try {
-            Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
-            if (children.isEmpty()) {
-                return Either.forRight(childValues);
-            }
-            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
-            if (childArray.isEmpty()) {
-                return Either.forRight(childValues);
-            }
+            List<String> argTypeNames = new ArrayList<>();
+            argTypeNames.add(B_XML_SEQUENCE_CLASS);
+            argTypeNames.add(JVMValueType.INT.getString());
+            argTypeNames.add(JVMValueType.INT.getString());
 
-            // If count > 0, returns a sublist of the child variables
-            // If count == 0, returns all child variables
-            if (count > 0) {
-                childValues = ((ArrayReference) childArray.get()).getValues(start, count);
-            } else {
-                childValues = ((ArrayReference) childArray.get()).getValues();
+            RuntimeStaticMethod getXmlChildrenInRange = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
+                    GET_XML_CHILD_METHOD, argTypeNames);
+
+            List<Value> argValues = new ArrayList<>();
+            argValues.add(jvmValue);
+            argValues.add(VMUtils.make(context, start).getJdiValue());
+            argValues.add(VMUtils.make(context, count).getJdiValue());
+            getXmlChildrenInRange.setArgValues(argValues);
+            Value childArray = getXmlChildrenInRange.invokeSafely();
+
+            if (childArray instanceof ArrayReference) {
+                childValues = ((ArrayReference) childArray).getValues();
             }
             return Either.forRight(childValues);
         } catch (Exception e) {
@@ -82,25 +93,33 @@ public class BXmlSequence extends IndexedCompoundVariable {
 
     @Override
     public int getChildrenCount() {
-        if (elementsCount < 0) {
-            populateElementCount();
+        if (childrenCount < 0) {
+            populateChildrenCount();
         }
-        return elementsCount;
+        return childrenCount;
     }
 
-    private void populateElementCount() {
+    private void populateChildrenCount() {
         try {
-            Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
-            if (children.isEmpty()) {
-                elementsCount = 0;
+            List<Method> methods = ((ObjectReference) jvmValue).referenceType().methodsByName(GET_CHILDREN_LIST_METHOD);
+            RuntimeInstanceMethod getChildListMethod = new RuntimeInstanceMethod(context, jvmValue, methods.get(0));
+            getChildListMethod.setArgValues(new ArrayList<>());
+            Value childList = getChildListMethod.invokeSafely();
+
+            methods = ((ObjectReference) childList).referenceType().methodsByName(SIZE_METHOD);
+            RuntimeInstanceMethod getSizeMethod = new RuntimeInstanceMethod(context, childList, methods.get(0));
+            getSizeMethod.setArgValues(new ArrayList<>());
+            Value getSizeResult = getSizeMethod.invokeSafely();
+
+            if (getSizeResult instanceof IntegerValue) {
+                childrenCount = ((IntegerValue) getSizeResult).intValue();
+            } else if (getSizeResult instanceof LongValue) {
+                childrenCount = ((LongValue) getSizeResult).intValue();
+            } else {
+                childrenCount = 0;
             }
-            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
-            if (childArray.isEmpty()) {
-                elementsCount = 0;
-            }
-            elementsCount = ((ArrayReference) childArray.get()).length();
         } catch (Exception e) {
-            elementsCount = 0;
+            childrenCount = 0;
         }
     }
 }
