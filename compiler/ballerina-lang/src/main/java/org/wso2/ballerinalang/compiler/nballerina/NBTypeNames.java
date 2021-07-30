@@ -42,4 +42,9 @@ public class NBTypeNames {
             "wso2/nballerina.bir:0.1.0:Operand[2] operands; anydata...; |}";
     static final String COMPARE_INSN = "record {| INSN_COMPARE name; <=|>=|<|> op; int|boolean|string orderType; " +
             "Register result; wso2/nballerina.bir:0.1.0:Operand[2] operands; anydata...; |}";
+    static final String INT_BITWISE_INSN = "record {| INSN_INT_BITWISE_BINARY name;" +
+            " wso2/nballerina.bir:0.1.0:BitwiseBinaryOp op; Register result;" +
+            " wso2/nballerina.bir:0.1.0:IntOperand[2] operands; anydata...; |}";
+    static final String MAP_CON_INSN = "record {| INSN_MAPPING_CONSTRUCT_RW name; Register result;" +
+            " string[] fieldNames; wso2/nballerina.bir:0.1.0:Operand[] operands; |}";
 }

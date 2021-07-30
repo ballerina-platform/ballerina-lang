@@ -225,11 +225,16 @@ class BasicBlock {
         BMap<BString, Object> tmpVal12 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.EQUALITY_INSN, new HashMap<>());
         BMap<BString, Object> tmpVal13 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.COMPARE_INSN, new HashMap<>()); //TODO add other insns
+                NBTypeNames.COMPARE_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal14 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.INT_BITWISE_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal15 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.MAP_CON_INSN, new HashMap<>()); //TODO add other insns
 
         UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType(),
                 tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType(),
-                tmpVal9.getType(), tmpVal10.getType(), tmpVal11.getType(), tmpVal12.getType(), tmpVal13.getType());
+                tmpVal9.getType(), tmpVal10.getType(), tmpVal11.getType(), tmpVal12.getType(), tmpVal13.getType(),
+                tmpVal14.getType(), tmpVal15.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         //TODO Move to a singleton
         BArray arr = ValueCreator.createArrayValue(arrTyp);
@@ -443,6 +448,31 @@ class ListConstructInsn extends InsnBase {
     }
 }
 
+class MapConstructInsn extends InsnBase {
+    public Register result;
+    public ArrayList<Operand> operands;
+    public ArrayList<String> fieldNames;
+
+    public MapConstructInsn(Register result) {
+        this.result = result;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_NULL, PredefinedTypes.TYPE_STRING);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        operands.forEach(op -> arr.append(op.getOperand()));
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("operands", arr);
+        fields.put("result", result.getRecord());
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.MAP_CON_INSN, fields);
+    }
+}
+
 class Operand {
     public Register register;
     public Object value;
@@ -622,6 +652,34 @@ class CompareInsn extends InsnBase {
         fields.put("result", result.getRecord());
         fields.put("operands", arr);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.COMPARE_INSN, fields);
+    }
+}
+
+class IntBitwiseInsn extends InsnBase {
+    String op;
+    Register result;
+    Operand[] operands = new Operand[2];
+
+    public IntBitwiseInsn(String op, Register result) {
+        this.op = op;
+        this.result = result;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_INT);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ, 2);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        arr.add(0, operands[0].getOperand());
+        arr.add(1, operands[1].getOperand());
+
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("op", new BmpStringValue(op));
+        fields.put("result", result.getRecord());
+        fields.put("operands", arr);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INT_BITWISE_INSN, fields);
     }
 }
 

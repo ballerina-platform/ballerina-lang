@@ -31,10 +31,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -120,7 +123,6 @@ public class ModuleGen {
             OpBlockHolder opb = codeGenExpr(retStmt.expr, code, startBlock);
             opb.nextBlock.insns.add(new RetInsn(opb.operand));
             return null;
-
         } else if (stmt instanceof BLangSimpleVariableDef) {
             BLangSimpleVariableDef varDec = (BLangSimpleVariableDef) stmt;
             OpBlockHolder opb = codeGenExpr(varDec.var.getInitialExpression(), code, startBlock);
@@ -193,6 +195,12 @@ public class ModuleGen {
                 loopEnd.insns.add(branchLoopHead);
             }
             return exitReachable ? exit : null;
+        } else if (stmt instanceof BLangBreak) {
+            startBlock.insns.add(new BranchInsn(code.loopContext.onBreak.label));
+            return null;
+        } else if (stmt instanceof BLangContinue) {
+            startBlock.insns.add(new BranchInsn(code.loopContext.onContinue.label));
+            return null;
         }
 
         throw new BallerinaException("Statement not recognized");
@@ -272,6 +280,12 @@ public class ModuleGen {
                     cmpi.operands[1] = rhs.operand;
                     bb.insns.add(cmpi);
                     return new OpBlockHolder(result, rhs.nextBlock);
+                case BITWISE_AND: case BITWISE_OR: case BITWISE_XOR: case BITWISE_LEFT_SHIFT:
+                case BITWISE_RIGHT_SHIFT: case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                    //TODO add insn to block
+                    return null;
+                default:
+                    throw new BallerinaException("Operator not recognized");
             }
         } else if (expr instanceof BLangInvocation) {
             BLangInvocation funcCall = (BLangInvocation) expr;
@@ -291,15 +305,19 @@ public class ModuleGen {
             ListConstructInsn ins = new ListConstructInsn(reg, operands);
             nextBlock.insns.add(ins);
             return new OpBlockHolder(result, nextBlock);
+        } else if (expr instanceof BLangRecordLiteral) {
+
+            return null;
         } else if (expr instanceof BLangGroupExpr) {
             return codeGenExpr(((BLangGroupExpr) expr).expression, code, bb);
         } else if (expr instanceof BLangTypeConversionExpr) {
             BLangTypeConversionExpr tcExpr = (BLangTypeConversionExpr) expr;
             OpBlockHolder opb = codeGenExpr(tcExpr.expr, code, bb);
             if (opb.operand.isReg) {
-                Register reg = code.createRegister(0L, null);
+                Register reg = code.createRegister(convertSimpleSemType(tcExpr.targetType.getKind()), null);
                 Position pos = new Position(tcExpr.pos.lineRange().startLine().line() + 1,
                         tcExpr.pos.textRange().startOffset());
+                bb.ppb = true;
                 bb.insns.add(new TypeCastInsn(reg, opb.operand.register,
                         convertSimpleSemType(tcExpr.targetType.getKind()), pos));
                 Operand regOp = new Operand(true);
