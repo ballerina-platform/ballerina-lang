@@ -177,19 +177,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                int nextChar = peek();
-                if (nextChar == LexerTerminals.EQUAL) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
-                } else if (nextChar == LexerTerminals.MINUS) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
-                } else if (nextChar == LexerTerminals.LT) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.LT_TOKEN);
-                }
+                token = processTokenStartWithLt();
                 break;
             case LexerTerminals.GT:
                 token = processTokenStartWithGt();
@@ -1446,6 +1434,27 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Unicode pattern white space characters are not allowed
         return !isUnicodePatternWhiteSpaceChar(nextChar);
+    }
+
+    private STToken processTokenStartWithLt() {
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+            case LexerTerminals.MINUS:
+                int nextNextChar = reader.peek(1);
+                if (isDigit(nextNextChar)) {
+                    return getSyntaxToken(SyntaxKind.LT_TOKEN);
+                }
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
+            case LexerTerminals.LT:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
+        }
+
+        return getSyntaxToken(SyntaxKind.LT_TOKEN);
     }
 
     private STToken processTokenStartWithGt() {
