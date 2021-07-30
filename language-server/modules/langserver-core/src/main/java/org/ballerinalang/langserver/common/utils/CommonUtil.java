@@ -355,6 +355,9 @@ public class CommonUtil {
             case XML:
                 typeString = "xml ``";
                 break;
+            case DECIMAL:
+                typeString = Integer.toString(0);
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     typeString = Integer.toString(0);
