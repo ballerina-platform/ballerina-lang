@@ -589,6 +589,9 @@ public class Types {
         if (type.tag == TypeTags.INTERSECTION) {
             return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
         }
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            return isSubTypeOfMapping(((BTypeReferenceType) type).constraint);
+        }
         if (type.tag != TypeTags.UNION) {
             return isSubTypeOfBaseType(type, TypeTags.MAP) || isSubTypeOfBaseType(type, TypeTags.RECORD);
         }
@@ -733,14 +736,6 @@ public class Types {
         if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
             return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
                                 unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(source,  ((BTypeReferenceType)target).constraint);
-        }
-
-        if (sourceTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(((BTypeReferenceType)source).constraint, target);
         }
 
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
@@ -1276,8 +1271,23 @@ public class Types {
                 return true;
             case TypeTags.XML:
                 return ((BXMLType) type).constraint.tag == TypeTags.NEVER;
+            case TypeTags.TYPEREFDESC:
+                return isInherentlyImmutableType(((BTypeReferenceType) type).constraint);
         }
         return false;
+    }
+
+    public boolean referenceTypeMatchesTag(BType type, int tag) {
+        return type.tag == tag ||
+                (type.tag == TypeTags.TYPEREFDESC && ((BTypeReferenceType) type).constraint.tag == tag);
+    }
+
+    public BType getConstraintFromReferenceType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint;
     }
 
     boolean isSelectivelyImmutableType(BType type) {
@@ -1296,8 +1306,12 @@ public class Types {
         return isSelectivelyImmutableType(type, false, unresolvedTypes, forceCheck);
     }
 
-    private boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
+    private boolean isSelectivelyImmutableType(BType input, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
                                                boolean forceCheck) {
+        BType type = input;
+        if(input.tag == TypeTags.TYPEREFDESC) {
+            type = ((BTypeReferenceType)input).constraint;
+        }
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
@@ -1648,6 +1662,9 @@ public class Types {
                 break;
             case TypeTags.XML:
                 BType constraint = ((BXMLType) collectionType).constraint;
+                if(constraint.tag == TypeTags.TYPEREFDESC) {
+                    constraint = ((BTypeReferenceType)constraint).constraint;
+                }
                 while (constraint.tag == TypeTags.XML) {
                     collectionType = constraint;
                     constraint = ((BXMLType) collectionType).constraint;
@@ -3353,6 +3370,9 @@ public class Types {
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            type = ((BTypeReferenceType) type).constraint;
+        }
         if (type.tag != TypeTags.FINITE) {
             return false;
         }
@@ -3645,6 +3665,9 @@ public class Types {
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 BType firstTypeInUnion = memberTypes.iterator().next();
+                if(firstTypeInUnion.tag == TypeTags.TYPEREFDESC) {
+                    firstTypeInUnion = ((BTypeReferenceType)firstTypeInUnion).constraint;
+                }
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
@@ -3660,6 +3683,9 @@ public class Types {
                     }
                 } else {
                     for (BType memType : memberTypes) {
+                        if(memType.tag == TypeTags.TYPEREFDESC) {
+                            memType = ((BTypeReferenceType)memType).constraint;
+                        }
                         if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
                             return false;
                         }
@@ -3695,7 +3721,11 @@ public class Types {
                 (TypeTags.isIntegerTypeTag(secondTypeTag) || secondTypeTag == TypeTags.BYTE));
     }
 
-    boolean validIntegerTypeExists(BType type) {
+    boolean validIntegerTypeExists(BType input) {
+        BType type = input;
+        if(input.tag == TypeTags.TYPEREFDESC) {
+            type = ((BTypeReferenceType)input).constraint;
+        }
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return true;
         }
@@ -3735,10 +3765,16 @@ public class Types {
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 BType firstTypeInUnion = memberTypes.iterator().next();
+                if(firstTypeInUnion.tag == TypeTags.TYPEREFDESC) {
+                    firstTypeInUnion = ((BTypeReferenceType)firstTypeInUnion).constraint;
+                }
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
                     for (BType memType : memberTypes) {
+                        if(memType.tag == TypeTags.TYPEREFDESC) {
+                            memType = ((BTypeReferenceType)memType).constraint;
+                        }
                         if (memType.tag == TypeTags.FINITE) {
                             if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                                 return false;
@@ -3750,6 +3786,9 @@ public class Types {
                     }
                 } else {
                     for (BType memType : memberTypes) {
+                        if(memType.tag == TypeTags.TYPEREFDESC) {
+                            memType = ((BTypeReferenceType)memType).constraint;
+                        }
                         if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
                             return false;
                         }
@@ -5483,6 +5522,8 @@ public class Types {
             case TypeTags.UNION:
                 LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
                 return findCompatibleType(memberTypes.iterator().next());
+            case TypeTags.TYPEREFDESC:
+                return findCompatibleType(((BTypeReferenceType) type).constraint);
             default:
                 Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
                 return findCompatibleType(valueSpace.iterator().next().getBType());

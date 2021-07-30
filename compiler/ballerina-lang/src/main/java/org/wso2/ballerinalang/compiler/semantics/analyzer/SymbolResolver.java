@@ -669,6 +669,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 BType member = itr.next();
+                if (member.tag == TypeTags.TYPEREFDESC) {
+                    member = ((BTypeReferenceType) member).constraint;
+                }
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
                     bSymbol = lookupLangLibMethod(member, name);
                 } else {
@@ -1400,6 +1403,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
+            if (memberType.tag == TypeTags.TYPEREFDESC) {
+                memberType = ((BTypeReferenceType) memberType).constraint;
+            }
             if (!TypeTags.isXMLTypeTag(memberType.tag)) {
                 dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
                            constraintUnionType);
@@ -1873,7 +1879,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (types.size() == opType.paramTypes.size()) {
                 boolean match = true;
                 for (int i = 0; i < types.size(); i++) {
-                    if (types.get(i).tag != opType.paramTypes.get(i).tag) {
+                    BType t = types.get(i);
+                    if (t.tag == TypeTags.TYPEREFDESC) {
+                        t = ((BTypeReferenceType) t).constraint;
+                    }
+                    if (t.tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }
                 }
@@ -1950,6 +1960,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
 
+        if (typeOne.tag == TypeTags.TYPEREFDESC) {
+            typeOne = ((BTypeReferenceType) typeOne).constraint;
+        }
+
         if (typeOne == symTable.noType) {
             return symTable.noType;
         }
@@ -1958,6 +1972,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
+
+        if (typeTwo.tag == TypeTags.TYPEREFDESC) {
+            typeTwo = ((BTypeReferenceType) typeTwo).constraint;
+        }
 
         if (typeTwo == symTable.noType) {
             return symTable.noType;

@@ -673,6 +673,9 @@ public class TypeParamAnalyzer {
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         if (isTypeParam(expType)) {
             for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
+                if (typeParamEntry.typeParam.tag == TypeTags.TYPEREFDESC && expType.tag != TypeTags.TYPEREFDESC) {
+                    typeParamEntry.typeParam = ((BTypeReferenceType) typeParamEntry.typeParam).constraint;
+                }
                 if (typeParamEntry.typeParam == expType) {
                     return typeParamEntry.boundType;
                 }

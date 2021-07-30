@@ -46,7 +46,7 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     @Override
     public String toString() {
-        return definitionName;
+        return definitionName.equals(constraint.name.getValue()) ? constraint.toString() : definitionName;
     }
 
     @Override

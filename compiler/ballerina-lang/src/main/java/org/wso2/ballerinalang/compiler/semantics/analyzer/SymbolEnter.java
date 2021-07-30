@@ -620,6 +620,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangType typeRef : classDefinition.typeRefs) {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
+            if (referredType.tag == TypeTags.TYPEREFDESC) {
+                referredType = ((BTypeReferenceType) referredType).constraint;
+            }
             if (referredType == symTable.semanticError) {
                 continue;
             }
@@ -1492,17 +1495,21 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean label = false;
         if (definedType.tsymbol.name != Names.EMPTY) {
-            typeDefSymbol = Symbols.createTypeDefinitionSymbol(definedType.tsymbol.tag, Flags.asMask(typeDefinition.flagSet),
+            label = true;
+//            typeDefSymbol = definedType.tsymbol.createLabelSymbol();
+//            label = true;
+            typeDefSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDefinition.flagSet),
                     names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
                     typeDefinition.pos, SOURCE);
-            label = true;
+            typeDefSymbol.kind = definedType.tsymbol.kind;
         } else {
             typeDefSymbol = definedType.tsymbol;
         }
 
-        boolean isNonLabelIntersectionType = definedType.tag == TypeTags.INTERSECTION && !label;
-        BType effectiveDefinedType = isNonLabelIntersectionType ? ((BIntersectionType) definedType).effectiveType :
-                definedType;
+        boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION);
+        BType referenceConstraintType = types.getConstraintFromReferenceType(definedType);
+        BType effectiveDefinedType = isNonLabelIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
+                referenceConstraintType;
 
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
@@ -1510,28 +1517,28 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
-        if (isNonLabelIntersectionType) {
-            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
-            effectiveTypeSymbol.name = typeDefSymbol.name;
-            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
-        }
+//        if (isNonLabelIntersectionType) {
+//            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+//            effectiveTypeSymbol.name = typeDefSymbol.name;
+//            effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
+//        }
 
         if (isDistinctFlagPresent(typeDefinition)) {
-            if (definedType.getKind() == TypeKind.ERROR) {
-                BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
+            if (referenceConstraintType.getKind() == TypeKind.ERROR) {
+                BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) referenceConstraintType, typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
-            } else if (definedType.tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) definedType).effectiveType.getKind() == TypeKind.ERROR) {
-                populateErrorTypeIds((BErrorType) ((BIntersectionType) definedType).effectiveType,
+            } else if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) referenceConstraintType).effectiveType.getKind() == TypeKind.ERROR) {
+                populateErrorTypeIds((BErrorType) ((BIntersectionType) referenceConstraintType).effectiveType,
                                      (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
-            } else if (definedType.getKind() == TypeKind.OBJECT) {
-                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
+            } else if (referenceConstraintType.getKind() == TypeKind.OBJECT) {
+                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) referenceConstraintType,
                                                                  typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
-            } else if (definedType.getKind() == TypeKind.UNION) {
-                validateUnionForDistinctType((BUnionType) definedType, typeDefinition.pos);
+            } else if (referenceConstraintType.getKind() == TypeKind.UNION) {
+                validateUnionForDistinctType((BUnionType) referenceConstraintType, typeDefinition.pos);
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
             }
@@ -1641,11 +1648,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isErrorIntersection(BType definedType) {
+        BType type = definedType;
         if (definedType.tag == TypeTags.TYPEREFDESC) {
-            definedType = ((BTypeReferenceType) definedType).constraint;
+            type = ((BTypeReferenceType) definedType).constraint;
         }
-        if (definedType.tag == TypeTags.INTERSECTION) {
-            BIntersectionType intersectionType = (BIntersectionType) definedType;
+        if (type.tag == TypeTags.INTERSECTION) {
+            BIntersectionType intersectionType = (BIntersectionType) type;
             return intersectionType.effectiveType.tag == TypeTags.ERROR;
         }
 

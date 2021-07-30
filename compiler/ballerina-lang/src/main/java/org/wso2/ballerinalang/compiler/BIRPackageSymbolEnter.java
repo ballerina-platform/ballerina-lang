@@ -489,12 +489,32 @@ public class BIRPackageSymbolEnter {
             symbol.origin = toOrigin(origin);
             symbol.pos = pos;
         } else {
-             symbol =  Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
-                    names.fromString(typeDefName),  this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
+            symbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
+                    names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
                     pos, SOURCE);
+            if (type.tsymbol.name == Names.EMPTY) {
+                type.tsymbol = symbol;
+            }
         }
 
         defineMarkDownDocAttachment(symbol, docBytes);
+
+//        BTypeSymbol symbol;
+//        if (isLabel) {
+//            symbol = type.tsymbol.createLabelSymbol();
+//        } else {
+//            symbol = type.tsymbol;
+//
+//        }
+//
+//        defineMarkDownDocAttachment(symbol, docBytes);
+//
+//        symbol.name = names.fromString(typeDefName);
+//        symbol.type = type;
+//        symbol.pkgID = this.env.pkgSymbol.pkgID;
+//        symbol.flags = flags;
+//        symbol.origin = toOrigin(origin);
+//        symbol.pos = pos;
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);

@@ -171,7 +171,7 @@ public class Symbols {
                                                BSymbol owner,
                                                Location pos,
                                                SymbolOrigin origin) {
-        return new BTypeDefinitionSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner, pos, origin);
+        return new BTypeDefinitionSymbol(symTag, flags, name, pkgID, type, owner, pos, origin);
     }
 
 

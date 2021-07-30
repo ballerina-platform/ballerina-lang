@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -540,6 +541,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType intSubType = null;
                 boolean intOrIntCompatibleTypeFound = false;
                 for (BType memType : memberTypes) {
+                    if (memType.tag == TypeTags.TYPEREFDESC) {
+                        memType = ((BTypeReferenceType) memType).constraint;
+                    }
                     if ((memType.tag != TypeTags.INT && TypeTags.isIntegerTypeTag(memType.tag)) ||
                             memType.tag == TypeTags.BYTE) {
                         intSubType = memType;
@@ -649,6 +653,9 @@ public class TypeChecker extends BLangNodeVisitor {
             if (expectedType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
                 for (BType memType : memberTypes) {
+                    if(memType.tag == TypeTags.TYPEREFDESC) {
+                        memType = ((BTypeReferenceType)memType).constraint;
+                    }
                     if (TypeTags.isStringTypeTag(memType.tag)) {
                         return setLiteralValueAndGetType(literalExpr, memType);
                     } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
@@ -2239,6 +2246,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                         env.enclType.getBType().tsymbol);
             }
 
+
             // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
             //  locally defined record type defs. This check should be removed once local var referencing is supported.
             if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
@@ -2247,7 +2255,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos, env);
-            } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
+            } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF || symbol instanceof BTypeDefinitionSymbol) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
@@ -2815,7 +2823,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType selectedCandidate = index < 0 ? symTable.semanticError : expandedCandidates.get(index);
 
         if (selectedCandidate != symTable.semanticError
-                && (userProvidedTypeRef == null || userProvidedTypeRef.getBType() == selectedCandidate)) {
+                && (userProvidedTypeRef == null
+                || types.getConstraintFromReferenceType(userProvidedTypeRef.getBType()) == selectedCandidate)) {
             checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType);
             resultType = types.checkType(errorConstructorExpr.pos, selectedCandidate, expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
@@ -2829,8 +2838,9 @@ public class TypeChecker extends BLangNodeVisitor {
         // Error details provided does not match the contextually expected error type.
         // if type reference is not provided let's take the `ballerina/lang.error:error` as the expected type.
         BErrorType errorType;
-        if (userProvidedTypeRef != null && userProvidedTypeRef.getBType().tag == TypeTags.ERROR) {
-            errorType = (BErrorType) userProvidedTypeRef.getBType();
+        if (userProvidedTypeRef != null
+                && types.getConstraintFromReferenceType(userProvidedTypeRef.getBType()).tag == TypeTags.ERROR) {
+            errorType = (BErrorType) types.getConstraintFromReferenceType(userProvidedTypeRef.getBType());
         } else if (expandedCandidates.size() == 1) {
             errorType = (BErrorType) expandedCandidates.get(0);
         } else {
@@ -2885,7 +2895,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (userProvidedTypeRef != null) {
-            errorConstructorExpr.setBType(userProvidedTypeRef.getBType());
+            errorConstructorExpr.setBType(types.getConstraintFromReferenceType(userProvidedTypeRef.getBType()));
         } else {
             errorConstructorExpr.setBType(errorType);
         }
@@ -2953,12 +2963,16 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else {
             // if `errorTypeRef.type == semanticError` then an error is already logged.
-            if (errorTypeRef.getBType().tag != TypeTags.ERROR) {
-                if (errorTypeRef.getBType().tag != TypeTags.SEMANTIC_ERROR) {
+            BType errorType = errorTypeRef.getBType();
+            if (errorType.tag == TypeTags.TYPEREFDESC) {
+                errorType = ((BTypeReferenceType) errorType).constraint;
+            }
+            if (errorType.tag != TypeTags.ERROR) {
+                if (errorType.tag != TypeTags.SEMANTIC_ERROR) {
                     dlog.error(errorTypeRef.pos, DiagnosticErrorCode.INVALID_ERROR_TYPE_REFERENCE, errorTypeRef);
                 }
             } else {
-                return List.of(errorTypeRef.getBType());
+                return List.of(errorType);
             }
         }
 
@@ -4677,6 +4691,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         // Disallow unions with 'xml:T (singleton) items
          for (BType item : ((BUnionType) expType).getMemberTypes()) {
+             if (item.tag == TypeTags.TYPEREFDESC) {
+                 item = ((BTypeReferenceType) item).constraint;
+             }
              if (item.tag != TypeTags.XML_TEXT && item.tag != TypeTags.XML) {
                  dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                          expType, symTable.xmlType);
@@ -7591,7 +7608,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType checkMappingIndexBasedAccess(BLangIndexBasedAccess accessExpr, BType type) {
         if (type.tag == TypeTags.MAP) {
-            BType constraint = ((BMapType) type).constraint;
+            BType constraint = types.getConstraintFromReferenceType(((BMapType) type).constraint);
             return accessExpr.isLValue ? constraint : addNilForNillableAccessType(constraint);
         }
 
