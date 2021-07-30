@@ -78,17 +78,17 @@ public class FieldAccessTest {
         validateError(negativeResult, i++, "invalid operation: type 'Baz?' does not support field access", 134, 16);
         validateError(negativeResult, i++, "invalid operation: type 'Foo[]' does not support field access", 138, 9);
 
-        validateError(negativeResult, i++, "undeclared field 'a' in record 'R1'", 155, 10);
+        validateError(negativeResult, i++, "undeclared field 'a' in record 'R1'", 155, 13);
         validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
-                "field access or member access", 164, 10);
+                "field access or member access", 164, 13);
         validateError(negativeResult, i++, "field access cannot be used to access an optional field, use optional " +
-                "field access or member access", 173, 10);
+                "field access or member access", 173, 13);
         validateError(negativeResult, i++, "invalid field access: 'y' is not a required field in record 'R5', use " +
-                "member access to access a field that may have been specified as a rest field", 182, 14);
+                "member access to access a field that may have been specified as a rest field", 182, 17);
         validateError(negativeResult, i++, "invalid field access: 'y' is not a required field in record 'R6', use " +
-                "member access to access a field that may have been specified as a rest field", 191, 14);
+                "member access to access a field that may have been specified as a rest field", 191, 17);
         validateError(negativeResult, i++, "invalid field access: 'y' is not a required field in record 'R7', use " +
-                "member access to access a field that may have been specified as a rest field", 202, 14);
+                "member access to access a field that may have been specified as a rest field", 202, 17);
 
         validateError(negativeResult, i++, "field access can only be used to access required fields, field 'a' is " +
                 "optional in record(s) 'SA', 'UA', and 'VA'", 247, 17);

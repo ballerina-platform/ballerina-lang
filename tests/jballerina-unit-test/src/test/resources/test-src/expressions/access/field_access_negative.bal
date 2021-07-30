@@ -147,48 +147,48 @@ type R1 record {|
 |};
 
 type R2 record {|
-	int y;
-	R1 r1;
+    int y;
+    R1 r1;
 |};
 
 function testUndeclared(R2 r2) {
-	int a = r2.r1.a;
+    int a = r2.r1.a;
 }
 
 type R3 record {|
-	int x;
-	int y?;
+    int x;
+    int y?;
 |};
 
 function testOptionalInClosedRecord(R3 r) {
-	int a = r.y;
+    int a = r.y;
 }
 
 type R4 record {
-	int x;
-	int y?;
+    int x;
+    int y?;
 };
 
 function testOptionalInOpenRecord(R4 r) {
-	int a = r.y;
+    int a = r.y;
 }
 
 type R5 record {
-	int x;
+    int x;
 };
 
 function testRestDeclaredInRuntime() {
-	R5 r = {x:1, "y":2};
-	anydata a = r.y;
+    R5 r = {x:1, "y":2};
+    anydata a = r.y;
 }
 
 type R6 record {
-	int x;
+    int x;
 };
 
 function testUndeclaredInOpenRecord() {
-	R6 r = {x:1};
-	anydata a = r.y;
+    R6 r = {x:1};
+    anydata a = r.y;
 }
 
 type R7 record {|
@@ -198,51 +198,51 @@ type R7 record {|
 
 
 function exclusiveRecordTypeWithRestField() {
-	R7 r = {x:1};
-	anydata a = r.y;
+    R7 r = {x:1};
+    anydata a = r.y;
 }
 
 type RA record {
     int a;
     int b;
     int c;
-	int x;
-	int y;
-	int z;
+    int x;
+    int y;
+    int z;
 };
 
 type SA record {
     int a?;
     int b?;
     int c;
-	int z;
+    int z;
 };
 
 type TA record {|
     int a;
     int b;
     int c?;
-	int x;
-	int y;
+    int x;
+    int y;
 |};
 
 type UA record {
     int a?;
     int b?;
     int c;
-	int z;
+    int z;
 };
 
 type VA record {|
     int a?;
     int b;
     int c;
-	int y;
-	int z;
+    int y;
+    int z;
 |};
 
 function testUndeclaredFieldInUnion() {
-	RA r = {a: 1, b: 2, c: 3, x: 4, y: 5, z: 6};
+    RA r = {a: 1, b: 2, c: 3, x: 4, y: 5, z: 6};
     (RA|SA|TA|UA|VA) rstuv = r;
     anydata a = rstuv.a;
     anydata b = rstuv.b;
@@ -255,41 +255,41 @@ function testUndeclaredFieldInUnion() {
 
 type PB record {
     int x;
-	int y;
-	string z;
+    int y;
+    string z;
 };
 
 type QB record {
     int x?;
-	string z?;
+    string z?;
 };
 
 type RB record {
-	int y?;
+    int y?;
 };
 
 type SB record {
-	int x?;
-	int y;
+    int x?;
+    int y;
 };
 
 type TB record {
-	string z?;
+    string z?;
 };
 
 type UB record {
-	int y?;
-	string z;
+    int y?;
+    string z;
 };
 
 type VB record {
-	int x?;
-	int y?;
+    int x?;
+    int y?;
 };
 
 function testUndeclaredAndOptional() {
-	PB r = {x: 5, y: 6, z: "test"};
-	(PB|QB|RB|SB|TB|UB|VB) pqrstuv = r;
+    PB r = {x: 5, y: 6, z: "test"};
+    (PB|QB|RB|SB|TB|UB|VB) pqrstuv = r;
     anydata x = pqrstuv.x;
     anydata y = pqrstuv.y;
     anydata z = pqrstuv.z;
