@@ -20,6 +20,7 @@ package io.ballerina.shell.cli.handlers.help;
 
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -36,8 +37,8 @@ public class BbeCompletionProvider {
 
     private static final String BALLERINA_HOME =
             System.getProperty("ballerina.home");
-    private static final String BBE_PATH = "/examples/";
-    private static final String INDEX_FILE = "index.json";
+    private static final String EXAMPLES = "examples";
+    private static final String BBE_FILE = "index.json";
 
     private final List<String> topicList;
 
@@ -48,19 +49,23 @@ public class BbeCompletionProvider {
     public List<String> getTopicList() {
         Gson gson = new Gson();
 
-        String file = BALLERINA_HOME + BBE_PATH + INDEX_FILE;
-        String jsonString = readFileAsString(file).trim();
+        String file = BALLERINA_HOME + File.separator + EXAMPLES +
+                File.separator + BBE_FILE;
+        String jsonString = readFileAsString(file);
 
-        BbeTitle[] bbeTitles = gson.fromJson(jsonString, BbeTitle[].class);
-        Stream<BbeTitle> streamList = Arrays.stream(bbeTitles);
-
-        streamList.forEach((bbeTitle) -> {
-            BbeRecord[] samples = bbeTitle.getSamples();
-            Stream<BbeRecord> sampleList = Arrays.stream(samples);
-            sampleList.forEach((bbeRecordElement) -> {
-                topicList.add(bbeRecordElement.getName());
+        if (jsonString != null) {
+            jsonString = jsonString.trim();
+            BbeTitle[] bbeTitles = gson.fromJson(jsonString, BbeTitle[].class);
+            Stream<BbeTitle> streamList = Arrays.stream(bbeTitles);
+            streamList.forEach((bbeTitle) -> {
+                BbeRecord[] samples = bbeTitle.getSamples();
+                Stream<BbeRecord> sampleList = Arrays.stream(samples);
+                sampleList.forEach((bbeRecordElement) -> {
+                    topicList.add(bbeRecordElement.getUrl().replaceAll("-", " "));
+                });
             });
-        });
+            return topicList;
+        }
         return topicList;
     }
 

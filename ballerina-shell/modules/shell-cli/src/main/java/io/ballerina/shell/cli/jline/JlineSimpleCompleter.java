@@ -55,10 +55,16 @@ public class JlineSimpleCompleter implements Completer {
     public JlineSimpleCompleter() {
 
         BbeCompletionProvider bbeHelpProvider = new BbeCompletionProvider();
-        List<String> topicsKeywords = bbeHelpProvider.getTopicList();
+        List<String> topicsKeywords;
+        topicsKeywords = bbeHelpProvider.getTopicList();
+        if (topicsKeywords.size() > 0) {
+            this.topicsCompleter = new StringsCompleter(topicsKeywords);
+        } else {
+            this.topicsCompleter = null;
+        }
         List<String> commandsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(COMMANDS_FILE));
         List<String> codeKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(KEYWORDS_FILE));
-        this.topicsCompleter = new StringsCompleter(topicsKeywords);
+
         this.commandsCompleter = new StringsCompleter(commandsKeywords);
         this.keywordsCompleter = new StringsCompleter(codeKeywords);
         String helpDescriptionPostfix = PropertiesLoader.getProperty(HELP_DESCRIPTION_POSTFIX);
@@ -70,7 +76,7 @@ public class JlineSimpleCompleter implements Completer {
     @Override
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
         if (hasPropertyPrefix(line, COMMAND_HELP)) {
-            if (line.wordIndex() == 1) {
+            if (line.wordIndex() == 1 && this.topicsCompleter != null) {
                 topicsCompleter.complete(reader, line, candidates);
             } else {
                 topicsOptionCompleter.complete(reader, line, candidates);
