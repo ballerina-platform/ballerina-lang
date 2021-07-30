@@ -675,9 +675,9 @@ public class BByteValueTest {
         BValue[] args = {new BByte(a), new BInteger(b)};
         BValue[] returns = BRunUtil.invoke(result, "testBitwiseNotOperator", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BInteger.class);
-        BByte bByte = (BByte) returns[0];
+        BInteger bByte = (BInteger) returns[0];
         BInteger bInteger = (BInteger) returns[1];
         byte a1 = (byte) ~a;
         Assert.assertEquals(bByte.value().byteValue(), a1, "Invalid byte value returned.");

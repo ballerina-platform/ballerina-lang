@@ -1795,6 +1795,44 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
+    public BSymbol getBinaryBitwiseOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        boolean validIntTypesExists;
+        switch (opKind) {
+            case BITWISE_AND:
+            case BITWISE_OR:
+            case BITWISE_XOR:
+                validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+        if (validIntTypesExists) {
+            switch (opKind) {
+                case BITWISE_AND:
+                    switch (lhsType.tag) {
+                        case TypeTags.UNSIGNED8_INT:
+                        case TypeTags.BYTE:
+                        case TypeTags.UNSIGNED16_INT:
+                        case TypeTags.UNSIGNED32_INT:
+                            return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                    }
+                    switch (rhsType.tag) {
+                        case TypeTags.UNSIGNED8_INT:
+                        case TypeTags.BYTE:
+                        case TypeTags.UNSIGNED16_INT:
+                        case TypeTags.UNSIGNED32_INT:
+                            return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
+                    }
+                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                case BITWISE_OR:
+                case BITWISE_XOR:
+                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+            }
+        }
+        return symTable.notFoundSymbol;
+    }
+
     /**
      * Define binary comparison operator for valid ordered types.
      *

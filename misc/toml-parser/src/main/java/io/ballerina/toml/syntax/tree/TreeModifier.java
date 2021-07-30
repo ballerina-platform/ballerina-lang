@@ -116,6 +116,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public InlineTableNode transform(
+            InlineTableNode inlineTableNode) {
+        Token openBrace =
+                modifyToken(inlineTableNode.openBrace());
+        SeparatedNodeList<KeyValueNode> values =
+                modifySeparatedNodeList(inlineTableNode.values());
+        Token closeBrace =
+                modifyToken(inlineTableNode.closeBrace());
+        return inlineTableNode.modify(
+                openBrace,
+                values,
+                closeBrace);
+    }
+
+    @Override
     public StringLiteralNode transform(
             StringLiteralNode stringLiteralNode) {
         Token startDoubleQuote =

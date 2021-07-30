@@ -35,6 +35,8 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -242,6 +244,26 @@ public class DebuggerRuntime {
             return ((BValue) value).getType().getName();
         } else {
             return "unknown";
+        }
+    }
+
+    /**
+     * Returns an array of extracted children elements from a given {@link BXmlSequence} with a given range.
+     *
+     * @param xmlSequence parent XML sequence
+     * @param start       start index of the children range
+     * @param count       children count that needs to be extracted
+     * @return child variable array (or any exceptions, otherwise).
+     */
+    public static Object getXmlChildrenInRange(BXmlSequence xmlSequence, int start, int count) {
+        try {
+            if (count > 0) {
+                return xmlSequence.getChildrenList().subList(start, start + count).toArray(new BXml[0]);
+            } else {
+                return xmlSequence.getChildrenList().toArray(new BXml[0]);
+            }
+        } catch (Exception e) {
+            return e;
         }
     }
 
