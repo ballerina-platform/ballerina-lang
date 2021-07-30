@@ -543,6 +543,19 @@ public class JvmCodeGenUtil {
         }
     }
 
+    public static BirScope getLastScopeFromTerminator(MethodVisitor mv, BIRNode.BIRBasicBlock bb, String funcName,
+                                                       LabelGenerator labelGen, BirScope lastScope,
+                                                      Set<BirScope> visitedScopesSet) {
+        BirScope scope = bb.terminator.scope;
+        if (scope != null && scope != lastScope) {
+            lastScope = scope;
+            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
+            mv.visitLabel(scopeLabel);
+            visitedScopesSet.add(scope);
+        }
+        return lastScope;
+    }
+
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset) {
         mv.visitVarInsn(ALOAD, localVarOffset);

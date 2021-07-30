@@ -470,6 +470,8 @@ public class MethodGen {
                     .getLastScopeFromBBInsGen(mv, labelGen, instGen, localVarOffset, funcName, bb,
                                               visitedScopesSet, lastScope);
 
+            Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
+            mv.visitLabel(bbEndLabel);
 
             BIRTerminator terminator = bb.terminator;
             pushShort(mv, stateVarIndex, caseIndex);
@@ -480,10 +482,8 @@ public class MethodGen {
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
                                   returnVarRefIndex, attachedType);
 
-            lastScope = getLastScopeFromProcessTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
-
-            Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
-            mv.visitLabel(bbEndLabel);
+            lastScope = JvmCodeGenUtil
+                    .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
@@ -515,18 +515,6 @@ public class MethodGen {
                                                                                 MODULE_INIT_CLASS_NAME),
                               MODULE_STARTED, "Z");
         }
-    }
-
-    private static BirScope getLastScopeFromProcessTerminator(MethodVisitor mv, BIRBasicBlock bb, String funcName,
-                                         LabelGenerator labelGen, BirScope lastScope, Set<BirScope> visitedScopesSet) {
-        BirScope scope = bb.terminator.scope;
-        if (scope != null && scope != lastScope) {
-            lastScope = scope;
-            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
-            mv.visitLabel(scopeLabel);
-            visitedScopesSet.add(scope);
-        }
-        return lastScope;
     }
 
     private boolean isModuleTestInitFunction(BIRFunction func) {
