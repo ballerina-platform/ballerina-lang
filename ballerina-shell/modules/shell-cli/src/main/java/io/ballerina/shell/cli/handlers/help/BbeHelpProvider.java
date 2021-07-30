@@ -52,7 +52,7 @@ public class BbeHelpProvider {
         try {
             content = Files.readString(Paths.get(file));
         } catch (IOException e) {
-            throw new HelpProviderException(" Error Occurred While Executing the Command");
+            throw new HelpProviderException(" Error occurred while executing the command");
         }
         return content;
     }

@@ -39,8 +39,8 @@ public class HelpCommand extends AbstractCommand {
     private static final String TAGS = "<br/>";
     private static final String EMPTY_STRING = "";
     private static final String NEW_LINE = "\n";
-    private static final String DESCRIPTION_PREFIX = NEW_LINE + "Topic Description :";
-    private static final String URL_PREFIX = NEW_LINE + "For Examples Visit : ";
+    private static final String DESCRIPTION_PREFIX = NEW_LINE + "Topic description :";
+    private static final String URL_PREFIX = NEW_LINE + "For examples visit : ";
 
     BbeHelpProvider bbeHelpProvider;
 
@@ -65,8 +65,8 @@ public class HelpCommand extends AbstractCommand {
                         topic.replaceAll(" ", "-"));
 
             } catch (HelpProviderException e) {
-                ballerinaShell.outputError(NEW_LINE + "Can Not Find Topic " + topic  + NEW_LINE +
-                        NEW_LINE + "For Available Topics Please Visit " + URL);
+                ballerinaShell.outputError(NEW_LINE + "Can not find topic " + topic  + NEW_LINE +
+                        NEW_LINE + "For available topics please visit " + URL);
             }
         }
     }
