@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli.handlers.help;
 
 import com.google.gson.Gson;
+import io.ballerina.shell.DiagnosticReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +34,7 @@ import java.util.stream.Stream;
  * Helper class to provide code completions related to /help topics.
  *
  */
-public class BbeCompletionProvider {
+public class BbeCompletionProvider extends DiagnosticReporter {
 
     private static final String BALLERINA_HOME = System.getProperty("ballerina.home");
     private static final String EXAMPLES = "examples";
@@ -71,12 +72,12 @@ public class BbeCompletionProvider {
         return topicList;
     }
 
-    private static String readFileAsString(String file) {
-        String content;
+    private String readFileAsString(String file) {
+        String content = null;
         try {
             content = Files.readString(Paths.get(file));
         } catch (IOException e) {
-            return null;
+            addDebugDiagnostic("BBE file not found");
         }
         return content;
     }
