@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,30 +95,29 @@ public class NodeBasedUpdateDocumentationCodeAction extends AbstractCodeActionPr
         Optional<Symbol> documentableSymbol = getDocumentableSymbol(node, semanticModel);
         SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
         Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node, syntaxTree);
-        DocAttachmentInfo docs = docAttachmentInfo.get();
+
+        if (docAttachmentInfo.isEmpty()) {
+            return false;
+        }
         
-        if (documentableSymbol.isPresent()) {
-            Optional<Documentation> symbolDocumentation = ((Documentable) documentableSymbol.get()).documentation();
-            if (symbolDocumentation.isPresent()) {
-                Documentation documentation = symbolDocumentation.get();
-                docs = docs.mergeDocAttachment(documentation);
-                // Description mismatch
-                if (!documentation.description().equals(docs.description())) {
-                    return true;
-                }
-                // Parameter mismatch
-                if (!documentation.parameterMap().equals(docs.parameterMap())) {
-                    return true;
-                }
-                // Return description mismatch
-                if (!documentation.returnDescription().equals(docs.returnDescription())) {
-                    return true;
-                }
-                // Deprecated description mismatch
-                if (!documentation.deprecatedDescription().equals(docs.deprecatedDescription())) {
-                    return true;
-                }
-            }
+        DocAttachmentInfo docs = docAttachmentInfo.get();
+        if (documentableSymbol.isEmpty()) {
+            return false;
+        }
+        
+        Optional<Documentation> symbolDocumentation = ((Documentable) documentableSymbol.get()).documentation();
+        if (symbolDocumentation.isEmpty()) {
+            return false;
+        }
+        
+        Documentation documentation = symbolDocumentation.get();
+        docs = docs.mergeDocAttachment(documentation);
+        
+        if (!documentation.description().equals(docs.description()) || 
+                !documentation.parameterMap().equals(docs.parameterMap()) || 
+                !documentation.returnDescription().equals(docs.returnDescription()) || 
+                !documentation.deprecatedDescription().equals(docs.deprecatedDescription())) {
+            return true;
         }
         return false;
     }
