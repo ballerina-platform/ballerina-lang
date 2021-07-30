@@ -17,14 +17,17 @@ package org.ballerinalang.langserver.semantictokens;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
@@ -36,13 +39,17 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
+import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.KeySpecifierNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
@@ -67,7 +74,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Visitor class for semantic tokens.
@@ -133,22 +139,29 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(functionDefinitionNode);
     }
 
-    public void visit(FunctionCallExpressionNode functionCallExpressionNode) { // TODO remove symbol ref
+    public void visit(MethodDeclarationNode methodDeclarationNode) {
+        this.addSemanticToken(methodDeclarationNode.methodName(), TokenTypes.METHOD.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
+        visitSyntaxNode(methodDeclarationNode);
+    }
+
+    public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
         Node functionName = functionCallExpressionNode.functionName();
         if (functionName instanceof QualifiedNameReferenceNode) {
             functionName = ((QualifiedNameReferenceNode) functionName).identifier();
         }
-        processSymbols(functionName, functionName.location().lineRange().startLine());
+        this.addSemanticToken(functionName, TokenTypes.FUNCTION.getId(), 0, false, -1, -1);
         visitSyntaxNode(functionCallExpressionNode);
     }
 
-    public void visit(MethodCallExpressionNode methodCallExpressionNode) { // TODO implement
+    public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+        this.addSemanticToken(methodCallExpressionNode.methodName(), TokenTypes.METHOD.getId(),
+                TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
         visitSyntaxNode(methodCallExpressionNode);
     }
 
     public void visit(RequiredParameterNode requiredParameterNode) {
-        //TODO: improve readonly check
-        boolean isReadonly = requiredParameterNode.typeName().toString().contains(SemanticTokensConstants.READONLY);
+        boolean isReadonly = isReadonly(requiredParameterNode.typeName());
         requiredParameterNode.paramName().ifPresent(token -> this.addSemanticToken(token, TokenTypes.PARAMETER.getId(),
                 isReadonly ? TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId() :
                         TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.PARAMETER.getId(), isReadonly ?
@@ -157,19 +170,13 @@ public class SemanticTokensVisitor extends NodeVisitor {
     }
 
     public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
-        //TODO: improve readonly check
-        AtomicBoolean isReadonly = new AtomicBoolean(false);
+        boolean readonly = false;
         if (captureBindingPatternNode.parent() instanceof TypedBindingPatternNode) {
-            ((TypedBindingPatternNode) captureBindingPatternNode.parent()).typeDescriptor().children()
-                    .forEach(child -> {
-                        if (child.toString().contains(SemanticTokensConstants.READONLY)) {
-                            isReadonly.set(true);
-                        }
-                    });
+            readonly = this.isReadonly(((TypedBindingPatternNode) captureBindingPatternNode.parent()).typeDescriptor());
         }
-        this.addSemanticToken(captureBindingPatternNode, TokenTypes.VARIABLE.getId(), isReadonly.get() ?
+        this.addSemanticToken(captureBindingPatternNode, TokenTypes.VARIABLE.getId(), readonly ?
                 TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId() :
-                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.VARIABLE.getId(), isReadonly.get() ?
+                TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.VARIABLE.getId(), readonly ?
                 TokenTypeModifiers.READONLY.getId() : 0);
         visitSyntaxNode(captureBindingPatternNode);
     }
@@ -185,8 +192,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         this.addSemanticToken(qualifiedNameReferenceNode.modulePrefix(), TokenTypes.NAMESPACE.getId(), 0, false, -1,
                 -1);
         Token identifier = qualifiedNameReferenceNode.identifier();
-        LinePosition position = identifier.lineRange().startLine();
-        processSymbols(identifier, position);
+        processSymbols(identifier, identifier.lineRange().startLine());
         visitSyntaxNode(qualifiedNameReferenceNode);
     }
 
@@ -237,6 +243,11 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(enumMemberNode);
     }
 
+    public void visit(AnnotationNode annotationNode) {
+        this.addSemanticToken(annotationNode.atToken(), TokenTypes.NAMESPACE.getId(), 0, false, -1, -1);
+        visitSyntaxNode(annotationNode);
+    }
+
     public void visit(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
         //TODO: handle readonly modifier for document parameter
         int type;
@@ -265,20 +276,39 @@ public class SemanticTokensVisitor extends NodeVisitor {
     }
 
     public void visit(TypeDefinitionNode typeDefinitionNode) {
-        int type; //readonly ((IntersectionTypeDescriptorNode)typeDefinitionNode.typeDescriptor()).children()
-        switch (typeDefinitionNode.typeDescriptor().kind()) {
+        int type = TokenTypes.TYPE.getId();
+        int modifiers = 0;
+        Node typeDescriptor = typeDefinitionNode.typeDescriptor();
+        switch (typeDescriptor.kind()) {
             case OBJECT_TYPE_DESC:
                 type = TokenTypes.INTERFACE.getId();
+                modifiers = TokenTypeModifiers.DECLARATION.getId();
                 break;
             case RECORD_TYPE_DESC:
                 type = TokenTypes.STRUCT.getId();
+                modifiers = TokenTypeModifiers.DECLARATION.getId();
+                break;
+            case INTERSECTION_TYPE_DESC:
+                if (typeDescriptor instanceof IntersectionTypeDescriptorNode) {
+                    IntersectionTypeDescriptorNode intSecDescriptor = (IntersectionTypeDescriptorNode) typeDescriptor;
+                    SyntaxKind left = intSecDescriptor.leftTypeDesc().kind();
+                    SyntaxKind right = intSecDescriptor.rightTypeDesc().kind();
+                    if (left == SyntaxKind.RECORD_TYPE_DESC || right == SyntaxKind.RECORD_TYPE_DESC) {
+                        type = TokenTypes.STRUCT.getId();
+                        if (left == SyntaxKind.READONLY_TYPE_DESC || right == SyntaxKind.READONLY_TYPE_DESC) {
+                            modifiers = TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId();
+                        } else {
+                            modifiers = TokenTypeModifiers.DECLARATION.getId();
+                        }
+                    }
+                }
                 break;
             default:
                 type = TokenTypes.TYPE.getId();
+                modifiers = TokenTypeModifiers.DECLARATION.getId();
                 break;
         }
-        this.addSemanticToken(typeDefinitionNode.typeName(), type, TokenTypeModifiers.DECLARATION.getId(), true,
-                TokenTypes.TYPE.getId(), 0);
+        this.addSemanticToken(typeDefinitionNode.typeName(), type, modifiers, true, type, 0);
         visitSyntaxNode(typeDefinitionNode);
     }
 
@@ -304,10 +334,41 @@ public class SemanticTokensVisitor extends NodeVisitor {
         visitSyntaxNode(recordFieldNode);
     }
 
+    public void visit(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
+        Token token = recordFieldWithDefaultValueNode.fieldName();
+        LinePosition startLine = token.lineRange().startLine();
+        SemanticToken semanticToken = new SemanticToken(startLine.line(), startLine.offset());
+        if (!semanticTokens.contains(semanticToken)) {
+            int length = token.text().trim().length();
+            int modifiers;
+            int refModifiers;
+            if (recordFieldWithDefaultValueNode.readonlyKeyword().isPresent()) {
+                modifiers = TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId();
+                refModifiers = TokenTypeModifiers.READONLY.getId();
+            } else {
+                modifiers = TokenTypeModifiers.DECLARATION.getId();
+                refModifiers = 0;
+            }
+            semanticToken.setProperties(length, TokenTypes.PROPERTY.getId(), modifiers);
+            semanticTokens.add(semanticToken);
+            handleReferences(startLine, length, TokenTypes.PROPERTY.getId(), refModifiers);
+        }
+        visitSyntaxNode(recordFieldWithDefaultValueNode);
+    }
+
+    public void visit(KeySpecifierNode keySpecifierNode) {
+        keySpecifierNode.fieldNames().forEach(field -> {
+            this.addSemanticToken(field, TokenTypes.PROPERTY.getId(), TokenTypeModifiers.DECLARATION.getId() |
+                    TokenTypeModifiers.READONLY.getId(), false, -1, -1);
+        });
+        visitSyntaxNode(keySpecifierNode);
+    }
+
     public void visit(ObjectFieldNode objectFieldNode) {
         SyntaxKind kind = objectFieldNode.parent().kind();
         int type = kind == SyntaxKind.CLASS_DEFINITION || kind == SyntaxKind.OBJECT_TYPE_DESC ||
-                kind == SyntaxKind.RECORD_TYPE_DESC ? TokenTypes.PROPERTY.getId() : TokenTypes.TYPE_PARAMETER.getId();
+                kind == SyntaxKind.RECORD_TYPE_DESC || kind == SyntaxKind.OBJECT_CONSTRUCTOR ?
+                TokenTypes.PROPERTY.getId() : TokenTypes.TYPE_PARAMETER.getId();
         this.addSemanticToken(objectFieldNode.fieldName(), type, TokenTypeModifiers.DECLARATION.getId(), true, type,
                 0);
         visitSyntaxNode(objectFieldNode);
@@ -340,6 +401,22 @@ public class SemanticTokensVisitor extends NodeVisitor {
     }
 
     /**
+     * Returns if the given IntersectionTypeDescriptorNode has a readonly typeDescriptor.
+     *
+     * @param node Current node
+     * @return True if a readonly typeDescriptor is present, false otherwise.
+     */
+    private boolean isReadonly(Node node) {
+        if (node instanceof IntersectionTypeDescriptorNode) {
+            IntersectionTypeDescriptorNode intSecDescriptor = (IntersectionTypeDescriptorNode) node;
+            SyntaxKind left = intSecDescriptor.leftTypeDesc().kind();
+            SyntaxKind right = intSecDescriptor.rightTypeDesc().kind();
+            return left == SyntaxKind.READONLY_TYPE_DESC || right == SyntaxKind.READONLY_TYPE_DESC;
+        }
+        return false;
+    }
+
+    /**
      * Get the symbol of the given node and process the semantic tokens for the symbol and it's references.
      *
      * @param node      Current node
@@ -347,7 +424,12 @@ public class SemanticTokensVisitor extends NodeVisitor {
      */
     private void processSymbols(Node node, LinePosition startLine) {
         if (!semanticTokens.contains(new SemanticToken(startLine.line(), startLine.offset()))) {
-            Optional<SemanticModel> semanticModel = this.semanticTokensContext.currentSemanticModel();
+            Optional<SemanticModel> semanticModel;
+            try {
+                semanticModel = this.semanticTokensContext.currentSemanticModel();
+            } catch (Throwable e) {
+                return;
+            }
             if (semanticModel.isEmpty()) {
                 return;
             }
@@ -380,10 +462,11 @@ public class SemanticTokensVisitor extends NodeVisitor {
                         referenceModifiers = TokenTypeModifiers.READONLY.getId();
                         break;
                     case VARIABLE:
-                        //TODO: improve readonly check
                         boolean isReadonly = false;
-                        if (symbol.get() instanceof VariableSymbol && ((VariableSymbol) symbol.get()).typeDescriptor().
-                                signature().contains(SemanticTokensConstants.READONLY)) {
+                        if (symbol.get() instanceof VariableSymbol && ((VariableSymbol) symbol.get()).typeDescriptor()
+                                instanceof IntersectionTypeSymbol && ((IntersectionTypeSymbol) ((VariableSymbol) symbol
+                                .get()).typeDescriptor()).memberTypeDescriptors().stream().anyMatch(desc ->
+                                desc.typeKind() == TypeDescKind.READONLY)) {
                             isReadonly = true;
                         }
                         if (!nodeName.equals(SemanticTokensConstants.SELF)) {
@@ -397,13 +480,49 @@ public class SemanticTokensVisitor extends NodeVisitor {
                     case TYPE:
                         if (symbol.get() instanceof TypeReferenceTypeSymbol) {
                             TypeSymbol typeDescriptor = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
-                            int type;
+                            int type = TokenTypes.TYPE.getId();
                             switch (typeDescriptor.kind()) {
                                 case CLASS:
                                     type = TokenTypes.CLASS.getId();
+                                    if (typeDescriptor instanceof ClassSymbol &&
+                                            ((ClassSymbol) typeDescriptor).qualifiers().contains(Qualifier.READONLY)) {
+                                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId() |
+                                                TokenTypeModifiers.READONLY.getId();
+                                        referenceModifiers = TokenTypeModifiers.READONLY.getId();
+                                    } else {
+                                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                                    }
                                     break;
-                                case RECORD_FIELD:
-                                    type = TokenTypes.STRUCT.getId();
+                                case TYPE:
+                                    switch (typeDescriptor.typeKind()) {
+                                        case RECORD:
+                                            type = TokenTypes.STRUCT.getId();
+                                            break;
+                                        case OBJECT:
+                                            type = TokenTypes.INTERFACE.getId();
+                                            break;
+                                        case INTERSECTION:
+                                            if (typeDescriptor instanceof IntersectionTypeSymbol) {
+                                                IntersectionTypeSymbol intSecSymbol =
+                                                        (IntersectionTypeSymbol) typeDescriptor;
+                                                if (intSecSymbol.effectiveTypeDescriptor().typeKind() ==
+                                                        TypeDescKind.RECORD) {
+                                                    type = TokenTypes.STRUCT.getId();
+                                                    if (intSecSymbol.memberTypeDescriptors().stream().anyMatch(desc ->
+                                                            desc.typeKind() == TypeDescKind.READONLY)) {
+                                                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId() |
+                                                                TokenTypeModifiers.READONLY.getId();
+                                                        referenceModifiers = TokenTypeModifiers.READONLY.getId();
+                                                    } else {
+                                                        declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
+                                                    }
+                                                }
+                                            }
+                                            break;
+                                        default:
+                                            type = TokenTypes.TYPE.getId();
+                                            break;
+                                    }
                                     break;
                                 default:
                                     type = TokenTypes.TYPE.getId();
@@ -411,14 +530,6 @@ public class SemanticTokensVisitor extends NodeVisitor {
                             }
                             declarationType = type;
                             referenceType = type;
-                            if (typeDescriptor instanceof ClassSymbol &&
-                                    ((ClassSymbol) typeDescriptor).qualifiers().contains(Qualifier.READONLY)) {
-                                declarationModifiers = TokenTypeModifiers.DECLARATION.getId() |
-                                        TokenTypeModifiers.READONLY.getId();
-                                referenceModifiers = TokenTypeModifiers.READONLY.getId();
-                            } else {
-                                declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
-                            }
                         } else {
                             declarationType = TokenTypes.TYPE.getId();
                             referenceType = TokenTypes.TYPE.getId();
@@ -451,6 +562,9 @@ public class SemanticTokensVisitor extends NodeVisitor {
                         declarationType = TokenTypes.METHOD.getId();
                         declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
                         referenceType = TokenTypes.METHOD.getId();
+                        break;
+                    case ANNOTATION:
+                        this.addSemanticToken(node, TokenTypes.TYPE.getId(), 0, false, -1, -1);
                         break;
                     default:
                         break;
@@ -523,7 +637,12 @@ public class SemanticTokensVisitor extends NodeVisitor {
      * @param modifiers    Semantic token type modifiers' index
      */
     private void handleReferences(LinePosition linePosition, int length, int type, int modifiers) {
-        Optional<SemanticModel> semanticModel = this.semanticTokensContext.currentSemanticModel();
+        Optional<SemanticModel> semanticModel;
+        try {
+            semanticModel = this.semanticTokensContext.currentSemanticModel();
+        } catch (Throwable e) {
+            return;
+        }
         if (semanticModel.isEmpty()) {
             return;
         }
