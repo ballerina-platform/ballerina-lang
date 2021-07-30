@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
@@ -27,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.StringUtils;
@@ -143,13 +145,23 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 .collect(Collectors.toList());
 
         String offsetStr;
+        int enclosingNodeOffset;
+        int closeBraceOffset = editPosition.offset();
+        Optional<Token> closeBraceToken = findCloseBraceTokenOfIntermediateNode(matchedNode.get());
+        enclosingNodeOffset = closeBraceToken.map(token -> token.lineRange().startLine().offset()).orElse(0);
         if (!concreteMethods.isEmpty()) {
             // If other methods exists, inherit offset
             FunctionDefinitionNode funcDefNode = concreteMethods.get(0);
             offsetStr = StringUtils.repeat(' ', funcDefNode.location().lineRange().endLine().offset());
         } else {
-            // Or else, adjust offset according to the parent class
-            offsetStr = StringUtils.repeat(' ', matchedNode.get().location().lineRange().startLine().offset() + 4);
+            if (matchedNode.get().kind() == SyntaxKind.OBJECT_CONSTRUCTOR) {
+                offsetStr = StringUtils.repeat(' ',
+                        enclosingNodeOffset + 8);
+                closeBraceOffset = enclosingNodeOffset + 4;
+            } else {
+                // Or else, adjust offset according to the parent class
+                offsetStr = StringUtils.repeat(' ', matchedNode.get().location().lineRange().startLine().offset() + 4);
+            }
         }
 
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
@@ -175,7 +187,10 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
         StringBuilder editText = new StringBuilder();
-        editText.append(LINE_SEPARATOR).append(offsetStr).append(typeName).append(" ")
+        editText.append(LINE_SEPARATOR)
+                .append(offsetStr)
+                .append(typeName)
+                .append(" ")
                 .append(CommonKeys.OPEN_BRACE_KEY)
                 .append(LINE_SEPARATOR)
                 .append(offsetStr)
@@ -184,10 +199,30 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 .append(LINE_SEPARATOR)
                 .append(offsetStr)
                 .append(CommonKeys.CLOSE_BRACE_KEY)
-                .append(LINE_SEPARATOR);
-        
+                .append(LINE_SEPARATOR)
+                .append(StringUtils.repeat(' ', closeBraceOffset));
         Position editPos = CommonUtil.toPosition(editPosition);
         edits.add(new TextEdit(new Range(editPos, editPos), editText.toString()));
         return edits;
+    }
+
+    /**
+     * Given a Node finds the immediate enclosing block node.
+     *
+     * @param node current node.
+     * @return {@link NonTerminalNode} enclosing block node.
+     */
+    protected static Optional<Token> findCloseBraceTokenOfIntermediateNode(Node node) {
+        NonTerminalNode referenceNode = node.parent();
+        while (referenceNode != null) {
+            if (referenceNode.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
+                return Optional.of(((FunctionBodyBlockNode) referenceNode).closeBraceToken());
+            }
+            if (referenceNode.kind() == SyntaxKind.BLOCK_STATEMENT) {
+                return Optional.of(((FunctionBodyBlockNode) referenceNode).closeBraceToken());
+            }
+            referenceNode = referenceNode.parent();
+        }
+        return Optional.empty();
     }
 }
