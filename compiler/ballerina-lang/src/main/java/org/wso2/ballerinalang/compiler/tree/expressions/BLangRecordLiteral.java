@@ -21,7 +21,6 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -74,11 +73,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     }
 
     @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
-    }
-
-    @Override
     public List<RecordField> getFields() {
         return fields;
     }
@@ -128,11 +122,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
-        }
-
-        @Override
-        public Object accept(ModuleGen visitor) {
-            return visitor.visit(this);
         }
 
         @Override
@@ -191,11 +180,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         }
 
         @Override
-        public Object accept(ModuleGen visitor) {
-            return visitor.visit(this);
-        }
-
-        @Override
         public String toString() {
             return "..." + expr;
         }
@@ -232,11 +216,6 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
-        }
-
-        @Override
-        public Object accept(ModuleGen visitor) {
-            return visitor.visit(this);
         }
 
         @Override

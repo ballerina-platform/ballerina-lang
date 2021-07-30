@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 
@@ -53,11 +52,6 @@ public class BLangXMLQuotedString extends BLangExpression implements XMLQuotedSt
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
     }
 
     @Override

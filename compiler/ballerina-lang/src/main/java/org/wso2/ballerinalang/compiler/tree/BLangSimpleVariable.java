@@ -21,7 +21,6 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -71,10 +70,5 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
             varName = symbol.name.value;
         }
         return String.valueOf(getBType()) + " " + varName + (expr != null ? " = " + String.valueOf(expr) : "");
-    }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
     }
 }

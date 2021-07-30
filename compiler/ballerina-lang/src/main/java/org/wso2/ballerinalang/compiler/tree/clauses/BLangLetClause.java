@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -58,11 +57,6 @@ public class BLangLetClause extends BLangNode implements LetClauseNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
     }
 
     @Override

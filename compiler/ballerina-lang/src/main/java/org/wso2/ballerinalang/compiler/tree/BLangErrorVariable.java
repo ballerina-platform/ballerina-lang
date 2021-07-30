@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.ErrorVariableNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 
@@ -85,11 +84,6 @@ public class BLangErrorVariable extends BLangVariable implements ErrorVariableNo
         detail.forEach(d -> details.add(d.key.toString() + "=" + d.valueBindingPattern.toString()));
         return "error (" + message + ", " + details.toString() +
                 (restDetail != null ? ", ...var " + restDetail.name.toString() : "") + ")";
-    }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
     }
 
     /**

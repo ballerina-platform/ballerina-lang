@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -47,11 +46,6 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
     }
 
     /**

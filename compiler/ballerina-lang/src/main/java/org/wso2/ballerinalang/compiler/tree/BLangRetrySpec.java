@@ -21,7 +21,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.RetrySpecNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -56,11 +55,6 @@ public class BLangRetrySpec extends BLangNode implements RetrySpecNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
     }
 
     @Override

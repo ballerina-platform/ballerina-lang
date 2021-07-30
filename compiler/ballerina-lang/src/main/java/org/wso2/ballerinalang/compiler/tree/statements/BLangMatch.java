@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.MatchNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -102,11 +101,6 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
-    }
-
-    @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(";");
         patternClauses.forEach(pattern -> sj.add(pattern.toString()));
@@ -129,11 +123,6 @@ public class BLangMatch extends BLangStatement implements MatchNode {
 
         // flag to set the last pattern clause
         public boolean isLastPattern;
-
-        @Override
-        public Object accept(ModuleGen visitor) {
-            return visitor.visit(this);
-        }
     }
 
     /**

@@ -38,4 +38,6 @@ public class NBTypeNames {
     static final String BRANCH_INSN = "record {| INSN_BRANCH name; int dest; anydata...; |}";
     static final String TYPECAST_INSN = "record {| INSN_TYPE_CAST name; Register result; Register operand; " +
             "wso2/nballerina.types:0.1.0:SemType semType; Position position; anydata...; |}";
+    static final String EQUALITY_INSN = "record {| INSN_EQUALITY name; ==|!=|===|!== op; Register result; " +
+            "wso2/nballerina.bir:0.1.0:Operand[2] operands; anydata...; |}";
 }

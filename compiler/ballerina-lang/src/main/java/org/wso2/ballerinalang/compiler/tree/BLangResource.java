@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ResourceNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 
 /**
  * @since 0.94
@@ -30,11 +29,6 @@ public class BLangResource extends BLangInvokableNode implements ResourceNode {
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return null;
     }
 
     @Override

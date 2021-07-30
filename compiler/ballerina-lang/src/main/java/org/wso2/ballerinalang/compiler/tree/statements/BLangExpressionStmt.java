@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -46,10 +45,6 @@ public class BLangExpressionStmt extends BLangStatement implements ExpressionSta
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
     }
 
     @Override

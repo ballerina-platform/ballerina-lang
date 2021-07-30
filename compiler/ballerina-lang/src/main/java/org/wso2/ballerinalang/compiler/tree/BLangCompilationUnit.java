@@ -22,7 +22,6 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SourceKind;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,8 +101,4 @@ public class BLangCompilationUnit extends BLangNode implements CompilationUnitNo
         visitor.visit(this);
     }
 
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
-    }
 }

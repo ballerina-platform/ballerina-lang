@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.wso2.ballerinalang.compiler.nballerina.ModuleGen;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 /**
@@ -35,9 +34,4 @@ public abstract class BLangValueExpression extends BLangExpression {
     public boolean isLValue = false;
     public boolean isCompoundAssignmentLValue = false;
     public BSymbol symbol;
-
-    @Override
-    public Object accept(ModuleGen visitor) {
-        return visitor.visit(this);
-    }
 }

@@ -18,27 +18,13 @@
 package org.wso2.ballerinalang.compiler.nballerina;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.creators.TypeCreator;
-import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.ArrayType;
-import io.ballerina.runtime.api.types.FiniteType;
-import io.ballerina.runtime.api.types.RecordType;
-import io.ballerina.runtime.api.types.UnionType;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.internal.values.BmpStringValue;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -46,13 +32,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -63,11 +45,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-
 
 /**
  * Transform the AST to nBallerina Module.
@@ -112,9 +89,9 @@ public class ModuleGen {
             TypeKind ret = func.returnTypeNode.getBType().getKind();
             Position position = new Position(func.getPosition().lineRange().startLine().line() + 1,
                     func.getPosition().textRange().startOffset() + 9);
-            FunctionDefn funcDefn = new FunctionDefn(acc, name, ret, position);
+            FunctionDefn funcDefn = new FunctionDefn(acc, name, convertSimpleSemType(ret), position);
             func.getParameters().forEach(param -> {
-                funcDefn.signature.paramTypes.add(param.getBType().getKind());
+                funcDefn.signature.paramTypes.add(convertSimpleSemType(param.getBType().getKind()));
             });
             jnmod.functionDefns.put(name, funcDefn);
         }
@@ -122,7 +99,7 @@ public class ModuleGen {
             FunctionCode fcode = new FunctionCode();
             BasicBlock curBlock = fcode.createBasicBlock();
             func.getParameters().forEach(param -> {
-                fcode.createRegister(param.getBType().getKind(), param.getName().toString());
+                fcode.createRegister(convertSimpleSemType(param.getBType().getKind()), param.getName().toString());
             });
             for (BLangStatement stmt : ((BLangBlockFunctionBody) func.body).getStatements()) {
                 curBlock = codeGenStmt(stmt, fcode, curBlock);
@@ -147,8 +124,8 @@ public class ModuleGen {
         } else if (stmt instanceof BLangSimpleVariableDef) {
             BLangSimpleVariableDef varDec = (BLangSimpleVariableDef) stmt;
             OpBlockHolder opb = codeGenExpr(varDec.var.getInitialExpression(), code, startBlock);
-            Register result = code.createRegister(varDec.getVariable().typeNode.getBType().getKind(),
-                    varDec.getVariable().getName().toString());
+            Register result = code.createRegister(convertSimpleSemType(
+                    varDec.getVariable().typeNode.getBType().getKind()), varDec.getVariable().getName().toString());
             opb.nextBlock.insns.add(new AssignInsn(result, opb.operand));
             return opb.nextBlock;
 
@@ -241,12 +218,12 @@ public class ModuleGen {
             OperatorKind op = unexpr.operator;
             switch (op) {
                 case NOT:
-                    Register reg1 = code.createRegister(TypeKind.BOOLEAN, null);
+                    Register reg1 = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
                     bb.insns.add(new BoolNotInsn(opb.operand.register, reg1));
                     result.register = reg1;
                     return new OpBlockHolder(result, opb.nextBlock);
                 case SUB:
-                    Register reg2 = code.createRegister(TypeKind.INT, null);
+                    Register reg2 = code.createRegister(convertSimpleSemType(TypeKind.INT), null);
                     IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
                     bb.ppb = true;
                     ins.op = "-";
@@ -269,7 +246,7 @@ public class ModuleGen {
             OperatorKind op = bexpr.opKind;
             switch (op) {
                 case ADD: case SUB: case MUL: case DIV: case MOD:
-                    Register reg = code.createRegister(TypeKind.INT, null);
+                    Register reg = code.createRegister(convertSimpleSemType(TypeKind.INT), null);
                     IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
                     bb.ppb = true;
                     ins.op = op.toString();
@@ -280,6 +257,13 @@ public class ModuleGen {
                             bexpr.getPosition().textRange().startOffset());
                     bb.insns.add(ins);
                     result.register = reg;
+                    return new OpBlockHolder(result, rhs.nextBlock);
+                case EQUAL: case NOT_EQUAL: case REF_EQUAL: case REF_NOT_EQUAL:
+                    result.register = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
+                    EqualityInsn eqi = new EqualityInsn(op.toString(), result.register);
+                    eqi.operands[0] = lhs.operand;
+                    eqi.operands[1] = rhs.operand;
+                    bb.insns.add(eqi);
                     return new OpBlockHolder(result, rhs.nextBlock);
             }
         } else if (expr instanceof BLangInvocation) {
@@ -295,7 +279,7 @@ public class ModuleGen {
                 nextBlock = opb.nextBlock;
             }
             Operand result = new Operand(true);
-            Register reg = code.createRegister(TypeKind.ARRAY, null);
+            Register reg = code.createRegister(convertSimpleSemType(TypeKind.ARRAY), null);
             result.register = reg;
             ListConstructInsn ins = new ListConstructInsn(reg, operands);
             nextBlock.insns.add(ins);
@@ -306,10 +290,11 @@ public class ModuleGen {
             BLangTypeConversionExpr tcExpr = (BLangTypeConversionExpr) expr;
             OpBlockHolder opb = codeGenExpr(tcExpr.expr, code, bb);
             if (opb.operand.isReg) {
-                Register reg = code.createRegister(null, null);
+                Register reg = code.createRegister(0L, null);
                 Position pos = new Position(tcExpr.pos.lineRange().startLine().line() + 1,
                         tcExpr.pos.textRange().startOffset());
-                bb.insns.add(new TypeCastInsn(reg, opb.operand.register, tcExpr.targetType.getKind(), pos));
+                bb.insns.add(new TypeCastInsn(reg, opb.operand.register,
+                        convertSimpleSemType(tcExpr.targetType.getKind()), pos));
                 Operand regOp = new Operand(true);
                 regOp.register = reg;
                 return new OpBlockHolder(regOp, opb.nextBlock);
@@ -329,13 +314,13 @@ public class ModuleGen {
             ref  = new FunctionRef(def.symbol, def.signature);
         } else {
             FunctionSignature signature = new FunctionSignature();
-            signature.returnType = funcCall.getBType().getKind();
+            signature.returnType = convertSimpleSemType(funcCall.getBType().getKind());
             for (BLangExpression arg: funcCall.requiredArgs) {
-                signature.paramTypes.add(arg.getBType().getKind());
+                signature.paramTypes.add(convertSimpleSemType(arg.getBType().getKind()));
             }
             if (!funcCall.restArgs.isEmpty()) {
                 //signature.restParamType = funcCall.restArgs.get(0).getBType().getKind();
-                signature.paramTypes.add(TypeKind.OTHER);
+                signature.paramTypes.add(8388607L);
             }
             ModuleId mod = new ModuleId();
             mod.organization = funcCall.symbol.pkgID.orgName.getValue();
@@ -369,7 +354,7 @@ public class ModuleGen {
         }
         if (panic) {
             BasicBlock onPanicBlock = code.createBasicBlock();
-            Register reg = code.createRegister(TypeKind.ERROR, null);
+            Register reg = code.createRegister(convertSimpleSemType(TypeKind.ERROR), null);
             CatchInsn catchInsn = new CatchInsn(reg);
             AbnormalRetInsn abnRetInsn = new AbnormalRetInsn(reg);
             onPanicBlock.insns.add(catchInsn);
@@ -389,8 +374,6 @@ public class ModuleGen {
                 return 262144L;
             case ERROR:
                 return 2048L;
-            case OTHER:
-                return 8388607L;
             case ANY:
                 return 8386559L;
             default:
