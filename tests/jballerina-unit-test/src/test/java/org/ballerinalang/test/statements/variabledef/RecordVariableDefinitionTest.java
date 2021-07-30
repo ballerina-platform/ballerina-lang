@@ -349,7 +349,8 @@ public class RecordVariableDefinitionTest {
                         "'record {| never name?; int...; |}', found 'record {| never name?; int age; string...; |}'",
                 251, 44);
         BAssertUtil.validateError(resultNegative, ++i,
-                "undefined field 'employed' in record 'record {| never name?; int age; string...; |}'",
+                "invalid operation: type 'record {| never name?; int age; string...; |}' does not support " +
+                        "field access for non-required field 'employed'",
                 253, 23);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'map<string>', found 'record {| never name?; int age; string...; |}'",

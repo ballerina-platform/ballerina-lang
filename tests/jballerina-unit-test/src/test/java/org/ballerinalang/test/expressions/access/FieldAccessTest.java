@@ -52,7 +52,8 @@ public class FieldAccessTest {
         int i = 0;
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
                               "for non-required field 'id'", 32, 9);
-        validateError(negativeResult, i++, "undefined field 'salary' in record 'Employee'", 33, 9);
+        validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support field access " +
+                              "for non-required field 'salary'", 33, 9);
         validateError(negativeResult, i++, "invalid operation: type '(Employee|Person)' does not support field access" +
                 " for non-required field 'salary'", 39, 9);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found '(int|string)'", 56, 17);
