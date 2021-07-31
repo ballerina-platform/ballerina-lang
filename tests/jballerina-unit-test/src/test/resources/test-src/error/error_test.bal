@@ -462,6 +462,25 @@ function testLocalErrorTypeWithClosure() {
 //    assertEquality(err.detail()["i"], k);
 //}
 
+function testStackTraceWithErrorCauseLocation() {
+    panic foo();
+}
+
+function foo() returns error {
+    error err = error("error1", baz());
+    return err;
+}
+
+function baz() returns error {
+    error err = error("error2", foobar());
+    return err;
+}
+
+function foobar() returns error {
+    error err = error("error3");
+    return err;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {
