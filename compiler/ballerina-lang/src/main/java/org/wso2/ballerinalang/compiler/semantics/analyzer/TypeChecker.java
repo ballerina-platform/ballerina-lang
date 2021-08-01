@@ -5371,10 +5371,6 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypes));
         }
 
-        if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(actualType)) {
-            dlog.error(checkedExpr.expr.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
-        }
-
         resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
@@ -6070,13 +6066,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        for (BLangExpression requiredArg : iExpr.requiredArgs) {
-            BType argType = requiredArg.getBType();
-            if (argType != null && types.isNeverTypeOrStructureTypeWithARequiredNeverMember(argType)) {
-                dlog.error(requiredArg.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
-            }
-        }
-
         BVarSymbol restParam = invokableTypeSymbol.restParam;
 
         boolean errored = false;
@@ -6223,13 +6212,6 @@ public class TypeChecker extends BLangNodeVisitor {
                         restType = this.resultType;
                     }
                 }
-            }
-        }
-
-        for (BLangExpression restArg : iExpr.restArgs) {
-            BType argType = restArg.getBType();
-            if (argType != null && types.isNeverTypeOrStructureTypeWithARequiredNeverMember(argType)) {
-                dlog.error(restArg.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
             }
         }
 

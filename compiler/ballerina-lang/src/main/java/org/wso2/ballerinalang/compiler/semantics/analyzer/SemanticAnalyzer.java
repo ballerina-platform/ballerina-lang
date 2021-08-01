@@ -3662,9 +3662,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangReturn returnNode) {
         this.typeChecker.checkExpr(returnNode.expr, this.env, this.env.enclInvokable.returnTypeNode.getBType());
         validateWorkerAnnAttachments(returnNode.expr);
-        if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(returnNode.expr.getBType())) {
-            dlog.error(returnNode.expr.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
-        }
     }
 
     BType analyzeDef(BLangNode node, SymbolEnv env) {
@@ -3697,9 +3694,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangPanic panicNode) {
         this.typeChecker.checkExpr(panicNode.expr, env, symTable.errorType);
-        if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(panicNode.expr.getBType())) {
-            dlog.error(panicNode.expr.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
-        }
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
