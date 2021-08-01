@@ -6,6 +6,6 @@ function foo() {
         let T [a, [x y] _ = d
         select e;
     x = from int a in b
-        let T[k1][k2 [a] = d
+        let T[k1] [k2 [a] = d
         select e;
 }

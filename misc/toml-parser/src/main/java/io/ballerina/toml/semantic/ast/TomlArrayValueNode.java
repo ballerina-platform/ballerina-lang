@@ -43,6 +43,7 @@ public class TomlArrayValueNode extends TomlValueNode {
 
     /**
      * Get a single element of the array based on the Index.
+     *
      * @param index index of the element
      * @param <T> Type of the element
      * @return Element object

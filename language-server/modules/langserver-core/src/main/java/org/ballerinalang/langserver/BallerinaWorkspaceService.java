@@ -16,7 +16,19 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.CodeActionManager;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContextImpl;
+import io.ballerina.projects.plugins.codeaction.DocumentEdit;
+import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -34,10 +46,18 @@ import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.ResourceOperation;
+import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -47,6 +67,7 @@ import java.util.stream.Collectors;
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
+    
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
@@ -126,6 +147,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                                     TelemetryUtil.sendTelemetryEvent(context.languageServercontext(),
                                             lsFeatureUsageTelemetryEvent));
                     return result;
+                } else {
+                    // Check in plugins
+                    return executeCommandExternal(context, params);
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Execute Command", e);
@@ -139,5 +163,65 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                                        null, (Position) null);
             return false;
         });
+    }
+
+    /**
+     * Execute commands provided by compiler plugins. Depending on the result, relevant workspace edits will be
+     * performed.
+     *
+     * @param context Execute command context
+     * @param params  Execute command params
+     * @return any | null
+     */
+    private Object executeCommandExternal(ExecuteCommandContext context, ExecuteCommandParams params) {
+        List<CodeActionArgument> args = new LinkedList<>();
+        String uri = null;
+        for (CommandArgument arg : context.getArguments()) {
+            if (CommandConstants.ARG_KEY_DOC_URI.equals(arg.key())) {
+                uri = arg.valueAs(String.class);
+            } else {
+                args.add(CodeActionArgument.from(arg.key(), arg.value()));
+            }
+        }
+
+        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        if (filePath.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        Optional<PackageCompilation> packageCompilation = 
+                context.workspace().waitAndGetPackageCompilation(filePath.get());
+        Optional<Document> document = context.workspace().document(filePath.get());
+        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(filePath.get());
+        if (packageCompilation.isEmpty() || document.isEmpty() || semanticModel.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(uri, filePath.get(), 
+                null, document.get(), semanticModel.get(), args);
+
+        String providerName = params.getCommand();
+        CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
+        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, codeActionContext);
+
+        List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
+        docEdits.forEach(docEdit -> {
+            Optional<SyntaxTree> originalST = CommonUtil.getPathFromURI(docEdit.getFileUri())
+                    .flatMap(workspaceManager::document)
+                    .flatMap(doc -> Optional.of(doc.syntaxTree()));
+            if (originalST.isEmpty()) {
+                return;
+            }
+
+            LineRange lineRange = originalST.get().rootNode().lineRange();
+            Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), 
+                    lineRange.startLine(), lineRange.endLine()));
+            TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
+            TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(
+                    docEdit.getFileUri(), null), Collections.singletonList(edit));
+            Either<TextDocumentEdit, ResourceOperation> either = Either.forLeft(documentEdit);
+            edits.add(either);
+        });
+        return CommandUtil.applyWorkspaceEdit(edits, languageServer.getClient());
     }
 }

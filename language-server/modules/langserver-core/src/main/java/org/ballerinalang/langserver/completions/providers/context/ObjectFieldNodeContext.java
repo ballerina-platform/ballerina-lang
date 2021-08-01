@@ -83,7 +83,9 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         List<LSCompletionItem> completionItems = new ArrayList<>(this.expressionCompletions(ctx));
         Optional<TypeSymbol> contextType = ctx.getContextType();
         if (contextType.isPresent() && contextType.get().kind() == SymbolKind.CLASS) {
-            completionItems.add(this.getImplicitNewCompletionItem((ClassSymbol) contextType.get(), ctx));
+            LSCompletionItem implicitNewCompletionItem =
+                    this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), ctx);
+            completionItems.add(implicitNewCompletionItem);
         }
 
         return completionItems;

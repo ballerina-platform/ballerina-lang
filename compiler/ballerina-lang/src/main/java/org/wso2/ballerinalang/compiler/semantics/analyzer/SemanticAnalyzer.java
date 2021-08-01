@@ -1712,6 +1712,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                                      compoundAssignment.expr.getBType());
             }
             if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBinaryBitwiseOpsForTypeSets(compoundAssignment.opKind, expType,
+                        compoundAssignment.expr.getBType());
+            }
+            if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
                            compoundAssignment.opKind, expType, compoundAssignment.expr.getBType());
             } else {
