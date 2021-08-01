@@ -17,3 +17,28 @@
 function testFunctionWithNeverReturnTypeReturningNil() returns never {
     string a = "hello";
 }
+
+public function testNeverReturnFuncInvWithPanic() {
+    panic unreached();
+}
+
+function unreached() returns never {
+    panic error("error!!!");
+}
+
+function testCheckWithNeverTypeExpr() returns error? {
+    any e1 = check unreached();
+    any e2 = checkpanic unreached();
+}
+
+function testNeverTypeRequiredAndDefaultableParamInInv() {
+   passIntValue(unreached(), unreached());
+}
+
+function passIntValue(int a, int b = 2) {
+
+}
+
+function num() returns error {
+    return unreached();
+}

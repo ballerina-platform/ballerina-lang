@@ -194,18 +194,6 @@ public class NeverTypeTest {
                 "or equivalent to type 'never'", 229, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                 "or equivalent to type 'never'", 230, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 234, 11);
-        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 242, 21);
-        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 243, 16);
-        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 247, 17);
-        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 247, 30);
-        BAssertUtil.validateError(negativeCompileResult, i++, "expression of type 'never' or equivalent to " +
-                "type 'never' not allowed here", 255, 12);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -229,7 +217,8 @@ public class NeverTypeTest {
                 "testNeverWithTrapExpr2",
                 "testValidNeverReturnFuncAssignment",
                 "testValidNeverReturnFuncAssignment2",
-                "testNeverWithAnydata"
+                "testNeverWithAnydata",
+                "testNeverInSubsequentInvocations"
         };
     }
 
@@ -338,8 +327,24 @@ public class NeverTypeTest {
     public void testNeverTypeCodeAnalysisNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/never/never_code_analysis_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to type " +
-                        "'never' should panic", 17, 1);
+        BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to " +
+                "type 'never' cannot implicitly return 'nil' by falling off the end of the function body", 17, 1);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 22, 11);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 30, 14);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 30, 20);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 31, 14);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 31, 25);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 35, 17);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 35, 30);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 43, 12);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

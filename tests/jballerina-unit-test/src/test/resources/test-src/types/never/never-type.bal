@@ -124,7 +124,7 @@ function testNeverAsMappingTypeParam() {
 }
 
 function testNeverWithCallStmt() {
-    _ = foo();
+    foo();
 }
 
 function testNeverWithStartAction1() {
@@ -159,7 +159,7 @@ function testNeverWithTrapExpr2() {
 
 function testNeverWithMethodCallExpr() {
     Bar bar = new (12);
-    _ = bar.barFunc();
+    bar.barFunc();
 }
 
 function foo() returns never {
@@ -233,7 +233,7 @@ function testNeverWithForeach1() {
     map<never> x = {};
     any y = "ABC";
     foreach never a in x {
-        y = a;
+        y = "DEF";
     }
     assertEquality("ABC", y);
 }
@@ -242,7 +242,7 @@ function testNeverWithForeach2() {
     map<never> x = {};
     any y = "ABC";
     foreach var a in x {
-        y = a;
+        y = "DEF";
     }
     assertEquality("ABC", y);
 }
@@ -254,7 +254,7 @@ function testNeverWithForeach3() {
     Foo x = {};
     any y = "ABC";
     foreach never a in x {
-        y = a;
+        y = "DEF";
     }
     assertEquality("ABC", y);
 }
@@ -263,7 +263,7 @@ function testNeverWithForeach4() {
     Foo x = {};
     any y = "ABC";
     foreach var a in x {
-        y = a;
+        y = "DEF";
     }
     assertEquality("ABC", y);
 }
@@ -272,7 +272,7 @@ function testNeverWithForeach5() {
     never[] x = [];
     any y = "ABC";
     foreach never a in x {
-        y = a;
+        y = "DEF";
     }
     assertEquality("ABC", y);
 }
@@ -281,7 +281,7 @@ function testNeverWithForeach6() {
     xml<never> x = xml ``;
     any y = "ABC";
     foreach never a in x {
-        y = a;
+        y = "DEF";
     }
     assertEquality("ABC", y);
 }
@@ -290,7 +290,7 @@ function testNeverWithForeach7() {
     xml<never> x = <xml<never>> xml:createText("");
     any y = "ABC";
     foreach var a in x {
-        y = a;
+        y = "DEF";
     }
     assertEquality("ABC", y);
 }
@@ -307,7 +307,7 @@ function testNeverWithForeach8() {
 
 function testNeverWithFromClauseInQueryExpr1() {
     map<never> x = {};
-    var y = from never a in x select a;
+    var y = from never a in x select 1;
     assertEquality(0, y.length());
 }
 
@@ -319,17 +319,17 @@ function testNeverWithFromClauseInQueryExpr2() {
 
 function testNeverWithFromClauseInQueryExpr3() {
     never[] x = [];
-    never[] y = from never a in x select a;
+    int[] y = from never a in x select 1;
     assertEquality(0, y.length());
 }
 
 function testNeverWithFromClauseInQueryExpr4() {
     never[] x = [];
     never[] y = [];
-    never[] z = from var a in x
+    int[] z = from var a in x
                 join never b in y
-                on a equals b
-                select a;
+                on 1 equals 1
+                select 1;
     assertEquality(0, z.length());
 }
 
@@ -408,8 +408,11 @@ function blowUp3() returns int|never {
 
 function testValidNeverReturnFuncAssignment() {
     function () returns record {| never val; |} rec = foo;
-    never|error err = trap rec().val;
-    assertEquality("Bad Sad!!", err.message());
+    any|error err = trap rec();
+    assertEquality(true, err is error);
+    if err is error {
+       assertEquality("Bad Sad!!", err.message());
+    }
 }
 
 function testValidNeverReturnFuncAssignment2() {
@@ -451,6 +454,22 @@ function baz1() returns map<never> {
 
 function baz2() returns never[] {
     return [];
+}
+
+function testNeverInSubsequentInvocations() {
+    int|error i = trap num();
+    assertEquality(true, i is error);
+    if i is error {
+        assertEquality("unreachable code!!", i.message());
+    }
+}
+
+function num() returns int {
+    unreached();
+}
+
+function unreached() returns never {
+    panic error("unreachable code!!");
 }
 
 type AssertionError distinct error;
