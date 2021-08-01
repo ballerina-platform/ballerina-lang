@@ -250,12 +250,12 @@ public class InitMethodGen {
             lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
                                                        new Name(initFuncName), Collections.emptyList(), null, nextBB,
                                                        Collections.emptyList(),
-                                                       Collections.emptySet(), null);
+                                                       Collections.emptySet());
             return nextBB;
         }
         lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId, new Name(initFuncName),
                                                    Collections.emptyList(), retVar, nextBB, Collections.emptyList(),
-                                                   Collections.emptySet(), null);
+                                                   Collections.emptySet());
 
         BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
                                                                            retVar);
@@ -264,10 +264,10 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
         BIRNode.BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
         retBB.terminator = new BIRTerminator.Return(null);
-        trueBB.terminator = new BIRTerminator.GOTO(null, retBB, null);
+        trueBB.terminator = new BIRTerminator.GOTO(null, retBB);
 
         BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
-        nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB, null);
+        nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
         return falseBB;
     }
 

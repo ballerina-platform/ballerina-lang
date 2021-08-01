@@ -405,7 +405,7 @@ public class InteropMethodGen {
         BIROperand jRetVarRef = null;
 
         BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
-        thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB, null);
+        thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
         if (retType.tag != TypeTags.NIL) {
             BIROperand retRef = new BIROperand(birFunc.localVars.get(0));
