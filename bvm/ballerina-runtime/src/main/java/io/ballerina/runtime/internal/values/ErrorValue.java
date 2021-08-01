@@ -75,7 +75,6 @@ public class ErrorValue extends BError implements RefValue {
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
-    private static final String ERROR_CAUSE_PREFIX = "cause: ";
 
     public ErrorValue(BString message) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
@@ -309,7 +308,9 @@ public class ErrorValue extends BError implements RefValue {
 
     public void addErrorCauseWithLocation(StringBuilder sb, BError cause) {
         if (cause != null) {
-            sb.append("\n" + ERROR_CAUSE_PREFIX + cause.getMessage() + "\n\tat ");
+            sb.append("\ncause: ")
+                    .append(cause.getMessage())
+                    .append("\n\tat ");
             printStackElement(sb, cause.getStackTrace()[0], "");
             addErrorCauseWithLocation(sb, cause.getCause());
         }
