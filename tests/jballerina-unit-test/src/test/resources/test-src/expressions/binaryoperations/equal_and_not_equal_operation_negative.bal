@@ -180,4 +180,6 @@ function testEqualityWithNonAnydataType() returns boolean {
 
     MyObject obj = object {int i = 10;};
     'equals = obj == () && !(obj != ());
+    MyObject obj2 = object {int i = 10;};
+    'equals = obj == obj2 && !(obj != obj2);
 }

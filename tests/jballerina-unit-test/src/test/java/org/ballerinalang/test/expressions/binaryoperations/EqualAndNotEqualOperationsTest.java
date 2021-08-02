@@ -922,6 +922,10 @@ public class EqualAndNotEqualOperationsTest {
                 15);
         validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and '()'", 182,
                 30);
+        validateError(resultNegative, i++, "operator '==' not defined for 'MyObject' and 'MyObject'", 184,
+                15);
+        validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and 'MyObject'", 184,
+                32);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
