@@ -613,7 +613,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.unlockVars.push(new BIRLockDetailsHolder());
         BIRFunction birFunc;
 
-        if (isTypeAttachedFunction) { // TODO: refactor birFunc is similar
+        if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
             birFunc = new BIRFunction(astFunc.pos, funcName,
                                       names.fromString(astFunc.symbol.getOriginalName().value),

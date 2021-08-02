@@ -436,7 +436,6 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isObjectConstructorExpr(BLangNode node) {
-        // TODO: check if we can avoid instanceof check
         return node instanceof BLangClassDefinition && ((BLangClassDefinition) node).flagSet.contains(Flag.OBJECT_CTOR);
     }
 

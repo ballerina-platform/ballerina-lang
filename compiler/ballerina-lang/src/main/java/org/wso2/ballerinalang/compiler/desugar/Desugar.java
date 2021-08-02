@@ -994,8 +994,10 @@ public class Desugar extends BLangNodeVisitor {
     private void desugarClassDefinitions(List<TopLevelNode> topLevelNodes) {
         for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
             TopLevelNode topLevelNode = topLevelNodes.get(i);
-//            if (topLevelNode.getKind() == NodeKind.CLASS_DEFN &&
-//                            !((BLangClassDefinition) topLevelNode).isObjectContructorDecl) {
+            if (topLevelNode.getKind() == NodeKind.CLASS_DEFN &&
+                            ((BLangClassDefinition) topLevelNode).isObjectContructorDecl) {
+                continue;
+            }
             if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
                 ((BLangClassDefinition) topLevelNode).accept(this);
             }
@@ -9848,10 +9850,10 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangFunction createInitFunctionForClassDefn(BLangClassDefinition classDefinition, SymbolEnv env) {
         BType returnType = symTable.nilType;
-        BLangFunction userDefinedInitMethod = classDefinition.initFunction;
 
-        if (userDefinedInitMethod != null) {
-            returnType = userDefinedInitMethod.getBType().getReturnType();
+        // if available get return type of user defined init method
+        if (classDefinition.initFunction != null) {
+            returnType = classDefinition.initFunction.getBType().getReturnType();
         }
 
         BLangFunction initFunction =
