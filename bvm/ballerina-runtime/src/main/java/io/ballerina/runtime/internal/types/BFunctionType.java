@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 
@@ -37,6 +38,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     public Type restType;
     public Type retType;
     public long flags;
+    public Parameter[] parameters;
 
     public BFunctionType() {
         super("function ()", null, Object.class);
@@ -60,6 +62,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         this.flags = flags;
     }
 
+    @Deprecated
     public Type[] getParameterTypes() {
         return paramTypes;
     }
@@ -177,12 +180,13 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return true;
     }
 
-    public Type[] getParamTypes() {
-        return paramTypes;
-    }
-
     public Type getRestType() {
         return restType;
+    }
+
+    @Override
+    public Parameter[] getParameters() {
+        return parameters;
     }
 
     public Type getReturnType() {

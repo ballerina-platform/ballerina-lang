@@ -17,8 +17,8 @@
  */
 package io.ballerina.runtime.internal.types;
 
-import io.ballerina.runtime.api.Parameter;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 
@@ -33,16 +33,14 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     public final String accessor;
     public final String[] resourcePath;
-    public final Parameter[] parameters;
 
     public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, String accessor,
                                String[] resourcePath, Parameter[] parameters) {
-        super(funcName, parent, type, flags);
+        super(funcName, parent, type, flags, parameters);
         this.type = type;
         this.flags = flags;
         this.accessor = accessor;
         this.resourcePath = resourcePath;
-        this.parameters = parameters;
     }
 
     @Override
@@ -96,8 +94,4 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
         return paramDefaults;
     }
 
-    @Override
-    public Parameter[] getParameters() {
-        return parameters;
-    }
 }

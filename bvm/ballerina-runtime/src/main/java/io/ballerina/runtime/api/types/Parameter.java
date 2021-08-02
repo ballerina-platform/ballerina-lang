@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.api.types;
 
 /**
  * {@code {@link Parameter } represents the parameter of a function in ballerina.

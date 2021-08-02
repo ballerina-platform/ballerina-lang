@@ -24,7 +24,7 @@ package io.ballerina.runtime.api.types;
  */
 public interface FunctionType extends AnnotatableType {
 
-
+    @Deprecated
     Type[] getParameterTypes();
 
     Type getReturnType();
@@ -34,4 +34,6 @@ public interface FunctionType extends AnnotatableType {
     Type getReturnParameterType();
 
     Type getRestType();
+
+    Parameter[] getParameters();
 }
