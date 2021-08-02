@@ -2734,6 +2734,18 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse simple type descriptor in terminal expression.
+     *
+     * @return Parsed node
+     */
+    private STNode parseSimpleTypeInTerminalExpr() {
+        startContext(ParserRuleContext.TYPE_DESC_IN_EXPRESSION);
+        STNode simpleTypeDescriptor = parseSimpleTypeDescriptor();
+        endContext();
+        return simpleTypeDescriptor;
+    }
+
+    /**
      * Parse simple type descriptor.
      *
      * @return Parsed node
@@ -4904,17 +4916,13 @@ public class BallerinaParser extends AbstractParser {
             case OBJECT_KEYWORD:
                 return parseObjectConstructorExpression(annots, qualifiers);
             case XML_KEYWORD:
-                STToken nextNextToken = getNextNextToken();
-                if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
-                    return parseXMLTemplateExpression();
-                }
-                return parseSimpleTypeDescriptor();
+                return parseXMLTemplateExpression();
             case STRING_KEYWORD:
-                nextNextToken = getNextNextToken();
+                STToken nextNextToken = getNextNextToken();
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseStringTemplateExpression();
                 }
-                return parseSimpleTypeDescriptor();
+                return parseSimpleTypeInTerminalExpr();
             case FUNCTION_KEYWORD:
                 return parseExplicitFunctionExpression(annots, qualifiers, isRhsExpr);
             case NEW_KEYWORD:
@@ -4938,7 +4946,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
             default:
                 if (isSimpleTypeInExpression(nextToken.kind)) {
-                    return parseSimpleTypeDescriptor();
+                    return parseSimpleTypeInTerminalExpr();
                 }
 
                 recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION);
@@ -10435,8 +10443,21 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseXMLTemplateExpression() {
         STNode xmlKeyword = parseXMLKeyword();
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
-        STNode content = parseTemplateContentAsXML();
-        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+
+        STNode content;
+        STNode endingBackTick;
+        if (startingBackTick.isMissing()) {
+            startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);;
+            content = STNodeFactory.createEmptyNodeList();
+            STNode templateExpr = STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION,
+                    xmlKeyword, startingBackTick, content, endingBackTick);
+            templateExpr = SyntaxErrors.addDiagnostic(templateExpr, DiagnosticErrorCode.ERROR_MISSING_BACKTICK_STRING);
+            return templateExpr;
+        }
+
+        content = parseTemplateContentAsXML();
+        endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION, xmlKeyword,
                 startingBackTick, content, endingBackTick);
     }

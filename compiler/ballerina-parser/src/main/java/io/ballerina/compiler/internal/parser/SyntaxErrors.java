@@ -161,8 +161,6 @@ public class SyntaxErrors {
             case ENUM_MEMBER_NAME:
             case TYPED_BINDING_PATTERN_TYPE_RHS:
             case ASSIGNMENT_STMT:
-            case EXPRESSION:
-            case TERMINAL_EXPRESSION:
             case XML_NAME:
             case ACCESS_EXPRESSION:
             case BINDING_PATTERN_STARTING_IDENTIFIER:
@@ -177,6 +175,9 @@ public class SyntaxErrors {
             case MODULE_VAR_THIRD_QUAL:
             case OBJECT_MEMBER_VISIBILITY_QUAL:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
+            case EXPRESSION:
+            case TERMINAL_EXPRESSION:
+                return DiagnosticErrorCode.ERROR_MISSING_EXPRESSION;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
             case MINOR_VERSION:

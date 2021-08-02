@@ -274,7 +274,7 @@
                                               "isMissing": true,
                                               "hasDiagnostics": true,
                                               "diagnostics": [
-                                                "ERROR_MISSING_IDENTIFIER"
+                                                "ERROR_MISSING_EXPRESSION"
                                               ]
                                             }
                                           ]
@@ -461,7 +461,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_MISSING_IDENTIFIER"
+                                        "ERROR_MISSING_EXPRESSION"
                                       ]
                                     }
                                   ]
@@ -608,7 +608,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_MISSING_IDENTIFIER"
+                                        "ERROR_MISSING_EXPRESSION"
                                       ]
                                     }
                                   ]
@@ -1564,7 +1564,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
+                                            "ERROR_MISSING_EXPRESSION"
                                           ]
                                         }
                                       ]
