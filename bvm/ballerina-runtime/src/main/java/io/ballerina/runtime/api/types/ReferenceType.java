@@ -19,7 +19,7 @@ package io.ballerina.runtime.api.types;
 
 /**
  * {@code ReferenceType} represents a reference type in Ballerina runtime.
- * These includes structs, connectors, array types, xml, json etc.
+ * These include map, record, array, tuple, xml, json, etc. types.
  *
  * @since 2.0.0
  */

@@ -71,7 +71,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 public class Utils {
 
     private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
-            new BIntersectionType(null, new Type[]{ TYPE_READONLY_ANYDATA},
+            new BIntersectionType(null, new Type[]{TYPE_READONLY_ANYDATA},
                                   (IntersectableReferenceType) TYPE_READONLY_ANYDATA, 0, true);
 
     private Utils() {

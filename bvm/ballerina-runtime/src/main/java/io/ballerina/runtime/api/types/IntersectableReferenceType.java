@@ -20,8 +20,8 @@ package io.ballerina.runtime.api.types;
 import java.util.Optional;
 
 /**
- * {@code IntersectableReferenceType} represents runtime intersection types, that result in the creation of effective
- * types.
+ * {@code IntersectableReferenceType} represents runtime reference types that can be used in intersection types,
+ * that result in the creation of effective types.
  *
  * @since 2.0.0
  */
