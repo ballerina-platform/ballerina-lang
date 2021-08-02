@@ -3514,6 +3514,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             boolean isObjectType = symbol.kind == SymbolKind.OBJECT;
 
+            if (!isObjectType &&
+                    // If it is a final var that is of a type that is a subtype of `readonly|isolated object {}`
+                    // don't infer isolated for it, since it can directly be accessed without a lock statement.
+                    isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                          symbol, new HashSet<>())) {
+                continue;
+            }
+
             if (inferVariableOrClassIsolation(publiclyExposedObjectTypes, classDefinitions, symbol,
                                               (VariableIsolationInferenceInfo) value, isObjectType, new HashSet<>())) {
                 symbol.flags |= Flags.ISOLATED;
