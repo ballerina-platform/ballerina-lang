@@ -643,7 +643,8 @@ public class TypeChecker {
             case TypeTags.ANYDATA_TAG:
                 return sourceType.isAnydata();
             case TypeTags.SERVICE_TAG:
-                return checkIsServiceType(sourceType);
+                return checkIsServiceType(sourceType, targetType,
+                        unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
             case TypeTags.HANDLE_TAG:
                 return sourceTypeTag == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
@@ -1792,9 +1793,9 @@ public class TypeChecker {
                 .isFlagOn(target.getFlags(), SymbolFlags.TRANSACTIONAL);
     }
 
-    private static boolean checkIsServiceType(Type sourceType) {
+    private static boolean checkIsServiceType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() == TypeTags.SERVICE_TAG) {
-            return true;
+            return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
         }
 
         if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
