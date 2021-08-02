@@ -1387,6 +1387,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetExpression letExpression) {
         SymbolEnv prevEnv = this.env;
+        letExpression.env.enclInvokable = this.env.enclInvokable;
         this.env = letExpression.env;
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
