@@ -28,7 +28,6 @@ import io.ballerina.runtime.api.values.BString;
 public class CharIterator implements IteratorValue {
 
     BString value;
-    boolean isNonBmp;
     long cursor = 0;
     long length;
     String stringValue;
@@ -36,22 +35,19 @@ public class CharIterator implements IteratorValue {
     CharIterator(BString value) {
         this.value = value;
         this.length = value.length();
-        this.isNonBmp = value instanceof NonBmpStringValue;
         this.stringValue = value.getValue();
     }
 
     @Override
     public Object next() {
-        long cursor = this.cursor++;
-        if (cursor == length) {
-            return null;
-        }
-        if (isNonBmp) {
-            int offset = (int) cursor;
+        long currentIndex = this.cursor++;
+        // For non-bmp strings, we should consider the surrogate pairs to return non-bmp unicode characters
+        if (((StringValue) value).nonBmpFlag == 1) {
+            int offset = (int) currentIndex;
             for (int surrogate : ((NonBmpStringValue) value).getSurrogates()) {
-                if (surrogate < cursor) {
+                if (surrogate < currentIndex) {
                     offset++;
-                } else if (surrogate > cursor) {
+                } else if (surrogate > currentIndex) {
                     break;
                 } else {
                     return new String(new char[]{stringValue.charAt(offset), stringValue.charAt(offset + 1)});
@@ -59,7 +55,7 @@ public class CharIterator implements IteratorValue {
             }
             return String.valueOf(stringValue.charAt(offset));
         }
-        return String.valueOf(stringValue.charAt((int) cursor));
+        return String.valueOf(stringValue.charAt((int) currentIndex));
     }
 
     @Override

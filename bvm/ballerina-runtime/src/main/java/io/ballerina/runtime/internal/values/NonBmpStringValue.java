@@ -18,31 +18,23 @@
  package io.ballerina.runtime.internal.values;
 
  import io.ballerina.runtime.api.utils.StringUtils;
- import io.ballerina.runtime.api.values.BLink;
- import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BString;
 
- import java.util.Arrays;
+import java.util.Arrays;
 
  /**
   * Represent ballerina strings containing at least one non basic multilingual plane unicode character.
   *
   * @since 1.0.5
   */
- public class NonBmpStringValue implements StringValue {
+ public class NonBmpStringValue extends StringValue {
 
-     private final String value;
      private final int[] surrogates;
 
-
      public NonBmpStringValue(String value, int[] surrogatePairLocations) {
-         this.value = value;
+         super(value, 1);
          surrogates = surrogatePairLocations;
      }
-
-    @Override
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public int getCodePoint(int index) {
@@ -70,7 +62,8 @@
 
     @Override
     public BString concat(BString str) {
-        if (str instanceof NonBmpStringValue) {
+        StringValue stringValue = (StringValue) str;
+        if (stringValue.nonBmpFlag == 1) {
             NonBmpStringValue other = (NonBmpStringValue) str;
             int[] both = Arrays.copyOf(surrogates, surrogates.length + other.surrogates.length);
             int length = length();
@@ -78,52 +71,12 @@
                 both[i + surrogates.length] = other.surrogates[i] + length;
             }
             return new NonBmpStringValue(this.value + other.value, both);
-        } else if (str instanceof BmpStringValue) {
-            BmpStringValue other = (BmpStringValue) str;
-            return new NonBmpStringValue(this.value + other.getValue(), surrogates);
-        } else {
-            throw new RuntimeException("not impl yet");
         }
+        return new NonBmpStringValue(this.value + str.getValue(), surrogates);
     }
-
-     @Override
-     public String stringValue(BLink parent) {
-         return value;
-     }
-
-     @Override
-     public String informalStringValue(BLink parent) {
-         return "\"" + toString() + "\"";
-     }
-
-     @Override
-     public String expressionStringValue(BLink parent) {
-         return informalStringValue(parent);
-     }
 
      public int[] getSurrogates() {
          return surrogates.clone();
-     }
-
-     @Override
-     public String toString() {
-         return value;
-     }
-
-     @Override
-     public boolean equals(Object str) {
-         if (str == this) {
-             return true;
-         }
-         if (str instanceof BString) {
-             return ((BString) str).getValue().equals(value);
-         }
-         return false;
-     }
-
-     @Override
-     public int hashCode() {
-         return value.hashCode();
      }
 
      @Override
