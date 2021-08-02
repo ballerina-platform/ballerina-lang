@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
+import java.util.LinkedHashMap;
+
 /**
  * {@code AnnotatableType} represents a type description which contains annotations.
  *
@@ -39,6 +41,10 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
 
     public void setAnnotations(BMap<BString, Object> annotations) {
         this.annotations = annotations;
+    }
+
+    public BMap<BString, Object> getAnnotations() {
+        return (BMap<BString, Object>) this.annotations.copy(new LinkedHashMap<>());
     }
 
     public Object getAnnotation(BString key) {
