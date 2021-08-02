@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Type;
@@ -39,6 +38,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.StringValue;
@@ -235,8 +235,8 @@ public class DebuggerRuntime {
                     + typedescValue.toString() + "'."));
         }
         Type type = ((TypedescValue) typedescValue).getDescribingType();
-        if (type instanceof AnnotatableType) {
-            return ((AnnotatableType) type).getAnnotations().entrySet()
+        if (type instanceof BAnnotatableType) {
+            return ((BAnnotatableType) type).getAnnotations().entrySet()
                     .stream()
                     .filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName))
                     .findFirst()
