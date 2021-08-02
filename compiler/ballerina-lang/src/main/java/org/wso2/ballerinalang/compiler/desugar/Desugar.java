@@ -1226,7 +1226,7 @@ public class Desugar extends BLangNodeVisitor {
         boolean hasTypeParam = errorType.getDetailsTypeNode() != null;
         // Error without type param is either a user-defined-type or a default error, they don't need a type-def.
         // We need to create type-defs for local anonymous types with type param.
-        if ( errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
+        if (errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(errorType);
             TypeDefBuilderHelper.addTypeDefinition(errorType.getBType(), errorType.getBType().tsymbol, errorType, env);
             errorType.desugared = true;
