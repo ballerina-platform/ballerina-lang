@@ -88,5 +88,4 @@ public class JlineSimpleCompleter implements Completer {
     private boolean hasPropertyPrefix(ParsedLine line, String propertyName) {
         return line.line().trim().startsWith(PropertiesLoader.getProperty(propertyName));
     }
-
 }

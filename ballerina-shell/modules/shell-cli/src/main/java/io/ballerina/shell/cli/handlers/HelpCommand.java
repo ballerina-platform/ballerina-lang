@@ -42,7 +42,7 @@ public class HelpCommand extends AbstractCommand {
     private static final String DESCRIPTION_PREFIX = NEW_LINE + "Topic description :";
     private static final String URL_PREFIX = NEW_LINE + "For examples visit : ";
 
-    BbeHelpProvider bbeHelpProvider;
+    private final BbeHelpProvider bbeHelpProvider;
 
     public HelpCommand(BallerinaShell ballerinaShell) {
         super(ballerinaShell);
@@ -55,7 +55,6 @@ public class HelpCommand extends AbstractCommand {
             String helpFile = PropertiesLoader.getProperty(HELP_FILE);
             String helpContent = FileUtils.readResource(helpFile);
             ballerinaShell.outputInfo(helpContent);
-
         } else {
             String topic = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
             try {
@@ -64,7 +63,7 @@ public class HelpCommand extends AbstractCommand {
                 ballerinaShell.outputInfo(URL_PREFIX + URL + topic.replaceAll(" ", "-"));
 
             } catch (HelpProviderException e) {
-                ballerinaShell.outputError(NEW_LINE + "Can not find topic " + topic  + NEW_LINE + NEW_LINE +
+                ballerinaShell.outputError(NEW_LINE + "Can not find topic : " + topic  + NEW_LINE + NEW_LINE +
                         "For available topics please visit " + URL);
             }
         }
