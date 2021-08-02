@@ -134,17 +134,14 @@ public class BallerinaSymbol implements Symbol {
     @Override
     public boolean nameEquals(String name) {
         Optional<String> symbolName = this.getName();
-        String symbolOriginalName = this.name;
-
         if (symbolName.isEmpty() || name == null) {
             return false;
         }
-
-        if (name.equals(symbolName.get())) {
+        String symName = symbolName.get();
+        if (name.equals(symName)) {
             return true;
         }
-
-        return name.equals(symbolOriginalName);
+        return unescapedUnicode(name).equals(unescapedUnicode(symName));
     }
 
     @Override
@@ -193,6 +190,13 @@ public class BallerinaSymbol implements Symbol {
         }
 
         return loc1.get().lineRange().equals(loc2.get().lineRange());
+    }
+
+    private String unescapedUnicode(String value) {
+        if (value.startsWith("'")) {
+            return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
+        }
+        return IdentifierUtils.unescapeUnicodeCodepoints(value);
     }
 
     public boolean isReservedKeyword(String value) {
