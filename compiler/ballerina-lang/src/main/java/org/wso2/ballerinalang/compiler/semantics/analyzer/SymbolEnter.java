@@ -1655,9 +1655,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             effectiveType.typeIdSet = BTypeIdSet.from(env.enclPkg.packageID, name, true, typeIdSet);
         } else {
             for (BLangType constituentType : typeNode.constituentTypeNodes) {
-                if (constituentType.getBType().getKind() != TypeKind.ERROR) {
-                    continue;
-                }
                 if (constituentType.flagSet.contains(Flag.DISTINCT)) {
                     typeIdSet.add(BTypeIdSet.from(env.enclPkg.packageID,
                                     anonymousModelHelper.getNextAnonymousTypeId(env.enclPkg.packageID), true));
@@ -1671,10 +1668,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                           SymbolEnv env) {
 
         BSymbol bSymbol = lookupTypeSymbol(env, typeDefinition.name);
-        if (bSymbol == symTable.notFoundSymbol || bSymbol.kind != SymbolKind.ERROR) {
-            return;
-        }
-
         BErrorType alreadyDefinedErrorType = (BErrorType) bSymbol.type;
 
         boolean distinctFlagPresent = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
@@ -1874,15 +1867,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             return true;
         }
 
-        if (typeDefinition.typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE
-                && lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
-            BLangIntersectionTypeNode typeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
-            for (BLangType constituentTypeNode : typeNode.constituentTypeNodes) {
-                if (constituentTypeNode.flagSet.contains(Flag.DISTINCT)) {
-                    return true;
-                }
-            }
-        }
         return false;
     }
 

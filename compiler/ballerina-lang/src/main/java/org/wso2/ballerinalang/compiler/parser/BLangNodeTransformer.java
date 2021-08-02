@@ -1027,11 +1027,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             parent = parent.parent();
         }
 
-        errorType.isAnonymous = checkIfAnonymous(parameterizedTypeDescNode);
+        errorType.isAnonymous = this.isInLocalContext || checkIfAnonymous(parameterizedTypeDescNode);
         errorType.isLocal = this.isInLocalContext;
 
         if (parent.kind() != SyntaxKind.TYPE_DEFINITION
-                && (isDistinctError || (!errorType.isLocal && typeParam.isPresent()))) {
+                && (!errorType.isLocal && (isDistinctError || typeParam.isPresent()))) {
             if (isDistinctError) {
                 errorType.flagSet.add(Flag.DISTINCT);
             }
