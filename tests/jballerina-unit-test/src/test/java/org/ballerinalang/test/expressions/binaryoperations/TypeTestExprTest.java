@@ -391,6 +391,11 @@ public class TypeTestExprTest {
         BRunUtil.invoke(result, "testObjectIsCheckWithCycles");
     }
 
+    @Test(description = "Test is-expr with service type objects")
+    public void testServiceObjects() {
+        BRunUtil.invoke(result, "testServiceObjects");
+    }
+
     @Test
     public void testSimpleArrays() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleArrays");
