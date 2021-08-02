@@ -37,10 +37,12 @@ import io.ballerina.runtime.internal.types.BTypeIdSet;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
@@ -302,17 +304,21 @@ public class ErrorValue extends BError implements RefValue {
         for (int i = 1; i < stackTrace.length; i++) {
             printStackElement(sb, stackTrace[i], "\n\t   ");
         }
-        addErrorCauseWithLocation(sb, this.cause);
+        addErrorCauseWithLocation(sb, this.cause, stackTrace.length);
         return sb.toString();
     }
 
-    public void addErrorCauseWithLocation(StringBuilder sb, BError cause) {
+    public void addErrorCauseWithLocation(StringBuilder sb, BError cause, int offset) {
         if (cause != null) {
+            StackTraceElement[] stackTrace = cause.getStackTrace();
             sb.append("\ncause: ")
                     .append(cause.getMessage())
                     .append("\n\tat ");
-            printStackElement(sb, cause.getStackTrace()[0], "");
-            addErrorCauseWithLocation(sb, cause.getCause());
+            printStackElement(sb, stackTrace[0], "");
+            for (int i = 1; i < stackTrace.length - offset; i++) {
+                printStackElement(sb, stackTrace[i], "\n\t   ");
+            }
+            addErrorCauseWithLocation(sb, cause.getCause(), stackTrace.length);
         }
     }
 
