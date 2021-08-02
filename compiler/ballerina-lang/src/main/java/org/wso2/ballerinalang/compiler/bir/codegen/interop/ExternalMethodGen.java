@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -63,21 +64,16 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class ExternalMethodGen {
 
-    public static void genJMethodForBExternalFunc(BIRFunction birFunc,
-                                                  ClassWriter cw,
-                                                  BIRPackage birModule,
-                                                  BType attachedType,
-                                                  MethodGen methodGen,
-                                                  JvmPackageGen jvmPackageGen,
-                                                  JvmTypeGen jvmTypeGen,
-                                                  JvmCastGen jvmCastGen,
+    public static void genJMethodForBExternalFunc(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule,
+                                                  BType attachedType, MethodGen methodGen, JvmPackageGen jvmPackageGen,
+                                                  JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                                   JvmBStringConstantsGen stringConstantsGen,
-                                                  String moduleClassName,
-                                                  AsyncDataCollector lambdaGenMetadata) {
+                                                  String moduleClassName, AsyncDataCollector lambdaGenMetadata,
+                                                  CompilerContext compilerContext) {
         if (birFunc instanceof JFieldBIRFunction) {
             genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
                                      jvmPackageGen, jvmTypeGen, jvmCastGen, stringConstantsGen,
-                                     moduleClassName, lambdaGenMetadata);
+                                     moduleClassName, lambdaGenMetadata, compilerContext);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, stringConstantsGen,
                                          moduleClassName, attachedType, lambdaGenMetadata);

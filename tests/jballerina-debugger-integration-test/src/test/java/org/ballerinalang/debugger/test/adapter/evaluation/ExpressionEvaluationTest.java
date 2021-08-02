@@ -86,7 +86,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void xmlTemplateEvaluationTest() throws BallerinaTestException {
         // XML element
-        debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>`", "<book>The Lost World</book>",
+        debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>`", "XMLElement",
                 "xml");
         // XML text
         debugTestRunner.assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
@@ -121,8 +121,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // string variable test
         debugTestRunner.assertExpression(context, STRING_VAR, "\"foo\"", "string");
         // xml variable test
-        debugTestRunner.assertExpression(context, XML_VAR, "<person " +
-                "gender=\"male\"><firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR, "XMLElement", "xml");
         // array variable test
         debugTestRunner.assertExpression(context, ARRAY_VAR, "any[4]", "array");
         // tuple variable test
@@ -158,7 +157,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // table variable test
         debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee> (entries = 3)", "table");
         // stream variable test
-        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
+        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error?>", "stream");
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
@@ -234,7 +233,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, JSON_VAR + "[\"color\"]", "\"red\"", "string");
         debugTestRunner.assertExpression(context, JSON_VAR + "[\"undefined\"]", "()", "nil");
         // XML
-        debugTestRunner.assertExpression(context, XML_VAR + "[0]", "<firstname>Praveen</firstname>", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + "[0]", "XMLElement", "xml");
         debugTestRunner.assertExpression(context, XML_VAR + "[0][0]", "Praveen", "xml");
         debugTestRunner.assertExpression(context, XML_VAR + "[2]", "XMLSequence (size = 0)", "xml");
     }
@@ -372,7 +371,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void errorConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\")", "Simple Error", "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", " + ERROR_VAR + ")", "Simple Error",
+                "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", count=1)", "Simple Error", "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", " + ERROR_VAR + ",count=1)", "Simple Error",
+                "error");
     }
 
     @Override
@@ -493,7 +497,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
-                "XMLSequence (size = 10)", "xml");
+                "XMLSequence (size = 2)", "xml");
 
         //////////////////////////////-------------subtraction------------------//////////////////////////////////////
         // int - int

@@ -68,4 +68,8 @@ public abstract class TomlNodeVisitor {
     public void visit(TomlBooleanValueNode tomlBooleanValueNode) {
         throw new AssertionError();
     }
+
+    public void visit(TomlInlineTableValueNode tomlInlineTableValueNode) {
+        throw new AssertionError();
+    }
 }

@@ -16,6 +16,9 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
@@ -23,12 +26,13 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,32 +56,60 @@ public class ObjectConstructorExpressionNodeContext
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ObjectConstructorExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-
+        ResolvedContext resolvedContext;
         if (this.onSuggestObjectOnly(ctx, node)) {
             completionItems.addAll(Arrays.asList(
                     new SnippetCompletionItem(ctx, Snippet.KW_OBJECT.get()),
                     new SnippetCompletionItem(ctx, Snippet.EXPR_OBJECT_CONSTRUCTOR.get())
             ));
+            resolvedContext = ResolvedContext.OTHER;
         } else if (this.onSuggestTypeReferences(ctx, node)) {
             completionItems.addAll(this.getTypeReferenceCompletions(ctx));
+            resolvedContext = ResolvedContext.TYPE_REF;
         } else {
             completionItems.addAll(this.getBodyContextItems(ctx, node));
+            resolvedContext = ResolvedContext.OBJECT_CONSTRUCTOR_BODY;
         }
-        this.sort(ctx, node, completionItems);
+        this.sort(ctx, node, completionItems, resolvedContext);
 
         return completionItems;
     }
 
+    @Override
+    public void sort(BallerinaCompletionContext context, ObjectConstructorExpressionNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        if (metaData == null || metaData.length != 1) {
+            // Added for safety. Should not come to this point
+            super.sort(context, node, completionItems, metaData);
+            return;
+        }
+        switch ((ResolvedContext) metaData[0]) {
+            case TYPE_REF:
+                for (LSCompletionItem lsCItem : completionItems) {
+                    String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+                    lsCItem.getCompletionItem().setSortText(sortText);
+                }
+                break;
+            case OBJECT_CONSTRUCTOR_BODY:
+            case OTHER:
+                super.sort(context, node, completionItems);
+        }
+    }
+
     private List<LSCompletionItem> getTypeReferenceCompletions(BallerinaCompletionContext ctx) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
+        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.CLASS
+                || (symbol.kind() == SymbolKind.TYPE_DEFINITION
+                && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol)
+                .typeDescriptor()).typeKind() == TypeDescKind.OBJECT);
+        
         if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> predicate = SymbolUtil::isObject;
             return this.getCompletionItemList(QNameReferenceUtil.getModuleContent(ctx, qNameRef, predicate), ctx);
         }
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         List<Symbol> objectEntries = visibleSymbols.stream()
-                .filter(SymbolUtil::isObject)
+                .filter(predicate)
                 .collect(Collectors.toList());
 
         List<LSCompletionItem> completionItems = this.getCompletionItemList(objectEntries, ctx);
@@ -107,5 +139,11 @@ public class ObjectConstructorExpressionNodeContext
 
         return !objectKeyword.isMissing() && cursor > objectKeyword.textRange().startOffset()
                 && (openBrace.isMissing() || cursor < openBrace.textRange().endOffset());
+    }
+    
+    private enum ResolvedContext {
+        TYPE_REF,
+        OBJECT_CONSTRUCTOR_BODY,
+        OTHER
     }
 }

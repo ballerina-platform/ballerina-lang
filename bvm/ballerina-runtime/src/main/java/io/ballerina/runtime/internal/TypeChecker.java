@@ -479,7 +479,7 @@ public class TypeChecker {
         }
 
         if (lhsValue.getNodeType() == XmlNodeType.TEXT && rhsValue.getNodeType() == XmlNodeType.TEXT) {
-            return ((XmlText) lhsValue).equals(rhsValue);
+            return isEqual(lhsValue, rhsValue);
         }
         return false;
     }
@@ -2879,7 +2879,7 @@ public class TypeChecker {
         }
         if (rhsXml instanceof XmlSequence) {
             XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
-            return rhsXMLSequence.getChildrenList().equals(lhsXMLSequence.getChildrenList());
+            return isXMLSequenceChildrenEqual(lhsXMLSequence.getChildrenList(), rhsXMLSequence.getChildrenList());
         }
         if (rhsXml instanceof XmlItem) {
             return lhsXMLSequence.getChildrenList().size() == 1 &&
@@ -2981,6 +2981,19 @@ public class TypeChecker {
                     lhsXMLPi.getTarget().equals(rhsXMLPi.getTarget());
         }
         return false;
+    }
+
+    private static boolean isXMLSequenceChildrenEqual(List<BXml> lhsList, List<BXml> rhsList) {
+        if (lhsList.size() != rhsList.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < lhsList.size(); i++) {
+            if (!isEqual(lhsList.get(i), rhsList.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

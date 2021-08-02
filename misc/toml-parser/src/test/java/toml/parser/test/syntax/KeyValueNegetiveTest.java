@@ -48,4 +48,9 @@ public class KeyValueNegetiveTest extends AbstractTomlParserTest {
     public void testMissingNewLine() {
         super.testFile("missing-new-line-negative.toml", "missing-new-line-negative.json");
     }
+
+    @Test
+    public void testInlineNegetive() {
+        super.testFile("inline-negative.toml", "inline-negative.json");
+    }
 }

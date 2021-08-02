@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'float as floats;
+import ballerina/lang.test;
 
 function testIsFinite() returns [boolean, boolean] {
     float f = 12.34;
@@ -34,4 +35,12 @@ function testSum() returns float {
 
 function testFloatConsts() returns [float,float] {
     return [floats:NaN, floats:Infinity];
+}
+
+type Floats 12f|21.0;
+
+function testLangLibCallOnFiniteType() {
+    Floats x = 21;
+    float y = x.sum(1, 2.3);
+    test:assertValueEqual(24.3, y);
 }

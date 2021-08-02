@@ -6,18 +6,10 @@
   "source": "expression_context/source/object_constructor_expr_ctx_source2.bal",
   "items": [
     {
-      "label": "constructor",
-      "kind": "Variable",
-      "detail": "isolated client object {}",
-      "sortText": "B",
-      "insertText": "constructor",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "O",
+      "sortText": "BO",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +17,7 @@
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CE",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -48,7 +40,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CE",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -71,7 +63,7 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CF",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -94,7 +86,7 @@
       "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CE",
       "insertText": "value2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -117,7 +109,7 @@
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "R",
+      "sortText": "CE",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -140,7 +132,7 @@
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -148,7 +140,7 @@
       "label": "decimal",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -156,7 +148,7 @@
       "label": "error",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -164,7 +156,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -172,7 +164,7 @@
       "label": "future",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -180,7 +172,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -188,7 +180,7 @@
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -196,7 +188,7 @@
       "label": "object",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "object",
       "insertTextFormat": "Snippet"
     },
@@ -204,7 +196,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -212,7 +204,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -220,7 +212,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -228,7 +220,7 @@
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
@@ -236,7 +228,7 @@
       "label": "typedesc",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -244,7 +236,7 @@
       "label": "xml",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "R",
+      "sortText": "G",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     }

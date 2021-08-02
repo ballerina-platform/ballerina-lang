@@ -77,6 +77,7 @@ public class EvaluationUtils {
     public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.XmlFactory";
     public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
+    public static final String B_XML_SEQUENCE_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BXmlSequence";
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
     public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
@@ -129,6 +130,7 @@ public class EvaluationUtils {
     public static final String CREATE_XML_ITEM = "createXmlItem";
     public static final String CREATE_XML_VALUE_METHOD = "createXmlValue";
     public static final String CREATE_OBJECT_VALUE_METHOD = "createObjectValue";
+    public static final String CREATE_ERROR_VALUE_METHOD = "createErrorValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";

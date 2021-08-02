@@ -1,3 +1,3 @@
 import ballerina/module1;
 
-module1:Client = 
+module1:Client testClient =  

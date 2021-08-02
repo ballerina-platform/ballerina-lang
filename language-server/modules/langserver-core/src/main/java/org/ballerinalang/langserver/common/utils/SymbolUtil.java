@@ -116,7 +116,7 @@ public class SymbolUtil {
         if (symbol.kind() == SymbolKind.CLASS) {
             return true;
         }
-        if (symbol.kind() == SymbolKind.TYPE) {
+        if (symbol.kind() == SymbolKind.TYPE_DEFINITION) {
             return CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).kind() == SymbolKind.CLASS;
         }
 
@@ -350,6 +350,17 @@ public class SymbolUtil {
      */
     public static Predicate<Symbol> isOfType(TypeDescKind typeDescKind) {
         return symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
+                && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() == typeDescKind;
+    }
+
+    /**
+     * Utility to evaluate whether the given symbol is a type definition of the provided kind.
+     *
+     * @param typeDescKind to compare the symbol
+     * @return {@link Boolean}
+     */
+    public static boolean isOfType(Symbol symbol, TypeDescKind typeDescKind) {
+        return symbol.kind() == SymbolKind.TYPE_DEFINITION
                 && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() == typeDescKind;
     }
 }
