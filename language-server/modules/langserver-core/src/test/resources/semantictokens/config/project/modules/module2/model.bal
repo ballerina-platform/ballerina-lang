@@ -47,3 +47,8 @@ public function getFields(map<json> rec) returns [string[], string[]] {
     }
     return [rec.keys(), fields];
 }
+
+type InvalidIdDetail record {|
+    error cause?;
+    string id;
+|};

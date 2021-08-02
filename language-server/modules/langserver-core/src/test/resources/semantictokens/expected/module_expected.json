@@ -684,6 +684,18 @@
     4,
     "property",
     [],
+    118,
+    8,
+    3,
+    "property",
+    [
+      "readonly"
+    ],
+    119,
+    8,
+    6,
+    "property",
+    [],
     121,
     4,
     2,
@@ -768,6 +780,18 @@
     [
       "declaration"
     ],
+    136,
+    5,
+    1,
+    "property",
+    [
+      "readonly"
+    ],
+    136,
+    16,
+    5,
+    "property",
+    [],
     138,
     4,
     1,
@@ -780,6 +804,18 @@
     [
       "declaration"
     ],
+    138,
+    11,
+    1,
+    "property",
+    [
+      "readonly"
+    ],
+    138,
+    22,
+    5,
+    "property",
+    [],
     139,
     4,
     2,
@@ -961,6 +997,13 @@
     [
       "declaration"
     ],
+    186,
+    96,
+    5,
+    "variable",
+    [
+      "declaration"
+    ],
     189,
     4,
     14,
@@ -978,6 +1021,13 @@
     14,
     "type",
     [],
+    189,
+    66,
+    2,
+    "variable",
+    [
+      "declaration"
+    ],
     192,
     4,
     4,
@@ -1005,6 +1055,13 @@
     14,
     "type",
     [],
+    192,
+    74,
+    2,
+    "variable",
+    [
+      "declaration"
+    ],
     196,
     21,
     2,
@@ -1791,14 +1848,17 @@
     319,
     5,
     8,
-    "type",
-    [],
+    "enum",
+    [
+      "declaration"
+    ],
     320,
     4,
     2,
     "enumMember",
     [
-      "declaration"
+      "declaration",
+      "readonly"
     ],
     321,
     4,
@@ -1895,13 +1955,6 @@
     15,
     "struct",
     [],
-    348,
-    4,
-    6,
-    "parameter",
-    [
-      "documentation"
-    ],
     349,
     9,
     13,
@@ -1923,6 +1976,11 @@
     48,
     11,
     "type",
+    [],
+    350,
+    4,
+    6,
+    "property",
     []
   ]
 }

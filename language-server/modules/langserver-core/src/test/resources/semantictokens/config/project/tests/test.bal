@@ -1,6 +1,5 @@
 import ballerina/test;
 import ballerina/http;
-import ballerina/time;
 import ballerina/io;
 
 @test:Config {}
@@ -32,10 +31,6 @@ function toString(any|error val) returns string => val is error ? val.toString()
 public function mockPrint(any|error... val) {
     output.push(
     toString(val.reduce(function(any|error a, any|error b) returns string => toString(a) + toString(b), "")));
-}
-
-public function mockCurrentTime() returns time:Time {
-    return checkpanic time:createTime(2020, 1, 1, 0, 0, 0, 0, "America/Panama");
 }
 
 @test:Config {}

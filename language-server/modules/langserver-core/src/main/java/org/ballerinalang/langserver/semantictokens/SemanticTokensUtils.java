@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  */
 public class SemanticTokensUtils {
 
-    SemanticTokensUtils() {
+    private SemanticTokensUtils() {
     }
 
     /**
@@ -63,7 +63,7 @@ public class SemanticTokensUtils {
     }
 
     /**
-     * Returns the list of semantic token types supported bt Ballerina LS.
+     * Returns the list of semantic token types supported by Ballerina LS.
      *
      * @return List of token types
      */
@@ -74,7 +74,7 @@ public class SemanticTokensUtils {
     }
 
     /**
-     * Returns the list of semantic token type modifiers supported bt Ballerina LS.
+     * Returns the list of semantic token type modifiers supported by Ballerina LS.
      *
      * @return List of modifiers
      */

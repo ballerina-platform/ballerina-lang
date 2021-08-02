@@ -32,4 +32,6 @@ public class SemanticTokensConstants {
     protected static final String SELF = "self";
 
     protected static final String READONLY = "readonly";
+
+    protected static final String RETURN = "return";
 }

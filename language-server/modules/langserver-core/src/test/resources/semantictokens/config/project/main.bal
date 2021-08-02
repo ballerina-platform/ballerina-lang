@@ -238,12 +238,12 @@ public function main() {
     }
 
     // 5. Different module record reference
-    mod1:Coord c = {
-        x: 1,
-        y: 2
+    mod1:Teacher teacher = {
+        name: "Alex",
+        age: 24,
+        salary: 8000.0
     };
-    int b = c.x;
-    io:println(b);
+    io:print(teacher.name);
 }
 
 readonly class MainController {

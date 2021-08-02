@@ -171,6 +171,13 @@
     10,
     "function",
     [],
+    19,
+    50,
+    3,
+    "variable",
+    [
+      "declaration"
+    ],
     24,
     6,
     4,
@@ -674,9 +681,19 @@
     "variable",
     [],
     109,
+    16,
+    5,
+    "property",
+    [],
+    109,
     23,
     1,
     "variable",
+    [],
+    109,
+    26,
+    4,
+    "property",
     [],
     109,
     32,
@@ -1239,7 +1256,8 @@
     3,
     "enumMember",
     [
-      "declaration"
+      "declaration",
+      "readonly"
     ],
     209,
     12,

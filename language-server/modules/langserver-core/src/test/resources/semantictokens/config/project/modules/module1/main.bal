@@ -33,7 +33,7 @@ class Person {
 
 # Description
 #
-# + x - Field Description //BUG*
+# + x - Field Description
 public type Coord record {
     readonly int x;
     # + y - Field Description
