@@ -215,23 +215,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
-            if (symbol.kind == SymbolKind.CONSTANT && symbol.type.tag == TypeTags.FINITE) {
-                BConstantSymbol symbolConst = (BConstantSymbol) symbol;
-                BConstantSymbol foundSymConst = (BConstantSymbol) foundSym;
-                BLangLiteral symbolTypeLiteral = (BLangLiteral) ((BFiniteType)
-                        symbolConst.type).getValueSpace().iterator().next();
-                String symbolValue = (symbolTypeLiteral.value == null) ?
-                        symbolTypeLiteral.originalValue : String.valueOf(symbolTypeLiteral.value);
-                BLangLiteral foundSymTypeLiteral = (BLangLiteral) ((BFiniteType)
-                        foundSymConst.type).getValueSpace().iterator().next();
-                String foundSymValue = (foundSymTypeLiteral.value == null) ?
-                        foundSymTypeLiteral.originalValue : String.valueOf(foundSymTypeLiteral.value);
-                int symbolLiteralType = symbolConst.literalType.tag;
-                int foundLiteralSymType = foundSymConst.literalType.tag;
-                if ((!symbolValue.equals(foundSymValue)) || (symbolLiteralType != foundLiteralSymType)) {
-                    dlog.error(pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, name, foundSymValue);
-                }
-            } else {
+            if (symbol.kind != SymbolKind.CONSTANT) {
                 dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
             }
             return false;

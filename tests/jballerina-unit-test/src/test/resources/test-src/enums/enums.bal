@@ -36,7 +36,7 @@ public enum Bands {
 
 public enum LiftStatus {
     OPEN,
-    CLOSED,
+    CLOSED = "CLO" + "SED",
     HOLD
 }
 
