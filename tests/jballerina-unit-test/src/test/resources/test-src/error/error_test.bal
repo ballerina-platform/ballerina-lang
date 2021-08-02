@@ -467,8 +467,12 @@ function testStackTraceWithErrorCauseLocation() {
 }
 
 function foo() returns error {
-    error err = error("error1", baz());
+    error err = error("error1", x());
     return err;
+}
+
+function x() returns error {
+    return baz();
 }
 
 function baz() returns error {

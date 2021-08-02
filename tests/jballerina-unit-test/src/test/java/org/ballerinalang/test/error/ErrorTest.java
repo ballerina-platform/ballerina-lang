@@ -399,13 +399,14 @@ public class ErrorTest {
 
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
-        Assert.assertEquals(message, "error: error1\n\t" +
-                "at error_test:foo(error_test.bal:470)\n\t" +
-                "   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
-                "cause: error2\n\t" +
-                "at error_test:baz(error_test.bal:475)\n" +
-                "cause: error3\n\t" +
-                "at error_test:foobar(error_test.bal:480)");
+        Assert.assertEquals(message, "error: error1\n" +
+                "\tat error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "cause: error2\n" +
+                "\tat error_test:baz(error_test.bal:479)\n" +
+                "\t   error_test:x(error_test.bal:475)\n" +
+                "cause: error3\n" +
+                "\tat error_test:foobar(error_test.bal:484)");
     }
 
     @AfterClass
