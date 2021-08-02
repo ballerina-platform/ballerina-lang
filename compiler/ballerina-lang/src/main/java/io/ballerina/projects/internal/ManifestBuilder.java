@@ -90,6 +90,7 @@ public class ManifestBuilder {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
+    private static final String SCOPE = "scope";
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
             Path projectPath) {
@@ -277,18 +278,22 @@ public class ManifestBuilder {
             return Collections.emptyList();
         }
 
-        TopLevelNode dependencyEntries = tomlTableNode.entries().get("dependency");
-        if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
+        TopLevelNode packageEntries = tomlTableNode.entries().get(PACKAGE);
+        if (packageEntries == null || packageEntries.kind() == TomlType.NONE) {
             return Collections.emptyList();
         }
 
-        if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
-            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+        if (packageEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) packageEntries;
 
             for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
                 String name = getStringValueFromDependencyNode(dependencyNode, "name");
                 String org = getStringValueFromDependencyNode(dependencyNode, "org");
                 String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
+                String scope = getStringValueFromDependencyNode(dependencyNode, SCOPE);
+                boolean transitive = getBooleanValueFromDependencyNode(dependencyNode, "transitive");
+                List<PackageManifest.TransitiveDependency> transDependencies = getTransDependenciesFromDependencyNode(
+                        dependencyNode);
 
                 // If name, org or version, one of the value is null, ignore dependency
                 if (name == null || org == null || version == null) {
@@ -306,12 +311,14 @@ public class ManifestBuilder {
                     continue;
                 }
 
-                if (dependencyNode.entries().containsKey("repository")) {
-                    String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
-                    dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
+                if (dependencyNode.entries().containsKey(REPOSITORY)) {
+                    String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
+                    dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository, scope,
+                                                                    transitive, transDependencies));
                     continue;
                 }
-                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion));
+                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, scope, transitive,
+                                                                transDependencies));
             }
         }
         return dependencies;
@@ -368,7 +375,7 @@ public class ManifestBuilder {
                                             getStringValueFromPlatformEntry(platformEntryTable, "artifactId"));
                                     platformEntryMap.put(VERSION,
                                             getStringValueFromPlatformEntry(platformEntryTable, VERSION));
-                                    platformEntryMap.put("scope",
+                                    platformEntryMap.put(SCOPE,
                                             getStringValueFromPlatformEntry(platformEntryTable, "scope"));
                                     platformEntry.add(platformEntryMap);
                                 }
@@ -495,6 +502,32 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
+    private boolean getBooleanValueFromDependencyNode(TomlTableNode pkgNode, String key) {
+        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null) {
+            return false;
+        }
+        return getBooleanFromTomlTableNode(topLevelNode);
+    }
+
+    private List<PackageManifest.TransitiveDependency> getTransDependenciesFromDependencyNode(TomlTableNode pkgNode) {
+        List<PackageManifest.TransitiveDependency> transDependencies = new ArrayList<>();
+        var topLevelNode = pkgNode.entries().get("dependencies");
+        if (topLevelNode == null) {
+            return transDependencies;
+        }
+        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode tableArrayNode = (TomlTableArrayNode) topLevelNode;
+            for (TomlTableNode transDepTableNode : tableArrayNode.children()) {
+                var org = getStringValueFromDependencyNode(transDepTableNode, "org");
+                var name = getStringValueFromDependencyNode(transDepTableNode, "name");
+                transDependencies.add(new PackageManifest.TransitiveDependency(PackageName.from(name),
+                                                                               PackageOrg.from(org)));
+            }
+        }
+        return transDependencies;
+    }
+
     private String getStringValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -513,6 +546,18 @@ public class ManifestBuilder {
             }
         }
         return null;
+    }
+
+    private boolean getBooleanFromTomlTableNode(TopLevelNode topLevelNode) {
+        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode booleanValueNode = (TomlBooleanValueNode) value;
+                return booleanValueNode.getValue();
+            }
+        }
+        return false;
     }
 
     private String convertDiagnosticToString(Diagnostic diagnostic) {

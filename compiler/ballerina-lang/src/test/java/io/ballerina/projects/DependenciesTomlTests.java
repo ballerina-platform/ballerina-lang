@@ -73,9 +73,9 @@ public class DependenciesTomlTests {
         Assert.assertEquals(diagnostics.errors().size(), 2);
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "'org' under [[dependency]] is missing");
+        Assert.assertEquals(firstDiagnostic.message(), "'org' under [[package]] is missing");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(0:0,2:17)");
-        Assert.assertEquals(iterator.next().message(), "'org' under [[dependency]] is missing");
+        Assert.assertEquals(iterator.next().message(), "'org' under [[package]] is missing");
     }
 
     /**
@@ -116,12 +116,12 @@ public class DependenciesTomlTests {
         Assert.assertEquals(diagnostics.errors().size(), 3);
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [[dependency]]: "
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [[package]]: "
                 + "'org' can only contain alphanumerics, underscores and the maximum length is 256 characters");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:6,1:13)");
-        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: 'name' can only contain "
+        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[package]]: 'name' can only contain "
                 + "alphanumerics, underscores and periods and the maximum length is 256 characters");
-        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [[dependency]]: "
+        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [[package]]: "
                 + "'version' should be compatible with semver");
     }
 
