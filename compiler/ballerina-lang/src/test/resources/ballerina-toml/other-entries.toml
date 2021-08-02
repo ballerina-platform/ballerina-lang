@@ -1,0 +1,10 @@
+firstField = "yee"
+
+[package]
+org = "foo"
+name = "winery"
+version = "1.0.0"
+newField = "fee"
+
+[userTable]
+name = "bar"

@@ -297,6 +297,20 @@ public class BallerinaTomlTests {
                             "invalid 'version' under [package]: 'version' should be compatible with semver");
     }
 
+    @Test(description = "Test other entries added by the user")
+    public void testOtherEntries() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("other-entries.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.descriptor().org().value(), "foo");
+        Assert.assertEquals(packageManifest.descriptor().name().value(), "winery");
+        Assert.assertEquals(packageManifest.descriptor().version().toString(), "1.0.0");
+
+        Assert.assertEquals(packageManifest.getValue("firstField"), "yee");
+        Assert.assertEquals(((Map<String, Object>) packageManifest.getValue("package")).get("org"), "foo");
+        Assert.assertEquals(((Map<String, Object>) packageManifest.getValue("package")).get("newField"), "fee");
+        Assert.assertEquals(((Map<String, Object>) packageManifest.getValue("userTable")).get("name"), "bar");
+    }
+
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
