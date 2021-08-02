@@ -42,6 +42,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.StringValue;
+import org.ballerinalang.langlib.internal.GetElements;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -265,6 +266,15 @@ public class DebuggerRuntime {
         } catch (Exception e) {
             return e;
         }
+    }
+
+    /**
+     * @param xmlVal
+     * @param xmlPatternChainList
+     * @return
+     */
+    public static BXml getXMLFilterResult(BXml xmlVal, BString... xmlPatternChainList) {
+        return GetElements.getElements(xmlVal, xmlPatternChainList);
     }
 
     private DebuggerRuntime() {

@@ -48,6 +48,8 @@ import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.action.RemoteMethodCallActionEvaluator;
@@ -69,7 +71,8 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeCastExpre
 import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeOfExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeTestExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.UnaryExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLTemplateEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLFilterExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLTemplateExpressionEvaluator;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -262,8 +265,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(TypeofExpressionNode typeofExpressionNode) {
         visitSyntaxNode(typeofExpressionNode);
         typeofExpressionNode.expression().accept(this);
-        Evaluator exprEvaluator = result;
-        result = new TypeOfExpressionEvaluator(context, typeofExpressionNode, exprEvaluator);
+        Evaluator subExprEvaluator = result;
+        result = new TypeOfExpressionEvaluator(context, typeofExpressionNode, subExprEvaluator);
     }
 
     @Override
@@ -313,16 +316,16 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(TypeTestExpressionNode typeTestExpressionNode) {
         visitSyntaxNode(typeTestExpressionNode);
         typeTestExpressionNode.expression().accept(this);
-        Evaluator exprEvaluator = result;
-        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode, exprEvaluator);
+        Evaluator subExprEvaluator = result;
+        result = new TypeTestExpressionEvaluator(context, typeTestExpressionNode, subExprEvaluator);
     }
 
     @Override
     public void visit(TypeCastExpressionNode typeCastExpressionNode) {
         visitSyntaxNode(typeCastExpressionNode);
         typeCastExpressionNode.expression().accept(this);
-        Evaluator exprEvaluator = result;
-        result = new TypeCastExpressionEvaluator(context, typeCastExpressionNode, exprEvaluator);
+        Evaluator subExprEvaluator = result;
+        result = new TypeCastExpressionEvaluator(context, typeCastExpressionNode, subExprEvaluator);
     }
 
     @Override
@@ -344,7 +347,7 @@ public class EvaluatorBuilder extends NodeVisitor {
             }
             result = new StringTemplateEvaluator(context, templateExpressionNode, templateMemberEvaluators);
         } else if (type == SyntaxKind.XML_KEYWORD) {
-            result = new XMLTemplateEvaluator(context, templateExpressionNode);
+            result = new XMLTemplateExpressionEvaluator(context, templateExpressionNode);
         }
     }
 
@@ -355,11 +358,24 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
+        super.visit(xMLStepExpressionNode);
+    }
+
+    @Override
+    public void visit(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        visitSyntaxNode(xMLFilterExpressionNode);
+        xMLFilterExpressionNode.expression().accept(this);
+        Evaluator subExprEvaluator = result;
+        result = new XMLFilterExpressionEvaluator(context, xMLFilterExpressionNode, subExprEvaluator);
+    }
+
+    @Override
     public void visit(TrapExpressionNode trapExpressionNode) {
         visitSyntaxNode(trapExpressionNode);
         trapExpressionNode.expression().accept(this);
-        Evaluator exprEvaluator = result;
-        result = new TrapExpressionEvaluator(context, trapExpressionNode, exprEvaluator);
+        Evaluator subExprEvaluator = result;
+        result = new TrapExpressionEvaluator(context, trapExpressionNode, subExprEvaluator);
     }
 
     @Override
@@ -645,7 +661,8 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addXmlNavigationExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.XML_FILTER_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.XML_STEP_EXPRESSION);
     }
 
     private void addRemoteMethodCallActionSyntax() {
