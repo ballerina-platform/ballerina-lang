@@ -137,7 +137,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
                     Set<Flag> calleeFlags,
                     BirScope scope) {
-            this(pos, kind,isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments, calleeFlags);
+            this(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments, calleeFlags);
             this.scope = scope;
         }
 
