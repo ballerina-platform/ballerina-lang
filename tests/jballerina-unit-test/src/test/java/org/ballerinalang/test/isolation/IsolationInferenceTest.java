@@ -32,10 +32,15 @@ import io.ballerina.runtime.internal.types.BObjectType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -120,6 +125,46 @@ public class IsolationInferenceTest {
                 "isolation_inference_with_objects_runtime_negative_1.bal",
                 "isolation_inference_with_objects_runtime_negative_2.bal"
         };
+    }
+
+    @Test
+    public void testNotSettingIsolatedFlagToFinalAndIsolatedObjectOrReadOnlyVariable() {
+        CompileResult result = BCompileUtil.compile("test-src/isolation-analysis/isolation_inference_flags.bal");
+
+        long lnFlags = 0;
+        long xFlags = 0;
+        long yFlags = 0;
+        long zFlags = 0;
+
+        for (BLangVariable variable : result.getAST().getGlobalVariables()) {
+            BVarSymbol symbol = variable.symbol;
+            String name = symbol.name.value;
+            switch (name) {
+                case "ln":
+                    lnFlags = symbol.flags;
+                    continue;
+                case "x":
+                    xFlags = symbol.flags;
+                    continue;
+                case "y":
+                    yFlags = symbol.flags;
+                    continue;
+                case "z":
+                    zFlags = symbol.flags;
+            }
+        }
+
+        Assert.assertTrue(Symbols.isFlagOn(lnFlags, Flags.FINAL));
+        Assert.assertTrue(Symbols.isFlagOn(lnFlags, Flags.LISTENER));
+        Assert.assertTrue(Symbols.isFlagOn(xFlags, Flags.FINAL));
+        Assert.assertTrue(Symbols.isFlagOn(yFlags, Flags.FINAL));
+        Assert.assertTrue(Symbols.isFlagOn(zFlags, Flags.FINAL));
+        // Variable shouldn't be inferred as isolated, since it is a final variable of an isolated object or readonly
+        // type it can be accessed outside a lock statement.
+        Assert.assertFalse(Symbols.isFlagOn(lnFlags, Flags.ISOLATED));
+        Assert.assertFalse(Symbols.isFlagOn(xFlags, Flags.ISOLATED));
+        Assert.assertFalse(Symbols.isFlagOn(yFlags, Flags.ISOLATED));
+        Assert.assertFalse(Symbols.isFlagOn(zFlags, Flags.ISOLATED));
     }
 
     @Test(dataProvider = "testIsolatedInferenceWithVariablesFiles")
