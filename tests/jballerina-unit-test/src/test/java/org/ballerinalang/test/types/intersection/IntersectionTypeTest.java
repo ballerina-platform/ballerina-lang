@@ -204,28 +204,28 @@ public class IntersectionTypeTest {
 
         int index = 0;
         validateError(result, index++,
-                "incompatible types: expected 'SingleDistinctError2', found 'SingleDistinctError'", 26, 32);
+                "incompatible types: expected 'SingleDistinctError2', found 'SingleDistinctError'", 27, 32);
         validateError(result, index++,
-                "incompatible types: expected 'DoubleDistinctError', found 'SingleDistinctError'", 27, 30);
+                "incompatible types: expected 'DoubleDistinctError', found 'SingleDistinctError'", 28, 30);
         validateError(result, index++,
-                "incompatible types: expected 'SingleDistinctError', found 'DoubleDistinctError'", 28, 10);
+                "incompatible types: expected 'SingleDistinctError', found 'DoubleDistinctError'", 29, 10);
         validateError(result, index++,
-                "incompatible types: expected 'DoubleDistinctError2', found 'DoubleDistinctError'", 29, 32);
+                "incompatible types: expected 'DoubleDistinctError2', found 'DoubleDistinctError'", 30, 32);
         validateError(result, index++,
                 "incompatible types: expected 'DistinctErrorAndSingleDistinctError', found 'SingleDistinctError'",
-                33, 11);
+                34, 11);
         validateError(result, index++,
                 "incompatible types: expected 'DistinctErrorAndSingleDistinctError2', found 'SingleDistinctError'",
-                35, 48);
+                36, 48);
         validateError(result, index++,
                 "incompatible types: expected 'DistinctErrorAndSingleDistinctError', " +
-                        "found 'DistinctErrorAndSingleDistinctError2'", 37, 11);
+                        "found 'DistinctErrorAndSingleDistinctError2'", 38, 11);
         validateError(result, index++,
                 "incompatible types: expected 'error<map<ballerina/lang.value:1.0.0:Cloneable>>', " +
-                        "found 'SingleDistinctError'", 39, 31);
+                        "found 'SingleDistinctError'", 40, 31);
         validateError(result, index++,
                 "incompatible types: expected 'SingleDistinctError', " +
-                        "found 'error<map<ballerina/lang.value:1.0.0:Cloneable>>'", 40, 10);
+                        "found 'error<map<ballerina/lang.value:1.0.0:Cloneable>>'", 41, 10);
 
         assertEquals(result.getErrorCount(), index);
     }

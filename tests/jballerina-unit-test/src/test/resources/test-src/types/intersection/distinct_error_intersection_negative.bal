@@ -20,6 +20,7 @@ type DoubleDistinctError distinct error & distinct error;
 type DoubleDistinctError2 distinct error & distinct error;
 type DistinctErrorAndSingleDistinctError distinct error & SingleDistinctError;
 type DistinctErrorAndSingleDistinctError2 distinct error & SingleDistinctError;
+type GroupedDistinctError distinct (distinct error & distinct SingleDistinctError);
 
 function testDistinctErrorIntersectionAssignability() {
     SingleDistinctError se = error("Single");
@@ -42,4 +43,6 @@ function testDistinctErrorIntersectionAssignability() {
     distinct SingleDistinctError dsde = error("dsde"); // todo: Create an issue to fix this, dsde = sde1 shold be an error.
     SingleDistinctError sde1 = dsde;
     dsde = sde1;
+
+    se = error GroupedDistinctError("GroupedDistinctError");
 }
