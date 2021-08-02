@@ -229,7 +229,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 int symbolLiteralType = symbolConst.literalType.tag;
                 int foundLiteralSymType = foundSymConst.literalType.tag;
                 if ((!symbolValue.equals(foundSymValue)) || (symbolLiteralType != foundLiteralSymType)) {
-                    dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+                    dlog.error(pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, name, foundSymValue);
                 }
             } else {
                 dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
