@@ -13,6 +13,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.BmpStringValue;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -229,12 +230,16 @@ class BasicBlock {
         BMap<BString, Object> tmpVal14 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.INT_BITWISE_INSN, new HashMap<>());
         BMap<BString, Object> tmpVal15 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.MAP_CON_INSN, new HashMap<>()); //TODO add other insns
+                NBTypeNames.MAP_CON_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal16 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.LIST_GET_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal17 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.INT_NOPANIC_ARITHMETIC_BINARY_INSN, new HashMap<>()); //TODO add other insns
 
         UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType(),
                 tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType(),
                 tmpVal9.getType(), tmpVal10.getType(), tmpVal11.getType(), tmpVal12.getType(), tmpVal13.getType(),
-                tmpVal14.getType(), tmpVal15.getType());
+                tmpVal14.getType(), tmpVal15.getType(), tmpVal16.getType(), tmpVal17.getType());
         ArrayType arrTyp = TypeCreator.createArrayType(insnTyp);
         //TODO Move to a singleton
         BArray arr = ValueCreator.createArrayValue(arrTyp);
@@ -315,6 +320,29 @@ class IntArithmeticBinaryInsn extends InsnBase {
     }
 }
 
+class IntNoPanicArithmeticBinaryInsn extends InsnBase {
+    public String op;
+    public Register result;
+    public Operand[] operands = new Operand[2];
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_INT);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ, 2);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        arr.add(0, operands[0].getOperand());
+        arr.add(1, operands[1].getOperand());
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("op", new BmpStringValue(op));
+        fields.put("result", result.getRecord());
+        fields.put("operands", arr); //TODO create Ballerina array
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INT_NOPANIC_ARITHMETIC_BINARY_INSN,
+                fields);
+    }
+}
+
 class RetInsn extends InsnBase {
     public Operand operand;
 
@@ -326,7 +354,9 @@ class RetInsn extends InsnBase {
     public BMap<BString, Object> getRecord() {
         LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
         Object op = operand.getOperand();
-        fields.put("operand", op);
+        if (op != null) {
+            fields.put("operand", op);
+        }
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.RET_INSN, fields);
     }
 }
@@ -483,7 +513,15 @@ class Operand {
     }
 
     public Object getOperand() {
-        return (this.isReg ? this.register.getRecord() : this.value);
+        if (this.isReg) {
+            return this.register.getRecord();
+        }
+        if (value instanceof String) {
+            return new BmpStringValue((String) value);
+        } else if (value instanceof Name) {
+            return null;
+        }
+        return this.value;
     }
 }
 
@@ -697,5 +735,27 @@ class Position {
         fields.put("lineNumber", lineNumber);
         fields.put("indexInLine", indexInLine);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODERROR, NBTypeNames.POSITION, fields);
+    }
+}
+
+class ListGetInsn extends InsnBase {
+    Register result;
+    Register list;
+    Operand operand;
+    Position position;
+
+    public ListGetInsn(Register result, Register list, Operand operand) {
+        this.result = result;
+        this.list = list;
+        this.operand = operand;
+    }
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("result", result.getRecord());
+        fields.put("list", list.getRecord());
+        fields.put("operand", operand.getOperand());
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.LIST_GET_INSN, fields);
     }
 }

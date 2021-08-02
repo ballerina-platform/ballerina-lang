@@ -38,6 +38,7 @@ public class NBallerinaCaller {
     private static final CompilerContext.Key<NBallerinaCaller> NBALLERINA = new CompilerContext.Key<>();
     private final ModuleGen modGenerator;
     private String nBal;
+    private CompilerOptions compilerOptions;
 
 
     public static NBallerinaCaller getInstance(CompilerContext context) {
@@ -45,12 +46,13 @@ public class NBallerinaCaller {
         if (nbalCaller == null) {
             nbalCaller = new NBallerinaCaller(context);
         }
+
         return nbalCaller;
     }
 
     private NBallerinaCaller(CompilerContext context) {
         context.put(NBALLERINA, this);
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(context);
+        compilerOptions = CompilerOptions.getInstance(context);
         this.modGenerator = ModuleGen.getInstance(context);
         this.nBal = compilerOptions.get(CompilerOptionName.NBALLERINA);
     }
@@ -60,7 +62,9 @@ public class NBallerinaCaller {
             return false;
         }
 
+        File outFile = new File(compilerOptions.get(CompilerOptionName.PROJECT_DIR));
         File path = new File(nBal);
+
         try {
             URLClassLoader cl = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) () -> {
                 URLClassLoader cl1;
@@ -123,7 +127,7 @@ public class NBallerinaCaller {
             Function<Object[], Object> func = objects -> {
                 try {
                     return m.invoke(null, objects[0], jnModule.getCodeArray(), true,
-                            jnModule.getFuncDefsArray(), true, new BmpStringValue("out.ll"), true);
+                            jnModule.getFuncDefsArray(), true, new BmpStringValue(outFile.getName() + ".ll"), true);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
                     throw new BallerinaException("Error invoking nBallerina backend", targetException);

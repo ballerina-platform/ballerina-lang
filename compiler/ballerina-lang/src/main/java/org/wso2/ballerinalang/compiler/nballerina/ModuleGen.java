@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -36,9 +37,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
@@ -142,9 +145,66 @@ public class ModuleGen {
                 opb.nextBlock.insns.add(new AssignInsn(reg, opb.operand));
                 return opb.nextBlock;
             }
+        } else if (stmt instanceof BLangForeach) {
+            BLangForeach feStmt = (BLangForeach) stmt;
+            String varName = ((BLangSimpleVariableDef) feStmt.variableDefinitionNode).var.name.toString();
+            BLangBinaryExpr range = (BLangBinaryExpr) feStmt.collection;
+            OpBlockHolder lowerOpb = codeGenExpr(range.lhsExpr, code, startBlock);
+            OpBlockHolder upperOpb = codeGenExpr(range.rhsExpr, code, lowerOpb.nextBlock);
+            Register loopVar = code.createRegister(convertSimpleSemType(TypeKind.INT), varName);
+            upperOpb.nextBlock.insns.add(new AssignInsn(loopVar, lowerOpb.operand));
+            BasicBlock loopHead =  code.createBasicBlock();
+            BasicBlock exit = code.createBasicBlock();
+            BranchInsn branchToLoopHead = new BranchInsn(loopHead.label);
+            upperOpb.nextBlock.insns.add(branchToLoopHead);
+            Register condition = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
+            CompareInsn compare = new CompareInsn("<", "int", condition);
+            Operand op = new Operand(true);
+            op.register = loopVar;
+            compare.operands[0] = op;
+            compare.operands[1] = upperOpb.operand;
+            loopHead.insns.add(compare);
+            BasicBlock afterCondition = code.createBasicBlock();
+            loopHead.insns.add(new CondBranchInsn(condition, afterCondition.label, exit.label));
+            LoopContext lc = new LoopContext();
+            lc.onBreak = exit;
+            lc.onContinue = null;
+            lc.enclosing = code.loopContext;
+            code.loopContext = lc;
+            BasicBlock curBlock = afterCondition;
+            for (BLangStatement st : feStmt.body.getStatements()) {
+                curBlock = codeGenStmt(st, code, curBlock);
+            }
+            BasicBlock loopBody = curBlock;
+            BasicBlock loopStep = code.loopContext.onContinue;
+
+            if (loopBody != null) {
+                if (loopStep == null) {
+                    loopStep = code.createBasicBlock();
+                }
+                loopBody.insns.add(new BranchInsn(loopStep.label));
+            }
+            if (loopStep != null) {
+                IntNoPanicArithmeticBinaryInsn increment = new IntNoPanicArithmeticBinaryInsn();
+                increment.op = "+";
+                Operand op0 = new Operand(true);
+                Operand op1 = new Operand(false);
+                op0.register = loopVar;
+                op1.value = 1;
+                increment.operands[0] = op0;
+                increment.operands[1] = op1;
+                increment.result = loopVar;
+                loopStep.insns.add(increment);
+                loopStep.insns.add(branchToLoopHead);
+            }
+            code.loopContext = code.loopContext.enclosing;
+            return exit;
+
+            //TODO fix loops
         } else if (stmt instanceof BLangIf) {
             BLangIf ifStmt = (BLangIf) stmt;
-            OpBlockHolder branch = codeGenExpr(ifStmt.getCondition(), code, startBlock);
+            OpBlockHolder branchOpb = codeGenExpr(ifStmt.getCondition(), code, startBlock);
+            // TODO Fix if boolean literal
             BasicBlock ifBlock = code.createBasicBlock();
             BasicBlock ifContBlock, contBlock;
             BasicBlock curBlock = ifBlock;
@@ -154,12 +214,38 @@ public class ModuleGen {
             ifContBlock = curBlock;
             if (ifStmt.elseStmt == null) {
                 contBlock = code.createBasicBlock();
-                branch.nextBlock.insns.add(new CondBranchInsn(branch.operand.register, ifBlock.label, contBlock.label));
+                branchOpb.nextBlock.insns.add(new CondBranchInsn(branchOpb.operand.register, ifBlock.label,
+                        contBlock.label));
                 if (ifContBlock != null) {
                     ifContBlock.insns.add(new BranchInsn(contBlock.label));
                 }
-                return contBlock;
+            } else {
+                BasicBlock elseBlock = code.createBasicBlock();
+                BasicBlock elseContBlock;
+                curBlock = elseBlock;
+                if (ifStmt.getElseStatement() instanceof BLangBlockStmt) {
+                    for (BLangStatement st : ((BLangBlockStmt) ifStmt.getElseStatement()).getStatements()) {
+                        curBlock = codeGenStmt(st, code, curBlock);
+                    }
+                } else {
+                    curBlock = codeGenStmt(ifStmt.getElseStatement(), code, curBlock);
+                }
+                elseContBlock = curBlock;
+                branchOpb.nextBlock.insns.add(new CondBranchInsn(branchOpb.operand.register, ifBlock.label,
+                        elseBlock.label));
+                if (ifContBlock == null && elseContBlock == null) {
+                    return null;
+                }
+                contBlock = code.createBasicBlock();
+                BranchInsn branch = new BranchInsn(contBlock.label);
+                if (ifContBlock != null) {
+                    ifContBlock.insns.add(branch);
+                }
+                if (elseContBlock != null) {
+                    elseContBlock.insns.add(branch);
+                }
             }
+            return contBlock;
         } else if (stmt instanceof BLangWhile) {
             BLangWhile whileStmt = (BLangWhile) stmt;
             BasicBlock loopHead = code.createBasicBlock();
@@ -306,8 +392,7 @@ public class ModuleGen {
             nextBlock.insns.add(ins);
             return new OpBlockHolder(result, nextBlock);
         } else if (expr instanceof BLangRecordLiteral) {
-
-            return null;
+            return null; //TODO
         } else if (expr instanceof BLangGroupExpr) {
             return codeGenExpr(((BLangGroupExpr) expr).expression, code, bb);
         } else if (expr instanceof BLangTypeConversionExpr) {
@@ -326,6 +411,8 @@ public class ModuleGen {
             } else {
                 return opb;
             }
+        } else if (expr instanceof BLangIndexBasedAccess) {
+            return null;
         }
 
         throw new BallerinaException("Expression not recognized");
@@ -401,6 +488,8 @@ public class ModuleGen {
                 return 2048L;
             case ANY:
                 return 8386559L;
+            case STRING:
+                return 1024L;
             default:
                 throw new BallerinaException("Semtype not implemented for type");
         }
