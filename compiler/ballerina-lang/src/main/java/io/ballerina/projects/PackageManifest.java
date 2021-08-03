@@ -213,6 +213,17 @@ public class PackageManifest {
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
+                          String repository) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.semanticVersion = semanticVersion;
+            this.repository = repository;
+            this.scope = null;
+            this.transitive = false;
+            this.dependencies = Collections.emptyList();
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
                           String scope, boolean transitive,
                           List<TransitiveDependency> dependencies) {
             this.packageName = packageName;

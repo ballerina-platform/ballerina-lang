@@ -57,12 +57,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectUtils.guessOrgName;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
@@ -256,7 +259,18 @@ public class ManifestBuilder {
         return setBuildOptions(tomlTableNode);
     }
 
+    /**
+     * Get dependencies from Ballerina.toml and Dependencies.toml and combine them in to a single array.
+     *
+     * @return combined dependencies list
+     */
     private List<PackageManifest.Dependency> getDependencies() {
+        return Stream.of(getDependenciesFromDependenciesToml(), getLocalRepoDependencies())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+    }
+
+    private List<PackageManifest.Dependency> getDependenciesFromDependenciesToml() {
         if (dependenciesToml.isEmpty()) {
             return Collections.emptyList();
         }
@@ -319,6 +333,44 @@ public class ManifestBuilder {
                 }
                 dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, scope, transitive,
                                                                 transDependencies));
+            }
+        }
+        return dependencies;
+    }
+
+    private List<PackageManifest.Dependency> getLocalRepoDependencies() {
+        TomlTableNode rootNode = ballerinaToml.toml().rootNode();
+        if (rootNode.entries().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TopLevelNode dependencyEntries = rootNode.entries().get("dependency");
+        if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
+            return Collections.emptyList();
+        }
+
+        List<PackageManifest.Dependency> dependencies = new ArrayList<>();
+        if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+
+            for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
+                String name = getStringValueFromDependencyNode(dependencyNode, "name");
+                String org = getStringValueFromDependencyNode(dependencyNode, "org");
+                String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
+                String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
+
+                PackageName depName = PackageName.from(name);
+                PackageOrg depOrg = PackageOrg.from(org);
+                PackageVersion depVersion;
+                try {
+                    depVersion = PackageVersion.from(version);
+                } catch (ProjectException e) {
+                    // Ignore exception and dependency
+                    // Diagnostic will be added by toml schema validator for the semver version error
+                    continue;
+                }
+
+                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
             }
         }
         return dependencies;

@@ -19,6 +19,12 @@ artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"
 
+[[dependency]]
+org = "ballerina"
+name = "io"
+version = "5.0.0"
+repository = "local"
+
 [build-options]
 observabilityIncluded = true
 offline = true

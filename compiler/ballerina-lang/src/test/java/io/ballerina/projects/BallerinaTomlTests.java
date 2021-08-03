@@ -61,13 +61,20 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
         List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
-        Assert.assertEquals(dependencies.size(), 2);
+        Assert.assertEquals(dependencies.size(), 3);
         for (PackageManifest.Dependency dependency : dependencies) {
-            Assert.assertEquals(dependency.org().value(), "wso2");
-            Assert.assertTrue(dependency.name().value().equals("twitter")
-                                      || dependency.name().value().equals("github"));
-            Assert.assertTrue(dependency.version().value().toString().equals("2.3.4")
-                                      || dependency.version().value().toString().equals("1.2.3"));
+            if (dependency.name().value().equals("twitter")) {
+                Assert.assertEquals(dependency.org().value(), "wso2");
+                Assert.assertEquals(dependency.version().value().toString(), "2.3.4");
+            } else if (dependency.name().value().equals("github")) {
+                Assert.assertEquals(dependency.org().value(), "wso2");
+                Assert.assertEquals(dependency.version().value().toString(), "1.2.3");
+            } else {
+                Assert.assertEquals(dependency.name().value(), "io");
+                Assert.assertEquals(dependency.org().value(), "ballerina");
+                Assert.assertEquals(dependency.version().value().toString(), "5.0.0");
+                Assert.assertEquals(dependency.repository(), "local");
+            }
         }
 
         PackageManifest.Platform platform = packageManifest.platform("java11");
@@ -265,7 +272,7 @@ public class BallerinaTomlTests {
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
         List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
-        Assert.assertEquals(dependencies.size(), 0);
+        Assert.assertEquals(dependencies.size(), 1); // local repo dependency added to Ballerina.toml
     }
 
     @Test
