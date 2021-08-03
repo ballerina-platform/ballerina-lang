@@ -1,6 +1,5 @@
 mapInits function() -> (string|(), int|()) {
     %0(RETURN) (string|(), int|());
-    %0(RETURN) (string|(), int|());
     %1(LOCAL) map<Employee>;
     %2(TEMP) typeDesc<any|error{map<Cloneable>}>;
     %4(LOCAL) Person;

@@ -47,4 +47,9 @@ public class KeyValueTest extends AbstractTomlParserTest {
     public void testNoNewlineEnd() {
         super.testFile("no-newline-end.toml", "no-newline-end.json");
     }
+
+    @Test
+    public void testInlineTables() {
+        super.testFile("inline-tables.toml", "inline-tables.json");
+    }
 }

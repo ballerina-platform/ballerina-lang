@@ -275,7 +275,6 @@ public class BuildCommand implements BLauncherCmd {
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
-
         }
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.

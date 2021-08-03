@@ -33,4 +33,10 @@ function testNotOperator() returns int {
 function testIncompatibleSubtypesWithUnaryOpertaors() {
     int:Unsigned8 x1 = -7;
     int:Signed8 x2 = +1000;
+
+    byte x3 = 0;
+    byte x4 = ~x3;
+
+    int:Unsigned8 x5 = 0;
+    int:Unsigned8 x6 = ~x5;
 }

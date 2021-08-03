@@ -60,6 +60,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(arrayNode);
     }
 
+    public T transform(InlineTableNode inlineTableNode) {
+        return transformSyntaxNode(inlineTableNode);
+    }
+
     public T transform(StringLiteralNode stringLiteralNode) {
         return transformSyntaxNode(stringLiteralNode);
     }

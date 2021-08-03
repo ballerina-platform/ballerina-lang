@@ -111,7 +111,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void annotationAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + ".@v1", EvaluationExceptionKind.PREFIX +
+                "Incompatible types: expected `typedesc`, but found 'string': in 'stringVar.@v1'");
+        debugTestRunner.assertEvaluationError(context, "(typeof " + STRING_VAR + ").@v1",
+                "type: 'string' does not support annotation access.");
     }
 
     @Override

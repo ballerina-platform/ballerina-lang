@@ -32,6 +32,7 @@ import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
@@ -131,6 +132,8 @@ public class PushCommand implements BLauncherCmd {
         if (null != debugPort) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
+
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         if (argList == null || argList.isEmpty()) {
             try {

@@ -140,74 +140,45 @@
                   ]
                 },
                 {
-                  "kind": "BINARY_EXPRESSION",
+                  "kind": "BYTE_ARRAY_LITERAL",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "BYTE_ARRAY_LITERAL",
-                      "hasDiagnostics": true,
-                      "children": [
+                      "kind": "BASE64_KEYWORD",
+                      "trailingMinutiae": [
                         {
-                          "kind": "BASE64_KEYWORD",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "BACKTICK_TOKEN",
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL"
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "INVALID_NODE_MINUTIAE",
-                              "invalidNode": {
-                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                "children": [
-                                  {
-                                    "kind": "TEMPLATE_STRING",
-                                    "value": "aGVsbG8gYmFsbGVyaW5hICEhIQ\u003d\u003d;\n    byte[] arr2 \u003d base64 "
-                                  }
-                                ]
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "BACKTICK_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     },
                     {
-                      "kind": "PLUS_TOKEN",
-                      "isMissing": true,
+                      "kind": "BACKTICK_TOKEN",
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_BINARY_OPERATOR"
+                        "ERROR_INVALID_BASE64_CONTENT_IN_BYTE_ARRAY_LITERAL"
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "TEMPLATE_STRING",
+                                "value": "aGVsbG8gYmFsbGVyaW5hICEhIQ\u003d\u003d;\n    byte[] arr2 \u003d base64 "
+                              }
+                            ]
+                          }
+                        }
                       ]
                     },
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
+                      "kind": "BACKTICK_TOKEN",
+                      "trailingMinutiae": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "Aws",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }
@@ -239,7 +210,7 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "zl",
+                          "value": "Aws",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -254,7 +225,7 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "q",
+                          "value": "zl",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -275,11 +246,17 @@
                   ]
                 },
                 {
-                  "kind": "NUMERIC_LITERAL",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                      "value": "2"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "q",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -305,7 +282,21 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "kind": "SINGLETON_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "NUMERIC_LITERAL",
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                              "value": "2"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
@@ -318,15 +309,29 @@
                           ]
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "CAPTURE_BINDING_PATTERN",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "y"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "y"
                     }
                   ]
                 },

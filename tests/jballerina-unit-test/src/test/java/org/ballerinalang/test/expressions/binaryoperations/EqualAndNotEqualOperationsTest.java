@@ -834,6 +834,11 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testIntersectingUnionEquality() {
+        BRunUtil.invoke(result, "testIntersectingUnionEquality");
+    }
+
+    @Test
     public void testArrayTupleEqualityNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayTupleEqualityNegative");
         Assert.assertEquals(returns.length, 1);

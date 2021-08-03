@@ -61,7 +61,7 @@ public class TopLevelDeclarationValidator extends Validator {
         // Needs to filter out module variable declarations, since variable assignment statements can be parsed into
         // module-level variable declaration during this validation phase.
         List<ModuleMemberDeclarationNode> members = memberNodes.stream()
-                .filter(node -> node.kind() != SyntaxKind.MODULE_VAR_DECL)
+                .filter(node -> node.kind() != SyntaxKind.MODULE_VAR_DECL && !node.hasDiagnostics())
                 .collect(Collectors.toList());
         failIf(members.size() > 0, UNSUPPORTED_INPUT_TOPLEVEL_DCLN);
     }
