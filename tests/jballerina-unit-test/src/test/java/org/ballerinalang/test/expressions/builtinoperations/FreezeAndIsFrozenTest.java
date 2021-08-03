@@ -321,7 +321,7 @@ public class FreezeAndIsFrozenTest {
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
                     "\"modification not allowed on readonly value\".*")
     public void testFrozenRecursiveTupleUpdate() {
-        BRunUtil.invoke(result, "testFrozenRecursiveTupleUpdate", new BValue[0]);
+        BRunUtil.invoke(result, "testFrozenRecursiveTupleUpdate");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -371,7 +371,7 @@ public class FreezeAndIsFrozenTest {
                 "was encountered");
     }
 
-    @Test(description = "test recursive tuple")
+    @Test
     public void testRecursiveTupleFreeze() {
         BRunUtil.invoke(result, "testRecursiveTupleFreeze");
     }

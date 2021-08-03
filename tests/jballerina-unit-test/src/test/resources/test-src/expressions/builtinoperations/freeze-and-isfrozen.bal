@@ -364,10 +364,18 @@ function testFrozenTupleUpdate() {
 type A [int, string|xml, boolean, A...];
 type B [int, boolean, B[]...];
 
+function cloneReadonlyTupleNegative(A tupleTemp1) {
+    tupleTemp1[2] = true;
+}
+
 function testFrozenRecursiveTupleUpdate() {
     A tupleTest1 = [1, "text"];
     A tupleTemp1 = tupleTest1.cloneReadOnly();
-    tupleTemp1[2] = true;
+    error|() cloneErr = cloneReadonlyTupleNegative(tupleTemp1);
+    assertTrue(cloneErr is error);
+    error err = <error> cloneErr;
+    assertTrue(err.message() == "{ballerina/lang.array}InvalidUpdate {\"message\":\"modification not " +
+    "allowed on readonly value\"}");
 }
 
 function testRecursiveTupleFreeze() {
