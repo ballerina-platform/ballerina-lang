@@ -1111,6 +1111,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case "IS_KEYWORD":
                 return SyntaxKind.IS_KEYWORD;
+            case "NOT_IS_KEYWORD":
+                return SyntaxKind.NOT_IS_KEYWORD;
             case "MAP_KEYWORD":
                 return SyntaxKind.MAP_KEYWORD;
             case "FUTURE_KEYWORD":

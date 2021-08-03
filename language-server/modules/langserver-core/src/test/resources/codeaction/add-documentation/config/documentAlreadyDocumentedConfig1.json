@@ -3,28 +3,6 @@
   "character": 19,
   "expected": [
     {
-      "title": "Document this",
-      "command": {
-        "title": "Document this",
-        "command": "ADD_DOC",
-        "arguments": [
-          {
-            "key": "node.range",
-            "value": {
-              "start": {
-                "line": 1,
-                "character": 0
-              },
-              "end": {
-                "line": 7,
-                "character": 1
-              }
-            }
-          }
-        ]
-      }
-    },
-    {
       "title": "Document all",
       "command": {
         "title": "Document all",

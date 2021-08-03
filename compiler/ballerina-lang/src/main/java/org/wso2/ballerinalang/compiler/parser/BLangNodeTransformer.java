@@ -1854,6 +1854,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(TypeTestExpressionNode typeTestExpressionNode) {
         BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        if (typeTestExpressionNode.isKeyword().kind() == SyntaxKind.NOT_IS_KEYWORD) {
+            typeTestExpr.isNegation = true;
+        }
         typeTestExpr.expr = createExpression(typeTestExpressionNode.expression());
         typeTestExpr.typeNode = createTypeNode(typeTestExpressionNode.typeDescriptor());
         typeTestExpr.pos = getPosition(typeTestExpressionNode);
