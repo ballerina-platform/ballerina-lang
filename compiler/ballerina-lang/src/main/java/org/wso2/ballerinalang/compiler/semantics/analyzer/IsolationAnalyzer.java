@@ -3299,10 +3299,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private Set<BSymbol> getModuleLevelVarSymbols(List<BLangVariable> moduleLevelVars) {
         Set<BSymbol> symbols = new HashSet<>(moduleLevelVars.size());
         for (BLangVariable globalVar : moduleLevelVars) {
-            if (globalVar.flagSet.contains(Flag.LISTENER)) {
-                continue;
-            }
-
             symbols.add(globalVar.symbol);
         }
         return symbols;
@@ -3518,6 +3514,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             boolean isObjectType = symbol.kind == SymbolKind.OBJECT;
 
+            if (!isObjectType &&
+                    // If it is a final var that is of a type that is a subtype of `readonly|isolated object {}`
+                    // don't infer isolated for it, since it can directly be accessed without a lock statement.
+                    isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                          symbol, new HashSet<>())) {
+                continue;
+            }
+
             if (inferVariableOrClassIsolation(publiclyExposedObjectTypes, classDefinitions, symbol,
                                               (VariableIsolationInferenceInfo) value, isObjectType, new HashSet<>())) {
                 symbol.flags |= Flags.ISOLATED;
@@ -3652,6 +3656,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         } else if (isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes,
                                                                          classDefinitions, symbol, unresolvedSymbols)) {
             return true;
+        } else if (Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
+            // Listeners aren't allowed as isolated variables.
+            return false;
         }
 
         for (LockInfo lockInfo : inferenceInfo.accessedLockInfo) {
