@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -89,8 +90,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -621,8 +624,12 @@ public class TestUtil {
         workspaceCapabilities.setExecuteCommand(new ExecuteCommandCapabilities(true));
 
         capabilities.setWorkspace(workspaceCapabilities);
-        
+
+        Map<String, Object> initializationOptions = new HashMap<>();
+        initializationOptions.put(InitializationOptions.KEY_PULL_MODULE_SUPPORT, true);
+
         params.setCapabilities(capabilities);
+        params.setInitializationOptions(GSON.toJsonTree(initializationOptions));
         return params;
     }
 

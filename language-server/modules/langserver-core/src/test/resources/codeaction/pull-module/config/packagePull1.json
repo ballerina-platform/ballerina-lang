@@ -6,7 +6,7 @@
       "title": "Pull missing module(s)",
       "command": {
         "title": "Pull missing module(s)",
-        "command": "PULL_MODULE",
+        "command": "ballerina.packages.pull",
         "arguments": [
           {
             "key": "module",
