@@ -27,7 +27,7 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0.0
  */
-public interface MapType extends Type, SelectivelyImmutableReferenceType {
+public interface MapType extends SelectivelyImmutableReferenceType {
 
     Type getConstrainedType();
 }
