@@ -55,7 +55,7 @@ import java.util.stream.IntStream;
 public class EvaluationUtils {
 
     // Debugger runtime helper classes
-    private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1_0_0.";
+    private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1.";
     public static final String B_UNARY_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "unary_operations";
     public static final String B_ARITHMETIC_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "arithmetic_operations";
     public static final String B_RELATIONAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "relational_operations";
