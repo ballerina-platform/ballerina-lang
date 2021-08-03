@@ -128,7 +128,8 @@ public class SymbolFactory {
         }
 
         if (symbol instanceof BVarSymbol) {
-            if (symbol.kind == SymbolKind.FUNCTION) {
+            if (symbol.kind == SymbolKind.FUNCTION &&
+                    !anyFlagOn(symbol.flags, Flags.REQUIRED_PARAM, Flags.DEFAULTABLE_PARAM, Flags.REST_PARAM)) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
                     if (Symbols.isFlagOn(symbol.flags, Flags.RESOURCE)) {
                         return createResourceMethodSymbol((BInvokableSymbol) symbol);
@@ -376,7 +377,7 @@ public class SymbolFactory {
             return null;
         }
         String name = symbol.getName().getValue().isBlank() ? null : symbol.getName().getValue();
-        TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(symbol.getType());
+        TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(symbol.type);
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             qualifiers.add(Qualifier.PUBLIC);
@@ -569,6 +570,15 @@ public class SymbolFactory {
     }
 
     // Private methods
+    private static boolean anyFlagOn(long mask, long... flags) {
+        for (long flag : flags) {
+            if (Symbols.isFlagOn(mask, flag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean isFlagOn(long mask, long flags) {
         return (mask & flags) == flags;
     }
