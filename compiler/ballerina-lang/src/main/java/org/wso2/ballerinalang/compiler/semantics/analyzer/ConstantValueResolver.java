@@ -86,8 +86,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
         this.currentConstSymbol.value = visitExpr(constant.expr);
-        unresolvedConstants.remove(this.currentConstSymbol);
-        this.currentConstSymbol = tempCurrentConstSymbol;
+        if (this.currentConstSymbol.value != null) {
+            unresolvedConstants.remove(this.currentConstSymbol);
+            this.currentConstSymbol = tempCurrentConstSymbol;
+        }
     }
 
     @Override

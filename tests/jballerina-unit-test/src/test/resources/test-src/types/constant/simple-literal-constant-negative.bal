@@ -296,3 +296,7 @@ const Bar BAR = new;
 function main1() {
     const expected = "";
 }
+
+public const UT_OBJECT_RW  = 0x16;
+public const UT_COUNT = UT_OBJECT_RW + 1;
+const int UT_MASK = (1 << UT_COUNT) - 1;
