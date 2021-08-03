@@ -58,8 +58,8 @@ public class HelpCommand extends AbstractCommand {
         } else {
             String topic = String.join(" ", Arrays.copyOfRange(args, 0, args.length));
             try {
-                ballerinaShell.outputInfo(DESCRIPTION_PREFIX + NEW_LINE + bbeHelpProvider.getDescription(topic)
-                        .replaceAll(TAGS, EMPTY_STRING));
+                ballerinaShell.outputInfo(DESCRIPTION_PREFIX + NEW_LINE + NEW_LINE +
+                        bbeHelpProvider.getDescription(topic).replaceAll(TAGS, EMPTY_STRING));
                 ballerinaShell.outputInfo(URL_PREFIX + URL + topic.replaceAll(" ", "-"));
 
             } catch (HelpProviderException e) {
