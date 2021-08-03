@@ -65,6 +65,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -154,7 +155,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         }
 
-        HashMap experimentalClientCapabilities = null;
+        Map initializationOptions = null;
+        if (params.getInitializationOptions() != null) {
+            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
+        }
+        
+        Map experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     HashMap.class);
@@ -171,7 +177,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
         LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
                 workspaceClientCapabilities,
-                experimentalClientCapabilities);
+                experimentalClientCapabilities,
+                initializationOptions);
         this.serverContext.put(LSClientCapabilities.class, capabilities);
         this.serverContext.put(ServerCapabilities.class, res.getCapabilities());
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);

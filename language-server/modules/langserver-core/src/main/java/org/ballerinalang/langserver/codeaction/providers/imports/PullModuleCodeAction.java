@@ -19,10 +19,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
-import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -63,17 +63,23 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         if (moduleName.isEmpty()) {
             return Collections.emptyList();
         }
+
+        LSClientCapabilities clientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (!clientCapabilities.getInitializationOptions().isPullModuleSupported()) {
+            return Collections.emptyList();
+        }
+
         CommandArgument uriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri());
         List<Diagnostic> diagnostics = new ArrayList<>();
 
         List<Object> args = new ArrayList<>();
-        args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, moduleName.get()));
         args.add(uriArg);
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_MODULE_NAME, moduleName.get()));
 
         String commandTitle = CommandConstants.PULL_MOD_TITLE;
         CodeAction action = new CodeAction(commandTitle);
         action.setKind(CodeActionKind.QuickFix);
-        action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
+        action.setCommand(new Command(commandTitle, "ballerina.packages.pull", args));
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return Collections.singletonList(action);
     }
