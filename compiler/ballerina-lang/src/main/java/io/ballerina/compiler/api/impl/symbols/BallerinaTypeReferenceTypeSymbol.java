@@ -142,6 +142,11 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             return Optional.of(this.location);
         }
 
+        if (this.tSymbol != null) {
+            this.location = this.tSymbol.pos;
+            return Optional.of(this.location);
+        }
+
         BType type = this.getBType();
         this.location = type.tsymbol.pos;
         return Optional.of(this.location);
