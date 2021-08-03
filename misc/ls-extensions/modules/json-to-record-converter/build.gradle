@@ -36,7 +36,11 @@ dependencies {
         exclude group: "org.slf4j", module: "slf4j-ext"
         exclude group: "javax.validation", module: "validation-api"
     }
-    compileOnly(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1') {
+        exclude group: 'com.google.guava', module: 'guava'
+    }
+    compileOnly 'com.google.guava:guava:30.0-jre'
+
     testCompile 'org.testng:testng'
     testCompile project(':ballerina-parser')
     testCompile project(':formatter:formatter-core')
