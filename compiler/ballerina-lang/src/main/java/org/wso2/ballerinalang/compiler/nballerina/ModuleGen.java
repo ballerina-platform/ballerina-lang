@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
@@ -55,6 +56,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
 /**
  * Transform the AST to nBallerina Module.
  *
@@ -70,7 +72,7 @@ public class ModuleGen {
     static final Module MODTYPES = new Module("wso2", "nballerina.types", "0.1.0");
     static final Module MODERROR = new Module("wso2", "nballerina.err", "0.1.0");
 
-    private static JNModule jnmod;
+    private JNModule jnmod;
 
     PrintStream console = System.out;
 
@@ -79,7 +81,6 @@ public class ModuleGen {
         if (modGen == null) {
             modGen = new ModuleGen(context);
         }
-
         return modGen;
     }
 
@@ -404,7 +405,22 @@ public class ModuleGen {
             nextBlock.insns.add(ins);
             return new OpBlockHolder(result, nextBlock);
         } else if (expr instanceof BLangRecordLiteral) {
-            return null; //TODO
+            BLangRecordLiteral mapExpr = (BLangRecordLiteral) expr;
+            BasicBlock nextBlock = bb;
+            ArrayList<Operand> operands = new ArrayList<>();
+            ArrayList<String> fieldNames = new ArrayList<>();
+            for (RecordLiteralNode.RecordField field: mapExpr.fields) {
+                OpBlockHolder opb = codeGenExpr(((BLangRecordLiteral.BLangRecordKeyValueField) field).valueExpr, code,
+                        nextBlock);
+                nextBlock = opb.nextBlock;
+                operands.add(opb.operand);
+                fieldNames.add(((BLangRecordLiteral.BLangRecordKeyValueField) field).key.toString());
+            }
+            Register result = code.createRegister(524288L, null);
+            nextBlock.insns.add(new MapConstructInsn(result, operands, fieldNames));
+            Operand retOp = new Operand(true);
+            retOp.register = result;
+            return new OpBlockHolder(retOp, nextBlock);
         } else if (expr instanceof BLangGroupExpr) {
             return codeGenExpr(((BLangGroupExpr) expr).expression, code, bb);
         } else if (expr instanceof BLangTypeConversionExpr) {
@@ -434,6 +450,11 @@ public class ModuleGen {
                             accExpr.pos.textRange().startOffset());
                     bb.ppb = true;
                     bb.insns.add(new ListGetInsn(result, l.operand.register, r.operand, pos));
+                } else {
+                    MapGetInsn mapInsn = new MapGetInsn(result);
+                    mapInsn.operands[0] = l.operand;
+                    mapInsn.operands[1] = r.operand;
+                    bb.insns.add(mapInsn);
                 }
                 Operand resultOp = new Operand(true);
                 resultOp.register = result;
@@ -533,6 +554,8 @@ public class ModuleGen {
                 return 8386559L;
             case STRING:
                 return 1024L;
+            case MAP:
+                return 524296L;
             default:
                 throw new BallerinaException("Semtype not implemented for type");
         }
@@ -551,4 +574,5 @@ public class ModuleGen {
                 throw new BallerinaException("operands of relational operator are not ordered");
         }
     }
+
 }
