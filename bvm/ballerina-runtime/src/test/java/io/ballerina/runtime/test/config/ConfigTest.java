@@ -122,13 +122,6 @@ public class ConfigTest {
                 {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
                         new DecimalValue("876.54"),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.decimalVar=876.54")},
-                // Xml value given only with cli
-                {new VariableKey(module, "xmlVar",
-                                 new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
-                                 true),
-                        BXml.class, TypeConverter.stringToXml("<book>The Lost World</book>\n<!--I am a comment-->"),
-                        new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.xmlVar=<book>The Lost World</book>\n<!--I " +
-                                "am a comment-->")},
                 // Multiple provider but use the first registered provider ( CLI arg as final value)
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579"),
