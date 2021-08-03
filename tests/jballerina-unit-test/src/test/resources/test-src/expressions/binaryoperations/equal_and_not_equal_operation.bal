@@ -861,7 +861,14 @@ function testSimpleXmlPositive() returns boolean {
     xml x6 = xml `<?target data?>`;
     xml x7 = xml `<!-- I'm a comment -->`;
     xml x8 = xml `<!-- I'm a comment -->`;
-    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8);
+    xml x11 = xml `<book>The Lost World</book><!-- I'm a comment -->`;
+    boolean x9 = x11 == xml `<book>The Lost World</book><!-- I'm a comment -->`;
+    boolean x10 = x1 == xml `<book>The Lost World</book>`;
+    boolean x12 = x3 == xml `Hello, world!`;
+    boolean x13 = x5 == xml `<?target data?>`;
+    boolean x14 = x7 == xml `<!-- I'm a comment -->`;
+    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8) &&
+    x9 && x10 && x12 && x13 && x14 && x11 != x8 && x3 != x5 && x7 != x1 && x6 != x7;
 }
 
 function testReferenceEqualityXml() {
