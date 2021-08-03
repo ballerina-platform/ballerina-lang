@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Transform the AST to nBallerina Module.
@@ -282,9 +283,15 @@ public class ModuleGen {
             }
             return exitReachable ? exit : null;
         } else if (stmt instanceof BLangBreak) {
+            code.loopContext.breakUsed = true;
             startBlock.insns.add(new BranchInsn(code.loopContext.onBreak.label));
             return null;
         } else if (stmt instanceof BLangContinue) {
+            BasicBlock b = code.loopContext.onContinue;
+            if (b == null) {
+                b = code.createBasicBlock();
+            }
+            code.loopContext.onContinue = b;
             startBlock.insns.add(new BranchInsn(code.loopContext.onContinue.label));
             return null;
         }
@@ -421,7 +428,23 @@ public class ModuleGen {
     OpBlockHolder codegenFunctionCall(BLangInvocation funcCall, FunctionCode code, BasicBlock bb) {
         FunctionRef ref;
         Operand result = new Operand(true);
-        if (funcCall.pkgAlias.getValue().equals("")) {
+        if (funcCall.langLibInvocation) {
+            FunctionSignature signature = new FunctionSignature();
+            signature.returnType = convertSimpleSemType(funcCall.getBType().getKind());
+            for (BLangExpression arg: funcCall.requiredArgs) {
+                signature.paramTypes.add(convertSimpleSemType(arg.getBType().getKind()));
+            }
+            if (!funcCall.restArgs.isEmpty()) {
+                //signature.restParamType = funcCall.restArgs.get(0).getBType().getKind();
+                signature.paramTypes.add(8388607L);
+            }
+            ModuleId mod = new ModuleId();
+            mod.organization = funcCall.symbol.pkgID.orgName.getValue();
+            String[] names = funcCall.symbol.pkgID.name.getValue().split("\\.");
+            mod.names.addAll(Arrays.asList(names));
+            ExternalSymbol symbol = new ExternalSymbol(mod, funcCall.getName().getValue());
+            ref = new FunctionRef(symbol, signature);
+        } else if (funcCall.pkgAlias.getValue().equals("")) {
             FunctionDefn def = jnmod.functionDefns.get(funcCall.getName().getValue());
             ref  = new FunctionRef(def.symbol, def.signature);
         } else {
