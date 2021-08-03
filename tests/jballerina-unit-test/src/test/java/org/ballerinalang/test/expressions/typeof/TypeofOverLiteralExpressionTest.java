@@ -17,13 +17,18 @@
  */
 package org.ballerinalang.test.expressions.typeof;
 
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BDecimal;
+import org.ballerinalang.core.model.values.BFloat;
+import org.ballerinalang.core.model.values.BInteger;
+import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -31,7 +36,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.995
  */
-@Test(groups = "no-bvm-support")
 public class TypeofOverLiteralExpressionTest {
 
     private CompileResult result;
@@ -41,49 +45,33 @@ public class TypeofOverLiteralExpressionTest {
         result = BCompileUtil.compile("test-src/expressions/typeof/typeof.bal");
     }
 
-    @Test
-    public void testTypeDescOperatorOnLiterals() {
-        BValue[] res = BRunUtil.invoke(result, "typeDescOfLiterals");
-        Assert.assertEquals(res[0].stringValue(), "int");
-        Assert.assertEquals(res[1].stringValue(), "float");
-        Assert.assertEquals(res[2].stringValue(), "float");
-        Assert.assertEquals(res[3].stringValue(), "string");
-        Assert.assertEquals(res[4].stringValue(), "boolean");
-        Assert.assertEquals(res[5].stringValue(), "boolean");
-        Assert.assertEquals(res[6].stringValue(), "null");
+    @Test (dataProvider = "simple-value-provider")
+    public void testTypeDescOperatorOnLiterals(BValue value, String expected) {
+        BRunUtil.invoke(result, "typeDescOfLiterals", new BValue[] {value, new BString(expected)});
     }
 
-    @Test
-    public void testTypeDescOperatorOnExpressionsOfLiterals() {
-        BValue[] res = BRunUtil.invoke(result, "typeDescOfExpressionsOfLiterals");
-        Assert.assertEquals(res[0].stringValue(), "int");
-        Assert.assertEquals(res[1].stringValue(), "float");
+    @DataProvider(name = "simple-value-provider")
+    public Object[][] provideSimpleTypValuese() {
+        return new Object[][]{
+                {new BInteger(1L), "1"},
+                {new BDecimal("2.0"), "2.0"},
+                {new BFloat(2.1), "2.1"},
+                {new BString("str-literal"), "str-literal"},
+                {new BBoolean(true), "true"},
+                {new BBoolean(false), "false"},
+                {null, "()"},
+        };
     }
 
-    @Test
-    public void testUsingTypeofOperatorAtFunctionInvocationSite() {
-        BValue[] res = BRunUtil.invoke(result, "passTypeofToAFunction");
-        Assert.assertEquals(res[0].stringValue(), "int");
+    @Test (dataProvider = "function-provider")
+    public void testTypeOfExpression(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void getTypeDescOfASimpleRecordType() {
-        BValue[] res = BRunUtil.invoke(result, "typeDescOfARecord");
-        Assert.assertEquals(res[0].stringValue(), "RecType0");
-    }
-
-    @Test
-    public void getTypeDescOfASimpleObjectType() {
-        BValue[] res = BRunUtil.invoke(result, "typeDescOrAObject");
-        Assert.assertEquals(res[0].stringValue(), "Obj0");
-    }
-
-    @Test
-    public void testUsingTypeofOperatorAsRestArgs() {
-        BValue[] res = BRunUtil.invoke(result, "passTypeofAsRestParams");
-        Assert.assertEquals(res[0].stringValue(), "int");
-        Assert.assertEquals(res[1].stringValue(), "int");
-        Assert.assertEquals(res[2].stringValue(), "float");
+    @DataProvider(name = "function-provider")
+    public Object[] provideFunctionNames() {
+        return new String[]{"typeDescOfExpressionsOfLiterals", "passTypeofToAFunction", "typeDescOfARecord",
+                "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues"};
     }
 
     @AfterClass

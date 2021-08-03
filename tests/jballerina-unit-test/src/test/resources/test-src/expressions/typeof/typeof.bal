@@ -13,16 +13,16 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/test;
 
 type RecType0 record {
     string name;
 };
 
-function typeDescOfARecord() returns typedesc<any> {
+function typeDescOfARecord() {
     RecType0 i = { name: "theName"};
     typedesc<any> td0 = typeof i;
-    return td0;
+    test:assertEquals(td0.toString(), "typedesc RecType0");
 }
 
 class Obj0 {
@@ -35,52 +35,58 @@ class Obj0 {
     }
 }
 
-function typeDescOrAObject() returns typedesc<any> {
+function typeDescOrAObject() {
     Obj0 o = new("name", 42);
-    return typeof o;
+    test:assertEquals((typeof o).toString(), "typedesc Obj0");
 }
 
-function typeDescOfLiterals() returns
-    [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] {
-    var a = typeof 1;
-    var b = typeof 2.0;
-    var c = typeof 2.1f;
-    var d = typeof "str-literal";
-    var e = typeof true;
-    var f = typeof false;
-    var g = typeof ();
-    return [a, b, c, d, e, f, g];
+function typeDescOfLiterals(any value, string expected) {
+    var a = typeof value;
+    test:assertEquals(a.toString(), "typedesc " + expected);
 }
 
-function typeDescOfExpressionsOfLiterals() returns
-    [typedesc<any>, typedesc<any>] {
+function typeDescOfExpressionsOfLiterals() {
     int i = 0;
     int j = 4;
     int k = 4;
     float f = 0.0;
     float ff = 22.0;
-    return [typeof (i+j*k), typeof (f*ff)];
+    var r1 = typeof (i + j * k);
+    test:assertEquals(r1.toString(), "typedesc 16");
+    var r2 = typeof (f * ff);
+    test:assertEquals(r2.toString(), "typedesc 0.0");
 }
 
 function takesATypedescParam(typedesc<any> param) returns typedesc<any> {
     return param;
 }
 
-function passTypeofToAFunction() returns typedesc<any> {
+function passTypeofToAFunction() {
     typedesc<any> t = typeof 22;
     var t1 = takesATypedescParam(t);
     var t2 = takesATypedescParam(typeof 33);
-    return t1;
+    test:assertEquals(t1.toString(), "typedesc 22");
+    test:assertEquals(t2.toString(), "typedesc 33");
 }
 
 function takeTypeofAsRestParams(typedesc<any>... xs) returns typedesc<any>[] {
     return xs;
 }
 
-function passTypeofAsRestParams() returns typedesc<any>[] {
-    return takeTypeofAsRestParams(typeof 22, typeof 33, typeof 33.33);
+function passTypeofAsRestParams() {
+    typedesc<any>[] result = takeTypeofAsRestParams(typeof 22, typeof 33, typeof 33.33);
+    test:assertEquals(result[0].toString(), "typedesc 22");
+    test:assertEquals(result[1].toString(), "typedesc 33");
+    test:assertEquals(result[2].toString(), "typedesc 33.33");
 }
 
 function returnTypeOfInt() returns typedesc<any> {
     return typeof (5 + 1);
+}
+
+function compareTypeOfValues() {
+    int i = 34;
+    var t1 = typeof i;
+    var t2 = typeof i;
+    test:assertFalse(t1 === t2);    
 }
