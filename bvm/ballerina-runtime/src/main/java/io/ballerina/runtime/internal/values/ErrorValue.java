@@ -36,11 +36,14 @@ import io.ballerina.runtime.internal.types.BTypeIdSet;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
@@ -291,33 +294,37 @@ public class ErrorValue extends BError implements RefValue {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg);
-        // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = this.getStackTrace();
-        if (stackTrace.length == 0) {
-            return sb.toString();
+        Set<StackTraceElement> printedStackElementsSet = new HashSet<>();
+        addPrintableStackTrace(sb, this, printedStackElementsSet);
+        BError cause = this.getCause();
+        while (cause != null) {
+            sb.append("\ncause: ")
+                    .append(cause.getMessage());
+            addPrintableStackTrace(sb, cause, printedStackElementsSet);
+            cause = cause.getCause();
         }
-        sb.append("\n\tat ");
-        // print first element
-        printStackElement(sb, stackTrace[0], "");
-        for (int i = 1; i < stackTrace.length; i++) {
-            printStackElement(sb, stackTrace[i], "\n\t   ");
-        }
-        addErrorCauseWithLocation(sb, this.cause, stackTrace.length);
         return sb.toString();
     }
 
-    public void addErrorCauseWithLocation(StringBuilder sb, BError cause, int offset) {
-        if (cause != null) {
-            StackTraceElement[] stackTrace = cause.getStackTrace();
-            sb.append("\ncause: ")
-                    .append(cause.getMessage())
-                    .append("\n\tat ");
-            printStackElement(sb, stackTrace[0], "");
-            for (int i = 1; i < stackTrace.length - offset; i++) {
-                printStackElement(sb, stackTrace[i], "\n\t   ");
-            }
-            addErrorCauseWithLocation(sb, cause.getCause(), stackTrace.length);
+    private void addPrintableStackTrace(StringBuilder sb, BError error,
+                                       Set<StackTraceElement> printedStackElementsSet) {
+        // Append function/action/resource name with package path (if any)
+        StackTraceElement[] stackTrace = error.getStackTrace();
+        if (stackTrace.length == 0) {
+            return;
         }
+        List<StackTraceElement> printedElements = new ArrayList<>();
+        sb.append("\n\tat ");
+        // print first element
+        printStackElement(sb, stackTrace[0], "");
+        printedElements.add(stackTrace[0]);
+        for (int i = 1; i < stackTrace.length; i++) {
+            if (!printedStackElementsSet.contains(stackTrace[i])) {
+                printStackElement(sb, stackTrace[i], "\n\t   ");
+                printedElements.add(stackTrace[i]);
+            }
+        }
+        printedStackElementsSet.addAll(printedElements);
     }
 
     @Override
