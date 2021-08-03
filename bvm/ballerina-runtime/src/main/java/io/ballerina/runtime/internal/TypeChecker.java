@@ -519,6 +519,9 @@ public class TypeChecker {
         if (type == null) {
             return null;
         }
+        if (isSimpleBasicType(type)) {
+            type = new BFiniteType(value.toString(), Set.of(value), 0);
+        }
         if (value instanceof MapValue) {
             TypedescValue typedesc = (TypedescValue) ((MapValue) value).getTypedesc();
             if (typedesc != null) {
