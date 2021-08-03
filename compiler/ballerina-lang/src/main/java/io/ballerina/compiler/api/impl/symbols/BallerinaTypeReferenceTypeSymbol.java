@@ -60,7 +60,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         this.definitionName = tSymbol != null ? tSymbol.getName().getValue() : null;
         this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
-        this.location = tSymbol.pos;
+        this.location = tSymbol != null ? tSymbol.pos : null;
     }
 
     @Override
