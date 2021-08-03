@@ -49,9 +49,9 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         this.experimentalCapabilities = (experimentalClientCapabilities != null) ?
                 parseCapabilities(experimentalClientCapabilities) : new ExperimentalClientCapabilitiesImpl();
-        
-        this.initializationOptions = initializationOptionsMap != null ? 
-                parseInitializationOptions(initializationOptionsMap): new InitializationOptionsImpl();
+
+        this.initializationOptions = initializationOptionsMap != null ?
+                parseInitializationOptions(initializationOptionsMap) : new InitializationOptionsImpl();
     }
 
     /**
