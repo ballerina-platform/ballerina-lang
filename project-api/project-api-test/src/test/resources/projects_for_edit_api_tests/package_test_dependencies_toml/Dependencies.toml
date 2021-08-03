@@ -1,4 +1,4 @@
-[[dependency]]
+[[package]]
 org = "foo"
 name = "package_dep"
 version = "0.1.0"

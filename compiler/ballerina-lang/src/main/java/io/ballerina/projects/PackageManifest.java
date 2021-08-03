@@ -197,20 +197,41 @@ public class PackageManifest {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
         private final PackageVersion semanticVersion;
+        private final String scope;
+        private final boolean transitive;
+        private final List<TransitiveDependency> dependencies;
         public String repository;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
+            this.scope = null;
+            this.transitive = false;
+            this.dependencies = Collections.emptyList();
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
-                          String repository) {
+                          String scope, boolean transitive,
+                          List<TransitiveDependency> dependencies) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.semanticVersion = semanticVersion;
+            this.scope = scope;
+            this.transitive = transitive;
+            this.dependencies = dependencies;
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
+                          String repository, String scope, boolean transitive,
+                          List<TransitiveDependency> dependencies) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
             this.repository = repository;
+            this.scope = scope;
+            this.transitive = transitive;
+            this.dependencies = dependencies;
         }
 
         public PackageName name() {
@@ -227,6 +248,41 @@ public class PackageManifest {
 
         public String repository() {
             return repository;
+        }
+
+        public String scope() {
+            return scope;
+        }
+
+        public boolean isTransitive() {
+            return transitive;
+        }
+
+        public List<TransitiveDependency> dependencies() {
+            return dependencies;
+        }
+    }
+
+    /**
+     * Represents a transitive dependency of a package.
+     *
+     * @since 2.0.0
+     */
+    public static class TransitiveDependency {
+        private final PackageName packageName;
+        private final PackageOrg packageOrg;
+
+        public TransitiveDependency(PackageName packageName, PackageOrg packageOrg) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+        }
+
+        public PackageName name() {
+            return packageName;
+        }
+
+        public PackageOrg org() {
+            return packageOrg;
         }
     }
 

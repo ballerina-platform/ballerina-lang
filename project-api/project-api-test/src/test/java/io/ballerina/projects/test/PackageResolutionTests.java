@@ -26,6 +26,8 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -35,6 +37,9 @@ import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -49,10 +54,15 @@ import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Contains cases to test package resolution logic.
@@ -381,5 +391,26 @@ public class PackageResolutionTests extends BaseTest {
                             "ERROR [foo.bal:(4:20,4:39)] undefined function 'zip'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [foo.bal:(4:20,4:39)] undefined module 'hello'");
+    }
+
+    @Test(description = "tests package name resolution response")
+    public void testPackageNameResolution() {
+        DefaultPackageResolver mockResolver = mock(DefaultPackageResolver.class);
+
+        //dummyRequest
+        List<ImportModuleRequest> moduleRequests = new ArrayList<>();
+        moduleRequests.add(new ImportModuleRequest(PackageOrg.from("ballerina"), "java.arrays"));
+        moduleRequests.add(new ImportModuleRequest(PackageOrg.from("ballerina"), "sample.module"));
+
+        //dummyResponse
+        List<ImportModuleResponse>  moduleResponse = new ArrayList<>();
+        for (ImportModuleRequest request: moduleRequests) {
+            String[] parts = request.moduleName().split("[.]");
+            moduleResponse.add(new ImportModuleResponse(request.packageOrg(), PackageName.from(parts[0]), request));
+        }
+
+        when(mockResolver.resolvePackageNames(any())).thenReturn(moduleResponse);
+
+        Assert.assertEquals(mockResolver.resolvePackageNames(moduleRequests).size(), 2);
     }
 }

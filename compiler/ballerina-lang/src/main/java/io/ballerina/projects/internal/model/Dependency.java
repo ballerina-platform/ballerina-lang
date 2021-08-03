@@ -18,6 +18,8 @@
 
 package io.ballerina.projects.internal.model;
 
+import io.ballerina.projects.PackageDependencyScope;
+
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ public class Dependency {
     String org;
     String name;
     String version;
+    PackageDependencyScope scope;
     List<Dependency> dependencies;
 
     public Dependency(String org, String name, String version) {
@@ -55,5 +58,13 @@ public class Dependency {
 
     public void setDependencies(List<Dependency> dependencies) {
         this.dependencies = dependencies;
+    }
+
+    public PackageDependencyScope getScope() {
+        return scope;
+    }
+
+    public void setScope(PackageDependencyScope scope) {
+        this.scope = scope;
     }
 }
