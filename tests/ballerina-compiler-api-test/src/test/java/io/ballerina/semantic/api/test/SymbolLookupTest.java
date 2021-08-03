@@ -451,7 +451,7 @@ public class SymbolLookupTest {
     }
 
     @Test
-    public void test() {
+    public void testDestructureStmts() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_destructure_var_exclusion_test.bal");
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
@@ -465,6 +465,27 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 22, 4, moduleID);
+
+        assertEquals(symbolsInFile.size(), expSymbolNames.size());
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @Test
+    public void testObjectConstructorExpr() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_object_constructor.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+        List<String> expSymbolNames = List.of("test", "f1", "foo", "self", "a");
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 21, 20, moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbolNames.size());
         for (String symName : expSymbolNames) {

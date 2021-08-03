@@ -1387,6 +1387,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetExpression letExpression) {
         SymbolEnv prevEnv = this.env;
+        // Set the enclInvokable of let expression since, when in module level the enclInvokable will be initFunction
+        // and the initFunction is created in desugar phase.
         letExpression.env.enclInvokable = this.env.enclInvokable;
         this.env = letExpression.env;
         BLangExpression expr = letExpression.expr;
