@@ -72,6 +72,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeOfExpress
 import org.ballerinalang.debugadapter.evaluation.engine.expression.TypeTestExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.UnaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLFilterExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLStepExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.XMLTemplateExpressionEvaluator;
 
 import java.util.AbstractMap;
@@ -359,7 +360,10 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     @Override
     public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
-        super.visit(xMLStepExpressionNode);
+        visitSyntaxNode(xMLStepExpressionNode);
+        xMLStepExpressionNode.expression().accept(this);
+        Evaluator subExprEvaluator = result;
+        result = new XMLStepExpressionEvaluator(context, xMLStepExpressionNode, subExprEvaluator);
     }
 
     @Override

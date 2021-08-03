@@ -17,39 +17,39 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
-import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
-import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_XML_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_XML_FILTER_RESULT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_XML_STEP_RESULT_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
 /**
- * XML filter expression evaluator implementation.
+ * XML step expression evaluator implementation.
  *
  * @since 2.0.0
  */
-public class XMLFilterExpressionEvaluator extends Evaluator {
+public class XMLStepExpressionEvaluator extends Evaluator {
 
-    private final XMLFilterExpressionNode syntaxNode;
+    private final XMLStepExpressionNode syntaxNode;
     private final Evaluator subExprEvaluator;
 
-    public XMLFilterExpressionEvaluator(SuspendedContext context, XMLFilterExpressionNode filterExpressionNode,
-                                        Evaluator subExprEvaluator) {
+    public XMLStepExpressionEvaluator(SuspendedContext context, XMLStepExpressionNode stepExpressionNode,
+                                      Evaluator subExprEvaluator) {
         super(context);
-        this.syntaxNode = filterExpressionNode;
+        this.syntaxNode = stepExpressionNode;
         this.subExprEvaluator = subExprEvaluator;
     }
 
@@ -62,36 +62,25 @@ public class XMLFilterExpressionEvaluator extends Evaluator {
             BExpressionValue subExprResult = subExprEvaluator.evaluate();
             if (subExprResult.getType() != BVariableType.XML) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "filter expressions are not supported on type '" + subExprResult.getType().getString() + "'"));
+                        "step expressions are not supported on type '" + subExprResult.getType().getString() + "'"));
             }
 
             List<String> argTypeNames = new ArrayList<>();
             argTypeNames.add(B_XML_CLASS);
-            argTypeNames.add(B_STRING_ARRAY_CLASS);
-            RuntimeStaticMethod getFilterResultMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
-                    GET_XML_FILTER_RESULT_METHOD, argTypeNames);
+            argTypeNames.add(JAVA_STRING_CLASS);
+            RuntimeStaticMethod getStepResultMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
+                    GET_XML_STEP_RESULT_METHOD, argTypeNames);
 
             List<Value> argValues = new ArrayList<>();
             argValues.add(subExprResult.getJdiValue());
-            argValues.addAll(getXmlPatternChainAsList());
-            getFilterResultMethod.setArgValues(argValues);
-            return new BExpressionValue(context, getFilterResultMethod.invokeSafely());
+            argValues.add(EvaluationUtils.getAsJString(context, syntaxNode.xmlStepStart().toSourceCode().trim()));
+            getStepResultMethod.setArgValues(argValues);
+            return new BExpressionValue(context, getStepResultMethod.invokeSafely());
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
                     syntaxNode.toSourceCode().trim()));
         }
-    }
-
-    private List<Value> getXmlPatternChainAsList() {
-        List<Value> result = new ArrayList<>();
-        syntaxNode.xmlPatternChain().xmlNamePattern().stream().forEach(node -> {
-            try {
-                result.add(VMUtils.make(context, node.toSourceCode().trim()).getJdiValue());
-            } catch (EvaluationException ignored) {
-            }
-        });
-        return result;
     }
 }
