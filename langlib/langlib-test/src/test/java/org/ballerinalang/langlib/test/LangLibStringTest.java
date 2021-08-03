@@ -60,8 +60,7 @@ public class LangLibStringTest {
 
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), "Hello Ballerina!".length());
+        BRunUtil.invoke(compileResult, "testLength");
     }
 
     @Test
