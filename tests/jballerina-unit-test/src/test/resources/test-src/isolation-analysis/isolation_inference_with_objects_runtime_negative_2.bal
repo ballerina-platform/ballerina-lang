@@ -224,6 +224,38 @@ int x = 1;
 
 function f6(int[] arr) returns boolean => arr[0] == x;
 
+class NonIsolatedListener {
+    int x = 0;
+
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+}
+
+listener NonIsolatedListener ln1 = new;
+listener NonIsolatedListener ln2 = new;
+
+function testAccessingListenerOfNonIsolatedObjectType1() {
+    any x = ln1;
+}
+
+function testAccessingListenerOfNonIsolatedObjectType2() {
+    lock {
+        error? p = ln2.attach(service object {});
+    }
+}
+
 function testIsolatedInference() {
     ClassWithExternalMethodOne a = new;
     assertFalse(<any> a is isolated object {});
@@ -280,6 +312,9 @@ function testIsolatedInference() {
     assertFalse(<any> j is isolated object {});
     assertTrue(isMethodIsolated(j, "fn"));
     assertFalse(isMethodIsolated(j, "fn2"));
+
+    assertFalse(<any> testAccessingListenerOfNonIsolatedObjectType1 is isolated function);
+    assertFalse(<any> testAccessingListenerOfNonIsolatedObjectType2 is isolated function);
 }
 
 isolated function assertTrue(any|error actual) {
