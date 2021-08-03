@@ -45,7 +45,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Pull Module";
 
-    /** Command used at the LS client side to trigger pull module code command */
+    /** Command used at the LS client side to trigger pull module code command. */
     private static final String PULL_MODULE_COMMAND = "ballerina.packages.pull";
     private static final int MISSING_MODULE_NAME_INDEX = 0;
 
