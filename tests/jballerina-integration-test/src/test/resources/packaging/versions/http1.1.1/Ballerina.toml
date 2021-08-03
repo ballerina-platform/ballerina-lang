@@ -1,0 +1,7 @@
+[package]
+org = "waruna"
+name = "http"
+version = "1.1.1"
+
+export = ["http.client"]
+
