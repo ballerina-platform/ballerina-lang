@@ -56,6 +56,7 @@ import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.RenameOptions;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
 import org.eclipse.lsp4j.SemanticTokensWithRegistrationOptions;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
@@ -146,11 +147,14 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         // Set LS semantic tokens capabilities
-        if (params.getCapabilities().getTextDocument().getSemanticTokens().getDynamicRegistration()) {
-            registerSemanticTokensConfigListener();
-        } else {
-            res.getCapabilities().setSemanticTokensProvider(
-                    SemanticTokensUtils.getSemanticTokensRegistrationOptions());
+        SemanticTokensCapabilities tokensCapabilities = params.getCapabilities().getTextDocument().getSemanticTokens();
+        if (tokensCapabilities != null) {
+            if (tokensCapabilities.getDynamicRegistration()) {
+                registerSemanticTokensConfigListener();
+            } else {
+                res.getCapabilities().setSemanticTokensProvider(
+                        SemanticTokensUtils.getSemanticTokensRegistrationOptions());
+            }
         }
 
         // Check and set prepare rename provider
@@ -277,6 +281,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             @Override
             public void didChangeConfig(LSClientConfig oldConfig, LSClientConfig newConfig) {
                 ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
+                if (languageClient == null) {
+                    return;
+                }
                 if (newConfig.isEnableSemanticHighlighting()) {
                     SemanticTokensWithRegistrationOptions options =
                             SemanticTokensUtils.getSemanticTokensRegistrationOptions();
