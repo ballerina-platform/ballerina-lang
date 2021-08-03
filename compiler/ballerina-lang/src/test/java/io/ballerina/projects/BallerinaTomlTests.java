@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -305,10 +306,23 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.descriptor().name().value(), "winery");
         Assert.assertEquals(packageManifest.descriptor().version().toString(), "1.0.0");
 
+        // package should not be able to access using `getValue` method
+        Assert.assertNull(packageManifest.getValue("package"));
+
+        // other entry field
         Assert.assertEquals(packageManifest.getValue("firstField"), "yee");
-        Assert.assertEquals(((Map<String, Object>) packageManifest.getValue("package")).get("org"), "foo");
-        Assert.assertEquals(((Map<String, Object>) packageManifest.getValue("package")).get("newField"), "fee");
+
+        // other entry table
         Assert.assertEquals(((Map<String, Object>) packageManifest.getValue("userTable")).get("name"), "bar");
+        Long frequency = (Long) (((Map<String, Object>) packageManifest.getValue("userTable")).get("frequency"));
+        Assert.assertEquals(frequency.longValue(), 225);
+
+        // other entry table array
+        List<Map<String, Object>> userContacts = (ArrayList) packageManifest.getValue("userContact");
+        Assert.assertEquals(userContacts.size(), 2);
+        Map<String, Object> firstContact = userContacts.get(0);
+        Assert.assertEquals(firstContact.get("name"), "hevayo");
+        Assert.assertEquals(firstContact.get("phone"), "0123456789");
     }
 
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {

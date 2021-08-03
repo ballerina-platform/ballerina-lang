@@ -175,6 +175,9 @@ public class ManifestBuilder {
         if (!tomlAstNode.entries().isEmpty()) {
             Map<String, Object> tomlMap = ballerinaToml.toml().toMap();
             for (Map.Entry<String, Object> entry : tomlMap.entrySet()) {
+                if (entry.getKey().equals(PACKAGE) || entry.getKey().equals(PLATFORM)) {
+                    continue;
+                }
                 otherEntries.put(entry.getKey(), entry.getValue());
             }
         }
