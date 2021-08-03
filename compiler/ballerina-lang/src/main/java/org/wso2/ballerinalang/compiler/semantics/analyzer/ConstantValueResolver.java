@@ -439,7 +439,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             String valueString = value == null ? ((BLangLiteral) constant.expr).originalValue : String.valueOf(value);
             if (constantMap.containsKey(nameString)) {
                 if (!valueString.equals(constantMap.get(nameString))) {
-                    dlog.error(constant.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString,
+                    dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString,
                             constantMap.get(nameString));
                 }
             } else {
