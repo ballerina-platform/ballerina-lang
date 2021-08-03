@@ -542,11 +542,14 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
+                boolean lineFoldingOnly = this.clientCapabilities.getTextDocCapabilities().getFoldingRange() != null &&
+                        Boolean.TRUE.equals(this.clientCapabilities.getTextDocCapabilities()
+                                .getFoldingRange().getLineFoldingOnly());
                 FoldingRangeContext foldingRangeContext = ContextBuilder.buildFoldingRangeContext(
                         params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        this.clientCapabilities.getTextDocCapabilities().getFoldingRange().getLineFoldingOnly());
+                        lineFoldingOnly);
                 return FoldingRangeProvider.getFoldingRange(foldingRangeContext);
             } catch (Throwable e) {
                 String msg = "Operation 'text/foldingRange' failed!";
