@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class IdentifierUtils {
 
-    private static final String UNICODE_REGEX = "(\\\\*)\\\\u\\{([a-fA-F0-9]+)\\}";
+    private static final String UNICODE_REGEX = "\\\\(\\\\*)u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
 
     private static final String CHAR_PREFIX = "$";

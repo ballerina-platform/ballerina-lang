@@ -5267,8 +5267,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
-                    text = IdentifierUtils.unescapeUnicodeCodepoints(text);
-                    text = IdentifierUtils.unescapeJava(text);
+                    text = IdentifierUtils.unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text));
                 } catch (Exception e) {
                     // We may reach here when the string literal has syntax diagnostics.
                     // Therefore mock the compiler with an empty string.
@@ -5328,7 +5327,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             if ((decimalCodePoint >= Constants.MIN_UNICODE && decimalCodePoint <= Constants.MIDDLE_LIMIT_UNICODE)
                     || decimalCodePoint > Constants.MAX_UNICODE) {
 
-                int offset = matcher.end(1) + 1;
+                int offset = matcher.end(1);
                 String numericEscape = "\\u{" + hexCodePoint + "}";
                 BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
                         pos.lineRange().startLine().line(),
