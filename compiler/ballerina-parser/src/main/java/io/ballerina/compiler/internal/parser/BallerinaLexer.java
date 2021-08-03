@@ -177,19 +177,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                int nextChar = peek();
-                if (nextChar == LexerTerminals.EQUAL) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
-                } else if (nextChar == LexerTerminals.MINUS) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
-                } else if (nextChar == LexerTerminals.LT) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.LT_TOKEN);
-                }
+                token = processTokenStartWithLt();
                 break;
             case LexerTerminals.GT:
                 token = processTokenStartWithGt();
@@ -499,8 +487,14 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'F':
                 case 'd':
                 case 'D':
+                    char nextNextChar = reader.peek(1);
                     // If there's more than one dot, only capture the integer
-                    if (reader.peek(1) == LexerTerminals.DOT) {
+                    if (nextNextChar == LexerTerminals.DOT) {
+                        break;
+                    }
+
+                    // If dot is followed by an identifier, only capture the integer. e.g. 2.toString()
+                    if (nextChar == LexerTerminals.DOT && isNumericFollowedByIdentifier(nextNextChar)) {
                         break;
                     }
 
@@ -534,6 +528,24 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN);
+    }
+
+    private boolean isNumericFollowedByIdentifier(char nextNextChar) {
+        switch (nextNextChar) {
+            case 'e':
+            case 'E':
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                char thirdChar = this.reader.peek(2);
+                if (thirdChar == LexerTerminals.PLUS || thirdChar == LexerTerminals.MINUS) {
+                    return false;
+                }
+                return isIdentifierInitialChar(thirdChar);
+            default:
+                return isIdentifierInitialChar(nextNextChar);
+        }
     }
 
     /**
@@ -1422,6 +1434,27 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Unicode pattern white space characters are not allowed
         return !isUnicodePatternWhiteSpaceChar(nextChar);
+    }
+
+    private STToken processTokenStartWithLt() {
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+            case LexerTerminals.MINUS:
+                int nextNextChar = reader.peek(1);
+                if (isDigit(nextNextChar)) {
+                    return getSyntaxToken(SyntaxKind.LT_TOKEN);
+                }
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LEFT_ARROW_TOKEN);
+            case LexerTerminals.LT:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.DOUBLE_LT_TOKEN);
+        }
+
+        return getSyntaxToken(SyntaxKind.LT_TOKEN);
     }
 
     private STToken processTokenStartWithGt() {
