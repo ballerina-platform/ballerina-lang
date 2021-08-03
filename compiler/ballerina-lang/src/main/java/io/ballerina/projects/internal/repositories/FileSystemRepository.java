@@ -30,6 +30,7 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -178,17 +179,26 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public List<PackageDescriptor> resolveDependencyVersions(
+    public List<ResolutionResponseDescriptor> resolveDependencyVersions(
             List<ResolutionRequest> packageLoadRequests, PackageLockingMode packageLockingMode) {
-        List<PackageDescriptor> descriptorSet = new ArrayList<>();
-        for (ResolutionRequest packageLoadRequest : packageLoadRequests) {
-            List<PackageVersion> versions = getPackageVersions(packageLoadRequest);
+        List<ResolutionResponseDescriptor> descriptorSet = new ArrayList<>();
+        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
+            List<PackageVersion> versions = getPackageVersions(resolutionRequest);
             if (!versions.isEmpty()) {
-                PackageVersion latest = findLatest(packageLoadRequest, versions, packageLockingMode);
-                PackageDescriptor descriptor =
-                        PackageDescriptor.from(packageLoadRequest.orgName(), packageLoadRequest.packageName(), latest);
-                descriptorSet.add(descriptor);
+                PackageVersion latest = findLatest(resolutionRequest, versions, packageLockingMode);
+                if (latest != null) {
+                    PackageDescriptor resolvedDescriptor = PackageDescriptor
+                            .from(resolutionRequest.orgName(), resolutionRequest.packageName(), latest);
+                    ResolutionRequest newResolutionRequest = ResolutionRequest
+                            .from(resolvedDescriptor, resolutionRequest.scope(), resolutionRequest.offline());
+                    Package resolvedPackage = getPackage(newResolutionRequest).orElseThrow();
+                    ResolutionResponseDescriptor responseDescriptor = ResolutionResponseDescriptor
+                            .from(resolutionRequest, resolvedDescriptor, resolvedPackage.descriptorDependencyGraph());
+                    descriptorSet.add(responseDescriptor);
+                    continue;
+                }
             }
+            descriptorSet.add(ResolutionResponseDescriptor.from(resolutionRequest));
         }
 
         return descriptorSet;
@@ -229,6 +239,11 @@ public class FileSystemRepository implements PackageRepository {
                         && !semVerOther.lessThan(semVer));
             }).collect(Collectors.toList());
             return findLatest(filteredPackageVersions);
+        }
+        if (packageLockingMode.equals(PackageLockingMode.HARD)) {
+            if (packageVersions.contains(resolutionRequest.packageDescriptor().version())) {
+                return resolutionRequest.packageDescriptor().version();
+            }
         }
         return null;
     }

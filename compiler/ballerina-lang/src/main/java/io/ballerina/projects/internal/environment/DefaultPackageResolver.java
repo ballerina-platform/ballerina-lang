@@ -30,6 +30,7 @@ import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 
@@ -117,26 +118,32 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public List<PackageDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests,
-                                                            PackageLockingMode packageLockingMode) {
-        List<PackageDescriptor> latestVersionInDist = ballerinaDistRepo
+    public List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests,
+                                                                        PackageLockingMode packageLockingMode) {
+        List<ResolutionResponseDescriptor> latestVersionsInDist = ballerinaDistRepo
                 .resolveDependencyVersions(packageLoadRequests, packageLockingMode);
-        List<PackageDescriptor> latestVersionInCentral = ballerinaCentralRepo
+        List<ResolutionResponseDescriptor> latestVersionsInCentral = ballerinaCentralRepo
                 .resolveDependencyVersions(packageLoadRequests, packageLockingMode);
 
-        List<PackageDescriptor> packageDescriptorList = new ArrayList<>(
-                Stream.of(latestVersionInDist, latestVersionInCentral).flatMap(List::stream).collect(Collectors.toMap(
-                        p -> p.org().toString() + "/" + p.name().toString(),
-                        Function.identity(),
-                        (PackageDescriptor x, PackageDescriptor y) -> {
-                            if (x.version().compareTo(y.version()).equals(
+        List<ResolutionResponseDescriptor> responseDescriptors = new ArrayList<>(
+                Stream.of(latestVersionsInDist, latestVersionsInCentral).flatMap(List::stream).collect(Collectors.toMap(
+                        ResolutionResponseDescriptor::packageLoadRequest, Function.identity(),
+                        (ResolutionResponseDescriptor x, ResolutionResponseDescriptor y) -> {
+                            if (x.resolvedDescriptor().isEmpty()) {
+                                return y;
+                            }
+                            if (y.resolvedDescriptor().isEmpty()) {
+                                return x;
+                            }
+                            if (x.resolvedDescriptor().get().version().compareTo(
+                                    y.resolvedDescriptor().get().version()).equals(
                                     SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
                                 return y;
                             }
                             return x;
                 })).values());
 
-        return packageDescriptorList;
+        return responseDescriptors;
     }
 
     @Override
