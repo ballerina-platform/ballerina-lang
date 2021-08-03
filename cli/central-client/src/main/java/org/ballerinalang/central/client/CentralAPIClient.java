@@ -241,12 +241,21 @@ public class CentralAPIClient {
             }
         }
     }
-    
+
     /**
-     * Pushing a package to registry.
+     * Push a package to registry.
+     *
+     * @param balaPath              The path to the bala file.
+     * @param org                   The organization of the package.
+     * @param name                  The name of the package.
+     * @param version               The version of the package.
+     * @param supportedPlatform     The supported platform.
+     * @param ballerinaVersion      The ballerina version.
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String supportedPlatform,
                             String ballerinaVersion) throws CentralClientException {
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature = org + "/" + name + ":" + version;
         String url = this.baseUrl + "/" + PACKAGES;
         Optional<ResponseBody> body = Optional.empty();
@@ -263,12 +272,13 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-    
+
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [project repo -> central]", this.outStream);
 
+            // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
-                    .post(balaFileReqBodyWithProgressBar)
+                    .post(enableOutputStream ? balaFileReqBodyWithProgressBar : balaFileReqBody)
                     .url(url)
                     .build();
 
@@ -277,7 +287,9 @@ public class CentralAPIClient {
 
             // Successfully pushed
             if (packagePushResponse.code() == HTTP_NO_CONTENT) {
-                this.outStream.println(packageSignature + " pushed to central successfully");
+                if (enableOutputStream) {
+                    this.outStream.println(packageSignature + " pushed to central successfully");
+                }
                 return;
             }
 
@@ -342,8 +354,23 @@ public class CentralAPIClient {
         }
     }
 
+    /**
+     * Pull a package from central.
+     *
+     * @param org                       The organization of the package.
+     * @param name                      The name of the package.
+     * @param version                   The version of the package.
+     * @param packagePathInBalaCache    The package path in Bala cache.
+     * @param supportedPlatform         The supported platform.
+     * @param ballerinaVersion          The ballerina version.
+     * @param isBuild                   If build option is enabled or not.
+     * @throws CentralClientException   Central Client exception.
+     */
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
-            String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
+                            String supportedPlatform, String ballerinaVersion, boolean isBuild)
+            throws CentralClientException {
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String packageSignature =  org + "/" + name;
         String url = this.baseUrl + "/" + PACKAGES + "/" + org + "/" + name;
         // append version to url if available
@@ -391,7 +418,7 @@ public class CentralAPIClient {
                     Response balaDownloadResponse = downloadBalaRequestCall.execute();
                     boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                     createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
-                            balaUrl.get(), balaFileName.get(), outStream, logFormatter);
+                            balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
                     return;
                 } else {
                     String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +

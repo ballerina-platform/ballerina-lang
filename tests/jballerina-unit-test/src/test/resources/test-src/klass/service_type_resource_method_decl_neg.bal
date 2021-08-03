@@ -23,3 +23,67 @@ type SType service object {
 service class SClass {
     *SType;
 }
+
+service class ROne {
+    resource function get foo() returns string {
+        return "foo";
+    }
+}
+
+// Not having a implementation for "get foo" resource method is expected as resource method is not part of the obj type.
+service class RTwo {
+    *ROne;
+}
+
+type RType service object {
+    *ROne;
+    *RTwo;
+};
+
+service class RTypeImpl {
+    *RType;
+}
+
+
+service class DoDone {
+    resource function 'do f() returns int => 0;
+
+    resource function done f() returns int => 0;
+
+    public function 'do() returns int => 0;
+}
+
+service class Do {
+    *DoDone;
+    public function 'do() returns int => 0;
+}
+
+function checkObjectAssignability() {
+    Do 'do = new DoDone();
+}
+
+service class Foo {
+    resource function get greeting() returns string => "hello";
+
+    remote function hello() {
+
+    }
+}
+
+service class Bar {
+    remote function hello() {
+
+    }
+}
+
+function positive() {
+    Foo f = new Bar();
+}
+
+service class Baz {
+
+}
+
+function negative() {
+    Foo f = new Baz();
+}

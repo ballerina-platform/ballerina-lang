@@ -495,28 +495,10 @@ public class JvmCodeGenUtil {
             mv.visitLabel(insLabel);
             BIRAbstractInstruction inst = bb.instructions.get(i);
             if (inst != null) {
-                lastScope = getLastScopeFromDiagnosticGen(inst, funcName, mv, labelGen,
-                                                          visitedScopesSet, lastScope);
+                generateDiagnosticPos(inst.pos, mv);
                 instGen.generateInstructions(localVarOffset, inst);
+                lastScope = getLastScope(inst, funcName, labelGen, visitedScopesSet, lastScope, mv);
             }
-        }
-
-        return lastScope;
-    }
-
-    private static BirScope getLastScopeFromDiagnosticGen(BIRAbstractInstruction instruction, String funcName,
-                                                          MethodVisitor mv, LabelGenerator labelGen,
-                                                          Set<BirScope> visitedScopesSet, BirScope lastScope) {
-
-        BirScope scope = instruction.scope;
-        if (scope != null && scope != lastScope) {
-            lastScope = scope;
-            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
-            generateDiagnosticPos(instruction.pos, mv, scopeLabel);
-            storeLabelForParentScopes(scope, scopeLabel, labelGen, funcName, visitedScopesSet);
-            visitedScopesSet.add(scope);
-        } else {
-            generateDiagnosticPos(instruction.pos, mv);
         }
 
         return lastScope;
@@ -524,15 +506,24 @@ public class JvmCodeGenUtil {
 
     public static void generateDiagnosticPos(Location pos, MethodVisitor mv) {
         Label label = new Label();
-        generateDiagnosticPos(pos, mv, label);
-    }
-
-    private static void generateDiagnosticPos(Location pos, MethodVisitor mv, Label label) {
         if (pos != null && pos.lineRange().startLine().line() != 0x80000000) {
             mv.visitLabel(label);
             // Adding +1 since 'pos' is 0-based and we want 1-based positions at run time
             mv.visitLineNumber(pos.lineRange().startLine().line() + 1, label);
         }
+    }
+
+    private static BirScope getLastScope(BIRAbstractInstruction instruction, String funcName, LabelGenerator labelGen,
+                                         Set<BirScope> visitedScopesSet, BirScope lastScope, MethodVisitor mv) {
+        BirScope scope = instruction.scope;
+        if (scope != null && scope != lastScope) {
+            lastScope = scope;
+            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
+            mv.visitLabel(scopeLabel);
+            storeLabelForParentScopes(scope, scopeLabel, labelGen, funcName, visitedScopesSet);
+            visitedScopesSet.add(scope);
+        }
+        return lastScope;
     }
 
     private static void storeLabelForParentScopes(BirScope scope, Label scopeLabel, LabelGenerator labelGen,
@@ -546,6 +537,19 @@ public class JvmCodeGenUtil {
 
             storeLabelForParentScopes(parent, scopeLabel, labelGen, funcName, visitedScopesSet);
         }
+    }
+
+    public static BirScope getLastScopeFromTerminator(MethodVisitor mv, BIRNode.BIRBasicBlock bb, String funcName,
+                                                       LabelGenerator labelGen, BirScope lastScope,
+                                                      Set<BirScope> visitedScopesSet) {
+        BirScope scope = bb.terminator.scope;
+        if (scope != null && scope != lastScope) {
+            lastScope = scope;
+            Label scopeLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + scope.id);
+            mv.visitLabel(scopeLabel);
+            visitedScopesSet.add(scope);
+        }
+        return lastScope;
     }
 
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,

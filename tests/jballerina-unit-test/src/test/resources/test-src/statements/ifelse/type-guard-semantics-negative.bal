@@ -500,3 +500,39 @@ function testIntersectionWithIntersectionTypeNegative() {
         (record {| string s; |} & readonly)? y = bar.baz;
     }
 }
+
+type Colour "r"|"g"|"b";
+type Ints 1|2;
+type Kinds Colour|Ints;
+
+function testIntersectionOfBuiltInSubTypeWithFiniteType() {
+    string:Char a = "r";
+
+    if a is Colour {
+        "r"|"g" a2 = a;
+    }
+
+    int:Unsigned16 b = 1;
+
+    if b is Ints {
+        1 b2 = b;
+    }
+
+    Kinds c = 1;
+
+    if c is Ints {
+        2|3 c2 = c;
+    }
+
+    Kinds d = "g";
+
+    if d is Colour {
+        "r" d2 = d;
+    }
+
+    string:Char e = "r";
+
+    if e is Kinds {
+        "r"|"g"|"x" e2 = e;
+    }
+}

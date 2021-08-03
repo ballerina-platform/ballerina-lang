@@ -49,6 +49,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(arrayNode);
     }
 
+    public T transform(STInlineTableNode inlineTableNode) {
+        return transformSyntaxNode(inlineTableNode);
+    }
+
     public T transform(STStringLiteralNode stringLiteralNode) {
         return transformSyntaxNode(stringLiteralNode);
     }

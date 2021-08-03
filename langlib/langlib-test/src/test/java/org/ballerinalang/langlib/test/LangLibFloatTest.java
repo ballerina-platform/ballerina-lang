@@ -74,4 +74,9 @@ public class LangLibFloatTest {
         assertEquals(((BFloat) returns[0]).floatValue(), Double.NaN);
         assertEquals(((BFloat) returns[1]).floatValue(), Double.POSITIVE_INFINITY);
     }
+
+    @Test
+    public void testLangLibCallOnFiniteType() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
 }

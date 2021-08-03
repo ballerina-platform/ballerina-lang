@@ -157,6 +157,7 @@ public class ImmutableTypeCloner {
             }
 
             typeField.symbol.flags |= Flags.FINAL;
+            classField.flagSet.add(Flag.FINAL);
         }
     }
 
@@ -560,7 +561,7 @@ public class ImmutableTypeCloner {
             if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
                 immutableFieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
                                                             origFieldName, pkgID, immutableFieldType,
-                                                            immutableStructureSymbol, origField.pos, SOURCE);
+                                                            immutableStructureSymbol, origField.symbol.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
                 invokableSymbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
@@ -569,8 +570,8 @@ public class ImmutableTypeCloner {
                 invokableSymbol.flags = tsymbol.flags;
             } else {
                 immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
-                                                      immutableFieldType, immutableStructureSymbol, origField.pos,
-                                                      SOURCE);
+                                                      immutableFieldType, immutableStructureSymbol,
+                                                      origField.symbol.pos, SOURCE);
             }
             String nameString = origFieldName.value;
             fields.put(nameString, new BField(origFieldName, null, immutableFieldSymbol));
