@@ -217,9 +217,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE("BCE2422", "invalid.function.pointer.invocation.with.type"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("BCE2423", "type.cast.not.yet.supported.for.type"),
-    EQUALITY_NOT_YET_SUPPORTED("BCE2424", "equality.not.yet.supported.for.type"),
-    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("BCE2425", "let.expression.not.yet.supported.record.field"),
-    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("BCE2426", "let.expression.not.yet.supported.object.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("BCE2424", "let.expression.not.yet.supported.record.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("BCE2425", "let.expression.not.yet.supported.object.field"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("BCE2500", "incompatible.types.cast"),

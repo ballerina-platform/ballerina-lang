@@ -92,10 +92,10 @@ public class XMLNavigateExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testXMLNavigateWithMissingPipeTokens() {
-        test("a .<* * *>", "xml-navigate-expr/xml_filter_expr_assert_11.json");
-        test("a .<b c:d *>", "xml-navigate-expr/xml_filter_expr_assert_12.json");
-        test("a /<* * *>", "xml-navigate-expr/xml_step_expr_assert_20.json");
-        test("a /**/<* * *>", "xml-navigate-expr/xml_step_expr_assert_21.json");
+        test("a .<* *>;", "xml-navigate-expr/xml_filter_expr_assert_11.json");
+        test("a .<b c:d *>;", "xml-navigate-expr/xml_filter_expr_assert_12.json");
+        test("a /<* *>;", "xml-navigate-expr/xml_step_expr_assert_20.json");
+        test("a /**/<* *>;", "xml-navigate-expr/xml_step_expr_assert_21.json");
     }
 
     @Test

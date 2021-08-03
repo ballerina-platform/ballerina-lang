@@ -72,6 +72,7 @@ public class LangLibNegativeTest {
                 71, 52);
         BAssertUtil.validateError(negativeResult, err++, "missing identifier",
                 71, 53);
+        BAssertUtil.validateError(negativeResult, err++, "undefined function 'toHexString' in type '12|foo'", 78, 18);
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }
 

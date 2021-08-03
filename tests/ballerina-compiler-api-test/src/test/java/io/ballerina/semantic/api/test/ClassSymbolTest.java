@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -150,6 +152,15 @@ public class ClassSymbolTest {
         type.get().getName().ifPresent(tName -> assertEquals(tName, name));
     }
 
+    @Test(dataProvider = "TypeInitPosProvider2")
+    public void testTypeInit3(int line, int sCol, int eCol, TypeDescKind typeKind, String name) {
+        Optional<TypeSymbol> type = model.typeOf(
+                LineRange.from(srcFile.name(), LinePosition.from(line, sCol), LinePosition.from(line, eCol)));
+        assertTrue(type.isPresent());
+        assertEquals(type.get().typeKind(), typeKind);
+        type.get().getName().ifPresent(tName -> assertEquals(tName, name));
+    }
+
     @DataProvider(name = "TypeInitPosProvider2")
     public Object[][] getTypeInit2() {
         return new Object[][]{
@@ -181,8 +192,34 @@ public class ClassSymbolTest {
 
     @Test(dataProvider = "hasDefaultTestProvider")
     public void testHasDefaults(int line, int col, boolean hasDefault) {
-        Symbol symbol = model.symbol(srcFile,  LinePosition.from(line, col)).get();
+        Symbol symbol = model.symbol(srcFile, LinePosition.from(line, col)).get();
         ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol;
         assertEquals(fieldSymbol.hasDefaultValue(), hasDefault);
+    }
+
+    @Test
+    public void testTypeAlias() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(72, 5));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), TYPE_DEFINITION);
+        assertEquals(symbol.get().getName().get(), "PersonType");
+
+        TypeSymbol type = ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
+        assertEquals(type.kind(), CLASS);
+        assertEquals(type.typeKind(), OBJECT);
+        assertEquals(type.getName().get(), "Person1");
+    }
+
+    @Test
+    public void testTypeReference2() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(75, 24));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), TYPE);
+
+        TypeSymbol type = (TypeSymbol) symbol.get();
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "PersonType");
     }
 }

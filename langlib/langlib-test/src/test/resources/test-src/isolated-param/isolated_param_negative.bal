@@ -31,9 +31,13 @@ isolated function testInvalidArgForIsolatedParam() {
     y = y.filter(func = mapFilterFunc);
     y = 'map:filter(y, mapFilterFunc);
     y = 'map:filter(y, val => !val && glob);
+
+    map<int> a = {a: 100, b: 200};
+    int v7 = 'map:reduce(a, function (int i, int j) returns int {return i + j + globInt;}, ...[1]);
 }
 
 boolean glob = true;
+int globInt = 10;
 
 function arrForEachFunc(int i) {
 

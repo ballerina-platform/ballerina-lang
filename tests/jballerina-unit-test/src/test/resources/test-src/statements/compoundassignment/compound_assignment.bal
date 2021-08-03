@@ -1033,6 +1033,173 @@ function testCompoundAssignmentBitwiseUnsignedRightShift() {
     assertEqual(a6, 0x3);
 }
 
+const PANIC_ARITHMETIC_OVERFLOW = 1;
+const PANIC_TYPE_CAST = 3;
+const PANIC_INDEX_OUT_OF_BOUNDS = 5;
+
+type PanicIndex PANIC_ARITHMETIC_OVERFLOW|PANIC_TYPE_CAST|PANIC_INDEX_OUT_OF_BOUNDS;
+
+type Numbers 12|25;
+
+const NEG_THIRTY_TWO = -32;
+const INT_VAL = 25;
+
+function testCompoundAssignmentBitwiseANDOperation() {
+    PanicIndex panicIndex = 5;
+    int a1 = 3;
+    a1 &= panicIndex;
+    assertEqual(a1, 1);
+
+    byte a2 = 0x5;
+    a2 &= panicIndex;
+    assertEqual(a2, 0x5);
+
+    byte a3 = 12;
+    a3 &= panicIndex;
+    assertEqual(a3, 0x4);
+
+    int:Signed32|int a4 = 12;
+    a4 &= panicIndex;
+    assertEqual(a4, 0x4);
+
+    ThreeNumbers c = 3;
+    int:Signed32|int a5 = 12;
+    a5 &= c;
+    assertEqual(a5, 0);
+
+    int a6 = 12;
+    a6 &= NEG_THIRTY_TWO;
+    assertEqual(a6, 0);
+
+    byte a7 = 12;
+    a7 &= 5;
+    assertEqual(a7, 4);
+
+    int a8 = 5;
+    a8 &= 12;
+    assertEqual(a8, 4);
+
+    int a9 = 32;
+    a9 &= NEG_THIRTY_TWO;
+    assertEqual(a9, 32);
+
+    int:Unsigned16 a10 = 12;
+    a10 &= 5;
+    assertEqual(a10, 4);
+
+    int:Unsigned32 d = 5;
+    int:Unsigned16 a11 = 12;
+    a11 &= d;
+    assertEqual(a11, 4);
+
+    int:Unsigned32 a12 = 12;
+    a12 &= panicIndex;
+    assertEqual(a12, 4);
+
+    int:Unsigned16 a13 = 12;
+    int e = 5;
+    a13 &= e;
+    assertEqual(a13, 4);
+
+    Numbers f = 12;
+    int a14 = 25;
+    a14 &= f;
+    assertEqual(a14, 8);
+}
+
+function testCompoundAssignmentBitwiseOROperation() {
+    PanicIndex panicIndex = 5;
+    int a1 = 3;
+    a1 |= panicIndex;
+    assertEqual(a1, 7);
+
+    a1 |= INT_VAL;
+    assertEqual(a1, 31);
+
+    byte|int a2 = 0x5;
+    a2 |= panicIndex;
+    assertEqual(a2, 0x5);
+
+    int:Signed32|int a3 = 12;
+    a3 |= panicIndex;
+    assertEqual(a3, 13);
+
+    ThreeNumbers a = 3;
+    int a4 = 12;
+    a4 |= a;
+    assertEqual(a4, 15);
+
+    int a5 = 12;
+    a5 |= NEG_THIRTY_TWO;
+    assertEqual(a5, -20);
+
+    int a6 = 5;
+    a6 |= 12;
+    assertEqual(a6, 13);
+
+    int:Unsigned16 b = 12;
+    int a7 = 5;
+    a7 |= b;
+    assertEqual(a7, 13);
+
+    int:Unsigned32 a8 = 5;
+    int:Unsigned16 a9 = 12;
+    a9 |= a8;
+    assertEqual(a9, 13);
+}
+
+function testCompoundAssignmentBitwiseXOROperation() {
+    PanicIndex panicIndex = 5;
+    int a1 = 3;
+    a1 ^= panicIndex;
+    assertEqual(a1, 6);
+
+    int a2 = 0x5;
+    a2 ^= panicIndex;
+    assertEqual(a2, 0);
+
+    byte a = 12;
+    int a3 = 5;
+    a3 ^= a;
+    assertEqual(a3, 9);
+
+    int:Signed32|int:Unsigned8|int a4 = 12;
+    a4 ^= panicIndex;
+    assertEqual(a4, 9);
+
+    ThreeNumbers b = 3;
+    int a5 = 12;
+    a5 ^= b;
+    assertEqual(a5, 15);
+
+    int a6 = 12;
+    a6 ^= NEG_THIRTY_TWO;
+    assertEqual(a6, -20);
+
+    int a7 = 5;
+    int c = 12;
+    a7 ^= c;
+    assertEqual(a7, 9);
+
+    int a8 = 12;
+    a8 ^= NEG_THIRTY_TWO;
+    assertEqual(a8, -20);
+
+    int:Unsigned16 d = 12;
+    int a9 = 5;
+    a9 ^= d;
+    assertEqual(a9, 9);
+
+    int:Unsigned32 e = 5;
+    int:Unsigned16 a10 = 12;
+    a10 ^= e;
+    assertEqual(a10, 9);
+
+    int:Unsigned32|int a11 = 12;
+    a11 ^= panicIndex;
+    assertEqual(a11, 9);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

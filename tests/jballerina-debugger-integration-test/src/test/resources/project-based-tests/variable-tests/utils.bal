@@ -31,6 +31,25 @@ public client class Student {
     }
 }
 
+type Annot record {
+    string foo;
+    int bar?;
+};
+
+public annotation Annot v1 on type, class;
+
+string strValue = "v1 value";
+
+@v1 {
+    foo: strValue,
+    bar: 1
+}
+public type T1 record {
+    string name;
+};
+
+T1 a = { name: "John" };
+
 function sum(int a, int b) returns int {
     return a + b;
 }

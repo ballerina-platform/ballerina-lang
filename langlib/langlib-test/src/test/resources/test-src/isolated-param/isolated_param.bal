@@ -19,9 +19,9 @@ import ballerina/lang.'map;
 
 isolated function testIsolatedFunctionArgForIsolatedParam() {
     int[] x = [1, 2, 3];
-    'array:forEach(x, arrForEachFunc);
-    'array:forEach(func = arrForEachFunc, arr = x);
-    'array:forEach(func = val => assertEquality(true, val is OneTwoThree), arr = x);
+    array:forEach(x, arrForEachFunc);
+    array:forEach(func = arrForEachFunc, arr = x);
+    array:forEach(func = val => assertEquality(true, val is OneTwoThree), arr = x);
     x.forEach(func = arrForEachFunc);
     x.forEach(isolated function (int i) {
         assertEquality(true, i is OneTwoThree);
@@ -42,9 +42,13 @@ isolated function testIsolatedFunctionArgForIsolatedParam() {
 
     y = {a: true, b: true, d: true};
     map<boolean> v5 = 'map:filter(y, mapFilterFunc);
-    assertEquality(<map<boolean>> {},v5);
+    assertEquality(<map<boolean>> {}, v5);
     map<boolean> v6 = 'map:filter(y, val => !val);
-    assertEquality(<map<boolean>> {},v6);
+    assertEquality(<map<boolean>> {}, v6);
+
+    map<int> a = {a: 100, b: 200};
+    int v7 = 'map:reduce(a, isolated function (int i, int j) returns int {return i + j;}, ...[1]);
+    assertEquality(301, v7);
 }
 
 type OneTwoThree 1|2|3;

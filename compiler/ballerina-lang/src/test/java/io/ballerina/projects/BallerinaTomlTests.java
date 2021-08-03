@@ -218,12 +218,7 @@ public class BallerinaTomlTests {
     public void testBallerinaTomlWithPlatformDependencyAsInlineTable() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("inline-table.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
-        Assert.assertTrue(diagnostics.hasErrors());
-
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
-        Assert.assertEquals(iterator.next().message(),
-                            "incompatible type for key 'dependency': expected 'OBJECT', found 'STRING'");
-
+        Assert.assertFalse(diagnostics.hasErrors());
     }
 
     @Test
