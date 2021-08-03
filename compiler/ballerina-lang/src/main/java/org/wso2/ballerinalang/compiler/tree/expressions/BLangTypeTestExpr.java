@@ -34,6 +34,11 @@ public class BLangTypeTestExpr extends BLangExpression implements TypeTestExpres
 
     public BLangExpression expr;
     public BLangType typeNode;
+    public boolean isNegation;
+
+    public BLangTypeTestExpr() {
+        this.isNegation = false;
+    }
 
     @Override
     public BLangExpression getExpression() {
@@ -67,6 +72,10 @@ public class BLangTypeTestExpr extends BLangExpression implements TypeTestExpres
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + " is " + String.valueOf(typeNode);
+        if (isNegation) {
+            return expr + " !is " + typeNode;
+        } else {
+            return expr + " is " + typeNode;
+        }
     }
 }
