@@ -23,7 +23,7 @@ package org.ballerinalang.langserver.commons.capability;
 public interface InitializationOptions {
 
     /**
-     * Initialization option key for pull module support
+     * Initialization option key for pull module support.
      */
     String KEY_PULL_MODULE_SUPPORT = "pullModuleSupport";
 
