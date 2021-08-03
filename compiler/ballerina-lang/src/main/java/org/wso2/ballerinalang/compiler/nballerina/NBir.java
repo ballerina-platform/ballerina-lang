@@ -13,12 +13,12 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.BmpStringValue;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 
 class JNModule {
     public ArrayList<FunctionCode> code = new ArrayList<>();
@@ -518,8 +518,6 @@ class Operand {
         }
         if (value instanceof String) {
             return new BmpStringValue((String) value);
-        } else if (value instanceof Name) {
-            return null;
         }
         return this.value;
     }
@@ -744,10 +742,11 @@ class ListGetInsn extends InsnBase {
     Operand operand;
     Position position;
 
-    public ListGetInsn(Register result, Register list, Operand operand) {
+    public ListGetInsn(Register result, Register list, Operand operand, Position position) {
         this.result = result;
         this.list = list;
         this.operand = operand;
+        this.position = position;
     }
 
     @Override
@@ -755,6 +754,7 @@ class ListGetInsn extends InsnBase {
         LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
         fields.put("result", result.getRecord());
         fields.put("list", list.getRecord());
+        fields.put("position", position.getRecord());
         fields.put("operand", operand.getOperand());
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.LIST_GET_INSN, fields);
     }

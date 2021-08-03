@@ -22,6 +22,8 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -303,6 +305,9 @@ public class ModuleGen {
         if (expr instanceof BLangLiteral) {
             Operand op = new Operand(false);
             op.value = ((BLangLiteral) expr).getValue();
+            if (expr.expectedType instanceof BNilType) {
+                op.value = null;
+            }
             return new OpBlockHolder(op, bb);
         } else if (expr instanceof BLangSimpleVarRef) {
             String name = ((BLangSimpleVarRef) expr).variableName.getValue();
@@ -419,6 +424,21 @@ public class ModuleGen {
                 return opb;
             }
         } else if (expr instanceof BLangIndexBasedAccess) {
+            BLangIndexBasedAccess accExpr = (BLangIndexBasedAccess) expr;
+            OpBlockHolder l = codeGenExpr(accExpr.getExpression(), code, bb);
+            OpBlockHolder r = codeGenExpr(accExpr.getIndex(), code, l.nextBlock);
+            if (l.operand.isReg) {
+                Register result = code.createRegister(convertSimpleSemType(TypeKind.ANY), null);
+                if (accExpr.getExpression().expectedType instanceof BArrayType) {
+                    Position pos = new Position(accExpr.pos.lineRange().startLine().line(),
+                            accExpr.pos.textRange().startOffset());
+                    bb.ppb = true;
+                    bb.insns.add(new ListGetInsn(result, l.operand.register, r.operand, pos));
+                }
+                Operand resultOp = new Operand(true);
+                resultOp.register = result;
+                return new OpBlockHolder(resultOp , r.nextBlock);
+            }
             return null;
         }
 
