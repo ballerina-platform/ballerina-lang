@@ -71,7 +71,7 @@ public class JlineSimpleCompleter implements Completer {
     @Override
     public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
         if (hasPropertyPrefix(line, COMMAND_HELP)) {
-            if (line.wordIndex() == 1 && this.topicsCompleter != null) {
+            if (line.wordIndex() == 1) {
                 topicsCompleter.complete(reader, line, candidates);
             } else {
                 topicsOptionCompleter.complete(reader, line, candidates);
