@@ -148,6 +148,10 @@ public class ModuleGen {
                 OpBlockHolder opb = codeGenExpr(assign.expr, code, startBlock);
                 opb.nextBlock.insns.add(new AssignInsn(reg, opb.operand));
                 return opb.nextBlock;
+            } else {
+                BLangIndexBasedAccess varRef = (BLangIndexBasedAccess) assign.varRef;
+                //TODO fix
+                return null;
             }
         } else if (stmt instanceof BLangForeach) {
             BLangForeach feStmt = (BLangForeach) stmt;
@@ -350,19 +354,31 @@ public class ModuleGen {
             OpBlockHolder lhs = codeGenExpr(bexpr.lhsExpr, code, bb);
             OpBlockHolder rhs = codeGenExpr(bexpr.rhsExpr, code, lhs.nextBlock);
             Operand result = new Operand(true);
+            TypeKind pair = typedOpPair(bexpr.lhsExpr.expectedType.getKind(), bexpr.rhsExpr.expectedType.getKind());
             OperatorKind op = bexpr.opKind;
             switch (op) {
                 case ADD: case SUB: case MUL: case DIV: case MOD:
-                    Register reg = code.createRegister(convertSimpleSemType(TypeKind.INT), null);
-                    IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
-                    bb.ppb = true;
-                    ins.op = op.toString();
-                    ins.result = reg;
-                    ins.operands[0] = lhs.operand;
-                    ins.operands[1] = rhs.operand;
-                    ins.position = new Position(bexpr.getPosition().lineRange().startLine().line() + 1,
-                            bexpr.getPosition().textRange().startOffset());
-                    bb.insns.add(ins);
+                    Register reg = code.createRegister(convertSimpleSemType(pair), null);
+                    if (pair == TypeKind.INT) {
+                        IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
+                        bb.ppb = true;
+                        ins.op = op.toString();
+                        ins.position = new Position(bexpr.getPosition().lineRange().startLine().line() + 1,
+                                bexpr.getPosition().textRange().startOffset());
+                        ins.result = reg;
+                        ins.operands[0] = lhs.operand;
+                        ins.operands[1] = rhs.operand;
+                        bb.insns.add(ins);
+                    } else if (pair == TypeKind.STRING) {
+                        StringConcatInsn ins = new StringConcatInsn();
+                        ins.result = reg;
+                        ins.operands[0] = lhs.operand;
+                        ins.operands[1] = rhs.operand;
+                        bb.insns.add(ins);
+                    } else {
+                        throw new BallerinaException("+ not supported for operand types");
+                    }
+
                     result.register = reg;
                     return new OpBlockHolder(result, rhs.nextBlock);
                 case EQUAL: case NOT_EQUAL: case REF_EQUAL: case REF_NOT_EQUAL:
@@ -374,15 +390,22 @@ public class ModuleGen {
                     return new OpBlockHolder(result, rhs.nextBlock);
                 case GREATER_THAN: case GREATER_EQUAL: case LESS_THAN: case LESS_EQUAL:
                     result.register = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
-                    CompareInsn cmpi = new CompareInsn(op.toString(), typedOperandPair(TypeKind.INT), result.register);
+                    CompareInsn cmpi = new CompareInsn(op.toString(), pair.typeName(), result.register);
                     cmpi.operands[0] = lhs.operand;
                     cmpi.operands[1] = rhs.operand;
                     bb.insns.add(cmpi);
                     return new OpBlockHolder(result, rhs.nextBlock);
                 case BITWISE_AND: case BITWISE_OR: case BITWISE_XOR: case BITWISE_LEFT_SHIFT:
                 case BITWISE_RIGHT_SHIFT: case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                    //TODO add insn to block
-                    return null;
+                    if (pair != TypeKind.INT) {
+                        throw new BallerinaException("expected integer operand");
+                    }
+                    result.register = code.createRegister(convertSimpleSemType(TypeKind.INT), null);
+                    IntBitwiseInsn bwi = new IntBitwiseInsn(op.toString(), result.register);
+                    bwi.operands[0] = lhs.operand;
+                    bwi.operands[1] = rhs.operand;
+                    bb.insns.add(bwi);
+                    return new OpBlockHolder(result, rhs.nextBlock);
                 default:
                     throw new BallerinaException("Operator not recognized");
             }
@@ -460,7 +483,6 @@ public class ModuleGen {
                 resultOp.register = result;
                 return new OpBlockHolder(resultOp , r.nextBlock);
             }
-            return null;
         }
 
         throw new BallerinaException("Expression not recognized");
@@ -562,16 +584,11 @@ public class ModuleGen {
 
     }
 
-    String typedOperandPair(TypeKind typeKind) {  // temporarily get from expected type
-        switch (typeKind) {
-            case INT:
-                return "int";
-            case BOOLEAN:
-                return "boolean";
-            case STRING:
-                return "string";
-            default:
-                throw new BallerinaException("operands of relational operator are not ordered");
+    TypeKind typedOpPair(TypeKind t1, TypeKind t2) {  // temporarily get from expected type
+        if (t1 == t2) {
+            return t1;
+        } else {
+            throw new BallerinaException("Operands have incompatible types");
         }
     }
 

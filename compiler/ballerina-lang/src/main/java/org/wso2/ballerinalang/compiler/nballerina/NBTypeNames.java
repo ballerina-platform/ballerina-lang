@@ -45,6 +45,8 @@ public class NBTypeNames {
     static final String INT_BITWISE_INSN = "record {| INSN_INT_BITWISE_BINARY name;" +
             " wso2/nballerina.bir:0.1.0:BitwiseBinaryOp op; Register result;" +
             " wso2/nballerina.bir:0.1.0:IntOperand[2] operands; anydata...; |}";
+    static final String STRING_CONCAT_INSN = "record {| INSN_STR_CONCAT name; Register result;" +
+            " wso2/nballerina.bir:0.1.0:StringOperand[2] operands; anydata...; |}";
     static final String MAP_CON_INSN = "record {| INSN_MAPPING_CONSTRUCT_RW name; Register result;" +
             " string[] fieldNames; wso2/nballerina.bir:0.1.0:Operand[] operands; |}";
     static final String LIST_GET_INSN = "record {| INSN_LIST_GET name; Register result; Register list; " +

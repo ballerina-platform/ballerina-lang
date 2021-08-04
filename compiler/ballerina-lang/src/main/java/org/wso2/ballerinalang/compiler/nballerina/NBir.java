@@ -84,12 +84,15 @@ class JNModule {
         BMap<BString, Object> tmpVal17 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
                 NBTypeNames.INT_NOPANIC_ARITHMETIC_BINARY_INSN, new HashMap<>());
         BMap<BString, Object> tmpVal18 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.MAP_GET_INSN, new HashMap<>()); //TODO add other insns
+                NBTypeNames.MAP_GET_INSN, new HashMap<>());
+        BMap<BString, Object> tmpVal19 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
+                NBTypeNames.STRING_CONCAT_INSN, new HashMap<>()); //TODO add other insns
 
         UnionType insnTyp = TypeCreator.createUnionType(tmpVal1.getType(), tmpVal2.getType(), tmpVal3.getType(),
                 tmpVal4.getType(), tmpVal5.getType(), tmpVal6.getType(), tmpVal7.getType(), tmpVal8.getType(),
                 tmpVal9.getType(), tmpVal10.getType(), tmpVal11.getType(), tmpVal12.getType(), tmpVal13.getType(),
-                tmpVal14.getType(), tmpVal15.getType(), tmpVal16.getType(), tmpVal17.getType(), tmpVal18.getType());
+                tmpVal14.getType(), tmpVal15.getType(), tmpVal16.getType(), tmpVal17.getType(), tmpVal18.getType(),
+                tmpVal19.getType());
         return TypeCreator.createArrayType(insnTyp);
     }
 }
@@ -326,8 +329,28 @@ class IntArithmeticBinaryInsn extends InsnBase {
         fields.put("op", new BmpStringValue(op));
         fields.put("result", result.getRecord());
         fields.put("position", position.getRecord());
-        fields.put("operands", arr); //TODO create Ballerina array
+        fields.put("operands", arr);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.INT_ARITHMETIC_BINARY_INSN, fields);
+    }
+}
+
+class StringConcatInsn extends InsnBase {
+    public Register result;
+    public Operand[] operands = new Operand[2];
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_STRING);
+        ArrayType arrTyp = TypeCreator.createArrayType(typ, 2);
+        BArray arr = ValueCreator.createArrayValue(arrTyp);
+        arr.add(0, operands[0].getOperand());
+        arr.add(1, operands[1].getOperand());
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("result", result.getRecord());
+        fields.put("operands", arr);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.STRING_CONCAT_INSN, fields);
     }
 }
 
