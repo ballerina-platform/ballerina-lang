@@ -472,6 +472,14 @@ function unreached() returns never {
     panic error("unreachable code!!");
 }
 
+function testNeverInGroupedExpr() {
+    error? err = trap (unreached());
+    assertEquality(true, err is error);
+    if err is error {
+        assertEquality("unreachable code!!", err.message());
+    }
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

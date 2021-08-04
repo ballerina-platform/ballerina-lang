@@ -42,3 +42,7 @@ function passIntValue(int a, int b = 2) {
 function num() returns error {
     return unreached();
 }
+
+function testInvalidUsageOfExprOfNeverInGroupedExpr() returns error? {
+    error? x = check (unreached());
+}

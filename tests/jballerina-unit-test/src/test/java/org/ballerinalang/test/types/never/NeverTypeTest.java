@@ -218,7 +218,8 @@ public class NeverTypeTest {
                 "testValidNeverReturnFuncAssignment",
                 "testValidNeverReturnFuncAssignment2",
                 "testNeverWithAnydata",
-                "testNeverInSubsequentInvocations"
+                "testNeverInSubsequentInvocations",
+                "testNeverInGroupedExpr"
         };
     }
 
@@ -345,6 +346,10 @@ public class NeverTypeTest {
                 "type 'never' not allowed here", 35, 30);
         BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
                 "type 'never' not allowed here", 43, 12);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 47, 16);
+        BAssertUtil.validateError(compileResult, i++, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 47, 23);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 
