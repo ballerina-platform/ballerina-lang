@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// import testorg/testproject;
-
 string aString = "foo";
 int anInt = 10;
 
@@ -89,10 +87,10 @@ type TypeDef record {|
 
 function typeDes() {
     Module mod = table {
-                                     {key id, name, cycleDepth},
-                                     [
-                                         {1, "Mary"},
-                                         {2, "John",  25}
-                                     ]
-                                 };
+                             {key id, name, cycleDepth},
+                             [
+                                 {1, "Mary"},
+                                 {2, "John",  25}
+                             ]
+                        };
 }

@@ -48,12 +48,6 @@ public class SymbolPositionTest {
 
     @BeforeClass
     public void setup() {
-//        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
-//        if (compileResult.getErrorCount() != 0) {
-//            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
-//            Assert.fail("Compilation contains error");
-//        }
-
         Project project = BCompileUtil.loadProject("test-src/symbol_position_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
@@ -84,20 +78,20 @@ public class SymbolPositionTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getPositions() {
         return new Object[][]{
-                {18, 7, 18, 14, "aString"},
-                {21, 9, 21, 13, "test"},
-                {22, 11, 22, 16, "greet"},
-                {27, 6, 27, 11, "HELLO"},
-                {29, 5, 29, 11, "Person"},
-                {33, 5, 33, 14, "PersonObj"},
-                {34, 11, 34, 15, "name"},
-                {36, 13, 36, 20, "getName"},
-                {39, 6, 39, 17, "PersonClass"},
-                {42, 13, 42, 17, "init"},
-                {46, 13, 46, 20, "getName"},
-                {53, 5, 53, 11, "Colour"},
-                {56, 11, 56, 13, "w1"},
-                {78, 30, 78, 35, "myStr"},
+                {16, 7, 16, 14, "aString"},
+                {19, 9, 19, 13, "test"},
+                {20, 11, 20, 16, "greet"},
+                {25, 6, 25, 11, "HELLO"},
+                {27, 5, 27, 11, "Person"},
+                {31, 5, 31, 14, "PersonObj"},
+                {32, 11, 32, 15, "name"},
+                {34, 13, 34, 20, "getName"},
+                {37, 6, 37, 17, "PersonClass"},
+                {40, 13, 40, 17, "init"},
+                {44, 13, 44, 20, "getName"},
+                {51, 5, 51, 11, "Colour"},
+                {54, 11, 54, 13, "w1"},
+                {76, 30, 76, 35, "myStr"},
         };
     }
 
@@ -109,19 +103,19 @@ public class SymbolPositionTest {
 
         Location pos = symbol.get().getLocation().get();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
-        assertEquals(pos.lineRange().startLine().line(), 62);
+        assertEquals(pos.lineRange().startLine().line(), 60);
         assertEquals(pos.lineRange().startLine().offset(), 21);
-        assertEquals(pos.lineRange().endLine().line(), 62);
+        assertEquals(pos.lineRange().endLine().line(), 60);
         assertEquals(pos.lineRange().endLine().offset(), 24);
     }
 
     @DataProvider(name = "PositionProvider2")
     public Object[][] getTypeNarrowedPositions() {
         return new Object[][]{
-                {66, 13},
-                {69, 21},
-                {71, 23},
-                {74, 20},
+                {64, 13},
+                {67, 21},
+                {69, 23},
+                {72, 20},
         };
     }
 
@@ -151,7 +145,8 @@ public class SymbolPositionTest {
     @DataProvider(name = "TypeDefPositionProvider")
     public Object[][] getTypeDefPositions() {
             return new Object[][] {
-                    {90, 4, "Module", 80, 12, 80, 18}
+                    {88, 4, "Module", 78, 12, 78, 18},
+                    {80, 5, "TypeDef", 80, 5, 80, 12},
             };
     }
 }
