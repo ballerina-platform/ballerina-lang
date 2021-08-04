@@ -6,8 +6,10 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
@@ -136,5 +138,11 @@ public class RemotePackageRepository implements PackageRepository {
     public Map<String, List<String>> getPackages() {
         // We only return locally cached packages
         return fileSystemRepo.getPackages();
+    }
+
+    @Override
+    public List<ResolutionResponseDescriptor> resolveDependencyVersions(
+            List<ResolutionRequest> packageLoadRequests, PackageLockingMode packageLockingMode) {
+        return fileSystemRepo.resolveDependencyVersions(packageLoadRequests, packageLockingMode);
     }
 }
