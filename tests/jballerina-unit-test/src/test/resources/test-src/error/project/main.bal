@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import project.foo as foo;
+import project.foo;
 
 public function main() {
     panic testFunc();
