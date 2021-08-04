@@ -127,7 +127,7 @@ public class SymbolPositionTest {
 
     @Test(dataProvider = "TypeDefPositionProvider")
     public void testTypeDefPositions(int sLine, int sCol, String expSymbolName, int defSLine, int defSCol,
-                                     int defELine, int defECol ) {
+                                     int defELine, int defECol) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(sLine, sCol));
 
         if (symbol.isEmpty()) {
