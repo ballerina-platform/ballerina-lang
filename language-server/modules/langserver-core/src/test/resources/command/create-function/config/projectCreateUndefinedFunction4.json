@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 14,
-                "character": 13
-            },
-            "end": {
-                "line": 14,
-                "character": 28
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 17,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 17,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction getAge(module1:Student a) returns int {\n    return 0;\n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 14,
+        "character": 13
+      },
+      "end": {
+        "line": 14,
+        "character": 28
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 18,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 18,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction getAge(module1:Student student) returns int {\n    return 0;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

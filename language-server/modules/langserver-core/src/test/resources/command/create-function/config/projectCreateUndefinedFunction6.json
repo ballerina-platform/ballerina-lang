@@ -2,12 +2,12 @@
   "arguments": {
     "node.range": {
       "start": {
-        "line": 5,
-        "character": 34
+        "line": 17,
+        "character": 4
       },
       "end": {
-        "line": 5,
-        "character": 51
+        "line": 17,
+        "character": 39
       }
     }
   },
@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 6,
+                    "line": 18,
                     "character": 1
                   },
                   "end": {
-                    "line": 6,
+                    "line": 18,
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction getResponse(int a, int b) returns module1:TestRecord2 {\n    return {};\n}\n"
+                "newText": "\n\nfunction generateIndex(int intake, string name) {\n    \n}\n"
               }
             ]
           }
