@@ -1,4 +1,3 @@
-// empty main bal
 import ballerina/test;
 import waruna/http.'client as httpClient;
 import waruna/websub.server as websubServer;
