@@ -120,8 +120,7 @@ public class JoinClauseTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 32);
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 46, 13);
-        validateError(negativeResult, i++, "invalid operation: type 'Person' does not support field access for " +
-                "non-required field 'name'", 51, 19);
+        validateError(negativeResult, i++, "undeclared field 'name' in record 'Person'", 51, 19);
         validateError(negativeResult, i++, "unknown type 'XYZ'", 69, 13);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 70, 28);
         validateError(negativeResult, i++, "undefined symbol 'deptId'", 93, 11);
