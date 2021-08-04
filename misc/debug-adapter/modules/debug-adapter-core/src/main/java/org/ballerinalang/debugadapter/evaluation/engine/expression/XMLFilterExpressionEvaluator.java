@@ -56,9 +56,9 @@ public class XMLFilterExpressionEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            // An xml-filter-expr selects constituents of a sequence that are elements with a name matching a
+            // An xml filter expression selects constituents of a sequence that are elements with a name matching a
             // specified name pattern. The static type of the expression must be a subtype of xml. The static type of
-            // the xml-filter-expr is xml<xml:Element>.
+            // the xml filter expression is xml<xml:Element>.
             BExpressionValue subExprResult = subExprEvaluator.evaluate();
             if (subExprResult.getType() != BVariableType.XML) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),

@@ -56,9 +56,8 @@ public class XMLStepExpressionEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            // An xml-filter-expr selects constituents of a sequence that are elements with a name matching a
-            // specified name pattern. The static type of the expression must be a subtype of xml. The static type of
-            // the xml-filter-expr is xml<xml:Element>.
+            // An xml step expression provides access to the children or descendants of an element, similar to a
+            // location path in XPath. The static type of the sub expression must be a subtype of xml.
             BExpressionValue subExprResult = subExprEvaluator.evaluate();
             if (subExprResult.getType() != BVariableType.XML) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
