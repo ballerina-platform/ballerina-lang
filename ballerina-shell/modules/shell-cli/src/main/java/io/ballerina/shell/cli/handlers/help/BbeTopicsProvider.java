@@ -34,25 +34,29 @@ import java.util.stream.Stream;
  * Helper class to provide code completions related to /help topics.
  *
  */
-public class BbeCompletionProvider extends DiagnosticReporter {
+public class BbeTopicsProvider extends DiagnosticReporter {
 
     private static final String BALLERINA_HOME = System.getProperty("ballerina.home");
     private static final String EXAMPLES = "examples";
     private static final String BBE_FILE = "index.json";
+    private static final String TOPICS = "topics";
 
-    private final List<String> topicList;
+    private final List<String> topicList;;
+    private static BbeTopicsProvider bbeTopicsProvider = null;
 
-    public BbeCompletionProvider() {
+    private BbeTopicsProvider() {
         topicList = new ArrayList<>();
+        populateTopicList();
     }
 
-    public List<String> getTopicList() {
+    private void populateTopicList() {
         Gson gson = new Gson();
 
         String file = BALLERINA_HOME + File.separator + EXAMPLES + File.separator + BBE_FILE;
         String jsonString = readFileAsString(file);
 
         if (jsonString != null) {
+            topicList.add(TOPICS);
             jsonString = jsonString.trim();
             BbeTitle[] bbeTitles = gson.fromJson(jsonString, BbeTitle[].class);
             Stream<BbeTitle> streamList = Arrays.stream(bbeTitles);
@@ -67,17 +71,26 @@ public class BbeCompletionProvider extends DiagnosticReporter {
                     });
                 }
             });
-            return topicList;
         }
+    }
+
+    public static synchronized BbeTopicsProvider getBbeTopicsProvider() {
+        if (bbeTopicsProvider == null) {
+                bbeTopicsProvider = new BbeTopicsProvider();
+        }
+        return bbeTopicsProvider;
+    }
+
+    public List<String> getTopicList() {
         return topicList;
     }
 
-    private String readFileAsString(String file) {
-        String content = null;
+    private static String readFileAsString(String file) {
+        String content;
         try {
             content = Files.readString(Paths.get(file));
         } catch (IOException e) {
-            addDebugDiagnostic("BBE file not found");
+            throw new RuntimeException("Error loading the file : " + e.getMessage(), e);
         }
         return content;
     }
