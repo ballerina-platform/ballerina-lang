@@ -23,12 +23,54 @@ function testUnicode() {
     string s4 = "ABC\u{644}\u{1048}CDE";
     string s5 = "ABC \u{0633} CDE";
     string s6 = "ABC \u{0633} CDE \u{0644} DEF \u{0644} XYZ";
+    string s7 = "\u{1F600}";
+    string s8 = "\u{1F600}\u{1F610}\u{1D702}Bar";
+    string s9 = "\u{41}";
+    string s10 = "\u{43}\u{061}\u{000074}";
 
-    if (s1 == "س" && s2 == "س" && s3 == "ABCل၈CDE" && s4 == "ABCل၈CDE" && s5 == "ABC س CDE"
-            && s6 == "ABC س CDE ل DEF ل XYZ") {
+    assertEquality(s1, "س");
+    assertEquality(s2, "س");
+    assertEquality(s3, "ABCل၈CDE");
+    assertEquality(s4, "ABCل၈CDE");
+    assertEquality(s5, "ABC س CDE");
+    assertEquality(s6, "ABC س CDE ل DEF ل XYZ");
+    assertEquality(s7, "😀");
+    assertEquality(s8, "😀😐𝜂Bar");
+    assertEquality(s9, "A");
+    assertEquality(s10, "Cat");
+
+    byte[] bArray = s9.toBytes();
+    assertEquality(s7.length(), 1);
+    assertEquality(bArray.length(), 1);
+    assertEquality(bArray.toString(), "[65]");
+
+    // Test NumericEscape Escaping
+    string s11 = "\\u{61}";
+    string s12 = "\\\u{61}";
+    string s13 = "\\\\u{61}";
+    string s14 = "\\\\\u{61}pp\\\u{6C}e";
+    string s15 = "\\\\u{61}pp\\\u{6C}e";
+    string s16 = "\\\\u{61}pp\\\\u{6C}e";
+    string s17 = "A\\u{61}\u{42}BE";
+    string s18 = "\\" + "u{61}";
+    string s19 = "\\u{D800}"; // no error for \u{D800} as it is escaped
+    
+    assertEquality(s11, "\\u{61}");
+    assertEquality(s12, "\\a");
+    assertEquality(s13, "\\\\u{61}");
+    assertEquality(s14, "\\\\app\\le");
+    assertEquality(s15, "\\\\u{61}pp\\le");
+    assertEquality(s16, "\\\\u{61}pp\\\\u{6C}e");
+    assertEquality(s17, "A\\u{61}BBE");
+    assertEquality(s18, s11);
+    assertEquality(s19, "\\u{D800}");
+}
+
+function assertEquality(anydata actual, anydata expected) {
+    if (actual == expected) {
         return;
     }
-    panic error(ASSERTION_ERROR_REASON, message = "expected 'س', 'س', 'ABCل၈CDE', 'ABCل၈CDE', 'ABC س CDE', "
-            + " 'ABC س CDE ل DEF ل XYZ', found " + s1 + "', '" + s2 + "', '" + s3 + "', '" + s4 + "', '"
-            + s5 + "', '" + s6 + "'");
+    
+    panic error(ASSERTION_ERROR_REASON,
+                 message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

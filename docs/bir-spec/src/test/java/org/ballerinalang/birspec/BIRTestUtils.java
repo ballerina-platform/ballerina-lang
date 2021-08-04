@@ -185,6 +185,8 @@ class BIRTestUtils {
     private static int generateExpectedScopeEntries(List<BIRNode.BIRBasicBlock> bbList, int instructionOffset,
             Map<Integer, ExpectedScopeEntry> scopes, Set<BirScope> visitedScopes) {
         for (BIRNode.BIRBasicBlock bb : bbList) {
+            boolean hasParent;
+            ExpectedScopeEntry expectedScopeEntry;
             for (BIRAbstractInstruction instruction : bb.instructions) {
                 instructionOffset++;
                 BirScope instructionScope = instruction.scope;
@@ -194,13 +196,27 @@ class BIRTestUtils {
                 }
 
                 visitedScopes.add(instructionScope);
-                boolean hasParent = instructionScope.parent != null;
+                hasParent = instructionScope.parent != null;
 
-                ExpectedScopeEntry expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
+                expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
                         instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent.id : null);
                 scopes.put(instructionScope.id, expectedScopeEntry);
                 putParentScopesAsWell(scopes, instructionScope.parent, instructionOffset);
 
+            }
+            
+            BIRTerminator terminator = bb.terminator;
+            BirScope terminatorScope = terminator.scope;
+            if (terminatorScope != null) {
+                if (visitedScopes.contains(terminatorScope)) {
+                    continue;
+                }
+                visitedScopes.add(terminatorScope);
+                hasParent = terminatorScope.parent != null;
+                expectedScopeEntry = new ExpectedScopeEntry(terminatorScope.id, instructionOffset, hasParent ? 1 : 0,
+                        hasParent ? terminatorScope.parent.id : null);
+                scopes.put(terminatorScope.id, expectedScopeEntry);
+                putParentScopesAsWell(scopes, terminatorScope.parent, instructionOffset);
             }
         }
         return instructionOffset;

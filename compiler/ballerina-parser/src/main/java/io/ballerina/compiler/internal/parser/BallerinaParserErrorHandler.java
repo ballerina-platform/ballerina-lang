@@ -1149,6 +1149,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case COMPOUND_BINARY_OPERATOR:
                     hasMatch = BallerinaParser.isCompoundBinaryOperator(nextToken.kind);
                     break;
+                case IS_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.IS_KEYWORD ||
+                            nextToken.kind == SyntaxKind.NOT_IS_KEYWORD;
+                    break;
 
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
@@ -1277,6 +1281,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FINAL_KEYWORD:
             case TYPEOF_KEYWORD:
             case IS_KEYWORD:
+            case NOT_IS_KEYWORD:
             case NULL_KEYWORD:
             case ANNOTATION_KEYWORD:
             case SOURCE_KEYWORD:
