@@ -1255,10 +1255,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
-        for (BLangVariable param : functionTypeNode.params) {
+        for (BLangSimpleVariable param : functionTypeNode.params) {
             if (param.expr != null) {
-                createClosureForDefaultValue(((BLangSimpleVariable) param).name.value, param.expr,
-                                            (BInvokableTypeSymbol) functionTypeNode.symbol, typeDefEnv);
+                String closureName = CLOSURE_FOR_DEFAULT_VALUE + UNDERSCORE + closureCount++;
+                createClosureForDefaultValue(closureName, param.name.value, param,
+                                             (BInvokableTypeSymbol) functionTypeNode.symbol, typeDefEnv);
                 continue;
             }
             rewrite(param, typeDefEnv);
@@ -5973,11 +5974,12 @@ public class Desugar extends BLangNodeVisitor {
         return env;
     }
 
-    private void createClosureForDefaultValue(String name, BLangExpression varNode, BInvokableTypeSymbol symbol,
-                                                                                                SymbolEnv typeDefEnv) {
-        BLangFunction function = createFunction(varNode.pos, symbol.pkgID, symbol.owner, varNode.getBType());
+    private void createClosureForDefaultValue(String closureName, String paramName, BLangSimpleVariable varNode,
+                                              BInvokableTypeSymbol symbol, SymbolEnv typeDefEnv) {
+        BLangFunction function =
+                createFunction(closureName, varNode.pos, symbol.pkgID, symbol.owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        returnStmt.expr = varNode;
+        returnStmt.expr = varNode.expr;
         BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, symbol.pkgID, symbol.owner);
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function, lambdaFunctionSymbol);
         lambdaFunction.capturedClosureEnv = typeDefEnv.createClone();
@@ -5985,11 +5987,10 @@ public class Desugar extends BLangNodeVisitor {
         env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
         env.enclPkg.functions.add(function);
         env.enclPkg.topLevelNodes.add(function);
-        symbol.defaultValues.put(name, lambdaFunction);
+        symbol.defaultValues.put(paramName, lambdaFunction);
     }
 
-    private BLangFunction createFunction(Location pos, PackageID pkgID, BSymbol owner, BType bType) {
-        String funcName = CLOSURE_FOR_DEFAULT_VALUE + UNDERSCORE + closureCount++;
+    private BLangFunction createFunction(String funcName, Location pos, PackageID pkgID, BSymbol owner, BType bType) {
         BLangFunction function = ASTBuilderUtil.createFunction(pos, funcName);
         function.setBType(new BInvokableType(Collections.emptyList(), bType, null));
 
