@@ -123,6 +123,7 @@ public class EvaluationUtils {
     public static final String B_UNARY_INVERT_METHOD = "unaryInvert";
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String B_GET_TRAP_RESULT_METHOD = "getTrapResult";
+    public static final String GET_ANNOT_VALUE_METHOD = "getAnnotationValue";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";

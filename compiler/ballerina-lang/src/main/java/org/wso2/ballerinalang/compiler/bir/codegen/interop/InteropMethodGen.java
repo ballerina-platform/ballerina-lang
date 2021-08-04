@@ -303,6 +303,8 @@ public class InteropMethodGen {
             if (!(terminator instanceof BIRTerminator.Return)) {
                 JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
                 termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null);
+                lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, basicBlock, funcName, labelGen,
+                        lastScope, visitedScopesSet);
             }
             errorGen.generateTryCatch(func, funcName, basicBlock, termGen, labelGen);
 

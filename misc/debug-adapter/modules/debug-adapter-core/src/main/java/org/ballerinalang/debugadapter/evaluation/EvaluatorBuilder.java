@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
+import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
@@ -53,6 +54,7 @@ import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.action.RemoteMethodCallActionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.AnnotationAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.BinaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalExpressionEvaluator;
@@ -119,13 +121,13 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> XML attribute access expression
  * <li> New expression
  * <li> Error constructor expression
+ * <li> Annotation access expression
  * <li> XML navigation expression
  * <li> Checking expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
- * <li> Annotation access expression
  * <li> Anonymous function expression
  * <li> Let expression
  * <li> Query expression
@@ -327,6 +329,14 @@ public class EvaluatorBuilder extends NodeVisitor {
         typeCastExpressionNode.expression().accept(this);
         Evaluator subExprEvaluator = result;
         result = new TypeCastExpressionEvaluator(context, typeCastExpressionNode, subExprEvaluator);
+    }
+
+    @Override
+    public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        visitSyntaxNode(annotAccessExpressionNode);
+        annotAccessExpressionNode.expression().accept(this);
+        Evaluator exprEvaluator = result;
+        result = new AnnotationAccessExpressionEvaluator(context, annotAccessExpressionNode, exprEvaluator);
     }
 
     @Override
@@ -544,11 +554,10 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addXmlAttributeAccessExpressionSyntax() {
-        // Todo
     }
 
     private void addAnnotationAccessExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.ANNOT_ACCESS);
     }
 
     private void addMemberAccessExpressionSyntax() {

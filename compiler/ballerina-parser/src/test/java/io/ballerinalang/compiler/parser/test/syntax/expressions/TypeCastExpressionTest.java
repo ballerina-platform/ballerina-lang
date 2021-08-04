@@ -46,6 +46,11 @@ public class TypeCastExpressionTest extends AbstractExpressionsTest {
         test("<int> a + <int> b", "type-cast-expr/type_cast_expr_assert_19.json");
     }
 
+    @Test
+    public void testWithSingletonTypeIntFloatLiterals() {
+        testFile("type-cast-expr/type_cast_expr_source_20.bal", "type-cast-expr/type_cast_expr_assert_20.json");
+    }
+
     // Recovery tests
 
     @Test

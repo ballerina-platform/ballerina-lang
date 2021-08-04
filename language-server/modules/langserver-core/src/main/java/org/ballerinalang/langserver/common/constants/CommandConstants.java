@@ -131,4 +131,8 @@ public class CommandConstants {
     public static final String REPORT_USAGE_STATISTICS_COMMAND_TITLE = "Report usage statistics";
     
     public static final String CONVERT_FUNCTION_TO_PUBLIC = "Convert to public function";
+    
+    public static final String CREATE_ON_FAIL_CLAUSE = "Create on fail clause";
+
+    public static final String SURROUND_WITH_DO_ON_FAIL = "Surround with do/on-fail";
 }
