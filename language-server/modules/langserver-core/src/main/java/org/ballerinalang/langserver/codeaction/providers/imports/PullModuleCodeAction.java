@@ -82,7 +82,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         String commandTitle = CommandConstants.PULL_MOD_TITLE;
         CodeAction action = new CodeAction(commandTitle);
         action.setKind(CodeActionKind.QuickFix);
-        action.setCommand(new Command(commandTitle, "ballerina.packages.pull", args));
+        action.setCommand(new Command(commandTitle, PULL_MODULE_COMMAND, args));
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return Collections.singletonList(action);
     }
