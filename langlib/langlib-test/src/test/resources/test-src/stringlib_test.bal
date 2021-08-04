@@ -23,8 +23,29 @@ function testToLower() returns string {
     return str.toLowerAscii();
 }
 
-function testLength() returns int {
-    return "Hello Ballerina!".length();
+type EqualityOp "==" | "!=" | "===" | "!==";
+
+type EqualityInsn record {|
+        EqualityOp op;
+|};
+
+function testLength() {
+    assertEquals(16, "Hello Ballerina!".length());
+
+    EqualityOp tempFiniteType1 = "===";
+    EqualityOp tempFiniteType2 = "!=";
+    assertEquals(true, tempFiniteType1.length() != tempFiniteType2.length());
+
+    int temp = lengthTestFunc({op : tempFiniteType1});
+    assertEquals(3, temp);
+}
+
+function lengthTestFunc(EqualityInsn e) returns int {
+    int length = 0;
+    if ((e.op).length() == 3) {
+        length = (e.op).length();
+    }
+    return length;
 }
 
 function testSubString() returns [string,string, string] {

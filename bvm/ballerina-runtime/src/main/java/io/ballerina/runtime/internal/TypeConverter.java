@@ -59,6 +59,12 @@ import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
+import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
+import static io.ballerina.runtime.internal.TypeChecker.anyToSigned32;
+import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
+import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned16;
+import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned32;
+import static io.ballerina.runtime.internal.TypeChecker.anyToUnsigned8;
 import static io.ballerina.runtime.internal.TypeChecker.checkIsLikeType;
 import static io.ballerina.runtime.internal.TypeChecker.isCharLiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isNumericType;
@@ -117,13 +123,19 @@ public class TypeConverter {
 
     public static Object castValues(Type targetType, Object inputValue) {
         switch (targetType.getTag()) {
-            case TypeTags.INT_TAG:
             case TypeTags.SIGNED32_INT_TAG:
+                return anyToSigned32(inputValue);
             case TypeTags.SIGNED16_INT_TAG:
+                return anyToSigned16(inputValue);
             case TypeTags.SIGNED8_INT_TAG:
+                return anyToSigned8(inputValue);
             case TypeTags.UNSIGNED32_INT_TAG:
+                return anyToUnsigned32(inputValue);
             case TypeTags.UNSIGNED16_INT_TAG:
+                return anyToUnsigned16(inputValue);
             case TypeTags.UNSIGNED8_INT_TAG:
+                return anyToUnsigned8(inputValue);
+            case TypeTags.INT_TAG:
                 return anyToIntCast(inputValue, () ->
                         ErrorUtils.createTypeCastError(inputValue, PredefinedTypes.TYPE_INT));
             case TypeTags.DECIMAL_TAG:

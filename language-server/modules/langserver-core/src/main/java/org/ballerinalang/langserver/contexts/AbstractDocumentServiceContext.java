@@ -64,6 +64,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private List<ImportDeclarationNode> currentDocImports;
 
     private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
+    
+    private Module currentModule;
 
     private final LanguageServerContext languageServerContext;
 
@@ -144,15 +146,15 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     }
     @Override
     public Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap() {
-        Optional<SemanticModel> semanticModel = this.workspace().semanticModel(this.filePath());
-        if (semanticModel.isEmpty()) {
-            throw new RuntimeException("Semantic Model Cannot be Empty");
-        }
         if (this.currentDocImportsMap == null) {
             this.currentDocImportsMap = new LinkedHashMap<>();
             Optional<Document> document = this.workspace().document(this.filePath);
             if (document.isEmpty()) {
                 throw new RuntimeException("Cannot find a valid document");
+            }
+            Optional<SemanticModel> semanticModel = this.currentSemanticModel();
+            if (semanticModel.isEmpty()) {
+                throw new RuntimeException("Semantic Model Cannot be Empty");
             }
             ModulePartNode modulePartNode = document.get().syntaxTree().rootNode();
             for (ImportDeclarationNode importDeclaration : modulePartNode.imports()) {
@@ -174,12 +176,17 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public Optional<Module> currentModule() {
-        return this.workspaceManager.module(this.filePath);
+        if (this.currentModule == null) {
+            Optional<Module> module = this.workspaceManager.module(this.filePath);
+            module.ifPresent(value -> this.currentModule = value);
+        }
+        
+        return Optional.ofNullable(this.currentModule);
     }
 
     @Override
     public Optional<SemanticModel> currentSemanticModel() {
-        return this.workspaceManager.semanticModel(this.filePath);
+        return this.currentModule().map(module -> module.getCompilation().getSemanticModel());
     }
 
     @Override
