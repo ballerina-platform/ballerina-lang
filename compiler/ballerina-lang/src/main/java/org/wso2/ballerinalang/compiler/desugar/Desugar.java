@@ -806,7 +806,8 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
 
         for (int i = 0; i < pkgNode.functions.size(); i++) {
-            if (!(pkgNode.functions.get(i)).flagSet.contains(Flag.LAMBDA)) {
+            BLangFunction function = pkgNode.functions.get(i);
+            if (!function.flagSet.contains(Flag.LAMBDA) || function.name.value.contains(MockDesugar.MOCK_FUNCTION)) {
                 pkgNode.functions.set(i, rewrite(pkgNode.functions.get(i), env));
             }
         }

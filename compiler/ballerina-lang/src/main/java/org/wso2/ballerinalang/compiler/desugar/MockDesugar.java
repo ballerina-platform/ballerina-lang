@@ -75,6 +75,8 @@ public class MockDesugar {
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
 
+    public static final String MOCK_FUNCTION = "$MOCK_";
+
     private MockDesugar(CompilerContext context) {
         context.put(MOCK_DESUGAR_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
@@ -146,7 +148,7 @@ public class MockDesugar {
         }
 
         // Set the function name to $MOCK_<functionName>
-        functionName = "$MOCK_" + functionName;
+        functionName = MOCK_FUNCTION + functionName;
 
         // Create the Base function with the name
         BLangFunction generatedMock = ASTBuilderUtil.createFunction(bLangPackage.pos, functionName);
