@@ -228,7 +228,6 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -685,7 +684,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangSimpleVariable pathParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         pathParam.name = createIdentifier(resourcePathParameterNode.paramName());
-        BLangType typeNode = (BLangType) resourcePathParameterNode.typeDescriptor().apply(this);
+        BLangType typeNode = createTypeNode(resourcePathParameterNode.typeDescriptor());
         pathParam.pos = getPosition(resourcePathParameterNode);
         pathParam.annAttachments = applyAll(resourcePathParameterNode.annotations());
 
@@ -1580,8 +1579,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             workerName = missingNodesHelper.getNextMissingNodeName(packageID);
         }
 
+        String workerOriginalName = workerName;
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            bLFunction.defaultWorkerName.originalValue = workerName;
+            bLFunction.defaultWorkerName.setOriginalValue(workerName);
             workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
 
@@ -1661,7 +1661,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable invoc = new SimpleVarBuilder()
-                .with(workerName, workerNamePos)
+                .with(workerOriginalName, workerNamePos)
                 .isDeclaredWithVar()
                 .isWorkerVar()
                 .setExpression(bLInvocation)
@@ -1854,6 +1854,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(TypeTestExpressionNode typeTestExpressionNode) {
         BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        if (typeTestExpressionNode.isKeyword().kind() == SyntaxKind.NOT_IS_KEYWORD) {
+            typeTestExpr.isNegation = true;
+        }
         typeTestExpr.expr = createExpression(typeTestExpressionNode.expression());
         typeTestExpr.typeNode = createTypeNode(typeTestExpressionNode.typeDescriptor());
         typeTestExpr.pos = getPosition(typeTestExpressionNode);
@@ -2453,6 +2456,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangIdentifier createIgnoreIdentifier(Node node) {
         BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         ignore.value = Names.IGNORE.value;
+        ignore.setOriginalValue(Names.IGNORE.value);
         ignore.pos = getPosition(node);
         return ignore;
     }
@@ -5161,12 +5165,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1)));
-            bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
             bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
+        bLIdentifer.setOriginalValue(value);
         bLIdentifer.pos = pos;
         if (ws != null) {
             bLIdentifer.addWS(ws);
@@ -5267,33 +5271,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     text = text.substring(1);
                 }
             }
-            String originalText = text; // to log the errors
+
             Location pos = getPosition(literal);
-            Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
-            int position = 0;
-            while (matcher.find(position)) {
-                String hexStringVal = matcher.group(1);
-                int hexDecimalVal = Integer.parseInt(hexStringVal, 16);
-                if ((hexDecimalVal >= Constants.MIN_UNICODE && hexDecimalVal <= Constants.MIDDLE_LIMIT_UNICODE)
-                        || hexDecimalVal > Constants.MAX_UNICODE) {
-                    String hexStringWithBraces = matcher.group(0);
-                    int offset = originalText.indexOf(hexStringWithBraces) + 1;
-                    dlog.error(new BLangDiagnosticLocation(currentCompUnitName,
-                                    pos.lineRange().startLine().line(),
-                                    pos.lineRange().endLine().line(),
-                                    pos.lineRange().startLine().offset() + offset,
-                                    pos.lineRange().startLine().offset() + offset + hexStringWithBraces.length()),
-                               DiagnosticErrorCode.INVALID_UNICODE, hexStringWithBraces);
-                }
-                text = matcher.replaceFirst("\\\\u" + fillWithZeros(hexStringVal));
-                position = matcher.end() - 2;
-                matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
-            }
+            validateUnicodePoints(text, pos);
+
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
-                    text = StringEscapeUtils.unescapeJava(text);
+                    text = IdentifierUtils.unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text));
                 } catch (Exception e) {
-                    dlog.error(pos, DiagnosticErrorCode.INVALID_UNICODE, originalText);
+                    // We may reach here when the string literal has syntax diagnostics.
+                    // Therefore mock the compiler with an empty string.
+                    text = "";
                 }
             }
 
@@ -5332,6 +5320,33 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
+    }
+
+    private void validateUnicodePoints(String text, Location pos) {
+        Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String leadingBackSlashes = matcher.group(1);
+            if (IdentifierUtils.isEscapedNumericEscape(leadingBackSlashes)) {
+                // e.g. \\u{61}, \\\\u{61}
+                continue;
+            }
+
+            String hexCodePoint = matcher.group(2);
+            int decimalCodePoint = Integer.parseInt(hexCodePoint, 16);
+
+            if ((decimalCodePoint >= Constants.MIN_UNICODE && decimalCodePoint <= Constants.MIDDLE_LIMIT_UNICODE)
+                    || decimalCodePoint > Constants.MAX_UNICODE) {
+
+                int offset = matcher.end(1);
+                String numericEscape = "\\u{" + hexCodePoint + "}";
+                BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
+                        pos.lineRange().startLine().line(),
+                        pos.lineRange().endLine().line(),
+                        pos.lineRange().startLine().offset() + offset,
+                        pos.lineRange().startLine().offset() + offset + numericEscape.length());
+                dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, numericEscape);
+            }
+        }
     }
 
     private BLangLiteral createStringLiteral(String value, Location pos) {

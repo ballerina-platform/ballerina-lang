@@ -531,6 +531,8 @@ types:
         type: position
       - id: name_cp_index
         type: s4
+      - id: original_name_cp_index
+        type: s4
       - id: flags
         type: s8
       - id: label
@@ -602,6 +604,8 @@ types:
   annotation:
     seq:
       - id: name_cp_index
+        type: s4
+      - id: original_name_cp_index
         type: s4
       - id: flags
         type: s8
@@ -751,6 +755,8 @@ types:
       - id: position
         type: position
       - id: name_cp_index
+        type: s4
+      - id: original_name_cp_index
         type: s4
       - id: worker_name_cp_index
         type: s4

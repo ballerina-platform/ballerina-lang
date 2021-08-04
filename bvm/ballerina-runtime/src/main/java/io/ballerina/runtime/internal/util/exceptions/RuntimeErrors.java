@@ -98,7 +98,6 @@ public enum RuntimeErrors implements DiagnosticCode {
     CONFIG_TOML_EMPTY_FILE("config.toml.empty.file", "RUNTIME_0068"),
     CONFIG_TOML_EMPTY_CONTENT("config.toml.empty.content", "RUNTIME_0069"),
     CONFIG_TOML_FILE_NOT_FOUND("config.toml.file.not.found", "RUNTIME_0070"),
-    CONFIG_TOML_TYPE_NOT_SUPPORTED("config.toml.type.not.supported", "RUNTIME_0071"),
     CONFIG_TOML_READ_FAILED("config.toml.read.failed", "RUNTIME_0074"),
     CONFIG_TOML_PARSE_FAILED("config.toml.parse.failed", "RUNTIME_0075"),
     CONFIG_TOML_MODULE_AMBIGUITY("config.toml.module.ambiguity", "RUNTIME_0076"),

@@ -25,6 +25,7 @@ import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
@@ -106,6 +107,8 @@ public class PullCommand implements BLauncherCmd {
         if (null != debugPort) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
+
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         String resourceName = argList.get(0);
         String orgName;

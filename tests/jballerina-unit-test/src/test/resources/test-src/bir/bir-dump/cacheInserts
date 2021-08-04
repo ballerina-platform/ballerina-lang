@@ -1,6 +1,5 @@
 public cacheInserts function() -> () {
     %0(RETURN) ();
-    %0(RETURN) ();
     %1(LOCAL) ballerina/cache:2.0.0:CacheConfig;
     %2(TEMP) typeDesc<any | error>;
     %4(TEMP) string;

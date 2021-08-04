@@ -1527,6 +1527,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
         clone.typeNode = clone(source.typeNode);
+        clone.isNegation = source.isNegation;
     }
 
     @Override

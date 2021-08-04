@@ -578,8 +578,7 @@ public class NativeConversionTest {
 
     @Test
     public void testTupleConversion1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleConversion1");
-        Assert.assertEquals(returns.length, 2);
+        BRunUtil.invoke(compileResult, "testTupleConversion1");
     }
 
     @Test

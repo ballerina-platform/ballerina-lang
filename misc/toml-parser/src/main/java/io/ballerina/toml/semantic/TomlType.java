@@ -35,6 +35,7 @@ public enum TomlType {
     DOUBLE,
     BOOLEAN,
     ARRAY,
+    INLINE_TABLE,
 
     INVALID,
     MODULE_PART,

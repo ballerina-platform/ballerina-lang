@@ -67,6 +67,18 @@ class TypeEmitter {
         switch (bType.tag) {
             case TypeTags.INT:
                 return "int";
+            case TypeTags.SIGNED32_INT:
+                return "int:Signed32";
+            case TypeTags.SIGNED16_INT:
+                return "int:Signed16";
+            case TypeTags.SIGNED8_INT:
+                return "int:Signed8";
+            case TypeTags.UNSIGNED32_INT:
+                return "int:Unsigned32";
+            case TypeTags.UNSIGNED16_INT:
+                return "int:Unsigned16";
+            case TypeTags.UNSIGNED8_INT:
+                return "int:Unsigned8";
             case TypeTags.BOOLEAN:
                 return "boolean";
             case TypeTags.ANY:

@@ -69,3 +69,9 @@ function test() {
     p3.tempAddress;
     p3.age;
 }
+
+type PersonType Person1;
+
+function testTypeAliasForClass() {
+    PersonType pt = new PersonType("John", "Doe");
+}

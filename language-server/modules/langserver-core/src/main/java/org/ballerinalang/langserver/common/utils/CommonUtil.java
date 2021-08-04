@@ -153,6 +153,8 @@ public class CommonUtil {
 
     private static final String SELF_KW = "self";
 
+    private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
+
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
         String onlineCompilation = System.getProperty("ls.compilation.online");
@@ -1080,9 +1082,8 @@ public class CommonUtil {
     }
 
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        Pattern pattern = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
         String typeSignature = typeSymbol.signature();
-        Matcher matcher = pattern.matcher(typeSignature);
+        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(typeSignature);
         while (matcher.find()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
