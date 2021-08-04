@@ -827,12 +827,9 @@ class IsolatedClassWithRawTemplateTransfer {
 }
 
 class IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
-    final IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr x = f3();
-    private IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr y = f3();
     private int z = 1;
 
     function init() {
-        f4();
     }
 }
 
