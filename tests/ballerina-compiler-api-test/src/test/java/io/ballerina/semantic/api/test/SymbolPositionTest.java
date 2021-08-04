@@ -34,6 +34,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the positions of symbols.
@@ -47,6 +48,12 @@ public class SymbolPositionTest {
 
     @BeforeClass
     public void setup() {
+//        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
+//        if (compileResult.getErrorCount() != 0) {
+//            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+//            Assert.fail("Compilation contains error");
+//        }
+
         Project project = BCompileUtil.loadProject("test-src/symbol_position_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
@@ -56,11 +63,15 @@ public class SymbolPositionTest {
     public void testSymbolPositions(int sLine, int sCol, int eLine, int eCol, String expSymbolName) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(sLine, sCol));
 
-        if (!symbol.isPresent()) {
+        if (symbol.isEmpty()) {
             assertNull(expSymbolName);
         }
 
+        assertTrue(symbol.isPresent());
+        assertTrue(symbol.get().getName().isPresent());
         assertEquals(symbol.get().getName().get(), expSymbolName);
+
+        assertTrue(symbol.get().getLocation().isPresent());
 
         Location pos = symbol.get().getLocation().get();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
@@ -73,20 +84,20 @@ public class SymbolPositionTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getPositions() {
         return new Object[][]{
-                {16, 7, 16, 14, "aString"},
-                {19, 9, 19, 13, "test"},
-                {20, 11, 20, 16, "greet"},
-                {25, 6, 25, 11, "HELLO"},
-                {27, 5, 27, 11, "Person"},
-                {31, 5, 31, 14, "PersonObj"},
-                {32, 11, 32, 15, "name"},
-                {34, 13, 34, 20, "getName"},
-                {37, 6, 37, 17, "PersonClass"},
-                {40, 13, 40, 17, "init"},
-                {44, 13, 44, 20, "getName"},
-                {51, 5, 51, 11, "Colour"},
-                {54, 11, 54, 13, "w1"},
-                {76, 30, 76, 35, "myStr"},
+                {18, 7, 18, 14, "aString"},
+                {21, 9, 21, 13, "test"},
+                {22, 11, 22, 16, "greet"},
+                {27, 6, 27, 11, "HELLO"},
+                {29, 5, 29, 11, "Person"},
+                {33, 5, 33, 14, "PersonObj"},
+                {34, 11, 34, 15, "name"},
+                {36, 13, 36, 20, "getName"},
+                {39, 6, 39, 17, "PersonClass"},
+                {42, 13, 42, 17, "init"},
+                {46, 13, 46, 20, "getName"},
+                {53, 5, 53, 11, "Colour"},
+                {56, 11, 56, 13, "w1"},
+                {78, 30, 78, 35, "myStr"},
         };
     }
 
@@ -98,19 +109,49 @@ public class SymbolPositionTest {
 
         Location pos = symbol.get().getLocation().get();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
-        assertEquals(pos.lineRange().startLine().line(), 60);
+        assertEquals(pos.lineRange().startLine().line(), 62);
         assertEquals(pos.lineRange().startLine().offset(), 21);
-        assertEquals(pos.lineRange().endLine().line(), 60);
+        assertEquals(pos.lineRange().endLine().line(), 62);
         assertEquals(pos.lineRange().endLine().offset(), 24);
     }
 
     @DataProvider(name = "PositionProvider2")
     public Object[][] getTypeNarrowedPositions() {
         return new Object[][]{
-                {64, 13},
-                {67, 21},
-                {69, 23},
-                {72, 20},
+                {66, 13},
+                {69, 21},
+                {71, 23},
+                {74, 20},
         };
+    }
+
+    @Test(dataProvider = "TypeDefPositionProvider")
+    public void testTypeDefPositions(int sLine, int sCol, String expSymbolName, int defSLine, int defSCol,
+                                     int defELine, int defECol ) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(sLine, sCol));
+
+        if (symbol.isEmpty()) {
+            assertNull(expSymbolName);
+        }
+
+        assertTrue(symbol.isPresent());
+        assertTrue(symbol.get().getName().isPresent());
+        assertEquals(symbol.get().getName().get(), expSymbolName);
+
+        assertTrue(symbol.get().getLocation().isPresent());
+
+        Location pos = symbol.get().getLocation().get();
+        assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
+        assertEquals(pos.lineRange().startLine().line(), defSLine);
+        assertEquals(pos.lineRange().startLine().offset(), defSCol);
+        assertEquals(pos.lineRange().endLine().line(), defELine);
+        assertEquals(pos.lineRange().endLine().offset(), defECol);
+    }
+
+    @DataProvider(name = "TypeDefPositionProvider")
+    public Object[][] getTypeDefPositions() {
+            return new Object[][] {
+                    {90, 4, "Module", 80, 12, 80, 18}
+            };
     }
 }

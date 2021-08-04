@@ -139,12 +139,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
     @Override
     public Optional<Location> getLocation() {
-        if (this.location != null) {
-            return Optional.of(this.location);
-        }
 
-        BType type = this.getBType();
-        this.location = type.tsymbol.pos;
         return Optional.of(this.location);
     }
 

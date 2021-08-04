@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// import testorg/testproject;
+
 string aString = "foo";
 int anInt = 10;
 
@@ -75,3 +77,22 @@ function typeNarrowing() {
 }
 
 function exprBodyScope(string myStr) returns string => m
+
+public type Module table<TypeDef> key(id);
+
+type TypeDef record {|
+    readonly int id;
+    string name;
+    int cycleDepth = -1;
+|};
+
+
+function typeDes() {
+    Module mod = table {
+                                     {key id, name, cycleDepth},
+                                     [
+                                         {1, "Mary"},
+                                         {2, "John",  25}
+                                     ]
+                                 };
+}
