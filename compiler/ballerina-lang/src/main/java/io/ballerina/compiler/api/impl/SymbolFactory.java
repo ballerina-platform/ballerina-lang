@@ -135,7 +135,7 @@ public class SymbolFactory {
                     }
                     return createMethodSymbol((BInvokableSymbol) symbol, name);
                 }
-                return createFunctionSymbol((BInvokableSymbol) symbol, symbol.getOriginalName().getValue());
+                return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
