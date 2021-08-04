@@ -134,7 +134,7 @@ public class SymbolFactory {
                     if (Symbols.isFlagOn(symbol.flags, Flags.RESOURCE)) {
                         return createResourceMethodSymbol((BInvokableSymbol) symbol);
                     }
-                    return createMethodSymbol((BInvokableSymbol) symbol);
+                    return createMethodSymbol((BInvokableSymbol) symbol, name);
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
@@ -215,7 +215,7 @@ public class SymbolFactory {
      *
      * @param invokableSymbol {@link BInvokableSymbol} to convert
      * @param name            symbol name
-     * @return {@link Symbol} generated
+     * @return {@link Symbol}     generated
      */
     public BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
@@ -269,17 +269,6 @@ public class SymbolFactory {
         }
 
         throw new AssertionError("Invalid type descriptor found");
-    }
-
-    /**
-     * Create a Method Symbol.
-     *
-     * @param invokableSymbol {@link BInvokableSymbol} to convert
-     * @return {@link Symbol} generated
-     */
-    private BallerinaMethodSymbol createMethodSymbol(BInvokableSymbol invokableSymbol) {
-        String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
-        return createMethodSymbol(invokableSymbol, name);
     }
 
     /**
@@ -376,7 +365,7 @@ public class SymbolFactory {
         if (symbol == null) {
             return null;
         }
-        String name = symbol.getName().getValue().isBlank() ? null : symbol.getName().getValue();
+        String name = symbol.getOriginalName().getValue().isBlank() ? null : symbol.getOriginalName().getValue();
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(symbol.type);
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
@@ -526,8 +515,8 @@ public class SymbolFactory {
      */
     public BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
         BallerinaAnnotationSymbol.AnnotationSymbolBuilder symbolBuilder =
-                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol,
-                                                                      this.context);
+                new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.getOriginalName().getValue(), symbol,
+                        this.context);
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
