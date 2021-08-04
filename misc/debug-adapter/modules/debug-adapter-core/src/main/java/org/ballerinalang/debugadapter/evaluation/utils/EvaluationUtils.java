@@ -80,7 +80,7 @@ public class EvaluationUtils {
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
     public static final String B_XML_SEQUENCE_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BXmlSequence";
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
-    public static final String B_STRING_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + B_STRING_CLASS + "[]";
+    public static final String B_STRING_ARRAY_CLASS = B_STRING_CLASS + "[]";
     public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
