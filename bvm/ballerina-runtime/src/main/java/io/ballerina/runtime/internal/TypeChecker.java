@@ -2874,9 +2874,6 @@ public class TypeChecker {
      * @return True if the XML values are equal, else false.
      */
     private static boolean isEqual(XmlSequence lhsXMLSequence, XmlValue rhsXml) {
-        if (lhsXMLSequence == rhsXml) {
-            return true;
-        }
         if (rhsXml instanceof XmlSequence) {
             XmlSequence rhsXMLSequence = (XmlSequence) rhsXml;
             return isXMLSequenceChildrenEqual(lhsXMLSequence.getChildrenList(), rhsXMLSequence.getChildrenList());
@@ -2900,9 +2897,6 @@ public class TypeChecker {
      * @return True if the XML values are equal, else false.
      */
     private static boolean isEqual(XmlItem lhsXMLItem, XmlValue rhsXml) {
-        if (lhsXMLItem == rhsXml) {
-            return true;
-        }
         if (rhsXml instanceof XmlItem) {
             XmlItem rhsXMLItem = (XmlItem) rhsXml;
             boolean qNameEquals = rhsXMLItem.getQName().equals(lhsXMLItem.getQName());
@@ -2932,9 +2926,6 @@ public class TypeChecker {
      * @return True if the XML values are equal, else false.
      */
     private static boolean isEqual(XmlText lhsXMLText, XmlValue rhsXml) {
-        if (lhsXMLText == rhsXml) {
-            return true;
-        }
         if (rhsXml instanceof XmlText) {
             XmlText rhsXMLText = (XmlText) rhsXml;
             return lhsXMLText.getTextValue().equals(rhsXMLText.getTextValue());
@@ -2954,9 +2945,6 @@ public class TypeChecker {
      * @return True if the XML values are equal, else false.
      */
     private static boolean isEqual(XmlComment lhsXMLComment, XmlValue rhsXml) {
-        if (lhsXMLComment == rhsXml) {
-            return true;
-        }
         if (rhsXml instanceof XmlComment) {
             XmlComment rhXMLComment = (XmlComment) rhsXml;
             return lhsXMLComment.getTextValue().equals(rhXMLComment.getTextValue());
@@ -2972,9 +2960,6 @@ public class TypeChecker {
      * @return True if the XML values are equal, else false.
      */
     private static boolean isEqual(XmlPi lhsXMLPi, XmlValue rhsXml) {
-        if (lhsXMLPi == rhsXml) {
-            return true;
-        }
         if (rhsXml instanceof XmlPi) {
             XmlPi rhsXMLPi = (XmlPi) rhsXml;
             return lhsXMLPi.getData().equals(rhsXMLPi.getData()) &&
