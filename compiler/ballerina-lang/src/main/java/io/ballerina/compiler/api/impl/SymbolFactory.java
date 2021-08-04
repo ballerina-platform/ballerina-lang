@@ -220,16 +220,16 @@ public class SymbolFactory {
     public BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol, String name) {
         BallerinaFunctionSymbol.FunctionSymbolBuilder builder =
                 new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, invokableSymbol, this.context);
-        boolean isResourceMethod = isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
-        boolean isRemoteMethod = isFlagOn(invokableSymbol.flags, Flags.REMOTE);
+        boolean isResourceMethod = Symbols.isFlagOn(invokableSymbol.flags, Flags.RESOURCE);
+        boolean isRemoteMethod = Symbols.isFlagOn(invokableSymbol.flags, Flags.REMOTE);
 
-        if (isFlagOn(invokableSymbol.flags, Flags.PUBLIC) && !(isResourceMethod || isRemoteMethod)) {
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.PUBLIC) && !(isResourceMethod || isRemoteMethod)) {
             builder.withQualifier(Qualifier.PUBLIC);
         }
-        if (isFlagOn(invokableSymbol.flags, Flags.PRIVATE)) {
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.PRIVATE)) {
             builder.withQualifier(Qualifier.PRIVATE);
         }
-        if (isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.ISOLATED)) {
             builder.withQualifier(Qualifier.ISOLATED);
         }
         if (isRemoteMethod) {
@@ -238,7 +238,7 @@ public class SymbolFactory {
         if (isResourceMethod) {
             builder.withQualifier(Qualifier.RESOURCE);
         }
-        if (isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
+        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.TRANSACTIONAL)) {
             builder.withQualifier(Qualifier.TRANSACTIONAL);
         }
 
@@ -300,22 +300,22 @@ public class SymbolFactory {
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
                 new BallerinaVariableSymbol.VariableSymbolBuilder(name, symbol, this.context);
 
-        if (isFlagOn(symbol.flags, Flags.FINAL) || isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.FINAL) || Symbols.isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
             symbolBuilder.withQualifier(Qualifier.FINAL);
         }
-        if (isFlagOn(symbol.flags, Flags.LISTENER)) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
             symbolBuilder.withQualifier(Qualifier.LISTENER);
         }
-        if (isFlagOn(symbol.flags, Flags.READONLY)) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.READONLY)) {
             symbolBuilder.withQualifier(Qualifier.READONLY);
         }
-        if (isFlagOn(symbol.flags, Flags.PUBLIC)) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
-        if (isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
             symbolBuilder.withQualifier(Qualifier.CONFIGURABLE);
         }
-        if (isFlagOn(symbol.flags, Flags.ISOLATED)) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.ISOLATED)) {
             symbolBuilder.withQualifier(Qualifier.ISOLATED);
         }
 
@@ -399,7 +399,7 @@ public class SymbolFactory {
                 new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol,
                                                                        this.context);
 
-        if (isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
+        if (Symbols.isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
@@ -411,7 +411,7 @@ public class SymbolFactory {
         BallerinaEnumSymbol.EnumSymbolBuilder symbolBuilder =
                 new BallerinaEnumSymbol.EnumSymbolBuilder(name, enumSymbol, this.context);
 
-        if (isFlagOn(enumSymbol.flags, Flags.PUBLIC)) {
+        if (Symbols.isFlagOn(enumSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
         }
 
@@ -566,10 +566,6 @@ public class SymbolFactory {
             }
         }
         return false;
-    }
-
-    private static boolean isFlagOn(long mask, long flags) {
-        return (mask & flags) == flags;
     }
 
     private String getMethodName(BInvokableSymbol method, BObjectTypeSymbol owner) {
