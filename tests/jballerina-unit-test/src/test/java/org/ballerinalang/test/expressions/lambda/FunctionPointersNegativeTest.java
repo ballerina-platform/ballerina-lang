@@ -53,8 +53,8 @@ public class FunctionPointersNegativeTest {
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "invalid operation: type 'Person' does not support field access " +
-                "for non-required field 'getFullName'", 17, 53);
+        BAssertUtil.validateError(result, 0, "invalid field access: 'getFullName' is not a required field in record" +
+                " 'Person', use member access to access a field that may have been specified as a rest field", 17, 53);
         BAssertUtil.validateError(result, 1, "function invocation on type 'Person' is not supported", 19, 20);
 
     }

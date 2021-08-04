@@ -4314,7 +4314,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (this.nonErrorLoggingCheck) {
             BLangFunction funcNode = bLangLambdaFunction.function;
             BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                                                                       names.fromIdNode(funcNode.name),
+                                                                       names.fromIdNode(funcNode.name), Names.EMPTY,
                                                                        env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                        funcNode.hasBody(), funcNode.pos, VIRTUAL);
             funcSymbol.scope = new Scope(funcSymbol);
