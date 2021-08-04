@@ -35,9 +35,12 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BMapType;
+import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -57,17 +60,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 
 /**
  * BTestRunner entity class.
@@ -89,6 +101,11 @@ public class BTestRunner {
     private PrintStream outStream;
     private TesterinaReport tReport;
 
+    private List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t",
+            "\"", "\\", "!", "`"));
+    private List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private List<String> regexSpecialCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")", "+",
+            "^", "|"));
     /**
      * Create Test Runner with given loggers.
      *
@@ -282,8 +299,8 @@ public class BTestRunner {
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
 
-        Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class, String.class},
-                new Object[]{new String[]{}, getConfigPaths(suite), null, null});
+        Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class},
+                new Object[]{new String[]{}, getConfigPaths(suite), null});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
@@ -464,6 +481,67 @@ public class BTestRunner {
         }
     }
 
+    /**
+     * Get key values from the given Map.
+     *
+     * @param dataMap BMap
+     * @return List<String>
+     */
+    private List<String> getKeyValues(BMap dataMap) {
+        List<String> keyValues = new ArrayList<>();
+        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+            for (BString key : (BString[]) dataMap.getKeys()) {
+                keyValues.add(key.getValue());
+            }
+        }
+        return keyValues;
+    }
+
+    /**
+     * Check if the given key is included in the provided list of cases.
+     *
+     * @param suite TestSuite
+     * @param testName String
+     * @param key String
+     * @return boolean
+     */
+    private boolean isIncludedKey(TestSuite suite, String testName, String key) {
+        boolean isIncluded = false;
+        List<String> keyList = suite.getDataKeyValues().get(testName);
+        for (String keyValue : keyList) {
+            String pattern = encode(keyValue, regexSpecialCharacters).replace(TesterinaConstants.WILDCARD, DOT +
+                    TesterinaConstants.WILDCARD);
+            String decodedKey = encode(key, regexSpecialCharacters);
+            if (pattern.equals(decodedKey)) {
+                isIncluded = true;
+            } else {
+                isIncluded = Pattern.matches(pattern, decodedKey);
+            }
+            if (isIncluded) {
+                break;
+            }
+        }
+        return isIncluded;
+    }
+
+    private void invokeDataDrivenTest(TestSuite suite, String testName, String key, ClassLoader classLoader,
+                                      Scheduler scheduler, AtomicBoolean shouldSkip, String packageName, Object[] arg,
+                                      Class<?>[] argTypes, List<String> failedOrSkippedTests) {
+        Object valueSets;
+        if (suite.isSingleDDTExecution()) {
+            if (isIncludedKey(suite, testName, key)) {
+                valueSets = invokeTestFunction(suite, testName, classLoader, scheduler, argTypes, arg);
+                computeFunctionResult(testName + DATA_KEY_SEPARATOR + key, packageName, shouldSkip,
+                        failedOrSkippedTests, valueSets);
+            }
+        } else {
+            valueSets = invokeTestFunction(suite, testName, classLoader, scheduler, argTypes,
+                    arg);
+            computeFunctionResult(testName + DATA_KEY_SEPARATOR + key,
+                    packageName, shouldSkip, failedOrSkippedTests, valueSets);
+        }
+    }
+
     private void executeFunction(Test test, TestSuite suite, String packageName, ClassLoader classLoader,
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                  List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
@@ -482,14 +560,36 @@ public class BTestRunner {
             }
             if (valueSets == null) {
                 valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler);
-                computeFunctionResult(test, packageName, shouldSkip, failedOrSkippedTests, valueSets);
+                computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests, valueSets);
             } else {
-                Class<?>[] argTypes = extractArgumentTypes(valueSets);
-                List<Object[]> argList = extractArguments(valueSets);
-                for (Object[] arg : argList) {
-                    valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes,
-                            arg);
-                    computeFunctionResult(test, packageName, shouldSkip, failedOrSkippedTests, valueSets);
+                if (valueSets instanceof BMap) {
+                    // Handle map data sets
+                    List<String> keyValues = getKeyValues((BMap) valueSets);
+                    Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
+                    List<Object[]> argList = extractArguments((BMap) valueSets);
+                    int i = 0;
+                    for (Object[] arg : argList) {
+                        invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
+                                classLoader, scheduler, shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
+                        i++;
+                    }
+                } else if (valueSets instanceof BArray) {
+                    // Handle array data sets
+                    Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
+                    List<Object[]> argList = extractArguments((BArray) valueSets);
+                    int i = 0;
+                    for (Object[] arg : argList) {
+                        invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
+                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
+                        i++;
+                    }
+                } else if (valueSets instanceof BError || valueSets instanceof Error ||
+                        valueSets instanceof Exception) {
+                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                            valueSets);
+                } else {
+                    computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                            new Error("The provided data set does not match the supported formats."));
                 }
             }
         } else {
@@ -512,26 +612,26 @@ public class BTestRunner {
 
     }
 
-    private void computeFunctionResult(Test test, String packageName, AtomicBoolean shouldSkip,
+    private void computeFunctionResult(String testName, String packageName, AtomicBoolean shouldSkip,
                                        List<String> failedOrSkippedTests, Object valueSets) {
         TesterinaResult functionResult;
         if (valueSets instanceof BError) {
-            failedOrSkippedTests.add(test.getTestName());
-            functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
+            failedOrSkippedTests.add(testName);
+            functionResult = new TesterinaResult(testName, false, shouldSkip.get(),
                     formatErrorMessage((BError) valueSets));
             tReport.addFunctionResult(packageName, functionResult);
         } else if (valueSets instanceof Exception) {
-            failedOrSkippedTests.add(test.getTestName());
-            functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
+            failedOrSkippedTests.add(testName);
+            functionResult = new TesterinaResult(testName, false, shouldSkip.get(),
                     formatErrorMessage((Exception) valueSets));
             tReport.addFunctionResult(packageName, functionResult);
         } else if (valueSets instanceof Error) {
-            failedOrSkippedTests.add(test.getTestName());
-            functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
+            failedOrSkippedTests.add(testName);
+            functionResult = new TesterinaResult(testName, false, shouldSkip.get(),
                     formatErrorMessage((Error) valueSets));
             tReport.addFunctionResult(packageName, functionResult);
         } else {
-            functionResult = new TesterinaResult(test.getTestName(), true, shouldSkip.get(), null);
+            functionResult = new TesterinaResult(testName, true, shouldSkip.get(), null);
             tReport.addFunctionResult(packageName, functionResult);
         }
     }
@@ -683,49 +783,76 @@ public class BTestRunner {
     }
 
     /**
-     * Extract function arguments from the values sets.
+     * Extract function arguments from the data sets.
      *
-     * @param valueSets user provided value sets
+     * @param bArray user provided array data sets
      * @return a list of function arguments
      */
-    private List<Object[]> extractArguments(Object valueSets) {
+    private List<Object[]> extractArguments(BArray bArray) {
         List<Object[]> argsList = new ArrayList<>();
-
-        if (valueSets instanceof BArray) {
-            BArray bArray = (BArray) valueSets;
-            if (bArray.getElementType() instanceof ArrayType) {
-                // Ok we have an array of an array
-                for (int i = 0; i < bArray.size(); i++) {
-                    // Iterate array elements and set parameters
-                    setTestFunctionParams(argsList, (BArray) bArray.get(i));
-                }
-            } else {
+        if (bArray.getElementType() instanceof ArrayType) {
+            // Ok we have an array of an array
+            for (int i = 0; i < bArray.size(); i++) {
                 // Iterate array elements and set parameters
-                setTestFunctionParams(argsList, bArray);
+                setTestFunctionParams(argsList, (BArray) bArray.get(i));
+            }
+        } else {
+            // Iterate array elements and set parameters
+            setTestFunctionParams(argsList, bArray);
+        }
+        return argsList;
+    }
+
+    /**
+     * Extract function arguments from the data sets.
+     *
+     * @param dataMap user provided map data sets
+     * @return a list of function arguments
+     */
+    private List<Object[]> extractArguments(BMap dataMap) {
+        List<Object[]> argsList = new ArrayList<>();
+        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+            for (BString keyValue : (BString[]) dataMap.getKeys()) {
+                setTestFunctionParams(argsList, dataMap.getArrayValue(keyValue));
             }
         }
         return argsList;
     }
 
     /**
-     * Extract the parameter types from a valueset.
-     * @param valueSets use provided value sets
-     * @return a list of calss types.
+     * Extract the argument types from a data set.
+     *
+     * @param bArray user provided array data sets
+     * @return a list of class types
      */
-    private static Class<?>[] extractArgumentTypes(Object valueSets) {
+    private static Class<?>[] extractArgumentTypes(BArray bArray) {
         List<Class<?>> typeList = new ArrayList<>();
         typeList.add(Strand.class);
-        if (valueSets instanceof BArray) {
-            BArray bArray = (BArray) valueSets;
-            if (bArray.getElementType() instanceof ArrayType) {
-                // Ok we have an array of an array
-                // Get the first entry
-                // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, (BArray) bArray.get(0));
-            } else {
-                // Iterate elements and get class types.
-                setTestFunctionSignature(typeList, bArray);
-            }
+        if (bArray.getElementType() instanceof ArrayType) {
+            // Iterate elements of first entry in array of array
+            // to get the class types
+            setTestFunctionSignature(typeList, (BArray) bArray.get(0));
+        } else {
+            // Iterate elements and get class types
+            setTestFunctionSignature(typeList, bArray);
+        }
+        Class<?>[] typeListArray = new Class[typeList.size()];
+        typeList.toArray(typeListArray);
+        return typeListArray;
+    }
+
+    /**
+     * Extract the argument types from a data set.
+     *
+     * @param dataMap use provided map data sets
+     * @return a list of class types
+     */
+    private static Class<?>[] extractArgumentTypes(BMap dataMap) {
+        List<Class<?>> typeList = new ArrayList<>();
+        typeList.add(Strand.class);
+        if (((BMapType) dataMap.getType()).getConstrainedType() instanceof TupleType) {
+            setTestFunctionSignature(typeList, dataMap.getArrayValue(
+                    (BString) dataMap.getKeys()[0]));
         }
         Class<?>[] typeListArray = new Class[typeList.size()];
         typeList.toArray(typeListArray);
@@ -733,12 +860,21 @@ public class BTestRunner {
     }
 
     private static void setTestFunctionSignature(List<Class<?>> typeList, BArray bArray) {
-        Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
-        for (int i = 0; i < bArray.size(); i++) {
-            // Add the param type.
-            typeList.add(type);
-            // This is in jvm function signature to tel if args is passed or not.
-            typeList.add(Boolean.TYPE);
+        if (bArray.getType() instanceof BTupleType) {
+            List<Type> types = ((BTupleType) bArray.getType()).getTupleTypes();
+            for (Type type : types) {
+                Class<?> classMapping = getArgTypeToClassMapping(type);
+                typeList.add(classMapping);
+                typeList.add(Boolean.TYPE);
+            }
+        } else {
+            Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
+            for (int i = 0; i < bArray.size(); i++) {
+                // Add the param type.
+                typeList.add(type);
+                // This is in jvm function signature to denote if args is passed or not.
+                typeList.add(Boolean.TYPE);
+            }
         }
     }
 
@@ -746,13 +882,23 @@ public class BTestRunner {
         List<Object> params = new ArrayList<>();
         // Add a place holder to Strand
         params.add(new Object());
-        for (int i = 0; i < bArray.size(); i++) {
-            // Add the param type.
-            params.add(bArray.get(i));
-            // This is in jvm function signature to tel if args is passed or not.
-            params.add(Boolean.TRUE);
+        if (bArray.getType() instanceof BTupleType) {
+            for (int i = 0; i < bArray.size(); i++) {
+                // Add the param type.
+                params.add(bArray.getRefValue(i));
+                // This is in jvm function signature to denote if args is passed or not.
+                params.add(Boolean.TRUE);
+            }
+            valueList.add(params.toArray());
+        } else {
+            for (int i = 0; i < bArray.size(); i++) {
+                // Add the param type.
+                params.add(bArray.get(i));
+                // This is in jvm function signature to denote if args is passed or not.
+                params.add(Boolean.TRUE);
+            }
+            valueList.add(params.toArray());
         }
-        valueList.add(params.toArray());
     }
 
     private static Class<?> getArgTypeToClassMapping(Type elementType) {
@@ -815,7 +961,96 @@ public class BTestRunner {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
             errStream.println(errorMsg + ":" + e.getMessage());
         }
-
     }
 
+    /**
+     * Encode the provided set of special characters in the given key.
+     *
+     * @param key String
+     * @param specialCharacters List<String>
+     * @return String
+     */
+    private String encode(String key, List<String> specialCharacters) {
+        String encodedKey = key;
+        String encodedValue;
+        for (String character : specialCharacters) {
+            try {
+                if (encodedKey.contains(character)) {
+                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
+                    encodedKey = encodedKey.replace(character, encodedValue);
+                }
+            } catch (UnsupportedEncodingException e) {
+                errStream.println("Error occurred while encoding special characters in the data provider case value '"
+                        + key + "'");
+            }
+        }
+        return encodedKey;
+    }
+
+    /**
+     * Escape special characters in the given key.
+     *
+     * @param key String
+     * @return String
+     */
+    private String escapeSpecialCharacters(String key) {
+        String updatedKey = key;
+        if (!isBalanced(updatedKey)) {
+            updatedKey = encode(updatedKey, bracketCharacters);
+        }
+        updatedKey = encode(updatedKey, specialCharacters);
+        if (!(updatedKey.startsWith("'") && updatedKey.endsWith("'"))) {
+            updatedKey = "'" + updatedKey + "'";
+        }
+        return updatedKey;
+    }
+
+    /**
+     * Check if the brackets are balanced in given expression.
+     *
+     * @param expr String
+     * @return boolean
+     */
+    private boolean isBalanced(String expr) {
+        Deque<Character> stack = new ArrayDeque<>();
+        for (int i = 0; i < expr.length(); i++) {
+            char val = expr.charAt(i);
+            if (val == '(' || val == '[' || val == '{') {
+                stack.push(val);
+                continue;
+            }
+            if ((val == ')' || val == ']' || val == '}')) {
+                if (stack.isEmpty()) {
+                    return false;
+                }
+                char topElement;
+                switch (val) {
+                    case ')':
+                        topElement = stack.pop();
+                        if (topElement == '{' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case '}':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case ']':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '{') {
+                            return false;
+                        }
+                        break;
+                }
+            } else {
+                continue;
+            }
+        }
+        // If the brackets are balanced, stack needs to be empty.
+        return stack.isEmpty();
+    }
 }

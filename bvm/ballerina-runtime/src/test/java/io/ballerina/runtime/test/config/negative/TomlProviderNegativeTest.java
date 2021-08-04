@@ -21,14 +21,17 @@ package io.ballerina.runtime.test.config.negative;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
@@ -44,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
@@ -76,7 +80,6 @@ public class TomlProviderNegativeTest {
                 {"NoConfig.toml",
                         "warning: configuration file is not found in path '" +
                                 getConfigPathForNegativeCases("NoConfig.toml") + "'", 1},
-                {"Empty.toml", "error: value not provided for required configurable variable 'byteVar'", 0},
                 {"InvalidConfig.toml", "warning: invalid toml file : \n" +
                         "[InvalidConfig.toml:(1:8,1:8)] missing identifier\n" +
                         "[InvalidConfig.toml:(1:26,1:26)] missing identifier\n" +
@@ -102,8 +105,6 @@ public class TomlProviderNegativeTest {
                         "found for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 1},
                 {"InvalidModuleStructure2", "[InvalidModuleStructure2.toml:(1:1,2:7)] invalid toml structure found " +
                         "for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 1},
-                {"RequiredNegative",
-                        "value not provided for required configurable variable 'stringVar'", 1, 0},
                 {"PrimitiveTypeError", "[PrimitiveTypeError.toml:(2:10,2:14)] configurable variable 'intVar' is " +
                         "expected to be of type 'int', but found 'float'", 2, 0},
                 {"PrimitiveStructureError", "[PrimitiveStructureError.toml:(2:1,2:24)] configurable variable " +
@@ -195,9 +196,8 @@ public class TomlProviderNegativeTest {
                         ".name' is expected to be of type 'string', but found 'int'", 1},
                 {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] configurable variable " +
                         "'recordVar.name' is expected to be of type 'string', but found 'record'", 0},
-                {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] additional field 'age' provided for" +
-                        " configurable variable 'recordVar' of record 'test_module:Person' is not " +
-                        "supported", 0},
+                {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] undefined field 'age' provided for " +
+                        "closed record 'test_module:Person'", 0},
                 {"MissingRecordField", "[MissingRecordField.toml:(1:1,1:24)] value not provided for non-defaultable " +
                         "required field 'name' of record 'test_module:Person' in configurable variable " +
                         "'recordVar'", 0},
@@ -254,9 +254,8 @@ public class TomlProviderNegativeTest {
                         "is expected to be of type 'string', but found 'int'", 2},
                 {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] configurable variable " +
                         "'tableVar.name' is expected to be of type 'string', but found 'record'", 1},
-                {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] additional field 'city' provided for" +
-                        " configurable variable 'tableVar' of record 'test_module:Person'" +
-                        " is not supported", 0},
+                {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] undefined field 'city' provided for closed " +
+                        "record 'test_module:Person'", 0},
                 {"MissingTableField", "[MissingTableField.toml:(1:1,3:9)] value not provided for " +
                         "non-defaultable required field 'id' of record 'test_module:Person' in configurable" +
                         " variable 'tableVar'", 0},
@@ -502,6 +501,110 @@ public class TomlProviderNegativeTest {
         String error = "[InvalidIntersectionArray.toml:(1:1,1:28)] configurable variable 'intArr' is expected to be " +
                 "of type 'int[][] & readonly', but found 'record'";
         validateTomlProviderErrors("InvalidIntersectionArray", error, configVarMap, 1, 0);
+    }
+
+    @Test
+    public void testRestFieldInvalidType() {
+        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
+                new HashMap<>(), PredefinedTypes.TYPE_INT, false, 6);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, "person", recordType, true);
+        String error = "[RestFieldNegative.toml:(3:8,3:14)] configurable variable 'person.name' is expected to be of " +
+                "type 'int', but found 'string'";
+        validateTomlProviderErrors("RestFieldNegative", error, Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{recordVar})), 1, 1);
+    }
+
+    @Test(dataProvider = "union-ambiguity-provider")
+    public void testTomlValueAmbiguityForUnionType(String errorMsg, VariableKey variableKey) {
+        validateTomlProviderErrors("UnionAmbiguousType", errorMsg, Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{variableKey})), 1, 5);
+    }
+
+    @DataProvider(name = "union-ambiguity-provider")
+    public Object[][] getUnionAmbiguityTests() {
+        UnionType unionType1 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_STRING,
+                PredefinedTypes.TYPE_XML), true);
+        VariableKey stringUnion =  new VariableKey(ROOT_MODULE, "var1", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType1, PredefinedTypes.TYPE_READONLY}, unionType1, 1, true), true);
+
+        UnionType unionType2 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT,
+                PredefinedTypes.TYPE_DECIMAL), true);
+        VariableKey floatUnion =  new VariableKey(ROOT_MODULE, "var2", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType2, PredefinedTypes.TYPE_READONLY}, unionType2, 1, true), true);
+
+        FiniteType decimals = TypeCreator.createFiniteType("Decimals", Set.of(ValueCreator.createDecimalValue("1.2"),
+                ValueCreator.createDecimalValue("3.4")), 1);
+        UnionType unionType4 = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT, decimals), true);
+        VariableKey finiteUnion =  new VariableKey(ROOT_MODULE, "var3", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType4, PredefinedTypes.TYPE_READONLY}, unionType4, 1, true), true);
+
+        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
+        UnionType unionType3 = TypeCreator.createUnionType(List.of(TypeCreator.createArrayType(mapType),
+                TypeCreator.createTableType(mapType, true)), true);
+        VariableKey tableUnion =  new VariableKey(ROOT_MODULE, "var4", new BIntersectionType(ROOT_MODULE,
+                new Type[]{unionType3, PredefinedTypes.TYPE_READONLY}, unionType3, 1, true), true);
+
+        return new Object[][]{
+                {"[UnionAmbiguousType.toml:(1:8,1:41)] ambiguous target types found for configurable variable 'var1' " +
+                        "with type '(string|xml<(lang.xml:Element|lang.xml:Comment|lang" +
+                        ".xml:ProcessingInstruction|lang.xml:Text)>)'", stringUnion},
+                {"[UnionAmbiguousType.toml:(2:8,2:13)] ambiguous target types found for configurable variable 'var2' " +
+                        "with type '(float|decimal)'", floatUnion},
+                {"[UnionAmbiguousType.toml:(3:8,3:11)] ambiguous target types found for configurable variable 'var3' " +
+                        "with type '(float|Decimals)'", finiteUnion},
+                {"[UnionAmbiguousType.toml:(4:1,6:7)] ambiguous target types found for configurable variable 'var4' " +
+                        "with type '(map<anydata>[]|table<map<(anydata & readonly)> & readonly> & readonly)'",
+                        tableUnion},
+        };
+    }
+
+    @Test(dataProvider = "value-negative-provider")
+    public void testTomlValueNotProvidedError(VariableKey variableKey) {
+        String errorMsg = "value not provided for required configurable variable '" + variableKey.variable + "'";
+        validateTomlProviderErrors("Empty", errorMsg, Map.ofEntries(Map.entry(ROOT_MODULE,
+                new VariableKey[]{variableKey})), 1, 1);
+    }
+
+    @DataProvider(name = "value-negative-provider")
+    public Object[] getVariablesWithoutValues() {
+        VariableKey intVar =  new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey byteVar =  new VariableKey(ROOT_MODULE, "byteVar", PredefinedTypes.TYPE_BYTE, true);
+        VariableKey booleanVar =  new VariableKey(ROOT_MODULE, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true);
+        VariableKey floatVar =  new VariableKey(ROOT_MODULE, "floatVar", PredefinedTypes.TYPE_FLOAT, true);
+        VariableKey decimalVar =  new VariableKey(ROOT_MODULE, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true);
+        VariableKey stringVar =  new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
+
+        BIntersectionType xmlIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{PredefinedTypes.TYPE_XML,
+                PredefinedTypes.TYPE_READONLY}, PredefinedTypes.TYPE_XML, 0, true);
+        VariableKey xmlVar =  new VariableKey(ROOT_MODULE, "xmlVar", xmlIntersection, true);
+
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true);
+        BIntersectionType arrayIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{arrayType,
+                PredefinedTypes.TYPE_READONLY}, arrayType, 0, true);
+        VariableKey arrayVar =  new VariableKey(ROOT_MODULE, "arrayVar", arrayIntersection, true);
+
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
+        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null,
+                true, 6);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, "recordVar", recordType, true);
+
+        MapType mapType = TypeCreator.createMapType("MapType", PredefinedTypes.TYPE_STRING, ROOT_MODULE, false);
+        IntersectionType mapIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{mapType,
+                PredefinedTypes.TYPE_READONLY}, mapType, 1, true);
+        VariableKey mapVar = new VariableKey(ROOT_MODULE, "mapVar", mapIntersection, true);
+
+        TableType tableType = TypeCreator.createTableType(mapType, true);
+        IntersectionType tableIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
+                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
+        VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", tableIntersection, true);
+
+        BIntersectionType unionIntersection = new BIntersectionType(ROOT_MODULE, new Type[]{TYPE_ANYDATA,
+                PredefinedTypes.TYPE_READONLY}, TYPE_ANYDATA, 0, true);
+        VariableKey unionVar = new VariableKey(ROOT_MODULE, "unionVar", unionIntersection, true);
+
+        return new VariableKey[]{intVar, byteVar, booleanVar, floatVar, decimalVar, stringVar, xmlVar, arrayVar,
+                recordVar, mapVar, tableVar, unionVar};
     }
 
     private VariableKey[] getSimpleVariableKeys(Module module) {

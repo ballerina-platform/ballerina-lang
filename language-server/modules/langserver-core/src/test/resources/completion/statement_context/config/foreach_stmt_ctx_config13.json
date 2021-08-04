@@ -12,8 +12,8 @@
       "documentation": {
         "left": "foreach statement for iterable variable - myStr"
       },
-      "sortText": "Q",
-      "insertText": "foreach string item in myStr {\n\t${1}\n}",
+      "sortText": "R",
+      "insertText": "foreach string:Char item in myStr {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -38,7 +38,7 @@
       "documentation": {
         "left": "foreach i statement for iterable variable - myStr"
       },
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "foreach int i in ${1:0}...myStr.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -58,13 +58,13 @@
       ]
     },
     {
-      "label": "getCodePoint(int index)(int)",
+      "label": "getCodePoint(int index)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the code point of a character in a string.\n  \n**Params**  \n- `int` index: an index in `str`  \n  \n**Returns** `int`   \n- the Unicode code point of the character at `index` in `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the code point of a character in a string.\n  \n**Params**  \n- `int` index: an index in parameter `str`  \n  \n**Return** `int`   \n- the Unicode code point of the character at parameter `index` in parameter `str`  \n  \n"
         }
       },
       "sortText": "D",
@@ -77,13 +77,13 @@
       }
     },
     {
-      "label": "toBytes()(byte[])",
+      "label": "toBytes()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "byte[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRepresents `str` as an array of bytes using UTF-8.\n  \n  \n  \n**Returns** `byte[]`   \n- UTF-8 byte array  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRepresents a string as an array of bytes using UTF-8.\n  \n  \n  \n**Return** `byte[]`   \n- UTF-8 byte array  \n  \n"
         }
       },
       "sortText": "D",
@@ -92,13 +92,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "length()(int)",
+      "label": "length()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the length of the string.\n  \n  \n  \n**Returns** `int`   \n- the number of characters (code points) in `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns the length of the string.\n  \n  \n  \n**Return** `int`   \n- the number of characters (code points) in parameter `str`  \n  \n"
         }
       },
       "sortText": "D",
@@ -107,13 +107,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toCodePointInts()(int[])",
+      "label": "toCodePointInts()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Returns** `int[]`   \n- an array with a code point for each character of `str`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Return** `int[]`   \n- an array with a code point for each character of parameter `str`  \n  \n"
         }
       },
       "sortText": "D",
@@ -122,13 +122,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "includes(string substr, int startIndex)(boolean)",
+      "label": "includes(string substr, int startIndex)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string includes another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `boolean`   \n- `true` if there is an occurrence of `substr` in `str` at an index >= `startIndex`,  \nor `false` otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string includes another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `boolean`   \n- `true` if there is an occurrence of parameter `substr` in parameter `str` at an index >= parameter `startIndex`,  \nor `false` otherwise  \n  \n"
         }
       },
       "sortText": "D",
@@ -141,13 +141,13 @@
       }
     },
     {
-      "label": "concat(string... strs)(string)",
+      "label": "concat(string... strs)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Returns** `string`   \n- concatenation of all of the `strs`; empty string if `strs` is empty  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Return** `string`   \n- concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty  \n  \n"
         }
       },
       "sortText": "D",
@@ -160,13 +160,13 @@
       }
     },
     {
-      "label": "equalsIgnoreCaseAscii(string str2)(boolean)",
+      "label": "equalsIgnoreCaseAscii(string str2)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `boolean`   \n- true if `str1` is the same as `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\n\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Return** `boolean`   \n- true if parameter `str1` is the same as parameter `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
         }
       },
       "sortText": "D",
@@ -179,13 +179,13 @@
       }
     },
     {
-      "label": "toUpperAscii()(string)",
+      "label": "toUpperAscii()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of a-z to A-Z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of a-z converted to A-Z  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of a-z to A-Z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of a-z converted to A-Z  \n  \n"
         }
       },
       "sortText": "D",
@@ -194,13 +194,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "substring(int startIndex, int endIndex)(string)",
+      "label": "substring(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Returns** `string`   \n- substring consisting of characters with index >= startIndex and < endIndex  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Return** `string`   \n- substring consisting of characters with index >= `startIndex` and < `endIndex`  \n  \n"
         }
       },
       "sortText": "D",
@@ -213,13 +213,13 @@
       }
     },
     {
-      "label": "lastIndexOf(string substr, int startIndex)(int?)",
+      "label": "lastIndexOf(string substr, int startIndex)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the last occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Returns** `int?`   \n- index of the last occurrence of `substr` in `str` that is <= `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the last occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the last occurrence of parameter `substr` in parameter `str` that is <= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
         }
       },
       "sortText": "D",
@@ -232,13 +232,13 @@
       }
     },
     {
-      "label": "iterator()(object {public isolated function next() returns record {| string:Char value; |}? ;})",
+      "label": "iterator()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "object {public isolated function next() returns record {| string:Char value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| string:Char value; |}? ;}`   \n- a new iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| string:Char value; |}? ;}`   \n- a new iterator object  \n  \n"
         }
       },
       "sortText": "D",
@@ -247,13 +247,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "trim()(string)",
+      "label": "trim()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Returns** `string`   \n- `str` with leading or trailing ASCII white space characters removed  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\n\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with leading or trailing ASCII white space characters removed  \n  \n"
         }
       },
       "sortText": "D",
@@ -262,13 +262,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "endsWith(string substr)(boolean)",
+      "label": "endsWith(string substr)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Returns** `boolean`   \n- true if `str` ends with `substr`; false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Return** `boolean`   \n- true if parameter `str` ends with parameter `substr`; false otherwise  \n  \n"
         }
       },
       "sortText": "D",
@@ -281,13 +281,13 @@
       }
     },
     {
-      "label": "join(string... strs)(string)",
+      "label": "join(string... strs)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Returns** `string`   \n- a string consisting of all of `strs` concatenated in order  \nwith `separator` in between them  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Return** `string`   \n- a string consisting of all of parameter `strs` concatenated in order  \nwith parameter `separator` in between them  \n  \n"
         }
       },
       "sortText": "D",
@@ -300,13 +300,13 @@
       }
     },
     {
-      "label": "indexOf(string substr, int startIndex)(int?)",
+      "label": "indexOf(string substr, int startIndex)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the first occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Returns** `int?`   \n- index of the first occurrence of `substr` in `str` that is >= `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nFinds the first occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `int?`   \n- index of the first occurrence of parameter `substr` in parameter `str` that is >= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
         }
       },
       "sortText": "D",
@@ -319,13 +319,13 @@
       }
     },
     {
-      "label": "codePointCompare(string str2)(int)",
+      "label": "codePointCompare(string str2)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nLexicographically compares strings using their Unicode code points.\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Returns** `int`   \n- an int that is less than, equal to or greater than zero,  \naccording as `str1` is less than, equal to or greater than `str2`  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nLexicographically compares strings using their Unicode code points.\n\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Return** `int`   \n- an int that is less than, equal to or greater than zero,  \naccording as parameter `str1` is less than, equal to or greater than parameter `str2`  \n  \n"
         }
       },
       "sortText": "D",
@@ -338,13 +338,13 @@
       }
     },
     {
-      "label": "toLowerAscii()(string)",
+      "label": "toLowerAscii()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of A-Z to a-z.\nOther characters are left unchanged.\n  \n  \n  \n**Returns** `string`   \n- `str` with any occurrences of A-Z converted to a-z  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nConverts occurrences of A-Z to a-z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of A-Z converted to a-z  \n  \n"
         }
       },
       "sortText": "D",
@@ -353,13 +353,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "startsWith(string substr)(boolean)",
+      "label": "startsWith(string substr)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Returns** `boolean`   \n- true if `str` starts with `substr`; false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Return** `boolean`   \n- true if parameter `str` starts with parameter `substr`; false otherwise  \n  \n"
         }
       },
       "sortText": "D",
@@ -372,13 +372,13 @@
       }
     },
     {
-      "label": "cloneWithType(typedesc<anydata> t)(t|error)",
+      "label": "cloneWithType(typedesc<anydata> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Returns** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \nWhen `v` is a structural value, the inherent type of the value to be constructed  \ncomes from `t`. When `t` is a union, it must be possible to determine which  \nmember of the union to use for the inherent type by following the same rules  \nthat are used by list constructor expressions and mapping constructor expressions  \nwith the contextually expected type. If not, then an error is returned.  \nThe `cloneWithType` operation is recursively applied to each member of `v` using  \nthe type descriptor that the inherent type requires for that member.  \n  \nLike the Clone abstract operation, this does a deep copy, but differs in  \nthe following respects:  \n- the inherent type of any structural values constructed comes from the specified  \ntype descriptor rather than the value being constructed  \n- the read-only bit of values and fields comes from the specified type descriptor  \n- the graph structure of `v` is not preserved; the result will always be a tree;  \nan error will be returned if `v` has cycles  \n- immutable structural values are copied rather being returned as is; all  \nstructural values in the result will be mutable.  \n- numeric values can be converted using the NumericConvert abstract operation  \n- if a record type descriptor specifies default values, these will be used  \nto supply any missing members  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \n"
         }
       },
       "sortText": "D",
@@ -391,13 +391,13 @@
       }
     },
     {
-      "label": "fromJsonString()(json|error)",
+      "label": "fromJsonString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "json|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\nNumbers in the JSON string are converted into Ballerina values of type\ndecimal except in the following two cases:\nif the JSON number starts with `-` and is numerically equal to zero, then it is\nconverted into float value of `-0.0`;\notherwise, if the JSON number is syntactically an integer and is in the range representable\nby a Ballerina int, then it is converted into a Ballerina int.\nA JSON number is considered syntactically an integer if it contains neither\na decimal point nor an exponent.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `json|error`   \n- `str` parsed to json or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\n\nNumbers in the JSON string are converted into Ballerina values of type\ndecimal except in the following two cases:\nif the JSON number starts with `-` and is numerically equal to zero, then it is\nconverted into float value of `-0.0`;\notherwise, if the JSON number is syntactically an integer and is in the range representable\nby a Ballerina int, then it is converted into a Ballerina int.\nA JSON number is considered syntactically an integer if it contains neither\na decimal point nor an exponent.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `json|error`   \n- `str` parsed to json or error  \n  \n"
         }
       },
       "sortText": "D",
@@ -406,13 +406,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromBalString()(anydata|error)",
+      "label": "fromBalString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "anydata|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses and evaluates a subset of Ballerina expression syntax.  \n  \n  \n**Returns** `anydata|error`   \n- the result of evaluating the parsed expression, or  \nan error if the string cannot be parsed  \nThe subset of Ballerina expression syntax supported is that produced  \nby toBalString when applied to an anydata value.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses and evaluates a subset of Ballerina expression syntax.\n\nThe subset of Ballerina expression syntax supported is that produced\nby toBalString when applied to an anydata value.\n  \n  \n  \n**Return** `anydata|error`   \n- the result of evaluating the parsed expression, or  \nan error if the string cannot be parsed  \n  \n"
         }
       },
       "sortText": "D",
@@ -421,13 +421,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonFloatString()(JsonFloat|error)",
+      "label": "fromJsonFloatString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "JsonFloat|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `JsonFloat|error`   \n- `str` parsed to JsonFloat or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `JsonFloat|error`   \n- parameter `str` parsed to JsonFloat or error  \n  \n"
         }
       },
       "sortText": "D",
@@ -436,13 +436,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonDecimalString()(JsonDecimal|error)",
+      "label": "fromJsonDecimalString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "JsonDecimal|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `JsonDecimal|error`   \n- `str` parsed to JsonDecimal or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `JsonDecimal|error`   \n- parameter `str` parsed to JsonDecimal or error  \n  \n"
         }
       },
       "sortText": "D",
@@ -451,13 +451,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly()(CloneableType & readonly)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType & readonly",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v` that is read-only, i.e. immutable.\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType & readonly`   \n- immutable clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",
@@ -466,13 +466,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString()(string)",
+      "label": "toBalString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nIf `v` is anydata and does not have cycles, then the result will  \nconform to the grammar for a Ballerina expression and when evaluated  \nwill result in a value that is == to v.  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the expression style.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "D",
@@ -481,13 +481,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonStringWithType(typedesc<anydata> t)(t|error)",
+      "label": "fromJsonStringWithType(typedesc<anydata> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a string in JSON format to a user-specified type.\nThis is a combination of `fromJsonString` followed by\n`fromJsonWithType`.  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Returns** `t|error`   \n- value belonging to type `t` or error if this cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a string in JSON format to a user-specified type.\n\nThis is a combination of function `fromJsonString` followed by function `fromJsonWithType`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
         }
       },
       "sortText": "D",
@@ -500,13 +500,13 @@
       }
     },
     {
-      "label": "toJson()(json)",
+      "label": "toJson()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "json",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\nThis does a deep copy of `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\n  \n  \n  \n**Returns** `json`   \n- representation of `v` as value of type json  \nThis panics if `v` has cycles.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
       "sortText": "D",
@@ -515,13 +515,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "isReadOnly()(boolean)",
+      "label": "isReadOnly()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "D",
@@ -530,13 +530,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonWithType(typedesc<anydata> t)(t|error)",
+      "label": "fromJsonWithType(typedesc<anydata> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type json to a user-specified type.\nThis works the same as `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Returns** `t|error`   \n- value belonging to type `t` or error if this cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type json to a user-specified type.\n\nThis works the same as function `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
         }
       },
       "sortText": "D",
@@ -549,13 +549,13 @@
       }
     },
     {
-      "label": "mergeJson(json j2)(json|error)",
+      "label": "mergeJson(json j2)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "json|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two json values.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Returns** `json|error`   \n- the merge of `j1` with `j2` or an error if the merge fails  \n  \nThe merge of `j1` with `j2` is defined as follows:  \n- if `j1` is `()`, then the result is `j2`  \n- if `j2` is `()`, then the result is `j1`  \n- if `j1` is a mapping and `j2` is a mapping, then for each entry [k, j] in j2,  \nset `j1[k]` to the merge of `j1[k]` with `j`  \n- if `j1[k]` is undefined, then set `j1[k]` to `j`  \n- if any merge fails, then the merge of `j1` with `j2` fails  \n- otherwise, the result is `j1`.  \n- otherwise, the merge fails  \nIf the merge fails, then `j1` is unchanged.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nMerges two `json` values.\n\nThe merge of parameter `j1` with parameter `j2` is defined as follows:\n- if parameter `j1` is `()`, then the result is parameter `j2`\n- if parameter `j2` is `()`, then the result is parameter `j1`\n- if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`, set `j1[k]` to the merge of `j1[k]` with `j`\n- if `j1[k]` is undefined, then set `j1[k]` to `j`\n- if any merge fails, then the merge of parameter `j1` with parameter `j2` fails\n- otherwise, the result is parameter `j1`.\n- otherwise, the merge fails\nIf the merge fails, then parameter `j1` is unchanged.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Return** `json|error`   \n- the merge of parameter `j1` with parameter `j2` or an error if the merge fails  \n  \n"
         }
       },
       "sortText": "D",
@@ -568,13 +568,13 @@
       }
     },
     {
-      "label": "clone()(CloneableType)",
+      "label": "clone()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "CloneableType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of `v`.\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Returns** `CloneableType`   \n- clone of `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",
@@ -583,13 +583,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ensureType(typedesc<any> t)(t|error)",
+      "label": "ensureType(typedesc<any> t)",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "t|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Returns** `t|error`   \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
         }
       },
       "sortText": "D",
@@ -602,13 +602,13 @@
       }
     },
     {
-      "label": "toString()(string)",
+      "label": "toString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the direct style.  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "D",
@@ -617,13 +617,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJsonString()(string)",
+      "label": "toJsonString()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "string",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n`v` is first converted to `json` as if by the `toJson` function.\n  \n  \n  \n**Returns** `string`   \n- string representation of `v` converted to `json`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
         }
       },
       "sortText": "D",

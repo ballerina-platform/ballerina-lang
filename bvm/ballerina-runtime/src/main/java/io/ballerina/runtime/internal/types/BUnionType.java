@@ -48,13 +48,13 @@ public class BUnionType extends BType implements UnionType {
     private List<Type> memberTypes;
     private List<Type> originalMemberTypes;
     private Boolean nullable;
-    private String cachedToString;
     private long flags = 0;
     private int typeFlags;
     private boolean readonly;
     protected IntersectionType immutableType;
-    private boolean resolving = false;
-    public boolean resolvingReadonly = false;
+    private String cachedToString;
+    private boolean resolving;
+    public boolean resolvingReadonly;
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
@@ -322,9 +322,7 @@ public class BUnionType extends BType implements UnionType {
         }
 
         resolving = true;
-        if (cachedToString == null) {
-            cachedToString = computeStringRepresentation();
-        }
+        computeStringRepresentation();
         resolving = false;
         return cachedToString;
     }
@@ -455,7 +453,10 @@ public class BUnionType extends BType implements UnionType {
         setFlagsBasedOnMembers();
     }
 
-    private String computeStringRepresentation() {
+    public void computeStringRepresentation() {
+        if (cachedToString != null) {
+            return;
+        }
         LinkedHashSet<Type> uniqueTypes = new LinkedHashSet<>();
         for (Type type : this.originalMemberTypes) {
             if (type.getTag() != TypeTags.UNION_TAG) {
@@ -499,7 +500,7 @@ public class BUnionType extends BType implements UnionType {
 
         String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
-        return (hasNilType && !hasNilableMember) ? (typeStr + "?") : typeStr;
+        cachedToString = (hasNilType && !hasNilableMember) ? (typeStr + "?") : typeStr;
     }
 
     private String getQualifiedName(String name) {

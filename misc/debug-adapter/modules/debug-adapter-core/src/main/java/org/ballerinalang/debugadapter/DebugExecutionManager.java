@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
-
 /**
  * Debug process related low-level task executor through JDI.
  */
@@ -85,7 +83,8 @@ public class DebugExecutionManager {
 
         // Todo - enable for launch-mode after implementing debug server client logger
         if (server.getClientConfigHolder().getKind() == ClientConfigHolder.ClientConfigKind.ATTACH_CONFIG) {
-            server.sendOutput(String.format("Connected to the target VM, address: '%s:%s'", host, port), STDOUT);
+            server.getOutputLogger().sendDebugServerOutput((String.format("Connected to the target VM, address: " +
+                    "'%s:%s'", host, port)));
         }
         return attachedVm;
     }

@@ -15,14 +15,12 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -32,6 +30,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,29 +51,27 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ObjectFieldNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-
+        
         if (this.onExpressionContext(context, node)) {
-            completionItems.addAll(this.getExpressionContextCompletions(context));
-        } else if (this.onModuleTypeDescriptorsOnly(context, node)) {
-            NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
-            completionItems.addAll(this.getCompletionItemList(typesInModule, context));
-        } else {
-            /*
-            If the cursor is at the following position, we route to the parent since it is a common and ideal place.
-            Eg:
-            (1). object {
-                    i<cursor>
-                }
-             Return from here, since the sorting will be handled by the parent.
-             */
-            return CompletionUtil.route(context, node.parent());
-        }
-        this.sort(context, node, completionItems);
+            List<LSCompletionItem> completionItems = this.getExpressionContextCompletions(context);
+            this.sort(context, node, completionItems);
 
-        return completionItems;
+            return completionItems;
+        }
+        /*
+        If the cursor is at the following position, we route to the parent since it is a common and ideal place.
+        Eg:
+        (1). object {
+                i<cursor>
+                table<Country> <cursor>
+            }
+        (2). public class {
+                i<cursor>
+                table<Country> <cursor>
+            }
+         Return from here, since the sorting will be handled by the parent.
+         */
+        return CompletionUtil.route(context, node.typeName());
     }
 
     private List<LSCompletionItem> getExpressionContextCompletions(BallerinaCompletionContext ctx) {
@@ -83,17 +80,15 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.expressionCompletions(ctx));
+        Optional<TypeSymbol> contextType = ctx.getContextType();
+        if (contextType.isPresent() && contextType.get().kind() == SymbolKind.CLASS) {
+            LSCompletionItem implicitNewCompletionItem =
+                    this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), ctx);
+            completionItems.add(implicitNewCompletionItem);
+        }
 
-        return this.expressionCompletions(ctx);
-    }
-
-    private boolean onModuleTypeDescriptorsOnly(BallerinaCompletionContext context, ObjectFieldNode node) {
-        int cursor = context.getCursorPositionInTree();
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        Optional<Token> qualifier = node.visibilityQualifier();
-
-        return qualifier.isPresent() && qualifier.get().textRange().endOffset() < cursor
-                && nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE;
+        return completionItems;
     }
 
     private boolean onExpressionContext(BallerinaCompletionContext context, ObjectFieldNode node) {
@@ -104,20 +99,17 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
     }
 
     @Override
-    public boolean onPreValidation(BallerinaCompletionContext context, ObjectFieldNode node) {
-        /*
-        This validation is added in order to avoid identifying the following context as object field node context.
-        This is happened due to the parser recovery strategy.
-        Eg: type TestType client o<cursor>
-         */
-        NonTerminalNode parent = node.parent();
-        return (parent.kind() == SyntaxKind.CLASS_DEFINITION
-                && !((ClassDefinitionNode) parent).openBrace().isMissing()) ||
-                (parent.kind() == SyntaxKind.OBJECT_TYPE_DESC
-                        && !((ObjectTypeDescriptorNode) parent).openBrace().isMissing()) ||
-                (parent.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
-                        && !((ObjectConstructorExpressionNode) parent).openBraceToken().isMissing()) ||
-                (parent.kind() == SyntaxKind.SERVICE_DECLARATION
-                        && !((ServiceDeclarationNode) parent).openBraceToken().isMissing());
+    public void sort(BallerinaCompletionContext context, ObjectFieldNode node,
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> typeSymbolAtCursor = context.getContextType();
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        for (LSCompletionItem completionItem : completionItems) {
+            completionItem.getCompletionItem()
+                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+        }
     }
 }

@@ -9,16 +9,16 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "N",
+      "sortText": "O",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
+      "sortText": "R",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,30 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value3",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value as value3 ;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -63,7 +40,7 @@
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -86,7 +63,7 @@
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -106,11 +83,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
+      "sortText": "R",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -124,7 +101,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -132,7 +132,7 @@
       "label": "boolean",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -140,7 +140,7 @@
       "label": "decimal",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -148,7 +148,7 @@
       "label": "error",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -156,7 +156,7 @@
       "label": "float",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -164,7 +164,7 @@
       "label": "future",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -172,7 +172,7 @@
       "label": "int",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -180,7 +180,7 @@
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -188,7 +188,7 @@
       "label": "object",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "object",
       "insertTextFormat": "Snippet"
     },
@@ -196,7 +196,7 @@
       "label": "stream",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "stream",
       "insertTextFormat": "Snippet"
     },
@@ -204,7 +204,7 @@
       "label": "string",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -212,7 +212,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -220,7 +220,7 @@
       "label": "transaction",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "transaction",
       "insertTextFormat": "Snippet"
     },
@@ -228,7 +228,7 @@
       "label": "typedesc",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     },
@@ -236,7 +236,7 @@
       "label": "xml",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -244,7 +244,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "service",
       "insertText": "service",
       "insertTextFormat": "Snippet"
@@ -253,7 +253,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "new",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
@@ -262,7 +262,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "isolated",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
@@ -271,7 +271,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "transactional",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
@@ -280,7 +280,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "function",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
@@ -289,7 +289,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "let",
       "insertText": "let",
       "insertTextFormat": "Snippet"
@@ -298,7 +298,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "typeof",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
@@ -307,43 +307,25 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "trap",
       "insertText": "trap",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "filterText": "error",
-      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "true",
       "insertText": "true",
       "insertTextFormat": "Snippet"
@@ -352,7 +334,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "false",
       "insertText": "false",
       "insertTextFormat": "Snippet"
@@ -361,7 +343,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "check",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
@@ -370,7 +352,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "checkpanic",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
@@ -379,7 +361,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "is",
       "insertText": "is",
       "insertTextFormat": "Snippet"
@@ -388,7 +370,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "P",
       "filterText": "error",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
@@ -397,7 +379,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "P",
       "filterText": "object",
       "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
@@ -406,7 +388,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "P",
       "filterText": "base16",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
@@ -415,7 +397,7 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "P",
       "filterText": "base64",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
@@ -424,30 +406,15 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "doTask()",
+      "label": "getInt()",
       "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "doTask",
-      "insertText": "doTask()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getInt()(int)",
-      "kind": "Function",
-      "detail": "Function",
+      "detail": "int",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -460,32 +427,32 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getField()(string)",
+      "label": "doTask()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "C",
-      "filterText": "getField",
-      "insertText": "getField()",
+      "filterText": "doTask",
+      "insertText": "doTask()",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "M",
+      "sortText": "N",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "testFunction()",
       "kind": "Function",
-      "detail": "Function",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -495,14 +462,6 @@
       "sortText": "C",
       "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testMap",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "testMap",
       "insertTextFormat": "Snippet"
     },
     {
@@ -522,13 +481,36 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "getField()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "getField",
+      "insertText": "getField()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testMap",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "testMap",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "L",
+      "sortText": "M",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -536,7 +518,7 @@
       "label": "readonly",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -544,7 +526,7 @@
       "label": "handle",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -552,7 +534,7 @@
       "label": "never",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -560,7 +542,7 @@
       "label": "json",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -568,7 +550,7 @@
       "label": "anydata",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -576,7 +558,7 @@
       "label": "any",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -584,7 +566,7 @@
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "Q",
+      "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     }

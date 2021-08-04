@@ -324,7 +324,9 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 152, 31);
         BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 157, 19);
+                "'_' is a keyword, and may not be used as an identifier", 157, 20);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "'_' is a keyword, and may not be used as an identifier", 157, 30);
         BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'XY', " +
@@ -362,6 +364,12 @@ public class RecordVariableDefinitionTest {
                         "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}' " +
                         "does not support field access for non-required field 'married'",
                 287, 23);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "a wildcard binding pattern can be used only with a value that belong to type 'any'",
+                298, 12);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "a wildcard binding pattern can be used only with a value that belong to type 'any'",
+                301, 20);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

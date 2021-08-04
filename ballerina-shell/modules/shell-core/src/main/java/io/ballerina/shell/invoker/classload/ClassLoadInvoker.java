@@ -247,7 +247,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         Map<QuotedIdentifier, GlobalVariable> allNewVariables = new HashMap<>();
         for (VariableDeclarationSnippet snippet : variableDeclarations.keySet()) {
             Map<QuotedIdentifier, GlobalVariable> newVariables = createGlobalVariables(
-                    snippet.qualifiersAndMetadata(), snippet.names(), globalVariableSymbols);
+                    snippet.qualifiersAndMetadata(), snippet.names(), globalVariableSymbols,
+                    snippet.isDeclaredWithVar());
             allNewVariables.putAll(newVariables);
         }
         // Persist all data
@@ -325,7 +326,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         QuotedImport quotedImport = importSnippet.getImportedModule();
         QuotedIdentifier quotedPrefix = importSnippet.getPrefix();
 
-        if (importsManager.moduleImported(quotedImport) && importsManager.prefix(quotedImport).equals(quotedPrefix)) {
+        if (importsManager.moduleImported(quotedImport)
+                && importsManager.prefix(quotedImport).equals(quotedPrefix)
+                && importsManager.containsPrefix(quotedPrefix)) {
             // Same module with same prefix. No need to check.
             addDebugDiagnostic("Detected reimport: " + quotedPrefix);
             return;
@@ -450,12 +453,14 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * @param qualifiersAndMetadata Variable snippet qualifiers.
      * @param definedVariables      Variables that were defined.
      * @param globalVarSymbols      All global variable symbols.
+     * @param isDeclaredWithVar     Declared with a var or not.
      * @return Exported found variable information (name and type)
      */
     private Map<QuotedIdentifier, GlobalVariable> createGlobalVariables(
             String qualifiersAndMetadata,
             Set<QuotedIdentifier> definedVariables,
-            Collection<GlobalVariableSymbol> globalVarSymbols) {
+            Collection<GlobalVariableSymbol> globalVarSymbols,
+            boolean isDeclaredWithVar) {
         Map<QuotedIdentifier, GlobalVariable> foundVariables = new HashMap<>();
         addDebugDiagnostic("Found variables: " + definedVariables);
 
@@ -478,10 +483,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             Set<QuotedIdentifier> requiredImports = new HashSet<>();
             String variableType = importsManager.extractImportsFromType(typeSymbol, requiredImports);
             this.newImports.put(variableName, requiredImports);
-
-            // Create a global variable
-            GlobalVariable globalVariable = new GlobalVariable(variableType, variableName,
-                    isAssignableToAny, qualifiersAndMetadata);
+            GlobalVariable globalVariable = new GlobalVariable(variableType, isDeclaredWithVar,
+                    variableName, isAssignableToAny, qualifiersAndMetadata);
             foundVariables.put(variableName, globalVariable);
         }
 
@@ -541,7 +544,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // Imports with prefixes
         List<String> importStrings = new ArrayList<>();
         for (QuotedIdentifier prefix : importsManager.prefixes()) {
-            importStrings.add(String.format("(%s) %s", prefix, importsManager.getImport(prefix)));
+            String importStatement = String.format("(%s) %s", prefix, importsManager.getImport(prefix));
+            importStrings.add(importStatement);
         }
         return importStrings;
     }
@@ -580,4 +584,5 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     protected PrintStream getErrorStream() {
         return System.err;
     }
+
 }

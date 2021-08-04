@@ -142,6 +142,11 @@ public class ShadowingTest {
         BRunUtil.invoke(result, "testGeneratedNames");
     }
 
+    @Test(description = "test shadowing module level types with local variables")
+    public void testBuiltInTypeShadowing() {
+        BRunUtil.invoke(result, "testBuiltInTypeShadowing");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

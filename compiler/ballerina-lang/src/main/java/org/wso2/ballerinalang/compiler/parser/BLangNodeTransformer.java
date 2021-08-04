@@ -228,7 +228,6 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -625,7 +624,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ImportDeclarationNode importDeclaration) {
         ImportOrgNameNode orgNameNode = importDeclaration.orgName().orElse(null);
         Optional<ImportPrefixNode> prefixNode = importDeclaration.prefix();
-        Token prefix = prefixNode.isPresent() ? prefixNode.get().prefix() : null;
 
         Token orgName = null;
         if (orgNameNode != null) {
@@ -644,8 +642,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         importDcl.pkgNameComps = pkgNameComps;
         importDcl.orgName = this.createIdentifier(getPosition(orgNameNode), orgName);
         importDcl.version = this.createIdentifier(null, version);
-        importDcl.alias = (prefix != null) ? this.createIdentifier(getPosition(prefix), prefix)
-                : pkgNameComps.get(pkgNameComps.size() - 1);
+
+        if (prefixNode.isEmpty()) {
+            importDcl.alias = pkgNameComps.get(pkgNameComps.size() - 1);
+            return importDcl;
+        }
+
+        ImportPrefixNode importPrefixNode = prefixNode.get();
+        Token prefix = importPrefixNode.prefix();
+        Location prefixPos = getPosition(prefix);
+        if (prefix.kind() == SyntaxKind.UNDERSCORE_KEYWORD) {
+            importDcl.alias = createIgnoreIdentifier(prefix);
+        } else {
+            importDcl.alias = createIdentifier(prefixPos, prefix);
+        }
 
         return importDcl;
     }
@@ -674,7 +684,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         BLangSimpleVariable pathParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         pathParam.name = createIdentifier(resourcePathParameterNode.paramName());
-        BLangType typeNode = (BLangType) resourcePathParameterNode.typeDescriptor().apply(this);
+        BLangType typeNode = createTypeNode(resourcePathParameterNode.typeDescriptor());
         pathParam.pos = getPosition(resourcePathParameterNode);
         pathParam.annAttachments = applyAll(resourcePathParameterNode.annotations());
 
@@ -875,6 +885,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             unionTypeNode.memberTypeNodes.add(createTypeNode(unionElement));
         }
 
+        bLangFiniteTypeNode.setPosition(unionTypeNode.pos);
         if (!finiteTypeElements.isEmpty()) {
             unionTypeNode.memberTypeNodes.add(deSugarTypeAsUserDefType(bLangFiniteTypeNode));
         }
@@ -1098,14 +1109,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         objectTypeNode.pos = getPosition(objTypeDescNode);
-
-        if (members.size() > 0) {
-            objectTypeNode.pos = trimLeft(objectTypeNode.pos, getPosition(members.get(0)));
-            objectTypeNode.pos = trimRight(objectTypeNode.pos, getPosition(members.get(members.size() - 1)));
-        } else {
-            objectTypeNode.pos = trimLeft(objectTypeNode.pos, getPosition(objTypeDescNode.closeBrace()));
-            objectTypeNode.pos = trimRight(objectTypeNode.pos, getPosition(objTypeDescNode.openBrace()));
-        }
 
         boolean isAnonymous = checkIfAnonymous(objTypeDescNode);
         objectTypeNode.isAnonymous = isAnonymous;
@@ -1850,6 +1853,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(TypeTestExpressionNode typeTestExpressionNode) {
         BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
+        if (typeTestExpressionNode.isKeyword().kind() == SyntaxKind.NOT_IS_KEYWORD) {
+            typeTestExpr.isNegation = true;
+        }
         typeTestExpr.expr = createExpression(typeTestExpressionNode.expression());
         typeTestExpr.typeNode = createTypeNode(typeTestExpressionNode.typeDescriptor());
         typeTestExpr.pos = getPosition(typeTestExpressionNode);
@@ -2148,7 +2154,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         indexBasedAccess.pos = getPosition(indexedExpressionNode);
         SeparatedNodeList<io.ballerina.compiler.syntax.tree.ExpressionNode> keys =
                 indexedExpressionNode.keyExpression();
-        if (keys.size() == 1) {
+        if (keys.size() == 0) {
+            // TODO : This should be handled by Parser, issue #31536
+            dlog.error(getPosition(indexedExpressionNode.closeBracket()),
+                    DiagnosticErrorCode.MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+            Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+            Node expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+            indexBasedAccess.indexExpr = createExpression(expression);
+        } else if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         } else {
             BLangTableMultiKeyExpr multiKeyExpr =
@@ -2432,11 +2446,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(WildcardBindingPatternNode wildcardBindingPatternNode) {
         BLangSimpleVarRef ignoreVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+        BLangIdentifier ignore = createIgnoreIdentifier(wildcardBindingPatternNode);
+        ignoreVarRef.variableName = ignore;
+        ignoreVarRef.pos = ignore.pos;
+        return ignoreVarRef;
+    }
+
+    private BLangIdentifier createIgnoreIdentifier(Node node) {
         BLangIdentifier ignore = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         ignore.value = Names.IGNORE.value;
-        ignoreVarRef.variableName = ignore;
-        ignore.pos = getPosition(wildcardBindingPatternNode);
-        return ignoreVarRef;
+        ignore.pos = getPosition(node);
+        return ignore;
     }
 
     @Override
@@ -2978,6 +2998,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         simpleVar.pos = getPosition(requiredParameter);
         if (requiredParameter.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
+        } else if (simpleVar.name.pos == null) {
+            // Param doesn't have a name and also is not a missing node
+            // Therefore, assigning the built-in location
+            simpleVar.name.pos = symTable.builtinPos;
         }
         simpleVar.flagSet.add(Flag.REQUIRED_PARAM);
         return simpleVar;
@@ -2988,11 +3012,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariable simpleVar = createSimpleVar(includedRecordParameterNode.paramName(),
                 includedRecordParameterNode.typeName(), includedRecordParameterNode.annotations());
         simpleVar.flagSet.add(INCLUDED);
-        simpleVar.pos = getPosition(includedRecordParameterNode);
+        simpleVar.pos = getPosition(includedRecordParameterNode.typeName(), includedRecordParameterNode);
         if (includedRecordParameterNode.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(includedRecordParameterNode.paramName().get());
         }
-        simpleVar.pos = trimLeft(simpleVar.pos, getPosition(includedRecordParameterNode.typeName()));
         return simpleVar;
     }
 
@@ -4836,9 +4859,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 varName = restBindingPatternNode.variableName().name();
                 break;
             case WILDCARD_BINDING_PATTERN:
-                WildcardBindingPatternNode wildcardBindingPatternNode = (WildcardBindingPatternNode) bindingPattern;
-                varName = wildcardBindingPatternNode.underscoreToken();
-                break;
+                BLangIdentifier ignore = createIgnoreIdentifier(bindingPattern);
+                BLangSimpleVariable simpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+                simpleVar.setName(ignore);
+                simpleVar.pos = ignore.pos;
+                return simpleVar;
             case CAPTURE_BINDING_PATTERN:
             default:
                 CaptureBindingPatternNode captureBindingPatternNode = (CaptureBindingPatternNode) bindingPattern;
@@ -5117,6 +5142,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         String identifierName = token.text();
         if (token.isMissing() || identifierName.equals(IDENTIFIER_LITERAL_PREFIX)) {
             identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
+        } else if (identifierName.equals("_") || identifierName.equals(IDENTIFIER_LITERAL_PREFIX + "_")) {
+            dlog.error(pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED_AS_IDENTIFIER);
+            identifierName = missingNodesHelper.getNextMissingNodeName(packageID);
         }
 
         return createIdentifier(pos, identifierName);
@@ -5240,33 +5268,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     text = text.substring(1);
                 }
             }
-            String originalText = text; // to log the errors
+
             Location pos = getPosition(literal);
-            Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
-            int position = 0;
-            while (matcher.find(position)) {
-                String hexStringVal = matcher.group(1);
-                int hexDecimalVal = Integer.parseInt(hexStringVal, 16);
-                if ((hexDecimalVal >= Constants.MIN_UNICODE && hexDecimalVal <= Constants.MIDDLE_LIMIT_UNICODE)
-                        || hexDecimalVal > Constants.MAX_UNICODE) {
-                    String hexStringWithBraces = matcher.group(0);
-                    int offset = originalText.indexOf(hexStringWithBraces) + 1;
-                    dlog.error(new BLangDiagnosticLocation(currentCompUnitName,
-                                    pos.lineRange().startLine().line(),
-                                    pos.lineRange().endLine().line(),
-                                    pos.lineRange().startLine().offset() + offset,
-                                    pos.lineRange().startLine().offset() + offset + hexStringWithBraces.length()),
-                               DiagnosticErrorCode.INVALID_UNICODE, hexStringWithBraces);
-                }
-                text = matcher.replaceFirst("\\\\u" + fillWithZeros(hexStringVal));
-                position = matcher.end() - 2;
-                matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
-            }
+            validateUnicodePoints(text, pos);
+
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 try {
-                    text = StringEscapeUtils.unescapeJava(text);
+                    text = IdentifierUtils.unescapeJava(IdentifierUtils.unescapeUnicodeCodepoints(text));
                 } catch (Exception e) {
-                    dlog.error(pos, DiagnosticErrorCode.INVALID_UNICODE, originalText);
+                    // We may reach here when the string literal has syntax diagnostics.
+                    // Therefore mock the compiler with an empty string.
+                    text = "";
                 }
             }
 
@@ -5305,6 +5317,33 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLiteral.value = value;
         bLiteral.originalValue = originalValue;
         return bLiteral;
+    }
+
+    private void validateUnicodePoints(String text, Location pos) {
+        Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
+        while (matcher.find()) {
+            String leadingBackSlashes = matcher.group(1);
+            if (IdentifierUtils.isEscapedNumericEscape(leadingBackSlashes)) {
+                // e.g. \\u{61}, \\\\u{61}
+                continue;
+            }
+
+            String hexCodePoint = matcher.group(2);
+            int decimalCodePoint = Integer.parseInt(hexCodePoint, 16);
+
+            if ((decimalCodePoint >= Constants.MIN_UNICODE && decimalCodePoint <= Constants.MIDDLE_LIMIT_UNICODE)
+                    || decimalCodePoint > Constants.MAX_UNICODE) {
+
+                int offset = matcher.end(1);
+                String numericEscape = "\\u{" + hexCodePoint + "}";
+                BLangDiagnosticLocation numericEscapePos = new BLangDiagnosticLocation(currentCompUnitName,
+                        pos.lineRange().startLine().line(),
+                        pos.lineRange().endLine().line(),
+                        pos.lineRange().startLine().offset() + offset,
+                        pos.lineRange().startLine().offset() + offset + numericEscape.length());
+                dlog.error(numericEscapePos, DiagnosticErrorCode.INVALID_UNICODE, numericEscape);
+            }
+        }
     }
 
     private BLangLiteral createStringLiteral(String value, Location pos) {
@@ -6101,43 +6140,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 location.lineRange().endLine().offset());
 
         return expandedLocation;
-    }
-
-    private Location trimLeft(Location location, Location upTo) {
-//      pos     |----------------|
-//      upTo       |-----..
-//      result     |-------------|
-
-        assert location.lineRange().startLine().line() < upTo.lineRange().startLine().line() ||
-                (location.lineRange().startLine().line() == upTo.lineRange().startLine().line() &&
-                        location.lineRange().startLine().offset() <= upTo.lineRange().startLine().offset());
-
-        Location trimmedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
-                                                          upTo.lineRange().startLine().line(),
-                                                          location.lineRange().endLine().line(),
-                                                          upTo.lineRange().startLine().offset(),
-                                                          location.lineRange().endLine().offset());
-
-        return trimmedLocation;
-    }
-
-    private Location trimRight(Location location, Location upTo) {
-
-//      pos     |----------------|
-//      upTo       ..-----|
-//      result  |---------|
-
-        assert location.lineRange().endLine().line() > upTo.lineRange().endLine().line() ||
-                (location.lineRange().endLine().line() == upTo.lineRange().endLine().line() &&
-                        location.lineRange().endLine().offset() >= upTo.lineRange().endLine().offset());
-
-        Location trimmedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
-                                                          location.lineRange().startLine().line(),
-                                                          upTo.lineRange().endLine().line(),
-                                                          location.lineRange().startLine().offset(),
-                                                          upTo.lineRange().endLine().offset());
-
-        return trimmedLocation;
     }
 
     private void setClassQualifiers(NodeList<Token> qualifiers, BLangClassDefinition blangClass) {

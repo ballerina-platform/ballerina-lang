@@ -342,9 +342,9 @@ function mutiplyBy2(int k) returns int {
 
 public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
-    var numberStream = new stream<int, error>(numGen);
+    var numberStream = new stream<int, error?>(numGen);
 
-    int[]|error oddNumberList = from int num in numberStream
+    int[]|error? oddNumberList = from int num in numberStream
                                  where (num % 2 == 1)
                                  select num;
     if (oddNumberList is error) {
@@ -357,9 +357,9 @@ public function testQueryWithStream() returns boolean {
 
 public function testQueryStreamWithError() {
     NumberGeneratorWithError numGen = new;
-    var numberStream = new stream<int, error>(numGen);
+    var numberStream = new stream<int, error?>(numGen);
 
-    int[]|error oddNumberList = from int num in numberStream
+    int[]|error? oddNumberList = from int num in numberStream
                                 where (num % 2 == 1)
                                 select num;
     if (oddNumberList is error) {
@@ -525,4 +525,29 @@ function testForeachStream() returns boolean {
         lastName: "Fonseka",
         age: 40
     };
+}
+
+function testTypeTestInWhereClause() {
+    int?[] v = [1, 2, (), 3];
+    int[] result = from var i in v
+                   where i is int
+                   select i;
+    assertEquality(3, result.length());
+    assertEquality(1, result[0]);
+    assertEquality(2, result[1]);
+    assertEquality(3, result[2]);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

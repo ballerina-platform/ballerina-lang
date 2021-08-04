@@ -4,64 +4,7 @@
   "children": [
     {
       "kind": "LIST",
-      "hasDiagnostics": true,
-      "children": [
-        {
-          "kind": "IMPORT_DECLARATION",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "IMPORT_KEYWORD",
-              "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_INVALID_METADATA"
-              ],
-              "leadingMinutiae": [
-                {
-                  "kind": "INVALID_NODE_MINUTIAE",
-                  "invalidNode": {
-                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                    "children": [
-                      {
-                        "kind": "IDENTIFIER_TOKEN",
-                        "value": "baz"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "bar"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "children": []
     },
     {
       "kind": "LIST",
@@ -80,25 +23,78 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "FUNCTION_TYPE_DESC",
-                  "hasDiagnostics": true,
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "FUNCTION_KEYWORD",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_FUNCTION_KEYWORD"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "baz",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
                       ]
                     }
                   ]
                 },
                 {
                   "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN"
+                      ],
+                      "value": "bar",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "IMPORT_KEYWORD"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -108,6 +104,20 @@
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]
@@ -218,25 +228,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "FUNCTION_TYPE_DESC",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "FUNCTION_KEYWORD",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_FUNCTION_KEYWORD"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -246,6 +238,20 @@
                           "kind": "END_OF_LINE_MINUTIAE",
                           "value": "\n"
                         }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]

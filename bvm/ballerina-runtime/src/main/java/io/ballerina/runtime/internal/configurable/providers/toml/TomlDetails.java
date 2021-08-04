@@ -28,12 +28,10 @@ import java.nio.file.Path;
 public class TomlDetails {
 
     public final Path[] paths;
-    public final String secret;
     public final String configContent;
 
-    public TomlDetails(Path[] paths, String secret, String configContent) {
+    public TomlDetails(Path[] paths, String configContent) {
         this.paths = paths;
-        this.secret = secret;
         this.configContent = configContent;
     }
 }

@@ -57,7 +57,6 @@ test {
     systemProperty 'server.zip', configurations.ballerinaTools.asPath
     systemProperty 'jballerina.server.zip', configurations.jballerinaTools.asPath
     systemProperty 'java.util.logging.config.file', "$buildDir/resources/test/logging.properties"
-    systemProperty 'java.util.logging.manager', 'org.ballerinalang.logging.BLogManager'
     systemProperty 'integration.test.utils.service.file', configurations.testUtilsBal.asPath
     systemProperty 'javax.net.ssl.trustStore', "${configurations.ballerina.asPath}/security/ballerinaTruststore.p12"
     systemProperty 'javax.net.ssl.trustStorePassword', 'ballerina'

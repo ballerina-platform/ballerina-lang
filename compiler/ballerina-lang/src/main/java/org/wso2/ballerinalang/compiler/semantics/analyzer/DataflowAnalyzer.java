@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
@@ -33,10 +34,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -88,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -438,7 +443,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        analyzeNode(typeDefinition.typeNode, env);
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, env);
+        this.currDependentSymbol.push(typeDefinition.symbol);
+        analyzeNode(typeDefinition.typeNode, typeDefEnv);
+        this.currDependentSymbol.pop();
     }
 
     @Override
@@ -473,6 +481,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         Stream.concat(classDefinition.fields.stream(), classDefinition.referencedFields.stream())
+                .map(field -> {
+                    addTypeDependency(classDefinition.symbol, field.getBType(), new HashSet<>());
+                    return field; })
                 .filter(field -> !Symbols.isPrivate(field.symbol))
                 .forEach(field -> {
                     if (this.uninitializedVars.containsKey(field.symbol)) {
@@ -503,8 +514,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable variable) {
-        analyzeNode(variable.typeNode, env);
         BVarSymbol symbol = variable.symbol;
+        analyzeNode(variable.typeNode, env);
         if (symbol == null) {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
@@ -513,6 +524,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.currDependentSymbol.push(symbol);
+        if (variable.typeNode != null && variable.typeNode.getBType() != null) {
+            recordGlobalVariableReferenceRelationship(variable.typeNode.getBType().tsymbol);
+        }
+        boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
+        if (withInModuleVarLetExpr) {
+            BVarSymbol dependentVar = env.enclVarSym;
+            this.currDependentSymbol.push(dependentVar);
+        }
         try {
             if (variable.isDeclaredWithVar) {
                 addVarIfInferredTypeIncludesError(variable);
@@ -536,6 +555,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
             addUninitializedVar(variable);
         } finally {
+            if (withInModuleVarLetExpr) {
+                this.currDependentSymbol.pop();
+            }
             this.currDependentSymbol.pop();
         }
     }
@@ -805,6 +827,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
+    }
+
+    @Override
+    public void visit(BLangConstRef constRef) {
     }
 
     @Override
@@ -1579,6 +1605,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangUserDefinedType userDefinedType) {
+        if (this.currDependentSymbol.isEmpty()) {
+            return;
+        }
+        BTypeSymbol tsymbol = userDefinedType.getBType().tsymbol;
+        BSymbol pop = this.currDependentSymbol.pop();
+        this.currDependentSymbol.push(tsymbol);
+        recordGlobalVariableReferenceRelationship(pop);
+        this.currDependentSymbol.pop();
+        this.currDependentSymbol.push(pop);
     }
 
     @Override
@@ -1608,8 +1643,44 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        recordTypeNode.getTypeReferences().forEach(type -> analyzeNode((BLangType) type, env));
-        recordTypeNode.fields.forEach(field -> analyzeNode(field, env));
+        BTypeSymbol tsymbol = recordTypeNode.getBType().tsymbol;
+        for (TypeNode type : recordTypeNode.getTypeReferences()) {
+            BLangType bLangType = (BLangType) type;
+            analyzeNode(bLangType, env);
+            recordGlobalVariableReferenceRelationship(bLangType.getBType().tsymbol);
+        }
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            addTypeDependency(tsymbol, field.getBType(), new HashSet<>());
+            analyzeNode(field, env);
+            recordGlobalVariableReferenceRelationship(field.symbol);
+        }
+    }
+
+    private void addTypeDependency(BTypeSymbol dependentTypeSymbol, BType providerType, Set<BType> unresolvedTypes) {
+        if (unresolvedTypes.contains(providerType)) {
+            return;
+        }
+        unresolvedTypes.add(providerType);
+        switch (providerType.tag) {
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) providerType).getMemberTypes()) {
+                    BType effectiveType = types.getTypeWithEffectiveIntersectionTypes(memberType);
+                    addTypeDependency(dependentTypeSymbol, effectiveType, unresolvedTypes);
+                }
+                break;
+            case TypeTags.ARRAY:
+                addTypeDependency(dependentTypeSymbol,
+                        types.getTypeWithEffectiveIntersectionTypes(((BArrayType) providerType).getElementType()),
+                        unresolvedTypes);
+                break;
+            case TypeTags.MAP:
+                addTypeDependency(dependentTypeSymbol,
+                        types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()),
+                        unresolvedTypes);
+                break;
+            default:
+                addDependency(dependentTypeSymbol, providerType.tsymbol);
+        }
     }
 
     @Override
@@ -1858,19 +1929,28 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void recordGlobalVariableReferenceRelationship(BSymbol symbol) {
+        if (this.env.scope == null) {
+            return;
+        }
+
+        boolean globalVarSymbol = isGlobalVarSymbol(symbol);
         BSymbol ownerSymbol = this.env.scope.owner;
         boolean isInPkgLevel = ownerSymbol.getKind() == SymbolKind.PACKAGE;
         // Restrict to observations made in pkg level.
-        if (isInPkgLevel && isGlobalVarSymbol(symbol)) {
+        if (isInPkgLevel && (globalVarSymbol || symbol instanceof BTypeSymbol)
+            || (ownerSymbol.tag == SymTag.LET && globalVarSymbol)) {
             BSymbol dependent = this.currDependentSymbol.peek();
             addDependency(dependent, symbol);
-        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && isGlobalVarSymbol(symbol)) {
+        } else if (ownerSymbol.kind == SymbolKind.FUNCTION && globalVarSymbol) {
             // Global variable ref from non package level.
             BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) ownerSymbol;
             addDependency(invokableOwnerSymbol, symbol);
-        } else if (ownerSymbol.kind == SymbolKind.OBJECT && isGlobalVarSymbol(symbol)) {
+        } else if (ownerSymbol.kind == SymbolKind.OBJECT && globalVarSymbol) {
             // Global variable reference from a field assignment of an object or a service.
             // Or global variable reference from a init function of an object or a service.
+            addDependency(ownerSymbol, symbol);
+        } else if (ownerSymbol.kind == SymbolKind.RECORD && globalVarSymbol) {
+            // Global variable reference from a field assignment of an record type declaration.
             addDependency(ownerSymbol, symbol);
         }
     }

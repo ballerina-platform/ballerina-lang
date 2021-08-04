@@ -331,7 +331,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getModuleCompletionItems(context));
-        objectTypeDesc.ifPresent(tDesc -> completionItems.add(this.getImplicitNewCompletionItem(tDesc, context)));
+        objectTypeDesc.ifPresent(tDesc -> completionItems.add(this.getImplicitNewCItemForClass(tDesc, context)));
 
         /*
         Get the keyword completion items. Here we add the keywords associated with the allowed expressions.

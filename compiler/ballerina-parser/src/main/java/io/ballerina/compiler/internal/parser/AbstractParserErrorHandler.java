@@ -40,13 +40,19 @@ public abstract class AbstractParserErrorHandler {
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
-    protected static final int LOOKAHEAD_LIMIT = 5;
+    protected static final int LOOKAHEAD_LIMIT = 4;
 
     /**
      * Limit for the number of times parser tries to recover staying on the same token index.
-     * This will prevent parser going to infinite loops.
+     * This will prevent parser going on infinite loops.
      */
-    private static final int ITTER_LIMIT = 7;
+    private static final int RESOLUTION_ITTER_LIMIT = 7;
+
+    /**
+     * Limit for the number of times parser tries to insert tokens staying on the same token index in completion mode.
+     * This will prevent parser going on infinite loops.
+     */
+    private static final int COMPLETION_ITTER_LIMIT = 15;
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
@@ -66,6 +72,8 @@ public abstract class AbstractParserErrorHandler {
 
     protected abstract SyntaxKind getExpectedTokenKind(ParserRuleContext context);
 
+    protected abstract Solution getInsertSolution(ParserRuleContext context);
+
     /*
      * -------------- Error recovering --------------
      */
@@ -75,20 +83,13 @@ public abstract class AbstractParserErrorHandler {
      * to the next token, in order to recover. This method will search for the most
      * optimal action, that will result the parser to proceed the farthest distance.
      *
-     * @param nextToken  Next token of the input where the error occurred
-     * @param currentCtx Current parser context
-     * @param args       Arguments that requires to continue parsing from the given parser context
+     * @param currentCtx   Current parser context
+     * @param nextToken    Next token of the input where the error occurred
+     * @param isCompletion Whether in recovery point is a completion
      * @return The action needs to be taken for the next token, in order to recover
      */
-    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, Object... args) {
+    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, boolean isCompletion) {
         // Assumption: always comes here after a peek()
-
-        if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-            SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
-            Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
-            applyFix(currentCtx, fix, args);
-            return fix;
-        }
 
         int currentTokenIndex = this.tokenReader.getCurrentTokenIndex();
         if (currentTokenIndex == this.previousTokenIndex) {
@@ -98,22 +99,34 @@ public abstract class AbstractParserErrorHandler {
             previousTokenIndex = currentTokenIndex;
         }
 
-        if (itterCount < ITTER_LIMIT) {
-            Result bestMatch = seekMatch(currentCtx);
-            if (bestMatch.matches > 0) {
-                Solution sol = bestMatch.solution;
-                if (sol != null) {
-                    applyFix(currentCtx, sol, args);
-                    return sol;
-                }
+        Solution fix = null;
+        if (isCompletion && itterCount < COMPLETION_ITTER_LIMIT) {
+            fix = getCompletion(currentCtx, nextToken);
+        } else if (itterCount < RESOLUTION_ITTER_LIMIT) {
+            fix = getResolution(currentCtx, nextToken);
+        }
 
-                // else fall through
-            }
+        if (fix != null) {
+            applyFix(currentCtx, fix);
+            return fix;
         }
 
         // Fail safe. This means we can't find a path to recover.
-        assert itterCount != ITTER_LIMIT : "fail safe reached";
+        assert isCompletion ? itterCount != COMPLETION_ITTER_LIMIT : itterCount != RESOLUTION_ITTER_LIMIT
+                : "fail safe reached";
         return getFailSafeSolution(currentCtx, nextToken);
+    }
+
+    private Solution getResolution(ParserRuleContext currentCtx, STToken nextToken) {
+        Result bestMatch = seekMatch(currentCtx);
+        validateSolution(bestMatch, currentCtx, nextToken);
+
+        Solution sol = null;
+        if (bestMatch.matches > 0) {
+            sol = bestMatch.solution;
+        }
+        
+        return sol;
     }
 
     private Solution getFailSafeSolution(ParserRuleContext currentCtx, STToken nextToken) {
@@ -122,6 +135,53 @@ public abstract class AbstractParserErrorHandler {
         return sol;
     }
 
+    private void validateSolution(Result bestMatch, ParserRuleContext currentCtx, STNode nextToken) {
+        Solution sol = bestMatch.solution;
+        if (sol == null || sol.action == Action.REMOVE) {
+            return;
+        }
+
+        // Special case the `KEEP` of `DOCUMENTATION_STRING` since we are skipping them in errorHandler.
+        // This will avoid `KEEP` of invalid `DOCUMENTATION_STRING` tokens.
+        // It is assumed that recover will not be invoked on a valid `DOCUMENTATION_STRING` token.
+        if (sol.action == Action.KEEP && nextToken.kind == SyntaxKind.DOCUMENTATION_STRING) {
+            bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.DOCUMENTATION_STRING,
+                    currentCtx.toString());
+        }
+        
+        // If best match is INSERT fix followed by immediate REMOVE fix,
+        // then it could be repeated next time coming to the error handler.
+        // Therefore in such case, set the solution to immediate REMOVE fix.
+        if (sol.action != Action.INSERT || bestMatch.fixesSize() < 2) {
+            return;
+        }
+
+        Solution firstFix = bestMatch.popFix();
+        Solution secondFix = bestMatch.peekFix();
+        bestMatch.pushFix(firstFix);
+
+        if (secondFix.action == Action.REMOVE && secondFix.depth == 1) {
+            bestMatch.solution = secondFix;
+        }
+    }
+
+    private Solution getCompletion(ParserRuleContext context, STToken nextToken) {
+        ArrayDeque<ParserRuleContext> tempCtxStack = this.ctxStack;
+        this.ctxStack = getCtxStackSnapshot();
+
+        Solution sol;
+        try {
+            sol = getInsertSolution(context);
+        } catch (IllegalStateException exception) {
+            assert false : "Oh no, something went bad with parser error handler: \n" +
+                    "getCompletion caught " + exception;
+            sol = getResolution(context, nextToken);
+        }
+
+        this.ctxStack = tempCtxStack;
+        return sol;
+    }
+    
     /**
      * Remove the invalid token. This method assumes that the next immediate token
      * of the token input stream is the culprit.
@@ -137,14 +197,13 @@ public abstract class AbstractParserErrorHandler {
      *
      * @param currentCtx Current context
      * @param fix        Fix to apply
-     * @param args       Arguments that requires to continue parsing from the given parser context
      */
-    private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
+    private void applyFix(ParserRuleContext currentCtx, Solution fix) {
         if (fix.action == Action.REMOVE) {
             fix.removedToken = consumeInvalidToken();
             fix.recoveredNode = this.tokenReader.peek();
             fix.tokenKind = this.tokenReader.peek().kind;
-        } else {
+        } else if (fix.action == Action.INSERT) {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }
     }
@@ -191,7 +250,7 @@ public abstract class AbstractParserErrorHandler {
             // We catch the exception and since we don't have any other path, return the solution as a REMOVE.
             // We should never reach here. If we do, please open an issue.
             assert false : "Oh no, something went bad with parser error handler: \n" +
-                    "seekMatch caught " + exception.toString();
+                    "seekMatch caught " + exception;
             bestMatch = new Result(new ArrayDeque<>(), LOOKAHEAD_LIMIT - 1);
             bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         }
@@ -314,10 +373,9 @@ public abstract class AbstractParserErrorHandler {
                 // The best alternative path would get picked from the remaining contenders.
                 // We should never reach here. If we do, please open an issue.
                 assert false : "Oh no, something went bad with parser error handler: \n" +
-                        "seekInAlternativesPaths caught " + exception.toString();
+                        "seekInAlternativesPaths caught " + exception;
                 continue;
             }
-
 
             // exit early
             if (hasFoundBestAlternative(result)) {
@@ -335,16 +393,10 @@ public abstract class AbstractParserErrorHandler {
             similarResutls.add(result);
         }
 
-        // This means there are no matches for any of the statements
-        if (bestMatchIndex == 0) {
-            return new Result(new ArrayDeque<>(), currentMatches);
-        }
-
         // If there is only one 'best' match, then return it. If there are more than one
         // 'best' match, then we need to do a tie-break. For that, pick the path with the
-        // lowest number of fixes. If it again results in more than one match, then return
+        // lowest number of removeFixes. If it again results in more than one match, then return
         // the based on the precedence (order of occurrence).
-
         List<Result> bestMatches = results[bestMatchIndex];
         Result bestMatch = bestMatches.get(0);
         Result currentMatch;
@@ -353,19 +405,19 @@ public abstract class AbstractParserErrorHandler {
 
             // If a tie is found, give priority to the one that 'insert'.
             // If that is also a tie, then give priority to the order.
-            int currentMatchFixesSize = currentMatch.fixes.size();
-            int bestmatchFixesSize = bestMatch.fixes.size();
-            if (currentMatchFixesSize == bestmatchFixesSize) {
-                // If both are zero continue;
-                if (bestmatchFixesSize == 0) {
-                    continue;
-                }
-                Solution currentSol = bestMatch.fixes.peek();
-                Solution foundSol = currentMatch.fixes.peek();
+            int currentMatchRemoveFixes = currentMatch.removeFixes;
+            int bestMatchRemoveFixes = bestMatch.removeFixes;
+            if (bestMatchRemoveFixes == 0) {
+                break;
+            }
+
+            if (currentMatchRemoveFixes == bestMatchRemoveFixes) {
+                Solution currentSol = bestMatch.peekFix();
+                Solution foundSol = currentMatch.peekFix();
                 if (currentSol.action == Action.REMOVE && foundSol.action == Action.INSERT) {
                     bestMatch = currentMatch;
                 }
-            } else if (currentMatchFixesSize < bestmatchFixesSize) {
+            } else if (currentMatchRemoveFixes < bestMatchRemoveFixes) {
                 bestMatch = currentMatch;
             }
         }
@@ -413,12 +465,12 @@ public abstract class AbstractParserErrorHandler {
      */
     protected Result fixAndContinue(ParserRuleContext currentCtx, int lookahead, int currentDepth,
                                     int matchingRulesCount, boolean isEntryPoint) {
-        Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth + 1);
+        Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
         // Do not consider the current rule as match, since we had to fix it.
         // i.e: do not increment the match count by 1;
 
         if (isEntryPoint) {
-            fixedPathResult.solution = fixedPathResult.fixes.peek();
+            fixedPathResult.solution = fixedPathResult.peekFix();
         } else {
             fixedPathResult.solution =
                     new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
@@ -446,7 +498,8 @@ public abstract class AbstractParserErrorHandler {
      * Pick the solution with the longest matching sequence.
      * </li>
      * <li>
-     * If there's a tie, then check for the solution which requires the lowest number of 'fixes'.
+     * If there's a tie, number of fixes will also be the same.
+     * Hence, check for the solution which requires the lowest number of 'removeFixes'.
      * </li>
      * <li>
      * If there's a tie, then give priority for the 'insertion' as that doesn't require removing
@@ -465,39 +518,43 @@ public abstract class AbstractParserErrorHandler {
         // operation, as it could update (push/pop) the current context stack.
 
         // Remove current token. That means continue with the NEXT token, with the CURRENT context
-        Result deletionResult = seekMatchInSubTree(currentCtx, lookahead + 1, currentDepth, false);
+        Result deletionResult = seekMatchInSubTree(currentCtx, lookahead + 1, currentDepth + 1, false);
 
         // Insert the missing token. That means continue the CURRENT token, with the NEXT context.
         // At this point 'lookahead' refers to the next token position, since there is a missing
         // token at the current position. Hence we don't need to increment the 'lookahead' when
         // calling 'getNextRule'.
         ParserRuleContext nextCtx = getNextRule(currentCtx, lookahead);
-        Result insertionResult = seekMatchInSubTree(nextCtx, lookahead, currentDepth, false);
+        Result insertionResult = seekMatchInSubTree(nextCtx, lookahead, currentDepth + 1, false);
 
         Result fixedPathResult;
         Solution action;
         if (insertionResult.matches == 0 && deletionResult.matches == 0) {
+            action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx),
+                    currentCtx.toString(), currentDepth);
+            insertionResult.pushFix(action);
             fixedPathResult = insertionResult;
         } else if (insertionResult.matches == deletionResult.matches) {
-            if (insertionResult.fixes.size() <= deletionResult.fixes.size()) {
+            if (insertionResult.removeFixes <= deletionResult.removeFixes + 1) {
                 action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx),
-                        currentCtx.toString());
-                insertionResult.fixes.push(action);
+                        currentCtx.toString(), currentDepth);
+                insertionResult.pushFix(action);
                 fixedPathResult = insertionResult;
             } else {
                 STToken token = this.tokenReader.peek(lookahead);
-                action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString());
-                deletionResult.fixes.push(action);
+                action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString(), currentDepth);
+                deletionResult.pushFix(action);
                 fixedPathResult = deletionResult;
             }
         } else if (insertionResult.matches > deletionResult.matches) {
-            action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
-            insertionResult.fixes.push(action);
+            action = new Solution(Action.INSERT, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString(),
+                    currentDepth);
+            insertionResult.pushFix(action);
             fixedPathResult = insertionResult;
         } else {
             STToken token = this.tokenReader.peek(lookahead);
-            action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString());
-            deletionResult.fixes.push(action);
+            action = new Solution(Action.REMOVE, currentCtx, token.kind, token.toString(), currentDepth);
+            deletionResult.pushFix(action);
             fixedPathResult = deletionResult;
         }
         return fixedPathResult;
@@ -518,47 +575,23 @@ public abstract class AbstractParserErrorHandler {
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
         public STToken removedToken;
+        public int depth;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
+            this(action, ctx, tokenKind, tokenText, -1);
+        }
+
+        public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText, int depth) {
             this.action = action;
             this.ctx = ctx;
             this.tokenText = tokenText;
             this.tokenKind = tokenKind;
+            this.depth = depth;
         }
 
         @Override
         public String toString() {
             return action.toString() + "'" + tokenText + "'";
-        }
-    }
-
-    /**
-     * Represent a result of a token-sequence-search in a sub-tree. The result will contain the fixes required to
-     * traverse in that sub-tree, and the number of matching tokens it found, without the fixed tokens.
-     */
-    public static class Result {
-
-        /**
-         * Number of tokens with successful matches.
-         */
-        protected int matches;
-
-        /**
-         * List of solutions to recover from the error.
-         */
-        protected ArrayDeque<Solution> fixes;
-
-        /**
-         * Represent the end solution to be applied to the next immediate token, to recover from the error.
-         * If the solution is to insert/remove next immediate token, then this is equivalent to the
-         * <code>fixes.peek()</code>. Else, if the solution is to insert/remove a token that is not the
-         * immediate next token, then this will have a solution with {@link Action#KEEP} as the action.
-         */
-        protected Solution solution;
-
-        public Result(ArrayDeque<Solution> fixes, int matches) {
-            this.fixes = fixes;
-            this.matches = matches;
         }
     }
 

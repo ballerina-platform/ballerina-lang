@@ -7,7 +7,7 @@ enum SyntaxKind {
     C
 }
 
-public enum Color {{}
+public enum Color {{
   RED,
   GREEN, = =
   #doc

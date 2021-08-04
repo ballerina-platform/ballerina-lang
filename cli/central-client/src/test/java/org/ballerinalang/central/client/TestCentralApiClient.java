@@ -284,6 +284,32 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
     }
+
+    @Test(description = "Test get package with bad gateway", expectedExceptions = CentralClientException.class,
+            expectedExceptionsMessageRegExp = "package pushing is temporarily disabled. please try again later.")
+    public void testGetPackageWithBadGateway() throws IOException, CentralClientException {
+        String resString = "{message: \"package pushing is temporarily disabled. please try again later.\"}";
+
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/bar/" + WINERY + "/v2")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_UNAVAILABLE)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
+    }
     
     @Test(description = "Test get package versions")
     public void testGetPackageVersions() throws IOException, CentralClientException {
@@ -339,6 +365,7 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     @Test(description = "Test push package")
     public void testPushPackage() throws IOException, CentralClientException {
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
 
         setBallerinaHome();
@@ -500,4 +527,42 @@ public class TestCentralApiClient extends CentralAPIClient {
             System.setProperty(ballerinaInstallDirProp, String.valueOf(Paths.get("build")));
         }
     }
+
+    @Test(description = "Test push package without logs")
+    public void testPushPackageWithoutLogs() throws IOException, CentralClientException {
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "false");
+        Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
+
+        setBallerinaHome();
+
+        RequestBody balaFileReqBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bala-file", TEST_BALA_NAME,
+                        RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
+                .build();
+
+        Request mockRequest = new Request.Builder()
+                .post(balaFileReqBody)
+                .url("https://localhost:9090/registry/packages")
+                .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_NO_CONTENT)
+                .message("")
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
+        String buildLog = readOutput();
+        given().with().pollInterval(Duration.ONE_SECOND).and()
+                .with().pollDelay(Duration.ONE_SECOND)
+                .await().atMost(10, SECONDS)
+                .until(() -> !(buildLog.contains("foo/sf:1.3.5 pushed to central successfully")));
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+    }
+
 }

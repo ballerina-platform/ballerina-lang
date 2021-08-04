@@ -20,16 +20,19 @@ package org.ballerinalang.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.tree.PackageNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 import java.nio.file.Path;
+import java.util.Collection;
 
 /**
  * Projects based test compilation result.
@@ -56,6 +59,10 @@ public class CompileResult {
 
     Path projectSourceRoot() {
         return pkg.project().sourceRoot();
+    }
+    
+    public Project project() {
+        return pkg.project();
     }
 
     public PackageNode getAST() {
@@ -105,5 +112,13 @@ public class CompileResult {
 
     public DiagnosticResult getDiagnosticResult() {
         return diagnosticResult;
+    }
+
+    public PackageCompilation getPackageCompilation() {
+        return packageCompilation;
+    }
+
+    public Collection<JarLibrary> getJarPathRequiredForExecution() {
+        return jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
     }
 }

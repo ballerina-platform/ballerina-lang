@@ -139,6 +139,11 @@ public class BasicTupleTest {
         Assert.assertEquals(returns[2].stringValue(), "c");
     }
 
+    @Test(description = "Test tuple to JSON assignment")
+    public void testTupleToJSONAssignment() {
+        BRunUtil.invoke(result, "testTupleToJSONAssignment");
+    }
+
     @Test(description = "Test array to tuple assignment")
     public void testArrayToTupleAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayToTupleAssignment1", new BValue[]{});
@@ -181,7 +186,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 33);
+        Assert.assertEquals(resultNegative.getErrorCount(), 39);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++, "tuple and expression size does not match", 18, 32);
@@ -250,6 +255,20 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
     }
 
+    @Test(description = "Test negative scenarios of assigning to wild card binding pattern")
+    public void testNegativeWildCardBindingPatternAssignability() {
+        int i = 33;
+        BAssertUtil.validateError(
+                resultNegative, i++, "a wildcard binding pattern can be used only with a value "
+                        + "that belong to type 'any'", 187, 1);
+        BAssertUtil.validateError(
+                resultNegative, i++, "a wildcard binding pattern can be used only with a value "
+                        + "that belong to type 'any'", 190, 9);
+        BAssertUtil.validateError(
+                resultNegative, i++, "a wildcard binding pattern can be used only with a value "
+                        + "that belong to type 'any'", 193, 9);
+    }
+
     @Test(dataProvider = "dataToTestTupleDeclaredWithVar", description = "Test tuple declared with var")
     public void testModuleLevelTupleVarDecl(String functionName) {
         BRunUtil.invoke(result, functionName);
@@ -274,6 +293,17 @@ public class BasicTupleTest {
                 "count mismatch with member type count", 173, 9);
         BAssertUtil.validateError(resultNegative, i, "invalid list binding pattern; member variable " +
                 "count mismatch with member type count", 174, 9);
+    }
+
+    @Test(description = "Test invalid tuple assignments to JSON")
+    public void testTupleToJSONAssignmentNegative() {
+        int i = 36;
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'json', " +
+                "found '[string,int,xml...]'", 199, 21);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: '[string,(int|xml),string...]' " +
+                "cannot be cast to 'json[]'", 202, 16);
+        BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'json', " +
+                "found '[string,(int|xml),string...]'", 203, 16);
     }
 
     @Test

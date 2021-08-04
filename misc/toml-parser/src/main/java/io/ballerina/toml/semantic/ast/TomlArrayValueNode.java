@@ -23,6 +23,7 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.syntax.tree.ArrayNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -42,6 +43,7 @@ public class TomlArrayValueNode extends TomlValueNode {
 
     /**
      * Get a single element of the array based on the Index.
+     *
      * @param index index of the element
      * @param <T> Type of the element
      * @return Element object
@@ -89,5 +91,14 @@ public class TomlArrayValueNode extends TomlValueNode {
             return true;
         }
         return arrayNode.openBracket().isMissing() || arrayNode.closeBracket().isMissing();
+    }
+
+    @Override
+    public List<Object> toNativeValue() {
+        List<Object> list = new ArrayList<>();
+        for (TomlValueNode element : elements) {
+            list.add(element.toNativeValue());
+        }
+        return list;
     }
 }

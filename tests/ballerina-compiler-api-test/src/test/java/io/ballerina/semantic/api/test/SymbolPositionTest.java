@@ -86,6 +86,7 @@ public class SymbolPositionTest {
                 {44, 13, 44, 20, "getName"},
                 {51, 5, 51, 11, "Colour"},
                 {54, 11, 54, 13, "w1"},
+                {76, 30, 76, 35, "myStr"},
         };
     }
 

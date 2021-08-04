@@ -60,8 +60,7 @@ public class LangLibStringTest {
 
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), "Hello Ballerina!".length());
+        BRunUtil.invoke(compileResult, "testLength");
     }
 
     @Test
@@ -273,4 +272,13 @@ public class LangLibStringTest {
         assertEquals(returns[0].stringValue(), "foo1foo2foo3foo4");
     }
 
+    @Test
+    public void testLangLibCallOnStringSubTypes() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnStringSubTypes");
+    }
+
+    @Test
+    public void testLangLibCallOnFiniteType() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
 }

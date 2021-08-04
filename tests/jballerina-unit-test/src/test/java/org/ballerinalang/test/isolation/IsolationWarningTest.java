@@ -56,8 +56,8 @@ public class IsolationWarningTest {
         validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 105, 5);
         validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 118, 5);
         validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 122, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 137, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 141, 5);
+        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 137, 5);
+        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 141, 5);
         validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 154, 5);
         validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 158, 5);
         validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 176, 5);

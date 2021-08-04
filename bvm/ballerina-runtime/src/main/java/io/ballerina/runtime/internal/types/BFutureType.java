@@ -69,7 +69,12 @@ public class BFutureType extends BType implements FutureType {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj) || !(obj instanceof BTableType)) {
+
+        if (!(obj instanceof BFutureType)) {
+            return false;
+        }
+
+        if (!super.equals(obj)) {
             return false;
         }
 
@@ -81,4 +86,12 @@ public class BFutureType extends BType implements FutureType {
         return TypeChecker.checkIsType(constraint, other.constraint);
     }
 
+    @Override
+    public String toString() {
+        return TypeConstants.FUTURE_TNAME + getConstraintString();
+    }
+
+    private String getConstraintString() {
+        return constraint != null ? "<" + constraint + ">" : "";
+    }
 }

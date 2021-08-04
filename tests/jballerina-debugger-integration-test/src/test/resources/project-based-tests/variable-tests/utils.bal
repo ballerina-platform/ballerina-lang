@@ -20,7 +20,7 @@ public client class Student {
         return firstName + lastName;
     }
 
-    function getTotalMarks(int maths, int english) returns int {
+    remote function getTotalMarks(int maths, int english) returns int {
         future<int> futureSum = @strand {thread: "any"} start sum(maths, english);
         int|error result = wait futureSum;
         if result is int {
@@ -31,10 +31,39 @@ public client class Student {
     }
 }
 
+type Annot record {
+    string foo;
+    int bar?;
+};
+
+public annotation Annot v1 on type, class;
+
+string strValue = "v1 value";
+
+@v1 {
+    foo: strValue,
+    bar: 1
+}
+public type T1 record {
+    string name;
+};
+
+T1 a = { name: "John" };
+
 function sum(int a, int b) returns int {
     return a + b;
 }
 
 function getName(string name) returns string {
     return "Name: " + name;
+}
+
+public function getSum(int a, int b) returns int {
+    future<int> futureSum = @strand {thread: "any"} start addition(a, b);
+    int|error result = wait futureSum;
+    if result is int {
+        return result;
+    } else {
+        return -1;
+    }
 }

@@ -49,6 +49,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(arrayNode);
     }
 
+    public void visit(STInlineTableNode inlineTableNode) {
+        visitSyntaxNode(inlineTableNode);
+    }
+
     public void visit(STStringLiteralNode stringLiteralNode) {
         visitSyntaxNode(stringLiteralNode);
     }
@@ -103,4 +107,3 @@ public abstract class STNodeVisitor {
         }
     }
 }
-

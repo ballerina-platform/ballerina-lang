@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -17,7 +17,7 @@
     {
       "label": "Fa2",
       "kind": "Field",
-      "detail": "(record {| int Fa1; Bar Fa2; |}).Fa2",
+      "detail": "Foo.Fa2",
       "sortText": "G",
       "insertText": "Fa2: {\n\tBa1: ${1:0},\n\tBa2: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
@@ -25,16 +25,16 @@
     {
       "label": "Fa1",
       "kind": "Field",
-      "detail": "(record {| int Fa1; Bar Fa2; |}).Fa1",
+      "detail": "Foo.Fa1",
       "sortText": "G",
       "insertText": "Fa1: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int Fa1; Bar Fa2; |} Required Fields",
+      "label": "Fill Foo Required Fields",
       "kind": "Property",
-      "detail": "record {| int Fa1; Bar Fa2; |}",
-      "sortText": "Q",
+      "detail": "Foo",
+      "sortText": "R",
       "filterText": "fill",
       "insertText": "Fa2: {Ba1: 0, Ba2: \"\"},\nFa1: 0",
       "insertTextFormat": "Snippet"
