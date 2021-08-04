@@ -2785,10 +2785,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(exprStmtNode.expr);
         validateExprStatementExpression(exprStmtNode);
         BLangExpression exprStmt = exprStmtNode.expr;
-        if (exprStmt.getKind() == NodeKind.INVOCATION) {
-            if (types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmt.getBType())) {
-                this.statementReturns = true;
-            }
+        if (exprStmt.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmt.getBType())) {
+            this.statementReturns = true;
         }
     }
 
@@ -4120,7 +4119,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private  <E extends BLangExpression> void checkExpressionValidity(E exprNode) {
-        if (!types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprNode.getBType())) {
+        if (exprNode.getKind() == NodeKind.GROUP_EXPR ||
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprNode.getBType())) {
             return;
         }
         if (!checkExpressionInValidParent(exprNode.parent)) {
@@ -4129,10 +4129,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean checkExpressionInValidParent(BLangNode currentParent) {
-        return currentParent != null && (currentParent.getKind() == NodeKind.EXPRESSION_STATEMENT ||
+        if (currentParent == null) {
+            return false;
+        }
+        if (currentParent.getKind() == NodeKind.GROUP_EXPR) {
+            return checkExpressionInValidParent(currentParent.parent);
+        }
+        return  currentParent.getKind() == NodeKind.EXPRESSION_STATEMENT ||
                 (currentParent.getKind() == NodeKind.VARIABLE &&
                         ((BLangSimpleVariable) parent).typeNode.getBType().tag == TypeTags.FUTURE)
-                || currentParent.getKind() == NodeKind.TRAP_EXPR);
+                || currentParent.getKind() == NodeKind.TRAP_EXPR;
     }
 
     @Override
