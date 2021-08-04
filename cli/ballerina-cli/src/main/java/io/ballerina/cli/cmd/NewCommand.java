@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.cli.cmd.CommandUtil.findBalaTemplate;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -48,7 +49,7 @@ public class NewCommand implements BLauncherCmd {
     private boolean exitWhenFinish;
 
     @CommandLine.Parameters
-    private List<String> argList;
+    public List<String> argList;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -140,7 +141,7 @@ public class NewCommand implements BLauncherCmd {
         }
 
         // Check if the template exists
-        if (!CommandUtil.getTemplates().contains(template)) {
+        if (!CommandUtil.getTemplates().contains(template) && findBalaTemplate(template) == null) {
             CommandUtil.printError(errStream,
                     "template not found, use `bal new --help` to view available templates.",
                     null,
