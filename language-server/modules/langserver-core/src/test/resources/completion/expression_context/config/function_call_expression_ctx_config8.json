@@ -738,6 +738,14 @@
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "N",
+      "insertText": "",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

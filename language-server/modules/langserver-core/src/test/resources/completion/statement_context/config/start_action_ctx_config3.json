@@ -451,6 +451,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "N",
+      "insertText": "",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

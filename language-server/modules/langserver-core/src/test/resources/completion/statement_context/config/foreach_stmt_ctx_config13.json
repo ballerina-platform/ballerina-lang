@@ -262,13 +262,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "endsWith(string substr)",
+      "label": "endsWith(string str2)",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Return** `boolean`   \n- true if parameter `str` ends with parameter `substr`; false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` str2  \n  \n**Return** `boolean`   \n- true if parameter `str` ends with parameter `substr`; false otherwise  \n  \n"
         }
       },
       "sortText": "D",
@@ -353,13 +353,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "startsWith(string substr)",
+      "label": "startsWith(string str2)",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Return** `boolean`   \n- true if parameter `str` starts with parameter `substr`; false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:1.1.0_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` str2  \n  \n**Return** `boolean`   \n- true if parameter `str` starts with parameter `substr`; false otherwise  \n  \n"
         }
       },
       "sortText": "D",

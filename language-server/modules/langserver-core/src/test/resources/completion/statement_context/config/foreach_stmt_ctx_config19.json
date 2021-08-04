@@ -58,13 +58,13 @@
       ]
     },
     {
-      "label": "filter(function () func)",
+      "label": "filter(function (any|ErrorType val) returns boolean func)",
       "kind": "Function",
       "detail": "stream<any|ErrorType, ErrorType?>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<any|ErrorType, ErrorType?>`   \n- new stream only containing members of parameter `stm` for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function (any|ErrorType val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<any|ErrorType, ErrorType?>`   \n- new stream only containing members of parameter `stm` for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "D",
@@ -92,13 +92,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "reduce(function () func, any|ErrorType initial)",
+      "label": "reduce(function (any|ErrorType accum, any|ErrorType val) returns any|ErrorType func, any|ErrorType initial)",
       "kind": "Function",
       "detail": "any|ErrorType|ErrorType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|ErrorType` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|ErrorType|ErrorType`   \n- result of combining the members of parameter `stm` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function (any|ErrorType accum, any|ErrorType val) returns any|ErrorType` func: combining function  \n- `any|ErrorType` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|ErrorType|ErrorType`   \n- result of combining the members of parameter `stm` using function `func`  \n  \n"
         }
       },
       "sortText": "D",
@@ -126,13 +126,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "forEach(function () func)",
+      "label": "forEach(function (any|ErrorType val) returns () func)",
       "kind": "Function",
       "detail": "ErrorType?",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nApplies a function to each member of a stream.\n\nThe function `func` is applied to each member of parameter `stm` stream in order.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `ErrorType?`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nApplies a function to each member of a stream.\n\nThe function `func` is applied to each member of parameter `stm` stream in order.\n  \n**Params**  \n- `function (any|ErrorType val) returns ()` func: a function to apply to each member  \n  \n**Return** `ErrorType?`   \n- () if the close completed successfully, otherwise an error  \n  \n"
         }
       },
       "sortText": "D",
@@ -209,13 +209,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () func)",
+      "label": "map(function (any|ErrorType val) returns any|ErrorType func)",
       "kind": "Function",
       "detail": "stream<any|ErrorType, ErrorType?>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `stream<any|ErrorType, ErrorType?>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function (any|ErrorType val) returns any|ErrorType` func: a function to apply to each member  \n  \n**Return** `stream<any|ErrorType, ErrorType?>`   \n- new stream containing result of applying function `func` to each member of parameter `stm` in order  \n  \n"
         }
       },
       "sortText": "D",
