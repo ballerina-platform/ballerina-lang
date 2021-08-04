@@ -2331,6 +2331,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
             analyzeNode(matchPattern, patternEnv);
             resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
+
+            if (matchPattern.getKind() == NodeKind.VAR_BINDING_PATTERN_MATCH_PATTERN &&
+                    (matchPattern.matchExpr != null ? matchPattern.matchExpr.getKind() : null)
+                            == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) matchPattern.matchExpr;
+                if (varRef.symbol != symTable.notFoundSymbol) {
+                    BVarSymbol originalVarSym = typeNarrower.getOriginalVarSymbol((BVarSymbol) varRef.symbol);
+                    symbolEnter.defineTypeNarrowedSymbol(varRef.pos, blockEnv, originalVarSym, matchPattern.getBType(),
+                            originalVarSym.origin == VIRTUAL);
+                }
+            }
+
             if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
                 continue;
             }
