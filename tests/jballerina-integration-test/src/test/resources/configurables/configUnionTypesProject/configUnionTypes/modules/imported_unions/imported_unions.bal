@@ -14,20 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import configUnionTypes.mod1;
+import configUnionTypes.type_defs;
 import testOrg/configLib.mod1 as configLib;
 import ballerina/test;
 
 configurable configLib:HttpVersion & readonly httpVersion = ?;
-configurable mod1:CountryCodes & readonly countryCode = ?;
-configurable mod1:CountryCodes[] countryCodes = ?;
+configurable type_defs:CountryCodes & readonly countryCode = ?;
+configurable type_defs:CountryCodes[] countryCodes = ?;
 
 type HttpResponse record {|
     configLib:HttpVersion httpVersion;
 |};
 
 configurable HttpResponse httpResponse = ?;
-configurable mod1:Country country = ?;
+configurable type_defs:Country country = ?;
 
 configurable anydata anydataVar = ?;
 configurable int|string intStringVar = 2;
@@ -45,11 +45,11 @@ configurable map<configLib:ClientCredentialsGrantConfig|configLib:PasswordGrantC
 
 public function testEnumValues() {
     test:assertEquals(httpVersion, configLib:HTTP_2);
-    test:assertEquals(countryCode, mod1:US);
+    test:assertEquals(countryCode, type_defs:US);
     test:assertEquals(httpResponse.httpVersion, configLib:HTTP_1_1);
-    test:assertEquals(country.countryCode, mod1:SL);
-    test:assertEquals(countryCodes[0], mod1:SL);
-    test:assertEquals(countryCodes[1], mod1:US);
+    test:assertEquals(country.countryCode, type_defs:SL);
+    test:assertEquals(countryCodes[0], type_defs:SL);
+    test:assertEquals(countryCodes[1], type_defs:US);
     test:assertEquals(anydataVar, "hello");
     test:assertEquals(intStringVar, 12345);
     test:assertEquals(anydataArray.toString(), "[\"hello\",1,2,3.4,false]");
