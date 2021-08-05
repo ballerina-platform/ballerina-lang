@@ -19,7 +19,6 @@
 package io.ballerina.shell.cli.handlers.help;
 
 import com.google.gson.Gson;
-import io.ballerina.shell.DiagnosticReporter;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +33,7 @@ import java.util.stream.Stream;
  * Helper class to provide code completions related to /help topics.
  *
  */
-public class BbeTopicsProvider extends DiagnosticReporter {
+public class BbeTopicsProvider {
 
     private static final String BALLERINA_HOME = System.getProperty("ballerina.home");
     private static final String EXAMPLES = "examples";
