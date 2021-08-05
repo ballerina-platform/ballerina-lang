@@ -154,8 +154,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2115", "required.param.not.allowed.after.included.record.param"),
     INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
     MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE2117", "missing.key.expr.in.member.access.expr"),
-    ARRAY_SIZE_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
-            "BCE2118", "array.size.greater.that.2147483637.not.yet.supported"),
+    ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
+            "BCE2118", "array.length.greater.that.2147483637.not.yet.supported"),
     INVALID_ARRAY_LENGTH("BCE2119", "invalid.array.length"),
 
     //Transaction related error codes

@@ -3474,7 +3474,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
                     if (lengthCheck > MAX_ARRAY_SIZE) {
                         dlog.error(((Node) literalToken).location(),
-                                DiagnosticErrorCode.ARRAY_SIZE_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
                     } else {
                         length = (int) lengthCheck;
                     }

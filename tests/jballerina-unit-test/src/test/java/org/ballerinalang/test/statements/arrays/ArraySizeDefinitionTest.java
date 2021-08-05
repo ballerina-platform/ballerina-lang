@@ -35,8 +35,8 @@ public class ArraySizeDefinitionTest {
             "'intLength' as array size: expected a constant reference expression";
     private String incompatibleTypeError = "incompatible types: expected 'int', found 'string'";
     private String undefinedSymbolError = "undefined symbol 'length'";
-    private String invalidArrayLengthError = "invalid array length";
-    private static final String SIZE_LIMIT_ERROR = "array size greater that '2147483637' not yet supported";
+    private String invalidArrayLengthError = "invalid array length: array length should be a positive integer";
+    private static final String SIZE_LIMIT_ERROR = "array length greater that '2147483637' not yet supported";
 
     @Test(groups = { "disableOnOldParser" })
     public void testCompilationSizeReferenceErrors() {

@@ -1114,7 +1114,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     if (lengthCheck > MAX_ARRAY_SIZE) {
                         length = 0;
                         dlog.error(size.pos,
-                                DiagnosticErrorCode.ARRAY_SIZE_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
                     } else {
                         length = (int) lengthCheck;
                     }
