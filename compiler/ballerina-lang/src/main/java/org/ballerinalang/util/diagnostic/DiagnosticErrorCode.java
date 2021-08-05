@@ -162,8 +162,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDECLARED_FIELD_IN_UNION_OF_RECORDS("BCE2122", "undeclared.field.in.union.of.records"),
     OPTIONAL_FIELD_IN_UNION_OF_RECORDS("BCE2123", "optional.field.in.union.of.records"),
     ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
-            "BCE2118", "array.length.greater.that.2147483637.not.yet.supported"),
-    INVALID_ARRAY_LENGTH("BCE2119", "invalid.array.length"),
+            "BCE2124", "array.length.greater.that.2147483637.not.yet.supported"),
+    INVALID_ARRAY_LENGTH("BCE2125", "invalid.array.length"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
