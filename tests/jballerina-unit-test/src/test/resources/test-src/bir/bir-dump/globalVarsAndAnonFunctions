@@ -1,6 +1,5 @@
 public globalVarsAndAnonFunctions function() -> () {
     %0(RETURN) ();
-    %0(RETURN) ();
     %1(SYNTHETIC) ...;
     %2(TEMP) typeDesc<...>;
     %4(TEMP) ...;

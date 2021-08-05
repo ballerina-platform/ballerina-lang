@@ -115,6 +115,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SYMBOL_KEY;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
@@ -151,6 +152,8 @@ public class CommonUtil {
     public static final List<String> BALLERINA_KEYWORDS;
 
     private static final String SELF_KW = "self";
+
+    private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -1079,9 +1082,8 @@ public class CommonUtil {
     }
 
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        Pattern pattern = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
         String typeSignature = typeSymbol.signature();
-        Matcher matcher = pattern.matcher(typeSignature);
+        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(typeSignature);
         while (matcher.find()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
@@ -1172,6 +1174,21 @@ public class CommonUtil {
         }
 
         return value;
+    }
+
+    /**
+     * Get the predicate to filter the variables.
+     * These variables include
+     * (1) any variable defined
+     * (2) Function Parameters
+     * (3) Service/ resource path parameters
+     * 
+     * @return {@link Predicate<Symbol>}
+     */
+    public static Predicate<Symbol> getVariableFilterPredicate() {
+        return symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER
+                || symbol.kind() == SymbolKind.PATH_PARAMETER)
+                && !symbol.getName().orElse("").equals(Names.ERROR.getValue());
     }
 
     private static String getQualifiedModuleName(Module module) {

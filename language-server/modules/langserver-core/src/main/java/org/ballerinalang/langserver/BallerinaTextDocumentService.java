@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
+import org.ballerinalang.langserver.util.LSClientUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.rename.RenameUtil;
@@ -455,16 +456,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-
             try {
-                RenameContext context = ContextBuilder.buildRenameContext(params.getTextDocument().getUri(),
+                RenameContext context = ContextBuilder.buildRenameContext(params,
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        this.clientCapabilities);
 
-                Map<String, List<TextEdit>> changes = RenameUtil.rename(context, params.getNewName());
-                workspaceEdit.setChanges(changes);
+                return RenameUtil.rename(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
             } catch (Throwable e) {
@@ -472,8 +470,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_RENAME, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
-
-            return workspaceEdit;
+            return null;
         });
     }
 
@@ -488,6 +485,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     "' {fileUri: '" + fileUri + "'} opened");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -510,6 +508,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             this.clientLogger.logError(LSContextOperation.TXT_DID_CHANGE, msg, e, params.getTextDocument(),

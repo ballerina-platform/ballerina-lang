@@ -33,19 +33,46 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -55,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -236,10 +264,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+
 /**
  * Responsible for performing isolation analysis.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class IsolationAnalyzer extends BLangNodeVisitor {
 
@@ -257,9 +287,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
-    private final Stack<PotentiallyInvalidExpressionInfo> copyInLockInfoStack = new Stack<>();
+    private final Stack<LockInfo> copyInLockInfoStack = new Stack<>();
     private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
-    private final Map<BInvokableSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
+    private final Map<BSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
+    private final Map<BLangArrowFunction, BInvokableSymbol> arrowFunctionTempSymbolMap = new HashMap<>();
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -290,9 +321,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+
+        Set<BSymbol> moduleLevelVarSymbols = getModuleLevelVarSymbols(pkgNode.globalVars);
+        populateNonPublicMutableOrNonIsolatedVars(moduleLevelVarSymbols);
+        List<BLangClassDefinition> classDefinitions = pkgNode.classDefinitions;
+        populateNonPublicIsolatedInferableClasses(classDefinitions);
+
         analyzeNode(pkgNode, pkgEnv);
-        inferFunctionIsolation();
-        logServiceIsolationWarnings(pkgNode.classDefinitions);
+
+        inferIsolation(moduleLevelVarSymbols, getPubliclyExposedObjectTypes(pkgNode), classDefinitions);
+        logServiceIsolationWarnings(classDefinitions);
+
         return pkgNode;
     }
 
@@ -356,14 +395,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean prevInferredIsolated = this.inferredIsolated;
         this.inferredIsolated = true;
 
-        IsolationInferenceInfo isolationInferenceInfo = null;
+        IsolationInferenceInfo functionIsolationInferenceInfo = null;
 
-        if (isIsolationInferableFunction(funcNode)) {
-            isolationInferenceInfo = new IsolationInferenceInfo();
-            isolationInferenceInfoMap.put(funcNode.symbol, isolationInferenceInfo);
+        BInvokableSymbol symbol = funcNode.symbol;
+
+        if (isIsolationInferableFunction(funcNode) && !isolationInferenceInfoMap.containsKey(symbol)) {
+            functionIsolationInferenceInfo = new IsolationInferenceInfo();
+            isolationInferenceInfoMap.put(symbol, functionIsolationInferenceInfo);
         }
 
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, symbol.scope, env);
 
         for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
             if (!requiredParam.symbol.isDefaultable) {
@@ -375,14 +416,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         analyzeNode(funcNode.body, funcEnv);
 
-        if (!isIsolated(funcNode.symbol.flags) && this.inferredIsolated && !
-                Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
+        if (!isIsolated(symbol.flags) && this.inferredIsolated && !Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
             if (isBallerinaModule(env.enclPkg)) {
                 dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
             }
 
-            if (isolationInferenceInfo != null) {
-                isolationInferenceInfo.inferredIsolated = true;
+            if (functionIsolationInferenceInfo != null &&
+                    functionIsolationInferenceInfo.dependsOnlyOnInferableConstructs &&
+                    // Init method isolation depends on the object field-initializers too, so we defer inference.
+                    !funcNode.objInitFunction) {
+                functionIsolationInferenceInfo.inferredIsolated = true;
             }
         }
 
@@ -579,7 +622,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateTransferOut(expr, this.copyInLockInfoStack.peek().nonIsolatedCopyOutLocations);
+        validateTransferOut(expr, this.copyInLockInfoStack.peek().nonIsolatedTransferOutExpressions);
     }
 
     @Override
@@ -907,11 +950,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangLock lockNode) {
         boolean prevInLockStatement = this.inLockStatement;
         this.inLockStatement = true;
-        copyInLockInfoStack.push(new PotentiallyInvalidExpressionInfo(lockNode));
+        copyInLockInfoStack.push(new LockInfo(lockNode));
 
         analyzeNode(lockNode.body, SymbolEnv.createLockEnv(lockNode, env));
 
-        PotentiallyInvalidExpressionInfo copyInLockInfo = copyInLockInfoStack.pop();
+        LockInfo copyInLockInfo = copyInLockInfoStack.pop();
 
         this.inLockStatement = prevInLockStatement;
 
@@ -922,6 +965,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = copyInLockInfo.accessedRestrictedVars;
         Set<BSymbol> accessedRestrictedVarKeys = accessedRestrictedVars.keySet();
+        Set<BSymbol> accessedNonImmutableAndNonIsolatedVars = copyInLockInfo.accessedPotentiallyIsolatedVars;
 
         if (!accessedRestrictedVarKeys.isEmpty()) {
             if (accessedRestrictedVarKeys.size() > 1) {
@@ -936,12 +980,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_ASSIGNMENT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
-            for (BLangSimpleVarRef varRef : copyInLockInfo.copyInVarRefs) {
-                dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE);
+            for (BLangExpression expr : copyInLockInfo.nonIsolatedTransferInExpressions) {
+                dlog.error(expr.pos, DiagnosticErrorCode.INVALID_TRANSFER_INTO_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
-            for (Location location : copyInLockInfo.nonIsolatedCopyOutLocations) {
-                dlog.error(location, DiagnosticErrorCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
+            for (BLangExpression expr : copyInLockInfo.nonIsolatedTransferOutExpressions) {
+                dlog.error(expr.pos, DiagnosticErrorCode.INVALID_TRANSFER_OUT_OF_LOCK_WITH_RESTRICTED_VAR_USAGE);
             }
 
             for (BLangInvocation invocation : copyInLockInfo.nonIsolatedInvocations) {
@@ -957,7 +1001,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangLock lastCheckedLockNode = lockNode;
 
         for (int i = copyInLockInfoStack.size() - 1; i >= 0; i--) {
-            PotentiallyInvalidExpressionInfo prevCopyInLockInfo = copyInLockInfoStack.get(i);
+            LockInfo prevCopyInLockInfo = copyInLockInfoStack.get(i);
 
             BLangLock outerLockNode = prevCopyInLockInfo.lockNode;
 
@@ -981,15 +1025,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 prevLockAccessedRestrictedVars.put(key, entry.getValue());
             }
 
+            prevCopyInLockInfo.accessedPotentiallyIsolatedVars.addAll(accessedNonImmutableAndNonIsolatedVars);
+
             if (!accessedRestrictedVars.isEmpty()) {
                 continue;
             }
 
             prevCopyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs.addAll(
                     copyInLockInfo.nonCaptureBindingPatternVarRefsOnLhs);
-            prevCopyInLockInfo.copyInVarRefs.addAll(copyInLockInfo.copyInVarRefs);
-            prevCopyInLockInfo.nonIsolatedCopyOutLocations.addAll(copyInLockInfo.nonIsolatedCopyOutLocations);
+            prevCopyInLockInfo.nonIsolatedTransferInExpressions.addAll(copyInLockInfo.nonIsolatedTransferInExpressions);
+            prevCopyInLockInfo.nonIsolatedTransferOutExpressions.addAll(
+                    copyInLockInfo.nonIsolatedTransferOutExpressions);
             prevCopyInLockInfo.nonIsolatedInvocations.addAll(copyInLockInfo.nonIsolatedInvocations);
+            prevCopyInLockInfo.accessedPotentiallyIsolatedVars.addAll(copyInLockInfo.accessedPotentiallyIsolatedVars);
         }
     }
 
@@ -1147,8 +1195,21 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangNode parent = varRefExpr.parent;
         boolean isolatedModuleVariableReference = isIsolatedModuleVariableSymbol(symbol);
 
+        boolean accessOfPotentiallyIsolatedVariable = false;
+        boolean accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable = false;
+        Set<BSymbol> inferableClasses = new HashSet<>();
+
+        if ((symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            accessOfPotentiallyIsolatedVariable = this.isolationInferenceInfoMap.containsKey(symbol) &&
+                            this.isolationInferenceInfoMap.get(symbol).getKind() != IsolationInferenceKind.FUNCTION;
+
+            accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable = Symbols.isFlagOn(symbol.flags, Flags.FINAL)
+                    && !types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(accessType)
+                    && isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(symbol.owner, accessType, inferableClasses);
+        }
+
         if (inLockStatement) {
-            PotentiallyInvalidExpressionInfo exprInfo = copyInLockInfoStack.peek();
+            LockInfo exprInfo = copyInLockInfoStack.peek();
 
             if (isolatedModuleVariableReference || isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {
                 addToAccessedRestrictedVars(exprInfo.accessedRestrictedVars, varRefExpr);
@@ -1162,13 +1223,30 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     !isIsolated(varRefExpr.symbol.flags) &&
                     !isSelfOfIsolatedObject(varRefExpr) &&
                     isInvalidCopyIn(varRefExpr, env)) {
-                exprInfo.copyInVarRefs.add(varRefExpr);
+                exprInfo.nonIsolatedTransferInExpressions.add(varRefExpr);
+            }
+
+            if (accessOfPotentiallyIsolatedVariable) {
+                ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(symbol)).accessedLockInfo
+                        .add(exprInfo);
+                exprInfo.accessedPotentiallyIsolatedVars.add(symbol);
+            }
+        } else if (accessOfPotentiallyIsolatedVariable ||
+                accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable) {
+            VariableIsolationInferenceInfo inferenceInfo =
+                    (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(symbol);
+            inferenceInfo.accessedOutsideLockStatement = true;
+            inferenceInfo.accessOutsideLockStatementValidIfInferredIsolated = false;
+
+            if (accessOfPotentiallyReadOnlyOrIsolatedObjectTypedFinalVariable) {
+                inferenceInfo.dependsOnVariablesAndClasses.addAll(inferableClasses);
             }
         }
 
         boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(enclType);
-        boolean objectFieldDefaultValue = !recordFieldDefaultValue && isObjectFieldDefaultValueRequiringIsolation(env);
+        boolean objectFieldDefaultValueRequiringIsolation = !recordFieldDefaultValue &&
+                isObjectFieldDefaultValueRequiringIsolation(env);
 
         SymbolEnv enclEnv = env.enclEnv;
         if (inIsolatedFunction) {
@@ -1183,7 +1261,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (!recordFieldDefaultValue && !objectFieldDefaultValue && enclInvokable != null &&
+        if (!recordFieldDefaultValue && !objectFieldDefaultValueRequiringIsolation && enclInvokable != null &&
                 isReferenceToVarDefinedInSameInvokable(symbol.owner, enclInvokable.symbol)) {
             return;
         }
@@ -1219,7 +1297,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        markDependsOnIsolationNonInferableConstructs();
+        if (accessOfPotentiallyIsolatedVariable) {
+            markDependentlyIsolatedOnVar(symbol);
+        } else {
+            markDependsOnIsolationNonInferableConstructs();
+        }
+
         inferredIsolated = false;
 
         if (inIsolatedFunction) {
@@ -1229,29 +1312,75 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (recordFieldDefaultValue) {
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_RECORD_DEFAULT);
+            return;
         }
 
-        if (objectFieldDefaultValue) {
+        if (objectFieldDefaultValueRequiringIsolation) {
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_MUTABLE_ACCESS_AS_OBJECT_DEFAULT);
+            return;
+        }
+
+        if (isObjectFieldDefaultValue(env)) {
+            BLangFunction initFunction = ((BLangClassDefinition) env.node).initFunction;
+            if (initFunction != null) {
+                markInitMethodDependentlyIsolatedOnVar(initFunction, symbol);
+            }
         }
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        analyzeNode(fieldAccessExpr.expr, env);
+        BLangExpression expr = fieldAccessExpr.expr;
+        analyzeNode(expr, env);
 
         if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
+            BType bType = expr.getBType();
+            BTypeSymbol tsymbol = bType.tsymbol;
+            BLangIdentifier field = fieldAccessExpr.field;
+
+            if (!isPotentiallyProtectedFieldAccessedInNonInitMethod(expr, tsymbol, field)) {
+                return;
+            }
+
+            if (inLockStatement) {
+                LockInfo lockInfo = copyInLockInfoStack.peek();
+                ((VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol)).accessedLockInfo
+                        .add(lockInfo);
+                lockInfo.accessedPotentiallyIsolatedVars.add(tsymbol);
+                return;
+            }
+
+            VariableIsolationInferenceInfo inferenceInfo =
+                    (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol);
+            inferenceInfo.accessedOutsideLockStatement = true;
+
+            BType fieldType = fieldAccessExpr.getBType();
+            if (Symbols.isFlagOn(((BObjectType) bType).fields.get(field.value).symbol.flags, Flags.FINAL) &&
+                    isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(env.enclPkg.symbol, fieldType)) {
+                inferenceInfo.typesOfFinalFieldsAccessedOutsideLock.add(fieldType);
+            } else {
+                inferenceInfo.accessOutsideLockStatementValidIfInferredIsolated = false;
+            }
             return;
         }
 
         if (inLockStatement) {
-            addToAccessedRestrictedVars(copyInLockInfoStack.peek().accessedRestrictedVars,
-                                        (BLangSimpleVarRef) fieldAccessExpr.expr);
+            addToAccessedRestrictedVars(copyInLockInfoStack.peek().accessedRestrictedVars, (BLangSimpleVarRef) expr);
             return;
         }
 
         dlog.error(fieldAccessExpr.pos,
                    DiagnosticErrorCode.INVALID_MUTABLE_FIELD_ACCESS_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
+    }
+
+    private boolean isPotentiallyProtectedFieldAccessedInNonInitMethod(BLangExpression expr, BTypeSymbol tsymbol,
+                                                                       BLangIdentifier field) {
+        return expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                isSelfOfObject((BLangSimpleVarRef) expr) &&
+                this.isolationInferenceInfoMap.containsKey(tsymbol) &&
+                !inObjectInitMethod() &&
+                ((ClassIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol))
+                        .protectedFields.contains(field);
     }
 
     @Override
@@ -1296,9 +1425,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
-        BSymbol initInvocationSymbol = typeInitExpr.initInvocation.symbol;
+        BInvokableSymbol initInvocationSymbol = (BInvokableSymbol) typeInitExpr.initInvocation.symbol;
         if (initInvocationSymbol != null && !isIsolated(initInvocationSymbol.flags)) {
-            analyzeFunctionForInference((BInvokableSymbol) initInvocationSymbol);
+            analyzeFunctionForInference(initInvocationSymbol);
 
             inferredIsolated = false;
 
@@ -1311,6 +1440,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             } else if (isObjectFieldDefaultValueRequiringIsolation(env)) {
                 dlog.error(typeInitExpr.pos,
                            DiagnosticErrorCode.INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT);
+            } else if (isObjectFieldDefaultValue(env)) {
+                BLangFunction initFunction = ((BLangClassDefinition) env.node).initFunction;
+                if (initFunction != null) {
+                    markInitMethodDependentlyIsolatedOnFunction(initFunction, initInvocationSymbol);
+                }
             }
         }
 
@@ -1484,6 +1618,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         SymbolEnv arrowFunctionEnv = SymbolEnv.createArrowFunctionSymbolEnv(bLangArrowFunction, env);
+        createTempSymbolIfNonExistent(bLangArrowFunction);
         analyzeNode(bLangArrowFunction.body, arrowFunctionEnv);
     }
 
@@ -1849,18 +1984,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean isolatedFunctionCall = isIsolated(symbol.type.flags);
 
         if (isolatedFunctionCall) {
-            if (!expectsIsolation) {
-                analyzeArgs(requiredArgs, restArgs);
-                return;
-            }
-
-            analyzeArgIsolatedness(requiredArgs, restArgs, symbol);
+            analyzeArgIsolatedness(invocationExpr, requiredArgs, restArgs, symbol, expectsIsolation);
             return;
         }
 
         analyzeArgs(requiredArgs, restArgs);
 
-        if (inLockStatement && !isolatedFunctionCall) {
+        if (inLockStatement) {
             copyInLockInfoStack.peek().nonIsolatedInvocations.add(invocationExpr);
         }
 
@@ -1884,6 +2014,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (objectFieldDefaultValueRequiringIsolation) {
             dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_AS_OBJECT_DEFAULT);
+        }  else if (isObjectFieldDefaultValue(env)) {
+            BLangFunction initFunction = ((BLangClassDefinition) env.node).initFunction;
+            if (initFunction != null) {
+                markInitMethodDependentlyIsolatedOnFunction(initFunction, symbol);
+            }
         }
     }
 
@@ -1944,8 +2079,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         this.inferredIsolated = prevInferredIsolatedness && this.inferredIsolated;
     }
 
-    private void analyzeArgIsolatedness(List<BLangExpression> requiredArgs, List<BLangExpression> restArgs,
-                                        BInvokableSymbol symbol) {
+    private void analyzeArgIsolatedness(BLangInvocation invocationExpr, List<BLangExpression> requiredArgs,
+                                        List<BLangExpression> restArgs, BInvokableSymbol symbol,
+                                        boolean expectsIsolation) {
         List<BVarSymbol> params = symbol.params;
         int paramsCount = params.size();
 
@@ -1965,9 +2101,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-                    if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                        dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                    }
+                    handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                   arg.getBType(), arg.pos);
 
                     continue;
                 }
@@ -1987,9 +2122,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-                    if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                        dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                    }
+                    handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                   arg.getBType(), arg.pos);
                 }
             }
             return;
@@ -2010,9 +2144,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-            if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                           arg.getBType(), arg.pos);
         }
 
         if (restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR) {
@@ -2033,7 +2166,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                 analyzeAndSetArrowFuncFlagForIsolatedParamArg(varArg);
 
-                analyzeVarArgIsolatedness(varArg, varArgPos);
+                analyzeVarArgIsolatedness(invocationExpr, varArg, varArgPos, expectsIsolation);
                 return;
             }
 
@@ -2063,15 +2196,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     BType type = memberTypes.get(tupleIndex);
 
+                    BLangExpression arg = null;
                     if (listConstrVarArg) {
-                        BLangExpression arg = listConstructorExpr.exprs.get(tupleIndex);
+                        arg = listConstructorExpr.exprs.get(tupleIndex);
                         analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
                         type = arg.getBType();
                     }
 
-                    if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                        dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                    }
+                    handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                   type, varArgPos);
                     tupleIndex++;
                 }
 
@@ -2097,15 +2230,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (tupleIndex < memberTypeCount) {
                     for (int i = tupleIndex; i < memberTypeCount; i++) {
                         BType type = memberTypes.get(i);
+                        BLangExpression arg = null;
                         if (listConstrVarArg) {
-                            BLangExpression arg = listConstructorExpr.exprs.get(i);
+                            arg = listConstructorExpr.exprs.get(i);
                             analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
                             type = arg.getBType();
                         }
 
-                        if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                            dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                        }
+                        handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                       type, varArgPos);
                     }
                 }
 
@@ -2115,9 +2248,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         BLangExpression arg = exprs.get(i);
                         analyzeAndSetArrowFuncFlagForIsolatedParamArg(arg);
 
-                        if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                            dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                        }
+                        handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                                       arg.getBType(), varArgPos);
                     }
                     return;
                 }
@@ -2127,9 +2259,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                if (!Symbols.isFlagOn(tupleRestType.flags, Flags.ISOLATED)) {
-                    dlog.error(varArgPos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                }
+                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
+                                                               tupleRestType, varArgPos);
 
                 return;
             }
@@ -2143,11 +2274,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         // Args for rest param provided as both individual args and vararg.
-        analyzeRestArgsForRestParam(restArgs, symbol);
+        analyzeRestArgsForRestParam(invocationExpr, restArgs, symbol, expectsIsolation);
     }
 
-    private void analyzeRestArgsForRestParam(List<BLangExpression> restArgs, BInvokableSymbol symbol) {
-        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED_PARAM)) {
+    private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
+                                             BInvokableSymbol symbol, boolean expectsIsolation) {
+        if (Symbols.isFlagOn(((BArrayType) symbol.restParam.type).eType.flags, Flags.ISOLATED)) {
             for (BLangExpression restArg : restArgs) {
                 analyzeNode(restArg, env);
             }
@@ -2165,48 +2297,76 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         for (int i = 0; i < (lastArgIsVarArg ? size - 1 : size); i++) {
             BLangExpression arg = restArgs.get(i);
-            if (!Symbols.isFlagOn(arg.getBType().flags, Flags.ISOLATED)) {
-                dlog.error(arg.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, arg, expectsIsolation,
+                                                           arg.getBType(), arg.pos);
         }
 
         if (lastArgIsVarArg) {
-            analyzeVarArgIsolatedness((BLangRestArgsExpression) lastArg, lastArg.pos);
+            analyzeVarArgIsolatedness(invocationExpr, (BLangRestArgsExpression) lastArg, lastArg.pos, expectsIsolation);
         }
     }
 
-    private void analyzeVarArgIsolatedness(BLangRestArgsExpression restArgsExpression, Location pos) {
+    private void analyzeVarArgIsolatedness(BLangInvocation invocationExpr, BLangRestArgsExpression restArgsExpression,
+                                           Location pos, boolean expectsIsolation) {
         BLangExpression expr = restArgsExpression.expr;
         if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
             for (BLangExpression expression : ((BLangListConstructorExpr) expr).exprs) {
                 analyzeAndSetArrowFuncFlagForIsolatedParamArg(expression);
 
-                if (!Symbols.isFlagOn(expression.getBType().flags, Flags.ISOLATED)) {
-                    dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-                }
+                handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, expression, expectsIsolation,
+                                                               expression.getBType(), pos);
             }
             return;
         }
 
         BType varArgType = restArgsExpression.getBType();
         if (varArgType.tag == TypeTags.ARRAY) {
-            if (!Symbols.isFlagOn(((BArrayType) varArgType).eType.flags, Flags.ISOLATED)) {
-                dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
+                                                           ((BArrayType) varArgType).eType, pos);
             return;
         }
 
         BTupleType tupleType = (BTupleType) varArgType;
 
         for (BType type : tupleType.tupleTypes) {
-            if (!Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
-                dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
-            }
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
+                                                           type, pos);
         }
 
         BType restType = tupleType.restType;
-        if (restType != null && !Symbols.isFlagOn(restType.flags, Flags.ISOLATED)) {
+        if (restType != null) {
+            handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation, restType, pos);
+        }
+    }
+
+    private void handleNonExplicitlyIsolatedArgForIsolatedParam(BLangInvocation invocationExpr, BLangExpression expr,
+                                                                boolean expectsIsolation, BType type, Location pos) {
+        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
+            return;
+        }
+
+        this.inferredIsolated = false;
+
+        if (expectsIsolation) {
             dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
+            return;
+        }
+
+        if (expr != null) {
+            NodeKind kind = expr.getKind();
+            if (kind == NodeKind.LAMBDA) {
+                markFunctionDependentlyIsolatedOnFunction(env.enclInvokable,
+                                                          ((BLangLambdaFunction) expr).function.symbol);
+            } else if (kind == NodeKind.ARROW_EXPR) {
+                markFunctionDependentlyIsolatedOnFunction(env.enclInvokable,
+                                                          createTempSymbolIfNonExistent((BLangArrowFunction) expr));
+            }
+        } else {
+            markDependsOnIsolationNonInferableConstructs();
+        }
+
+        if (inLockStatement) {
+            copyInLockInfoStack.peek().nonIsolatedInvocations.add(invocationExpr);
         }
     }
 
@@ -2219,8 +2379,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (enclInvokable == null) {
             // TODO: 14/11/20 This feels hack-y but cannot think of a different approach without a class variable
             // maintaining isolated-ness.
-            if (env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY ||
-                    env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR) {
+            if (isNotInArrowFunctionBody(env)) {
                 return false;
             }
             return isIsolated(((BLangArrowFunction) env.enclEnv.node).funcType.flags);
@@ -2238,14 +2397,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isObjectFieldDefaultValueRequiringIsolation(SymbolEnv env) {
-        BLangNode node = env.node;
-        NodeKind kind = node.getKind();
-
-        if (kind != NodeKind.CLASS_DEFN) {
+        if (!isObjectFieldDefaultValue(env)) {
             return false;
         }
 
-        BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+        BLangClassDefinition classDefinition = (BLangClassDefinition) env.node;
 
         BLangFunction initFunction = classDefinition.initFunction;
         if (initFunction == null) {
@@ -2253,6 +2409,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return isIsolated(initFunction.symbol.flags);
+    }
+
+    private boolean isObjectFieldDefaultValue(SymbolEnv env) {
+        return env.node.getKind() == NodeKind.CLASS_DEFN;
     }
 
     private boolean isDefinitionReference(BSymbol symbol) {
@@ -2320,9 +2480,20 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isIsolatedExpression(BLangExpression expression, boolean logErrors, boolean visitRestOnError,
-                                         List<Location> nonIsolatedLocations) {
+                                         List<BLangExpression> nonIsolatedLocations) {
+        return isIsolatedExpression(expression, logErrors, visitRestOnError, nonIsolatedLocations, false, null, null,
+                null);
+    }
+
+    private boolean isIsolatedExpression(BLangExpression expression, boolean logErrors, boolean visitRestOnError,
+                                         List<BLangExpression> nonIsolatedExpressions, boolean inferring,
+                                         Set<BType> publiclyExposedObjectTypes,
+                                         List<BLangClassDefinition> classDefinitions, Set<BSymbol> unresolvedSymbols) {
         BType type = expression.getBType();
-        if (type != null && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
+
+        if (type != null &&
+                isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                      inferring, type, unresolvedSymbols)) {
             return true;
         }
 
@@ -2337,7 +2508,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case LIST_CONSTRUCTOR_EXPR:
                 for (BLangExpression expr : ((BLangListConstructorExpr) expression).exprs) {
-                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedExpressions) || logErrors ||
                             visitRestOnError) {
                         continue;
                     }
@@ -2347,7 +2518,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case TABLE_CONSTRUCTOR_EXPR:
                 for (BLangRecordLiteral mappingConstr : ((BLangTableConstructorExpr) expression).recordLiteralList) {
-                    if (isIsolatedExpression(mappingConstr, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                    if (isIsolatedExpression(mappingConstr, logErrors, visitRestOnError, nonIsolatedExpressions) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2363,14 +2534,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                         BLangRecordLiteral.BLangRecordKey key = keyValueField.key;
                         if (key.computedKey) {
-                            if (!isIsolatedExpression(key.expr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                            if (!isIsolatedExpression(key.expr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
                                     !logErrors && !visitRestOnError) {
                                 return false;
                             }
                         }
 
                         if (isIsolatedExpression(keyValueField.valueExpr, logErrors, visitRestOnError,
-                                                 nonIsolatedLocations) || logErrors || visitRestOnError) {
+                                                 nonIsolatedExpressions) || logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
@@ -2378,7 +2549,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
                     if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
                         if (isIsolatedExpression(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr,
-                                                 logErrors, visitRestOnError, nonIsolatedLocations) ||
+                                                 logErrors, visitRestOnError, nonIsolatedExpressions) ||
                                 logErrors || visitRestOnError) {
                             continue;
                         }
@@ -2386,7 +2557,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     }
 
                     if (isIsolatedExpression((BLangRecordLiteral.BLangRecordVarNameField) field, logErrors,
-                                             visitRestOnError, nonIsolatedLocations) || logErrors || visitRestOnError) {
+                                             visitRestOnError, nonIsolatedExpressions) || logErrors ||
+                                             visitRestOnError) {
                         continue;
                     }
                     return false;
@@ -2396,7 +2568,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 BLangXMLCommentLiteral commentLiteral = (BLangXMLCommentLiteral) expression;
 
                 for (BLangExpression textFragment : commentLiteral.textFragments) {
-                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedExpressions) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2409,12 +2581,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
                 return isIsolatedExpression(commentLiteralConcatExpr, logErrors, visitRestOnError,
-                                            nonIsolatedLocations);
+                                            nonIsolatedExpressions);
             case XML_TEXT_LITERAL:
                 BLangXMLTextLiteral textLiteral = (BLangXMLTextLiteral) expression;
 
                 for (BLangExpression textFragment : textLiteral.textFragments) {
-                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                    if (isIsolatedExpression(textFragment, logErrors, visitRestOnError, nonIsolatedExpressions) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2426,12 +2598,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 if (textLiteralConcatExpr == null) {
                     return true;
                 }
-                return isIsolatedExpression(textLiteralConcatExpr, logErrors, visitRestOnError, nonIsolatedLocations);
+                return isIsolatedExpression(textLiteralConcatExpr, logErrors, visitRestOnError, nonIsolatedExpressions);
             case XML_PI_LITERAL:
                 BLangXMLProcInsLiteral procInsLiteral = (BLangXMLProcInsLiteral) expression;
 
                 for (BLangExpression dataFragment : procInsLiteral.dataFragments) {
-                    if (isIsolatedExpression(dataFragment, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                    if (isIsolatedExpression(dataFragment, logErrors, visitRestOnError, nonIsolatedExpressions) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2444,10 +2616,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
                 return isIsolatedExpression(procInsLiteralConcatExpr, logErrors, visitRestOnError,
-                                            nonIsolatedLocations);
+                                            nonIsolatedExpressions);
             case XML_ELEMENT_LITERAL:
                 for (BLangExpression child : ((BLangXMLElementLiteral) expression).children) {
-                    if (isIsolatedExpression(child, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                    if (isIsolatedExpression(child, logErrors, visitRestOnError, nonIsolatedExpressions) || logErrors ||
                             visitRestOnError) {
                         continue;
                     }
@@ -2457,8 +2629,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case XML_SEQUENCE_LITERAL:
                 for (BLangExpression xmlItem : ((BLangXMLSequenceLiteral) expression).xmlItems) {
-                    if (isIsolatedExpression(xmlItem, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
-                            visitRestOnError) {
+                    if (isIsolatedExpression(xmlItem, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                            logErrors || visitRestOnError) {
                         continue;
                     }
 
@@ -2467,7 +2639,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case RAW_TEMPLATE_LITERAL:
                 for (BLangExpression insertion : ((BLangRawTemplateLiteral) expression).insertions) {
-                    if (isIsolatedExpression(insertion, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                    if (isIsolatedExpression(insertion, logErrors, visitRestOnError, nonIsolatedExpressions) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2477,7 +2649,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case STRING_TEMPLATE_LITERAL:
                 for (BLangExpression expr : ((BLangStringTemplateLiteral) expression).exprs) {
-                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
+                    if (isIsolatedExpression(expr, logErrors, visitRestOnError, nonIsolatedExpressions) || logErrors ||
                             visitRestOnError) {
                         continue;
                     }
@@ -2487,43 +2659,43 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return true;
             case TYPE_CONVERSION_EXPR:
                 return isIsolatedExpression(((BLangTypeConversionExpr) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedLocations);
+                                            nonIsolatedExpressions);
             case CHECK_EXPR:
             case CHECK_PANIC_EXPR:
                 return isIsolatedExpression(((BLangCheckedExpr) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedLocations);
+                                            nonIsolatedExpressions);
             case TRAP_EXPR:
                 return isIsolatedExpression(((BLangTrapExpr) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedLocations);
+                                            nonIsolatedExpressions);
             case TERNARY_EXPR:
                 BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) expression;
 
-                if (!isIsolatedExpression(ternaryExpr.expr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                if (!isIsolatedExpression(ternaryExpr.expr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
                         !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                if (!isIsolatedExpression(ternaryExpr.thenExpr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                if (!isIsolatedExpression(ternaryExpr.thenExpr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
                         !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                return isIsolatedExpression(ternaryExpr.elseExpr, logErrors, visitRestOnError, nonIsolatedLocations);
+                return isIsolatedExpression(ternaryExpr.elseExpr, logErrors, visitRestOnError, nonIsolatedExpressions);
             case ELVIS_EXPR:
                 BLangElvisExpr elvisExpr = (BLangElvisExpr) expression;
 
-                if (!isIsolatedExpression(elvisExpr.lhsExpr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                if (!isIsolatedExpression(elvisExpr.lhsExpr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
                         !logErrors && !visitRestOnError) {
                     return false;
                 }
 
-                return isIsolatedExpression(elvisExpr.rhsExpr, logErrors, visitRestOnError, nonIsolatedLocations);
+                return isIsolatedExpression(elvisExpr.rhsExpr, logErrors, visitRestOnError, nonIsolatedExpressions);
             case LET_EXPR:
                 return isIsolatedExpression(((BLangLetExpression) expression).expr, logErrors, visitRestOnError,
-                                            nonIsolatedLocations);
+                                            nonIsolatedExpressions);
             case GROUP_EXPR:
                 return isIsolatedExpression(((BLangGroupExpr) expression).expression, logErrors, visitRestOnError,
-                                            nonIsolatedLocations);
+                                            nonIsolatedExpressions);
             case TYPE_INIT_EXPR:
                 BLangTypeInit typeInitExpr = (BLangTypeInit) expression;
 
@@ -2560,15 +2732,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     return true;
                 }
 
-                return isIsolatedExpression(argExprs.get(0), logErrors, visitRestOnError, nonIsolatedLocations);
-            } else if (isIsolated(invocationSymbol.type.flags)) {
+                return isIsolatedExpression(argExprs.get(0), logErrors, visitRestOnError, nonIsolatedExpressions);
+            } else if (isIsolated(invocationSymbol.type.flags) ||
+                    (inferring && this.isolationInferenceInfoMap.containsKey(invocationSymbol) &&
+                            inferFunctionIsolation(invocationSymbol,
+                                    this.isolationInferenceInfoMap.get(invocationSymbol), publiclyExposedObjectTypes,
+                                    classDefinitions, unresolvedSymbols))) {
                 List<BLangExpression> requiredArgs = invocation.requiredArgs;
 
                 BLangExpression calledOnExpr = invocation.expr;
 
                 if (calledOnExpr != null &&
                         (requiredArgs.isEmpty() || calledOnExpr != requiredArgs.get(0)) &&
-                        (!isIsolatedExpression(calledOnExpr, logErrors, visitRestOnError, nonIsolatedLocations) &&
+                        (!isIsolatedExpression(calledOnExpr, logErrors, visitRestOnError, nonIsolatedExpressions) &&
                                 !logErrors && !visitRestOnError)) {
                     return false;
                 }
@@ -2576,13 +2752,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 for (BLangExpression requiredArg : requiredArgs) {
                     if (requiredArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                         if (isIsolatedExpression(((BLangNamedArgsExpression) requiredArg).expr, logErrors,
-                                visitRestOnError, nonIsolatedLocations) || logErrors || visitRestOnError) {
+                                visitRestOnError, nonIsolatedExpressions) || logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
-                    if (isIsolatedExpression(requiredArg, logErrors, visitRestOnError, nonIsolatedLocations) ||
+                    if (isIsolatedExpression(requiredArg, logErrors, visitRestOnError, nonIsolatedExpressions) ||
                             logErrors || visitRestOnError) {
                         continue;
                     }
@@ -2592,15 +2768,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 for (BLangExpression restArg : invocation.restArgs) {
                     if (restArg.getKind() == NodeKind.REST_ARGS_EXPR) {
                         if (isIsolatedExpression(((BLangRestArgsExpression) restArg).expr, logErrors, visitRestOnError,
-                                                 nonIsolatedLocations)
+                                                 nonIsolatedExpressions)
                                 || logErrors || visitRestOnError) {
                             continue;
                         }
                         return false;
                     }
 
-                    if (isIsolatedExpression(restArg, logErrors, visitRestOnError, nonIsolatedLocations) || logErrors ||
-                            visitRestOnError) {
+                    if (isIsolatedExpression(restArg, logErrors, visitRestOnError, nonIsolatedExpressions) ||
+                            logErrors || visitRestOnError) {
                         continue;
                     }
                     return false;
@@ -2613,10 +2789,47 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (logErrors) {
             dlog.error(expression.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_EXPRESSION_AS_INITIAL_VALUE);
         } else {
-            nonIsolatedLocations.add(expression.pos);
+            nonIsolatedExpressions.add(expression);
         }
 
         return false;
+    }
+
+    private boolean isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(Set<BType> publiclyExposedObjectTypes,
+                                                                          List<BLangClassDefinition> classDefinitions,
+                                                                          boolean inferring, BType type,
+                                                                          Set<BSymbol> unresolvedSymbols) {
+        if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
+            return true;
+        }
+
+        if (!inferring) {
+            return false;
+        }
+
+        BTypeSymbol tsymbol = type.tsymbol;
+        int tag = type.tag;
+        if (tag == TypeTags.OBJECT) {
+            if (this.isolationInferenceInfoMap.containsKey(tsymbol)) {
+                return inferVariableOrClassIsolation(publiclyExposedObjectTypes, classDefinitions, tsymbol,
+                                     (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(tsymbol),
+                         true, unresolvedSymbols);
+            }
+
+            return false;
+        }
+
+        if (tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                       true, memberType, unresolvedSymbols)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isDependentlyIsolatedExpressionKind(BLangExpression expression) {
@@ -2699,19 +2912,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return !isIsolatedExpression(expression);
     }
 
-    private void validateTransferOut(BLangExpression expression, List<Location> nonIsolatedCopyOutLocations) {
+    private void validateTransferOut(BLangExpression expression, List<BLangExpression> nonIsolatedCopyOutExpressions) {
         if (!isDependentlyIsolatedExpressionKind(expression)) {
             if (!isIsolatedExpression(expression)) {
-                nonIsolatedCopyOutLocations.add(expression.pos);
+                nonIsolatedCopyOutExpressions.add(expression);
             }
             return;
         }
 
-        isIsolatedExpression(expression, false, true, nonIsolatedCopyOutLocations);
+        isIsolatedExpression(expression, false, true, nonIsolatedCopyOutExpressions);
     }
 
     private void validateTransferOutViaAssignment(BLangExpression expression, BLangExpression varRef,
-                                                  List<Location> nonIsolatedCopyOutLocations) {
+                                                  List<BLangExpression> nonIsolatedCopyOutLocations) {
         if (!hasRefDefinedOutsideLock(varRef)) {
             return;
         }
@@ -2724,7 +2937,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        validateTransferOutViaAssignment(expr, varRef, this.copyInLockInfoStack.peek().nonIsolatedCopyOutLocations);
+        validateTransferOutViaAssignment(expr, varRef,
+                                         this.copyInLockInfoStack.peek().nonIsolatedTransferOutExpressions);
     }
 
     private boolean isSelfReference(BLangExpression expression) {
@@ -2952,12 +3166,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isIsolationInferableFunction(BLangFunction funcNode) {
         Set<Flag> flagSet = funcNode.flagSet;
 
-        if (flagSet.contains(Flag.PUBLIC) || flagSet.contains(Flag.INTERFACE)) {
+        if (flagSet.contains(Flag.INTERFACE)) {
             return false;
         }
 
         if (!flagSet.contains(Flag.ATTACHED)) {
-            return true;
+            return !flagSet.contains(Flag.PUBLIC);
         }
 
         BSymbol owner = funcNode.symbol.owner;
@@ -2976,16 +3190,31 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private void markDependsOnIsolationNonInferableConstructs() {
         BLangInvokableNode enclInvokable = env.enclInvokable;
+        BInvokableSymbol enclInvokableSymbol;
+
         if (enclInvokable == null) {
-            return;
+            if (isNotInArrowFunctionBody(env)) {
+                return;
+            }
+
+            enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
+        } else {
+            enclInvokableSymbol = enclInvokable.symbol;
+
+            if (enclInvokable.getKind() == NodeKind.FUNCTION && ((BLangFunction) enclInvokable).attachedFunction) {
+                BSymbol owner = enclInvokableSymbol.owner;
+
+                if (this.isolationInferenceInfoMap.containsKey(owner)) {
+                    this.isolationInferenceInfoMap.get(owner).dependsOnlyOnInferableConstructs = false;
+                }
+            }
+
+            if (!this.isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+                return;
+            }
         }
 
-        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
-        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
-            return;
-        }
-
-        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnFunctionsWithModuleLevelVisibility = false;
+        this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnInferableConstructs = false;
     }
 
     private void analyzeFunctionForInference(BInvokableSymbol symbol) {
@@ -2993,58 +3222,567 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             markDependsOnIsolationNonInferableConstructs();
             return;
         }
-        markDependentlyIsolated(symbol);
+        markDependentlyIsolatedOnFunction(symbol);
     }
 
-    private void markDependentlyIsolated(BInvokableSymbol symbol) {
+    private void markInitMethodDependentlyIsolatedOnFunction(BLangInvokableNode initMethod, BInvokableSymbol symbol) {
+        BInvokableSymbol initMethodSymbol = initMethod.symbol;
+        if (!isolationInferenceInfoMap.containsKey(initMethodSymbol)) {
+            isolationInferenceInfoMap.put(initMethodSymbol, new IsolationInferenceInfo());
+
+        }
+        markFunctionDependentlyIsolatedOnFunction(initMethod, symbol);
+    }
+
+    private void markDependentlyIsolatedOnFunction(BInvokableSymbol symbol) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
-        if (enclInvokable == null) {
-            return;
-        }
-
-        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
-        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
-            return;
-        }
-
-        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOn.add(symbol);
+        markFunctionDependentlyIsolatedOnFunction(enclInvokable, symbol);
     }
 
-    private void inferFunctionIsolation() {
-        for (Map.Entry<BInvokableSymbol, IsolationInferenceInfo> entry : this.isolationInferenceInfoMap.entrySet()) {
-            BInvokableSymbol key = entry.getKey();
-            if (inferredIsolated(key, entry.getValue(), new HashSet<>())) {
-                key.flags |= Flags.ISOLATED;
-                key.type.flags |= Flags.ISOLATED;
+    private void markFunctionDependentlyIsolatedOnFunction(BLangInvokableNode enclInvokable, BInvokableSymbol symbol) {
+        BInvokableSymbol enclInvokableSymbol;
+
+        if (enclInvokable == null) {
+            if (isNotInArrowFunctionBody(env)) {
+                return;
+            }
+
+            enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
+        } else {
+            enclInvokableSymbol = enclInvokable.symbol;
+
+            if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+                return;
             }
         }
+
+        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
     }
 
-    private boolean inferredIsolated(BInvokableSymbol symbol, IsolationInferenceInfo isolationInferenceInfo,
-                                     Set<BInvokableSymbol> unresolvedSymbols) {
+    private boolean isNotInArrowFunctionBody(SymbolEnv env) {
+        return env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY || env.enclEnv.node.getKind() != NodeKind.ARROW_EXPR;
+    }
+
+    private void markInitMethodDependentlyIsolatedOnVar(BLangInvokableNode initMethod, BSymbol symbol) {
+        BInvokableSymbol initMethodSymbol = initMethod.symbol;
+        if (!isolationInferenceInfoMap.containsKey(initMethodSymbol)) {
+            isolationInferenceInfoMap.put(initMethodSymbol, new IsolationInferenceInfo());
+
+        }
+        markFunctionDependentlyIsolatedOnVar(initMethod, symbol);
+    }
+
+    private void markDependentlyIsolatedOnVar(BSymbol symbol) {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        markFunctionDependentlyIsolatedOnVar(enclInvokable, symbol);
+    }
+
+    private void markFunctionDependentlyIsolatedOnVar(BLangInvokableNode enclInvokable, BSymbol symbol) {
+        BInvokableSymbol enclInvokableSymbol;
+        if (enclInvokable == null) {
+            if (isNotInArrowFunctionBody(env)) {
+                return;
+            }
+
+            enclInvokableSymbol = this.arrowFunctionTempSymbolMap.get((BLangArrowFunction) env.enclEnv.node);
+        } else {
+            enclInvokableSymbol = enclInvokable.symbol;
+
+            if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+                return;
+            }
+        }
+
+        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnVariablesAndClasses.add(symbol);
+    }
+
+    private Set<BSymbol> getModuleLevelVarSymbols(List<BLangVariable> moduleLevelVars) {
+        Set<BSymbol> symbols = new HashSet<>(moduleLevelVars.size());
+        for (BLangVariable globalVar : moduleLevelVars) {
+            symbols.add(globalVar.symbol);
+        }
+        return symbols;
+    }
+
+    private void populateNonPublicMutableOrNonIsolatedVars(Set<BSymbol> moduleLevelVarSymbols) {
+        for (BSymbol moduleLevelVarSymbol : moduleLevelVarSymbols) {
+            if (!isVarRequiringInference(moduleLevelVarSymbol)) {
+                continue;
+            }
+
+            this.isolationInferenceInfoMap.put(moduleLevelVarSymbol, new VariableIsolationInferenceInfo());
+        }
+    }
+
+    private void populateNonPublicIsolatedInferableClasses(List<BLangClassDefinition> classDefinitions) {
+        for (BLangClassDefinition classDefinition : classDefinitions) {
+            populateInferableClass(classDefinition);
+        }
+    }
+
+    private boolean inObjectInitMethod() {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+
+        if (enclInvokable == null || enclInvokable.getKind() != NodeKind.FUNCTION) {
+            return false;
+        }
+
+        return ((BLangFunction) enclInvokable).objInitFunction;
+    }
+
+    private boolean isVarRequiringInference(BSymbol moduleLevelVarSymbol) {
+        long symbolFlags = moduleLevelVarSymbol.flags;
+        if (Symbols.isFlagOn(symbolFlags, Flags.PUBLIC) || Symbols.isFlagOn(symbolFlags, Flags.ISOLATED)) {
+            return false;
+        }
+
+        if (!Symbols.isFlagOn(symbolFlags, Flags.FINAL)) {
+            return true;
+        }
+
+        BType type = moduleLevelVarSymbol.type;
+        return !types.isInherentlyImmutableType(type) && !Symbols.isFlagOn(type.flags, Flags.READONLY);
+    }
+
+    private void populateInferableClass(BLangClassDefinition classDefinition) {
+        if (Symbols.isFlagOn(classDefinition.symbol.flags, Flags.PUBLIC) && !classDefinition.isServiceDecl &&
+                !classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+            return;
+        }
+
+        BType type = classDefinition.getBType();
+        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
+            return;
+        }
+
+        Set<BLangIdentifier> protectedFields = new HashSet<>();
+        Set<BSymbol> dependentObjectTypes = new HashSet<>();
+
+        Map<String, BLangSimpleVariable> fields = new HashMap<>();
+
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            fields.put(field.name.value, field);
+        }
+
+        for (BLangSimpleVariable referencedField : classDefinition.referencedFields) {
+            String name = referencedField.name.value;
+            if (fields.containsKey(name)) {
+                // Shouldn't get here based on the current implementation, since the field will not be available as a
+                // referenced field if explicitly specified in the including type.
+                continue;
+            }
+
+            fields.put(name, referencedField);
+        }
+
+        for (BLangSimpleVariable field : fields.values()) {
+            boolean isFinal = field.flagSet.contains(Flag.FINAL);
+            boolean isPrivate = field.flagSet.contains(Flag.PRIVATE);
+
+            if (!isFinal && !isPrivate) {
+                return;
+            }
+
+            BType fieldType = field.getBType();
+            if (isFinal && types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(fieldType)) {
+                continue;
+            }
+
+            boolean subtypeOfReadOnlyOrIsolatedObjectOrInferableObject =
+                    isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(classDefinition.symbol.owner, fieldType,
+                                                                         dependentObjectTypes);
+            if (!isPrivate && !subtypeOfReadOnlyOrIsolatedObjectOrInferableObject) {
+                return;
+            }
+
+            protectedFields.add(field.name);
+        }
+
+        ClassIsolationInferenceInfo inferenceInfo = new ClassIsolationInferenceInfo(protectedFields);
+        this.isolationInferenceInfoMap.put(classDefinition.symbol, inferenceInfo);
+        inferenceInfo.dependsOnVariablesAndClasses.addAll(dependentObjectTypes);
+    }
+
+    private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(BSymbol owner, BType type) {
+        return isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(owner, type, new HashSet<>());
+    }
+
+    private boolean isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(BSymbol owner, BType type,
+                                                                         Set<BSymbol> inferableClasses) {
+        if (types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type)) {
+            return true;
+        }
+
+        int tag = type.tag;
+
+        if (tag == TypeTags.OBJECT) {
+            BTypeSymbol tsymbol = type.tsymbol;
+            boolean inferable =
+                    tsymbol.owner == owner && !Symbols.isFlagOn(tsymbol.flags, Flags.PUBLIC);
+
+            if (inferable) {
+                inferableClasses.add(tsymbol);
+            }
+
+            return inferable;
+        }
+
+        if (tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+            if (!isSubtypeOfReadOnlyOrIsolatedObjectOrInferableObject(owner, memberType, inferableClasses)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Set<BType> getPubliclyExposedObjectTypes(BLangPackage bLangPackage) {
+        Set<BType> publiclyExposedTypes = new HashSet<>();
+        BPubliclyExposedInferableTypeCollector collector =
+                new BPubliclyExposedInferableTypeCollector(publiclyExposedTypes);
+
+        List<BLangVariable> moduleVarsAndConstants = new ArrayList<>() {{
+            addAll(bLangPackage.globalVars);
+            addAll(bLangPackage.constants);
+        }};
+
+        for (BLangVariable construct : moduleVarsAndConstants) {
+            if (!construct.flagSet.contains(Flag.PUBLIC)) {
+                continue;
+            }
+
+            BLangType typeNode = construct.typeNode;
+
+            if (typeNode == null) {
+                continue;
+            }
+
+            collector.visitType(typeNode.getBType());
+        }
+
+        for (BLangTypeDefinition typeDefinition : bLangPackage.typeDefinitions) {
+            Set<Flag> flagSet = typeDefinition.flagSet;
+            if (!flagSet.contains(Flag.PUBLIC) || flagSet.contains(Flag.ANONYMOUS)) {
+                continue;
+            }
+
+            collector.visitType(typeDefinition.typeNode.getBType());
+        }
+
+        for (BLangClassDefinition classDefinition : bLangPackage.classDefinitions) {
+            Set<Flag> flagSet = classDefinition.flagSet;
+            if (!flagSet.contains(Flag.PUBLIC) || classDefinition.isServiceDecl || flagSet.contains(Flag.OBJECT_CTOR)) {
+                continue;
+            }
+
+            collector.visitType(classDefinition.getBType());
+        }
+
+        for (BLangFunction function : bLangPackage.functions) {
+            if (!function.flagSet.contains(Flag.PUBLIC) &&
+                    (!function.attachedFunction || !function.receiver.flagSet.contains(Flag.PUBLIC))) {
+                continue;
+            }
+
+            collector.visitType(function.getBType());
+        }
+
+        return publiclyExposedTypes;
+    }
+
+    private void inferIsolation(Set<BSymbol> moduleLevelVarSymbols, Set<BType> publiclyExposedObjectTypes,
+                                List<BLangClassDefinition> classDefinitions) {
+        for (Map.Entry<BSymbol, IsolationInferenceInfo> entry : this.isolationInferenceInfoMap.entrySet()) {
+            IsolationInferenceInfo value = entry.getValue();
+
+            BSymbol symbol = entry.getKey();
+
+            if (value.getKind() == IsolationInferenceKind.FUNCTION) {
+                if (inferFunctionIsolation(symbol, value, publiclyExposedObjectTypes, classDefinitions,
+                                           new HashSet<>())) {
+                    symbol.flags |= Flags.ISOLATED;
+
+                    if (!moduleLevelVarSymbols.contains(symbol)) {
+                        symbol.type.flags |= Flags.ISOLATED;
+                    }
+                }
+                continue;
+            }
+
+            boolean isObjectType = symbol.kind == SymbolKind.OBJECT;
+
+            if (!isObjectType &&
+                    // If it is a final var that is of a type that is a subtype of `readonly|isolated object {}`
+                    // don't infer isolated for it, since it can directly be accessed without a lock statement.
+                    isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                          symbol, new HashSet<>())) {
+                continue;
+            }
+
+            if (inferVariableOrClassIsolation(publiclyExposedObjectTypes, classDefinitions, symbol,
+                                              (VariableIsolationInferenceInfo) value, isObjectType, new HashSet<>())) {
+                symbol.flags |= Flags.ISOLATED;
+
+                if (isObjectType) {
+                    symbol.type.flags |= Flags.ISOLATED;
+                }
+            }
+        }
+
+        this.isolationInferenceInfoMap.clear();
+        this.arrowFunctionTempSymbolMap.clear();
+    }
+
+    private boolean inferVariableOrClassIsolation(Set<BType> publiclyExposedObjectTypes,
+                                                  List<BLangClassDefinition> classDefinitions,
+                                                  BSymbol symbol, VariableIsolationInferenceInfo inferenceInfo,
+                                                  boolean isObjectType, Set<BSymbol> unresolvedSymbols) {
         if (!unresolvedSymbols.add(symbol)) {
             return true;
         }
 
-        if (!isolationInferenceInfo.dependsOnlyOnFunctionsWithModuleLevelVisibility) {
+        if (!inferenceInfo.dependsOnlyOnInferableConstructs) {
             return false;
         }
 
-        if (isolationInferenceInfo.inferredIsolated) {
+        if (inferenceInfo.accessedOutsideLockStatement) {
+            if (!inferenceInfo.accessOutsideLockStatementValidIfInferredIsolated) {
+                if (inferenceInfo.getKind() == IsolationInferenceKind.CLASS) {
+                    return false;
+                }
+
+                if (Symbols.isFlagOn(symbol.flags, Flags.FINAL)) {
+                    return isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes,
+                            classDefinitions, true, symbol.type, unresolvedSymbols);
+                }
+
+                return false;
+            }
+
+            for (BType bType : inferenceInfo.typesOfFinalFieldsAccessedOutsideLock) {
+                if (!isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
+                        true, bType, unresolvedSymbols)) {
+                    return false;
+                }
+            }
+        }
+
+        if (isObjectType) {
+            if (publiclyExposedObjectTypes.contains(symbol.type)) {
+                return false;
+            }
+
+            BLangClassDefinition classDefinition = null;
+            for (BLangClassDefinition classDef : classDefinitions) {
+                if (classDef.symbol == symbol) {
+                    classDefinition = classDef;
+                    break;
+                }
+            }
+
+            if (classDefinition != null) {
+                List<BLangSimpleVariable> classFields = classDefinition.fields;
+                Map<BLangIdentifier, BLangSimpleVariable> fields = new HashMap<>(classFields.size());
+
+                for (BLangSimpleVariable classField : classFields) {
+                    fields.put(classField.name, classField);
+                }
+
+                for (BLangIdentifier protectedField : ((ClassIsolationInferenceInfo) inferenceInfo).protectedFields) {
+                    BLangSimpleVariable field = fields.get(protectedField);
+
+                    if (field.flagSet.contains(Flag.PRIVATE)) {
+                        continue;
+                    }
+
+                    if (!field.flagSet.contains(Flag.FINAL)) {
+                        // Shouldn't get here, since we don't add classes with fields that are neither private nor
+                        // final to the inferable construct map.
+                        return false;
+                    }
+
+                    BType fieldType = field.typeNode.getBType();
+                    if (!isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes,
+                                    classDefinitions, true, fieldType, unresolvedSymbols)) {
+                        return false;
+                    }
+                }
+
+                for (BLangSimpleVariable field : classDefinition.fields) {
+                    BLangExpression expr = field.expr;
+                    if (expr != null && !isIsolatedExpression(expr, false, false, new ArrayList<>(),
+                            true, publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
+                        return false;
+                    }
+                }
+
+                BLangFunction initFunction = classDefinition.initFunction;
+                if (initFunction != null) {
+                    BLangFunctionBody body = initFunction.body;
+
+                    for (BLangStatement stmt : ((BLangBlockFunctionBody) body).stmts) {
+                        if (stmt.getKind() != NodeKind.ASSIGNMENT) {
+                            continue;
+                        }
+
+                        BLangAssignment assignmentStmt = (BLangAssignment) stmt;
+                        BLangExpression lhs = assignmentStmt.varRef;
+
+                        if (lhs.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+                            continue;
+                        }
+
+                        BLangFieldBasedAccess fieldAccessExpr = (BLangFieldBasedAccess) lhs;
+
+                        BLangExpression calledOnExpr = fieldAccessExpr.expr;
+                        if (calledOnExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                            continue;
+                        }
+
+                        if (!isSelfOfObject((BLangSimpleVarRef) calledOnExpr)) {
+                            continue;
+                        }
+
+                        if (!isIsolatedExpression(assignmentStmt.expr, false, false, new ArrayList<>(), true,
+                                publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        } else if (isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes,
+                                                                         classDefinitions, symbol, unresolvedSymbols)) {
+            return true;
+        } else if (Symbols.isFlagOn(symbol.flags, Flags.LISTENER)) {
+            // Listeners aren't allowed as isolated variables.
+            return false;
+        }
+
+        for (LockInfo lockInfo : inferenceInfo.accessedLockInfo) {
+            if (!lockInfo.accessedRestrictedVars.isEmpty()) {
+                return false;
+            }
+
+            for (BSymbol accessedPotentiallyIsolatedVar : lockInfo.accessedPotentiallyIsolatedVars) {
+                if (accessedPotentiallyIsolatedVar == symbol) {
+                    continue;
+                }
+
+                if (!isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                           accessedPotentiallyIsolatedVar,
+                                                                           unresolvedSymbols)) {
+                    return false;
+                }
+            }
+
+            for (BLangExpression expr : lockInfo.nonIsolatedTransferInExpressions) {
+                if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol == symbol) {
+                    continue;
+                }
+
+                if (isIsolatedExpression(expr, false, false, new ArrayList<>(), true, publiclyExposedObjectTypes,
+                        classDefinitions, unresolvedSymbols)) {
+                    continue;
+                }
+
+                return false;
+            }
+
+            for (BLangExpression expr : lockInfo.nonIsolatedTransferOutExpressions) {
+                if (isIsolatedExpression(expr, false, false, new ArrayList<>(), true, publiclyExposedObjectTypes,
+                        classDefinitions, unresolvedSymbols)) {
+                    continue;
+                }
+
+                return false;
+            }
+
+            for (BLangInvocation nonIsolatedInvocation : lockInfo.nonIsolatedInvocations) {
+                BSymbol funcSymbol = nonIsolatedInvocation.symbol;
+
+                if (!this.isolationInferenceInfoMap.containsKey(funcSymbol)) {
+                    return false;
+                }
+
+                if (inferFunctionIsolation(funcSymbol, this.isolationInferenceInfoMap.get(funcSymbol),
+                                           publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
+                    continue;
+                }
+
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isFinalVarOfReadOnlyOrIsolatedObjectTypeWithInference(Set<BType> publiclyExposedObjectTypes,
+                                                                          List<BLangClassDefinition> classDefinitions,
+                                                                          BSymbol symbol,
+                                                                          Set<BSymbol> unresolvedSymbols) {
+        return Symbols.isFlagOn(symbol.flags, Flags.FINAL) &&
+                isSubTypeOfReadOnlyOrIsolatedObjectUnionWithInference(publiclyExposedObjectTypes, classDefinitions,
+                                                                      true, symbol.type, unresolvedSymbols);
+    }
+
+    private boolean inferFunctionIsolation(BSymbol symbol, IsolationInferenceInfo functionIsolationInferenceInfo,
+                                           Set<BType> publiclyExposedObjectTypes,
+                                           List<BLangClassDefinition> classDefinitions,
+                                           Set<BSymbol> unresolvedSymbols) {
+        if (!unresolvedSymbols.add(symbol)) {
             return true;
         }
 
-        for (BInvokableSymbol bInvokableSymbol : isolationInferenceInfo.dependsOn) {
+        if (!functionIsolationInferenceInfo.dependsOnlyOnInferableConstructs) {
+            return false;
+        }
+
+        if (symbol.kind == SymbolKind.FUNCTION) {
+            BVarSymbol receiverSymbol = ((BInvokableSymbol) symbol).receiverSymbol;
+            if (receiverSymbol != null && receiverSymbol.type.tag == TypeTags.OBJECT &&
+                    publiclyExposedObjectTypes.contains(receiverSymbol.type)) {
+                return false;
+            }
+        }
+
+        if (functionIsolationInferenceInfo.inferredIsolated) {
+            return true;
+        }
+
+        for (BInvokableSymbol bInvokableSymbol : functionIsolationInferenceInfo.dependsOnFunctions) {
             if (!this.isolationInferenceInfoMap.containsKey(bInvokableSymbol)) {
                 return false;
             }
 
-            if (!inferredIsolated(bInvokableSymbol, this.isolationInferenceInfoMap.get(bInvokableSymbol),
-                                  unresolvedSymbols)) {
+            if (!inferFunctionIsolation(bInvokableSymbol, this.isolationInferenceInfoMap.get(bInvokableSymbol),
+                                        publiclyExposedObjectTypes, classDefinitions, unresolvedSymbols)) {
                 return false;
             }
         }
-        isolationInferenceInfo.inferredIsolated = true;
+
+        for (BSymbol dependsOnVariable : functionIsolationInferenceInfo.dependsOnVariablesAndClasses) {
+            if (Symbols.isFlagOn(dependsOnVariable.flags, Flags.ISOLATED)) {
+                continue;
+            }
+
+            if (!this.isolationInferenceInfoMap.containsKey(dependsOnVariable)) {
+                return false;
+            }
+
+            if (!inferVariableOrClassIsolation(publiclyExposedObjectTypes, classDefinitions, dependsOnVariable,
+                                               (VariableIsolationInferenceInfo) this.isolationInferenceInfoMap.get(
+                                                       dependsOnVariable), false, unresolvedSymbols)) {
+                return false;
+            }
+        }
+
+        if (unresolvedSymbols.size() == 1) {
+            // Mark as isolated only when the function is directly being analyzed as opposed to analysis due to calls
+            // from other functions for which inference is attempted.
+            functionIsolationInferenceInfo.inferredIsolated = true;
+        }
         return true;
     }
 
@@ -3097,28 +3835,266 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE;
     }
 
+    private BInvokableSymbol createTempSymbolIfNonExistent(BLangArrowFunction bLangArrowFunction) {
+        if (arrowFunctionTempSymbolMap.containsKey(bLangArrowFunction)) {
+            return arrowFunctionTempSymbolMap.get(bLangArrowFunction);
+        }
+
+        TemporaryArrowFunctionSymbol symbol = new TemporaryArrowFunctionSymbol(bLangArrowFunction);
+        this.arrowFunctionTempSymbolMap.put(bLangArrowFunction, symbol);
+        this.isolationInferenceInfoMap.put(symbol, new IsolationInferenceInfo());
+        return symbol;
+    }
+
     /**
      * For lock statements with restricted var usage, invalid transfers and non-isolated invocations should result in
      * compilation errors. This class holds potentially erroneous expression per lock statement, and the protected
-     * variables accessed in the lock statement.
+     * variables accessed in the lock statement, and information required for isolated inference.
      */
-    private static class PotentiallyInvalidExpressionInfo {
+    private static class LockInfo {
         BLangLock lockNode;
 
         Map<BSymbol, List<BLangSimpleVarRef>> accessedRestrictedVars = new HashMap<>();
         List<BLangSimpleVarRef> nonCaptureBindingPatternVarRefsOnLhs = new ArrayList<>();
-        List<BLangSimpleVarRef> copyInVarRefs = new ArrayList<>();
-        List<Location> nonIsolatedCopyOutLocations = new ArrayList<>();
+        List<BLangExpression> nonIsolatedTransferInExpressions = new ArrayList<>();
+        List<BLangExpression> nonIsolatedTransferOutExpressions = new ArrayList<>();
         List<BLangInvocation> nonIsolatedInvocations = new ArrayList<>();
 
-        private PotentiallyInvalidExpressionInfo(BLangLock lockNode) {
+        Set<BSymbol> accessedPotentiallyIsolatedVars = new HashSet<>();
+
+        private LockInfo(BLangLock lockNode) {
             this.lockNode = lockNode;
         }
     }
 
     private static class IsolationInferenceInfo {
+        boolean dependsOnlyOnInferableConstructs = true;
+        Set<BInvokableSymbol> dependsOnFunctions = new HashSet<>();
+        Set<BSymbol> dependsOnVariablesAndClasses = new HashSet<>();
         boolean inferredIsolated = false;
-        boolean dependsOnlyOnFunctionsWithModuleLevelVisibility = true;
-        List<BInvokableSymbol> dependsOn = new ArrayList<>();
+
+        IsolationInferenceKind getKind() {
+            return IsolationInferenceKind.FUNCTION;
+        }
+    }
+
+    private static class VariableIsolationInferenceInfo extends IsolationInferenceInfo {
+        Set<LockInfo> accessedLockInfo = new HashSet<>();
+        boolean accessedOutsideLockStatement = false;
+        boolean accessOutsideLockStatementValidIfInferredIsolated = true;
+        Set<BType> typesOfFinalFieldsAccessedOutsideLock = new HashSet<>();
+
+        @Override
+        IsolationInferenceKind getKind() {
+            return IsolationInferenceKind.VARIABLE;
+        }
+    }
+
+    private static class ClassIsolationInferenceInfo extends VariableIsolationInferenceInfo {
+        Set<BLangIdentifier> protectedFields;
+
+        ClassIsolationInferenceInfo(Set<BLangIdentifier> protectedFields) {
+            this.protectedFields = protectedFields;
+        }
+
+        @Override
+        IsolationInferenceKind getKind() {
+            return IsolationInferenceKind.CLASS;
+        }
+    }
+
+    private enum IsolationInferenceKind {
+        CLASS,
+        VARIABLE,
+        FUNCTION
+    }
+
+    private class TemporaryArrowFunctionSymbol extends BInvokableSymbol {
+        TemporaryArrowFunctionSymbol(BLangArrowFunction fn) {
+            super(SymTag.FUNCTION, 0, Names.EMPTY, env.enclPkg.symbol.pkgID, fn.funcType, env.enclEnv.enclVarSym,
+                    null, VIRTUAL);
+            this.kind = SymbolKind.FUNCTION;
+        }
+    }
+
+    private static class BPubliclyExposedInferableTypeCollector implements TypeVisitor {
+
+        Set<BType> unresolvedTypes;
+        Set<BType> exposedTypes;
+
+        public BPubliclyExposedInferableTypeCollector(Set<BType> exposedTypes) {
+            this.unresolvedTypes = new HashSet<>();
+            this.exposedTypes = exposedTypes;
+        }
+
+        public void visitType(BType type) {
+            if (type == null) {
+                return;
+            }
+
+            if (!unresolvedTypes.add(type)) {
+                return;
+            }
+
+            type.accept(this);
+        }
+
+        @Override
+        public void visit(BAnnotationType bAnnotationType) {
+        }
+
+        @Override
+        public void visit(BArrayType bArrayType) {
+            visitType(bArrayType.eType);
+        }
+
+        @Override
+        public void visit(BBuiltInRefType bBuiltInRefType) {
+        }
+
+        @Override
+        public void visit(BAnyType bAnyType) {
+        }
+
+        @Override
+        public void visit(BAnydataType bAnydataType) {
+        }
+
+        @Override
+        public void visit(BErrorType bErrorType) {
+            visitType(bErrorType.detailType);
+        }
+
+        @Override
+        public void visit(BFiniteType bFiniteType) {
+        }
+
+        @Override
+        public void visit(BInvokableType bInvokableType) {
+            if (Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION)) {
+                return;
+            }
+
+            for (BType paramType : bInvokableType.paramTypes) {
+                visitType(paramType);
+            }
+            visitType(bInvokableType.restType);
+            visitType(bInvokableType.retType);
+        }
+
+        @Override
+        public void visit(BJSONType bjsonType) {
+        }
+
+        @Override
+        public void visit(BMapType bMapType) {
+            visitType(bMapType.constraint);
+        }
+
+        @Override
+        public void visit(BStreamType bStreamType) {
+            visitType(bStreamType.constraint);
+            visitType(bStreamType.completionType);
+        }
+
+        @Override
+        public void visit(BTypedescType bTypedescType) {
+            visitType(bTypedescType.constraint);
+        }
+
+        @Override
+        public void visit(BParameterizedType bTypedescType) {
+        }
+
+        @Override
+        public void visit(BNeverType bNeverType) {
+        }
+
+        @Override
+        public void visit(BNilType bNilType) {
+        }
+
+        @Override
+        public void visit(BNoType bNoType) {
+        }
+
+        @Override
+        public void visit(BPackageType bPackageType) {
+        }
+
+        @Override
+        public void visit(BStructureType bStructureType) {
+        }
+
+        @Override
+        public void visit(BTupleType bTupleType) {
+            for (BType memType : bTupleType.tupleTypes) {
+                visitType(memType);
+            }
+
+            visitType(bTupleType.restType);
+        }
+
+        @Override
+        public void visit(BUnionType bUnionType) {
+            for (BType memType : bUnionType.getMemberTypes()) {
+                visitType(memType);
+            }
+        }
+
+        @Override
+        public void visit(BIntersectionType bIntersectionType) {
+            for (BType constituentType : bIntersectionType.getConstituentTypes()) {
+                visitType(constituentType);
+            }
+            visitType(bIntersectionType.effectiveType);
+        }
+
+        @Override
+        public void visit(BXMLType bXmlType) {
+            visitType(bXmlType.constraint);
+        }
+
+        @Override
+        public void visit(BTableType bTableType) {
+            visitType(bTableType.constraint);
+            visitType(bTableType.keyTypeConstraint);
+        }
+
+        @Override
+        public void visit(BRecordType bRecordType) {
+            for (BField field : bRecordType.fields.values()) {
+                visitType(field.type);
+            }
+
+            if (!bRecordType.sealed) {
+                visitType(bRecordType.restFieldType);
+            }
+        }
+
+        @Override
+        public void visit(BObjectType bObjectType) {
+            this.exposedTypes.add(bObjectType);
+            for (BField field : bObjectType.fields.values()) {
+                visitType(field.type);
+            }
+
+            for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) bObjectType.tsymbol).attachedFuncs) {
+                visitType(attachedFunc.type);
+            }
+        }
+
+        @Override
+        public void visit(BType bType) {
+        }
+
+        @Override
+        public void visit(BFutureType bFutureType) {
+            visitType(bFutureType.constraint);
+        }
+
+        @Override
+        public void visit(BHandleType bHandleType) {
+        }
     }
 }

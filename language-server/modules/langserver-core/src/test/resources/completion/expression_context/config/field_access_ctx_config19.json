@@ -182,7 +182,7 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| ballerina/lang.string:1.1.0:Char value; |}? ;}",
+      "detail": "object {public isolated function next() returns record {| string:Char value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -229,7 +229,7 @@
       }
     },
     {
-      "label": "join(string... strs)",
+      "label": "'join(string... strs)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -239,8 +239,8 @@
         }
       },
       "sortText": "D",
-      "filterText": "join",
-      "insertText": "join(${1})",
+      "filterText": "'join",
+      "insertText": "'join(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

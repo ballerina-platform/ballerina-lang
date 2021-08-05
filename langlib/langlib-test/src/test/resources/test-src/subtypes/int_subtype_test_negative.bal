@@ -303,4 +303,27 @@ function testInvalidBitwiseXorType() {
     ints:Signed8 z = f ^ d;
 }
 
+type X -1|2;
+type Y -1|1|128;
+type Z -1|1|"foo";
+
+function testInvalidFiniteTypeAsIntSubType() {
+    X a = -1;
+    int:Unsigned32 b = a;
+
+    X[] c = [-1, -1, 2];
+    int:Unsigned8[] d = c;
+
+    Y[] e = [1, 1, -1];
+    int:Signed8[] f = e;
+
+    Z g = -1;
+    int:Signed8 h = g;
+    string:Char|int:Signed8 i = g;
+
+    Z[] j = [];
+    (float|string:Char|int:Signed8)[] k = j;
+    (float|string|int:Unsigned8)[] l = j;
+}
+
 // TODO : Add more test cases.

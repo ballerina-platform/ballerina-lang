@@ -349,30 +349,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "S",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -466,22 +448,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testParam2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "testParam2",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
+      "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
       "sortText": "O",
-      "insertText": "StrandData",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -504,30 +483,6 @@
       }
     },
     {
-      "label": "testParam1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "testParam1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "O",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "int",
@@ -540,6 +495,33 @@
       "sortText": "AC",
       "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testParam1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "testParam1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testParam2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "testParam2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "O",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

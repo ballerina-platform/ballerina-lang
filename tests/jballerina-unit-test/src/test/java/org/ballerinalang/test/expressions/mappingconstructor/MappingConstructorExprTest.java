@@ -78,8 +78,8 @@ public class MappingConstructorExprTest {
         validateError(result, 4, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
         validateError(result, 5, "unknown type 'NoRecord'", 55, 5);
         validateError(result, 6, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
-        validateError(result, 7, "invalid operation: type 'PersonThree' does not support field access for " +
-                "non-required field 'salary'", 55, 41);
+        validateError(result, 7, "invalid field access: 'salary' is not a required field in record 'PersonThree', use" +
+                " member access to access a field that may have been specified as a rest field", 55, 41);
         validateError(result, 8, "undefined symbol 'c'", 55, 55);
         validateError(result, 9, "unknown type 'Foo'", 59, 5);
         validateError(result, 10, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
@@ -256,8 +256,9 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible types: expected 'record {| anydata...; |}[]', found " +
                 "'record {| int i; any...; |}[]'", 53, 12);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 70, 16);
-        validateError(compileResult, index++, "invalid operation: type 'record {| int i; boolean b; int...; |}' does " +
-                "not support field access for non-required field 'key'", 71, 13);
+        validateError(compileResult, index++, "invalid field access: 'key' is not a required field in record 'record " +
+                "{| int i; boolean b; int...; |}', use member access to access a field that may have been specified " +
+                "as a rest field", 71, 13);
         validateError(compileResult, index++, "incompatible types: expected 'float', found '(int|boolean)?'", 72, 15);
         validateError(compileResult, index++, "incompatible types: expected 'record {| int i; |}', found 'record {| " +
                 "int a; float b; string...; |}'", 85, 12);

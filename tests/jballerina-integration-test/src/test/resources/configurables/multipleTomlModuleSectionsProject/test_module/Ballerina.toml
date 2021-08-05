@@ -1,0 +1,7 @@
+[package]
+org = "rootOrg"
+name = "test_module"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true

@@ -364,30 +364,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "S",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -481,44 +463,9 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Driver",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "O",
-      "insertText": "Driver",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "createVehicle(Model model)",
-      "kind": "Function",
-      "detail": "test/lsproject.models:0.1.0:Vehicle",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject.models:0.1.0_  \n  \n  \n**Params**  \n- `Model` model  \n  \n**Return** `Vehicle`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "createVehicle",
-      "insertText": "createVehicle(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "defaultModel",
-      "kind": "Variable",
-      "detail": "Model",
-      "sortText": "AB",
-      "insertText": "defaultModel",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "createVehicleModel(string name)",
       "kind": "Function",
-      "detail": "test/lsproject.models:0.1.0:Model",
+      "detail": "Model",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -535,6 +482,14 @@
       }
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "P",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Person",
       "kind": "Struct",
       "detail": "Record",
@@ -543,11 +498,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "P",
-      "insertText": "Thread",
+      "label": "Driver",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "O",
+      "insertText": "Driver",
       "insertTextFormat": "Snippet"
     },
     {
@@ -559,14 +514,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Vehicle",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "M",
-      "insertText": "Vehicle",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -575,6 +522,41 @@
       },
       "sortText": "O",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "defaultModel",
+      "kind": "Variable",
+      "detail": "Model",
+      "sortText": "AB",
+      "insertText": "defaultModel",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "createVehicle(Model model)",
+      "kind": "Function",
+      "detail": "Vehicle",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject.models:0.1.0_  \n  \n  \n**Params**  \n- `Model` model  \n  \n**Return** `Vehicle`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "createVehicle",
+      "insertText": "createVehicle(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "Vehicle",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "M",
+      "insertText": "Vehicle",
       "insertTextFormat": "Snippet"
     },
     {

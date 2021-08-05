@@ -19,8 +19,10 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.RenameContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.RenameParams;
 
 /**
  * Implementation of {@link RenameContext}.
@@ -29,12 +31,22 @@ import org.eclipse.lsp4j.Position;
  */
 public class RenameContextImpl extends ReferencesContextImpl implements RenameContext {
 
+    private LSClientCapabilities clientCapabilities;
+    private RenameParams params;
+    private Boolean honorsChangeAnnotations;
+
     RenameContextImpl(LSOperation operation,
                       String fileUri,
                       WorkspaceManager wsManager,
                       Position cursorPos,
-                      LanguageServerContext serverContext) {
+                      LanguageServerContext serverContext,
+                      RenameParams params,
+                      LSClientCapabilities clientCapabilities) {
         super(operation, fileUri, wsManager, cursorPos, serverContext);
+        this.clientCapabilities = clientCapabilities;
+        this.params = params;
+        this.honorsChangeAnnotations = clientCapabilities.getTextDocCapabilities()
+                .getRename().getHonorsChangeAnnotations();
     }
 
     /**
@@ -44,8 +56,14 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
      */
     protected static class RenameContextBuilder extends PositionedOperationContextBuilder<RenameContext> {
 
-        public RenameContextBuilder(LanguageServerContext serverContext) {
+        private RenameParams params;
+        private LSClientCapabilities clientCapabilities;
+
+        public RenameContextBuilder(LanguageServerContext serverContext, RenameParams params,
+                                    LSClientCapabilities clientCapabilities) {
             super(LSContextOperation.TXT_RENAME, serverContext);
+            this.clientCapabilities = clientCapabilities;
+            this.params = params;
         }
 
         public RenameContext build() {
@@ -53,12 +71,29 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
                     this.fileUri,
                     this.wsManager,
                     this.position,
-                    this.serverContext);
+                    this.serverContext,
+                    this.params,
+                    this.clientCapabilities);
         }
 
         @Override
         public RenameContextImpl.RenameContextBuilder self() {
             return this;
         }
+    }
+
+    @Override
+    public boolean getHonorsChangeAnnotations() {
+        return Boolean.TRUE.equals(this.honorsChangeAnnotations);
+    }
+
+    @Override
+    public RenameParams getParams() {
+        return this.params;
+    }
+
+    @Override
+    public LSClientCapabilities getClientCapabilities() {
+        return this.clientCapabilities;
     }
 }

@@ -23,8 +23,29 @@ function testToLower() returns string {
     return str.toLowerAscii();
 }
 
-function testLength() returns int {
-    return "Hello Ballerina!".length();
+type EqualityOp "==" | "!=" | "===" | "!==";
+
+type EqualityInsn record {|
+        EqualityOp op;
+|};
+
+function testLength() {
+    assertEquals(16, "Hello Ballerina!".length());
+
+    EqualityOp tempFiniteType1 = "===";
+    EqualityOp tempFiniteType2 = "!=";
+    assertEquals(true, tempFiniteType1.length() != tempFiniteType2.length());
+
+    int temp = lengthTestFunc({op : tempFiniteType1});
+    assertEquals(3, temp);
+}
+
+function lengthTestFunc(EqualityInsn e) returns int {
+    int length = 0;
+    if ((e.op).length() == 3) {
+        length = (e.op).length();
+    }
+    return length;
 }
 
 function testSubString() returns [string,string, string] {
@@ -152,6 +173,31 @@ function testChainedStringFunctions() returns string {
     foo = foo.concat("foo2").concat("foo3").concat("foo4");
     return foo;
 }
+
+function testLangLibCallOnStringSubTypes() {
+    string a = "hello";
+    string:Char b = "h";
+
+    boolean b1 = a.startsWith("h");
+    boolean b2 = b.startsWith("h");
+    boolean b3 = a.startsWith("a");
+    boolean b4 = b.startsWith("a");
+
+    assertEquals(true, b1);
+    assertEquals(true, b2);
+    assertEquals(false, b3);
+    assertEquals(false, b4);
+}
+
+type Strings "a"|"bc";
+
+function testLangLibCallOnFiniteType() {
+    Strings x = "bc";
+    boolean b = x.startsWith("bc");
+    assertEquals(true, b);
+    assertEquals(false, x.startsWith("a"));
+}
+
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

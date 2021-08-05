@@ -232,14 +232,17 @@ class JvmObservabilityGen {
         while (i < func.basicBlocks.size()) {
             // Basic blocks with JI method calls are added for all kinds of Terminators
             BIRBasicBlock currentBB = func.basicBlocks.get(i);
-            Location desugaredPos;
+
             // First we give the priority to Instructions,
             // If no instructions are found, then we get the Terminator position
-            if (currentBB.instructions.size() != 0) {
-                desugaredPos = currentBB.instructions.get(0).pos;
-            } else {
-                desugaredPos = currentBB.terminator.pos;
+            Location desugaredPos = currentBB.terminator.pos;
+            for (BIRNonTerminator instruction : currentBB.instructions) {
+                if (instruction.pos != null) {
+                    desugaredPos = instruction.pos;
+                    break;
+                }
             }
+
             if (desugaredPos != null && desugaredPos.lineRange().startLine().line() >= 0) {
                 BIRBasicBlock newBB = insertBasicBlock(func, i + 1);
                 swapBasicBlockContent(currentBB, newBB);
@@ -847,9 +850,10 @@ class JvmObservabilityGen {
     private BIROperand generateGlobalConstantOperand(BIRPackage pkg, BType constantType, Object constantValue) {
         return compileTimeConstants.computeIfAbsent(constantValue, k -> {
             PackageID pkgId = pkg.packageID;
+            Name name = new Name("$observabilityConst" + constantIndex++);
             BIRGlobalVariableDcl constLoadVariableDcl =
                     new BIRGlobalVariableDcl(COMPILE_TIME_CONST_POS, 0,
-                            constantType, pkgId, new Name("$observabilityConst" + constantIndex++),
+                            constantType, pkgId, name, name,
                             VarScope.GLOBAL, VarKind.CONSTANT, "", VIRTUAL);
             pkg.globalVars.add(constLoadVariableDcl);
             return new BIROperand(constLoadVariableDcl);

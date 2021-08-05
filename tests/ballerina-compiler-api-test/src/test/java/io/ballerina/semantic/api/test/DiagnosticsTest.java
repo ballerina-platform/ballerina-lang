@@ -43,6 +43,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics();
         Object[][] expErrs = getExpectedErrors();
 
+        assertEquals(diagnostics.size(), expErrs.length);
         for (int i = 0; i < expErrs.length; i++) {
             assertDiagnostic(diagnostics.get(i), expErrs[i]);
         }

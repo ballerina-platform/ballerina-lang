@@ -40,10 +40,8 @@ public class QueryNegativeTests {
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
                 64, 18);
-        validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                "non-required field 'lastName'", 67, 30);
-        validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                "non-required field 'age'", 68, 25);
+        validateError(compileResult, index++, "undeclared field 'lastName' in record 'Teacher'", 67, 30);
+        validateError(compileResult, index++, "undeclared field 'age' in record 'Teacher'", 68, 25);
         validateError(compileResult, index++, "unknown type 'XYZ'", 83, 18);
         validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 103, 20);
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 116, 32);
@@ -74,7 +72,7 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection",
                 416, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', " +
-                        "found 'stream<record {| int a; |},error>'", 421, 12);
+                        "found 'stream<record {| int a; |},error?>'", 421, 12);
         validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
         validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
         validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);

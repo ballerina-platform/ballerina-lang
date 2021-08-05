@@ -585,10 +585,12 @@ public class Types {
     }
 
     public boolean isSubTypeOfMapping(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
+        }
         if (type.tag != TypeTags.UNION) {
             return isSubTypeOfBaseType(type, TypeTags.MAP) || isSubTypeOfBaseType(type, TypeTags.RECORD);
         }
-
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfMapping);
     }
 
@@ -746,6 +748,10 @@ public class Types {
         if (targetTag == TypeTags.JSON) {
             if (sourceTag == TypeTags.JSON) {
                 return true;
+            }
+
+            if (sourceTag == TypeTags.TUPLE) {
+                return isTupleTypeAssignable(source, target, unresolvedTypes);
             }
 
             if (sourceTag == TypeTags.ARRAY) {
@@ -1035,6 +1041,19 @@ public class Types {
         if (source.tag == TypeTags.TUPLE && ((BTupleType) source).isCyclic) {
             // add cyclic source to target pair to avoid recursive calls
             unresolvedTypes.add(pair);
+        }
+
+        if (target.tag == TypeTags.JSON && source.tag == TypeTags.TUPLE) {
+            BTupleType rhsTupleType = (BTupleType) source;
+            for (BType tupleType : rhsTupleType.tupleTypes) {
+                if (!isAssignable(tupleType, target, unresolvedTypes)) {
+                    return false;
+                }
+            }
+            if (rhsTupleType.restType != null) {
+                return isAssignable(rhsTupleType.restType, target, unresolvedTypes);
+            }
+            return true;
         }
 
         if (source.tag != TypeTags.TUPLE || target.tag != TypeTags.TUPLE) {
@@ -1546,15 +1565,23 @@ public class Types {
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
+        int count = 0;
+        for (BAttachedFunction attachedFunc : sym.attachedFuncs) {
+            // Resource functions does not consider as a part of type.
+            if (!Symbols.isResource(attachedFunc.symbol)) {
+                count++;
+            }
+        }
+
         // If an explicit initializer is available, it could mean,
         // 1) User explicitly defined an initializer
         // 2) The object type is coming from an already compiled source, hence the initializer is already set.
         //    If it's coming from a compiled binary, the attached functions list of the symbol would already contain
         //    the initializer in it.
         if (sym.initializerFunc != null && sym.attachedFuncs.contains(sym.initializerFunc)) {
-            return sym.attachedFuncs.size() - 1;
+            return count - 1;
         }
-        return sym.attachedFuncs.size();
+        return count;
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, Set<TypePair> unresolvedTypes) {
@@ -2130,13 +2157,14 @@ public class Types {
         return TypeTestResult.NOT_FOUND;
     }
 
-    public boolean isImplicityCastable(BType actualType, BType targetType) {
+    public boolean isImplicitlyCastable(BType actualType, BType targetType) {
         /* The word Builtin refers for Compiler known types. */
 
         BType newTargetType = targetType;
-        if ((targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.FINITE) && isValueType(actualType)) {
+        int targetTypeTag = targetType.tag;
+        if ((targetTypeTag == TypeTags.UNION || targetTypeTag == TypeTags.FINITE) && isValueType(actualType)) {
             newTargetType = symTable.anyType;   // TODO : Check for correctness.
-        } else if (targetType.tag == TypeTags.INTERSECTION) {
+        } else if (targetTypeTag == TypeTags.INTERSECTION) {
             newTargetType = ((BIntersectionType) targetType).effectiveType;
         }
 
@@ -2149,10 +2177,13 @@ public class Types {
                 (actualType.tag == TypeTags.FINITE ||
                         (actualType.tag == TypeTags.UNION && ((BUnionType) actualType).getMemberTypes().stream()
                                 .anyMatch(type -> type.tag == TypeTags.FINITE && isAssignable(type, targetType))))) {
-            // for decimal or nil, no cast is required
-            return targetType.tag == TypeTags.INT || targetType.tag == TypeTags.BYTE || targetType.tag == TypeTags.FLOAT
-                    || targetType.tag == TypeTags.STRING || targetType.tag == TypeTags.BOOLEAN;
-        } else if (targetType.tag == TypeTags.ERROR
+            // for nil, no cast is required
+            return TypeTags.isIntegerTypeTag(targetTypeTag) ||  targetType.tag == TypeTags.BYTE ||
+                    targetTypeTag == TypeTags.FLOAT ||
+                    targetTypeTag == TypeTags.DECIMAL ||
+                    TypeTags.isStringTypeTag(targetTypeTag) ||
+                    targetTypeTag == TypeTags.BOOLEAN;
+        } else if (targetTypeTag == TypeTags.ERROR
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
             return true;
@@ -2302,7 +2333,7 @@ public class Types {
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
 
-        if (!isImplicityCastable(actualType, expType)) {
+        if (!isImplicitlyCastable(actualType, expType)) {
             return;
         }
         BLangTypeConversionExpr implicitConversionExpr =
@@ -3276,11 +3307,18 @@ public class Types {
                     .allMatch(valueExpr ->  unionMemberTypes.stream()
                             .anyMatch(targetMemType -> targetMemType.tag == TypeTags.FINITE ?
                                     isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                    isAssignable(valueExpr.getBType(), targetType, unresolvedTypes)));
+                                    isAssignable(valueExpr.getBType(), targetType, unresolvedTypes) ||
+                                    isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
+                                                                                   targetMemType)));
         }
 
-        return finiteType.getValueSpace().stream()
-                .allMatch(expression -> isAssignable(expression.getBType(), targetType, unresolvedTypes));
+        for (BLangExpression expression : finiteType.getValueSpace()) {
+            if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
+                    !isAssignable(expression.getBType(), targetType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
@@ -3463,20 +3501,21 @@ public class Types {
 
         // Identify all the values from the value space of the finite type that are assignable to the target type.
         // e.g., finiteType - type Foo "foo"|1 ;
-        Set<BLangExpression> matchingValues = finiteType.getValueSpace().stream()
-                .filter(
-                        // case I: targetType - string ("foo" is assignable to string)
-                        // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
-                        expr -> isAssignable(expr.getBType(), targetType) ||
-                                isAssignableToFiniteType(targetType, (BLangLiteral) expr) ||
-                                // type FooVal "foo";
-                                // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
-                                (targetType.tag == TypeTags.UNION &&
-                                         ((BUnionType) targetType).getMemberTypes().stream()
-                                                 .filter(memType ->  memType.tag == TypeTags.FINITE)
-                                                 .anyMatch(filteredType -> isAssignableToFiniteType(filteredType,
-                                                                                            (BLangLiteral) expr))))
-                .collect(Collectors.toSet());
+        Set<BLangExpression> matchingValues = new HashSet<>();
+        for (BLangExpression expr : finiteType.getValueSpace()) {
+            // case I: targetType - string ("foo" is assignable to string)
+            BLangLiteral literal = (BLangLiteral) expr;
+            if (isAssignable(expr.getBType(), targetType) ||
+                    // case II: targetType - type Bar "foo"|"baz" ; ("foo" is assignable to Bar)
+                    isAssignableToFiniteType(targetType, literal) ||
+                    // type FooVal "foo";
+                    // case III:  targetType - boolean|FooVal ("foo" is assignable to FooVal)
+                    isAssignableToFiniteTypeMemberInUnion(literal, targetType) ||
+                    // case IV:  targetType - int:Signed16 (1 is assignable to int:Signed16)
+                    isAssignableToBuiltinSubtypeInTargetType(literal, targetType)) {
+                matchingValues.add(expr);
+            }
+        }
 
         if (matchingValues.isEmpty()) {
             return symTable.semanticError;
@@ -3491,6 +3530,59 @@ public class Types {
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
+    }
+
+    private boolean isAssignableToFiniteTypeMemberInUnion(BLangLiteral expr, BType targetType) {
+        if (targetType.tag != TypeTags.UNION) {
+            return false;
+        }
+
+        for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
+            if (isAssignableToFiniteType(memType, expr)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isAssignableToBuiltinSubtypeInTargetType(BLangLiteral literal, BType targetType) {
+        if (targetType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
+                if (isLiteralCompatibleWithBuiltinTypeWithSubTypes(literal, memberType)) {
+                    return true;
+                }
+            }
+        }
+
+        return isLiteralCompatibleWithBuiltinTypeWithSubTypes(literal, targetType);
+    }
+
+    public boolean isLiteralCompatibleWithBuiltinTypeWithSubTypes(BLangLiteral literal, BType targetType) {
+        BType literalType = literal.getBType();
+        if (literalType.tag == targetType.tag) {
+            return true;
+        }
+
+        switch (targetType.tag) {
+            case TypeTags.BYTE:
+                return literalType.tag == TypeTags.INT && isByteLiteralValue((Long) literal.value);
+            case TypeTags.SIGNED32_INT:
+                return literalType.tag == TypeTags.INT && isSigned32LiteralValue((Long) literal.value);
+            case TypeTags.SIGNED16_INT:
+                return literalType.tag == TypeTags.INT && isSigned16LiteralValue((Long) literal.value);
+            case TypeTags.SIGNED8_INT:
+                return literalType.tag == TypeTags.INT && isSigned8LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED32_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned32LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED16_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned16LiteralValue((Long) literal.value);
+            case TypeTags.UNSIGNED8_INT:
+                return literalType.tag == TypeTags.INT && isUnsigned8LiteralValue((Long) literal.value);
+            case TypeTags.CHAR_STRING:
+                return literalType.tag == TypeTags.STRING && isCharLiteralValue((String) literal.value);
+            default:
+                return false;
+        }
     }
 
     /**
@@ -3554,11 +3646,18 @@ public class Types {
             return true;
         }
 
-        boolean matchFound = lhsTypes
-                .stream()
-                .anyMatch(s -> rhsTypes
-                        .stream()
-                        .anyMatch(t -> isSameType(s, t)));
+        boolean matchFound = false;
+        for (BType lhsType : lhsTypes) {
+            for (BType rhsType : rhsTypes) {
+                if (isAssignable(lhsType, rhsType) || isAssignable(rhsType, lhsType)) {
+                    matchFound = true;
+                    break;
+                }
+            }
+            if (matchFound) {
+                break;
+            }
+        }
 
         if (!matchFound) {
             matchFound = equalityIntersectionExistsForComplexTypes(lhsTypes, rhsTypes);
@@ -4622,8 +4721,8 @@ public class Types {
                 anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
-                symTable.builtinPos, VIRTUAL);
+                Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
+                false, symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
                                                                          bInvokableType, symTable.builtinPos);

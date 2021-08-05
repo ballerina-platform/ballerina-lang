@@ -137,6 +137,33 @@ public function main() {
 
     string stringVar = "foo";
     xml xmlVar = xml `<person gender="male"><firstname>Praveen</firstname><lastname>Nada</lastname></person>`;
+    xml xmlVar2 = xml
+            `<items>
+                <!--Contents-->
+                <book>
+                    <name>A Study in Scarlet</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <planner>Daily Planner<kind>day</kind><pages>365</pages></planner>
+                <book>
+                    <name>The Sign of Four</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <pen><kind>marker</kind><color>blue</color></pen>
+            </items>
+            <items2>
+                <!--Contents-->
+                <book>
+                    <name>A Study in Scarlet</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <planner>Daily Planner<kind>day</kind><pages>365</pages></planner>
+                <book>
+                    <name>The Sign of Four</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <pen><kind>marker</kind><color>blue</color></pen>
+            </items2>`;
 
     //------------------------ basic, structured type variables ------------------------//
 
@@ -193,7 +220,7 @@ public function main() {
     Student clientObjectVar = new Student();
 
     typedesc<int> typedescVar = int;
-    stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
+    stream<int, error?> oddNumberStream = new stream<int, error?>(new OddNumberGenerator());
 
     //------------------------ Other types ------------------------//
 
@@ -283,9 +310,12 @@ function printDetails(string name, int age = 18, string... modules) returns stri
     if (modules.length() == 0) {
         moduleString = "Module(s): ()";
     } else {
-        moduleString = "Module(s): " + modules[0];
+        modules.forEach(function(string module) {
+            moduleString += 'module + ",";
+        });
+        moduleString = "Module(s): " + moduleString;
     }
-    return  string `[${name}, ${age}, ${moduleString}]`;
+    return string `[${name}, ${age}, ${moduleString}]`;
 }
 
 function addition(int a, int b) returns int {

@@ -131,7 +131,6 @@
                       "children": [
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "STRING_LITERAL",
@@ -153,13 +152,19 @@
                                   ]
                                 }
                               ]
-                            },
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MATCH_GUARD",
+                          "hasDiagnostics": true,
+                          "children": [
                             {
-                              "kind": "PIPE_TOKEN",
+                              "kind": "IF_KEYWORD",
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_PIPE_TOKEN"
+                                "ERROR_MISSING_IF_KEYWORD"
                               ]
                             },
                             {

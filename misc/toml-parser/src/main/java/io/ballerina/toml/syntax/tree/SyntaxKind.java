@@ -42,6 +42,8 @@ public enum SyntaxKind {
     SINGLE_QUOTE_TOKEN(503, "'"),
     TRIPLE_DOUBLE_QUOTE_TOKEN(504, "\"\"\""),
     TRIPLE_SINGLE_QUOTE_TOKEN(505, "'''"),
+    OPEN_BRACE_TOKEN(506, "{"),
+    CLOSE_BRACE_TOKEN(507, "}"),
 
     DOT_TOKEN(520, "."),
     COMMA_TOKEN(521, ","),
@@ -71,6 +73,7 @@ public enum SyntaxKind {
     KEY_VALUE(2001),
     TABLE(2002),
     TABLE_ARRAY(2003),
+    INLINE_TABLE(2004),
 
     //Int
     DEC_INT(2010),

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'int as ints;
+import ballerina/lang.test;
 
 function testMax(int n, int... ns) returns int {
     return ints:max(n, ...ns);
@@ -56,4 +57,45 @@ function testChainedIntFunctions() returns int {
     var e = 0;
     int a = e.max(1).min(2);
     return a;
+}
+
+function testLangLibCallOnIntSubTypes() {
+    int a = 12;
+    byte b = 12;
+    int:Signed8 c = 12;
+    int:Signed16 d = 12;
+    int:Signed32 e = 12;
+    int:Unsigned8 f = 12;
+    int:Unsigned16 g = 12;
+    int:Unsigned32 h = 12;
+    int:Signed8|int:Unsigned32 i = 510;
+
+    string s1 = a.toHexString();
+    string s2 = b.toHexString();
+    string s3 = c.toHexString();
+    string s4 = d.toHexString();
+    string s5 = e.toHexString();
+    string s6 = f.toHexString();
+    string s7 = g.toHexString();
+    string s8 = h.toHexString();
+    // https://github.com/ballerina-platform/ballerina-lang/issues/22771
+    // string s9 = i.toHexString();
+
+    test:assertValueEqual("c", s1);
+    test:assertValueEqual(s1, s2);
+    test:assertValueEqual(s1, s3);
+    test:assertValueEqual(s1, s4);
+    test:assertValueEqual(s1, s5);
+    test:assertValueEqual(s1, s6);
+    test:assertValueEqual(s1, s7);
+    test:assertValueEqual(s1, s8);
+    // test:assertValueEqual((510).toHexString(), s9);
+}
+
+type Ints 12|21;
+
+function testLangLibCallOnFiniteType() {
+    Ints x = 12;
+    string s = x.toHexString();
+    test:assertValueEqual("c", s);
 }
