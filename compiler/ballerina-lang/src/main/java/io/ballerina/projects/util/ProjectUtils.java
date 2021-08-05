@@ -668,16 +668,16 @@ public class ProjectUtils {
         return null;
     }
 
-    public static List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
+    public static List<PackageName> getPossiblePackageNames(PackageOrg packageOrg, String moduleName) {
         var pkgNameBuilder = new StringJoiner(".");
 
         // If built in package, return moduleName as it is
-        if (isBuiltInPackage(importModuleRequest.packageOrg(), importModuleRequest.moduleName())) {
-            pkgNameBuilder.add(importModuleRequest.moduleName());
+        if (isBuiltInPackage(packageOrg, moduleName)) {
+            pkgNameBuilder.add(moduleName);
             return Collections.singletonList(PackageName.from(pkgNameBuilder.toString()));
         }
 
-        String[] modNameParts = importModuleRequest.moduleName().split("\\.");
+        String[] modNameParts = moduleName.split("\\.");
         List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
         for (String modNamePart : modNameParts) {
             pkgNameBuilder.add(modNamePart);
