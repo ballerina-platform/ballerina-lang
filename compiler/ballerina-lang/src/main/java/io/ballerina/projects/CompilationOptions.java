@@ -33,10 +33,11 @@ class CompilationOptions {
     private String dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
+    private Boolean sticky;
 
     public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses) {
+                              String cloud, Boolean listConflictedClasses, Boolean sticky) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
@@ -45,6 +46,7 @@ class CompilationOptions {
         this.dumpBirFile = dumpBirFile;
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
+        this.sticky = sticky;
     }
 
     boolean skipTests() {
@@ -56,7 +58,7 @@ class CompilationOptions {
     }
 
     boolean sticky() {
-        return false;
+        return toBooleanDefaultIfNull(sticky);
     }
 
     boolean experimental() {
@@ -104,6 +106,8 @@ class CompilationOptions {
         this.dumpBirFile = theirOptions.dumpBirFile;
         this.listConflictedClasses = Objects.requireNonNullElseGet(
                 theirOptions.listConflictedClasses, () -> toBooleanDefaultIfNull(this.listConflictedClasses));
+        this.sticky = Objects.requireNonNullElseGet(
+                theirOptions.sticky, () -> toBooleanDefaultIfNull(this.sticky));
         return this;
     }
 
