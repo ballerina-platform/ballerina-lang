@@ -150,8 +150,27 @@ public class ModuleGen {
                 return opb.nextBlock;
             } else {
                 BLangIndexBasedAccess varRef = (BLangIndexBasedAccess) assign.varRef;
-                //TODO fix
-                return null;
+                BLangSimpleVarRef rec = (BLangSimpleVarRef) varRef.getExpression();
+                Register reg = code.registers.get(rec.variableName.getValue());
+                OpBlockHolder opbIndex = codeGenExpr(varRef.getIndex(), code, startBlock);
+                OpBlockHolder opb = codeGenExpr(assign.expr, code, opbIndex.nextBlock);
+                Position pos = new Position(varRef.pos.lineRange().startLine().line(),
+                        varRef.pos.textRange().startOffset());
+                if (varRef.getIndex().expectedType.getKind() == TypeKind.INT) {
+                    ListSetInsn lsinsn = new ListSetInsn(reg, opbIndex.operand, opb.operand, pos);
+                    opb.nextBlock.insns.add(lsinsn);
+                } else if (varRef.getIndex().expectedType.getKind() == TypeKind.INT) {
+                    MapSetInsn msinsn = new MapSetInsn(pos);
+                    Operand regop = new Operand(true);
+                    regop.register = reg;
+                    msinsn.operands[0] = opbIndex.operand;
+                    msinsn.operands[1] = opb.operand;
+                    opb.nextBlock.insns.add(msinsn);
+                } else {
+                   throw new BallerinaException("key in assignment to member must be int or string");
+                }
+
+                return opb.nextBlock;
             }
         } else if (stmt instanceof BLangForeach) {
             BLangForeach feStmt = (BLangForeach) stmt;
@@ -208,7 +227,6 @@ public class ModuleGen {
             code.loopContext = code.loopContext.enclosing;
             return exit;
 
-            //TODO fix loops
         } else if (stmt instanceof BLangIf) {
             BLangIf ifStmt = (BLangIf) stmt;
             OpBlockHolder branchOpb = codeGenExpr(ifStmt.getCondition(), code, startBlock);
@@ -330,7 +348,13 @@ public class ModuleGen {
             switch (op) {
                 case NOT:
                     Register reg1 = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
-                    bb.insns.add(new BoolNotInsn(opb.operand.register, reg1));
+                    if (opb.operand.isReg) {
+                        bb.insns.add(new BoolNotInsn(opb.operand.register, reg1));
+
+                    } else {
+                        opb.operand.value = !(boolean) opb.operand.value;
+                        bb.insns.add(new AssignInsn(reg1, opb.operand));
+                    }
                     result.register = reg1;
                     return new OpBlockHolder(result, opb.nextBlock);
                 case SUB:
@@ -422,7 +446,7 @@ public class ModuleGen {
                 nextBlock = opb.nextBlock;
             }
             Operand result = new Operand(true);
-            Register reg = code.createRegister(convertSimpleSemType(TypeKind.ARRAY), null);
+            Register reg = code.createRegister(262144L, null);
             result.register = reg;
             ListConstructInsn ins = new ListConstructInsn(reg, operands);
             nextBlock.insns.add(ins);
@@ -482,6 +506,8 @@ public class ModuleGen {
                 Operand resultOp = new Operand(true);
                 resultOp.register = result;
                 return new OpBlockHolder(resultOp , r.nextBlock);
+            } else {
+                throw new BallerinaException("cannot apply member access to constant of simple type");
             }
         }
 
@@ -569,7 +595,7 @@ public class ModuleGen {
             case NIL:
                 return 1L;
             case ARRAY:
-                return 262144L;
+                return 262148L;
             case ERROR:
                 return 2048L;
             case ANY:
@@ -586,6 +612,10 @@ public class ModuleGen {
 
     TypeKind typedOpPair(TypeKind t1, TypeKind t2) {  // temporarily get from expected type
         if (t1 == t2) {
+            return t1;
+        } else if (t1 == TypeKind.ANY) {
+            return t2;
+        } else if (t2 == TypeKind.ANY) {
             return t1;
         } else {
             throw new BallerinaException("Operands have incompatible types");

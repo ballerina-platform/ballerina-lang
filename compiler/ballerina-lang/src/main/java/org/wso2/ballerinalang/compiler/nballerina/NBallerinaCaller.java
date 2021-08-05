@@ -63,6 +63,11 @@ public class NBallerinaCaller {
         }
 
         File outFile = new File(compilerOptions.get(CompilerOptionName.PROJECT_DIR));
+        String fname = outFile.getName();
+        int pos = fname.lastIndexOf(".");
+        if (pos > 0) {
+            fname = fname.substring(0, pos);
+        }
         File path = new File(nBal);
 
         try {
@@ -124,10 +129,11 @@ public class NBallerinaCaller {
             Scheduler scheduler1 = new Scheduler(false);
             Scheduler scheduler2 = new Scheduler(false);
 
+            String finalFname = fname;
             Function<Object[], Object> func = objects -> {
                 try {
                     return m.invoke(null, objects[0], jnModule.getCodeArray(), true,
-                            jnModule.getFuncDefsArray(), true, new BmpStringValue(outFile.getName() + ".ll"), true);
+                            jnModule.getFuncDefsArray(), true, new BmpStringValue(finalFname + ".ll"), true);
                 } catch (InvocationTargetException e) {
                     Throwable targetException = e.getTargetException();
                     throw new BallerinaException("Error invoking nBallerina backend", targetException);

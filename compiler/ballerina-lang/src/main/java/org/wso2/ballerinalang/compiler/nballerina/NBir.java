@@ -800,6 +800,31 @@ class ListGetInsn extends InsnBase {
     }
 }
 
+class ListSetInsn extends InsnBase {
+    Register list;
+    Operand index;
+    Operand operand;
+    Position position;
+
+    public ListSetInsn(Register list, Operand index, Operand operand, Position position) {
+        this.list = list;
+        this.index = index;
+        this.operand = operand;
+        this.position = position;
+    }
+
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("list", list.getRecord());
+        fields.put("index", index.getOperand());
+        fields.put("position", position.getRecord());
+        fields.put("operand", operand.getOperand());
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.LIST_SET_INSN, fields);
+    }
+}
+
 class MapGetInsn extends InsnBase {
     Register result;
     Operand[] operands = new Operand[2];
@@ -810,13 +835,12 @@ class MapGetInsn extends InsnBase {
 
     @Override
     public BMap<BString, Object> getRecord() {
-        BMap<BString, Object> tmpVal1 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
                 new HashMap<>());
-        BMap<BString, Object> tmpVal2 = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR,
-                NBTypeNames.OPERAND, new HashMap<>());
+        UnionType typ = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_STRING);
         ArrayList<Type> typarr = new ArrayList<>();
-        typarr.add(tmpVal1.getType());
-        typarr.add(tmpVal2.getType());
+        typarr.add(tmpRegVal.getType());
+        typarr.add(typ);
         TupleType tupTyp = TypeCreator.createTupleType(typarr, 6);
         BArray tup = ValueCreator.createTupleValue(tupTyp);
 
@@ -826,5 +850,37 @@ class MapGetInsn extends InsnBase {
         fields.put("result", result.getRecord());
         fields.put("operands", tup);
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.MAP_GET_INSN, fields);
+    }
+}
+
+class MapSetInsn extends InsnBase {
+    Operand[] operands = new Operand[3];
+    Position position;
+
+    public MapSetInsn(Position position) {
+        this.position = position;
+    }
+
+
+    @Override
+    public BMap<BString, Object> getRecord() {
+        BMap<BString, Object> tmpRegVal = ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER,
+                new HashMap<>());
+        UnionType typ1 = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_STRING);
+        UnionType typ2 = TypeCreator.createUnionType(tmpRegVal.getType(), PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_NULL);
+        ArrayList<Type> typarr = new ArrayList<>();
+        typarr.add(tmpRegVal.getType());
+        typarr.add(typ1);
+        typarr.add(typ2);
+        TupleType tupTyp = TypeCreator.createTupleType(typarr, 6);
+        BArray tup = ValueCreator.createTupleValue(tupTyp);
+
+        tup.add(0, operands[0].getOperand());
+        tup.add(1, operands[1].getOperand());
+        LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
+        fields.put("position", position.getRecord());
+        fields.put("operands", tup);
+        return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.MAP_SET_INSN, fields);
     }
 }
