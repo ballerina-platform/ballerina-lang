@@ -369,19 +369,19 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
-    public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
-        visitSyntaxNode(xMLStepExpressionNode);
-        xMLStepExpressionNode.expression().accept(this);
+    public void visit(XMLStepExpressionNode xmlStepExpressionNode) {
+        visitSyntaxNode(xmlStepExpressionNode);
+        xmlStepExpressionNode.expression().accept(this);
         Evaluator subExprEvaluator = result;
-        result = new XMLStepExpressionEvaluator(context, xMLStepExpressionNode, subExprEvaluator);
+        result = new XMLStepExpressionEvaluator(context, xmlStepExpressionNode, subExprEvaluator);
     }
 
     @Override
-    public void visit(XMLFilterExpressionNode xMLFilterExpressionNode) {
-        visitSyntaxNode(xMLFilterExpressionNode);
-        xMLFilterExpressionNode.expression().accept(this);
+    public void visit(XMLFilterExpressionNode xmlFilterExpressionNode) {
+        visitSyntaxNode(xmlFilterExpressionNode);
+        xmlFilterExpressionNode.expression().accept(this);
         Evaluator subExprEvaluator = result;
-        result = new XMLFilterExpressionEvaluator(context, xMLFilterExpressionNode, subExprEvaluator);
+        result = new XMLFilterExpressionEvaluator(context, xmlFilterExpressionNode, subExprEvaluator);
     }
 
     @Override
