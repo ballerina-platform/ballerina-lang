@@ -32,7 +32,7 @@ import java.util.Arrays;
      private final int[] surrogates;
 
      public NonBmpStringValue(String value, int[] surrogatePairLocations) {
-         super(value, 1);
+         super(value, true);
          surrogates = surrogatePairLocations;
      }
 
@@ -63,7 +63,7 @@ import java.util.Arrays;
     @Override
     public BString concat(BString str) {
         StringValue stringValue = (StringValue) str;
-        if (stringValue.nonBmpFlag == 1) {
+        if (stringValue.isNonBmp) {
             NonBmpStringValue other = (NonBmpStringValue) str;
             int[] both = Arrays.copyOf(surrogates, surrogates.length + other.surrogates.length);
             int length = length();

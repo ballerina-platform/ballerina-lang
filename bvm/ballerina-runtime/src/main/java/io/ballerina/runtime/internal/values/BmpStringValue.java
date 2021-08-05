@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BString;
  public class BmpStringValue extends StringValue {
 
      public BmpStringValue(String value) {
-         super(value, 0);
+         super(value, false);
      }
 
      @Override
@@ -44,7 +44,7 @@ import io.ballerina.runtime.api.values.BString;
      @Override
      public BString concat(BString str) {
          StringValue stringValue = (StringValue) str;
-         if (stringValue.nonBmpFlag == 1) {
+         if (stringValue.isNonBmp) {
              int[] otherSurrogates = ((NonBmpStringValue) str).getSurrogates();
              int[] newSurrogates = new int[otherSurrogates.length];
              int length = length();

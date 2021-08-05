@@ -32,11 +32,11 @@ import java.util.Map;
 public abstract class StringValue implements BString, SimpleValue {
 
     final String value;
-    final int nonBmpFlag;
+    final boolean isNonBmp;
 
-    protected StringValue(String value, int nonBmpFlag) {
+    protected StringValue(String value, boolean isNonBmp) {
         this.value = value;
-        this.nonBmpFlag = nonBmpFlag;
+        this.isNonBmp = isNonBmp;
     }
 
     @Override

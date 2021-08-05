@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.values.BString;
-
 /**
  * {@code {@link CharIterator }} provides iterator implementation for Ballerina string values.
  *
@@ -27,12 +25,12 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class CharIterator implements IteratorValue {
 
-    BString value;
+    StringValue value;
     long cursor = 0;
     long length;
     String stringValue;
 
-    CharIterator(BString value) {
+    CharIterator(StringValue value) {
         this.value = value;
         this.length = value.length();
         this.stringValue = value.getValue();
@@ -41,21 +39,24 @@ public class CharIterator implements IteratorValue {
     @Override
     public Object next() {
         long currentIndex = this.cursor++;
-        // For non-bmp strings, we should consider the surrogate pairs to return non-bmp unicode characters
-        if (((StringValue) value).nonBmpFlag == 1) {
-            int offset = (int) currentIndex;
-            for (int surrogate : ((NonBmpStringValue) value).getSurrogates()) {
-                if (surrogate < currentIndex) {
-                    offset++;
-                } else if (surrogate > currentIndex) {
-                    break;
-                } else {
-                    return new String(new char[]{stringValue.charAt(offset), stringValue.charAt(offset + 1)});
-                }
-            }
-            return String.valueOf(stringValue.charAt(offset));
+        if (value.isNonBmp) {
+            return getNonBmpCharWithSurrogates(currentIndex);
         }
         return String.valueOf(stringValue.charAt((int) currentIndex));
+    }
+
+    private String getNonBmpCharWithSurrogates(long currentIndex) {
+        int offset = (int) currentIndex;
+        for (int surrogate : ((NonBmpStringValue) value).getSurrogates()) {
+            if (surrogate < currentIndex) {
+                offset++;
+            } else if (surrogate > currentIndex) {
+                break;
+            } else {
+                return new String(new char[]{stringValue.charAt(offset), stringValue.charAt(offset + 1)});
+            }
+        }
+        return String.valueOf(stringValue.charAt(offset));
     }
 
     @Override
