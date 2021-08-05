@@ -166,6 +166,10 @@ public function interopWithJavaStringReturn() returns anydata {
     return acceptNothingInvalidAnyReturn();
 }
 
+public function interopWithJavaObjectReturn() returns anydata {
+    return acceptNothingInvalidAnydataReturn();
+}
+
 public function interopWithHandleOrErrorReturn() {
     handle|error handleOrError = acceptIntReturnIntArrayThrowsCheckedException(1);
     test:assertEquals(handleOrError is error, false);
@@ -186,6 +190,10 @@ public function acceptIntAnydataReturn(int s) returns anydata= @java:Method {
 } external;
 
 public function acceptNothingInvalidAnyReturn() returns anydata = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public function acceptNothingInvalidAnydataReturn() returns anydata = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 

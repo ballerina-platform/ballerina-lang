@@ -258,6 +258,10 @@ public class TypeChecker {
      * @return true if the value belongs to the given type, false otherwise
      */
     public static boolean checkIsType(Object sourceVal, Type targetType) {
+        if (!(sourceVal == null || sourceVal instanceof Number || sourceVal instanceof BString ||
+                sourceVal instanceof Boolean || sourceVal instanceof BValue)) {
+            throw ErrorUtils.createTypeAssignableError(sourceVal.getClass(), targetType);
+        }
         return checkIsType(sourceVal, getType(sourceVal), targetType);
     }
 

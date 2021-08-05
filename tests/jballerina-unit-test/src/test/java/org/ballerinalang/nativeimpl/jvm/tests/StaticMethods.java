@@ -173,6 +173,10 @@ public class StaticMethods {
         return "invalid java string";
     }
 
+    public static Object acceptNothingInvalidAnydataReturn() {
+        return new Module("org", "name");
+    }
+
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
         p.set(StringUtils.fromString("age"), newVal);
         return p;

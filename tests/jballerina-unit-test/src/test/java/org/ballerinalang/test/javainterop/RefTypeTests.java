@@ -240,9 +240,16 @@ public class RefTypeTests {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: java.lang.ClassCastException.*")
+            expectedExceptionsMessageRegExp = "error: 'class java.lang.String' cannot be assigned to type 'anydata'.*")
     public void testInteropWithJavaStringReturn() {
         BRunUtil.invoke(result, "interopWithJavaStringReturn");
+    }
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: 'class io.ballerina.runtime.api.Module' cannot be " +
+                    "assigned to type 'anydata'.*")
+    public void testInteropWithJavaObjectReturn() {
+        BRunUtil.invoke(result, "interopWithJavaObjectReturn");
     }
 
     @Test
@@ -329,9 +336,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:428)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:436)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "420)");
+                "428)");
     }
 
     @Test
