@@ -35,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Test class for variable queries.
+ * Test class for variable paging scenarios.
  */
 public class VariableQueryTest extends BaseTestCase {
 
@@ -97,7 +97,7 @@ public class VariableQueryTest extends BaseTestCase {
         debugTestRunner.assertVariable(jsonChildVariables, "[399]", "400", "int");
     }
 
-    @Test(enabled = false)
+    @Test
     public void mapVariableQueryTest() throws BallerinaTestException {
         // map child variable query test
         Map<String, Variable> mapChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("mapVar"));
@@ -126,8 +126,7 @@ public class VariableQueryTest extends BaseTestCase {
         Map<String, Variable> tableGrandChildrenVariables =
                 debugTestRunner.fetchChildVariables(tableChildVariables.get("[0]"));
         debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "1", "int");
-        tableGrandChildrenVariables =
-                debugTestRunner.fetchChildVariables(tableChildVariables.get("[999]"));
+        tableGrandChildrenVariables = debugTestRunner.fetchChildVariables(tableChildVariables.get("[999]"));
         debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "1000", "int");
 
         // TODO - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/32014
@@ -144,11 +143,9 @@ public class VariableQueryTest extends BaseTestCase {
         // table child variable query test with start = 600 and count = 100
         tableChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("tableVar"), 600, 100);
         Assert.assertEquals(tableChildVariables.size(), 100);
-        tableGrandChildrenVariables =
-                debugTestRunner.fetchChildVariables(tableChildVariables.get("[600]"));
+        tableGrandChildrenVariables = debugTestRunner.fetchChildVariables(tableChildVariables.get("[600]"));
         debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "601", "int");
-        tableGrandChildrenVariables =
-                debugTestRunner.fetchChildVariables(tableChildVariables.get("[699]"));
+        tableGrandChildrenVariables = debugTestRunner.fetchChildVariables(tableChildVariables.get("[699]"));
         debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "700", "int");
     }
 
@@ -178,16 +175,40 @@ public class VariableQueryTest extends BaseTestCase {
         // xml child variable query test
         Map<String, Variable> xmlChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("xmlVar"));
         Assert.assertEquals(xmlChildVariables.size(), 1000);
+        Map<String, Variable> xmlGrandChildrenVariables =
+                debugTestRunner.fetchChildVariables(xmlChildVariables.get("[0]"));
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlGrandChildrenVariables.get("children"));
+        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "[0]", "1", "xml");
+
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlChildVariables.get("[999]"));
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlGrandChildrenVariables.get("children"));
+        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "[0]", "1000", "xml");
 
         // xml child variable query test with start = 0 and count = 0
         xmlChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("xmlVar"), 0, 0);
         Assert.assertEquals(xmlChildVariables.size(), 1000);
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlChildVariables.get("[0]"));
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlGrandChildrenVariables.get("children"));
+        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "[0]", "1", "xml");
 
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlChildVariables.get("[999]"));
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlGrandChildrenVariables.get("children"));
+        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "[0]", "1000", "xml");
+
+        // xml child variable query test with start = 800 and count = 100
+        xmlChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("xmlVar"), 0, 0);
+        Assert.assertEquals(xmlChildVariables.size(), 1000);
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlChildVariables.get("[800]"));
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlGrandChildrenVariables.get("children"));
+        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "[0]", "801", "xml");
+
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlChildVariables.get("[899]"));
+        xmlGrandChildrenVariables = debugTestRunner.fetchChildVariables(xmlGrandChildrenVariables.get("children"));
+        debugTestRunner.assertVariable(xmlGrandChildrenVariables, "[0]", "900", "xml");
     }
 
     @AfterClass(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();
     }
-
 }

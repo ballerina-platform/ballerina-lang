@@ -576,9 +576,7 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if an error occurs when fetching debug hit child variables
      */
     public Map<String, Variable> fetchChildVariables(Variable parentVariable) throws BallerinaTestException {
-        int start = -1;
-        int count = -1;
-        return this.fetchChildVariables(parentVariable, start, count);
+        return this.fetchChildVariables(parentVariable, -1, -1);
     }
 
     /**

@@ -33,6 +33,6 @@ public function main() {
         mapVar[i.toString()] = i + 1;
         tableVar.add({id: i + 1, name: "John"});
         tupleVar.push(i + 1);
-        xmlVar = xmlVar + xml `<Children>i</Children>`;
+        xmlVar = xmlVar + xml `<Children>${i + 1}</Children>`;
     }
 }
