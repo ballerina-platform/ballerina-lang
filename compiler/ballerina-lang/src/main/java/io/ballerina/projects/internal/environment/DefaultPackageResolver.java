@@ -24,7 +24,6 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageCache;
-import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -118,12 +117,11 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests,
-                                                                        PackageLockingMode packageLockingMode) {
+    public List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests) {
         List<ResolutionResponseDescriptor> latestVersionsInDist = ballerinaDistRepo
-                .resolveDependencyVersions(packageLoadRequests, packageLockingMode);
+                .resolveDependencyVersions(packageLoadRequests);
         List<ResolutionResponseDescriptor> latestVersionsInCentral = ballerinaCentralRepo
-                .resolveDependencyVersions(packageLoadRequests, packageLockingMode);
+                .resolveDependencyVersions(packageLoadRequests);
 
         List<ResolutionResponseDescriptor> responseDescriptors = new ArrayList<>(
                 Stream.of(latestVersionsInDist, latestVersionsInCentral).flatMap(List::stream).collect(Collectors.toMap(

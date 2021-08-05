@@ -38,6 +38,5 @@ public interface PackageRepository {
 
     Map<String, List<String>> getPackages();
 
-    List<ResolutionResponseDescriptor> resolveDependencyVersions(
-            List<ResolutionRequest> packageLoadRequests, PackageLockingMode packageLockingMode);
+    List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests);
 }
