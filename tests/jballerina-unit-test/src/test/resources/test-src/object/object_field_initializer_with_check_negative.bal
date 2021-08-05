@@ -178,3 +178,45 @@ class Qux {
     isolated function init(function () returns int|error? f) returns error? {
     }
 }
+
+class C1 {
+    int i = let int x = check fn() in x + check fn();
+}
+
+class C2 {
+    int i = let int x = check fn() in x + check fn();
+
+    function init() returns MyError? {
+
+    }
+}
+
+var v = object {
+    int i = let int x = check fn() in x + 1;
+};
+
+var w = object {
+    int i = let int x = check fn() in x + 1;
+
+    function init() returns MyError? {
+
+    }
+};
+
+function testObjectConstructor() {
+    var x = object {
+        int i = let int x = check fn() in x + 2 * check fn();
+    };
+    var y = object {
+        int i = let int x = check fn() in x + 2 * check fn();
+
+        function init() returns MyError? {
+
+        }
+    };
+
+    any|error a = w;
+    any|error b = y;
+}
+
+isolated function fn() returns int|error => 0;

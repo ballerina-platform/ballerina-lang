@@ -427,7 +427,8 @@ public class BIRGen extends BLangNodeVisitor {
                                                           type,
                                                           new ArrayList<>(),
                                                           astTypeDefinition.symbol.origin.toBIROrigin(),
-                                                          displayName);
+                                                          displayName,
+                                                          astTypeDefinition.symbol.originalName);
         typeDefs.put(astTypeDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
@@ -495,13 +496,14 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangClassDefinition classDefinition) {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(classDefinition.pos,
-                classDefinition.symbol.name,
-                classDefinition.symbol.flags,
-                classDefinition.symbol.isLabel,
-                false,
+                                                          classDefinition.symbol.name,
+                                                          classDefinition.symbol.originalName,
+                                                          classDefinition.symbol.flags,
+                                                          classDefinition.symbol.isLabel,
+                                                          false,
                                                           classDefinition.getBType(),
-                new ArrayList<>(),
-                classDefinition.symbol.origin.toBIROrigin());
+                                                          new ArrayList<>(),
+                                                          classDefinition.symbol.origin.toBIROrigin());
         typeDefs.put(classDefinition.symbol, typeDef);
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
@@ -560,14 +562,15 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangConstant astConstant) {
         BConstantSymbol constantSymbol = astConstant.symbol;
         Name constName = constantSymbol.name;
+        Name constOriginalName = constantSymbol.getOriginalName();
         BType type = constantSymbol.type;
 
         // Get the value of the constant.
         ConstValue constantValue = getBIRConstantVal(constantSymbol.value);
 
         // Create a new constant info object.
-        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constantSymbol.flags, type,
-                                                  constantValue, constantSymbol.origin.toBIROrigin());
+        BIRConstant birConstant = new BIRConstant(astConstant.pos, constName, constOriginalName, constantSymbol.flags,
+                                                  type, constantValue, constantSymbol.origin.toBIROrigin());
         birConstant.constValue = constantValue;
 
         birConstant.setMarkdownDocAttachment(astConstant.symbol.markdownDocumentation);
@@ -612,11 +615,14 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (isTypeAttachedFunction) {
             Name funcName = names.fromString(astFunc.symbol.name.value);
-            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
-                                      astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
+            birFunc = new BIRFunction(astFunc.pos, funcName,
+                                      names.fromString(astFunc.symbol.getOriginalName().value),
+                                      astFunc.symbol.flags, type, workerName, astFunc.sendsToThis.size(),
+                                      astFunc.symbol.origin.toBIROrigin());
         } else {
             Name funcName = getFuncName(astFunc.symbol);
-            birFunc = new BIRFunction(astFunc.pos, funcName, astFunc.symbol.flags, type, workerName,
+            birFunc = new BIRFunction(astFunc.pos, funcName, names.fromString(astFunc.symbol.getOriginalName().value),
+                                      astFunc.symbol.flags, type, workerName,
                                       astFunc.sendsToThis.size(), astFunc.symbol.origin.toBIROrigin());
         }
         this.currentScope = new BirScope(0, null);
@@ -927,7 +933,8 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangAnnotation astAnnotation) {
         BAnnotationSymbol annSymbol = (BAnnotationSymbol) astAnnotation.symbol;
 
-        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.flags, annSymbol.points,
+        BIRAnnotation birAnn = new BIRAnnotation(astAnnotation.pos, annSymbol.name, annSymbol.originalName,
+                                                 annSymbol.flags, annSymbol.points,
                                                  annSymbol.attachedType == null ? symTable.trueType :
                                                          annSymbol.attachedType.type, annSymbol.origin.toBIROrigin());
         birAnn.setMarkdownDocAttachment(annSymbol.markdownDocumentation);
@@ -1182,9 +1189,12 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         String name = ANNOTATION_DATA.equals(varNode.symbol.name.value) ? ANNOTATION_DATA : varNode.name.value;
+        String originalName = ANNOTATION_DATA.equals(varNode.symbol.getOriginalName().value) ?
+                                                                    ANNOTATION_DATA : varNode.name.originalValue;
         BIRGlobalVariableDcl birVarDcl = new BIRGlobalVariableDcl(varNode.pos, varNode.symbol.flags,
                                                                   varNode.symbol.type, varNode.symbol.pkgID,
-                                                                  names.fromString(name), VarScope.GLOBAL,
+                                                                  names.fromString(name),
+                                                                  names.fromString(originalName), VarScope.GLOBAL,
                                                                   VarKind.GLOBAL, varNode.name.value,
                                                                   varNode.symbol.origin.toBIROrigin());
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
@@ -1961,8 +1971,8 @@ public class BIRGen extends BLangNodeVisitor {
         if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT ||
                 !isInSamePackage(astPackageVarRefExpr.varSymbol, env.enclPkg.packageID)) {
             return new BIRGlobalVariableDcl(astPackageVarRefExpr.pos, symbol.flags, symbol.type, symbol.pkgID,
-                                            symbol.name, VarScope.GLOBAL, VarKind.CONSTANT, symbol.name.value,
-                                            symbol.origin.toBIROrigin());
+                                            symbol.name, symbol.getOriginalName(), VarScope.GLOBAL, VarKind.CONSTANT,
+                                            symbol.name.value, symbol.origin.toBIROrigin());
         }
 
         return this.globalVarMap.get(symbol);
@@ -2425,8 +2435,9 @@ public class BIRGen extends BLangNodeVisitor {
             if (birGlobalVar == null) {
                 birGlobalVar = dummyGlobalVarMapForLocks.computeIfAbsent(globalVar, k ->
                         new BIRGlobalVariableDcl(null, globalVar.flags, globalVar.type, globalVar.pkgID,
-                                                 globalVar.name, VarScope.GLOBAL, VarKind.GLOBAL,
-                                                 globalVar.name.value, globalVar.origin.toBIROrigin()));
+                                                 globalVar.name, globalVar.getOriginalName(), VarScope.GLOBAL,
+                                                 VarKind.GLOBAL, globalVar.name.value,
+                                                 globalVar.origin.toBIROrigin()));
             }
 
             ((BIRTerminator.Lock) this.env.enclBB.terminator).lockVariables.add(birGlobalVar);

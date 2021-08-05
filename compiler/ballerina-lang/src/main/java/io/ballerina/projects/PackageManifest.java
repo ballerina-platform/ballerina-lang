@@ -19,7 +19,6 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
-import io.ballerina.toml.semantic.ast.TopLevelNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,13 +44,13 @@ public class PackageManifest {
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
-    private final Map<String, TopLevelNode> otherEntries;
+    private final Map<String, Object> otherEntries;
 
     private PackageManifest(PackageDescriptor packageDesc,
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
-                            Map<String, TopLevelNode> otherEntries,
+                            Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
@@ -70,7 +69,7 @@ public class PackageManifest {
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
-                            Map<String, TopLevelNode> otherEntries,
+                            Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics,
                             List<String> license,
                             List<String> authors,
@@ -107,7 +106,7 @@ public class PackageManifest {
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
-                                       Map<String, TopLevelNode> otherEntries,
+                                       Map<String, Object> otherEntries,
                                        DiagnosticResult diagnostics,
                                        List<String> license,
                                        List<String> authors,
@@ -161,7 +160,7 @@ public class PackageManifest {
     }
 
     // TODO Do we need to custom key/value par mapping here
-    public TopLevelNode getValue(String key) {
+    public Object getValue(String key) {
         return otherEntries.get(key);
     }
 
