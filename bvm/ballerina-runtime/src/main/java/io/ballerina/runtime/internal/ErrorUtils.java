@@ -111,15 +111,15 @@ public class ErrorUtils {
 
     }
 
-    public static BError createTypeAssignableError(Object sourceVal, Type targetType) {
-        throw createError(BLangExceptionHelper.
-                getErrorMessage(RuntimeErrors.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
-    }
-
     public static BError createBToJTypeCastError(Object sourceVal, String targetType) {
         throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.J_TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
+    }
+
+    public static BError createJToBTypeCastError(Object sourceVal, Type targetType) {
+        throw createError(BLangExceptionHelper.
+                getErrorMessage(RuntimeErrors.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
     }
 
     public static BError createNumericConversionError(Object inputValue, Type targetType) {

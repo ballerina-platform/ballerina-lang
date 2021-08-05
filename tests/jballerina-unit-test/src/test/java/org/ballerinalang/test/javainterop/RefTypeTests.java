@@ -245,11 +245,21 @@ public class RefTypeTests {
         BRunUtil.invoke(result, "interopWithJavaStringReturn");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: 'class io.ballerina.runtime.api.Module' cannot be " +
-                    "assigned to type 'anydata'.*")
+    @Test
     public void testInteropWithJavaObjectReturn() {
-        BRunUtil.invoke(result, "interopWithJavaObjectReturn");
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "interopWithJavaObjectReturn");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: 'class java.util.ArrayList' cannot be assigned to " +
+                "type 'anydata'\n\tat ballerina_types_as_interop_types:" +
+                "acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:196)\n\t   " +
+                "ballerina_types_as_interop_types:" +
+                "interopWithJavaObjectReturn(ballerina_types_as_interop_types.bal:170)");
     }
 
     @Test
