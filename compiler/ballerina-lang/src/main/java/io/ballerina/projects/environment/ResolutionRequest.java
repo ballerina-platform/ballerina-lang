@@ -35,10 +35,16 @@ import java.util.Optional;
 public final class ResolutionRequest {
     private final PackageDescriptor packageDesc;
     private final PackageDependencyScope scope;
-    private final PackageLockingMode packageLockingMode;
+
+    // TODO Why did we introduce the offline flag here.
     private final boolean offline;
 
-    private ResolutionRequest(PackageDescriptor packageDescriptor, PackageDependencyScope scope, boolean offline,
+    // TODO rethink about this
+    private final PackageLockingMode packageLockingMode;
+
+    private ResolutionRequest(PackageDescriptor packageDescriptor,
+                              PackageDependencyScope scope,
+                              boolean offline,
                               PackageLockingMode packageLockingMode) {
         this.packageDesc = packageDescriptor;
         this.scope = scope;

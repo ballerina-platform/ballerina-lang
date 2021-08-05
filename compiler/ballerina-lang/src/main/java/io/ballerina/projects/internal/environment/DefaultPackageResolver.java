@@ -113,7 +113,7 @@ public class DefaultPackageResolver implements PackageResolver {
 
     @Override
     public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
