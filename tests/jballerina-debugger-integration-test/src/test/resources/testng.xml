@@ -57,6 +57,7 @@ under the License.
 
             <!--Debug Variables Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableQueryTest"/>
 
             <!--Debugger Expression Evaluation Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
