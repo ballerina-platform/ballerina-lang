@@ -53,7 +53,6 @@ public class JlineSimpleCompleter implements Completer {
     private final StringsCompleter topicsCompleter;
 
     public JlineSimpleCompleter() {
-
         BbeTopicsProvider bbeTopicsProvider = BbeTopicsProvider.getBbeTopicsProvider();
         List<String> topicsKeywords = bbeTopicsProvider.getTopicList();
         this.topicsCompleter = new StringsCompleter(topicsKeywords);
