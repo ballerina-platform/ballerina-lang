@@ -46,8 +46,7 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
         this.clientCapabilities = clientCapabilities;
         this.params = params;
         this.honorsChangeAnnotations = clientCapabilities.getTextDocCapabilities().getRename() != null &&
-                clientCapabilities.getTextDocCapabilities()
-                        .getRename().getHonorsChangeAnnotations();
+                clientCapabilities.getTextDocCapabilities().getRename().getHonorsChangeAnnotations();
     }
 
     /**
