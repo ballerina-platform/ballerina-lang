@@ -215,8 +215,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
-
-            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            if (symbol.kind != SymbolKind.CONSTANT) {
+                dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            }
             return false;
         }
 
