@@ -74,7 +74,7 @@ public class EnumTest {
         validateError(negativeTest, i++, "incompatible types: expected 'string', found 'int'", 37, 16);
         validateError(negativeTest, i++, "incompatible types: expected 'string', found 'float'", 38, 13);
         validateError(negativeTest, i++, "redeclared symbol 'OPEN'", 43, 5);
-        validateError(negativeTest, i++, "'CLOSED' is an already initialized symbol with '0'", 50, 5);
+        validateError(negativeTest, i++, "symbol 'CLOSED' is already initialized with '0'", 50, 5);
         validateError(negativeTest, i++, "incompatible types: expected 'int', found 'string'", 54, 18);
         validateError(negativeTest, i++, "incompatible types: expected 'float', found 'string'", 55, 16);
         validateError(negativeTest, i++, "incompatible types: expected 'Shape', found 'string'", 59, 15);

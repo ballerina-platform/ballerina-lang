@@ -579,16 +579,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         compilationUnit.name = currentCompUnitName;
         compilationUnit.setPackageID(packageID);
         Location pos = getPosition(modulePart);
-        String previousPkgID = this.packageID.name.value;
         // Generate import declarations
         for (ImportDeclarationNode importDecl : modulePart.imports()) {
             BLangImportPackage bLangImport = (BLangImportPackage) importDecl.apply(this);
             bLangImport.compUnit = this.createIdentifier(pos, compilationUnit.getName());
             compilationUnit.addTopLevelNode(bLangImport);
-            if (this.packageID.name.value != previousPkgID) {
-                previousPkgID = this.packageID.name.value;
-                constantSet.clear();
-            }
         }
 
         // Generate other module-level declarations
@@ -601,6 +596,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
         this.currentCompilationUnit = null;
+        constantSet.clear();
         return compilationUnit;
     }
 
