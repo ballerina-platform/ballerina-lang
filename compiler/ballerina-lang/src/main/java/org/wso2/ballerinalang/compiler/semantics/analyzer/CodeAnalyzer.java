@@ -3854,7 +3854,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
                 BAttachedFunction initializerFunc =
-                        ((BObjectTypeSymbol) env.node.getBType().tsymbol).initializerFunc;
+                        ((BObjectTypeSymbol) getEnclosingClass(env).getBType().tsymbol).initializerFunc;
 
                 if (initializerFunc == null) {
                     dlog.error(checkedExpr.pos,
@@ -4641,6 +4641,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public static String generateChannelName(String source, String target) {
 
         return source + "->" + target;
+    }
+
+    private BLangNode getEnclosingClass(SymbolEnv env) {
+        BLangNode node = env.node;
+
+        while (node.getKind() != NodeKind.CLASS_DEFN) {
+            env = env.enclEnv;
+            node = env.node;
+        }
+        return node;
     }
 
     /**
