@@ -33,8 +33,7 @@ public interface PackageResolver {
 
     List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 
-    List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests,
-                                                     PackageLockingMode packageLockingMode);
+    List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests);
 
     List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
 

@@ -194,22 +194,16 @@ public class BalaFiles {
         }
     }
 
-    static DependencyGraphResult createPackageDependencyGraph(Path balaPath) {
+    public static DependencyGraphResult createPackageDependencyGraph(Path balaPath) {
         DependencyGraphResult dependencyGraphResult;
         if (balaPath.toFile().isDirectory()) {
             Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
-            if (Files.notExists(dependencyGraphJsonPath)) {
-                throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balaPath + "'");
-            }
-            dependencyGraphResult = createPackageDependencyGraph(balaPath, dependencyGraphJsonPath);
+            dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
         } else {
             URI zipURI = URI.create("jar:" + balaPath.toAbsolutePath().toUri().toString());
             try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
                 Path dependencyGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
-                if (Files.notExists(dependencyGraphJsonPath)) {
-                    throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balaPath + "'");
-                }
-                dependencyGraphResult = createPackageDependencyGraph(balaPath, dependencyGraphJsonPath);
+                dependencyGraphResult = createPackageDependencyGraphFromJson(dependencyGraphJsonPath);
             } catch (IOException e) {
                 throw new ProjectException("Failed to read balr file:" + balaPath);
             }
@@ -217,13 +211,13 @@ public class BalaFiles {
         return dependencyGraphResult;
     }
 
-    private static DependencyGraphResult createPackageDependencyGraph(Path balaPath, Path dependencyGraphJsonPath) {
+    static DependencyGraphResult createPackageDependencyGraphFromJson(Path dependencyGraphJsonPath) {
         if (Files.notExists(dependencyGraphJsonPath)) {
-            throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balaPath + "'");
+            throw new ProjectException(dependencyGraphJsonPath + " does not exist.'");
         }
 
         // Load `dependency-graph.json`
-        DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(balaPath, dependencyGraphJsonPath);
+        DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(dependencyGraphJsonPath);
 
         DependencyGraph<PackageDescriptor> packageDependencyGraph = createPackageDependencyGraph(
                 dependencyGraphJson.getPackageDependencyGraph());
@@ -439,15 +433,17 @@ public class BalaFiles {
                 .collect(Collectors.toList());
     }
 
-    private static DependencyGraphJson readDependencyGraphJson(Path balaPath, Path dependencyGraphJsonPath) {
+    private static DependencyGraphJson readDependencyGraphJson(Path dependencyGraphJsonPath) {
         DependencyGraphJson dependencyGraphJson;
         try (BufferedReader bufferedReader = Files.newBufferedReader(dependencyGraphJsonPath)) {
             dependencyGraphJson = gson
                     .fromJson(bufferedReader, DependencyGraphJson.class);
         } catch (JsonSyntaxException e) {
-            throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format in '" + balaPath + "'");
+            throw new ProjectException(
+                    "Invalid " + DEPENDENCY_GRAPH_JSON + " format in '" + dependencyGraphJsonPath + "'");
         } catch (IOException e) {
-            throw new ProjectException("Failed to read the " + DEPENDENCY_GRAPH_JSON + " in '" + balaPath + "'");
+            throw new ProjectException(
+                    "Failed to read the " + DEPENDENCY_GRAPH_JSON + " in '" + dependencyGraphJsonPath + "'");
         }
         return dependencyGraphJson;
     }
@@ -465,7 +461,7 @@ public class BalaFiles {
             this.moduleDependencies = moduleDependencies;
         }
 
-        DependencyGraph<PackageDescriptor> packageDependencyGraph() {
+        public DependencyGraph<PackageDescriptor> packageDependencyGraph() {
             return packageDependencyGraph;
         }
 

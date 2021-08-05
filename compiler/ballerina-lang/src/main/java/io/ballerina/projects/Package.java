@@ -145,10 +145,6 @@ public class Package {
         return this.packageContext.moduleDependencyGraph();
     }
 
-    public DependencyGraph<PackageDescriptor> descriptorDependencyGraph() {
-        return this.packageContext.dependencyGraph();
-    }
-
     public Collection<PackageDependency> packageDependencies() {
         return packageContext.packageDependencies();
     }
