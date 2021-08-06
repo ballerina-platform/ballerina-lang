@@ -143,7 +143,7 @@ public class BIntersectionType extends BType implements IntersectionType {
                 return false;
             }
         }
-        return true;
+        return this.effectiveType.equals(that.effectiveType);
     }
 
     @Override

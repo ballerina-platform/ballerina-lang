@@ -23,13 +23,14 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for runtime APIs.
+ * Test cases for runtime APIs related to intersection type.
  *
  * @since 2.0.0
  */
@@ -59,12 +60,16 @@ public class IntersectionTypeApiTests {
     public void createIntersectionTypeWithIntersectionType() {
         ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
         BIntersectionType bIntersectionType1 =
-                new BIntersectionType(module, new BType[]{}, arrayType, 0, true);
+                new BIntersectionType(module, new Type[]{}, arrayType, 0, true);
         BIntersectionType bIntersectionType2 =
-                new BIntersectionType(module, new BType[]{}, bIntersectionType1, 0, true);
+                new BIntersectionType(module, new Type[]{}, bIntersectionType1, 0, true);
         Assert.assertEquals(bIntersectionType2.getTag(), TypeTags.INTERSECTION_TAG);
         Assert.assertEquals(bIntersectionType2.getEffectiveType(), bIntersectionType1);
-        Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType2);
+        Assert.assertTrue(arrayType.getIntersectionType().isPresent());
+        Assert.assertTrue(bIntersectionType1.getIntersectionType().isPresent());
+        Assert.assertFalse(bIntersectionType2.getIntersectionType().isPresent());
+        Assert.assertEquals(arrayType.getIntersectionType().get(), bIntersectionType1);
+        Assert.assertEquals(bIntersectionType1.getIntersectionType().get(), bIntersectionType2);
+        Assert.assertNotEquals(arrayType.getIntersectionType().get(), bIntersectionType2);
     }
-
 }
