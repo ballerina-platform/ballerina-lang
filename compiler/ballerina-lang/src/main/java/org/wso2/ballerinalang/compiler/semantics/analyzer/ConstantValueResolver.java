@@ -119,6 +119,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
+        if (this.currentConstSymbol == constSymbol) {
+            dlog.error(varRef.pos, DiagnosticErrorCode.SELF_REFERENCE_VAR, constSymbol.name);
+            return;
+        }
+
         // if the referring constant is not yet resolved, then go and resolve it first.
         this.unresolvedConstants.get(varRef.symbol).accept(this);
         this.result = constSymbol.value;
