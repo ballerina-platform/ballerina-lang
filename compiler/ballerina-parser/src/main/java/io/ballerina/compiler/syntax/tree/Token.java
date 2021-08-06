@@ -18,6 +18,7 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
@@ -95,9 +96,10 @@ public class Token extends Node {
         trailingInvalidTokens().forEach(token -> token.diagnostics().forEach(diagnosticList::add));
 
         // Collect token diagnostics
-        internalNode.diagnostics().stream()
-                .map(this::createSyntaxDiagnostic)
-                .forEach(diagnosticList::add);
+        for (STNodeDiagnostic stNodeDiagnostic : internalNode.diagnostics()) {
+            Diagnostic syntaxDiagnostic = createSyntaxDiagnostic(stNodeDiagnostic);
+            diagnosticList.add(syntaxDiagnostic);
+        }
 
         return diagnosticList;
     }
