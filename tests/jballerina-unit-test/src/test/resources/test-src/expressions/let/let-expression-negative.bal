@@ -56,3 +56,9 @@ class FooClass {
 function testLetWithClass() {
     FooClass foo = let int m = 5 in new (m, m);
 }
+
+function testSelfReferencingVarInLet() {
+    string s = let string[] ar = [s] in ar[0];
+    string m = let [string, string] [a, b] = [a] in a;
+    string n = let [string, string] [k, l] = [n] in l;
+}

@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -60,7 +61,11 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 41, 37);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 46, 48);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 48, 14);
-        BAssertUtil.validateError(negativeResult, i, "too many arguments in call to 'new()'", 57, 37);
+        BAssertUtil.validateError(negativeResult, i++, "too many arguments in call to 'new()'", 57, 37);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 's'", 61, 35);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a'", 62, 47);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'n'", 63, 47);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(description = "Test cases for scenarios where let expression is not yet supported")
