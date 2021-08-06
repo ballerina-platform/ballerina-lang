@@ -1213,7 +1213,6 @@ public class BIRGen extends BLangNodeVisitor {
         if (this.env.returnBB == null && exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
-            addToTrapStack(returnBB);
             returnBB.terminator = new BIRTerminator.Return(exprStmtNode.pos);
             this.env.returnBB = returnBB;
         }

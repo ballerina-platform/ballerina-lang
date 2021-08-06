@@ -2782,11 +2782,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangExpressionStmt exprStmtNode) {
         this.checkStatementExecutionValidity(exprStmtNode);
-        analyzeExpr(exprStmtNode.expr);
+        BLangExpression expr = exprStmtNode.expr;
+        analyzeExpr(expr);
         validateExprStatementExpression(exprStmtNode);
-        BLangExpression exprStmt = exprStmtNode.expr;
-        if (exprStmt.getKind() == NodeKind.INVOCATION &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmt.getBType())) {
+        if (expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
             this.statementReturns = true;
         }
     }
