@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
@@ -256,5 +257,6 @@ public class CompilerPhaseRunner {
 
     public void addDiagnosticForUnhandledException(BLangPackage pkgNode, Throwable throwable) {
         pkgNode.addDiagnostic(new CompilerBadSadDiagnostic(pkgNode.pos, throwable));
+        RuntimeUtils.logBadSad(throwable);
     }
 }
