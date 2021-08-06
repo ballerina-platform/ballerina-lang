@@ -34,7 +34,6 @@ import java.util.Arrays;
  */
 public class BFunctionType extends BAnnotatableType implements FunctionType {
 
-    public Type[] paramTypes;
     public Type restType;
     public Type retType;
     public long flags;
@@ -42,29 +41,42 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     public BFunctionType() {
         super("function ()", null, Object.class);
-        this.paramTypes = new Type[0];
+        this.parameters = new Parameter[0];
         this.retType = PredefinedTypes.TYPE_NULL;
         this.flags = 0;
     }
 
     public BFunctionType(long flags) {
         super("function", null, Object.class);
-        this.paramTypes = null;
+        this.parameters = null;
         this.retType = null;
         this.flags = flags;
     }
 
+    @Deprecated
     public BFunctionType(Type[] paramTypes, Type restType, Type retType, long flags) {
         super("function ()", null, Object.class);
-        this.paramTypes = paramTypes;
+        this.restType = restType;
+        this.retType = retType;
+        this.flags = flags;
+    }
+
+    public BFunctionType(Parameter[] parameters, Type restType, Type retType, long flags) {
+        super("function ()", null, Object.class);
+        this.parameters = parameters;
         this.restType = restType;
         this.retType = retType;
         this.flags = flags;
     }
 
     @Deprecated
+    @Override
     public Type[] getParameterTypes() {
-        return paramTypes;
+        Type[] types = new Type[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            types[i] = parameters[i].type;
+        }
+        return types;
     }
 
     public Type getReturnParameterType() {
@@ -86,12 +98,12 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         return TypeTags.FUNCTION_POINTER_TAG;
     }
 
-    private static String getTypeListAsString(Type[] typeNames) {
+    private static String getTypeListAsString(Parameter[] parameters) {
         StringBuffer br = new StringBuffer();
         int i = 0;
-        for (Type type : typeNames) {
-            br.append(type.getName());
-            if (++i < typeNames.length) {
+        for (Parameter parameter : parameters) {
+            br.append(parameter.type.getName());
+            if (++i < parameters.length) {
                 br.append(",");
             }
         }
@@ -133,7 +145,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
             return false;
         }
 
-        if (!Arrays.equals(paramTypes, that.paramTypes)) {
+        if (!Arrays.equals(parameters, that.parameters)) {
             return false;
         }
         return retType.equals(that.retType);
@@ -145,7 +157,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION)) {
             return result;
         }
-        result = 31 * result + Arrays.hashCode(paramTypes);
+        result = 31 * result + Arrays.hashCode(parameters);
         result = 31 * result + retType.hashCode();
         return result;
     }
@@ -157,7 +169,7 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION)) {
             stringRep = "function";
         } else {
-            stringRep = "function (" + (paramTypes != null ? getTypeListAsString(paramTypes) : "") + ")" +
+            stringRep = "function (" + (parameters != null ? getTypeListAsString(parameters) : "") + ")" +
                     (retType != null ? " returns (" + retType + ")" : "");
         }
 

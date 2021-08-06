@@ -26,9 +26,11 @@ package io.ballerina.runtime.api.types;
 public class Parameter {
     public final String name;
     public final boolean isDefault;
+    public Type type;
 
-    public Parameter(String name, Boolean isDefault) {
+    public Parameter(String name, Boolean isDefault, Type type) {
         this.name = name;
         this.isDefault = isDefault;
+        this.type = type;
     }
 }

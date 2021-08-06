@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 
@@ -35,8 +34,8 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
     public final String[] resourcePath;
 
     public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, String accessor,
-                               String[] resourcePath, Parameter[] parameters) {
-        super(funcName, parent, type, flags, parameters);
+                               String[] resourcePath) {
+        super(funcName, parent, type, flags);
         this.type = type;
         this.flags = flags;
         this.accessor = accessor;
@@ -51,9 +50,8 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
         }
         StringJoiner sj = new StringJoiner(",", "resource function " + accessor + " " + rp.toString() +
                 "(", ") returns (" + type.retType + ")");
-        Type[] types = type.paramTypes;
-        for (int i = 0; i < types.length; i++) {
-            Type type = types[i];
+        for (int i = 0; i < parameters.length; i++) {
+            Type type = parameters[i].type;
             sj.add(type.getName() + " " + parameters[i].name);
         }
         return sj.toString();
@@ -81,7 +79,7 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, parameters);
+        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath);
     }
 
     @Deprecated

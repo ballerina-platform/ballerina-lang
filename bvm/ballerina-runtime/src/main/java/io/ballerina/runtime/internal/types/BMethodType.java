@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.util.StringJoiner;
@@ -42,25 +41,16 @@ public class BMethodType extends BFunctionType implements MethodType {
         this.type = type;
         this.parentObjectType = parent;
         this.flags = flags;
-    }
-
-    public BMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, Parameter[] parameters) {
-        this(funcName, parent, type, flags);
-        this.parameters = parameters;
+        this.parameters = type.parameters;
     }
 
     @Override
     public String toString() {
         StringJoiner sj = new StringJoiner(",", "function " + funcName + "(", ") returns (" + type.retType + ")");
-        for (Type type : type.paramTypes) {
-            sj.add(type.getName());
+        for (Parameter parameter : parameters) {
+            sj.add(parameter.type.getName());
         }
         return sj.toString();
-    }
-
-    @Override
-    public Type[] getParameterTypes() {
-        return type.paramTypes;
     }
 
     @Override
@@ -84,6 +74,6 @@ public class BMethodType extends BFunctionType implements MethodType {
     }
 
     public <T extends MethodType> MethodType duplicate() {
-        return new BMethodType(funcName, parentObjectType, type, flags, parameters);
+        return new BMethodType(funcName, parentObjectType, type, flags);
     }
 }

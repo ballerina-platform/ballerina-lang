@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
@@ -166,7 +167,7 @@ public class ObjectMock {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate the number of arguments provided
-                if (argsList.size() > attachedFunction.getType().getParameterTypes().length) {
+                if (argsList.size() > attachedFunction.getType().getParameters().length) {
                     String detail = "too many argument provided to mock the function '" + functionName + "()'";
                     return ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
@@ -179,11 +180,11 @@ public class ObjectMock {
                 // validate if each argument is compatible with the type given in the function signature
                 int i = 0;
                 for (BIterator it = argsList.getIterator(); it.hasNext(); i++) {
-                    if (attachedFunction.getType().getParameterTypes()[i] instanceof UnionType) {
+                    if (attachedFunction.getType().getParameters()[i].type instanceof UnionType) {
                         Object arg = it.next();
                         boolean isTypeAvailable = false;
                         List<Type> memberTypes =
-                                ((UnionType) attachedFunction.getType().getParameterTypes()[i]).getMemberTypes();
+                                ((UnionType) attachedFunction.getType().getParameters()[i].type).getMemberTypes();
                         for (Type memberType : memberTypes) {
                             if (TypeChecker.checkIsType(arg, memberType)) {
                                 isTypeAvailable = true;
@@ -201,7 +202,8 @@ public class ObjectMock {
                                     null,
                                     new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                         }
-                    } else if (!TypeChecker.checkIsType(it.next(), attachedFunction.getType().getParameterTypes()[i])) {
+                    } else if (!TypeChecker.checkIsType(it.next(),
+                            attachedFunction.getType().getParameters()[i].type)) {
                         String detail =
                                 "incorrect type of argument provided at position '" + (i + 1)
                                         + "' to mock the function '" + functionName + "()'";
@@ -402,14 +404,14 @@ public class ObjectMock {
     private static BError validateFunctionSignatures(MethodType func,
                                                      MethodType[] attachedFunctions) {
         String functionName = func.getName();
-        Type[] paramTypes = func.getParameterTypes();
+        Parameter[] parameters = func.getParameters();
         Type returnType = func.getType().getReturnParameterType();
 
         for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
 
                 // validate that the number of parameters are equal
-                if (paramTypes.length != attachedFunction.getParameterTypes().length) {
+                if (parameters.length != attachedFunction.getParameters().length) {
                     String detail = "incorrect number of parameters provided for function '" + functionName + "()'";
                     return ErrorCreator.createError(
                             MockConstants.TEST_PACKAGE_ID,
@@ -419,9 +421,9 @@ public class ObjectMock {
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                 } else {
                     // validate the equivalence of the parameter types
-                    for (int i = 0; i < paramTypes.length; i++) {
-                        if (attachedFunction.getParameterTypes()[i] instanceof UnionType) {
-                            if (!(paramTypes[i] instanceof UnionType)) {
+                    for (int i = 0; i < parameters.length; i++) {
+                        if (attachedFunction.getParameters()[i].type instanceof UnionType) {
+                            if (!(parameters[i].type instanceof UnionType)) {
                                 String detail = "incompatible parameter type provided at position " + (i + 1) + " in" +
                                         " function '" + functionName + "()'. parameter should be of union type ";
                                 return ErrorCreator.createError(
@@ -431,9 +433,9 @@ public class ObjectMock {
                                         null,
                                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                             } else {
-                                Type[] memberTypes = ((UnionType) attachedFunction.getParameterTypes()[i])
+                                Type[] memberTypes = ((UnionType) attachedFunction.getParameters()[i].type)
                                         .getMemberTypes().toArray(new Type[0]);
-                                Type[] providedTypes = ((UnionType) paramTypes[i])
+                                Type[] providedTypes = ((UnionType) parameters[i].type)
                                         .getMemberTypes().toArray(new Type[0]);
                                 for (int j = 0; j < memberTypes.length; j++) {
                                     if (!TypeChecker.checkIsType(providedTypes[j], memberTypes[j])) {
@@ -451,7 +453,7 @@ public class ObjectMock {
 
                             }
                         } else {
-                            if (!TypeChecker.checkIsType(paramTypes[i], attachedFunction.getParameterTypes()[i])) {
+                            if (!TypeChecker.checkIsType(parameters[i], attachedFunction.getParameters()[i].type)) {
                                 BString detail =
                                         StringUtils.fromString("incompatible parameter type provided at position "
                                                 + (i + 1) + " in function '" + functionName + "()'");
