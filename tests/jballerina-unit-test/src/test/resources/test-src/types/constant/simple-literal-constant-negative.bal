@@ -43,7 +43,7 @@ const string m = { name: "Ballerina" };
 
 // Redeclared constant.
 const abc = "abc";
-
+const abc = "abc";
 const abc = "Ballerina";
 
 // Redeclared variable.

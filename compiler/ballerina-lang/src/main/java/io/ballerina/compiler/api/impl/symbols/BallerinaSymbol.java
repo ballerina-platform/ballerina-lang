@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -47,7 +48,7 @@ public class BallerinaSymbol implements Symbol {
     private final BSymbol internalSymbol;
     private ModuleSymbol module;
     private boolean moduleEvaluated;
-    private String escapedName;
+    private String unEscapedName;
 
     protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
         this.name = name;
@@ -70,18 +71,22 @@ public class BallerinaSymbol implements Symbol {
     public Optional<String> getName() {
         // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
         // escaped.
-        if (this.escapedName != null) {
-            return Optional.of(this.escapedName);
+        if (this.unEscapedName != null) {
+            return Optional.of(this.unEscapedName);
         }
         if (getModule().isPresent()) {
             ModuleID moduleID = getModule().get().id();
-            if (moduleID.moduleName().startsWith("lang.") && moduleID.orgName().startsWith("ballerina")) {
-                this.escapedName = this.name;
-                return Optional.ofNullable(this.escapedName);
+            if (moduleID.moduleName().startsWith("lang.")
+                    && moduleID.orgName().startsWith("ballerina") && this.name.startsWith("'")) {
+                if (!(moduleID.moduleName().equals("lang.string") && this.name.equals("'join"))) {
+                    // Related discussion: https://github.com/ballerina-platform/ballerina-lang/discussions/31830
+                    this.unEscapedName = IdentifierUtils.unescapeUnicodeCodepoints(this.name.substring(1));
+                    return Optional.ofNullable(this.unEscapedName);
+                }
             }
         }
-        this.escapedName = escapeReservedKeyword(this.name);
-        return Optional.ofNullable(this.escapedName);
+        this.unEscapedName = this.name;
+        return Optional.ofNullable(this.name);
     }
 
     @Override
@@ -127,6 +132,19 @@ public class BallerinaSymbol implements Symbol {
     }
 
     @Override
+    public boolean nameEquals(String name) {
+        Optional<String> symbolName = this.getName();
+        if (symbolName.isEmpty() || name == null) {
+            return false;
+        }
+        String symName = symbolName.get();
+        if (name.equals(symName)) {
+            return true;
+        }
+        return unescapedUnicode(name).equals(unescapedUnicode(symName));
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -137,7 +155,7 @@ public class BallerinaSymbol implements Symbol {
         }
 
         Symbol symbol = (Symbol) obj;
-        return isSameName(this.getName(), symbol.getName())
+        return nameEquals(symbol.getName().orElse(null))
                 && isSameModule(this.getModule(), symbol.getModule())
                 && isSameLocation(this.getLocation(), symbol.getLocation())
                 && this.kind().equals(symbol.kind());
@@ -158,14 +176,6 @@ public class BallerinaSymbol implements Symbol {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
     }
 
-    private boolean isSameName(Optional<String> name1, Optional<String> name2) {
-        if (name1.isEmpty() || name2.isEmpty()) {
-            return false;
-        }
-
-        return name1.get().equals(name2.get());
-    }
-
     private boolean isSameModule(Optional<ModuleSymbol> mod1, Optional<ModuleSymbol> mod2) {
         if (mod1.isEmpty() || mod2.isEmpty()) {
             return false;
@@ -180,6 +190,17 @@ public class BallerinaSymbol implements Symbol {
         }
 
         return loc1.get().lineRange().equals(loc2.get().lineRange());
+    }
+
+    private String unescapedUnicode(String value) {
+        if (value.startsWith("'")) {
+            return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
+        }
+        return IdentifierUtils.unescapeUnicodeCodepoints(value);
+    }
+
+    public boolean isReservedKeyword(String value) {
+        return BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value);
     }
 
     public String escapeReservedKeyword(String value) {

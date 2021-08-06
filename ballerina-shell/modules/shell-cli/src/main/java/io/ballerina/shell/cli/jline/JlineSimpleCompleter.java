@@ -19,6 +19,7 @@
 package io.ballerina.shell.cli.jline;
 
 import io.ballerina.shell.cli.PropertiesLoader;
+import io.ballerina.shell.cli.handlers.help.BbeTopicsProvider;
 import io.ballerina.shell.cli.utils.FileUtils;
 import org.jline.builtins.Completers;
 import org.jline.reader.Candidate;
@@ -36,7 +37,6 @@ import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_PREFIX;
 import static io.ballerina.shell.cli.PropertiesLoader.HELP_DESCRIPTION_POSTFIX;
 import static io.ballerina.shell.cli.PropertiesLoader.HELP_EXAMPLE_POSTFIX;
 import static io.ballerina.shell.cli.PropertiesLoader.KEYWORDS_FILE;
-import static io.ballerina.shell.cli.PropertiesLoader.TOPICS_FILE;
 
 /**
  * A simple completer to give completions based on the input line.
@@ -46,17 +46,18 @@ import static io.ballerina.shell.cli.PropertiesLoader.TOPICS_FILE;
  * @since 2.0.0
  */
 public class JlineSimpleCompleter implements Completer {
-    private final StringsCompleter topicsCompleter;
     private final StringsCompleter topicsOptionCompleter;
     private final StringsCompleter commandsCompleter;
     private final StringsCompleter keywordsCompleter;
     private final Completers.FileNameCompleter fileNameCompleter;
+    private final StringsCompleter topicsCompleter;
 
     public JlineSimpleCompleter() {
-        List<String> topicsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(TOPICS_FILE));
+        BbeTopicsProvider bbeTopicsProvider = BbeTopicsProvider.getBbeTopicsProvider();
+        List<String> topicsKeywords = bbeTopicsProvider.getTopicList();
+        this.topicsCompleter = new StringsCompleter(topicsKeywords);
         List<String> commandsKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(COMMANDS_FILE));
         List<String> codeKeywords = FileUtils.readKeywords(PropertiesLoader.getProperty(KEYWORDS_FILE));
-        this.topicsCompleter = new StringsCompleter(topicsKeywords);
         this.commandsCompleter = new StringsCompleter(commandsKeywords);
         this.keywordsCompleter = new StringsCompleter(codeKeywords);
         String helpDescriptionPostfix = PropertiesLoader.getProperty(HELP_DESCRIPTION_POSTFIX);

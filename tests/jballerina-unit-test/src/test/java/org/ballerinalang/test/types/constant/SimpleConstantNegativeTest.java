@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 65);
+        Assert.assertEquals(compileResult.getErrorCount(), 67);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -64,7 +64,9 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++,
                                   "a type compatible with mapping constructor expressions not found in type 'string'",
                                   42, 18);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 46, 7);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 47, 7);
+        BAssertUtil.validateError(compileResult, index++, "symbol 'abc' is already initialized with 'abc'", 47, 7);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
                 64, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
