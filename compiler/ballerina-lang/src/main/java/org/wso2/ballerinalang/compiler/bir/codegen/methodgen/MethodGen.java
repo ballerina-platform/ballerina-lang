@@ -946,6 +946,17 @@ public class MethodGen {
                 if (localVar.endBB != null) {
                     endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
                 }
+            } else if (localVar.kind == VarKind.SYNTHETIC && isCompilerAddedVars(localVar.metaVarName)) {
+                if (localVar.startBB != null) {
+                    startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
+                }
+                for (int j = i + 1; j < func.localVars.size(); j++) {
+                    BIRVariableDcl syntheticVar = func.localVars.get(j);
+                    if (syntheticVar.kind == VarKind.SYNTHETIC && !isCompilerAddedVars(syntheticVar.metaVarName)) {
+                        endLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + syntheticVar.insScope.id);
+                        break;
+                    }
+                }
             }
             String metaVarName = localVar.metaVarName;
             if (isCompilerAddedVars(metaVarName)) {
@@ -957,7 +968,8 @@ public class MethodGen {
     }
 
     private boolean isValidArg(BIRVariableDcl localVar) {
-        boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG;
+        boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG
+                || localVar.kind == VarKind.SYNTHETIC;
         boolean synArg = localVar.type.tag == TypeTags.BOOLEAN && localVar.name.value.startsWith("%syn");
         boolean lambdaMapArg = localVar.metaVarName != null && localVar.metaVarName.startsWith("$map$block$") &&
                 localVar.kind == VarKind.SYNTHETIC;

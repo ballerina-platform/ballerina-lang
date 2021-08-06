@@ -116,6 +116,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
@@ -1155,7 +1156,8 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
         VarKind kind;
-        if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL) {
+        if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL ||
+                astVarDefStmt.parent instanceof BLangLetExpression) {
             kind = VarKind.SYNTHETIC;
         } else {
             kind = VarKind.LOCAL;
