@@ -775,6 +775,8 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        pkgNode.constants = removeDuplicateConstants(pkgNode);
+
         pkgNode.globalVars = desugarGlobalVariables(pkgNode, initFnBody);
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
@@ -814,6 +816,20 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    private List<BLangConstant> removeDuplicateConstants(BLangPackage pkgNode) {
+        HashSet<String> elements = new HashSet<>();
+        for (int i = 0; i < pkgNode.constants.size(); i++) {
+            String next = pkgNode.constants.get(i).symbol.name.value;
+            if (elements.contains(next)) {
+                pkgNode.constants.remove(i);
+                i -= 1;
+            } else {
+                elements.add(next);
+            }
+        }
+        return pkgNode.constants;
     }
 
     private BLangStatementExpression createIfElseFromConfigurable(BLangSimpleVariable configurableVar) {

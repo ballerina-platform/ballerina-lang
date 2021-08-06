@@ -38,6 +38,18 @@ public enum Food {
     KOTTU = 2.0
 }
 
+public enum LiftStatus {
+    OPEN,
+    OPEN,
+    CLOSED = "0",
+    HOLD
+}
+
+public enum TrailStatus {
+    OPEN,
+    CLOSED
+}
+
 function testBasicEnumSupportNegative() {
     int circle = CIRCLE;
     float em = EMINEM;
