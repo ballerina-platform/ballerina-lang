@@ -74,7 +74,7 @@ function typeNarrowing() {
     }
 }
 
-function exprBodyScope(string myStr) returns string => m
+function exprBodyScope(string myStr) returns string => myStr;
 
 public type Module table<TypeDef> key(id);
 
@@ -86,11 +86,29 @@ type TypeDef record {|
 
 
 function typeDes() {
-    Module mod = table {
-                             {key id, name, cycleDepth},
-                             [
-                                 {1, "Mary"},
-                                 {2, "John",  25}
-                             ]
-                        };
+    Module mod = table [
+        {id: 1, name: "Mary"},
+        {id: 2, name: "John",  cycleDepth: 25}
+    ];
 }
+
+# Description
+#
+# + abc - Field Description of abc
+public type Coord record {
+    readonly int abc;
+    # + y - Field Description
+    int y;
+};
+
+
+# Description
+#
+# + name - Field Description of name
+public type Pet object {
+    string name;
+
+    public function getName() returns string;
+
+    public function kind() returns string;
+};

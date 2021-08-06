@@ -24,6 +24,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -204,6 +205,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -328,6 +330,10 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         if (setEnclosingNode(typeDefinition.symbol, typeDefinition.name.pos)) {
             return;
+        }
+
+        if (typeDefinition.getMarkdownDocumentationAttachment() != null) {
+            lookupNodes(typeDefinition.markdownDocumentationAttachment.parameters);
         }
 
         lookupNodes(typeDefinition.annAttachments);
@@ -1417,7 +1423,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMarkdownParameterDocumentation bLangDocumentationParameter) {
-        // ignore
+        setEnclosingNode(bLangDocumentationParameter.symbol, bLangDocumentationParameter.pos);
     }
 
     @Override
@@ -1592,6 +1598,18 @@ class SymbolFinder extends BaseVisitor {
         for (AnnotationAttachmentNode annotAttachment : nodes) {
             if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
                 return true;
+            }
+        }
+
+        if (node instanceof DocumentableNode) {
+            BLangMarkdownDocumentation markdown = ((DocumentableNode) node).getMarkdownDocumentationAttachment();
+            if (markdown != null) {
+                LinkedList<BLangMarkdownParameterDocumentation> parameters = markdown.getParameters();
+                for (BLangMarkdownParameterDocumentation parameter : parameters) {
+                    if (PositionUtil.withinBlock(this.cursorPos, parameter.getPosition())) {
+                        return true;
+                    }
+                }
             }
         }
 

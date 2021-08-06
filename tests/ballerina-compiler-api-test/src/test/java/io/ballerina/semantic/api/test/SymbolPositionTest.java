@@ -147,6 +147,8 @@ public class SymbolPositionTest {
             return new Object[][] {
                     {88, 4, "Module", 78, 12, 78, 18},
                     {80, 5, "TypeDef", 80, 5, 80, 12},
+                    {96, 4, "abc", 98, 17, 98, 20},
+                    {106, 4, "name", 108, 11, 108, 15},
             };
     }
 }
