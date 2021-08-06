@@ -488,6 +488,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
 
+    private  HashSet<String> constantSet = new HashSet<String>();
+
     public BLangNodeTransformer(CompilerContext context,
                                 PackageID packageID, String entryName) {
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -577,7 +579,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         compilationUnit.name = currentCompUnitName;
         compilationUnit.setPackageID(packageID);
         Location pos = getPosition(modulePart);
-
         // Generate import declarations
         for (ImportDeclarationNode importDecl : modulePart.imports()) {
             BLangImportPackage bLangImport = (BLangImportPackage) importDecl.apply(this);
@@ -595,6 +596,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
         this.currentCompilationUnit = null;
+        constantSet.clear();
         return compilationUnit;
     }
 
@@ -819,6 +821,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // visit the constant node, we visit this type definition as well. By doing this, we don't need to change
             // any of the type def visiting logic in symbol enter.
             constantNode.associatedTypeDefinition = typeDef;
+        }
+        String constantName = constantNode.name.value;
+        if (constantSet.contains(constantName)) {
+            dlog.error(constantNode.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, constantName);
+        } else {
+            constantSet.add(constantName);
         }
         return constantNode;
     }
@@ -3593,7 +3601,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             typeNodeAssociated.addValue(deepLiteral);
             bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
         }
-
         return bLangConstant;
     }
 

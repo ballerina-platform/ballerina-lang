@@ -18,25 +18,17 @@
 
 package io.ballerina.runtime.internal.values;
 
- import io.ballerina.runtime.api.values.BLink;
- import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BString;
 
  /**
   * Represent ballerina strings containing only unicode basic multilingual plane characters.
   *
   * @since 1.0.5
   */
- public class BmpStringValue implements StringValue {
-
-     private final String value;
+ public class BmpStringValue extends StringValue {
 
      public BmpStringValue(String value) {
-         this.value = value;
-     }
-
-     @Override
-     public String getValue() {
-         return value;
+         super(value, false);
      }
 
      @Override
@@ -51,49 +43,17 @@ package io.ballerina.runtime.internal.values;
 
      @Override
      public BString concat(BString str) {
-         if (str instanceof BmpStringValue) {
-             return new BmpStringValue(this.value + ((BmpStringValue) str).value);
-         } else if (str instanceof NonBmpStringValue) {
-             return new NonBmpStringValue(this.value + str.getValue(), ((NonBmpStringValue) str).getSurrogates());
-         } else {
-             throw new RuntimeException("not impl yet");
+         StringValue stringValue = (StringValue) str;
+         if (stringValue.isNonBmp) {
+             int[] otherSurrogates = ((NonBmpStringValue) str).getSurrogates();
+             int[] newSurrogates = new int[otherSurrogates.length];
+             int length = length();
+             for (int i = 0; i < otherSurrogates.length; i++) {
+                 newSurrogates[i] = otherSurrogates[i] + length;
+             }
+             return new NonBmpStringValue(this.value + str.getValue(), newSurrogates);
          }
-     }
-
-     @Override
-     public String stringValue(BLink parent) {
-         return value;
-     }
-
-     @Override
-     public String informalStringValue(BLink parent) {
-         return "\"" + toString() + "\"";
-     }
-
-     @Override
-     public String expressionStringValue(BLink parent) {
-         return informalStringValue(parent);
-     }
-
-     @Override
-     public int hashCode() {
-         return value.hashCode();
-     }
-
-     @Override
-     public boolean equals(Object str) {
-         if (str == this) {
-             return true;
-         }
-         if (str instanceof BString) {
-             return ((BString) str).getValue().equals(value);
-         }
-         return false;
-     }
-
-     @Override
-     public String toString() {
-         return value;
+         return new BmpStringValue(this.value + str.getValue());
      }
 
      @Override
