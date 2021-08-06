@@ -291,10 +291,22 @@ public class ErrorValue extends BError implements RefValue {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg);
+        addPrintableStackTrace(sb, this);
+        BError cause = this.getCause();
+        while (cause != null) {
+            sb.append("\ncause: ")
+                    .append(cause.getMessage());
+            addPrintableStackTrace(sb, cause);
+            cause = cause.getCause();
+        }
+        return sb.toString();
+    }
+
+    private void addPrintableStackTrace(StringBuilder sb, BError error) {
         // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = this.getStackTrace();
+        StackTraceElement[] stackTrace = error.getStackTrace();
         if (stackTrace.length == 0) {
-            return sb.toString();
+            return;
         }
         sb.append("\n\tat ");
         // print first element
@@ -302,7 +314,6 @@ public class ErrorValue extends BError implements RefValue {
         for (int i = 1; i < stackTrace.length; i++) {
             printStackElement(sb, stackTrace[i], "\n\t   ");
         }
-        return sb.toString();
     }
 
     @Override
@@ -347,9 +358,6 @@ public class ErrorValue extends BError implements RefValue {
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add(this.message.getValue());
-        if (this.cause != null) {
-            joiner.add("cause: " + this.cause.getMessage());
-        }
         if (!isEmptyDetail()) {
             joiner.add(this.details.toString());
         }
