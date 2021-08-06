@@ -601,7 +601,10 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 }
                 // Add the symbol's semantic token if it is in the same file
                 if (declarationType != -1) {
-                    if (symbolLineRange.filePath().equals(path.get())) {
+                    if (symbolLineRange.filePath().equals(path.get()) && symbol.get().getModule().isPresent() &&
+                            symbol.get().getModule().get().getName().isPresent() && this.semanticTokensContext
+                            .currentModule().isPresent() && symbol.get().getModule().get().getName().get()
+                            .equals(this.semanticTokensContext.currentModule().get().moduleId().moduleName())) {
                         SemanticToken semanticToken = new SemanticToken(linePosition.line(), linePosition.offset());
                         if (!semanticTokens.contains(semanticToken)) {
                             semanticToken.setProperties(node.textRange().length(), declarationType,

@@ -213,11 +213,6 @@
     [
       "declaration"
     ],
-    46,
-    12,
-    7,
-    "interface",
-    [],
     49,
     4,
     19,
@@ -266,21 +261,6 @@
     [
       "declaration"
     ],
-    55,
-    17,
-    3,
-    "variable",
-    [
-      "declaration",
-      "readonly"
-    ],
-    56,
-    11,
-    5,
-    "variable",
-    [
-      "declaration"
-    ],
     57,
     4,
     14,
@@ -301,21 +281,6 @@
     "property",
     [
       "declaration"
-    ],
-    59,
-    12,
-    5,
-    "enum",
-    [
-      "declaration"
-    ],
-    60,
-    4,
-    3,
-    "enumMember",
-    [
-      "declaration",
-      "readonly"
     ],
     63,
     34,
@@ -1826,11 +1791,6 @@
     [
       "declaration",
       "readonly"
-    ],
-    345,
-    12,
-    14,
-    "type",
-    []
+    ]
   ]
 }

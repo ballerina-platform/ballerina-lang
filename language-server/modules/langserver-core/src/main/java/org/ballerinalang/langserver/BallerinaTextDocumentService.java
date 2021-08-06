@@ -81,6 +81,7 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SemanticTokens;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
 import org.eclipse.lsp4j.SemanticTokensParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureHelpParams;
@@ -569,9 +570,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<SemanticTokens> semanticTokensFull(SemanticTokensParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                // Handle semantic highlighting configuration for a client that doesn't support dynamic registration
-                if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableSemanticHighlighting()) {
-                    return new SemanticTokens(new ArrayList<>());
+                SemanticTokensCapabilities capabilities =
+                        this.clientCapabilities.getTextDocCapabilities().getSemanticTokens();
+                if (capabilities == null || !capabilities.getDynamicRegistration()) {
+                    if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableSemanticHighlighting()) {
+                        return new SemanticTokens(new ArrayList<>());
+                    }
                 }
 
                 SemanticTokensContext semanticTokensContext = ContextBuilder.buildSemanticTokensContext(
