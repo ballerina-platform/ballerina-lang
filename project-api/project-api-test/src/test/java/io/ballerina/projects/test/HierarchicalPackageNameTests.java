@@ -19,7 +19,10 @@ package io.ballerina.projects.test;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
@@ -37,6 +40,7 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -95,10 +99,24 @@ public class HierarchicalPackageNameTests {
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
         BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);
-        ImportModuleRequest request1 = new ImportModuleRequest(PackageOrg.from("samjs"), "a.c");
-        ImportModuleRequest request2 = new ImportModuleRequest(PackageOrg.from("samjs"), "a.b");
-        ImportModuleRequest request3 = new ImportModuleRequest(PackageOrg.from("samjs"), "a.b.c");
-        ImportModuleRequest request4 = new ImportModuleRequest(PackageOrg.from("samjs"), "a.b.x");
+        ImportModuleRequest request1 = new ImportModuleRequest(
+                PackageOrg.from("samjs"), "a.c", Collections.emptyList());
+        ImportModuleRequest request2 = new ImportModuleRequest(
+                PackageOrg.from("samjs"), "a.b", Collections.emptyList());
+
+        PackageDescriptor possiblePkg1 = PackageDescriptor.from(
+                PackageOrg.from("samjs"), PackageName.from("a"), PackageVersion.from("1.0.0"));
+        PackageDescriptor possiblePkg2 = PackageDescriptor.from(
+                PackageOrg.from("samjs"), PackageName.from("a.b"), PackageVersion.from("1.1.0"));
+
+        List<PackageDescriptor> possiblePackages = new ArrayList<>();
+        possiblePackages.add(possiblePkg1);
+        possiblePackages.add(possiblePkg2);
+        ImportModuleRequest request3 = new ImportModuleRequest(
+                PackageOrg.from("samjs"), "a.b.c", possiblePackages);
+        ImportModuleRequest request4 = new ImportModuleRequest(
+                PackageOrg.from("samjs"), "a.b.x", Collections.emptyList());
+
         List<ImportModuleRequest> importModuleRequests = new ArrayList<>();
         importModuleRequests.add(request1);
         importModuleRequests.add(request2);
@@ -132,8 +150,10 @@ public class HierarchicalPackageNameTests {
         BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);
 
-        ImportModuleRequest request1 = new ImportModuleRequest(PackageOrg.from("samjs"), "a.c");
-        ImportModuleRequest request2 = new ImportModuleRequest(PackageOrg.from("samjs"), "a.b");
+        ImportModuleRequest request1 = new ImportModuleRequest(
+                PackageOrg.from("samjs"), "a.c", Collections.emptyList());
+        ImportModuleRequest request2 = new ImportModuleRequest(
+                PackageOrg.from("samjs"), "a.b", Collections.emptyList());
         List<ImportModuleRequest> importModuleRequests = new ArrayList<>();
         importModuleRequests.add(request1);
         importModuleRequests.add(request2);
