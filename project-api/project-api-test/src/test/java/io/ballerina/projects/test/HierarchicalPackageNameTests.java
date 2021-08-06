@@ -111,16 +111,16 @@ public class HierarchicalPackageNameTests {
             if (importModuleResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                 Assert.assertEquals(importModuleResponse.importModuleRequest(), request4);
             } else if (importModuleResponse.importModuleRequest().moduleName().equals("a.c")) {
-                Assert.assertEquals(importModuleResponse.packageName().toString(), "a");
+                Assert.assertEquals(importModuleResponse.packageDescriptor().get().name().toString(), "a");
             } else if (importModuleResponse.importModuleRequest().moduleName().equals("a.b.c")) {
-                Assert.assertEquals(importModuleResponse.packageName().toString(), "a.b");
+                Assert.assertEquals(importModuleResponse.packageDescriptor().get().name().toString(), "a.b");
             } else {
-                Assert.assertEquals(importModuleResponse.packageName().toString(), "a.b");
+                Assert.assertEquals(importModuleResponse.packageDescriptor().get().name().toString(), "a.b");
             }
         }
     }
 
-    @Test
+    @Test(dependsOnMethods = "testResolveHierarchicalPackageInDist")
     public void testResolveDifferentPackagesFromEachRepo() {
         Path centralCache = customUserHome.resolve("repositories/central.ballerina.io");
         BCompileUtil.compileAndCacheBala("hierarchical_pkg_names/package_a.c", centralCache);
