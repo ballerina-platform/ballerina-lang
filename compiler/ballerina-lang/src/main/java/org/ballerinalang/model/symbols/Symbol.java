@@ -35,6 +35,8 @@ public interface Symbol {
 
     Name getName();
 
+    Name getOriginalName();
+
     SymbolKind getKind();
 
     Type getType();

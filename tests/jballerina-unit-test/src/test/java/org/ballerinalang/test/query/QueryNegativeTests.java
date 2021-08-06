@@ -40,10 +40,8 @@ public class QueryNegativeTests {
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
                 64, 18);
-        validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                "non-required field 'lastName'", 67, 30);
-        validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                "non-required field 'age'", 68, 25);
+        validateError(compileResult, index++, "undeclared field 'lastName' in record 'Teacher'", 67, 30);
+        validateError(compileResult, index++, "undeclared field 'age' in record 'Teacher'", 68, 25);
         validateError(compileResult, index++, "unknown type 'XYZ'", 83, 18);
         validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 103, 20);
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 116, 32);

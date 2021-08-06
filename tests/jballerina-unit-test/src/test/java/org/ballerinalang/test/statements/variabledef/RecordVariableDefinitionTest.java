@@ -348,9 +348,9 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected " +
                         "'record {| never name?; int...; |}', found 'record {| never name?; int age; string...; |}'",
                 251, 44);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid operation: type 'record {| never name?; int age; string...; |}' does not support " +
-                        "field access for non-required field 'employed'",
+        BAssertUtil.validateError(resultNegative, ++i, "invalid field access: 'employed' is not a required field in " +
+                        "record 'record {| never name?; int age; string...; |}', use member access to access a field " +
+                        "that may have been specified as a rest field",
                 253, 23);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'map<string>', found 'record {| never name?; int age; string...; |}'",
@@ -359,11 +359,8 @@ public class RecordVariableDefinitionTest {
                 "incompatible types: expected 'map<(int|string)>', found " +
                         "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}'",
                 285, 29);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "invalid operation: type " +
-                        "'record {| never name?; (int|boolean|string) age; boolean married?; (string|int)...; |}' " +
-                        "does not support field access for non-required field 'married'",
-                287, 23);
+        BAssertUtil.validateError(resultNegative, ++i, "field access cannot be used to access an optional field, use " +
+                        "optional field access or member access", 287, 23);
         BAssertUtil.validateError(resultNegative, ++i,
                 "a wildcard binding pattern can be used only with a value that belong to type 'any'",
                 298, 12);
