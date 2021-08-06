@@ -216,7 +216,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void annotationAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "(typeof a).@v1", "variable_tests:Annot (size = 2)", "map");
+        debugTestRunner.assertExpression(context, "(typeof a).@v2", "()", "nil");
+        debugTestRunner.assertExpression(context, "(typeof a).@v1[\"foo\"]", "\"v1 value\"", "string");
+        debugTestRunner.assertExpression(context, "(typeof a).@v1[\"bar\"]", "1", "int");
     }
 
     @Override
@@ -725,7 +728,15 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML filter expressions
+        debugTestRunner.assertExpression(context, "xmlVar2.<items>", "XMLSequence (size = 1)", "xml");
+
+        // XML step expressions
+        debugTestRunner.assertExpression(context, "xmlVar2/*", "XMLSequence (size = 8)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/<planner>", "XMLSequence (size = 2)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/<planner|pen>", "XMLSequence (size = 4)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/<*>", "XMLSequence (size = 8)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/**/<name>", "XMLSequence (size = 8)", "xml");
     }
 
     @Override

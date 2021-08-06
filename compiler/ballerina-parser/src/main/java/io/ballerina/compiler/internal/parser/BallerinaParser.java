@@ -3202,6 +3202,7 @@ public class BallerinaParser extends AbstractParser {
             case GT_EQUAL_TOKEN:
             case LT_EQUAL_TOKEN:
             case IS_KEYWORD:
+            case NOT_IS_KEYWORD:
                 return OperatorPrecedence.BINARY_COMPARE;
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
@@ -5285,6 +5286,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr, isInConditionalExpr);
                 break;
             case IS_KEYWORD:
+            case NOT_IS_KEYWORD:
                 newLhsExpr = parseTypeTestExpression(lhsExpr, isInConditionalExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
@@ -5500,6 +5502,7 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_LT_TOKEN:
             case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
             case SLASH_ASTERISK_TOKEN:
+            case NOT_IS_KEYWORD:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -8321,32 +8324,33 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse is expression.
+     * Parse type test expression.
      * <code>
-     * is-expr := expression is type-descriptor
+     * type-test-expr := expression (is | !is) type-descriptor
      * </code>
      *
      * @param lhsExpr Preceding expression of the is expression
      * @return Is expression node
      */
     private STNode parseTypeTestExpression(STNode lhsExpr, boolean isInConditionalExpr) {
-        STNode isKeyword = parseIsKeyword();
+        STNode isOrNotIsKeyword = parseIsOrNotIsKeyword();
         STNode typeDescriptor = parseTypeDescriptorInExpression(isInConditionalExpr);
-        return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
+        return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isOrNotIsKeyword, typeDescriptor);
     }
 
     /**
-     * Parse is-keyword.
+     * Parse `is` keyword or `!is` keyword.
      *
-     * @return Is-keyword node
+     * @return is-keyword or not-is-keyword node
      */
-    private STNode parseIsKeyword() {
+    private STNode parseIsOrNotIsKeyword() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.IS_KEYWORD) {
+        if (token.kind == SyntaxKind.IS_KEYWORD ||
+                token.kind == SyntaxKind.NOT_IS_KEYWORD) {
             return consume();
         } else {
             recover(token, ParserRuleContext.IS_KEYWORD);
-            return parseIsKeyword();
+            return parseIsOrNotIsKeyword();
         }
     }
 
@@ -14276,10 +14280,6 @@ public class BallerinaParser extends AbstractParser {
         STNode firstArg = parseErrorArgListMatchPattern(ParserRuleContext.ERROR_ARG_LIST_MATCH_PATTERN_START);
         endContext();
 
-        if (firstArg == null) {
-            return STNodeFactory.createNodeList(argListMatchPatterns);
-        }
-
         if (isSimpleMatchPattern(firstArg.kind)) {
 
             argListMatchPatterns.add(firstArg);
@@ -14417,7 +14417,8 @@ public class BallerinaParser extends AbstractParser {
                 STNode variableName = createCaptureOrWildcardBP(parseVariableName());
                 return STNodeFactory.createTypedBindingPatternNode(varType, variableName);
             case CLOSE_PAREN_TOKEN:
-                return null;
+                return SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_MATCH_PATTERN);
             default:
                 recover(nextToken, context);
                 return parseErrorArgListMatchPattern(context);

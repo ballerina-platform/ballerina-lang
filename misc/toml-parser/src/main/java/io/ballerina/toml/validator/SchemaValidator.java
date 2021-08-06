@@ -316,7 +316,10 @@ public class SchemaValidator extends TomlNodeVisitor {
             String key = topLevelNode.key().name();
             AbstractSchema abstractSchema = properties.get(key);
             requiredFields.remove(key);
-            visitNode(topLevelNode, abstractSchema, key);
+            if (abstractSchema != null) {
+                visitNode(topLevelNode, abstractSchema, key);
+                continue;
+            }
             if (!schema.hasAdditionalProperties()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "error.unexpected.property",
                         DiagnosticSeverity.ERROR);

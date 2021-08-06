@@ -2401,7 +2401,17 @@
                                         },
                                         {
                                           "kind": "LIST",
-                                          "children": []
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_MATCH_PATTERN"
+                                              ]
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_PAREN_TOKEN",

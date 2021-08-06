@@ -860,6 +860,27 @@ public class ObjectTest {
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 167, 13);
         BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
                 " with the return type of the 'init' method: expected 'MyError?', found 'error'", 171, 13);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 183, 13);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 183, 25);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 183, 43);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 187, 13);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 187, 25);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 187, 43);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 195, 13);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 195, 25);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 199, 13);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 199, 25);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 208, 17);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 208, 29);
+        BAssertUtil.validateError(result, i++, INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT, 208, 51);
+        BAssertUtil.validateError(result, i++, "let expressions are not yet supported for object fields", 211, 17);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 211, 29);
+        BAssertUtil.validateError(result, i++, "usage of 'check' in field initializer is allowed only when compatible" +
+                " with the return type of the 'init' method: expected 'MyError?', found 'error'", 211, 51);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
