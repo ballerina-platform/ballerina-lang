@@ -55,8 +55,7 @@ public class FunctionWithIncludedRecordParam {
                                 "'functionWithIncludedRecordParam2()'", 58, 19);
         BAssertUtil.validateError(result, i++, "too many arguments in call to " +
                                             "'functionWithIncludedRecordParam3()'", 59, 95);
-        BAssertUtil.validateError(result, i++, "invalid operation: type 'Address' does not support field access" +
-                                " for non-required field 'firstName'", 67, 12);
+        BAssertUtil.validateError(result, i++, "undeclared field 'firstName' in record 'Address'", 67, 12);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'a'", 80, 47);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 81, 51);
         BAssertUtil.validateError(result, i++, "undefined field 'abc' in 'Bar2'", 90, 12);
