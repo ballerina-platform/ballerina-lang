@@ -19,8 +19,10 @@ package io.ballerina.projects.internal.repositories;
 
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
@@ -33,6 +35,8 @@ import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import io.ballerina.projects.internal.BalaFiles;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -42,10 +46,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -113,19 +119,8 @@ public class FileSystemRepository implements PackageRepository {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = resolutionRequest.packageName().value();
         String orgName = resolutionRequest.orgName().value();
-        List<Path> versions = new ArrayList<>();
-        try {
-            Path balaPackagePath = bala.resolve(orgName).resolve(packageName);
-            if (Files.exists(balaPackagePath)) {
-                try (Stream<Path> collect = Files.list(balaPackagePath)) {
-                    versions.addAll(collect.collect(Collectors.toList()));
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
-        }
 
-        return pathToVersions(versions);
+        return getPackageVersions(orgName, packageName);
     }
 
     /**
@@ -199,6 +194,67 @@ public class FileSystemRepository implements PackageRepository {
             descriptorSet.add(ResolutionResponseDescriptor.from(resolutionRequest));
         }
         return descriptorSet;
+    }
+
+    @Override
+    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
+        for (ImportModuleRequest importModuleRequest : importModuleRequests) {
+            ImportModuleResponse importModuleLoadResponse = getImportModuleLoadResponse(importModuleRequest);
+            importModuleResponseList.add(importModuleLoadResponse);
+        }
+        return importModuleResponseList;
+    }
+
+    private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
+        List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(importModuleRequest);
+        for (PackageName possiblePackageName : possiblePackageNames) {
+            List<PackageVersion> packageVersions = getPackageVersions(importModuleRequest.packageOrg().toString(),
+                    possiblePackageName.toString());
+            Comparator<PackageVersion> comparator = (v1, v2) -> {
+
+                SemanticVersion.VersionCompatibilityResult versionCompatibilityResult = v1.compareTo(v2);
+                if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                    return -1;
+                }
+                return 1;
+            };
+
+            packageVersions.sort(comparator);
+            for (PackageVersion packageVersion : packageVersions) {
+                Path balaPath = getPackagePath(importModuleRequest.packageOrg().toString(),
+                        possiblePackageName.toString(), packageVersion.toString());
+                if (Files.notExists(balaPath)) {
+                    continue;
+                }
+                BalaFiles.DependencyGraphResult packageDependencyGraph =
+                        BalaFiles.createPackageDependencyGraph(balaPath);
+                Set<ModuleDescriptor> moduleDescriptors = packageDependencyGraph.moduleDependencies().keySet();
+                for (ModuleDescriptor moduleDescriptor : moduleDescriptors) {
+                    if (importModuleRequest.moduleName().equals(moduleDescriptor.name().toString())) {
+                        PackageDescriptor packageDescriptor = PackageDescriptor
+                                .from(importModuleRequest.packageOrg(), possiblePackageName, packageVersion);
+                        return new ImportModuleResponse(packageDescriptor, importModuleRequest);
+                    }
+                }
+            }
+        }
+        return new ImportModuleResponse(importModuleRequest);
+    }
+
+    private List<PackageVersion> getPackageVersions(String org, String name) {
+        List<Path> versions = new ArrayList<>();
+        try {
+            Path balaPackagePath = bala.resolve(org).resolve(name);
+            if (Files.exists(balaPackagePath)) {
+                try (Stream<Path> collect = Files.list(balaPackagePath)) {
+                    versions.addAll(collect.collect(Collectors.toList()));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+        }
+        return pathToVersions(versions);
     }
 
     private Path getPackagePath(String org, String name, String version) {
