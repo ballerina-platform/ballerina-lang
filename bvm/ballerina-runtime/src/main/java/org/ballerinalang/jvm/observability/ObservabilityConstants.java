@@ -72,4 +72,8 @@ public class ObservabilityConstants {
 
     // Tracing Configs
     public static final String CONFIG_TRACING_ENABLED = CONFIG_TABLE_TRACING + ".enabled";
+
+    // Client http.url Metrics Config
+    public static final String CONFIG_CLIENT_HTTP_URL_DISABLED =
+            CONFIG_TABLE_METRICS + ".client." + TAG_KEY_HTTP_URL + ".disabled";
 }
