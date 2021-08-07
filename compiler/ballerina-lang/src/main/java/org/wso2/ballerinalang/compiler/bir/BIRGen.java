@@ -1156,9 +1156,10 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
         VarKind kind;
-        if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL ||
-                astVarDefStmt.parent instanceof BLangLetExpression) {
+        if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL) {
             kind = VarKind.SYNTHETIC;
+        } else if (astVarDefStmt.parent instanceof BLangLetExpression) {
+            kind = VarKind.LET;
         } else {
             kind = VarKind.LOCAL;
         }

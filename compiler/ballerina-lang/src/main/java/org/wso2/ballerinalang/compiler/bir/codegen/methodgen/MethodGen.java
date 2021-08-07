@@ -946,7 +946,7 @@ public class MethodGen {
                 if (localVar.endBB != null) {
                     endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");
                 }
-            } else if (localVar.kind == VarKind.SYNTHETIC && isCompilerAddedVars(localVar.metaVarName)) {
+            } else if (localVar.kind == VarKind.LET) {
                 if (localVar.startBB != null) {
                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
@@ -969,7 +969,7 @@ public class MethodGen {
 
     private boolean isValidArg(BIRVariableDcl localVar) {
         boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG
-                || localVar.kind == VarKind.SYNTHETIC;
+                || localVar.kind == VarKind.LET;
         boolean synArg = localVar.type.tag == TypeTags.BOOLEAN && localVar.name.value.startsWith("%syn");
         boolean lambdaMapArg = localVar.metaVarName != null && localVar.metaVarName.startsWith("$map$block$") &&
                 localVar.kind == VarKind.SYNTHETIC;

@@ -61,7 +61,12 @@ public enum VarKind {
     /**
      * Variable generated at desugar.
      */
-    SYNTHETIC((byte) 8);
+    SYNTHETIC((byte) 8),
+
+    /**
+     * User defined variables for let expression.
+     */
+    LET((byte) 9);
 
     byte value;
 
