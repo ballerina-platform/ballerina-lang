@@ -152,6 +152,7 @@ class JvmValueGen {
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
     private final BType booleanType;
+    private static final int MAX_TYPES_PER_METHOD = 3;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen) {
         this.module = module;
@@ -357,24 +358,36 @@ class JvmValueGen {
     private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
                                   JvmCastGen jvmCastGen) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call", String.format(
-                "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
-        mv.visitCode();
-
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
         int funcNameRegIndex = 2;
-
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
         functions.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = JvmTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions, defaultCaseLabel);
-        List<Label> targetLabels = JvmTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions, labels,
-                                                             defaultCaseLabel);
-
         // case body
         int i = 0;
+        List<Label> targetLabels = new ArrayList<>();
+        String callMethodName = "call";
         for (BIRNode.BIRFunction optionalFunc : functions) {
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PUBLIC, callMethodName, String.format("(L%s;L%s;[L%s;)L%s;",
+                        STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                int remainingCases = functions.size() - bTypesCount;
+                if (remainingCases > MAX_TYPES_PER_METHOD) {
+                    remainingCases = MAX_TYPES_PER_METHOD;
+                }
+                List<Label> labels = JvmTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
+                        bTypesCount, remainingCases, defaultCaseLabel);
+                targetLabels = JvmTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel);
+                i = 0;
+                callMethodName = "call" + ++methodCount;
+            }
             BIRNode.BIRFunction func = getFunction(optionalFunc);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
@@ -406,7 +419,7 @@ class JvmValueGen {
             }
 
             mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
-                               methodSig, false);
+                    methodSig, false);
             if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
@@ -414,11 +427,30 @@ class JvmValueGen {
             }
             mv.visitInsn(ARETURN);
             i += 1;
+            bTypesCount++;
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                if (bTypesCount == functions.size()) {
+                    createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitVarInsn(ALOAD, 2);
+                    mv.visitVarInsn(ALOAD, 3);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, "call" + methodCount, String.format(
+                            "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), false);
+                    mv.visitInsn(ARETURN);
+                }
+                mv.visitMaxs(i + 10, i + 10);
+                mv.visitEnd();
+            }
         }
 
-        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
-        mv.visitMaxs(functions.size() + 10, functions.size() + 10);
-        mv.visitEnd();
+        if (methodCount !=0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
+            mv.visitMaxs(i + 10, i + 10);
+            mv.visitEnd();
+        }
     }
 
     private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className,

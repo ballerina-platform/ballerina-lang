@@ -75,7 +75,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -535,15 +534,21 @@ public class JvmTypeGen {
 
     static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
                                              List<? extends NamedNode> nodes, Label defaultCaseLabel) {
+        return createLabelsForSwitch(mv, nameRegIndex, nodes, 0, nodes.size(), defaultCaseLabel);
+    }
 
+    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
+                                             List<? extends NamedNode> nodes, int start,
+                                             int length, Label defaultCaseLabel) {
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
 
         // Create labels for the cases
         int i = 0;
         List<Label> labels = new ArrayList<>();
-        int[] hashCodes = new int[nodes.size()];
-        for (NamedNode node : nodes) {
+        int[] hashCodes = new int[length];
+        for (int j = start; j < (start + length); j++) {
+            NamedNode node = nodes.get(j);
             if (node != null) {
                 labels.add(i, new Label());
                 String name = node.getName().value;
@@ -558,10 +563,16 @@ public class JvmTypeGen {
     static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
                                                  List<? extends NamedNode> nodes,
                                                  List<Label> labels, Label defaultCaseLabel) {
+        return createLabelsForEqualCheck(mv, nameRegIndex, nodes, 0, nodes.size(), labels, defaultCaseLabel);
+    }
 
+    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                 List<? extends NamedNode> nodes, int start, int length,
+                                                 List<Label> labels, Label defaultCaseLabel) {
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;
-        for (NamedNode node : nodes) {
+        for (int j = start; j < start + length; j++) {
+            NamedNode node = nodes.get(j);
             if (node == null) {
                 continue;
             }
@@ -576,9 +587,9 @@ public class JvmTypeGen {
             targetLabels.add(i, targetLabel);
             i += 1;
         }
-
         return targetLabels;
     }
+
 
     // -------------------------------------------------------
     //              getAnonType() generation methods
