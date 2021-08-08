@@ -89,6 +89,43 @@
                 }
               }
             }
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "org": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_]*$",
+                  "message": {
+                    "pattern": "invalid 'org' under 'modules': 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+                  }
+                },
+                "packageName": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_.]*$",
+                  "message": {
+                    "pattern": "invalid 'packageName' under 'modules': 'packageName' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+                  }
+                },
+                "version": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                  "message": {
+                    "pattern": "invalid 'version' under [[package]]: 'version' should be compatible with semver"
+                  }
+                },
+                "moduleName": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_.]*$",
+                  "message": {
+                    "pattern": "invalid 'moduleName' under 'modules': 'moduleName' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+                  }
+                }
+              }
+            }
           }
         },
         "required": [

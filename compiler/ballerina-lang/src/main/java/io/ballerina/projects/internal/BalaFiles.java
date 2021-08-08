@@ -334,12 +334,6 @@ public class BalaFiles {
             Optional<CompilerPluginJson> compilerPluginJson) {
         PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
                 PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
-        List<PackageManifest.Dependency> dependencies;
-        if (packageJson.getDependencies() != null) {
-            dependencies = packageJson.getDependencies();
-        } else {
-            dependencies = Collections.emptyList();
-        }
 
         Map<String, PackageManifest.Platform> platforms = new HashMap<>(Collections.emptyMap());
         if (packageJson.getPlatformDependencies() != null) {
@@ -354,10 +348,10 @@ public class BalaFiles {
         }
 
         return compilerPluginJson.map(pluginJson -> PackageManifest
-                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), dependencies, platforms,
-                      packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), Collections.emptyList(),
+                      platforms, packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
                       packageJson.getExport(), packageJson.getSourceRepository())).orElseGet(() -> PackageManifest
-                .from(pkgDesc, Optional.empty(), dependencies, platforms, packageJson.getLicenses(),
+                .from(pkgDesc, Optional.empty(), Collections.emptyList(), platforms, packageJson.getLicenses(),
                       packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
                       packageJson.getSourceRepository()));
     }

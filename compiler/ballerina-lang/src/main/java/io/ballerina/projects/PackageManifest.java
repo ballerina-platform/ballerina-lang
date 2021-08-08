@@ -200,6 +200,7 @@ public class PackageManifest {
         private final String scope;
         private final boolean transitive;
         private final List<TransitiveDependency> dependencies;
+        private final List<DependencyModule> modules;
         public String repository;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
@@ -209,22 +210,24 @@ public class PackageManifest {
             this.scope = null;
             this.transitive = false;
             this.dependencies = Collections.emptyList();
+            this.modules = Collections.emptyList();
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
-                          String scope, boolean transitive,
-                          List<TransitiveDependency> dependencies) {
+                          String scope, boolean transitive, List<TransitiveDependency> dependencies,
+                          List<DependencyModule> modules) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
             this.scope = scope;
             this.transitive = transitive;
             this.dependencies = dependencies;
+            this.modules = modules;
         }
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
                           String repository, String scope, boolean transitive,
-                          List<TransitiveDependency> dependencies) {
+                          List<TransitiveDependency> dependencies, List<DependencyModule> modules) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
@@ -232,6 +235,7 @@ public class PackageManifest {
             this.scope = scope;
             this.transitive = transitive;
             this.dependencies = dependencies;
+            this.modules = modules;
         }
 
         public PackageName name() {
@@ -261,6 +265,10 @@ public class PackageManifest {
         public List<TransitiveDependency> dependencies() {
             return dependencies;
         }
+
+        public List<DependencyModule> modules() {
+            return modules;
+        }
     }
 
     /**
@@ -283,6 +291,41 @@ public class PackageManifest {
 
         public PackageOrg org() {
             return packageOrg;
+        }
+    }
+
+    /**
+     * Represents a module of a dependency.
+     *
+     * @since 2.0.0
+     */
+    public static class DependencyModule {
+        private final String org;
+        private final String packageName;
+        private final String version;
+        private final String moduleName;
+
+        public DependencyModule(String org, String packageName, String version, String moduleName) {
+            this.org = org;
+            this.packageName = packageName;
+            this.version = version;
+            this.moduleName = moduleName;
+        }
+
+        public String org() {
+            return org;
+        }
+
+        public String packageName() {
+            return packageName;
+        }
+
+        public String version() {
+            return version;
+        }
+
+        public String moduleName() {
+            return moduleName;
         }
     }
 
