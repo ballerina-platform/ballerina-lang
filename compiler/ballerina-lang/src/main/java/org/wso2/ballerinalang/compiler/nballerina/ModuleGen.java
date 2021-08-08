@@ -67,7 +67,7 @@ public class ModuleGen {
     private static final CompilerContext.Key<ModuleGen> MOD_GEN =
             new CompilerContext.Key<>();
 
-    static final Module MODFRONT = new Module("wso2", "nballerina.front", "0.1.0");
+    //static final Module MODFRONT = new Module("wso2", "nballerina.front", "0.1.0");
     static final Module MODBIR = new Module("wso2", "nballerina.bir", "0.1.0");
     static final Module MODTYPES = new Module("wso2", "nballerina.types", "0.1.0");
     static final Module MODERROR = new Module("wso2", "nballerina.err", "0.1.0");
@@ -98,7 +98,7 @@ public class ModuleGen {
             String name = func.getName().toString();
             TypeKind ret = func.returnTypeNode.getBType().getKind();
             Position position = new Position(func.getPosition().lineRange().startLine().line() + 1,
-                    func.getPosition().textRange().startOffset() + 9);
+                    func.name.getPosition().lineRange().startLine().offset());
             FunctionDefn funcDefn = new FunctionDefn(acc, name, convertSimpleSemType(ret), position);
             func.getParameters().forEach(param -> {
                 funcDefn.signature.paramTypes.add(convertSimpleSemType(param.getBType().getKind()));
@@ -125,6 +125,9 @@ public class ModuleGen {
     }
 
     BasicBlock codeGenStmt(BLangStatement stmt, FunctionCode code, BasicBlock startBlock) {
+        if (startBlock == null) {
+            throw new BallerinaException("unreachable code");
+        }
         if (stmt instanceof BLangReturn) {
             BLangReturn retStmt = (BLangReturn) stmt;
             OpBlockHolder opb = codeGenExpr(retStmt.expr, code, startBlock);
@@ -144,27 +147,37 @@ public class ModuleGen {
             BLangAssignment assign = (BLangAssignment) stmt;
             if (assign.varRef instanceof BLangSimpleVarRef) {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) assign.varRef;
-                Register reg = code.registers.get(varRef.variableName.getValue());
+                String name = varRef.variableName.getValue();
+                if (!code.registerMap.containsKey(name)) {
+                    throw new BallerinaException("variable '" + name + "' not found");
+                }
+                Register reg = code.registers.get(code.registerMap.get(name));
                 OpBlockHolder opb = codeGenExpr(assign.expr, code, startBlock);
                 opb.nextBlock.insns.add(new AssignInsn(reg, opb.operand));
                 return opb.nextBlock;
             } else {
                 BLangIndexBasedAccess varRef = (BLangIndexBasedAccess) assign.varRef;
                 BLangSimpleVarRef rec = (BLangSimpleVarRef) varRef.getExpression();
-                Register reg = code.registers.get(rec.variableName.getValue());
+                String name = rec.variableName.getValue();
+                if (!code.registerMap.containsKey(name)) {
+                    throw new BallerinaException("variable '" + name + "' not found");
+                }
+                Register reg = code.registers.get(code.registerMap.get(name));
                 OpBlockHolder opbIndex = codeGenExpr(varRef.getIndex(), code, startBlock);
                 OpBlockHolder opb = codeGenExpr(assign.expr, code, opbIndex.nextBlock);
-                Position pos = new Position(varRef.pos.lineRange().startLine().line(),
-                        varRef.pos.textRange().startOffset());
+                Position pos = new Position(varRef.getExpression().pos.lineRange().startLine().line() + 1,
+                        varRef.getIndex().pos.lineRange().startLine().offset());
+                opb.nextBlock.ppb = true;
                 if (varRef.getIndex().expectedType.getKind() == TypeKind.INT) {
                     ListSetInsn lsinsn = new ListSetInsn(reg, opbIndex.operand, opb.operand, pos);
                     opb.nextBlock.insns.add(lsinsn);
-                } else if (varRef.getIndex().expectedType.getKind() == TypeKind.INT) {
+                } else if (varRef.getIndex().expectedType.getKind() == TypeKind.STRING) {
                     MapSetInsn msinsn = new MapSetInsn(pos);
                     Operand regop = new Operand(true);
                     regop.register = reg;
-                    msinsn.operands[0] = opbIndex.operand;
-                    msinsn.operands[1] = opb.operand;
+                    msinsn.operands[0] = regop;
+                    msinsn.operands[1] = opbIndex.operand;
+                    msinsn.operands[2] = opb.operand;
                     opb.nextBlock.insns.add(msinsn);
                 } else {
                    throw new BallerinaException("key in assignment to member must be int or string");
@@ -175,6 +188,9 @@ public class ModuleGen {
         } else if (stmt instanceof BLangForeach) {
             BLangForeach feStmt = (BLangForeach) stmt;
             String varName = ((BLangSimpleVariableDef) feStmt.variableDefinitionNode).var.name.toString();
+            if (code.registerMap.containsKey(varName)) {
+                throw new BallerinaException("duplicate declaration of " + varName);
+            }
             BLangBinaryExpr range = (BLangBinaryExpr) feStmt.collection;
             OpBlockHolder lowerOpb = codeGenExpr(range.lhsExpr, code, startBlock);
             OpBlockHolder upperOpb = codeGenExpr(range.rhsExpr, code, lowerOpb.nextBlock);
@@ -184,7 +200,7 @@ public class ModuleGen {
             BasicBlock exit = code.createBasicBlock();
             BranchInsn branchToLoopHead = new BranchInsn(loopHead.label);
             upperOpb.nextBlock.insns.add(branchToLoopHead);
-            Register condition = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
+            Register condition = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN));
             CompareInsn compare = new CompareInsn("<", "int", condition);
             Operand op = new Operand(true);
             op.register = loopVar;
@@ -335,10 +351,10 @@ public class ModuleGen {
         } else if (expr instanceof BLangSimpleVarRef) {
             String name = ((BLangSimpleVarRef) expr).variableName.getValue();
             Operand op = new Operand(true);
-            if (!code.registers.containsKey(name)) {
+            if (!code.registerMap.containsKey(name)) {
                 throw new BallerinaException("variable '" + name + "' not found");
             }
-            op.register = code.registers.get(name);
+            op.register = code.registers.get(code.registerMap.get(name));
             return new OpBlockHolder(op, bb);
         } else if (expr instanceof BLangUnaryExpr) {
             BLangUnaryExpr unexpr = (BLangUnaryExpr) expr;
@@ -347,8 +363,11 @@ public class ModuleGen {
             OperatorKind op = unexpr.operator;
             switch (op) {
                 case NOT:
-                    Register reg1 = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
+                    Register reg1 = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN));
                     if (opb.operand.isReg) {
+                        if (opb.operand.register.semType != 2L) {
+                            throw new BallerinaException("expected boolean operand");
+                        }
                         bb.insns.add(new BoolNotInsn(opb.operand.register, reg1));
 
                     } else {
@@ -358,7 +377,7 @@ public class ModuleGen {
                     result.register = reg1;
                     return new OpBlockHolder(result, opb.nextBlock);
                 case SUB:
-                    Register reg2 = code.createRegister(convertSimpleSemType(TypeKind.INT), null);
+                    Register reg2 = code.createRegister(convertSimpleSemType(TypeKind.INT));
                     IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
                     bb.ppb = true;
                     ins.op = "-";
@@ -367,8 +386,8 @@ public class ModuleGen {
                     zeroOp.value = 0;
                     ins.operands[0] = zeroOp;
                     ins.operands[1] = opb.operand;
-                    ins.position = new Position(unexpr.opSymbol.getPosition().lineRange().startLine().line() + 1,
-                            unexpr.opSymbol.getPosition().textRange().startOffset());
+                    ins.position = new Position(unexpr.getPosition().lineRange().startLine().line() + 1,
+                            unexpr.getPosition().lineRange().startLine().offset());
                     bb.insns.add(ins);
                     result.register = reg2;
                     return new OpBlockHolder(result, opb.nextBlock);
@@ -382,13 +401,13 @@ public class ModuleGen {
             OperatorKind op = bexpr.opKind;
             switch (op) {
                 case ADD: case SUB: case MUL: case DIV: case MOD:
-                    Register reg = code.createRegister(convertSimpleSemType(pair), null);
+                    Register reg = code.createRegister(convertSimpleSemType(pair));
                     if (pair == TypeKind.INT) {
                         IntArithmeticBinaryInsn ins = new IntArithmeticBinaryInsn();
                         bb.ppb = true;
                         ins.op = op.toString();
                         ins.position = new Position(bexpr.getPosition().lineRange().startLine().line() + 1,
-                                bexpr.getPosition().textRange().startOffset());
+                                bexpr.getPosition().lineRange().startLine().offset());
                         ins.result = reg;
                         ins.operands[0] = lhs.operand;
                         ins.operands[1] = rhs.operand;
@@ -406,14 +425,14 @@ public class ModuleGen {
                     result.register = reg;
                     return new OpBlockHolder(result, rhs.nextBlock);
                 case EQUAL: case NOT_EQUAL: case REF_EQUAL: case REF_NOT_EQUAL:
-                    result.register = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
+                    result.register = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN));
                     EqualityInsn eqi = new EqualityInsn(op.toString(), result.register);
                     eqi.operands[0] = lhs.operand;
                     eqi.operands[1] = rhs.operand;
                     bb.insns.add(eqi);
                     return new OpBlockHolder(result, rhs.nextBlock);
                 case GREATER_THAN: case GREATER_EQUAL: case LESS_THAN: case LESS_EQUAL:
-                    result.register = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN), null);
+                    result.register = code.createRegister(convertSimpleSemType(TypeKind.BOOLEAN));
                     CompareInsn cmpi = new CompareInsn(op.toString(), pair.typeName(), result.register);
                     cmpi.operands[0] = lhs.operand;
                     cmpi.operands[1] = rhs.operand;
@@ -424,7 +443,7 @@ public class ModuleGen {
                     if (pair != TypeKind.INT) {
                         throw new BallerinaException("expected integer operand");
                     }
-                    result.register = code.createRegister(convertSimpleSemType(TypeKind.INT), null);
+                    result.register = code.createRegister(convertSimpleSemType(TypeKind.INT));
                     IntBitwiseInsn bwi = new IntBitwiseInsn(op.toString(), result.register);
                     bwi.operands[0] = lhs.operand;
                     bwi.operands[1] = rhs.operand;
@@ -446,7 +465,7 @@ public class ModuleGen {
                 nextBlock = opb.nextBlock;
             }
             Operand result = new Operand(true);
-            Register reg = code.createRegister(262144L, null);
+            Register reg = code.createRegister(262144L);
             result.register = reg;
             ListConstructInsn ins = new ListConstructInsn(reg, operands);
             nextBlock.insns.add(ins);
@@ -463,7 +482,7 @@ public class ModuleGen {
                 operands.add(opb.operand);
                 fieldNames.add(((BLangRecordLiteral.BLangRecordKeyValueField) field).key.toString());
             }
-            Register result = code.createRegister(524288L, null);
+            Register result = code.createRegister(524288L);
             nextBlock.insns.add(new MapConstructInsn(result, operands, fieldNames));
             Operand retOp = new Operand(true);
             retOp.register = result;
@@ -474,9 +493,9 @@ public class ModuleGen {
             BLangTypeConversionExpr tcExpr = (BLangTypeConversionExpr) expr;
             OpBlockHolder opb = codeGenExpr(tcExpr.expr, code, bb);
             if (opb.operand.isReg) {
-                Register reg = code.createRegister(convertSimpleSemType(tcExpr.targetType.getKind()), null);
+                Register reg = code.createRegister(convertSimpleSemType(tcExpr.targetType.getKind()));
                 Position pos = new Position(tcExpr.pos.lineRange().startLine().line() + 1,
-                        tcExpr.pos.textRange().startOffset());
+                        tcExpr.pos.lineRange().startLine().offset());
                 bb.ppb = true;
                 bb.insns.add(new TypeCastInsn(reg, opb.operand.register,
                         convertSimpleSemType(tcExpr.targetType.getKind()), pos));
@@ -491,10 +510,10 @@ public class ModuleGen {
             OpBlockHolder l = codeGenExpr(accExpr.getExpression(), code, bb);
             OpBlockHolder r = codeGenExpr(accExpr.getIndex(), code, l.nextBlock);
             if (l.operand.isReg) {
-                Register result = code.createRegister(convertSimpleSemType(TypeKind.ANY), null);
+                Register result = code.createRegister(convertSimpleSemType(TypeKind.ANY));
                 if (accExpr.getExpression().expectedType instanceof BArrayType) {
                     Position pos = new Position(accExpr.pos.lineRange().startLine().line(),
-                            accExpr.pos.textRange().startOffset());
+                            accExpr.pos.lineRange().startLine().offset());
                     bb.ppb = true;
                     bb.insns.add(new ListGetInsn(result, l.operand.register, r.operand, pos));
                 } else {
@@ -535,6 +554,9 @@ public class ModuleGen {
             ref = new FunctionRef(symbol, signature);
         } else if (funcCall.pkgAlias.getValue().equals("")) {
             FunctionDefn def = jnmod.functionDefns.get(funcCall.getName().getValue());
+            if (def.signature.returnType != 1L) {
+                throw new BallerinaException("return type of function or method in call statement must be nil");
+            }
             ref  = new FunctionRef(def.symbol, def.signature);
         } else {
             FunctionSignature signature = new FunctionSignature();
@@ -560,7 +582,7 @@ public class ModuleGen {
             curBlock = opb.nextBlock;
             args.add(opb.operand);
         }
-        Register reg = code.createRegister(ref.signature.returnType , null);
+        Register reg = code.createRegister(ref.signature.returnType);
         CallInsn callInsn = new CallInsn(reg, ref, args);
         curBlock.insns.add(callInsn);
         result.register = reg;
@@ -578,7 +600,7 @@ public class ModuleGen {
         }
         if (panic) {
             BasicBlock onPanicBlock = code.createBasicBlock();
-            Register reg = code.createRegister(convertSimpleSemType(TypeKind.ERROR), null);
+            Register reg = code.createRegister(convertSimpleSemType(TypeKind.ERROR));
             CatchInsn catchInsn = new CatchInsn(reg);
             AbnormalRetInsn abnRetInsn = new AbnormalRetInsn(reg);
             onPanicBlock.insns.add(catchInsn);
@@ -612,10 +634,6 @@ public class ModuleGen {
 
     TypeKind typedOpPair(TypeKind t1, TypeKind t2) {  // temporarily get from expected type
         if (t1 == t2) {
-            return t1;
-        } else if (t1 == TypeKind.ANY) {
-            return t2;
-        } else if (t2 == TypeKind.ANY) {
             return t1;
         } else {
             throw new BallerinaException("Operands have incompatible types");

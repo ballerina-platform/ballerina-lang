@@ -9,6 +9,7 @@ import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -174,7 +175,8 @@ class InternalSymbol extends Symbol {
 
 class FunctionCode {
     public ArrayList<BasicBlock> blocks = new ArrayList<>();
-    public Map<String, Register> registers = new LinkedHashMap<>();
+    public ArrayList<Register> registers = new ArrayList<>();
+    public Map<String, Integer> registerMap = new LinkedHashMap<>();
     public LoopContext loopContext;
 
     BasicBlock createBasicBlock() {
@@ -185,12 +187,17 @@ class FunctionCode {
 
     Register createRegister(long semType, String varName) {
         Register r = new Register(this.registers.size(), semType, varName);
-        if (varName == null) {
-            varName = String.valueOf(r.number);
-        }
-        this.registers.put(varName, r);
+        this.registers.add(r);
+        registerMap.put(varName, r.number);
         return r;
     }
+
+    Register createRegister(long semType) {
+        Register r = new Register(this.registers.size(), semType, null);
+        this.registers.add(r);
+        return r;
+    }
+
 
     public BMap<BString, Object> getRecord() {
         RecordType bTyp = TypeCreator.createRecordType("BasicBlock", ModuleGen.MODBIR, 1, true, 0);
@@ -201,7 +208,7 @@ class FunctionCode {
                 NBTypeNames.REGISTER, new HashMap<>());
         ArrayType rArrTyp = TypeCreator.createArrayType(tempVal.getType());
         BArray rArr = ValueCreator.createArrayValue(rArrTyp);
-        registers.forEach((name, register) -> rArr.append(register.getRecord()));
+        registers.forEach(register -> rArr.append(register.getRecord()));
         Map<String, Object> fields = new HashMap<>();
         fields.put("blocks", bArr);
         fields.put("registers", rArr);
@@ -236,7 +243,7 @@ class Register {
         Map<String, Object> fields = new HashMap<>();
         fields.put("number", number);
         if (varName != null) {
-            fields.put("varName", new BmpStringValue(varName));
+            fields.put("varName", StringUtils.fromString(varName));
         }
         fields.put("semType", arr.get(0)); //TODO change to SemType Value
         return ValueCreator.createReadonlyRecordValue(ModuleGen.MODBIR, NBTypeNames.REGISTER, fields);
@@ -557,7 +564,7 @@ class Operand {
             return this.register.getRecord();
         }
         if (value instanceof String) {
-            return new BmpStringValue((String) value);
+            return StringUtils.fromString((String) value);
         }
         return this.value;
     }
@@ -878,6 +885,7 @@ class MapSetInsn extends InsnBase {
 
         tup.add(0, operands[0].getOperand());
         tup.add(1, operands[1].getOperand());
+        tup.add(2, operands[2].getOperand());
         LinkedHashMap<String, Object> fields = new LinkedHashMap<>();
         fields.put("position", position.getRecord());
         fields.put("operands", tup);
