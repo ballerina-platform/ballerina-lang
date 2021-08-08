@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitBasicBlockRef;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitFlags;
@@ -223,9 +222,6 @@ public class BIREmitter {
         funcString += emitSpaces(1);
         funcString += "{";
         funcString += emitLBreaks(1);
-        funcString += emitLocalVar(func.returnVariable, tabs + 1);
-        funcString += emitLBreaks(1);
-        funcString += emitArguments(func.parameters, tabs + 1);
         funcString += emitLocalVars(func.localVars, tabs + 1);
         funcString += emitLBreaks(1);
         funcString += emitBasicBlocks(func.basicBlocks, tabs + 1);
@@ -259,16 +255,6 @@ public class BIREmitter {
         str += emitTypeRef(lVar.type, 0);
         str += ";";
         return str;
-    }
-
-    private String emitArguments(Map<BIRNode.BIRFunctionParameter, List<BIRNode.BIRBasicBlock>> localVars, int tabs) {
-
-        StringBuilder varStr = new StringBuilder();
-        for (BIRNode.BIRFunctionParameter parameter : localVars.keySet()) {
-            varStr.append(emitLocalVar(parameter, tabs));
-            varStr.append(emitLBreaks(1));
-        }
-        return varStr.toString();
     }
 
     private String emitBasicBlocks(List<BIRNode.BIRBasicBlock> basicBlocks, int tabs) {

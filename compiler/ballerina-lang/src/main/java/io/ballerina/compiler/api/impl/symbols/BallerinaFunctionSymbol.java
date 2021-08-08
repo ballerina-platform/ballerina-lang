@@ -134,7 +134,7 @@ public class BallerinaFunctionSymbol extends BallerinaSymbol implements Function
         @Override
         public BallerinaFunctionSymbol build() {
             return new BallerinaFunctionSymbol(this.name, this.qualifiers, this.annots,
-                                               this.typeDescriptor, (BInvokableSymbol) this.bSymbol, this.context);
+                    this.typeDescriptor, (BInvokableSymbol) this.bSymbol, this.context);
         }
     }
 }

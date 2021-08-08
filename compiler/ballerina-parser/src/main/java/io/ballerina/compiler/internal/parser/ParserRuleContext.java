@@ -468,6 +468,7 @@ public enum ParserRuleContext {
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
+    NOT_IS_KEYWORD("!is"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

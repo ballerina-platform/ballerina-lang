@@ -74,14 +74,6 @@ public class NativeConversionNegativeTest {
         Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithoutDefaults'");
     }
 
-    @Test(description = "Test performing an invalid tuple conversion")
-    public void testTupleConversionFail() {
-        BValue[] returns = BRunUtil.invoke(negativeResult, "testTupleConversionFail");
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'[T1,T1]' value cannot be converted to '[T1,"
-                + "T2]'");
-    }
-
     @Test(description = "Test converting an unsupported array to json")
     public void testArrayToJsonFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testArrayToJsonFail");

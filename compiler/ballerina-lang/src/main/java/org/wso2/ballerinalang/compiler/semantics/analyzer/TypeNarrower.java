@@ -450,6 +450,9 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (expr.getKind() == NodeKind.BINARY_EXPR && ((BLangBinaryExpr) expr).opKind == OperatorKind.NOT_EQUAL) {
             trueType = types.getRemainingType(varSymbol.type, narrowWithType);
             falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
+        } else if (expr.getKind() == NodeKind.TYPE_TEST_EXPR && ((BLangTypeTestExpr) expr).isNegation) {
+            trueType = types.getRemainingType(varSymbol.type, narrowWithType);
+            falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
         } else {
             trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
             falseType = types.getRemainingType(varSymbol.type, narrowWithType);

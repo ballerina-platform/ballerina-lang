@@ -141,20 +141,27 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNREACHABLE_CODE("BCE2106", "unreachable.code"),
     CONTINUE_CANNOT_BE_OUTSIDE_LOOP("BCE2107", "continue.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("BCE2108", "break.cannot.be.outside.loop"),
-    INVALID_UNREACHABLE_LANGLIB_INVOCATION("BCE2109", "invalid.unreachable.langlib.invocation"),
 
-    INTEGER_TOO_LARGE("BCE2110", "integer.too.large"),
-    INTEGER_TOO_SMALL("BCE2111", "integer.too.small"),
-    HEXADECIMAL_TOO_LARGE("BCE2112", "hexadecimal.too.large"),
-    HEXADECIMAL_TOO_SMALL("BCE2113", "hexadecimal.too.small"),
+    INTEGER_TOO_LARGE("BCE2109", "integer.too.large"),
+    INTEGER_TOO_SMALL("BCE2110", "integer.too.small"),
+    HEXADECIMAL_TOO_LARGE("BCE2111", "hexadecimal.too.large"),
+    HEXADECIMAL_TOO_SMALL("BCE2112", "hexadecimal.too.small"),
 
-    EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER("BCE2114", "expected.a.record.type.as.an.included.parameter"),
+    EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER("BCE2113", "expected.a.record.type.as.an.included.parameter"),
     DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM(
-            "BCE2115", "defaultable.param.not.allowed.after.included.record.param"),
+            "BCE2114", "defaultable.param.not.allowed.after.included.record.param"),
     REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM(
-            "BCE2116", "required.param.not.allowed.after.included.record.param"),
-    INCOMPATIBLE_SUB_TYPE_FIELD("BCE2117", "incompatible.sub.type.field"),
-    MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE2118", "missing.key.expr.in.member.access.expr"),
+            "BCE2115", "required.param.not.allowed.after.included.record.param"),
+    INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
+    MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE2117", "missing.key.expr.in.member.access.expr"),
+    FIELD_ACCESS_CANNOT_BE_USED_TO_ACCESS_OPTIONAL_FIELDS(
+            "BCE2118", "field.access.cannot.be.used.to.access.optional.fields"),
+    UNDECLARED_FIELD_IN_RECORD("BCE2119", "undeclared.field.in.record"),
+    INVALID_FIELD_ACCESS_IN_RECORD_TYPE("BCE2120", "invalid.field.access.in.record.type"),
+    UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.optional.fields.in.union.of.records"),
+    UNDECLARED_FIELD_IN_UNION_OF_RECORDS("BCE2122", "undeclared.field.in.union.of.records"),
+    OPTIONAL_FIELD_IN_UNION_OF_RECORDS("BCE2123", "optional.field.in.union.of.records"),
+    ALREADY_INITIALIZED_SYMBOL("BCE2124", "already.initialized.symbol"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
