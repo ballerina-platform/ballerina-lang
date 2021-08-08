@@ -1376,11 +1376,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) variable;
 
-                if (rhsType.tag == TypeTags.CHAR_STRING) {
-                    // Set broader type of string:Char
-                    rhsType = symTable.stringType;
-                }
-
                 simpleVariable.setBType(rhsType);
 
                 handleWildCardBindingVariable(simpleVariable);

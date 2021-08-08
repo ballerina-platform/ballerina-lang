@@ -629,7 +629,7 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (literalType.tag == TypeTags.DECIMAL) {
             return decimalLiteral(literalValue, literalExpr, expType);
         } else if (literalType.tag == TypeTags.STRING && types.isCharLiteralValue((String) literalValue)) {
-            if (expType.tag == TypeTags.CHAR_STRING || expType == symTable.noType) {
+            if (expType.tag == TypeTags.CHAR_STRING) {
                 return symTable.charStringType;
             }
             if (expType.tag == TypeTags.UNION) {
@@ -2874,13 +2874,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // todo: Need to add type-checking when fixing #29247 for positional args beyond second arg.
     }
 
-    private BType checkExprSilent(BLangRecordLiteral recordLiteral, BType expType, SymbolEnv env) {
+    private BType checkExprSilent(BLangExpression expr, BType expType, SymbolEnv env) {
         boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
         this.nonErrorLoggingCheck = true;
         int errorCount = this.dlog.errorCount();
         this.dlog.mute();
 
-        BType type = checkExpr(recordLiteral, env, expType);
+        BType type = checkExpr(expr, env, expType);
 
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         dlog.setErrorCount(errorCount);
@@ -6037,7 +6037,16 @@ public class TypeChecker extends BLangNodeVisitor {
             // function call error.
             if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
                 BType expectedType = paramTypes.get(i);
-                types.checkType(arg.pos, arg.getBType(), expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                BType actualType = arg.getBType();
+                if (expectedType == symTable.charStringType) {
+                    arg.cloneAttempt++;
+                    BLangExpression clonedArg = nodeCloner.cloneNode(arg);
+                    BType argType = checkExprSilent(clonedArg, expectedType, env);
+                    if (argType != symTable.semanticError) {
+                        actualType = argType;
+                    }
+                }
+                types.checkType(arg.pos, actualType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.getBType(), expectedType);
             }
 
