@@ -1245,8 +1245,106 @@ public function testIfElseWithTypeTest() {
     }
 }
 
+public function testIfElseWithTypeTestMultipleVariables() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+
+    } else if g is () {
+
+    } else if x is int {
+        c = f;
+        g = ();
+        g = 4;
+    } else if (x is boolean) {
+        foo(c);
+    } else if (g is SomeRecord) {
+        foo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+
+    } else if g is () {
+
+    } else if x is int {
+        c = f;
+    } else if (x is float) {
+         g = 4;
+         SomeRecord|int|() s = 5;
+         g = s;
+    } else if (x is boolean) {
+        foo(c);
+    } else if (x is string) {
+        goo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+
+    } else if g is () {
+
+    } else if x is int {
+        c = f;
+        if (f is SomeRecord) {
+            hoo(c);
+            if (g is int) {
+                g = ();
+            } else {
+                SomeRecord s = g;
+                g = 4;
+                yoo(g);
+            }
+        }
+    } else if (x is float) {
+         g = 4;
+         SomeRecord|int|() s = 5;
+         g = s;
+    } else if (x is boolean) {
+        foo(c);
+    } else if (x is string) {
+        goo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
 function foo(SomeRecord aa) {
     assertEquality(10, aa.intField);
+}
+
+function hoo(SomeRecord? aa) {
+
+}
+
+function goo(SomeRecord|int aa) {
+
+}
+
+function yoo(SomeRecord|int|() aa) {
+
 }
 
 function assertTrue(anydata actual) {
