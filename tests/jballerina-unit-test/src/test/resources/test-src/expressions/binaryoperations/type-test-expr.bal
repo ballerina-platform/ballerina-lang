@@ -1362,3 +1362,73 @@ function assertEquality(anydata expected, anydata actual) {
 
     panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
+
+// ========================== int subtypes ==========================
+
+function testIntSubtypes() {
+    byte val1 = 255;
+    assertTrue(val1 is byte);
+    assertTrue(val1 is int:Unsigned8);
+    assertTrue(val1 is int:Unsigned16);
+    assertTrue(val1 is int:Unsigned32);
+    assertTrue(val1 is int:Signed16);
+    assertTrue(val1 is int:Signed32);
+    assertTrue(val1 is int);
+
+    int:Unsigned8 val2 = 0;
+    assertTrue(val2 is byte);
+    assertTrue(val2 is int:Unsigned8);
+    assertTrue(val2 is int:Unsigned16);
+    assertTrue(val2 is int:Unsigned32);
+    assertTrue(val2 is int:Signed16);
+    assertTrue(val2 is int:Signed32);
+    assertTrue(val2 is int);
+
+    int:Unsigned16 val3 = 0x100;
+    assertFalse(val3 is byte);
+    assertFalse(val3 is int:Unsigned8);
+    assertTrue(val3 is int:Unsigned16);
+    assertTrue(val3 is int:Unsigned32);
+    assertTrue(val3 is int:Signed32);
+    assertTrue(val3 is int);
+
+    int:Unsigned32 val4 = 0x3;
+    assertTrue(val4 is byte);
+    assertTrue(val4 is int:Unsigned8);
+    assertTrue(val4 is int:Unsigned16);
+    assertTrue(val4 is int:Unsigned32);
+    assertTrue(val4 is int);
+
+    int:Signed8 val5 = 0x7f;
+    assertTrue(val5 is int:Signed8);
+    assertTrue(val5 is int:Signed16);
+    assertTrue(val5 is int:Signed32);
+    assertTrue(val5 is int);
+
+    int:Signed16 val6 = -128;
+    assertFalse(val6 is byte);
+    assertFalse(val6 is int:Unsigned8);
+    assertTrue(val6 is int:Signed8);
+    assertTrue(val6 is int:Signed16);
+    assertTrue(val6 is int:Signed32);
+    assertTrue(val6 is int);
+
+    int:Signed32 val7 = -2147483648;
+    assertFalse(val7 is byte);
+    assertFalse(val7 is int:Unsigned8);
+    assertFalse(val7 is int:Unsigned16);
+    assertFalse(val7 is int:Signed8);
+    assertFalse(val7 is int:Signed16);
+    assertTrue(val7 is int:Signed32);
+    assertTrue(val7 is int);
+
+    int val8 = 0;
+    assertTrue(val8 is byte);
+    assertTrue(val8 is int:Unsigned8);
+    assertTrue(val8 is int:Unsigned16);
+    assertTrue(val8 is int:Unsigned32);
+    assertTrue(val8 is int:Signed8);
+    assertTrue(val8 is int:Signed16);
+    assertTrue(val8 is int:Signed32);
+    assertTrue(val8 is int);
+}

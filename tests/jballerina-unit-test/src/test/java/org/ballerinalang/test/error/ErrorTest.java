@@ -388,6 +388,33 @@ public class ErrorTest {
         BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 
+    @Test
+    public void testStackTraceWithErrorCauseLocation() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStackTraceWithErrorCauseLocation");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error1\n" +
+                "\tat error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "cause: error2\n" +
+                "\tat error_test:baz(error_test.bal:479)\n" +
+                "\t   error_test:x(error_test.bal:475)\n" +
+                "\t   error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "cause: error3\n" +
+                "\tat error_test:foobar(error_test.bal:484)\n" +
+                "\t   error_test:baz(error_test.bal:479)\n" +
+                "\t   error_test:x(error_test.bal:475)\n" +
+                "\t   error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)");
+    }
+
     @AfterClass
     public void cleanup() {
         errorTestResult = null;

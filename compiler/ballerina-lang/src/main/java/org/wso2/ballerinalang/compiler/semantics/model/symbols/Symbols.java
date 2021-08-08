@@ -112,35 +112,39 @@ public class Symbols {
     }
 
     public static BAnnotationSymbol createAnnotationSymbol(long flags, Set<AttachPoint> points, Name name,
-                                                           PackageID pkgID, BType type, BSymbol owner,
+                                                           Name origName, PackageID pkgID, BType type, BSymbol owner,
                                                            Location pos, SymbolOrigin origin) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, points, pkgID, type, owner, pos,
-                                                                   origin);
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, origName, flags, points, pkgID, type, owner,
+                                                                   pos, origin);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
 
     public static BInvokableSymbol createWorkerSymbol(long flags,
                                                       Name name,
+                                                      Name originalName,
                                                       PackageID pkgID,
                                                       BType type,
                                                       BSymbol owner,
                                                       Location pos,
                                                       SymbolOrigin origin) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.WORKER, flags, name, pkgID, type, owner, pos, origin);
+        BInvokableSymbol symbol = createInvokableSymbol(
+                SymTag.WORKER, flags, name, originalName, pkgID, type, owner, pos, origin);
         symbol.kind = SymbolKind.WORKER;
         return symbol;
     }
 
     public static BInvokableSymbol createFunctionSymbol(long flags,
                                                         Name name,
+                                                        Name originalName,
                                                         PackageID pkgID,
                                                         BType type,
                                                         BSymbol owner,
                                                         boolean bodyExist,
                                                         Location pos,
                                                         SymbolOrigin origin) {
-        BInvokableSymbol symbol = createInvokableSymbol(SymTag.FUNCTION, flags, name, pkgID, type, owner, pos, origin);
+        BInvokableSymbol symbol = createInvokableSymbol(
+                SymTag.FUNCTION, flags, name, originalName, pkgID, type, owner, pos, origin);
         symbol.bodyExist = bodyExist;
         symbol.kind = SymbolKind.FUNCTION;
         return symbol;
@@ -154,13 +158,25 @@ public class Symbols {
                                                BSymbol owner,
                                                Location pos,
                                                SymbolOrigin origin) {
+        return createTypeSymbol(symTag, flags, name, name, pkgID, type, owner, pos, origin);
+    }
+
+    public static BTypeSymbol createTypeSymbol(int symTag,
+                                               long flags,
+                                               Name name,
+                                               Name originalName,
+                                               PackageID pkgID,
+                                               BType type,
+                                               BSymbol owner,
+                                               Location pos,
+                                               SymbolOrigin origin) {
         if (type != null && type.tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol invokableTypeSymbol =
                     createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
             invokableTypeSymbol.returnType = ((BInvokableType) type).retType;
             return invokableTypeSymbol;
         }
-        return new BTypeSymbol(symTag, flags, name, pkgID, type, owner, pos, origin);
+        return new BTypeSymbol(symTag, flags, name, originalName, pkgID, type, owner, pos, origin);
     }
 
     public static BInvokableTypeSymbol createInvokableTypeSymbol(int symTag,
@@ -176,12 +192,13 @@ public class Symbols {
     public static BInvokableSymbol createInvokableSymbol(int kind,
                                                          long flags,
                                                          Name name,
+                                                         Name originalName,
                                                          PackageID pkgID,
                                                          BType type,
                                                          BSymbol owner,
                                                          Location pos,
                                                          SymbolOrigin origin) {
-        return new BInvokableSymbol(kind, flags, name, pkgID, type, owner, pos, origin);
+        return new BInvokableSymbol(kind, flags, name, originalName, pkgID, type, owner, pos, origin);
     }
 
     public static BXMLNSSymbol createXMLNSSymbol(Name name,

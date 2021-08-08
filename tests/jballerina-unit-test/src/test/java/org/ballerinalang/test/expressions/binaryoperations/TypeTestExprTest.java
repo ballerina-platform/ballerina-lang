@@ -791,6 +791,11 @@ public class TypeTestExprTest {
         BRunUtil.invoke(result, "testBuiltInSubTypeTypeTestAgainstFiniteType");
     }
 
+    @Test(description = "Test is-expression with int subtypes")
+    public void testIntSubtypes() {
+        BRunUtil.invoke(result, "testIntSubtypes");
+    }
+
     @Test
     public void testIfElseWithTypeTest() {
         BRunUtil.invoke(result, "testIfElseWithTypeTest");

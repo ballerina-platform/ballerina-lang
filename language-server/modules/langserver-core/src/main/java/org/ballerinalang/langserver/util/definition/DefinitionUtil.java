@@ -39,6 +39,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -132,7 +133,9 @@ public class DefinitionUtil {
                 if (depPackage.packageOrg().value().equals(orgName) &&
                         depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
                     Module module = depPackage.module(moduleId);
-                    for (DocumentId docId : module.documentIds()) {
+                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
+                    documentIds.addAll(module.testDocumentIds());
+                    for (DocumentId docId : documentIds) {
                         if (module.document(docId).name().equals(sourceFile)) {
                             filepath =
                                     module.project().documentPath(docId);

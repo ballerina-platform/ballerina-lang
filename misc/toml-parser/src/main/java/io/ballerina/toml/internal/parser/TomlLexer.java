@@ -95,6 +95,12 @@ public class TomlLexer extends AbstractLexer {
             case LexerTerminals.OPEN_BRACKET:
                 token = getSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
                 break;
+            case LexerTerminals.OPEN_BRACE:
+                token = getSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
+                break;
+            case LexerTerminals.CLOSE_BRACE:
+                token = getSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+                break;
             case LexerTerminals.CLOSE_BRACKET:
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                 break;
@@ -806,8 +812,6 @@ public class TomlLexer extends AbstractLexer {
             case LexerTerminals.CLOSE_BRACKET:
             case LexerTerminals.OPEN_PARANTHESIS:
             case LexerTerminals.CLOSE_PARANTHESIS:
-                // TODO: add all separators (braces, parentheses, etc)
-                // TODO: add all operators (arithmetic, binary, etc)
                 return true;
             default:
                 return false;

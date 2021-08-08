@@ -1,8 +1,6 @@
 sayHello function(string) -> error{map<anydata | readonly>} | () {
     %1(RETURN) error | ();
     %2(ARG) string;
-    %1(RETURN) error | ();
-    %2(ARG) string;
     %3(LOCAL) ballerina/lang.test:1.0.0:Caller;
     %4(SYNTHETIC) ballerina/lang.test:1.0.0:Caller;
     %7(TEMP) ();
