@@ -159,11 +159,11 @@ public class BallerinaSemanticModel implements SemanticModel {
         List<Symbol> compiledSymbols = new ArrayList<>();
 
         for (Map.Entry<Name, Scope.ScopeEntry> e : bLangPackage.symbol.scope.entries.entrySet()) {
-            Name key = e.getKey();
             Scope.ScopeEntry value = e.getValue();
 
-            if (value.symbol.origin == SOURCE) {
-                compiledSymbols.add(symbolFactory.getBCompiledSymbol(value.symbol, key.value));
+            BSymbol symbol = value.symbol;
+            if (symbol.origin == SOURCE) {
+                compiledSymbols.add(symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue()));
             }
         }
 
@@ -318,7 +318,8 @@ public class BallerinaSemanticModel implements SemanticModel {
                     typesFactory.getTypeDescriptor(symbolAtCursor.type, (BTypeSymbol) symbolAtCursor));
         }
 
-        return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor, symbolAtCursor.name.value));
+        return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
+                symbolAtCursor.getOriginalName().getValue()));
     }
 
     private boolean hasCursorPosPassedSymbolPos(BSymbol symbol, Location cursorPos) {
@@ -411,7 +412,13 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbol = scopeEntry.symbol;
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
                 && !isServiceDeclSymbol(symbol)) {
-            Symbol compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, name.getValue());
+            Symbol compiledSymbol;
+            // TODO: Fix #31808 and remove this if-check
+            if (symbol.getKind() == SymbolKind.PACKAGE) {
+                compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, name.getValue());
+            } else {
+                compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
+            }
             if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
                 return;
             }

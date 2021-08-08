@@ -9,6 +9,8 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponseDescriptor;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
@@ -143,5 +145,10 @@ public class RemotePackageRepository implements PackageRepository {
     public List<ResolutionResponseDescriptor> resolveDependencyVersions(
             List<ResolutionRequest> packageLoadRequests) {
         return fileSystemRepo.resolveDependencyVersions(packageLoadRequests);
+    }
+
+    @Override
+    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+        return fileSystemRepo.resolvePackageNames(importModuleRequests);
     }
 }

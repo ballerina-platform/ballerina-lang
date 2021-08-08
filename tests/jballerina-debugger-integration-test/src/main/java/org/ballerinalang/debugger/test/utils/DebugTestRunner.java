@@ -542,15 +542,23 @@ public class DebugTestRunner {
      * Can be used to get child variables from parent variable.
      *
      * @param parentVariable parent variable
+     * @param start          starting index of child variable
+     * @param count          number of child variable count
      * @return variable map with child variables information
      * @throws BallerinaTestException if an error occurs when fetching debug hit child variables
      */
-    public Map<String, Variable> fetchChildVariables(Variable parentVariable) throws BallerinaTestException {
+    public Map<String, Variable> fetchChildVariables(Variable parentVariable, int start, int count)
+            throws BallerinaTestException {
         try {
             Map<String, Variable> variables = new HashMap<>();
             VariablesArguments childVarArgs = new VariablesArguments();
             childVarArgs.setVariablesReference(parentVariable.getVariablesReference());
-            childVarArgs.setCount(parentVariable.getIndexedVariables());
+            if (start >= 0 && count >= 0) {
+                childVarArgs.setStart(start);
+                childVarArgs.setCount(count);
+            } else {
+                childVarArgs.setCount(parentVariable.getIndexedVariables());
+            }
             VariablesResponse response = hitListener.getConnector().getRequestManager().variables(childVarArgs);
             Arrays.stream(response.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
@@ -558,6 +566,17 @@ public class DebugTestRunner {
             LOGGER.warn("Error occurred when fetching debug hit child variables", e);
             throw new BallerinaTestException("Error occurred when fetching debug hit child variables", e);
         }
+    }
+
+    /**
+     * Can be used to get child variables from parent variable.
+     *
+     * @param parentVariable parent variable
+     * @return variable map with child variables information
+     * @throws BallerinaTestException if an error occurs when fetching debug hit child variables
+     */
+    public Map<String, Variable> fetchChildVariables(Variable parentVariable) throws BallerinaTestException {
+        return this.fetchChildVariables(parentVariable, -1, -1);
     }
 
     /**

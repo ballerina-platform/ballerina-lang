@@ -1,0 +1,11 @@
+[[package]]
+org = "ballerina"
+name = "file"
+version = "0.7.0-beta.2"
+dependencies = [
+    {org = "ballerina", name = "os"},
+    {org = "ballerina"},
+    {org = "ballerina", name = "jballerina.java"},
+    {org = "ballerina", name = "time"},
+    {org = "ballerina", name = "regex", test = "test"}
+]

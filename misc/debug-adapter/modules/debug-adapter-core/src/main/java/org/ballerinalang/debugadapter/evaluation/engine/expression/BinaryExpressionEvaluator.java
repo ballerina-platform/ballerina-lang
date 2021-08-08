@@ -173,7 +173,6 @@ public class BinaryExpressionEvaluator extends Evaluator {
             Value result = runtimeMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } else {
-            // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
             List<Value> argList = new ArrayList<>();
             argList.add(getValueAsObject(context, lVar));
             argList.add(getValueAsObject(context, rVar));

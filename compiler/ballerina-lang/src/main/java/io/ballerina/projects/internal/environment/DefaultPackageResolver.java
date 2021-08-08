@@ -19,6 +19,7 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
@@ -113,7 +114,39 @@ public class DefaultPackageResolver implements PackageResolver {
 
     @Override
     public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        return Collections.emptyList();
+        // We will only receive hierarchical imports in importModuleRequests
+        List<ImportModuleResponse> responseListInDist = ballerinaDistRepo.resolvePackageNames(importModuleRequests);
+        List<ImportModuleResponse> responseListInCentral =
+                ballerinaCentralRepo.resolvePackageNames(importModuleRequests);
+
+        List<ImportModuleResponse> responseList = new ArrayList<>(
+                Stream.of(responseListInDist, responseListInCentral).flatMap(List::stream).collect(Collectors.toMap(
+                        ImportModuleResponse::importModuleRequest, Function.identity(),
+                        (ImportModuleResponse x, ImportModuleResponse y) -> {
+                            if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                                return x;
+                            }
+                            if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                                return y;
+                            }
+                            if (!x.packageDescriptor().get().name().equals(y.packageDescriptor().get().name())) {
+                                ResolutionRequest resolutionRequest = ResolutionRequest
+                                        .from(y.packageDescriptor().get(), PackageDependencyScope.DEFAULT, true);
+                                List<PackageVersion> packageVersions =
+                                        ballerinaDistRepo.getPackageVersions(resolutionRequest);
+                                // If module exists in both repos, then we check if a newer version of
+                                // y (package in central) in dist repo.
+                                // If yes, we assume that the latest version of y does not contain the
+                                // module. Hence, return x.
+                                // Else, there is no newer package of y in dist. We assume that there exist a newer
+                                // version of x in central which does not have this module. Hence, return y.
+                                if (packageVersions.isEmpty()) {
+                                    return y;
+                                }
+                            }
+                            return x;
+                        })).values());
+        return responseList;
     }
 
     @Override
@@ -127,11 +160,11 @@ public class DefaultPackageResolver implements PackageResolver {
                 Stream.of(latestVersionsInDist, latestVersionsInCentral).flatMap(List::stream).collect(Collectors.toMap(
                         ResolutionResponseDescriptor::packageLoadRequest, Function.identity(),
                         (ResolutionResponseDescriptor x, ResolutionResponseDescriptor y) -> {
-                            if (x.resolvedDescriptor().isEmpty()) {
-                                return y;
-                            }
-                            if (y.resolvedDescriptor().isEmpty()) {
+                            if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return x;
+                            }
+                            if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                                return y;
                             }
                             if (x.resolvedDescriptor().get().version().compareTo(
                                     y.resolvedDescriptor().get().version()).equals(
