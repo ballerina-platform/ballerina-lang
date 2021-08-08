@@ -407,6 +407,18 @@ public class TypeChecker {
     }
 
     /**
+     * Reference equality check for float values.
+     *
+     * @param lhsValue The value on the left-hand side
+     * @param rhsValue The value of the right-hand side
+     * @return True if values are reference equal, else false.
+     */
+
+    public static boolean checkFloatRefEqual(double lhsValue, double rhsValue) {
+        return Objects.equals(lhsValue, rhsValue);
+    }
+
+    /**
      * Check if two decimal values are equal in value.
      *
      * @param lhsValue The value on the left hand side
