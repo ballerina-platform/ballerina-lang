@@ -260,6 +260,7 @@ public class JvmConstants {
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "$_string_constants";
+    public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
