@@ -44,6 +44,7 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
+import org.ballerinalang.langserver.util.LSClientUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.rename.RenameUtil;
@@ -484,6 +485,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     "' {fileUri: '" + fileUri + "'} opened");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -506,6 +508,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             this.clientLogger.logError(LSContextOperation.TXT_DID_CHANGE, msg, e, params.getTextDocument(),

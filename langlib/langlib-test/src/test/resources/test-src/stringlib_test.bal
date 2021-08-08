@@ -23,8 +23,29 @@ function testToLower() returns string {
     return str.toLowerAscii();
 }
 
-function testLength() returns int {
-    return "Hello Ballerina!".length();
+type EqualityOp "==" | "!=" | "===" | "!==";
+
+type EqualityInsn record {|
+        EqualityOp op;
+|};
+
+function testLength() {
+    assertEquals(16, "Hello Ballerina!".length());
+
+    EqualityOp tempFiniteType1 = "===";
+    EqualityOp tempFiniteType2 = "!=";
+    assertEquals(true, tempFiniteType1.length() != tempFiniteType2.length());
+
+    int temp = lengthTestFunc({op : tempFiniteType1});
+    assertEquals(3, temp);
+}
+
+function lengthTestFunc(EqualityInsn e) returns int {
+    int length = 0;
+    if ((e.op).length() == 3) {
+        length = (e.op).length();
+    }
+    return length;
 }
 
 function testSubString() returns [string,string, string] {
@@ -151,6 +172,51 @@ function testChainedStringFunctions() returns string {
     string foo = "foo1";
     foo = foo.concat("foo2").concat("foo3").concat("foo4");
     return foo;
+}
+
+function testLangLibCallOnStringSubTypes() {
+    string a = "hello";
+    string:Char b = "h";
+
+    boolean b1 = a.startsWith("h");
+    boolean b2 = b.startsWith("h");
+    boolean b3 = a.startsWith("a");
+    boolean b4 = b.startsWith("a");
+
+    assertEquals(true, b1);
+    assertEquals(true, b2);
+    assertEquals(false, b3);
+    assertEquals(false, b4);
+}
+
+type Strings "a"|"bc";
+
+function testLangLibCallOnFiniteType() {
+    Strings x = "bc";
+    boolean b = x.startsWith("bc");
+    assertEquals(true, b);
+    assertEquals(false, x.startsWith("a"));
+}
+
+function testIteratorWithUnicodeChar(int codePoint, int[] expected) returns error? {
+    string str = check string:fromCodePointInt(codePoint);
+    int i = 0;
+    foreach var ch in str {
+        assertEquals(expected, ch.toCodePointInts());
+    }
+}
+
+function testCharIterator(string stringValue) {
+    string result = "";
+    foreach var ch in stringValue {
+        result = result + ch;
+    }
+    assertEquals(stringValue, result);
+}
+
+function concatNonBMP(string prefix, string expected) {
+    string s = "👋world🤷!";
+    assertEquals(expected, prefix + s);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

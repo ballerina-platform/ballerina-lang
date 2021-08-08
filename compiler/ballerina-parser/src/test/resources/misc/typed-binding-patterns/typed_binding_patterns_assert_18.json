@@ -603,7 +603,6 @@
                         },
                         {
                           "kind": "FIELD_BINDING_PATTERN",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
@@ -616,6 +615,34 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
                                     }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "COMMA_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_COMMA_TOKEN"
+                          ]
+                        },
+                        {
+                          "kind": "FIELD_BINDING_PATTERN",
+                          "hasDiagnostics": true,
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
                                   ]
                                 }
                               ]

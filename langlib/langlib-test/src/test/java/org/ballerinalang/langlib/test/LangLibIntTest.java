@@ -132,4 +132,13 @@ public class LangLibIntTest {
         assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test
+    public void testLangLibCallOnIntSubTypes() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnIntSubTypes");
+    }
+
+    @Test
+    public void testLangLibCallOnFiniteType() {
+        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
 }

@@ -37,6 +37,7 @@ import org.eclipse.lsp4j.CompletionItemCapabilities;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
+import org.eclipse.lsp4j.ExecuteCommandCapabilities;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.RenameCapabilities;
@@ -45,6 +46,7 @@ import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
+import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
@@ -151,6 +153,11 @@ public class TestUtil {
         textDocumentClientCapabilities.setRename(renameCapabilities);
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
+
+        WorkspaceClientCapabilities workspaceCapabilities = new WorkspaceClientCapabilities();
+        workspaceCapabilities.setExecuteCommand(new ExecuteCommandCapabilities(true));
+        capabilities.setWorkspace(workspaceCapabilities);
+        
         params.setCapabilities(capabilities);
         endpoint.request("initialize", params);
 

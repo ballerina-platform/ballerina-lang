@@ -26,6 +26,8 @@ public interface IdentifierNode extends Node {
     
     void setValue(String value);
 
+    void setOriginalValue(String value);
+
     boolean isLiteral();
     
     void setLiteral(boolean isLiteral);

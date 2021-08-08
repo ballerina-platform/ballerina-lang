@@ -157,6 +157,15 @@ function testFromCodePointIntsInSurrogateRange() {
     test:assertValueEqual("Invalid codepoint: 55551", (<error>ch1).message());
 }
 
+function testStringAssignabilityToSingleCharVarDef() {
+    var charVar = "a";
+    test:assertValueEqual(true, charVar is string);
+    test:assertValueEqual(true, charVar is string:Char);
+    charVar = "Hello";
+    test:assertValueEqual(true, charVar is string);
+    test:assertValueEqual(false, charVar is string:Char);
+}
+
 function testToCodePointWithChaType() {
     int backslash = ("\\").toCodePointInt();
     test:assertValueEqual(92, backslash);
@@ -174,3 +183,32 @@ function updateRecord(record { string i;} rec, string value) {
     rec.i = value;
 }
 
+type X "a"|"b";
+type Y -1|"e"|"f";
+
+function testFiniteTypeAsStringSubType() {
+    X a = "a";
+    string:Char b = a;
+    test:assertValueEqual("a", b);
+    test:assertValueEqual(true, a is string:Char);
+
+    X[] c = ["a", "b"];
+    string:Char[] d = c;
+    test:assertValueEqual(true, c is string:Char[]);
+    test:assertValueEqual(true, c is string[]);
+    test:assertValueEqual(true, d is string:Char[]);
+    test:assertValueEqual(true, d is string[]);
+
+    Y[] e = ["e", "e", -1];
+    (string:Char|int)[] f = e;
+    test:assertValueEqual(false, <any> e is string:Char[]);
+    test:assertValueEqual(false, <any> f is string:Char[]);
+    test:assertValueEqual(true, e is (int:Signed32|string:Char)[]);
+    test:assertValueEqual(true, f is (int:Signed32|string:Char)[]);
+
+    (string:Char|int:Signed32)[] g = e;
+    test:assertValueEqual(false, <any> g is string:Char[]);
+    test:assertValueEqual(true, <any> g is (int:Signed32|string:Char)[]);
+    test:assertValueEqual(true, <any> g is (int:Signed32|string)[]);
+    test:assertValueEqual(false, <any> g is (int:Unsigned32|string:Char)[]);
+}

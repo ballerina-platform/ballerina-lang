@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
@@ -35,11 +36,18 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.StringValue;
+import io.ballerina.runtime.internal.values.TypedescValue;
+import org.ballerinalang.langlib.internal.GetElements;
+import org.ballerinalang.langlib.internal.GetFilteredChildrenFlat;
+import org.ballerinalang.langlib.internal.SelectDescendants;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
@@ -70,6 +79,10 @@ import static io.ballerina.runtime.api.creators.TypeCreator.createErrorType;
 public class DebuggerRuntime {
 
     private static final String EVALUATOR_STRAND_NAME = "evaluator-strand";
+    private static final String XML_STEP_SEPARATOR = "/";
+    private static final String XML_ALL_CHILDREN_STEP = "\\*";
+    private static final String XML_DESCENDANT_STEP_PREFIX = "**";
+    private static final String XML_NAME_PATTERN_SEPARATOR = "\\|";
 
     /**
      * Invokes Ballerina object methods in blocking manner.
@@ -218,6 +231,31 @@ public class DebuggerRuntime {
         return ErrorCreator.createError(bErrorType, (StringValue) message, (ErrorValue) cause, errorDetailsMap);
     }
 
+    /**
+     * Returns the annotation value with the given name, w.r.t. a given typedesc value.
+     *
+     * @param typedescValue  typedesc value
+     * @param annotationName name of the annotation
+     * @return annotation value with the given name
+     */
+    public static Object getAnnotationValue(Object typedescValue, String annotationName) {
+        if (!(typedescValue instanceof TypedescValue)) {
+            return ErrorCreator.createError(StringUtils.fromString("Incompatible types: expected 'typedesc`, found '"
+                    + typedescValue.toString() + "'."));
+        }
+        Type type = ((TypedescValue) typedescValue).getDescribingType();
+        if (type instanceof BAnnotatableType) {
+            return ((BAnnotatableType) type).getAnnotations().entrySet()
+                    .stream()
+                    .filter(annotationEntry -> annotationEntry.getKey().getValue().endsWith(annotationName))
+                    .findFirst()
+                    .map(Map.Entry::getValue)
+                    .orElse(null);
+        }
+        return ErrorCreator.createError(StringUtils.fromString("type: '" + type.toString() + "' does not support " +
+                "annotation access."));
+    }
+
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
         Method declaredMethod = Arrays.stream(funcClass.getDeclaredMethods())
                 .filter(method -> functionName.equals(method.getName()))
@@ -243,6 +281,82 @@ public class DebuggerRuntime {
         } else {
             return "unknown";
         }
+    }
+
+    /**
+     * Returns an array of extracted children elements from a given {@link BXmlSequence} with a given range.
+     *
+     * @param xmlSequence parent XML sequence
+     * @param start       start index of the children range
+     * @param count       children count that needs to be extracted
+     * @return child variable array (or any exceptions, otherwise).
+     */
+    public static Object getXmlChildrenInRange(BXmlSequence xmlSequence, int start, int count) {
+        try {
+            if (count > 0) {
+                return xmlSequence.getChildrenList().subList(start, start + count).toArray(new BXml[0]);
+            } else {
+                return xmlSequence.getChildrenList().toArray(new BXml[0]);
+            }
+        } catch (Exception e) {
+            return e;
+        }
+    }
+
+    /**
+     * Performs and returns the result of XML filter expression.
+     *
+     * @param xmlVal              parent XML value
+     * @param xmlPatternChainList filter expression pattern
+     * @return the result of XML filter expression
+     */
+    public static BXml getXMLFilterResult(BXml xmlVal, BString... xmlPatternChainList) {
+        return GetElements.getElements(xmlVal, xmlPatternChainList);
+    }
+
+    /**
+     * Performs and returns the result of XML step expression.
+     *
+     * @param xmlVal         parent XML value
+     * @param xmlStepPattern step expression pattern
+     * @return the result of XML step expression
+     */
+    public static Object getXMLStepResult(BXml xmlVal, String xmlStepPattern) {
+        try {
+            if (xmlStepPattern.startsWith(XML_STEP_SEPARATOR)) {
+                xmlStepPattern = xmlStepPattern.substring(1);
+            }
+
+            BString[] elementNames;
+            if (xmlStepPattern.equals(XML_ALL_CHILDREN_STEP)) {
+                elementNames = new BString[]{StringUtils.fromString(xmlStepPattern)};
+                return GetFilteredChildrenFlat.getFilteredChildrenFlat(xmlVal, -1, elementNames);
+            } else if (xmlStepPattern.startsWith(XML_DESCENDANT_STEP_PREFIX)) {
+                String[] namePatternParts = xmlStepPattern.split(XML_STEP_SEPARATOR);
+                xmlStepPattern = namePatternParts[namePatternParts.length - 1];
+                elementNames = processXMLNamePattern(xmlStepPattern);
+                return SelectDescendants.selectDescendants(xmlVal, elementNames);
+            } else {
+                elementNames = processXMLNamePattern(xmlStepPattern);
+                return GetFilteredChildrenFlat.getFilteredChildrenFlat(xmlVal, -1, elementNames);
+            }
+        } catch (Exception e) {
+            return ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
+        }
+    }
+
+    private static BString[] processXMLNamePattern(String xmlNamePattern) {
+        // removes LT and GT tokens if presents.
+        xmlNamePattern = xmlNamePattern.replaceAll("<", "").replaceAll(">", "");
+
+        if (xmlNamePattern.contains(XML_STEP_SEPARATOR)) {
+            String[] stepParts = xmlNamePattern.split(XML_ALL_CHILDREN_STEP);
+            xmlNamePattern = stepParts[stepParts.length - 1];
+        }
+
+        return Arrays.stream(xmlNamePattern.split(XML_NAME_PATTERN_SEPARATOR))
+                .map(entry -> StringUtils.fromString(entry.trim()))
+                .toArray(BString[]::new);
     }
 
     private DebuggerRuntime() {

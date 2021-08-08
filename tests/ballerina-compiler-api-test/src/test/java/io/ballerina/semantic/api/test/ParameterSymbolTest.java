@@ -103,6 +103,7 @@ public class ParameterSymbolTest {
                 {48, 20, "misc", ARRAY, REST, "anydata... misc"},
                 {53, 30, "p", TYPE_REFERENCE, REQUIRED, "Person p"},
                 {53, 44, "misc", ARRAY, REST, "anydata... misc"},
+                {62, 55, "myStr", STRING, REQUIRED, "string myStr"},
         };
     }
 
