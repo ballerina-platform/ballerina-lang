@@ -51,5 +51,4 @@ public class BLangRestArgsExpression extends BLangExpression implements RestArgs
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
-
 }

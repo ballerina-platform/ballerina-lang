@@ -51,7 +51,6 @@ public class BLangTypedescExpr extends BLangExpression implements TypedescExpres
         visitor.visit(this);
     }
 
-
     @Override
     public String toString() {
         return String.valueOf(resolvedType);

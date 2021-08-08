@@ -34,4 +34,5 @@ public abstract class BLangValueExpression extends BLangExpression {
     public boolean isLValue = false;
     public boolean isCompoundAssignmentLValue = false;
     public BSymbol symbol;
+
 }

@@ -114,5 +114,4 @@ public abstract class BLangNode implements Node {
             this.ws.addAll(whitespaces);
         }
     }
-
 }

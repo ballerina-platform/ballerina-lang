@@ -44,7 +44,6 @@ public class BLangTableKeyTypeConstraint extends BLangNode implements TableKeyTy
         visitor.visit(this);
     }
 
-
     @Override
     public NodeKind getKind() {
         return NodeKind.TABLE_KEY_TYPE_CONSTRAINT;

@@ -81,5 +81,4 @@ public class BLangIntRangeExpression extends BLangExpression implements IntRange
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
-
 }

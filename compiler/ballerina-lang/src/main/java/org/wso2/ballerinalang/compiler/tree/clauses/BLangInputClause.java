@@ -67,4 +67,5 @@ public abstract class BLangInputClause extends BLangNode implements InputClauseN
     public void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode) {
         this.variableDefinitionNode = variableDefinitionNode;
     }
+
 }
