@@ -79,4 +79,9 @@ public class LangLibFloatTest {
     public void testLangLibCallOnFiniteType() {
         BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
     }
+
+    @Test
+    public void testFloatRefEquality() {
+        BRunUtil.invoke(compileResult, "testFloatRefEquality");
+    }
 }
