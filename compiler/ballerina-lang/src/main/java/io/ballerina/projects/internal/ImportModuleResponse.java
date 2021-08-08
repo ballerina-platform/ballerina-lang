@@ -17,8 +17,12 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.environment.ResolutionResponse;
+
+import java.util.Optional;
 
 /**
  * Represents a resolved imported module.
@@ -26,17 +30,36 @@ import io.ballerina.projects.PackageOrg;
  * @since 2.0.0
  */
 public class ImportModuleResponse {
-    // TODO can we replace this with Vertex?
-    private final PackageOrg packageOrg;
-    private final PackageName packageName;
-    private final ImportModuleRequest importModuleRequest;
+    // TODO remove the below 2
+    private PackageOrg packageOrg;
+    private PackageName packageName;
 
+    private final PackageDescriptor packageDescriptor;
+    private final ImportModuleRequest importModuleRequest;
+    private final ResolutionResponse.ResolutionStatus resolutionStatus;
+
+    // TODO Remove this constructor
     public ImportModuleResponse(PackageOrg packageOrg,
                                 PackageName packageName,
                                 ImportModuleRequest importModuleRequest) {
         this.packageOrg = packageOrg;
         this.packageName = packageName;
         this.importModuleRequest = importModuleRequest;
+        this.resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
+        packageDescriptor = null;
+    }
+
+    public ImportModuleResponse(PackageDescriptor packageDescriptor,
+                                ImportModuleRequest importModuleRequest) {
+        this.packageDescriptor = packageDescriptor;
+        this.importModuleRequest = importModuleRequest;
+        this.resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
+    }
+
+    public ImportModuleResponse(ImportModuleRequest importModuleRequest) {
+        this.packageDescriptor = null;
+        this.importModuleRequest = importModuleRequest;
+        this.resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
     }
 
     public PackageOrg packageOrg() {
@@ -49,5 +72,13 @@ public class ImportModuleResponse {
 
     public ImportModuleRequest importModuleRequest() {
         return importModuleRequest;
+    }
+
+    public Optional<PackageDescriptor> packageDescriptor() {
+        return Optional.ofNullable(packageDescriptor);
+    }
+
+    public ResolutionResponse.ResolutionStatus resolutionStatus() {
+        return resolutionStatus;
     }
 }
