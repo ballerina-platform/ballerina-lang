@@ -408,7 +408,7 @@ public class JvmPackageGen {
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
                                        String moduleInitClass, String moduleTypeClass,
-                                       JvmBStringConstantsGen stringConstantsGen, JvmTypeGen jvmTypeGen,
+                                       JvmBStringConstantsGen stringConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
         jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
@@ -417,6 +417,7 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
+            JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
             JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
@@ -449,6 +450,7 @@ public class JvmPackageGen {
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports, jvmCastGen);
 
                 generateLockForVariable(cw);
+                jvmTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, moduleTypeClass);
                 ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen);
                 moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
@@ -798,16 +800,13 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
         valueGen.generateValueClasses(jarEntries, stringConstantsGen);
-        jvmTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
-
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, moduleTypeClass, stringConstantsGen, jvmTypeGen,
+        generateModuleClasses(module, jarEntries, moduleInitClass, moduleTypeClass, stringConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
         stringConstantsGen.generateConstantInit(jarEntries);
 
