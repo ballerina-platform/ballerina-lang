@@ -38,7 +38,8 @@ function constrainedTypes() {
 }
 
 function structuredTypes() {
-    int[] ar;
+    int[] ar1;
+    int[TEN] ar2;
     [int, string] tup;
 }
 
@@ -64,6 +65,7 @@ function otherTypes() {
 
 // utils
 const FOO = "foo";
+const TEN = 10;
 
 type Person record {|
     int id;

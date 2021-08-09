@@ -103,23 +103,23 @@ public class TypeSymbolTest {
                 {35, 4, FUTURE, "future<string>"},
                 {36, 4, FUTURE, "future<any|error>"},
                 {40, 4, INT, "int"},
-                {41, 5, INT, "int"},
-                {41, 10, STRING, "string"},
-//                {45, 4, ERROR, "error<ErrorData>"},
-                {46, 4, HANDLE, "handle"},
-                {47, 4, STREAM, "stream<Person, error>"},
-                {51, 4, SINGLETON, "10"},
-                {52, 4, SINGLETON, "FOO"},
-                {53, 4, ANY, "any"},
-                {54, 4, NEVER, "never"},
-                {55, 4, READONLY, "readonly"},
-                {56, 4, INT, "int"},
-                {56, 8, STRING, "string"},
-                {57, 13, READONLY, "readonly"},
-                {58, 4, INT, "int"},
-                {59, 4, ANYDATA, "anydata"},
-                {60, 4, JSON, "json"},
-                {61, 4, BYTE, "byte"},
+                {42, 5, INT, "int"},
+                {42, 10, STRING, "string"},
+//                {46, 4, ERROR, "error<ErrorData>"},
+                {47, 4, HANDLE, "handle"},
+                {48, 4, STREAM, "stream<Person, error>"},
+                {52, 4, SINGLETON, "10"},
+                {53, 4, SINGLETON, "FOO"},
+                {54, 4, ANY, "any"},
+                {55, 4, NEVER, "never"},
+                {56, 4, READONLY, "readonly"},
+                {57, 4, INT, "int"},
+                {57, 8, STRING, "string"},
+                {58, 13, READONLY, "readonly"},
+                {59, 4, INT, "int"},
+                {60, 4, ANYDATA, "anydata"},
+                {61, 4, JSON, "json"},
+                {62, 4, BYTE, "byte"},
         };
     }
 
@@ -138,7 +138,7 @@ public class TypeSymbolTest {
                 {31, 13, ANYDATA, "anydata"},
                 {34, 22, INT, "int"},
                 {35, 11, STRING, "string"},
-//                {47, 19, ERROR, "error"},
+//                {48, 19, ERROR, "error"},
         };
     }
 
@@ -154,10 +154,19 @@ public class TypeSymbolTest {
         return new Object[][]{
                 {33, 10, TYPE_REFERENCE, "Person"},
                 {34, 10, TYPE_REFERENCE, "Person"},
-                {45, 10, TYPE_REFERENCE, "ErrorData"},
-                {47, 11, TYPE_REFERENCE, "Person"},
-                {57, 4, TYPE_REFERENCE, "Person"},
+                {46, 10, TYPE_REFERENCE, "ErrorData"},
+                {48, 11, TYPE_REFERENCE, "Person"},
+                {58, 4, TYPE_REFERENCE, "Person"},
         };
+    }
+
+    @Test
+    public void testConstRef() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(41, 8));
+
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.CONSTANT);
+        assertEquals(symbol.get().getName().get(), "TEN");
     }
 
     // private utils
