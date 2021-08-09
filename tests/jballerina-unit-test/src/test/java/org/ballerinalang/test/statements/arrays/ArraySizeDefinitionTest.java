@@ -69,7 +69,7 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 42, 12);
         BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 43, 5);
         BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 44, 23);
-        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 8);
+        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 9);
         BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 47, 9);
         BAssertUtil.validateError(resultNegative, index++, SIZE_LIMIT_ERROR, 48, 9);
         BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 50, 9);
