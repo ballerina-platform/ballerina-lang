@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Tests the functinality of {@link UpdateDocumentationExecutor}.
+ * Tests the functionality of {@link UpdateDocumentationExecutor}.
  */
 public class UpdateDocumentationExecutorTest extends AbstractCommandExecutionTest {
 
@@ -41,6 +41,8 @@ public class UpdateDocumentationExecutorTest extends AbstractCommandExecutionTes
                 {"updateDocumentationConfig1.json", "updateDocumentationSource1.bal"},
                 {"updateDocumentationConfig2.json", "updateDocumentationSource2.bal"},
                 {"updateDocumentationConfig3.json", "updateDocumentationSource3.bal"},
+                {"updateDocumentationConfig4.json", "updateDocumentationSource4.bal"},
+                {"updateDocumentationConfig5.json", "updateDocumentationSource5.bal"},
                 {"updateDocumentationWithDeprecatedConfig1.json", "updateDocumentationWithDeprecatedSource1.bal"},
                 {"updateDocumentationWithDeprecatedConfig2.json", "updateDocumentationWithDeprecatedSource2.bal"},
                 {"updateDocumentationWithDeprecatedConfig3.json", "updateDocumentationWithDeprecatedSource3.bal"},

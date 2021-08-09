@@ -125,9 +125,6 @@
                 {
                   "kind": "RESOURCE_PATH_REST_PARAM",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                  ],
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -159,14 +156,20 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
+                      "hasDiagnostics": true,
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN"
+                                "kind": "SLASH_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
+                                ]
                               }
                             ]
                           }
@@ -303,9 +306,6 @@
                 {
                   "kind": "RESOURCE_PATH_REST_PARAM",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                  ],
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -337,14 +337,20 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
+                      "hasDiagnostics": true,
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN"
+                                "kind": "SLASH_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
+                                ]
                               }
                             ]
                           }
@@ -518,9 +524,6 @@
                 {
                   "kind": "RESOURCE_PATH_REST_PARAM",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                  ],
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -552,14 +555,20 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
+                      "hasDiagnostics": true,
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN"
+                                "kind": "SLASH_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
+                                ]
                               }
                             ]
                           }
@@ -751,9 +760,6 @@
                 {
                   "kind": "RESOURCE_PATH_REST_PARAM",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                  ],
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -785,14 +791,20 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
+                      "hasDiagnostics": true,
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN"
+                                "kind": "SLASH_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
+                                ]
                               }
                             ]
                           }
@@ -936,9 +948,6 @@
                 {
                   "kind": "RESOURCE_PATH_REST_PARAM",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                  ],
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -970,14 +979,20 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
+                      "hasDiagnostics": true,
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN"
+                                "kind": "SLASH_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
+                                ]
                               }
                             ]
                           }
@@ -1158,9 +1173,6 @@
                 {
                   "kind": "RESOURCE_PATH_REST_PARAM",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                  ],
                   "children": [
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -1192,14 +1204,20 @@
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
+                      "hasDiagnostics": true,
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN"
+                                "kind": "SLASH_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
+                                ]
                               }
                             ]
                           }

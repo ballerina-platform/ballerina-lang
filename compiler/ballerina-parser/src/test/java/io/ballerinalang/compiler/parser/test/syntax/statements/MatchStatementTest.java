@@ -80,7 +80,7 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_06.bal", "match-stmt/match_stmt_assert_06.json");
     }
 
-    @Test(enabled = false) // issue #31843
+    @Test
     public void testMatchStmtRecoveryMissingSymbolsAdditionalSymbols() {
         testFile("match-stmt/match_stmt_source_07.bal", "match-stmt/match_stmt_assert_07.json");
         testFile("match-stmt/match_stmt_source_19.bal", "match-stmt/match_stmt_assert_19.json");
@@ -91,17 +91,17 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_09.bal", "match-stmt/match_stmt_assert_09.json");
     }
 
-    @Test(enabled = false) // issue #31843
+    @Test
     public void testMatchStmtRecoveryInvalidMappingMatchPatterns() {
         testFile("match-stmt/match_stmt_source_11.bal", "match-stmt/match_stmt_assert_11.json");
     }
 
-    @Test(enabled = false) // issue #31843
+    @Test
     public void testMatchStmtRecoveryInvalidErrorMatchPatterns() {
         testFile("match-stmt/match_stmt_source_13.bal", "match-stmt/match_stmt_assert_13.json");
     }
 
-    @Test(enabled = false) // issue #31843
+    @Test
     public void testMatchStatementOnFailClauseRecovery() {
         testFile("match-stmt/match_stmt_source_15.bal", "match-stmt/match_stmt_assert_15.json");
     }

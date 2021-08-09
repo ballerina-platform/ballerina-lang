@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.stream.Collectors;
 
 /**
  * Utilities related to files.
@@ -127,6 +128,26 @@ public class FileUtils {
         return sb.toString();
     }
 
+    /**
+     * Deletes the provided path. If path is a directory, recursively deletes it. Else, delete the file.
+     *
+     * @param path Path to be deleted
+     * @throws IOException On permission issues, concurrent access (on windows) and etc
+     */
+    public static void deletePath(Path path) throws IOException {
+        if (!Files.exists(path)) {
+            return;
+        }
+
+        if (Files.isDirectory(path)) {
+            for (Path dir : Files.list(path).collect(Collectors.toList())) {
+                deletePath(dir);
+            }
+        }
+
+        Files.delete(path);
+    }
+        
     /**
      * Copy files to the given destination.
      */

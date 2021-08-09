@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.command.executors.UpdateDocumentationExecuto
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -49,6 +50,11 @@ import java.util.Optional;
 public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Update Documentation";
+
+    @Override
+    public boolean isEnabled(LanguageServerContext serverContext) {
+        return false;
+    }
 
     @Override
     public int priority() {

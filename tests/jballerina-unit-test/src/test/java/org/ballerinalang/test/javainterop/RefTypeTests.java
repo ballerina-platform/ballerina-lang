@@ -239,10 +239,21 @@ public class RefTypeTests {
         Assert.assertEquals(((BValueType) returns[0]).intValue(), 3);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: java.lang.ClassCastException.*")
+    @Test
     public void testInteropWithJavaStringReturn() {
-        BRunUtil.invoke(result, "interopWithJavaStringReturn");
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(result, "interopWithJavaStringReturn");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: 'class java.lang.String' cannot be assigned to type 'anydata'\n" +
+                "\tat ballerina_types_as_interop_types:" +
+                "acceptNothingInvalidAnydataReturn(ballerina_types_as_interop_types.bal:196)\n" +
+                "\t   ballerina_types_as_interop_types:" +
+                "interopWithJavaStringReturn(ballerina_types_as_interop_types.bal:174)");
     }
 
     @Test
@@ -329,9 +340,9 @@ public class RefTypeTests {
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
         Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
-                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:428)\n" +
+                "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:436)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
-                "420)");
+                "428)");
     }
 
     @Test

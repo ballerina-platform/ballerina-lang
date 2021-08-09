@@ -21,12 +21,9 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-
-import java.text.CharacterIterator;
-import java.text.StringCharacterIterator;
-
 
 /**
  * Native implementation of lang.string.StringIterator:next().
@@ -35,24 +32,24 @@ import java.text.StringCharacterIterator;
  */
 public class Next {
 
+    private Next() {
+    }
+
     //TODO: refactor hard coded values
-    public static Object next(BObject m) {
-        StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
-        if (stringCharacterIterator == null) {
-            String s = ((BString) m.get(StringUtils.fromString("m"))).getValue();
-            stringCharacterIterator = new StringCharacterIterator(s);
-            m.addNativeData("&iterator&", stringCharacterIterator);
+    public static Object next(BObject stringObject) {
+        BIterator charIterator = (BIterator) stringObject.getNativeData("&iterator&");
+        if (charIterator == null) {
+            BString bString = ((BString) stringObject.get(StringUtils.fromString("m")));
+            charIterator = bString.getIterator();
+            stringObject.addNativeData("&iterator&", charIterator);
         }
 
-        if (stringCharacterIterator.current() != CharacterIterator.DONE) {
-            char character = stringCharacterIterator.current();
-            stringCharacterIterator.next();
-            Object charAsStr = StringUtils.fromString(String.valueOf(character));
-            return ValueCreator.createRecordValue(ValueCreator.createMapValue(
-                    PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
-                                                  charAsStr);
+        if (charIterator.hasNext()) {
+            Object element = StringUtils.fromString((String) charIterator.next());
+            return ValueCreator
+                    .createRecordValue(ValueCreator.createMapValue(PredefinedTypes.STRING_ITR_NEXT_RETURN_TYPE),
+                            element);
         }
-
         return null;
     }
 }

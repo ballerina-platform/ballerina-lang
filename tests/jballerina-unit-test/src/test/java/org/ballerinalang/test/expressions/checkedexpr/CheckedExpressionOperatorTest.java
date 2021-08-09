@@ -233,6 +233,11 @@ public class CheckedExpressionOperatorTest {
         BRunUtil.invoke(result, "testCheckWithMixOfDefaultErrorAndDistinctErrors");
     }
 
+    @Test(description = "Test checked expressions in let expression")
+    public void testCheckInLetExpression() {
+        BRunUtil.invoke(result, "testCheckInLetExpression");
+    }
+
     @Test(description = "Test service resource that returns an error containing check expression")
     public void testSemanticErrorsWithResources() {
         CompileResult compile = BCompileUtil.compile(
