@@ -80,7 +80,7 @@ public class SerialTreeParser extends TrialTreeParser {
             }
         }
         if (source.startsWith(COMMAND_PREFIX)) {
-            errorMessage = "Can not find the command : " + source.substring(0, source.length() - 1).trim();
+            errorMessage = "Can not find the command: " + source.substring(0, source.length() - 1).trim();
             addErrorDiagnostic(errorMessage);
             addErrorDiagnostic("Please use \"/help\" command to view available commands.");
         } else {
