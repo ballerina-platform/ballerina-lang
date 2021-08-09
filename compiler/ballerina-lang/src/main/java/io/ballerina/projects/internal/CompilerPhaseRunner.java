@@ -169,6 +169,12 @@ public class CompilerPhaseRunner {
         }
 
         birEmit(pkgNode);
+
+        if (this.stopCompilation(pkgNode, CompilerPhase.NBALLERINA)) {
+            return;
+        }
+
+        nBallerinaPhase(pkgNode);
     }
 
     public void performLangLibTypeCheckPhases(BLangPackage pkgNode) {
@@ -205,6 +211,12 @@ public class CompilerPhaseRunner {
         }
 
         birEmit(pkgNode);
+
+        if (this.stopCompilation(pkgNode, CompilerPhase.NBALLERINA)) {
+            return;
+        }
+
+        nBallerinaPhase(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
