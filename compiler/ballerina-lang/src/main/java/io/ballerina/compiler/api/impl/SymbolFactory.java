@@ -191,7 +191,7 @@ public class SymbolFactory {
             if (symbol instanceof BClassSymbol && !((BClassSymbol) symbol).isLabel) {
                 return createClassSymbol((BClassSymbol) symbol, name);
             }
-            if (Symbols.isFlagOn(symbol.flags, Flags.ENUM)) {
+            if (symbol instanceof BEnumSymbol) {
                 return createEnumSymbol((BEnumSymbol) symbol, name);
             }
 
