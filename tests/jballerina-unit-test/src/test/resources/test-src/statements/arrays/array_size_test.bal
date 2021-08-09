@@ -26,4 +26,6 @@ function arraySizeTest() {
     int[2] s = q;
     int[0x2][2] t = f;
     int[0x2][0x2] u = k;
+    int[0] v;
+    int[2147483637] w;
 }

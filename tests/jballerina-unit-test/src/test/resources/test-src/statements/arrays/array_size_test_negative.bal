@@ -44,7 +44,7 @@ function arraySizeTest() {
     int[2][2][2] t = [[[1,2],[1,2],[1,2]],[[1,2],[1,2]]];
     int["TEST"] testArr = [];
 
-    int[2147483657] u = [];
+    int[2147483638] u = [];
     int[int:MAX_VALUE] v = [];
 
     int[9223372036854775808] w = [];
