@@ -82,6 +82,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         probableParents = new ArrayList<>();
         this.type = PredefinedTypes.TYPE_ELEMENT;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
+        setTypedescValue(type);
     }
 
     public XmlItem(QName name, XmlSequence children) {

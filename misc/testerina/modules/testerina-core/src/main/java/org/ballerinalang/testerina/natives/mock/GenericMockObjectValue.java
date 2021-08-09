@@ -27,8 +27,10 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,10 +46,12 @@ public class GenericMockObjectValue implements BObject {
     private BObject mockObj;
 
     private ObjectType type;
+    private BTypedesc typedesc;
 
     public GenericMockObjectValue(ObjectType type, BObject mockObj) {
         this.type = type;
         this.mockObj = mockObj;
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -245,4 +249,10 @@ public class GenericMockObjectValue implements BObject {
     public Object frozenCopy(Map<Object, Object> refs) {
         return null;
     }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
+    }
+
 }
