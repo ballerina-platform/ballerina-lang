@@ -22,13 +22,16 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test for connector info.
+ */
 public class BallerinaConnectorInfoTest {
 
     private BallerinaConnectorInfo connectorInfo;
 
     @BeforeClass
     public void initConnectorInfo() {
-        this.connectorInfo = new BallerinaConnectorInfo(
+        connectorInfo = new BallerinaConnectorInfo(
                 "ballerinax",
                 "slack",
                 "Client",
@@ -49,7 +52,7 @@ public class BallerinaConnectorInfoTest {
     @Test(description = "Test overloaded constructor with logo")
     public void createConnectorInfoWithLogo() {
         String encodedLogo = "bm90aGluZwo=";
-        this.connectorInfo = new BallerinaConnectorInfo(
+        connectorInfo = new BallerinaConnectorInfo(
                 "ballerinax",
                 "slack",
                 "Client",
