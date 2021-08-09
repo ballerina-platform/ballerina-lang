@@ -81,16 +81,16 @@ public class LangLibFloatTest {
         BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
     }
 
-    @Test(dataProvider = "functionsWithFloatRefEqualityChecks")
-    public void testFunctionsWithFloatRefEqualityChecks(String function) {
+    @Test(dataProvider = "functionsWithFloatExactEqualityChecks")
+    public void testFunctionsWithFloatExactEqualityChecks(String function) {
         BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider
-    public  Object[] functionsWithFloatRefEqualityChecks() {
+    public  Object[] functionsWithFloatExactEqualityChecks() {
         return new String[] {
-                "testFloatRefEquality",
-                "testFloatRefNotEquality"
+                "testFloatExactEquality",
+                "testFloatNotExactEquality"
         };
     }
 }

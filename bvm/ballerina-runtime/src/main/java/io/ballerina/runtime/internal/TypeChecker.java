@@ -414,8 +414,8 @@ public class TypeChecker {
      * @return True if values are reference equal, else false.
      */
 
-    public static boolean checkFloatRefEqual(double lhsValue, double rhsValue) {
-        return Objects.equals(lhsValue, rhsValue);
+    public static boolean checkFloatExactEqual(double lhsValue, double rhsValue) {
+        return Double.valueOf(lhsValue).equals(Double.valueOf(rhsValue));
     }
 
     /**
