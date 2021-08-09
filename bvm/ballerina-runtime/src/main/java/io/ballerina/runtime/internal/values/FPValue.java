@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 
@@ -46,6 +47,7 @@ import java.util.function.Function;
 public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     final Type type;
+    private final BTypedesc typedesc;
     Function<T, R> function;
     public boolean isConcurrent;
     public String strandName;
@@ -56,6 +58,7 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         this.type = type;
         this.strandName = strandName;
         this.isConcurrent = isConcurrent;
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public R call(T t) {
@@ -109,6 +112,11 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     @Override
     public void freezeDirect() {
         return;
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     @Override

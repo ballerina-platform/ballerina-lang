@@ -101,17 +101,24 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public MapValueImpl(Type type) {
         super();
         this.type = type;
+        setTypedescValue();
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
         this.type = type;
+        setTypedescValue();
         populateInitialValues(initialValues);
     }
 
     public MapValueImpl() {
         super();
         type = PredefinedTypes.TYPE_MAP;
+        setTypedescValue();
+    }
+
+    private void setTypedescValue() {
+        this.typedesc = new TypedescValueImpl(this.type);
     }
 
     public Long getIntValue(BString key) {

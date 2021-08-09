@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
@@ -51,6 +52,7 @@ import javax.xml.namespace.QName;
 public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
+    protected TypedescValue typedesc = new TypedescValueImpl(type);
 
     public abstract int size();
 
@@ -238,4 +240,14 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
             handleXmlException("error occurred during writing the message to the output stream: ", t);
         }
     }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
+    }
+
+    protected void setTypedescValue(Type type) {
+        this.typedesc = new TypedescValueImpl(type);
+    }
+
 }

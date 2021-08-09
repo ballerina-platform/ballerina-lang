@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
@@ -92,6 +93,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private boolean nextKeySupported;
 
     private final Map<String, Object> nativeData = new HashMap<>();
+    private BTypedesc typedesc;
 
     public TableValueImpl(TableType type) {
         this.type = type;
@@ -102,6 +104,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.keyToIndexMap = new LinkedHashMap<>();
         this.indexToKeyMap = new LinkedHashMap<>();
         this.fieldNames = type.getFieldNames();
+        setTypedescValue();
         if (type.getFieldNames() != null) {
             this.valueHolder = new KeyHashValueHolder();
         } else {
@@ -177,6 +180,15 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                                                StringUtils.fromString(e.getDetail()));
             }
         }
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
+    }
+
+    private void setTypedescValue() {
+        this.typedesc = new TypedescValueImpl(this.type);
     }
 
     @Override

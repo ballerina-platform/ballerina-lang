@@ -51,7 +51,7 @@ public class TypeofOverLiteralExpressionTest {
     }
 
     @DataProvider(name = "simple-value-provider")
-    public Object[][] provideSimpleTypValuese() {
+    public Object[][] provideSimpleTypValues() {
         return new Object[][]{
                 {new BInteger(1L), "1"},
                 {new BDecimal("2.0"), "2.0"},

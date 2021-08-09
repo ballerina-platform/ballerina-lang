@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -65,6 +66,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     Object[] refValues;
     private int minSize;
     private boolean hasRestElement; // cached value for ease of access
+    private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Override
@@ -107,6 +109,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
         this.minSize = memTypes.size();
         this.size = refValues.length;
+        setTypedescValue();
     }
 
     public TupleValueImpl(TupleType type) {
@@ -132,6 +135,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             }
             this.refValues[i] = memType.getZeroValue();
         }
+        setTypedescValue();
     }
 
     public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
@@ -143,6 +147,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.size = size < memCount ? memCount : (int) size;
         this.minSize = memCount;
         this.hasRestElement = this.tupleType.getRestType() != null;
+        setTypedescValue();
 
         if (type.getRestType() == null) {
             this.maxSize = this.size;
@@ -167,6 +172,15 @@ public class TupleValueImpl extends AbstractArrayValue {
 
             this.refValues[i] = memType.getZeroValue();
         }
+    }
+
+    private void setTypedescValue() {
+        this.typedesc = new TypedescValueImpl(tupleType);
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     // ----------------------- get methods ----------------------------------------------------
