@@ -17,11 +17,27 @@
 import ballerina/test;
 import testorg/runtime_api_types.objects;
 
+objects:PublicClientObject obj = new ();
+
 public function main() {
-    objects:PublicClientObject obj = new ();
-    [string,boolean] [] parameters = objects:getParameters(obj, "getRemoteCounter");
+    testRemoteFunctionParameters();
+    testFunctionToString();
+    testParamTypesString();
+}
+
+function testFunctionToString() {
+    test:assertEquals(objects:getFunctionString(obj.testFunction), "function function (int,decimal,string) returns (())");
+}
+
+function testRemoteFunctionParameters() {
+    [string, boolean, string][] parameters = objects:getParameters(obj, "getRemoteCounter");
     test:assertEquals(parameters.length(), 3);
-    test:assertEquals(parameters[0], ["num", false]);
-    test:assertEquals(parameters[1], ["value", false]);
-    test:assertEquals(parameters[2], ["msg", true]);
+    test:assertEquals(parameters[0], ["num", false, "int"]);
+    test:assertEquals(parameters[1], ["value", false, "decimal"]);
+    test:assertEquals(parameters[2], ["msg", true, "string"]);
+}
+
+function testParamTypesString() {
+    //Need to be removed after removing getParamTypes() API
+    test:assertEquals(objects:getParamTypesString(obj.testFunction), "int decimal string ");
 }

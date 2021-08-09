@@ -453,7 +453,8 @@ public class ObjectMock {
 
                             }
                         } else {
-                            if (!TypeChecker.checkIsType(parameters[i], attachedFunction.getParameters()[i].type)) {
+                            if (!TypeChecker.checkIsType(parameters[i].type,
+                                    attachedFunction.getParameters()[i].type)) {
                                 BString detail =
                                         StringUtils.fromString("incompatible parameter type provided at position "
                                                 + (i + 1) + " in function '" + functionName + "()'");

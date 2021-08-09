@@ -23,10 +23,16 @@ package io.ballerina.runtime.api.types;
  * @since 2.0
  */
 public interface ResourceMethodType extends MethodType {
+    /*
+     * @deprecated use {@link #getParameters()} instead.
+     */
     @Deprecated
     String[] getParamNames();
     String getAccessor();
     String[] getResourcePath();
+    /*
+     * @deprecated use {@link #getParameters()} instead.
+     */
     @Deprecated
     Boolean[] getParamDefaultability();
 }
