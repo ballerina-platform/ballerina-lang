@@ -33,7 +33,7 @@ import java.util.Optional;
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final Optional<CompilerPluginDescriptor> compilerPluginDesc;
-    private final List<Dependency> dependencies;
+    private final List<Package> dependencies;
     private final Map<String, Platform> platforms;
     private final DiagnosticResult diagnostics;
     private final List<String> license;
@@ -48,7 +48,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                            List<Dependency> dependencies,
+                            List<Package> dependencies,
                             Map<String, Platform> platforms,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics) {
@@ -67,7 +67,7 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                            List<Dependency> dependencies,
+                            List<Package> dependencies,
                             Map<String, Platform> platforms,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics,
@@ -96,7 +96,7 @@ public class PackageManifest {
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                                       List<Dependency> dependencies,
+                                       List<Package> dependencies,
                                        Map<String, Platform> platforms) {
         return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()));
@@ -104,7 +104,7 @@ public class PackageManifest {
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                                       List<Dependency> dependencies,
+                                       List<Package> dependencies,
                                        Map<String, Platform> platforms,
                                        Map<String, Object> otherEntries,
                                        DiagnosticResult diagnostics,
@@ -119,7 +119,7 @@ public class PackageManifest {
 
     public static PackageManifest from(PackageDescriptor packageDesc,
             Optional<CompilerPluginDescriptor> compilerPluginDesc,
-            List<Dependency> dependencies,
+            List<Package> dependencies,
             Map<String, Platform> platforms,
             List<String> license,
             List<String> authors,
@@ -151,7 +151,7 @@ public class PackageManifest {
         return compilerPluginDesc;
     }
 
-    public List<Dependency> dependencies() {
+    public List<Package> dependencies() {
         return dependencies;
     }
 
@@ -189,21 +189,21 @@ public class PackageManifest {
     }
 
     /**
-     * Represents a dependency of a package.
+     * Represents a dependency package.
      *
      * @since 2.0.0
      */
-    public static class Dependency {
+    public static class Package {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
         private final PackageVersion semanticVersion;
         private final String scope;
         private final boolean transitive;
-        private final List<TransitiveDependency> dependencies;
-        private final List<DependencyModule> modules;
+        private final List<Dependency> dependencies;
+        private final List<Module> modules;
         public String repository;
 
-        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
@@ -213,9 +213,9 @@ public class PackageManifest {
             this.modules = Collections.emptyList();
         }
 
-        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
-                          String scope, boolean transitive, List<TransitiveDependency> dependencies,
-                          List<DependencyModule> modules) {
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
+                       String scope, boolean transitive, List<Dependency> dependencies,
+                       List<Module> modules) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
@@ -225,9 +225,9 @@ public class PackageManifest {
             this.modules = modules;
         }
 
-        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
-                          String repository, String scope, boolean transitive,
-                          List<TransitiveDependency> dependencies, List<DependencyModule> modules) {
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
+                       String repository, String scope, boolean transitive,
+                       List<Dependency> dependencies, List<Module> modules) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
@@ -262,25 +262,25 @@ public class PackageManifest {
             return transitive;
         }
 
-        public List<TransitiveDependency> dependencies() {
+        public List<Dependency> dependencies() {
             return dependencies;
         }
 
-        public List<DependencyModule> modules() {
+        public List<Module> modules() {
             return modules;
         }
     }
 
     /**
-     * Represents a transitive dependency of a package.
+     * Represents a dependency of a package.
      *
      * @since 2.0.0
      */
-    public static class TransitiveDependency {
+    public static class Dependency {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
 
-        public TransitiveDependency(PackageName packageName, PackageOrg packageOrg) {
+        public Dependency(PackageName packageName, PackageOrg packageOrg) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
         }
@@ -299,16 +299,14 @@ public class PackageManifest {
      *
      * @since 2.0.0
      */
-    public static class DependencyModule {
+    public static class Module {
         private final String org;
         private final String packageName;
-        private final String version;
         private final String moduleName;
 
-        public DependencyModule(String org, String packageName, String version, String moduleName) {
+        public Module(String org, String packageName, String moduleName) {
             this.org = org;
             this.packageName = packageName;
-            this.version = version;
             this.moduleName = moduleName;
         }
 
@@ -318,10 +316,6 @@ public class PackageManifest {
 
         public String packageName() {
             return packageName;
-        }
-
-        public String version() {
-            return version;
         }
 
         public String moduleName() {

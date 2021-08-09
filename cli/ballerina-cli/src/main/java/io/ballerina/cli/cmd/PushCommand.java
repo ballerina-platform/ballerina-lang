@@ -219,7 +219,7 @@ public class PushCommand implements BLauncherCmd {
         Path packageBalaFile = validateBalaFile(project);
 
         // check if the package is already there in remote repository
-        PackageManifest.Dependency pkgAsDependency = new PackageManifest.Dependency(
+        PackageManifest.Package pkgAsDependency = new PackageManifest.Package(
                 project.currentPackage().packageName(),
                 project.currentPackage().packageOrg(),
                 project.currentPackage().packageVersion());
@@ -380,7 +380,7 @@ public class PushCommand implements BLauncherCmd {
      * @param pkg package
      * @return is package available in the remote
      */
-    private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg, CentralAPIClient client)
+    private static boolean isPackageAvailableInRemote(PackageManifest.Package pkg, CentralAPIClient client)
             throws CentralClientException {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");

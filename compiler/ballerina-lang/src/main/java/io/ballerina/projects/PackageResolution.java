@@ -224,8 +224,8 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    PackageManifest.Dependency getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
-        for (PackageManifest.Dependency dependency : rootPackageContext.manifest().dependencies()) {
+    PackageManifest.Package getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
+        for (PackageManifest.Package dependency : rootPackageContext.manifest().dependencies()) {
             if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
                 return dependency;
             }
@@ -401,7 +401,7 @@ public class PackageResolution {
 
             PackageName packageName = importModuleResponse.packageName();
             Optional<Package> optionalPackage = getPackage(packageOrg,
-                    packageName);
+                                                           packageName);
             if (optionalPackage.isEmpty()) {
                 // This branch cannot be executed since the package is resolved before hand
                 throw new IllegalStateException("Cannot find the resolved package for org: " + packageOrg +
@@ -465,7 +465,7 @@ public class PackageResolution {
                     }
                 } else {
                     // Check whether this package is already defined in the package manifest, if so get the version
-                    PackageManifest.Dependency dependency = PackageResolution.this.getVersionFromPackageManifest(
+                    PackageManifest.Package dependency = PackageResolution.this.getVersionFromPackageManifest(
                             packageOrg, possiblePkgName);
                     PackageVersion packageVersion = dependency != null ? dependency.version() : null;
                     String repository = dependency != null ? dependency.repository() : null;

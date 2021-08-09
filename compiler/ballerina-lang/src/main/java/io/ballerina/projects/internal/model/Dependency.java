@@ -97,13 +97,11 @@ public class Dependency {
     public static class Module {
         private final String org;
         private final String packageName;
-        private final String version;
         private final String moduleName;
 
-        public Module(String org, String packageName, String version, String moduleName) {
+        public Module(String org, String packageName, String moduleName) {
             this.org = org;
             this.packageName = packageName;
-            this.version = version;
             this.moduleName = moduleName;
         }
 
@@ -113,10 +111,6 @@ public class Dependency {
 
         public String packageName() {
             return packageName;
-        }
-
-        public String version() {
-            return version;
         }
 
         public String moduleName() {

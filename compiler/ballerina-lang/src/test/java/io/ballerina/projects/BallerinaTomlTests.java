@@ -61,32 +61,31 @@ public class BallerinaTomlTests {
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
 
-        List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
+        List<PackageManifest.Package> dependencies = packageManifest.dependencies();
         Assert.assertEquals(dependencies.size(), 2);
 
-        PackageManifest.Dependency twitter = dependencies.get(0);
+        PackageManifest.Package twitter = dependencies.get(0);
         Assert.assertEquals(twitter.org().value(), "wso2");
         Assert.assertEquals(twitter.name().value(), "twitter");
         Assert.assertEquals(twitter.version().toString(), "2.3.4");
         Assert.assertFalse(twitter.isTransitive());
-        List<PackageManifest.TransitiveDependency> twitterTransDependencies = twitter.dependencies();
+        List<PackageManifest.Dependency> twitterTransDependencies = twitter.dependencies();
         Assert.assertEquals(twitterTransDependencies.size(), 5);
 
-        PackageManifest.TransitiveDependency twitterFirstTransDependency = twitterTransDependencies.get(0);
+        PackageManifest.Dependency twitterFirstTransDependency = twitterTransDependencies.get(0);
         Assert.assertEquals(twitterFirstTransDependency.org().value(), "ballerina");
         Assert.assertEquals(twitterFirstTransDependency.name().value(), "jballerina.java");
-        PackageManifest.TransitiveDependency twitterLastTransDependency = twitterTransDependencies.get(4);
+        PackageManifest.Dependency twitterLastTransDependency = twitterTransDependencies.get(4);
         Assert.assertEquals(twitterLastTransDependency.org().value(), "ballerina");
         Assert.assertEquals(twitterLastTransDependency.name().value(), "time");
 
-        List<PackageManifest.DependencyModule> twitterModules = twitter.modules();
+        List<PackageManifest.Module> twitterModules = twitter.modules();
         Assert.assertEquals(twitterModules.size(), 1);
         Assert.assertEquals(twitterModules.get(0).org(), "wso2");
         Assert.assertEquals(twitterModules.get(0).packageName(), "twitter");
-        Assert.assertEquals(twitterModules.get(0).version(), "2.3.4");
         Assert.assertEquals(twitterModules.get(0).moduleName(), "twitter");
 
-        PackageManifest.Dependency github = dependencies.get(1);
+        PackageManifest.Package github = dependencies.get(1);
         Assert.assertEquals(github.org().value(), "wso2");
         Assert.assertEquals(github.name().value(), "github");
         Assert.assertEquals(github.version().toString(), "1.2.3");
@@ -289,7 +288,7 @@ public class BallerinaTomlTests {
                                                              BAL_TOML_REPO.resolve("dependencies-empty.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
+        List<PackageManifest.Package> dependencies = packageManifest.dependencies();
         Assert.assertEquals(dependencies.size(), 0);
     }
 

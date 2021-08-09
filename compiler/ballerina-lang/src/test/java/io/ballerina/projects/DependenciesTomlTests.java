@@ -46,9 +46,9 @@ public class DependenciesTomlTests {
                                                              BAL_TOML_REPO.resolve("dependencies-valid.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
-        List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
+        List<PackageManifest.Package> dependencies = packageManifest.dependencies();
         Assert.assertEquals(dependencies.size(), 2);
-        for (PackageManifest.Dependency dependency : dependencies) {
+        for (PackageManifest.Package dependency : dependencies) {
             Assert.assertEquals(dependency.org().value(), "wso2");
             Assert.assertTrue(dependency.name().value().equals("twitter")
                                       || dependency.name().value().equals("github"));

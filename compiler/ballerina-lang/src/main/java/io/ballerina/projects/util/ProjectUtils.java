@@ -647,7 +647,6 @@ public class ProjectUtils {
                 content.append("\t{");
                 content.append("org = \"").append(module.org()).append("\", ");
                 content.append("packageName = \"").append(module.packageName()).append("\", ");
-                content.append("version = \"").append(module.version()).append("\", ");
                 content.append("moduleName = \"").append(module.moduleName()).append("\"");
                 content.append("}");
 
