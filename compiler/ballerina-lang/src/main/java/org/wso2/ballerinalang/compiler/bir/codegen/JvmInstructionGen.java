@@ -848,8 +848,8 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(IFEQ, label1);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, CHECK_FLOAT_REF_EQUAL, "(DD)Z", false);
+            this.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else {
