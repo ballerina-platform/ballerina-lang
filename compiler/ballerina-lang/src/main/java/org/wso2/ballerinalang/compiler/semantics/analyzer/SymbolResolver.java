@@ -177,7 +177,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;
-        int expSymTag = symbol.tag;
+        int expSymTag = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol.tag : symbol.tag;
         if ((expSymTag & SymTag.IMPORT) == SymTag.IMPORT) {
             foundSym = lookupSymbolInPrefixSpace(env, symbol.name);
         } else if ((expSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
@@ -191,7 +191,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             foundSym = lookupSymbolForDecl(env, symbol.name, SymTag.MAIN);
         }
 
-        if (foundSym == symTable.notFoundSymbol && symbol.tag == SymTag.FUNCTION) {
+        if (foundSym == symTable.notFoundSymbol && expSymTag == SymTag.FUNCTION) {
             int dotPosition = symbol.name.value.indexOf('.');
             if (dotPosition > 0 && dotPosition != symbol.name.value.length()) {
                 String funcName = symbol.name.value.substring(dotPosition + 1);
@@ -279,8 +279,10 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isDistinctSymbol(Location pos, BSymbol symbol, BSymbol foundSym) {
+        int symbolTag = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol.tag: symbol.tag;
+        int foundSymTag = foundSym.tag == SymTag.TYPE_DEF ? foundSym.type.tsymbol.tag: foundSym.tag;
         // It is allowed to have a error constructor symbol with the same name as a type def.
-        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
+        if (symbolTag == SymTag.CONSTRUCTOR && foundSymTag == SymTag.ERROR) {
             return false;
         }
 
@@ -344,8 +346,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
+        int foundSymTag = foundSym.tag == SymTag.TYPE_DEF ? foundSym.type.tsymbol.tag: foundSym.tag;
         return symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
-                (foundSym.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME;
+                (foundSymTag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME;
     }
 
     /**
@@ -975,7 +978,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 entry = entry.next;
                 continue;
             }
-            symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
+            symTable.intRangeType = (BObjectType) types
+                    .getConstraintFromReferenceType(((BInvokableType) entry.symbol.type).retType);
             symTable.defineIntRangeOperations();
             return;
         }
@@ -1384,13 +1388,15 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private void validateXMLConstraintType(BType constraintType, Location pos) {
         int constrainedTag = constraintType.tag;
-        if (constrainedTag == TypeTags.UNION) {
-            checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
-            return;
+        BType constType = constraintType;
+        if(constrainedTag == TypeTags.TYPEREFDESC) {
+            constType = ((BTypeReferenceType)constraintType).constraint;
+            constrainedTag = constType.tag;
         }
 
-        if(constrainedTag == TypeTags.TYPEREFDESC) {
-            constrainedTag = ((BTypeReferenceType)constraintType).constraint.tag;
+        if (constrainedTag == TypeTags.UNION) {
+            checkUnionTypeForXMLSubTypes((BUnionType) constType, pos);
+            return;
         }
 
         if (!TypeTags.isXMLTypeTag(constrainedTag) && constrainedTag != TypeTags.NEVER) {
@@ -1435,9 +1441,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
 
-            if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+            BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? tempSymbol.type.tsymbol : tempSymbol;
+            if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
-            } else if (Symbols.isTagOn(tempSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
+            } else if (Symbols.isTagOn(refSymbol, SymTag.VARIABLE) && env.node.getKind() == NodeKind.FUNCTION) {
                 BLangFunction func = (BLangFunction) env.node;
                 boolean errored = false;
 
@@ -1448,7 +1455,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     errored = true;
                 }
 
-                if (tempSymbol.type != null && tempSymbol.type.tag != TypeTags.TYPEDESC) {
+                if (refSymbol.type != null && refSymbol.type.tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                                tempSymbol.type);
                     errored = true;
@@ -1460,7 +1467,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 ParameterizedTypeInfo parameterizedTypeInfo =
-                        getTypedescParamValueType(func.requiredParams, tempSymbol);
+                        getTypedescParamValueType(func.requiredParams, refSymbol);
                 BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
 
                 if (paramValType == symTable.semanticError) {
@@ -1500,7 +1507,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         userDefinedTypeNode.symbol = symbol;
 
-        if (symbol.kind == SymbolKind.TYPE_DEF) {
+        if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+//        if (symbol.kind == SymbolKind.TYPE_DEF) {
             if (((BTypeDefinitionSymbol) symbol).referenceType == null) {
                 BTypeReferenceType refType = new BTypeReferenceType(symbol.type, (BTypeDefinitionSymbol) symbol, symbol.type.flags);
                 ((BTypeDefinitionSymbol) symbol).referenceType = refType;
@@ -2218,8 +2226,9 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
         for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
-            BSymbol symbol = entry.symbol;
-            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+            BSymbol symbol = entry.symbol.tag == SymTag.TYPE_DEF ? entry.symbol.type.tsymbol : entry.symbol;
+            int symbolTag = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol.tag : symbol.tag;
+            if (symbol != null && symbolTag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
                 configVars.add((BVarSymbol) symbol);
             }
         }

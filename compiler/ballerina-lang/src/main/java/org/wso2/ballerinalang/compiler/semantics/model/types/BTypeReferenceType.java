@@ -46,7 +46,8 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     @Override
     public String toString() {
-        return definitionName.equals(constraint.name.getValue()) ? constraint.toString() : definitionName;
+//        return definitionName.equals(constraint.name.getValue()) ? constraint.toString() : definitionName;
+        return tsymbol.toString();
     }
 
     @Override
@@ -57,5 +58,10 @@ public class BTypeReferenceType extends BType implements ReferenceType {
     @Override
     public TypeKind getKind() {
         return TypeKind.TYPEREFDESC;
+    }
+
+    @Override
+    public boolean isNullable() {
+        return this.constraint.isNullable();
     }
 }

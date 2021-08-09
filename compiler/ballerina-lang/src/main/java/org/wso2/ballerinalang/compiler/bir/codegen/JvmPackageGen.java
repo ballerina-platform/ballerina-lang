@@ -55,10 +55,13 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -534,7 +537,8 @@ public class JvmPackageGen {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType)optionalTypeDef.type).constraint : optionalTypeDef.type;
 
             if ((bType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS))) {
                 continue;
@@ -716,7 +720,13 @@ public class JvmPackageGen {
             BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
                 Name lookupKey = new Name(IdentifierUtils.decodeIdentifier(objectNewIns.objectName));
-                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbol.scope.lookup(lookupKey).symbol;
+                BSymbol typeSymbol = symbol.scope.lookup(lookupKey).symbol;
+                BObjectTypeSymbol objectTypeSymbol;
+                if (typeSymbol instanceof BTypeDefinitionSymbol) {
+                    objectTypeSymbol = (BObjectTypeSymbol) ((BTypeDefinitionSymbol) symbol.scope.lookup(lookupKey).symbol).type.tsymbol;
+                } else {
+                    objectTypeSymbol = (BObjectTypeSymbol) symbol.scope.lookup(lookupKey).symbol;
+                }
                 if (objectTypeSymbol != null) {
                     return objectTypeSymbol.type;
                 }

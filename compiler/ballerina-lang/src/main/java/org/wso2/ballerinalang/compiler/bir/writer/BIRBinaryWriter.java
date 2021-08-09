@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.io.ByteArrayOutputStream;
@@ -506,16 +507,17 @@ public class BIRBinaryWriter {
     }
 
     private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
-        if (annotValue.type.tag == TypeTags.ARRAY) {
-            writeType(annotBuf, annotValue.type);
+        BType annotType = annotValue.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)annotValue.type).constraint :  annotValue.type;
+        if (annotType.tag == TypeTags.ARRAY) {
+            writeType(annotBuf, annotType);
             BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;
             annotBuf.writeInt(annotArrayValue.annotArrayValue.length);
             for (BIRAnnotationValue annotValueEntry : annotArrayValue.annotArrayValue) {
                 writeAnnotAttachValue(annotBuf, annotValueEntry);
             }
 
-        } else if (annotValue.type.tag == TypeTags.RECORD || annotValue.type.tag == TypeTags.MAP) {
-            writeType(annotBuf, annotValue.type);
+        } else if (annotType.tag == TypeTags.RECORD || annotType.tag == TypeTags.MAP) {
+            writeType(annotBuf, annotType);
             BIRAnnotationRecordValue annotRecValue = (BIRAnnotationRecordValue) annotValue;
             annotBuf.writeInt(annotRecValue.annotValueEntryMap.size());
             for (Map.Entry<String, BIRAnnotationValue> annotValueEntry : annotRecValue.annotValueEntryMap.entrySet()) {

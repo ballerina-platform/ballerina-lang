@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -188,9 +189,8 @@ public class JvmDesugarPhase {
     }
 
     static void rewriteRecordInits(List<BIRTypeDefinition> typeDefs) {
-
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType recordType = typeDef.type;
+            BType recordType = typeDef.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)typeDef.type).constraint : typeDef.type;
             if (recordType.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -275,7 +275,7 @@ public class JvmDesugarPhase {
                                                                  encodedVsInitialIds));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds);
-            BType bType = typeDefinition.type;
+            BType bType = typeDefinition.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)typeDefinition.type).constraint : typeDefinition.type;
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
@@ -365,7 +365,7 @@ public class JvmDesugarPhase {
                                                                   encodedVsInitialIds);
             typeDefinition.internalName = getInitialIdString(typeDefinition.internalName, names, encodedVsInitialIds);
             replaceEncodedFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds);
-            BType bType = typeDefinition.type;
+            BType bType = typeDefinition.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)typeDefinition.type).constraint : typeDefinition.type;
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;

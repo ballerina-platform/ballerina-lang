@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -173,7 +174,8 @@ class JvmValueGen {
                                                        JvmPackageGen jvmPackageGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType) optionalTypeDef.type).constraint : optionalTypeDef.type;
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
@@ -582,7 +584,8 @@ class JvmValueGen {
 
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
-        for (BType typeRef : typeDef.referencedTypes) {
+        for (BType bType : typeDef.referencedTypes) {
+            BType typeRef = bType.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)bType).constraint : bType;
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
@@ -784,7 +787,8 @@ class JvmValueGen {
 
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
-        for (BType typeRef : typeDef.referencedTypes) {
+        for (BType bType : typeDef.referencedTypes) {
+            BType typeRef = bType.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)bType).constraint : bType;
             if (typeRef.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -806,7 +810,8 @@ class JvmValueGen {
             valueClassName = className;
         } else {
             // record type is the original record-type of this type-label
-            BRecordType recordType = (BRecordType) typeDef.type;
+            BRecordType recordType = (BRecordType) (typeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType) typeDef.type).constraint : typeDef.type);
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
             initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
@@ -1340,6 +1345,7 @@ class JvmValueGen {
 
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw) {
 
+
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, POPULATE_INITIAL_VALUES_METHOD,
                                           String.format("([L%s;)V", B_MAPPING_INITIAL_VALUE_ENTRY), null, null);
         mv.visitCode();
@@ -1358,7 +1364,8 @@ class JvmValueGen {
 
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
-            BType bType = optionalTypeDef.type;
+            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType)optionalTypeDef.type).constraint : optionalTypeDef.type;
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {

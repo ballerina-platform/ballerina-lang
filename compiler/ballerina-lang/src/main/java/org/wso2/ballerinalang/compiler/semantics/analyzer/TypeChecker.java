@@ -2806,7 +2806,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> errorDetailTypes = new ArrayList<>();
         for (BType expandedCandidate : expandedCandidates) {
             BType detailType = ((BErrorType) expandedCandidate).detailType;
-            errorDetailTypes.add(detailType);
+            errorDetailTypes.add(types.getConstraintFromReferenceType(detailType));
         }
 
         BType detailCandidate;
@@ -2963,7 +2963,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else {
             // if `errorTypeRef.type == semanticError` then an error is already logged.
-            BType errorType = errorTypeRef.getBType();
+            BType errorType = types.getConstraintFromReferenceType(errorTypeRef.getBType());
             if (errorType.tag == TypeTags.TYPEREFDESC) {
                 errorType = ((BTypeReferenceType) errorType).constraint;
             }
@@ -3536,7 +3536,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BType> findMembersWithMatchingInitFunc(BLangTypeInit cIExpr, BUnionType lhsUnionType) {
         int objectCount = 0;
 
-        for (BType memberType : lhsUnionType.getMemberTypes()) {
+        for (BType type : lhsUnionType.getMemberTypes()) {
+            BType memberType = types.getConstraintFromReferenceType(type);
             int tag = memberType.tag;
 
             if (tag == TypeTags.OBJECT) {
@@ -3556,7 +3557,8 @@ public class TypeChecker extends BLangNodeVisitor {
         boolean containsSingleObject = objectCount == 1;
 
         List<BType> matchingLhsMemberTypes = new ArrayList<>();
-        for (BType memberType : lhsUnionType.getMemberTypes()) {
+        for (BType type : lhsUnionType.getMemberTypes()) {
+            BType memberType = types.getConstraintFromReferenceType(type);
             if (memberType.tag != TypeTags.OBJECT) {
                 // member is not an object.
                 continue;
@@ -5791,19 +5793,20 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getErrorCtorNamedArgTargetType(BLangNamedArgsExpression namedArgsExpression, BType expectedType) {
-        if (expectedType == symTable.semanticError) {
+        BType type = types.getConstraintFromReferenceType(expectedType);
+        if (type == symTable.semanticError) {
             return symTable.semanticError;
         }
 
-        if (expectedType.tag == TypeTags.MAP) {
-            return ((BMapType) expectedType).constraint;
+        if (type.tag == TypeTags.MAP) {
+            return ((BMapType) type).constraint;
         }
 
-        if (expectedType.tag != TypeTags.RECORD) {
+        if (type.tag != TypeTags.RECORD) {
             return symTable.semanticError;
         }
 
-        BRecordType recordType = (BRecordType) expectedType;
+        BRecordType recordType = (BRecordType) type;
         BField targetField = recordType.fields.get(namedArgsExpression.name.value);
         if (targetField != null) {
             return targetField.type;

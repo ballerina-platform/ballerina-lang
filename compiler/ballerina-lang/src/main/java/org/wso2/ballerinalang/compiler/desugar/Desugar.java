@@ -459,7 +459,9 @@ public class Desugar extends BLangNodeVisitor {
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 continue;
             }
-            if (typeDef.symbol.tag == SymTag.OBJECT) {
+            BTypeSymbol typeSymbol = typeDef.symbol.tag == SymTag.TYPE_DEF ? typeDef.symbol.type.tsymbol : typeDef.symbol;
+            if (typeSymbol.tag == SymTag.OBJECT) {
+//            if (typeDef.symbol.tag == SymTag.OBJECT) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
 
                 objectTypeNode.functions.forEach(f -> {
@@ -468,7 +470,8 @@ public class Desugar extends BLangNodeVisitor {
                         pkgNode.topLevelNodes.add(f);
                     }
                 });
-            } else if (typeDef.symbol.tag == SymTag.RECORD) {
+            } else if (typeSymbol.tag == SymTag.RECORD) {
+//            } else if (typeDef.symbol.tag == SymTag.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
                 recordTypeNode.initFunction = rewrite(
                         TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
@@ -6314,6 +6317,8 @@ public class Desugar extends BLangNodeVisitor {
         rewriteExprs(errorConstructorExpr.positionalArgs);
 
         BLangExpression errorDetail;
+//        BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(errorConstructorExpr.pos,
+//                types.getConstraintFromReferenceType(((BErrorType) errorConstructorExpr.getBType()).detailType));
         BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(errorConstructorExpr.pos,
                 ((BErrorType) errorConstructorExpr.getBType()).detailType);
         if (errorConstructorExpr.namedArgs.isEmpty()) {
@@ -7914,7 +7919,7 @@ public class Desugar extends BLangNodeVisitor {
     BLangInvocation createIteratorNextInvocation(Location pos, BVarSymbol iteratorSymbol) {
         BLangIdentifier nextIdentifier = ASTBuilderUtil.createIdentifier(pos, "next");
         BLangSimpleVarRef iteratorReferenceInNext = ASTBuilderUtil.createVariableRef(pos, iteratorSymbol);
-        BInvokableSymbol nextFuncSymbol = getNextFunc((BObjectType) iteratorSymbol.type).symbol;
+        BInvokableSymbol nextFuncSymbol = getNextFunc((BObjectType) types.getConstraintFromReferenceType(iteratorSymbol.type)).symbol;
         BLangInvocation nextInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
         nextInvocation.pos = pos;
         nextInvocation.name = nextIdentifier;

@@ -1450,6 +1450,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         boolean hasTypeInclusions = false;
         NodeKind typeNodeKind = typeDefinition.typeNode.getKind();
         if (typeNodeKind == NodeKind.OBJECT_TYPE || typeNodeKind == NodeKind.RECORD_TYPE) {
+            if (definedType.tsymbol.scope == null) {
+                definedType.tsymbol.scope = new Scope(definedType.tsymbol);
+            }
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             // For each referenced type, check whether the types are already resolved.
             // If not, then that type should get a higher precedence.
@@ -1493,20 +1496,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.setPrecedence(this.typePrecedence++);
         BTypeSymbol typeDefSymbol;
 
-        boolean label = false;
-        if (definedType.tsymbol.name != Names.EMPTY) {
-            label = true;
-//            typeDefSymbol = definedType.tsymbol.createLabelSymbol();
+        boolean label = true;
+//        if (definedType.tsymbol.name != Names.EMPTY) {
 //            label = true;
+//            typeDefSymbol = definedType.tsymbol.createLabelSymbol();
+
             typeDefSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDefinition.flagSet),
                     names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
                     typeDefinition.pos, SOURCE);
-            typeDefSymbol.kind = definedType.tsymbol.kind;
-        } else {
-            typeDefSymbol = definedType.tsymbol;
-        }
+//            typeDefSymbol.kind = definedType.tsymbol.kind;
+            if(definedType.tsymbol.name == Names.EMPTY) {
 
-        boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION) && !label;;
+                label = false;
+                definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
+                definedType.tsymbol.flags |= typeDefSymbol.flags;
+            }
+//        } else {
+//            typeDefSymbol = definedType.tsymbol;
+//        }
+
+//        boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION);
+        boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION) && !label;
         BType referenceConstraintType = types.getConstraintFromReferenceType(definedType);
         BType effectiveDefinedType = isNonLabelIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
@@ -1674,13 +1684,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,
                                               BTypeSymbol typeDefSymbol) {
+        BTypeSymbol tSymbol = typeDefSymbol.kind == SymbolKind.TYPE_DEF ? typeDefSymbol.type.tsymbol : typeDefSymbol;
         BObjectType definedObjType = definedType;
         // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
         // `typeDefSymbol` is different to `definedObjType.tsymbol` in a type definition statement that use
         // already defined type as the base type.
-        if (definedObjType.tsymbol != typeDefSymbol) {
-            BObjectType objType = new BObjectType(typeDefSymbol);
-            typeDefSymbol.type = objType;
+        if (definedObjType.tsymbol != tSymbol) {
+            BObjectType objType = new BObjectType(tSymbol);
+            tSymbol.type = objType;
             definedObjType = objType;
         }
         boolean isPublicType = typeDefinition.flagSet.contains(Flag.PUBLIC);
@@ -2423,6 +2434,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
+        BType recordType = types.getConstraintFromReferenceType(recordVar.getBType());
         BRecordType recordVarType;
         /*
           This switch block will resolve the record type of the record variable.
@@ -2436,16 +2448,16 @@ public class SymbolEnter extends BLangNodeVisitor {
           Consider anydata {a, b} = foo();
           Here, the type of 'a'and type of 'b' will be both anydata.
          */
-        switch (recordVar.getBType().tag) {
+        switch (recordType.tag) {
             case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) recordVar.getBType();
+                BUnionType unionType = (BUnionType) recordType;
                 Set<BType> bTypes = types.expandAndGetMemberTypesRecursive(unionType);
                 List<BType> possibleTypes = bTypes.stream()
                         .filter(rec -> doesRecordContainKeys(rec, recordVar.variableList, recordVar.restParam != null))
                         .collect(Collectors.toList());
 
                 if (possibleTypes.isEmpty()) {
-                    dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordVar.getBType());
+                    dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordType);
                     return false;
                 }
 
@@ -2468,14 +2480,14 @@ public class SymbolEnter extends BLangNodeVisitor {
                 recordVarType = createSameTypedFieldsRecordType(recordVar, possibleTypes.get(0), env);
                 break;
             case TypeTags.RECORD:
-                recordVarType = (BRecordType) recordVar.getBType();
+                recordVarType = (BRecordType) recordType;
                 break;
             case TypeTags.MAP:
                 recordVarType = createSameTypedFieldsRecordType(recordVar,
-                                                                ((BMapType) recordVar.getBType()).constraint, env);
+                                                                ((BMapType) recordType).constraint, env);
                 break;
             default:
-                dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordVar.getBType());
+                dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordType);
                 return false;
         }
 
@@ -2970,18 +2982,18 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean validateErrorVariable(BLangErrorVariable errorVariable, SymbolEnv env) {
+        BType varType = types.getConstraintFromReferenceType(errorVariable.getBType());
         BErrorType errorType;
-        switch (errorVariable.getBType().tag) {
+        switch (varType.tag) {
             case TypeTags.UNION:
-                BUnionType unionType = ((BUnionType) errorVariable.getBType());
+                BUnionType unionType = ((BUnionType) varType);
                 List<BErrorType> possibleTypes = unionType.getMemberTypes().stream()
                         .filter(type -> TypeTags.ERROR == type.tag)
                         .map(BErrorType.class::cast)
                         .collect(Collectors.toList());
 
                 if (possibleTypes.isEmpty()) {
-                    dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
-                               errorVariable.getBType());
+                    dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN, varType);
                     return false;
                 }
 
@@ -2999,11 +3011,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.ERROR:
-                errorType = (BErrorType) errorVariable.getBType();
+                errorType = (BErrorType) varType;
                 break;
             default:
                 dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
-                           errorVariable.getBType());
+                        varType);
                 return false;
         }
         errorVariable.setBType(errorType);
@@ -3025,9 +3037,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return validateErrorMessageMatchPatternSyntax(errorVariable, env);
         }
 
-        if (errorType.detailType.getKind() == TypeKind.RECORD || errorType.detailType.getKind() == TypeKind.MAP) {
+        BType detailType = types.getConstraintFromReferenceType(errorType.detailType);
+        if (detailType.getKind() == TypeKind.RECORD || detailType.getKind() == TypeKind.MAP) {
+            //todo @chiran
+//            errorType.detailType = detailType;
             return validateErrorVariable(errorVariable, errorType, env);
-        } else if (errorType.detailType.getKind() == TypeKind.UNION) {
+        } else if (detailType.getKind() == TypeKind.UNION) {
             BErrorTypeSymbol errorTypeSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
                     env.enclPkg.packageID, symTable.errorType,
                     env.scope.owner, errorVariable.pos, SOURCE);
@@ -3095,11 +3110,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     BRecordType getDetailAsARecordType(BErrorType errorType) {
-        if (errorType.detailType.getKind() == TypeKind.RECORD) {
-            return (BRecordType) errorType.detailType;
+        BType detailType = types.getConstraintFromReferenceType(errorType.detailType);
+        if (detailType.getKind() == TypeKind.RECORD) {
+            return (BRecordType) detailType;
         }
         BRecordType detailRecord = new BRecordType(null);
-        BMapType detailMap = (BMapType) errorType.detailType;
+        BMapType detailMap = (BMapType) detailType;
         detailRecord.sealed = false;
         detailRecord.restFieldType = detailMap.constraint;
         return detailRecord;
@@ -3389,11 +3405,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 return isCloneableTypeTypeSkippingObjectType(recordRestType);
             case TypeTags.ARRAY:
-                BType elementType = ((BArrayType) type).eType;
+                BType elementType = types.getConstraintFromReferenceType(((BArrayType) type).eType);
                 if ((elementType.tag == TypeTags.MAP) || (elementType.tag == TypeTags.RECORD)) {
                     return isValidAnnotationType(elementType);
                 }
                 return false;
+            case TypeTags.TYPEREFDESC:
+                return isValidAnnotationType(((BTypeReferenceType) type).constraint);
         }
 
         return types.isAssignable(type, symTable.trueType);
@@ -3558,7 +3576,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BType detailType = ((BErrorType) typeNode.getBType()).detailType;
                 if (detailType == symTable.noType) {
-                    BErrorType type = (BErrorType) symResolver.resolveTypeNode(typeNode, typeDefEnv);
+                    BType resolvedType = symResolver.resolveTypeNode(typeNode, typeDefEnv);
+                    BErrorType type = (BErrorType) types.getConstraintFromReferenceType(resolvedType);
                     ((BErrorType) typeDef.symbol.type).detailType = type.detailType;
                 }
             }
@@ -3613,12 +3632,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             recordType.sealed = recordTypeNode.sealed;
         }
 
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, typeDef.symbol.scope, pkgEnv);
+        Scope recordScope = typeDef.symbol.scope;
+        if(typeDef.symbol.type.tsymbol.kind == SymbolKind.RECORD ||
+                typeDef.symbol.type.tsymbol.kind == SymbolKind.OBJECT) {
+            recordScope = typeDef.symbol.type.tsymbol.scope;
+        }
+        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(structureTypeNode, recordScope, pkgEnv);
 
         // Define all the fields
         resolveFields(structureType, structureTypeNode, typeDefEnv);
 
-        if (typeDef.symbol.kind != SymbolKind.RECORD) {
+        if ((typeDef.symbol.kind != SymbolKind.RECORD) &&
+//        if ((typeDef.symbol.kind != SymbolKind.RECORD) ||
+                (typeDef.symbol.kind == SymbolKind.TYPE_DEF && typeDef.symbol.type.tsymbol.kind != SymbolKind.RECORD)) {
             return;
         }
 
@@ -3642,10 +3668,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // analyze restFieldType for open records
         for (BLangType typeRef : recordTypeNode.typeRefs) {
-            if (typeRef.getBType().tag != TypeTags.RECORD) {
+            BType refType = types.getConstraintFromReferenceType(typeRef.getBType());
+            if (refType.tag != TypeTags.RECORD) {
                 continue;
             }
-            BType restFieldType = ((BRecordType) typeRef.getBType()).restFieldType;
+            BType restFieldType = ((BRecordType) refType).restFieldType;
             if (restFieldType == symTable.noType) {
                 continue;
             }
@@ -3743,11 +3770,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             // resolved by the time we reach here. It is achieved by ordering the typeDefs
             // according to the precedence.
             for (BLangType typeRef : objTypeNode.typeRefs) {
-                if (typeRef.getBType().tsymbol == null || typeRef.getBType().tsymbol.kind != SymbolKind.OBJECT) {
+                if (typeRef.getBType().tsymbol == null) {
+                    continue;
+                }
+                BSymbol objectSymbol = typeRef.getBType().tsymbol.tag == SymTag.TYPE_DEF ?
+                        typeRef.getBType().tsymbol.type.tsymbol : typeRef.getBType().tsymbol;
+                if (objectSymbol.kind != SymbolKind.OBJECT) {
                     continue;
                 }
 
-                List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.getBType().tsymbol).attachedFuncs;
+                List<BAttachedFunction> functions = ((BObjectTypeSymbol) objectSymbol).attachedFuncs;
                 for (BAttachedFunction function : functions) {
                     defineReferencedFunction(typeDef.pos, typeDef.flagSet, objMethodsEnv,
                             typeRef, function, includedFunctionNames, typeDef.symbol,
@@ -4483,6 +4515,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         structureTypeNode.includedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
+            referredType = types.getConstraintFromReferenceType(referredType);
             if (referredType == symTable.semanticError) {
                 return Stream.empty();
             }
@@ -4569,6 +4602,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                           BLangType typeRef, BAttachedFunction referencedFunc,
                                           Set<String> includedFunctionNames, BTypeSymbol typeDefSymbol,
                                           List<BLangFunction> declaredFunctions, boolean isInternal) {
+        typeDefSymbol = typeDefSymbol.tag == SymTag.TYPE_DEF ? typeDefSymbol.type.tsymbol : typeDefSymbol;
         String referencedFuncName = referencedFunc.funcName.value;
         Name funcName = names.fromString(
                 Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));

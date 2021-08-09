@@ -238,7 +238,8 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = typeDef.type;
+            BType bType = typeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType) typeDef.type).constraint : typeDef.type;
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
                 String name = typeDef.internalName.value;
@@ -293,7 +294,8 @@ public class JvmTypeGen {
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             String name = optionalTypeDef.internalName.value;
-            BType bType = optionalTypeDef.type;
+            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType) optionalTypeDef.type).constraint : optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
 
@@ -336,7 +338,8 @@ public class JvmTypeGen {
         List<String> funcNames = new ArrayList<>();
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType) optionalTypeDef.type).constraint : optionalTypeDef.type;
             if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE)) {
                 continue;
@@ -384,11 +387,14 @@ public class JvmTypeGen {
                     }
                     break;
                 case TypeTags.ERROR:
+
                     // populate detail field
                     mv.visitTypeInsn(CHECKCAST, ERROR_TYPE_IMPL);
                     mv.visitInsn(DUP);
                     mv.visitInsn(DUP);
-                    loadType(mv, ((BErrorType) bType).detailType);
+                    loadType(mv, ((BErrorType) bType).detailType.tag == TypeTags.TYPEREFDESC ?
+                            ((BTypeReferenceType)((BErrorType) bType).detailType).constraint :
+                            ((BErrorType) bType).detailType);
                     mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD,
                                        String.format("(L%s;)V", TYPE), false);
                     BTypeIdSet typeIdSet = ((BErrorType) bType).typeIdSet;
@@ -607,7 +613,8 @@ public class JvmTypeGen {
         List<BIRTypeDefinition> errorTypeDefs = new ArrayList<>();
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
+            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
+                    ((BTypeReferenceType) optionalTypeDef.type).constraint : optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
@@ -1122,6 +1129,9 @@ public class JvmTypeGen {
                 break;
             case TypeTags.UNION:
                 mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
+                break;
+            case TypeTags.TYPEREFDESC:
+                addCyclicFlag(mv, ((BTypeReferenceType) userDefinedType).constraint);
                 break;
         }
     }
@@ -1678,6 +1688,8 @@ public class JvmTypeGen {
                     return READONLY_TYPE;
                 case TypeTags.UNION:
                     return UNION_TYPE;
+                case TypeTags.TYPEREFDESC:
+                    return loadTypeClass(((BTypeReferenceType) bType).constraint);
                 default:
                     return TYPE;
             }
@@ -1927,6 +1939,9 @@ public class JvmTypeGen {
             case TypeTags.TUPLE:
                 mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
                 break;
+            case TypeTags.TYPEREFDESC:
+                loadCyclicFlag(mv, ((BTypeReferenceType) valueType).constraint);
+                break;
         }
     }
 
@@ -2063,6 +2078,7 @@ public class JvmTypeGen {
      * @param bType user defined type
      */
     private void loadUserDefinedType(MethodVisitor mv, BType bType) {
+
         BTypeSymbol typeSymbol = bType.tsymbol.isTypeParamResolved ? bType.tsymbol.typeParamTSymbol : bType.tsymbol;
         BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
         PackageID packageID = typeSymbol.pkgID;

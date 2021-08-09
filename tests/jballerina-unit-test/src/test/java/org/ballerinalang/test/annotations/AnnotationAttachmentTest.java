@@ -25,6 +25,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -464,18 +466,23 @@ public class AnnotationAttachmentTest {
             Assert.assertEquals(expression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
             BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
             Assert.assertEquals(recordLiteral.getFields().size(), 0);
-            Assert.assertTrue(recordLiteral.getBType().tag == TypeTags.RECORD_TYPE_TAG
-                    || recordLiteral.getBType().tag == TypeTags.MAP_TAG);
-            if (recordLiteral.getBType().tag == TypeTags.RECORD_TYPE_TAG) {
+            Assert.assertTrue(getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD_TYPE_TAG
+                    || getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.MAP_TAG);
+            if (getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD_TYPE_TAG) {
                 Assert.assertEquals(recordLiteral.getBType().tsymbol.name.value, typeName);
             } else {
-                Assert.assertEquals(recordLiteral.getBType().tag, TypeTags.MAP_TAG);
-                Assert.assertEquals(((BMapType) recordLiteral.getBType()).constraint.tag, TypeTags.INT_TAG);
+                Assert.assertEquals(getConstrainedTypeFromRef(recordLiteral.getBType()).tag, TypeTags.MAP_TAG);
+                Assert.assertEquals(((BMapType) getConstrainedTypeFromRef(recordLiteral.getBType())).constraint.tag,
+                        TypeTags.INT_TAG);
             }
             i++;
         }
         Assert.assertEquals(attachments.size(), i);
     }
+
+   private BType getConstrainedTypeFromRef(BType type) {
+        return type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)type).constraint : type;
+   }
 
     @Test
     public void testAnnotWithNullValues() {

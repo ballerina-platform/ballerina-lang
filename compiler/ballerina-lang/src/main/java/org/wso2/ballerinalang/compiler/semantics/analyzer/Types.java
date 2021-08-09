@@ -1632,7 +1632,7 @@ public class Types {
     }
 
     public void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
-        BType collectionType = foreachNode.collection.getBType();
+        BType collectionType = getConstraintFromReferenceType(foreachNode.collection.getBType());
         BType varType;
         switch (collectionType.tag) {
             case TypeTags.STRING:
@@ -1770,8 +1770,9 @@ public class Types {
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+        BObjectType objectType = (BObjectType) getConstraintFromReferenceType(iteratorSymbol.retType);
         BUnionType nextMethodReturnType =
-                (BUnionType) getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+                (BUnionType) getResultTypeOfNextInvocation(objectType);
         foreachNode.varType = varType;
         foreachNode.resultType = getRecordType(nextMethodReturnType);
         foreachNode.nillableResultType = nextMethodReturnType;
@@ -2036,6 +2037,7 @@ public class Types {
     }
 
     public BType getTypeWithEffectiveIntersectionTypes(BType type) {
+
         if (type.tag == TypeTags.TYPEREFDESC) {
             type = ((BTypeReferenceType) type).constraint;
         }
@@ -3915,6 +3917,8 @@ public class Types {
                 }
                 memberTypes.add(bType);
                 break;
+            case TypeTags.TYPEREFDESC:
+                return expandAndGetMemberTypesRecursiveHelper(getConstraintFromReferenceType(bType), visited);
             default:
                 memberTypes.add(bType);
         }
@@ -4208,6 +4212,8 @@ public class Types {
                 return getRemainingType((BFiniteType) originalType, getAllTypes(typeToRemove));
             case TypeTags.READONLY:
                 return getRemainingType((BReadonlyType) originalType, typeToRemove);
+            case TypeTags.TYPEREFDESC:
+                return getRemainingType(((BTypeReferenceType) originalType).constraint, typeToRemove);
             default:
                 return originalType;
         }
@@ -4256,6 +4262,7 @@ public class Types {
 
     private BType getIntersection(IntersectionContext intersectionContext, BType lhsType, SymbolEnv env, BType type,
                                   LinkedHashSet<BType> visitedTypes) {
+
         lhsType = getEffectiveTypeForIntersection(lhsType);
         type = getEffectiveTypeForIntersection(type);
 
@@ -5024,7 +5031,11 @@ public class Types {
 
     public List<BType> getAllTypes(BType type) {
         if (type.tag != TypeTags.UNION) {
-            return Lists.of(type);
+            if (type.tag == TypeTags.TYPEREFDESC) {
+                return getAllTypes(((BTypeReferenceType) type).constraint);
+            } else {
+                return Lists.of(type);
+            }
         }
 
         List<BType> memberTypes = new ArrayList<>();
@@ -5056,6 +5067,8 @@ public class Types {
             case TypeTags.FINITE:
                 BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
                 return isAllowedConstantType(finiteValue.getBType());
+            case TypeTags.TYPEREFDESC:
+                return isAllowedConstantType(((BTypeReferenceType) type).constraint);
             default:
                 return false;
         }
@@ -5575,11 +5588,12 @@ public class Types {
     }
 
     BType getTypeWithoutNil(BType type) {
-        if (type.tag != TypeTags.UNION) {
-            return type;
+        BType constraint = getConstraintFromReferenceType(type);
+        if (constraint.tag != TypeTags.UNION) {
+            return constraint;
         }
 
-        BUnionType unionType = (BUnionType) type;
+        BUnionType unionType = (BUnionType) constraint;
         if (!unionType.isNullable()) {
             return unionType;
         }

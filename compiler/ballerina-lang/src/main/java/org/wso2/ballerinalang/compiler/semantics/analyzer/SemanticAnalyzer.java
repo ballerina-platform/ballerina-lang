@@ -514,7 +514,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
-            ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+            if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
+                ((BEnumSymbol) (typeDefinition.symbol.type.tsymbol)).addAnnotations(annotSymbols);
+            } else {
+                ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+            }
         }
 
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
@@ -4040,8 +4044,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType annotType = annotationSymbol.attachedType.type;
         if (annAttachmentNode.expr == null) {
             BRecordType recordType = annotType.tag == TypeTags.RECORD ? (BRecordType) annotType :
-                    annotType.tag == TypeTags.ARRAY && ((BArrayType) annotType).eType.tag == TypeTags.RECORD ?
-                            (BRecordType) ((BArrayType) annotType).eType : null;
+                    annotType.tag == TypeTags.ARRAY &&
+                            types.getConstraintFromReferenceType(((BArrayType) annotType).eType).tag == TypeTags.RECORD ?
+                            (BRecordType) types.getConstraintFromReferenceType(((BArrayType) annotType).eType) : null;
             if (recordType != null && hasRequiredFields(recordType)) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
                         recordType);

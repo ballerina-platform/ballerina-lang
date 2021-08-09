@@ -172,7 +172,9 @@ public class ImmutableTypeCloner {
             return symTable.semanticError;
         }
 
-        return getImmutableIntersectionType(pos, types, (SelectivelyImmutableReferenceType) type, env, pkgId,
+        BType selectivelyImmutableRefType = types.getConstraintFromReferenceType(type);
+        return getImmutableIntersectionType(pos, types,
+                (SelectivelyImmutableReferenceType) selectivelyImmutableRefType, env, pkgId,
                                             owner, symTable, anonymousModelHelper, names, new HashSet<>(),
                                             unresolvedTypes);
     }

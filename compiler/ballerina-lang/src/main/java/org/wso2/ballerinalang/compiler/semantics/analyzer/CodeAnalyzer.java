@@ -2506,6 +2506,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkForExportableType((((BErrorType) symbol.type).detailType.tsymbol), pos);
                     return;
                 }
+//            case TypeTags.TYPEREFDESC:
+//                checkForExportableType(symbol.type.tsymbol, pos);
+//                return;
             // TODO : Add support for other types. such as union and objects
         }
         if (!Symbols.isPublic(symbol)) {

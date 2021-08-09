@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import io.ballerina.runtime.api.TypeTags;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBOOLEAN;
@@ -166,6 +167,8 @@ public class JType extends BType {
                 return jBoolean;
             case TypeTags.FLOAT_TAG:
                 return jFloat;
+            case TypeTags.TYPEREFDESC:
+                return getPrimitiveJTypeForBType(((BTypeReferenceType) type).constraint);
             default:
                 return new JType(JREF);
         }

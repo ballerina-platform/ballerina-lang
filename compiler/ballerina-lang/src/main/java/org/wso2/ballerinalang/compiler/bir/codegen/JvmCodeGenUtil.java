@@ -595,6 +595,8 @@ public class JvmCodeGenUtil {
             case TypeTags.NIL:
             case TypeTags.NEVER:
                 return true;
+            case TypeTags.TYPEREFDESC:
+                return isSimpleBasicType(((BTypeReferenceType) bType).constraint);
             default:
                 return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
         }

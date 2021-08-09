@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -27,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -350,7 +352,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private void updateRecordInitFunction(BLangTypeDefinition typeDef) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
         BInvokableSymbol initFnSym = recordTypeNode.initFunction.symbol;
-        BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
+        BRecordTypeSymbol recordTypeSymbol;
+        if(typeDef.symbol.kind == SymbolKind.TYPE_DEF) {
+            recordTypeSymbol = (BRecordTypeSymbol) ((BTypeDefinitionSymbol)typeDef.symbol).type.tsymbol;
+        } else {
+            recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
+        }
         recordTypeSymbol.initializerFunc.symbol = initFnSym;
         recordTypeSymbol.initializerFunc.type = (BInvokableType) initFnSym.type;
     }

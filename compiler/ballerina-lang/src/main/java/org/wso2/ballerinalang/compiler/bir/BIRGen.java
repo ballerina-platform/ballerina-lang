@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -412,6 +413,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition astTypeDefinition) {
         BType type = getDefinedType(astTypeDefinition);
         Name displayName = astTypeDefinition.symbol.name;
+
         if (type.tag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) type;
             if (recordType.shouldPrintShape()) {
@@ -428,7 +430,12 @@ public class BIRGen extends BLangNodeVisitor {
                                                           new ArrayList<>(),
                                                           astTypeDefinition.symbol.origin.toBIROrigin(),
                                                           displayName);
-        typeDefs.put(astTypeDefinition.symbol, typeDef);
+        //todo revisit @chiran
+        if(astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
+            typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
+        } else {
+            typeDefs.put(astTypeDefinition.symbol, typeDef);
+        }
         this.env.enclPkg.typeDefs.add(typeDef);
         typeDef.index = this.env.enclPkg.typeDefs.size() - 1;
 
@@ -443,13 +450,15 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
+        BTypeSymbol typeSymbol = astTypeDefinition.symbol.tag == SymTag.TYPE_DEF
+                ? astTypeDefinition.symbol.type.tsymbol : astTypeDefinition.symbol;
         // Write referenced functions, if this is an abstract-object
-        if (astTypeDefinition.symbol.tag != SymTag.OBJECT ||
-                !Symbols.isFlagOn(astTypeDefinition.symbol.flags, Flags.CLASS)) {
+        if (typeSymbol.tag != SymTag.OBJECT ||
+                !Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS)) {
             return;
         }
 
-        for (BAttachedFunction func : ((BObjectTypeSymbol) astTypeDefinition.symbol).referencedFunctions) {
+        for (BAttachedFunction func : ((BObjectTypeSymbol) typeSymbol).referencedFunctions) {
             if (!Symbols.isFlagOn(func.symbol.flags, Flags.INTERFACE)) {
                 return;
             }
@@ -486,7 +495,8 @@ public class BIRGen extends BLangNodeVisitor {
         BType nodeType = astTypeDefinition.typeNode.getBType();
         // Consider: type DE distinct E;
         // For distinct types, the type defined by typeDefStmt (DE) is different from type used to define it (E).
-        if (nodeType.tag == TypeTags.ERROR) {
+        if (nodeType.tag == TypeTags.ERROR || (nodeType.tag == TypeTags.TYPEREFDESC
+                && ((BTypeReferenceType) nodeType).constraint.tag == TypeTags.ERROR)) {
             return astTypeDefinition.symbol.type;
         }
         return nodeType;

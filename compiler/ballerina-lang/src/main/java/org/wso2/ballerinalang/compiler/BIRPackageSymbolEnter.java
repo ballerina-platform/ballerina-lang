@@ -264,7 +264,8 @@ public class BIRPackageSymbolEnter {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) structureTypeSymbol.type;
-                for (BType typeRef : objectType.typeInclusions) {
+                for (BType ref : objectType.typeInclusions) {
+                    BType typeRef = types.getConstraintFromReferenceType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
@@ -400,6 +401,9 @@ public class BIRPackageSymbolEnter {
 
         if (this.currentStructure != null) {
             BType attachedType = this.currentStructure.type;
+            if (attachedType.tag == TypeTags.TYPEREFDESC) {
+                attachedType = ((BTypeReferenceType) attachedType).constraint;
+            }
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -480,22 +484,23 @@ public class BIRPackageSymbolEnter {
 
         BTypeSymbol symbol;
 
-        if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
-            symbol = type.tsymbol;
-            symbol.name = names.fromString(typeDefName);
-            symbol.type = type;
-            symbol.pkgID = this.env.pkgSymbol.pkgID;
-            symbol.flags = flags;
-            symbol.origin = toOrigin(origin);
-            symbol.pos = pos;
-        } else {
+//        if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
+////            symbol = type.tsymbol;
+//            type.tsymbol.name = names.fromString(typeDefName);
+//            type.tsymbol.type = type;
+//            type.tsymbol.pkgID = this.env.pkgSymbol.pkgID;
+//            type.tsymbol.flags = flags;
+//            type.tsymbol.origin = toOrigin(origin);
+//            type.tsymbol.pos = pos;
+//        }
+//        else {
             symbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
                     names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
                     pos, SOURCE);
             if (type.tsymbol.name == Names.EMPTY) {
                 type.tsymbol = symbol;
             }
-        }
+//        }
 
         defineMarkDownDocAttachment(symbol, docBytes);
 
@@ -517,7 +522,7 @@ public class BIRPackageSymbolEnter {
 //        symbol.pos = pos;
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
-            this.structureTypes.add((BStructureTypeSymbol) symbol);
+            this.structureTypes.add((BStructureTypeSymbol) type.tsymbol);
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
@@ -685,15 +690,15 @@ public class BIRPackageSymbolEnter {
         // read and ignore constant value's byte chunk length.
         dataInStream.readLong();
 
-        constantSymbol.value = readConstLiteralValue(dataInStream);
+        BType constantValType = readBType(dataInStream);
+        constantSymbol.value = readConstLiteralValue(constantValType, dataInStream);
         constantSymbol.literalType = constantSymbol.value.type;
 
         // Define constant.
         enclScope.define(constantSymbol.name, constantSymbol);
     }
 
-    private BLangConstantValue readConstLiteralValue(DataInputStream dataInStream) throws IOException {
-        BType valueType = readBType(dataInStream);
+    private BLangConstantValue readConstLiteralValue(BType valueType, DataInputStream dataInStream) throws IOException {
         switch (valueType.tag) {
             case TypeTags.INT:
                 return new BLangConstantValue(getIntCPEntryValue(dataInStream), symTable.intType);
@@ -714,10 +719,13 @@ public class BIRPackageSymbolEnter {
                 Map<String, BLangConstantValue> keyValuePairs = new LinkedHashMap<>();
                 for (int i = 0; i < size; i++) {
                     String key = getStringCPEntryValue(dataInStream);
-                    BLangConstantValue value = readConstLiteralValue(dataInStream);
+                    BType type = readBType(dataInStream);
+                    BLangConstantValue value = readConstLiteralValue(type, dataInStream);
                     keyValuePairs.put(key, value);
                 }
                 return new BLangConstantValue(keyValuePairs, valueType);
+            case TypeTags.TYPEREFDESC:
+                return readConstLiteralValue(types.getConstraintFromReferenceType(valueType), dataInStream);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
