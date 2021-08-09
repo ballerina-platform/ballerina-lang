@@ -107,6 +107,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_CLIENT_HTTP_URL_DISABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
@@ -1132,7 +1133,9 @@ public class HttpUtil {
         observerContext.ifPresent(ctx -> {
             HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(strand.observerContext));
             strand.observerContext.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
-            strand.observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            if (!ConfigRegistry.getInstance().getAsBoolean(CONFIG_CLIENT_HTTP_URL_DISABLED)) {
+                strand.observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            }
             strand.observerContext.addTag(TAG_KEY_PEER_ADDRESS,
                        message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
