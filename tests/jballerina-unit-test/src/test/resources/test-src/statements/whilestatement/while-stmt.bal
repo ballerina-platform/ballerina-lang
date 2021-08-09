@@ -89,6 +89,7 @@ function testNestedWhileWithBreak1() returns string {
     string result = "";
     while (true) {
         while (false) {
+            error:unreachable();
         }
         result = result + "inner";
         break;
@@ -102,6 +103,7 @@ function testNestedWhileWithBreak2() returns string {
         while (true) {
             while (true) {
                 while (false) {
+                    error:unreachable();
                 }
                 result = result + "level3";
                 break;

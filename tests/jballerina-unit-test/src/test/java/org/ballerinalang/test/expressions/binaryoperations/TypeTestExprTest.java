@@ -68,12 +68,16 @@ public class TypeTestExprTest {
                 "incompatible types: '(int|string)' will not be matched to '(boolean|float)'", 73, 9);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 91, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 93, 12);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 93, 16);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 93, 24);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 118, 9);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 120, 12);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 120, 16);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 120, 24);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 131, 18);
         BAssertUtil.validateHint(negativeResult, i++,
@@ -171,7 +175,7 @@ public class TypeTestExprTest {
                 "'RecordWithIntFieldAndNeverRestField'", 358, 18);
         BAssertUtil.validateError(negativeResult, i, "incompatible types: 'Record' will not be matched to " +
                 "'RecordWithIntFieldAndEffectivelyNeverRestField'", 359, 18);
-        Assert.assertEquals(negativeResult.getErrorCount(), 26);
+        Assert.assertEquals(negativeResult.getErrorCount(), 30);
     }
 
     @Test

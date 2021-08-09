@@ -202,7 +202,7 @@ function trxError()  returns error {
 }
 
 function trxErrorOrString()  returns string|error {
-    if(true) {
+    if(0 < 1) {
         return error("TransactionError");
     }
     return "Custom String";

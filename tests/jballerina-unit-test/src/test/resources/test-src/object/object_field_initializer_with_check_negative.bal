@@ -18,6 +18,7 @@ class Foo {
     function a = function () returns error? {
         // OK, since it is enclosed in the function, and not directly used in the default value.
         int q = check int:fromString("invalid");
+        return;
     };
     int b = check int:fromString("invalid"); // error.
     int[]|error c = check f1(); // error.
@@ -36,6 +37,7 @@ isolated function f2() returns MyError|object { function a; int b; int c; } {
                 record {|
                     any x = check f1(); // error.
                 |} r = {};
+                return;
             };
             int b = check int:fromString("invalid"); // error.
             int c = 0;
@@ -70,6 +72,7 @@ isolated function func() {
             function a = function () returns error? {
                 // OK, since it is enclosed in the function, and not directly used in the default value.
                 int q = check int:fromString("invalid");
+                return;
             };
             int b = check int:fromString("invalid"); // error.
             int c = check int:fromString(check f3()); // error.
@@ -81,6 +84,7 @@ isolated function func() {
             function a = function () returns error? {
                 // OK, since it is enclosed in the function, and not directly used in the default value.
                 int q = check int:fromString("invalid");
+                return;
             };
             int b = check int:fromString("invalid"); // error.
             int c = check int:fromString(check f3()); // error.
@@ -100,12 +104,14 @@ class Bar {
     function a = function () returns error? {
         // OK, since it is enclosed in the function, and not directly used in the default value.
         int q = check int:fromString("invalid");
+        return;
     };
     int b = check int:fromString("invalid"); // error.
     int[]|error c = check f1(); // error.
     string[] d = ["", check f3()]; // error.
 
     function init() returns MyError? {
+        return;
     }
 }
 
@@ -115,6 +121,7 @@ function f4() returns MyError|object { function a; int b; int c; } {
                     // OK, since it is enclosed in the function, and not directly used in the default value.
                     int q = check int:fromString("invalid");
                     object { function a; int b; int c; } r = check f2();
+                    return;
                 };
                 int b = check int:fromString("invalid"); // error.
                 int c = 0;
@@ -123,6 +130,7 @@ function f4() returns MyError|object { function a; int b; int c; } {
                     if self.b > 1 {
                         return error("error!");
                     }
+                    return;
                 }
     };
     return v;
@@ -140,6 +148,7 @@ var ob = object {
     string c = check f3(); // error.
 
     function init() returns MyError|MyErrorTwo? {
+        return;
     }
 };
 
@@ -148,17 +157,20 @@ function func2() returns error? {
         any|error a = check f2(); // error.
 
         function init() returns MyErrorTwo? {
+            return;
         }
     };
 
     any v = check ob;
     any w = check ob2;
+    return;
 }
 
 class Baz {
     any a = check new Qux(function () returns error? { // error
                               // OK, since it is enclosed in the function, and not directly used in the default value.
                               int q = check int:fromString("invalid");
+                              return;
                           });
     any b = check new Qux(() => check int:fromString("invalid")); // error for outer check
 }
@@ -167,15 +179,18 @@ class Quux {
     any a = check new Qux(function () returns error? { // error
                               // OK, since it is enclosed in the function, and not directly used in the default value.
                               int q = check int:fromString("invalid");
+                              return;
                           });
     any b = check new Qux(() => check int:fromString("invalid")); // error for outer check
 
     function init() returns MyError? {
+        return;
     }
 }
 
 class Qux {
     isolated function init(function () returns int|error? f) returns error? {
+        return;
     }
 }
 
@@ -187,7 +202,7 @@ class C2 {
     int i = let int x = check fn() in x + check fn();
 
     function init() returns MyError? {
-
+        return;
     }
 }
 
@@ -199,7 +214,7 @@ var w = object {
     int i = let int x = check fn() in x + 1;
 
     function init() returns MyError? {
-
+        return;
     }
 };
 
@@ -211,7 +226,7 @@ function testObjectConstructor() {
         int i = let int x = check fn() in x + 2 * check fn();
 
         function init() returns MyError? {
-
+            return;
         }
     };
 

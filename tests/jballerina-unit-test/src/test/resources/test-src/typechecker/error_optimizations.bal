@@ -26,9 +26,9 @@ function testWithValue() {
         test:assertFail();
     }
 
-    if (someValue is readonly) {
+    if (someValue is readonly) { // always true
     } else {
-        test:assertFail();
+        error:unreachable();
     }
 
     if (someValue is string|int) {
@@ -94,9 +94,9 @@ function testWithError() {
         test:assertFail();
     }
 
-    if (someValue is readonly) {
+    if (someValue is readonly) { // always true
     } else {
-        test:assertFail();
+        error:unreachable();
     }
 
     if (someValue is string|int) {
@@ -134,14 +134,14 @@ function testWithOnlyError() {
         test:assertFail();
     }
 
-    if (err is MyError|error) {
+    if (err is MyError|error) { // always true
     } else {
-        test:assertFail();
+        error:unreachable();
     }
 
-    if (err is error) {
+    if (err is error) { // always true
     } else {
-        test:assertFail();
+        error:unreachable();
     }
 }
 

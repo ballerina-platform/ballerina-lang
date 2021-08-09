@@ -48,7 +48,7 @@ function workerActionFirstTest() {
     }
     worker w2 returns error? {
         // Receive expr should get anydata
-        if(false){
+        if(0 > 1){
              error err = error("err", message = "err msg");
              return err;
         }
@@ -93,7 +93,7 @@ function workerActionThirdTest() {
         error? result = flush w2;
     }
     worker w2 returns error?{
-        if(false){
+        if(0 > 1){
              error err = error("err", message = "err msg");
              return err;
         }

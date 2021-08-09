@@ -51,6 +51,7 @@ public class TypeGuardTest {
                 "incompatible types: 'string' will not be matched to 'int'", 20, 27);
         BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 29, 13);
+        BAssertUtil.validateError(negativeResult, i++, "unreachable code", 33, 9);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 33, 13);
         BAssertUtil.validateError(negativeResult, i++,

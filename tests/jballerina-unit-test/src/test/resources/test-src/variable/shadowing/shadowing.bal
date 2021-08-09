@@ -71,7 +71,7 @@ function testBlockScope1() returns [string, string] {
 }
 
 function testBlockScope2() returns string {
-    if (false) {
+    if (0 > 1) {
         string name = "Inside if block";
         return name;
     } else {
@@ -96,7 +96,7 @@ function testFunctionParam(string name) returns string {
 function testNestedBlocks() returns string {
     if (true) {
         if (false) {
-            string s = "nested if";
+            error:unreachable();
         } else {
             string s = "nested else";
         }
@@ -105,7 +105,7 @@ function testNestedBlocks() returns string {
         return s;
     }
 
-    return "";
+    error:unreachable();
 }
 
 function testNamespaces1() returns xml {
