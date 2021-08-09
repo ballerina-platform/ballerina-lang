@@ -28,6 +28,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
+import java.util.Optional;
+
 /**
  * {@code BMapType} represents a type of a map in Ballerina.
  * <p>
@@ -44,6 +46,7 @@ public class BMapType extends BType implements MapType {
     private final Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
 
     public BMapType(Type constraint) {
         this(constraint, false);
@@ -148,7 +151,7 @@ public class BMapType extends BType implements MapType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
@@ -156,4 +159,15 @@ public class BMapType extends BType implements MapType {
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
     }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
+    }
+
 }
