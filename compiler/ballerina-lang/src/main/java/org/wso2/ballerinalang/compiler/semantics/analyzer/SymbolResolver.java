@@ -1267,7 +1267,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = type.tsymbol;
         streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                       typeSymbol.originalName, typeSymbol.pkgID, streamType,
-                                                      typeSymbol.owner, streamTypeNode.pos, SOURCE);
+                                                      env.scope.owner, streamTypeNode.pos, SOURCE);
 
         markParameterizedType(streamType, constraintType);
         if (error != null) {
