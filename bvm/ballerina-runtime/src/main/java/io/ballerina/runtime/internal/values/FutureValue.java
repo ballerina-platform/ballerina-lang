@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.values;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;
+ import io.ballerina.runtime.api.values.BTypedesc;
  import io.ballerina.runtime.internal.scheduling.Strand;
  import io.ballerina.runtime.internal.types.BFutureType;
 
@@ -39,7 +40,9 @@ package io.ballerina.runtime.internal.values;
  */
  public class FutureValue implements BFuture, RefValue {
 
-     public Strand strand;
+    private final BTypedesc typedesc;
+
+    public Strand strand;
 
      public Object result;
 
@@ -58,7 +61,8 @@ package io.ballerina.runtime.internal.values;
          this.strand = strand;
          this.callback = callback;
          this.type = new BFutureType(constraint);
-     }
+        this.typedesc = new TypedescValueImpl(this.type);
+    }
 
      @Override
      public String stringValue(BLink parent) {
@@ -93,7 +97,12 @@ package io.ballerina.runtime.internal.values;
          throw new UnsupportedOperationException();
      }
 
-     public void cancel() {
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
+    }
+
+    public void cancel() {
          this.strand.cancel = true;
      }
 

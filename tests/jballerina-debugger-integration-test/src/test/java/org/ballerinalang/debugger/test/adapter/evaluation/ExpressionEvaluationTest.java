@@ -407,12 +407,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
         // primitive types
-        debugTestRunner.assertExpression(context, String.format("typeof %s", BOOLEAN_VAR), "boolean", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s", INT_VAR), "int", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s", FLOAT_VAR), "float", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", BOOLEAN_VAR), "true", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", INT_VAR), "20", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", FLOAT_VAR), "-10.0", "typedesc");
         // reference types
         debugTestRunner.assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "string", "typedesc");
+        // Need to change this result to `o` after fixing issue #32102
+        debugTestRunner.assertExpression(context, String.format("typeof %s[1]", STRING_VAR), "f", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc",
                 "typedesc");
     }

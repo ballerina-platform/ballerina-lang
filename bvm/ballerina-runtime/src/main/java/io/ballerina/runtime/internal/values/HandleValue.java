@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import java.util.Map;
 public class HandleValue implements BHandle, RefValue {
 
     private Object value;
+    private final BTypedesc typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_HANDLE);
 
     @Deprecated
     public HandleValue(Object value) {
@@ -79,6 +81,11 @@ public class HandleValue implements BHandle, RefValue {
     @Override
     public void freezeDirect() {
         return;
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     @Override

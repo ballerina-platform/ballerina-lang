@@ -520,13 +520,10 @@ public class TypeChecker {
             return null;
         }
         if (isSimpleBasicType(type)) {
-            type = new BFiniteType(value.toString(), Set.of(value), 0);
+            return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
         }
-        if (value instanceof MapValue) {
-            TypedescValue typedesc = (TypedescValue) ((MapValue) value).getTypedesc();
-            if (typedesc != null) {
-                return typedesc;
-            }
+        if (value instanceof RefValue) {
+            return (TypedescValue) ((RefValue) value).getTypedesc();
         }
         return new TypedescValueImpl(type);
     }
