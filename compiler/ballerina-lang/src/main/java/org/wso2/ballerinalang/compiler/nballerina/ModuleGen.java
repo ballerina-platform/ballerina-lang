@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -132,9 +133,17 @@ public class ModuleGen {
             return null;
         } else if (stmt instanceof BLangSimpleVariableDef) {
             BLangSimpleVariableDef varDec = (BLangSimpleVariableDef) stmt;
-            OpBlockHolder opb = codeGenExpr(varDec.var.getInitialExpression(), code, startBlock);
+            OpBlockHolder opb;
+            if (varDec.var.getInitialExpression() != null) {
+                opb = codeGenExpr(varDec.var.getInitialExpression(), code, startBlock);
+            } else {
+                Operand op = new Operand(false);
+                op.value = false;
+                opb = new OpBlockHolder(op, startBlock);
+            }
+
             Register result = code.createRegister(convertSimpleSemType(
-                    varDec.getVariable().typeNode.getBType().getKind()), varDec.getVariable().getName().toString());
+                    varDec.getVariable().getBType().getKind()), varDec.getVariable().getName().toString());
             opb.nextBlock.insns.add(new AssignInsn(result, opb.operand));
             return opb.nextBlock;
 
@@ -534,6 +543,13 @@ public class ModuleGen {
             } else {
                 throw new BallerinaException("cannot apply member access to constant of simple type");
             }
+        } else if (expr instanceof BLangStatementExpression) {
+            BLangStatementExpression stex = (BLangStatementExpression) expr;
+            BasicBlock curBlock = bb;
+            for (BLangStatement st : ((BLangBlockStmt) stex.getStatement()).getStatements()) {
+                curBlock = codeGenStmt(st, code, curBlock);
+            }
+            return codeGenExpr(stex.expr, code, curBlock);
         }
 
         throw new BallerinaException("Expression not recognized");
