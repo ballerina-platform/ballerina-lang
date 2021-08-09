@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -200,6 +201,7 @@ public class PackageManifest {
         private final String scope;
         private final boolean transitive;
         private final List<TransitiveDependency> dependencies;
+        private final List<String> modules = new ArrayList<>();
         public String repository;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
@@ -260,6 +262,10 @@ public class PackageManifest {
 
         public List<TransitiveDependency> dependencies() {
             return dependencies;
+        }
+
+        public List<String> modules() {
+            return modules;
         }
     }
 

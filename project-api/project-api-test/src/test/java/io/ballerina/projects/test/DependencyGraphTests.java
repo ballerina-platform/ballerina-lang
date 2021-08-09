@@ -310,18 +310,18 @@ public class DependencyGraphTests extends BaseTest {
                 resolutionRequestList);
         Assert.assertEquals(responseDescriptors.size(), 3);
         for (ResolutionResponseDescriptor responseDescriptor : responseDescriptors) {
-            if (responseDescriptor.resolvedDescriptor().isEmpty()) {
+            if (responseDescriptor.resolvedDescriptor() == null) {
                 Assert.assertEquals(responseDescriptor.packageLoadRequest().packageName().toString(),
                         "dummy");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.UNRESOLVED);
-            } else if (responseDescriptor.resolvedDescriptor().get().name().toString().equals("io")) {
-                Assert.assertEquals(responseDescriptor.resolvedDescriptor().get().version().toString(),
+            } else if (responseDescriptor.resolvedDescriptor().name().toString().equals("io")) {
+                Assert.assertEquals(responseDescriptor.resolvedDescriptor().version().toString(),
                         "1.5.0");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.RESOLVED);
             } else {
-                Assert.assertEquals(responseDescriptor.resolvedDescriptor().get().version().toString(),
+                Assert.assertEquals(responseDescriptor.resolvedDescriptor().version().toString(),
                         "0.1.0");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.RESOLVED);
@@ -333,7 +333,7 @@ public class DependencyGraphTests extends BaseTest {
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.2")),
                 PackageDependencyScope.DEFAULT, true, PackageLockingMode.SOFT);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
-        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().get().version().toString(), "1.5.0");
+        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
     }
@@ -366,18 +366,18 @@ public class DependencyGraphTests extends BaseTest {
                 resolutionRequestList);
         Assert.assertEquals(responseDescriptors.size(), 3);
         for (ResolutionResponseDescriptor responseDescriptor : responseDescriptors) {
-            if (responseDescriptor.resolvedDescriptor().isEmpty()) {
+            if (responseDescriptor.resolvedDescriptor() == null) {
                 Assert.assertEquals(responseDescriptor.packageLoadRequest().packageName().toString(),
                         "dummy");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.UNRESOLVED);
-            } else if (responseDescriptor.resolvedDescriptor().get().name().toString().equals("io")) {
-                Assert.assertEquals(responseDescriptor.resolvedDescriptor().get().version().toString(),
+            } else if (responseDescriptor.resolvedDescriptor().name().toString().equals("io")) {
+                Assert.assertEquals(responseDescriptor.resolvedDescriptor().version().toString(),
                         "1.4.2");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.RESOLVED);
             } else {
-                Assert.assertEquals(responseDescriptor.resolvedDescriptor().get().version().toString(),
+                Assert.assertEquals(responseDescriptor.resolvedDescriptor().version().toString(),
                         "0.1.0");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.RESOLVED);
@@ -389,7 +389,7 @@ public class DependencyGraphTests extends BaseTest {
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.0")),
                 PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
-        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().get().version().toString(), "1.4.2");
+        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.4.2");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
 
@@ -398,7 +398,7 @@ public class DependencyGraphTests extends BaseTest {
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.3.2")),
                 PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
-        Assert.assertTrue(responseDescriptors.get(0).resolvedDescriptor().isEmpty());
+        Assert.assertNull(responseDescriptors.get(0).resolvedDescriptor());
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.UNRESOLVED);
 
@@ -407,7 +407,7 @@ public class DependencyGraphTests extends BaseTest {
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), null),
                 PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
-        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().get().version().toString(), "1.5.0");
+        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
     }
@@ -440,18 +440,18 @@ public class DependencyGraphTests extends BaseTest {
                 resolutionRequestList);
         Assert.assertEquals(responseDescriptors.size(), 3);
         for (ResolutionResponseDescriptor responseDescriptor : responseDescriptors) {
-            if (responseDescriptor.resolvedDescriptor().isEmpty()) {
+            if (responseDescriptor.resolvedDescriptor() == null) {
                 Assert.assertEquals(responseDescriptor.packageLoadRequest().packageName().toString(),
                         "dummy");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.UNRESOLVED);
-            } else if (responseDescriptor.resolvedDescriptor().get().name().toString().equals("io")) {
-                Assert.assertEquals(responseDescriptor.resolvedDescriptor().get().version().toString(),
+            } else if (responseDescriptor.resolvedDescriptor().name().toString().equals("io")) {
+                Assert.assertEquals(responseDescriptor.resolvedDescriptor().version().toString(),
                         "1.4.2");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.RESOLVED);
             } else {
-                Assert.assertEquals(responseDescriptor.resolvedDescriptor().get().version().toString(),
+                Assert.assertEquals(responseDescriptor.resolvedDescriptor().version().toString(),
                         "0.1.0");
                 Assert.assertEquals(responseDescriptor.resolutionStatus(),
                         ResolutionResponse.ResolutionStatus.RESOLVED);
@@ -464,7 +464,7 @@ public class DependencyGraphTests extends BaseTest {
                 PackageDependencyScope.DEFAULT, true, PackageLockingMode.HARD);
         responseDescriptors = packageResolver.resolveDependencyVersions(
                 Collections.singletonList(resolutionRequest));
-        Assert.assertTrue(responseDescriptors.get(0).resolvedDescriptor().isEmpty());
+        Assert.assertNull(responseDescriptors.get(0).resolvedDescriptor());
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.UNRESOLVED);
 
@@ -474,7 +474,7 @@ public class DependencyGraphTests extends BaseTest {
                 PackageDependencyScope.DEFAULT, true, PackageLockingMode.HARD);
         responseDescriptors = packageResolver.resolveDependencyVersions(
                 Collections.singletonList(resolutionRequest));
-        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().get().version().toString(), "1.5.0");
+        Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
     }

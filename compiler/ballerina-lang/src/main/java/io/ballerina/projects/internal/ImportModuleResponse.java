@@ -22,8 +22,6 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.environment.ResolutionResponse;
 
-import java.util.Optional;
-
 /**
  * Represents a resolved imported module.
  *
@@ -74,8 +72,8 @@ public class ImportModuleResponse {
         return importModuleRequest;
     }
 
-    public Optional<PackageDescriptor> packageDescriptor() {
-        return Optional.ofNullable(packageDescriptor);
+    public PackageDescriptor packageDescriptor() {
+        return packageDescriptor;
     }
 
     public ResolutionResponse.ResolutionStatus resolutionStatus() {
