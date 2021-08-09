@@ -68,19 +68,12 @@ function foo() returns int|error {
 }
 
 public function joinStrings(){
-	string result = strings:join("string", "string...");
+    string result = strings:join("string", "string...");
 }
 
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
+type Ints 12|"foo";
 
-    if expected === actual {
-        return;
-    }
-
-    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
-    string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+function testLangLibCallOnFiniteType() {
+    Ints x = 12;
+    string s = x.toHexString();
 }

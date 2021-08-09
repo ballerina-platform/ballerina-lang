@@ -16,18 +16,15 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -38,10 +35,8 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * Generic completion resolver for the Block Nodes.
@@ -96,45 +91,28 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(context));
         completionItems.addAll(this.expressionCompletions(context));
-        completionItems.addAll(getNewExprCompletionItems(context, typeDsc));
+        completionItems.addAll(getNewExprCompletionItems(context));
         if (withinTransactionStatementNode(context)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
         }
         return completionItems;
     }
 
-    private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,
-                                                             Node typeDescriptorNode) {
+    private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<ClassSymbol> classSymbol;
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, typeDescriptorNode)) {
-            String modulePrefix = QNameReferenceUtil.getAlias(((QualifiedNameReferenceNode) typeDescriptorNode));
-            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, modulePrefix);
-            if (module.isEmpty()) {
-                return completionItems;
-            }
-            String identifier = ((QualifiedNameReferenceNode) typeDescriptorNode).identifier().text();
-            ModuleSymbol moduleSymbol = module.get();
-            Stream<Symbol> classesAndTypes = Stream.concat(moduleSymbol.classes().stream(),
-                    moduleSymbol.typeDefinitions().stream());
-            classSymbol = classesAndTypes
-                    .filter(typeSymbol -> SymbolUtil.isClass(typeSymbol)
-                            && Objects.equals(typeSymbol.getName().orElse(null), identifier))
-                    .map(SymbolUtil::getTypeDescForClassSymbol)
-                    .findAny();
-        } else if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            String identifier = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
-            classSymbol = visibleSymbols.stream()
-                    .filter(symbol -> SymbolUtil.isClass(symbol)
-                            && Objects.equals(symbol.getName().orElse(null), identifier))
-                    .map(SymbolUtil::getTypeDescForClassSymbol)
-                    .findAny();
-        } else {
-            classSymbol = Optional.empty();
+        Optional<TypeSymbol> contextType = context.getContextType();
+        if (contextType.isEmpty()) {
+            return completionItems;
         }
-
-        classSymbol.ifPresent(typeDesc -> completionItems.add(this.getImplicitNewCompletionItem(typeDesc, context)));
+        if (contextType.get().typeKind() == TypeDescKind.STREAM) {
+            LSCompletionItem implicitNewCompletionItem =
+                    this.getImplicitNewCItemForStreamType(contextType.get(), context);
+            completionItems.add(implicitNewCompletionItem);
+        } else if (contextType.get().kind() == SymbolKind.CLASS) {
+            LSCompletionItem implicitNewCompletionItem
+                    = this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), context);
+            completionItems.add(implicitNewCompletionItem);
+        }
 
         return completionItems;
     }

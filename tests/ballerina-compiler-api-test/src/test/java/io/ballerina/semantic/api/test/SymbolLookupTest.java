@@ -191,7 +191,7 @@ public class SymbolLookupTest {
 
     @DataProvider(name = "PositionProvider4")
     public Object[][] getPositionsForExprs() {
-        List<String> moduleLevelSymbols = asList("aString", "anInt", "test");
+        List<String> moduleLevelSymbols = asList("aString", "anInt", "test", "exprBodyScope");
         return new Object[][]{
                 {20, 12, getSymbolNames(moduleLevelSymbols, "b")},
                 {20, 16, getSymbolNames(moduleLevelSymbols, "b")},
@@ -200,6 +200,7 @@ public class SymbolLookupTest {
                 {20, 42, getSymbolNames(moduleLevelSymbols, "b", "x", "z")},
                 {22, 50, getSymbolNames(moduleLevelSymbols, "b", "strTemp")},
                 {24, 53, getSymbolNames(moduleLevelSymbols, "b", "strTemp", "rawTemp")},
+                {27, 56, getSymbolNames(moduleLevelSymbols, "myStr")},
         };
     }
 
@@ -450,7 +451,7 @@ public class SymbolLookupTest {
     }
 
     @Test
-    public void test() {
+    public void testDestructureStmts() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_destructure_var_exclusion_test.bal");
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
@@ -464,6 +465,27 @@ public class SymbolLookupTest {
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
         Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 22, 4, moduleID);
+
+        assertEquals(symbolsInFile.size(), expSymbolNames.size());
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @Test
+    public void testObjectConstructorExpr() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_object_constructor.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+        List<String> expSymbolNames = List.of("test", "f1", "foo", "self", "a");
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, 21, 20, moduleID);
 
         assertEquals(symbolsInFile.size(), expSymbolNames.size());
         for (String symName : expSymbolNames) {

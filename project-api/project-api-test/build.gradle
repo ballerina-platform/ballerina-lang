@@ -49,6 +49,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:event-logger-compiler-plugin')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-two-dependencies')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
     compilerPluginJar project(':project-api-test-artifact:string-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:function-node-analyzer-compiler-plugin')

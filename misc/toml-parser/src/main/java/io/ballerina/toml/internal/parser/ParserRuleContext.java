@@ -38,6 +38,13 @@ public enum ParserRuleContext {
     ARRAY_VALUE_START_OR_VALUE_LIST_END("array-value-start-or-array-values-list-end"), //multi
     ARRAY_VALUE_LIST_END("]"),
 
+    INLINE_TABLE_START("{"),
+    INLINE_TABLE_LIST("inline-key-values"),
+    INLINE_TABLE_ENTRY_START("inline-table-entry-start"),
+    INLINE_TABLE_ENTRY_END("inline-table-entry-end"),
+    INLINE_TABLE_START_OR_TABLE_ENTRY_LIST_END("inline-table-start-or-table-entry-list-end"),
+    INLINE_TABLE_END("}"),
+
     KEY_LIST("key-list"),
     KEY_START("key-start"), // parsing an a value of the array
     KEY_END("key-end"), // parsing the end of the array comma or close

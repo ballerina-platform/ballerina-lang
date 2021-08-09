@@ -482,6 +482,21 @@ function testTupleJSONRefEquality() {
     }
 }
 
+function testIntersectingUnionRefEquality() {
+    json a = {"name": "Foo", "age": 20};
+    map<anydata> b = <map<json>> a;
+    assert(a === b, true);
+    assert(a !== b, false);
+    assert(b === a, true);
+    assert(b !== a, false);
+
+    map<anydata> c = {"name": "Foo", "age": 20};
+    assert(a === c, false);
+    assert(a !== c, true);
+    assert(c === a, false);
+    assert(c !== a, true);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
         return;

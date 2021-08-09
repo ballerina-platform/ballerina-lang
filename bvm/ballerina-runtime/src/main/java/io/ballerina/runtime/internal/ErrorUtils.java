@@ -117,6 +117,11 @@ public class ErrorUtils {
                                                                TypeChecker.getType(sourceVal), targetType));
     }
 
+    public static BError createJToBTypeCastError(Object sourceVal, Type targetType) {
+        throw createError(BLangExceptionHelper.
+                getErrorMessage(RuntimeErrors.TYPE_ASSIGNABLE_ERROR, sourceVal, targetType));
+    }
+
     public static BError createNumericConversionError(Object inputValue, Type targetType) {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                           BLangExceptionHelper.getErrorMessage(

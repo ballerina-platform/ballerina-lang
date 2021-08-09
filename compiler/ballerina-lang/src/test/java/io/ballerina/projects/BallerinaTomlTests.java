@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -218,12 +219,7 @@ public class BallerinaTomlTests {
     public void testBallerinaTomlWithPlatformDependencyAsInlineTable() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("inline-table.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
-        Assert.assertTrue(diagnostics.hasErrors());
-
-        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
-        Assert.assertEquals(iterator.next().message(),
-                            "incompatible type for key 'dependency': expected 'OBJECT', found 'STRING'");
-
+        Assert.assertFalse(diagnostics.hasErrors());
     }
 
     @Test
@@ -300,6 +296,33 @@ public class BallerinaTomlTests {
         Assert.assertTrue(manifest.diagnostics().hasErrors());
         Assert.assertEquals(manifest.diagnostics().errors().iterator().next().message(),
                             "invalid 'version' under [package]: 'version' should be compatible with semver");
+    }
+
+    @Test(description = "Test other entries added by the user")
+    public void testOtherEntries() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("other-entries.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        Assert.assertEquals(packageManifest.descriptor().org().value(), "foo");
+        Assert.assertEquals(packageManifest.descriptor().name().value(), "winery");
+        Assert.assertEquals(packageManifest.descriptor().version().toString(), "1.0.0");
+
+        // package should not be able to access using `getValue` method
+        Assert.assertNull(packageManifest.getValue("package"));
+
+        // other entry field
+        Assert.assertEquals(packageManifest.getValue("firstField"), "yee");
+
+        // other entry table
+        Assert.assertEquals(((Map<String, Object>) packageManifest.getValue("userTable")).get("name"), "bar");
+        Long frequency = (Long) (((Map<String, Object>) packageManifest.getValue("userTable")).get("frequency"));
+        Assert.assertEquals(frequency.longValue(), 225);
+
+        // other entry table array
+        List<Map<String, Object>> userContacts = (ArrayList) packageManifest.getValue("userContact");
+        Assert.assertEquals(userContacts.size(), 2);
+        Map<String, Object> firstContact = userContacts.get(0);
+        Assert.assertEquals(firstContact.get("name"), "hevayo");
+        Assert.assertEquals(firstContact.get("phone"), "0123456789");
     }
 
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {

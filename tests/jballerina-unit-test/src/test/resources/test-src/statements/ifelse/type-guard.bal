@@ -1574,6 +1574,53 @@ function testIntersectionWithIntersectionType() {
     assertEquality("hello world", intersectionWithIntersectionType({baz: {s: "hello world"}}));
 }
 
+type Colour "r"|"g"|"b";
+type Ints 1|2;
+type Kinds Colour|Ints;
+
+function testIntersectionOfBuiltInSubTypeWithFiniteType() {
+    string:Char a = "r";
+    assertEquality(true, a is Colour);
+
+    if a is Colour {
+        Colour a2 = a;
+        assertEquality("r", a2);
+    }
+
+    int:Unsigned16 b = 1;
+    assertEquality(true, b is Ints);
+
+    if b is Ints {
+        Ints b2 = b;
+        assertEquality(1, b2);
+    }
+
+    Kinds c = 1;
+    assertEquality(true, c is Ints);
+
+    if c is Ints {
+        Ints c2 = c;
+        assertEquality(1, c2);
+    }
+
+    Kinds d = "g";
+    assertEquality(true, d is Colour);
+    assertEquality(false, d is Ints);
+
+    if d is Colour {
+        Colour d2 = d;
+        assertEquality("g", d2);
+    }
+
+    string:Char e = "r";
+    assertEquality(true, e is Colour);
+
+    if e is Kinds {
+        Colour e2 = e;
+        assertEquality("r", e2);
+    }
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -59,17 +59,19 @@
         {
           "kind": "AS_KEYWORD",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
-          ],
           "leadingMinutiae": [
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
                 "children": [
                   {
-                    "kind": "VERSION_KEYWORD"
+                    "kind": "VERSION_KEYWORD",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
+                    ]
                   }
                 ]
               }

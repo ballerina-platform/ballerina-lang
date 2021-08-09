@@ -1,0 +1,33 @@
+{
+  "line": 6,
+  "character": 4,
+  "expected": [
+    {
+      "title": "Introduce Variable",
+      "command": {
+        "title": "Introduce Variable",
+        "command": "BCE2526/lstest/package_comp_plugin_with_codeactions/CREATE_VAR",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "filePath": "main.bal",
+              "startLine": {
+                "line": 6,
+                "offset": 3
+              },
+              "endLine": {
+                "line": 6,
+                "offset": 15
+              }
+            }
+          },
+          {
+            "key": "var.type",
+            "value": "int"
+          }
+        ]
+      }
+    }
+  ]
+}
