@@ -38,6 +38,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.HANDLE;
@@ -120,6 +121,7 @@ public class TypeSymbolTest {
                 {60, 4, ANYDATA, "anydata"},
                 {61, 4, JSON, "json"},
                 {62, 4, BYTE, "byte"},
+                {63, 13, ERROR, "error"},
         };
     }
 

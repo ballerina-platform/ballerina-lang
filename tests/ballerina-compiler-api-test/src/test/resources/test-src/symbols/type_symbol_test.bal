@@ -61,6 +61,7 @@ function otherTypes() {
     anydata i;
     json j;
     byte k;
+    distinct error err;
 }
 
 // utils
