@@ -364,30 +364,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "S",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -481,49 +463,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "rec",
-      "kind": "Variable",
-      "detail": "R1",
-      "sortText": "AB",
-      "insertText": "rec",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "b",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "b",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "x(int, int, string, float)",
-      "kind": "Function",
-      "detail": "R1",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int`  \n- `int`  \n- `string`  \n- `float[]`  \n  \n**Return** `R1`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "x",
-      "insertText": "x(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "d",
       "kind": "Variable",
       "detail": "float[]",
@@ -532,22 +471,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "O",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "R1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "AM",
-      "insertText": "R1",
+      "label": "b",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "b",
       "insertTextFormat": "Snippet"
     },
     {
@@ -567,14 +495,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "D",
-      "insertText": "c",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "()",
@@ -587,6 +507,49 @@
       "sortText": "E",
       "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "c",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "O",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec",
+      "kind": "Variable",
+      "detail": "R1",
+      "sortText": "AB",
+      "insertText": "rec",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "R1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "AM",
+      "insertText": "R1",
       "insertTextFormat": "Snippet"
     },
     {

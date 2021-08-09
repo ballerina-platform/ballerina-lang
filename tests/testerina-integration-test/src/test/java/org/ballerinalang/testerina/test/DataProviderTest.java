@@ -24,7 +24,10 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Test class to test map based data provider implementation.
@@ -85,7 +88,7 @@ public class DataProviderTest extends BaseTestCase {
     public void testDataProviderWithMixedType() throws BallerinaTestException {
         String msg1 = "2 passing";
         String msg2 = "0 failing";
-        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#CaseNew*",
+        String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#'CaseNew*'",
                 "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -149,7 +152,7 @@ public class DataProviderTest extends BaseTestCase {
         }
     }
 
-    @Test
+    @Test (dependsOnMethods = "testArrayDataRerunFailedTest")
     public void testMultiModuleSingleTestExec() throws BallerinaTestException {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
@@ -158,6 +161,24 @@ public class DataProviderTest extends BaseTestCase {
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
             Assert.fail("Test failed due to multi module single test exec failure with array based data provider.");
+        }
+    }
+
+    @Test
+    public void testCodeFragmentKeys() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String msg2 = "0 failing";
+        List<String> keys = new ArrayList<>(Arrays.asList("'%60'%22%5Ca%22%22'",
+                "'%22%5Cu{D7FF}%22%22%09%22'", "'a +%0A%0D b'",
+                "'(x * 1) %21= (y / 3) || (a ^ b) == (b & c) >> (1 % 2)'", "'%281'", "'a:x(c%2Cd)[]; ^(x|y).ok();'",
+                "'map<any> v = { %22x%22: 1 };'"));
+        for (String key:keys) {
+            String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction3#" + key, "data-providers"});
+            String output = balClient.runMainAndReadStdOut("test", args,
+                    new HashMap<>(), projectPath, false);
+            if (!output.contains(msg1) || !output.contains(msg2)) {
+                Assert.fail("Test failed due to data provider single case execution failure for the key " + key);
+            }
         }
     }
 }

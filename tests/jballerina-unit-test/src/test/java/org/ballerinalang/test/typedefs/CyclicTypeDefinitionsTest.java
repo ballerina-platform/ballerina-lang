@@ -62,6 +62,7 @@ public class CyclicTypeDefinitionsTest {
                 {"testIndirectRecursion"},
                 {"testCyclicRestType"},
                 {"testCastingToImmutableCyclicTuple"},
+                {"recursiveTupleArrayCloneTest"},
         };
     }
 

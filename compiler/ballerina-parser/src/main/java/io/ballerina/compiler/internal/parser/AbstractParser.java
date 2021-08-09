@@ -102,8 +102,10 @@ public abstract class AbstractParser {
         return token;
     }
 
-    protected Solution recover(STToken token, ParserRuleContext currentCtx, Object... args) {
-        Solution sol = this.errorHandler.recover(currentCtx, token, args);
+    protected Solution recover(STToken token, ParserRuleContext currentCtx, boolean isCompletion) {
+        isCompletion |= token.kind == SyntaxKind.EOF_TOKEN;
+        Solution sol = this.errorHandler.recover(currentCtx, token, isCompletion);
+
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {
             this.insertedToken = null;  // Clean up the inserted token, if any.
@@ -212,10 +214,8 @@ public abstract class AbstractParser {
                                                        Object... args) {
         int lastIndex = nodeList.size() - 1;
         STNode prevNode = nodeList.remove(lastIndex);
-        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
-        if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
-        }
+        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam, diagnosticCode,
+                args);
         nodeList.add(newNode);
     }
 
@@ -249,10 +249,7 @@ public abstract class AbstractParser {
                                                            DiagnosticCode diagnosticCode,
                                                            Object... args) {
         STNode node = nodeList.get(indexOfTheNode);
-        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam);
-        if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
-        }
+        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam, diagnosticCode, args);
         nodeList.set(indexOfTheNode, newNode);
     }
 

@@ -59,6 +59,7 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.PatternConstants;
@@ -114,6 +115,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SYMBOL_KEY;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
@@ -133,6 +135,8 @@ public class CommonUtil {
 
     public static final String BALLERINA_HOME;
 
+    public static final boolean COMPILE_OFFLINE;
+
     public static final String BALLERINA_CMD;
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
@@ -149,8 +153,12 @@ public class CommonUtil {
 
     private static final String SELF_KW = "self";
 
+    private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
+
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
+        String onlineCompilation = System.getProperty("ls.compilation.online");
+        COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
         BALLERINA_KEYWORDS = getBallerinaKeywords();
@@ -369,19 +377,27 @@ public class CommonUtil {
      *
      * @param context Language server operation context
      * @param fields  Map of field descriptors
-     * @return {@link List}     List of completion items for the struct fields
+     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
+     * @return {@link List} List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
                                                                        Map<String, RecordFieldSymbol> fields,
-                                                                       TypeSymbol symbol) {
+                                                                       Pair<TypeSymbol, TypeSymbol> symbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
             fieldCounter.getAndIncrement();
             String insertText =
                     getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
-            String detail = symbol.getName().isPresent() ? (symbol.getName().get() + "." + name)
-                    : ("(" + symbol.signature() + ")." + name);
+
+            String detail;
+            if (symbol.getLeft().getName().isPresent()) {
+                detail = getModifiedTypeName(context, symbol.getLeft()) + "." + name;
+            } else if (symbol.getRight().getName().isPresent()) {
+                detail = getModifiedTypeName(context, symbol.getRight()) + "." + name;
+            } else {
+                detail = "(" + symbol.getLeft().signature() + ")." + name;
+            }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
@@ -399,11 +415,12 @@ public class CommonUtil {
      *
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
+     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
      * @return {@link LSCompletionItem}   Completion Item to fill all the options
      */
     public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
                                                               Map<String, RecordFieldSymbol> fields,
-                                                              TypeSymbol symbol) {
+                                                              Pair<TypeSymbol, TypeSymbol> symbol) {
 
         List<String> fieldEntries = new ArrayList<>();
 
@@ -415,7 +432,14 @@ public class CommonUtil {
         }
 
         String label;
-        String detail = symbol.getName().isPresent() ? symbol.getName().get() : symbol.signature();
+        String detail;
+        if (symbol.getLeft().getName().isPresent()) {
+            detail = getModifiedTypeName(context, symbol.getLeft());
+        } else if (symbol.getRight().getName().isPresent()) {
+            detail = getModifiedTypeName(context, symbol.getRight());
+        } else {
+            detail = symbol.getLeft().signature();
+        }
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
@@ -996,8 +1020,14 @@ public class CommonUtil {
         if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
             return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
         }
-        return typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE
-                ? ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor() : typeDescriptor;
+        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
+            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
+                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
+            }
+            return typeRef.typeDescriptor();
+        }
+        return typeDescriptor;
     }
 
     /**
@@ -1052,9 +1082,8 @@ public class CommonUtil {
     }
 
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        Pattern pattern = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
         String typeSignature = typeSymbol.signature();
-        Matcher matcher = pattern.matcher(typeSignature);
+        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(typeSignature);
         while (matcher.find()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
@@ -1145,6 +1174,21 @@ public class CommonUtil {
         }
 
         return value;
+    }
+
+    /**
+     * Get the predicate to filter the variables.
+     * These variables include
+     * (1) any variable defined
+     * (2) Function Parameters
+     * (3) Service/ resource path parameters
+     * 
+     * @return {@link Predicate<Symbol>}
+     */
+    public static Predicate<Symbol> getVariableFilterPredicate() {
+        return symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER
+                || symbol.kind() == SymbolKind.PATH_PARAMETER)
+                && !symbol.getName().orElse("").equals(Names.ERROR.getValue());
     }
 
     private static String getQualifiedModuleName(Module module) {

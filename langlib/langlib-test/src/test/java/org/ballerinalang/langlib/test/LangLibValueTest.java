@@ -230,6 +230,16 @@ public class LangLibValueTest {
     }
 
     @Test
+    public void testToStringOnSubTypes() {
+        BRunUtil.invoke(compileResult, "testToStringOnSubTypes");
+    }
+
+    @Test
+    public void testToStringOnFiniteTypes() {
+        BRunUtil.invoke(compileResult, "testToStringOnFiniteTypes");
+    }
+
+    @Test
     public void testXMLToStringWithXMLTextContainingAngleBrackets() {
         BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
     }
@@ -323,13 +333,48 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
                 { "testCloneWithTypeNumeric7" },
+                { "testCloneWithTypeToArrayOfRecord" },
+                { "testCloneWithTypeToArrayOfMap" },
+                { "testCloneWithTypeIntArrayToUnionArray" },
+                { "testCloneWithTypeIntSubTypeArray" },
                 { "testCloneWithTypeStringArray" },
                 { "testCloneWithTypeWithInferredArgument" },
                 { "testCloneWithTypeWithImmutableTypes" },
                 { "testCloneWithTypeDecimalToInt"},
-                {"testCloneWithTypeDecimalToIntNegative"},
+                { "testCloneWithTypeDecimalToIntNegative" },
                 { "testCloneWithTypeDecimalToByte"},
                 { "testCloneWithTypeDecimalToIntSubType"},
+                { "testCloneWithTypeTupleToJSON"},
+                { "testCloneWithTypeImmutableStructuredTypes"},
+                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
+                { "testCloneWithTypeWithFiniteType" },
+                { "testCloneWithTypeWithUnionOfFiniteType" },
+                { "testCloneWithTypeWithFiniteArrayTypeFromIntArray" },
+                { "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray" },
+                { "testCloneWithTypeWithUnionTypeArrayFromIntArray" },
+                { "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative" }
+        };
+    }
+
+    @Test(dataProvider = "cloneWithTypeToTupleTypeFunctions")
+    public void testCloneWithTypeToTuple(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider(name = "cloneWithTypeToTupleTypeFunctions")
+    public Object[][] cloneWithTypeToTupleTypeFunctions() {
+        return new Object[][] {
+                { "testCloneWithTypeArrayToTupleWithRestType" },
+                { "testCloneWithTypeArrayToTupleWithRestTypeUnionType" },
+                { "testCloneWithTypeArrayToUnionTupleNegative" },
+                { "testCloneWithTypeArrayToTupleWithMoreTargetTypes" },
+                { "testCloneWithTypeArrayToTupleWithUnionRestTypeNegative" },
+                { "testCloneWithTypeArrayToTupleNegative" },
+                { "testCloneWithTypeArrayToTupleWithStructureRestTypeNegative" },
+                { "testCloneWithTypeTupleRestType" },
+                { "testCloneWithTypeUnionTuple" },
+                { "testCloneWithTypeTupleRestTypeNegative" },
+                { "testCloneWithTypeUnionTupleRestTypeNegative" }
         };
     }
 
@@ -341,6 +386,11 @@ public class LangLibValueTest {
     @Test
     public void testAssigningCloneableToAnyOrError() {
         BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+    }
+
+    @Test
+    public void testDestructuredNamedArgs() {
+        BRunUtil.invokeFunction(compileResult, "testDestructuredNamedArgs");
     }
 
     @DataProvider(name = "fromJsonWithTypeFunctions")

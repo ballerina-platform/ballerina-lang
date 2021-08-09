@@ -30,10 +30,10 @@ function __memorize(string name, any|error value) {
 {{#varDclns}}
     {{^isNew }}
         {{#isAny }}
-            {{{prefix}}} {{{type}}} {{{name}}} = <{{{type}}}> __recall_any("{{{encodedName}}}");
+            {{{prefix}}} {{{typeLHS}}} {{{name}}} = <{{{type}}}> __recall_any("{{{encodedName}}}");
         {{/isAny}}
         {{^isAny }}
-            {{{prefix}}} {{{type}}} {{{name}}} = <{{{type}}}> __recall_any_error("{{{encodedName}}}");
+            {{{prefix}}} {{{typeLHS}}} {{{name}}} = <{{{type}}}> __recall_any_error("{{{encodedName}}}");
         {{/isAny}}
     {{/isNew}}
 {{/varDclns}}

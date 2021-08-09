@@ -13,15 +13,17 @@
         {
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT"
-          ],
           "children": [
             {
               "kind": "METADATA",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "MARKDOWN_DOCUMENTATION",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT"
+                  ],
                   "children": [
                     {
                       "kind": "LIST",
@@ -43,7 +45,36 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "Descriptoin",
+                                  "value": "Doc Line1",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "Doc Line2",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",

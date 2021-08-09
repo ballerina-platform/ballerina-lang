@@ -64,7 +64,8 @@ public class Code2CloudDesugar {
     }
 
     void addCode2CloudModuleImport(BLangPackage pkgNode) {
-        if (c2cEnabled && (pkgNode.projectKind != null && !pkgNode.projectKind.equals(ProjectKind.BALA_PROJECT))
+        if (c2cEnabled && (pkgNode.moduleContextDataHolder != null
+                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))
                 && c2cPkgID != null) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();

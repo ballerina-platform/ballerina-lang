@@ -63,6 +63,7 @@ public class EvaluatorMiscTest {
                 .treeParser(TestUtils.getTestTreeParser())
                 .build();
         evaluator.initialize();
+        evaluator.evaluate("import ballerina/jballerina.'java");
         evaluator.evaluate("import ballerina/lang.'int as prefix");
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
@@ -73,6 +74,7 @@ public class EvaluatorMiscTest {
                 )
         );
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
+        Assert.assertEquals(evaluator.availableImports().size(), 3);
         Assert.assertTrue(evaluator.availableModuleDeclarations().isEmpty());
     }
 
@@ -97,7 +99,7 @@ public class EvaluatorMiscTest {
                         "('b) string 'b = \"World\""
                 )
         );
-        Assert.assertEquals(evaluator.availableImports().size(), 1);
+        Assert.assertEquals(evaluator.availableImports().size(), 0);
         Assert.assertTrue(evaluator.availableModuleDeclarations().isEmpty());
     }
 
@@ -119,7 +121,7 @@ public class EvaluatorMiscTest {
                         "('B) enum B{C, D}"
                 )
         );
-        Assert.assertEquals(evaluator.availableImports().size(), 1);
+        Assert.assertEquals(evaluator.availableImports().size(), 0);
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
     }
 }

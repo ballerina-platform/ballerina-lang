@@ -59,6 +59,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(arrayNode);
     }
 
+    public void visit(InlineTableNode inlineTableNode) {
+        visitSyntaxNode(inlineTableNode);
+    }
+
     public void visit(StringLiteralNode stringLiteralNode) {
         visitSyntaxNode(stringLiteralNode);
     }

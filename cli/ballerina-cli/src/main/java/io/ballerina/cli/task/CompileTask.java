@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.central.client.CentralClientConstants;
 
 import java.io.PrintStream;
 
@@ -61,6 +62,8 @@ public class CompileTask implements Task {
         // Print the source
         this.out.println("\t" + sourceName);
 
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
+
         try {
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
@@ -79,7 +82,7 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-            diagnosticResult.diagnostics().forEach(d -> err.println(d.toString()));
+            diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
             if (diagnosticResult.hasErrors()) {
                 throw createLauncherException("compilation contains errors");
             }

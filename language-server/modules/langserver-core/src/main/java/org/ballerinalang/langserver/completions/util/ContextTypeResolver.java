@@ -54,9 +54,11 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -105,6 +107,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     private final PositionedOperationContext context;
     private final List<Node> visitedNodes = new ArrayList<>();
+    private TypeSymbol broaderTypeSymbol;
+    private boolean isBroaderTypeSymbolSet = false;
 
     public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
@@ -181,6 +185,16 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ObjectFieldNode node) {
+        Optional<Symbol> variableSymbol = this.getSymbolByName(node.fieldName().text());
+        Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
+        if (typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(this.getRawContextType(typeSymbol.get()));
     }
 
     @Override
@@ -422,6 +436,21 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
+    public Optional<TypeSymbol> transform(RecordFieldWithDefaultValueNode node) {
+        Optional<Symbol> variableSymbol = this.getSymbolByName(node.fieldName().text());
+        Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
+        if (typeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(this.getRawContextType(typeSymbol.get()));
+    }
+
+//    @Override
+//    public Optional<TypeSymbol> transform(InterpolationNode interpolationNode) {
+//        return super.transform(interpolationNode);
+//    }
+
+    @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         return this.visit(node.parent());
     }
@@ -459,6 +488,10 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     private TypeSymbol getRawContextType(TypeSymbol typeSymbol) {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        if (!this.isBroaderTypeSymbolSet) {
+            broaderTypeSymbol = typeSymbol;
+            isBroaderTypeSymbolSet = true;
+        }
         switch (rawType.typeKind()) {
             case MAP:
                 return ((MapTypeSymbol) rawType).typeParam();
@@ -537,5 +570,18 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         return Optional.of(parameterSymbols.get().get(argIndex).typeDescriptor());
+    }
+
+    /**
+     * Returns the broader or original type symbol of the resolved type symbol for a given context.
+     *
+     * @return
+     */
+    public Optional<TypeSymbol> getBroaderTypeSymbol() {
+        if (isBroaderTypeSymbolSet) {
+            return Optional.ofNullable(broaderTypeSymbol);
+        } else {
+            return Optional.empty();
+        }
     }
 }

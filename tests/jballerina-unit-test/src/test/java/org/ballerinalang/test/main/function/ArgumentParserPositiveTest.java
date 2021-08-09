@@ -98,10 +98,9 @@ public class ArgumentParserPositiveTest {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_multiple_typed_params.bal");
         String output = runMain(compileResult, new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
-                "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
-                "{ \"name\": \"Em\" }", "just", "the", "rest"});
+                "<book>Harry Potter</book>", "just", "the", "rest"});
         Assert.assertEquals(output, "integer: 3e8, float: 1.0, string: Hello Ballerina, string rest args: 255" +
-                " true { \"name\": \"Maryam\" } <book>Harry Potter</book> { \"name\": \"Em\" } just the rest ");
+                " true <book>Harry Potter</book> just the rest ");
     }
 
     @Test

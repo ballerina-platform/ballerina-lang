@@ -25,11 +25,9 @@ dependencies {
     implementation project(':central-client')
     implementation project(':maven-resolver')
     implementation 'com.moandjiezana.toml:toml4j'
-    implementation 'org.apache.commons:commons-compress:1.19'
+    implementation 'org.apache.commons:commons-compress:1.21'
     implementation 'io.netty:netty-buffer'
     implementation 'org.ow2.asm:asm'
-    implementation 'org.ow2.asm:asm-util'
-    implementation 'org.ow2.asm:asm-tree'
     implementation 'commons-io:commons-io'
     implementation 'com.github.zafarkhaja:java-semver'
     testCompile 'org.testng:testng'

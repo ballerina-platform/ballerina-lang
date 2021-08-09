@@ -607,6 +607,16 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
     }
 
+    @Test(description = "Test type cast to union type with int subtypes.")
+    public void testCastingToIntSubtypesInUnion() {
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnion");
+    }
+
+    @Test(description = "Test erroneous type cast to union type with int subtypes.")
+    public void testCastingToIntSubtypesInUnionNegative() {
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnionNegative");
+    }
+
     @Test
     public void testSameTypeCast() {
         BValue[] returns = BRunUtil.invoke(result, "testSameTypeCast");
@@ -630,9 +640,26 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
     }
 
+    @Test(dataProvider = "typesTestExpressionTestFunctions")
+    public void testTypeTestsExpression(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
     @Test(dataProvider = "immutableArrayTypesTestFunctions")
     public void testCastOfImmutableArrayTypes(String function) {
         BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "typesTestExpressionTestFunctions")
+    public Object[][] typesTestExpressionTestFunctions() {
+        return new Object[][] {
+                { "testIntSubtypeArrayCasting" },
+                { "testIntSubtypeArrayCastingWithErrors" },
+                { "testCharArrayToStringArray" },
+                { "testMapOfCharToMapOfString" },
+                { "testFiniteTypeArrayToIntArray" },
+                { "testFiniteTypeToStringArray" }
+        };
     }
 
     @DataProvider(name = "immutableArrayTypesTestFunctions")

@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -677,6 +677,22 @@
       }
     },
     {
+      "label": "valueA",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueB",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueB",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction(function (json) returns boolean|error logic)",
       "kind": "Function",
       "detail": "()",
@@ -696,47 +712,20 @@
       }
     },
     {
-      "label": "valueA",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueA",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueB",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "logic(json)",
-      "kind": "Function",
-      "detail": "boolean|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `json`  \n  \n**Return** `boolean|error`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "logic",
-      "insertText": "logic(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "worker",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "logic",
+      "kind": "Variable",
+      "detail": "function (json) returns boolean|error",
+      "sortText": "B",
+      "insertText": "logic",
       "insertTextFormat": "Snippet"
     }
   ]

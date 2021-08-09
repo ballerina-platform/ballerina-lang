@@ -493,9 +493,6 @@
                 {
                   "kind": "RESOURCE_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_QUALIFIER_NOT_ALLOWED"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -521,9 +518,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "REMOTE_KEYWORD"
+                            "kind": "REMOTE_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_QUALIFIER_NOT_ALLOWED"
+                            ]
                           }
                         ]
                       }
@@ -663,17 +665,19 @@
             {
               "kind": "FUNCTION_KEYWORD",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_QUALIFIER_NOT_ALLOWED"
-              ],
               "leadingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "REMOTE_KEYWORD"
+                        "kind": "REMOTE_KEYWORD",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_QUALIFIER_NOT_ALLOWED"
+                        ]
                       }
                     ]
                   }

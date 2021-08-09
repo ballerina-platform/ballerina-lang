@@ -112,7 +112,7 @@ function testValidTransferOutInLockAccessingIsolatedVar() {
 
 isolated int[][] isolatedStacks = [];
 
-isolated function testInvalidTransferInUpdatingIsolatedVar(int[] n) {
+isolated function testValidTransferInUpdatingIsolatedVar(int[] n) {
     lock {
         isolatedStacks.push(n.cloneReadOnly());
     }
@@ -174,4 +174,56 @@ function copyOutAccessingIsolatedVar() returns map<int>[] {
          z = isolatedModuleLevelMap.cloneReadOnly();
          return y2.clone();
      }
+}
+
+isolated int[] i = [1, 2];
+
+isolated function testIsolationAnalysisWithOnFailStatement() {
+    do {
+
+    } on fail error e {
+        lock {
+            int k = i.pop();
+        }
+    }
+
+    anydata l = 1;
+    lock {
+        anydata val = l.clone();
+        match val {
+            "1" => {
+                lock {
+                    int k = check int:fromString(val.toString()) + i[0];
+                }
+            }
+        } on fail var e {
+            i.push(e.message().length());
+        }
+    }
+
+    foreach var item in 1 ..< 2 {
+
+    } on fail error e {
+        lock {
+            i.push(1);
+        }
+    }
+
+    int m = 1;
+
+    while m < 2 {
+        m += 1;
+    } on fail error e {
+        lock {
+            i.push(m);
+        }
+    }
+
+    lock {
+        lock {
+
+        } on fail error e {
+            i[i.length()] = 1;
+        }
+    }
 }

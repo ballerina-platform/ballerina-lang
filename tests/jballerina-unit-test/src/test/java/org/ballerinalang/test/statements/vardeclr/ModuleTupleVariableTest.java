@@ -85,7 +85,7 @@ public class ModuleTupleVariableTest {
         validateError(compileResultNegative, index++,
                 "invalid list binding pattern; member variable count mismatch with member type count", 51, 1);
         validateError(compileResultNegative, index++,
-                "field binding pattern inside list binding pattern", 51, 7);
+                "field binding pattern inside list binding pattern", 51, 8);
         assertEquals(compileResultNegative.getErrorCount(), index);
     }
 
@@ -112,7 +112,8 @@ public class ModuleTupleVariableTest {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/statements/vardeclr/uninitialized_module_tuple_var_decl.bal");
         int index = 0;
-        validateError(compileResult, index++, "complex variable must be initialized", 17, 18);
+        validateError(compileResult, index++, "variable declaration having binding pattern must be initialized",
+                17, 18);
         assertEquals(compileResult.getErrorCount(), index);
     }
 }

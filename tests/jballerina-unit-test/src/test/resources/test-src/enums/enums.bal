@@ -34,9 +34,21 @@ public enum Bands {
     BEATLES = beatles
 }
 
+public enum LiftStatus {
+    OPEN,
+    CLOSED = "CLO" + "SED",
+    HOLD
+}
+
+public enum TrailStatus {
+    OPEN,
+    CLOSED
+}
+
 string colorOfSky = BLUE;
 string globalLang = ENG;
 string rockBand = PF;
+string status = OPEN;
 
 function testBasicEnumSupport() {
     assert(RED, "RED");
@@ -68,13 +80,48 @@ function testEnumAsType() {
     
     BEATLES btl = "The Beatles";
     assert(btl, "The Beatles");
+
+    LiftStatus ls = "CLOSED";
+    assert(ls, "CLOSED");
+
+    TrailStatus ts = "CLOSED";
+    assert(ts, "CLOSED");
 }
 
 function testEnumAsGlobalRef() {
     assert(colorOfSky, "BLUE");
     assert(globalLang, "English");
     assert(rockBand, "Pink Floyd");
+    assert(status, "OPEN");
 }
+
+public enum Keyword {
+  nil,
+  'boolean,
+  'int,
+  'string,
+  'never,
+  'any,
+  union,
+  intersection
+}
+
+type ApproxType Keyword|ApproxType[];
+
+function testEnumInRecursiveArray() {
+    ApproxType n = "nil";
+    assert(n, "nil");
+
+    Keyword u = "union";
+    assert(u, "union");
+
+    ApproxType b = "'boolean";
+    assert(b, 'boolean);
+
+    Keyword i = "'int";
+    assert(i, "'int");
+}
+
 
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {

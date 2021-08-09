@@ -65,12 +65,12 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyDefaultableParams()'", 71, 57);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 72, 46);
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyDefaultableParams()'", 72, 63);
-        BAssertUtil.validateError(result, i++, "required parameter after the defaultable parameter", 75, 44);
+        BAssertUtil.validateError(result, i++, "required parameter after the defaultable parameter", 75, 60);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'boolean[]'", 85, 33);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'float', found 'boolean[]'", 87, 28);
         BAssertUtil.validateError(result, i++, "incompatible types: expected" +
                 " '([float,boolean...]|record {| float f?; |})', found 'boolean[]'", 88, 31);
-        BAssertUtil.validateError(result, i++, "named arg followed by positional arg", 89, 36);
+        BAssertUtil.validateError(result, i++, "named arg followed by positional arg", 89, 45);
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 90, 45);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
                 "'functionWithNoRestParam()'", 98, 5);
@@ -111,14 +111,14 @@ public class FunctionSignatureNegativeTest {
     @Test
     public void testNegativeFuncSignature() {
         CompileResult result = BCompileUtil.compile("test-src/functions/different-function-signatures-negative.bal");
-        BAssertUtil.validateError(result, 0, "this function must return a result", 1, 1);
+        BAssertUtil.validateError(result, 0, "this function must return a result", 3, 1);
         Assert.assertEquals(1, result.getErrorCount());
     }
 
     @Test
     public void testFuncWithTwoRestParams() {
         CompileResult result = BCompileUtil.compile("test-src/functions/function-with-two-rest-params.bal");
-        BAssertUtil.validateError(result, 0, "parameter after the rest parameter", 1, 44);
+        BAssertUtil.validateError(result, 0, "parameter after the rest parameter", 1, 54);
         BAssertUtil.validateError(result, 1, "undefined symbol 'c'", 2, 16);
         Assert.assertEquals(result.getErrorCount(), 2);
     }

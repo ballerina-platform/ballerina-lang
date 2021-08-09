@@ -92,6 +92,14 @@ function testFromStringWithStringArg() {
     assertEquality("'string' value 'x' cannot be converted to 'decimal'", resError.detail().get("message"));
 }
 
+type Decimals 12d|21d;
+
+function testLangLibCallOnFiniteType() {
+    Decimals x = 12;
+    decimal y = x.sum(1, 2, 3);
+    assertEquality(18d, y);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

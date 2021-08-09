@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +47,11 @@ public class Diagnostics {
         return filterDiagnostics(diagnostics, DiagnosticSeverity.HINT);
     }
 
+    public static Collection<Diagnostic> excludeInternal(Collection<Diagnostic> diagnostics) {
+        return filterDiagnostics(diagnostics,
+                diagnostic -> diagnostic.diagnosticInfo().severity() != DiagnosticSeverity.INTERNAL);
+    }
+
     public static boolean hasWarnings(Collection<Diagnostic> diagnostics) {
         return hasDiagnosticsWithSeverity(diagnostics, DiagnosticSeverity.WARNING);
     }
@@ -56,8 +62,13 @@ public class Diagnostics {
 
     private static Collection<Diagnostic> filterDiagnostics(Collection<Diagnostic> diagnostics,
                                                             DiagnosticSeverity severity) {
+        return filterDiagnostics(diagnostics, diagnostic -> diagnostic.diagnosticInfo().severity() == severity);
+    }
+    
+    private static Collection<Diagnostic> filterDiagnostics(Collection<Diagnostic> diagnostics,
+                                                            Predicate<Diagnostic> predicate) {
         return diagnostics.stream()
-                .filter(diagnostic -> diagnostic.diagnosticInfo().severity() == severity)
+                .filter(predicate)
                 .collect(Collectors.toList());
     }
 

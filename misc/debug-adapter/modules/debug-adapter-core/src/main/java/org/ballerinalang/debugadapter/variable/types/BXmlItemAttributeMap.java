@@ -43,7 +43,7 @@ public class BXmlItemAttributeMap extends NamedCompoundVariable {
 
     @Override
     public String computeValue() {
-        return VariableUtils.getBType(jvmValue);
+        return String.format("XMLAttributeMap (size = %d)", getChildrenCount());
     }
 
     @Override

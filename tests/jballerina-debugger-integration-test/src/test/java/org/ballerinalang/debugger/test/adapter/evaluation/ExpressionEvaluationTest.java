@@ -76,17 +76,17 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void stringTemplateEvaluationTest() throws BallerinaTestException {
         // without interpolations
-        debugTestRunner.assertExpression(context, "string `name: John, age: 20`", "name: John, age: 20", "string");
+        debugTestRunner.assertExpression(context, "string `name: John, age: 20`", "\"name: John, age: 20\"", "string");
         // with interpolations
         debugTestRunner.assertExpression(context, "string `name: ${" + STRING_VAR + "}, age: ${" + INT_VAR + "}`",
-                "name: foo, age: 20", "string");
+                "\"name: foo, age: 20\"", "string");
     }
 
     @Override
     @Test
     public void xmlTemplateEvaluationTest() throws BallerinaTestException {
         // XML element
-        debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>`", "<book>The Lost World</book>",
+        debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>`", "XMLElement",
                 "xml");
         // XML text
         debugTestRunner.assertExpression(context, "xml `Hello, world!`", "Hello, world!", "xml");
@@ -102,7 +102,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "new Location(\"New York\",\"USA\")", "Location", "object");
     }
 
     @Override
@@ -119,10 +119,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // decimal variable test
         debugTestRunner.assertExpression(context, DECIMAL_VAR, "3.5", "decimal");
         // string variable test
-        debugTestRunner.assertExpression(context, STRING_VAR, "foo", "string");
+        debugTestRunner.assertExpression(context, STRING_VAR, "\"foo\"", "string");
         // xml variable test
-        debugTestRunner.assertExpression(context, XML_VAR, "<person " +
-                "gender=\"male\"><firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR, "XMLElement", "xml");
         // array variable test
         debugTestRunner.assertExpression(context, ARRAY_VAR, "any[4]", "array");
         // tuple variable test
@@ -146,9 +145,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // type descriptor variable test
         debugTestRunner.assertExpression(context, TYPEDESC_VAR, "int", "typedesc");
         // union variable test
-        debugTestRunner.assertExpression(context, UNION_VAR, "foo", "string");
+        debugTestRunner.assertExpression(context, UNION_VAR, "\"foo\"", "string");
         // optional variable test
-        debugTestRunner.assertExpression(context, OPTIONAL_VAR, "foo", "string");
+        debugTestRunner.assertExpression(context, OPTIONAL_VAR, "\"foo\"", "string");
         // any variable test
         debugTestRunner.assertExpression(context, ANY_VAR, "15.0", "float");
         // anydata variable test
@@ -158,11 +157,11 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // table variable test
         debugTestRunner.assertExpression(context, TABLE_VAR, "table<Employee> (entries = 3)", "table");
         // stream variable test
-        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error>", "stream");
+        debugTestRunner.assertExpression(context, STREAM_VAR, "stream<int, error?>", "stream");
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
-        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 2)", "json");
+        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 3)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
@@ -175,12 +174,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_06, "Ballerina", "string");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_06, "\"Ballerina\"", "string");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_08, "2", "int");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 2)", "json");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "IL with global var", "string");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 3)", "json");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
         // Todo - add test for qualified name references, after adding support
     }
@@ -189,11 +188,11 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void fieldAccessEvaluationTest() throws BallerinaTestException {
         // objects fields
-        debugTestRunner.assertExpression(context, OBJECT_VAR + ".address", "No 20, Palm grove", "string");
+        debugTestRunner.assertExpression(context, OBJECT_VAR + ".address", "\"No 20, Palm grove\"", "string");
         // record fields
         debugTestRunner.assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~π", "20", "int");
         // json fields
-        debugTestRunner.assertExpression(context, JSON_VAR + ".name", "John", "string");
+        debugTestRunner.assertExpression(context, JSON_VAR + ".name", "\"apple\"", "string");
         // service object fields
         debugTestRunner.assertExpression(context, String.format("%s.i", SERVICE_VAR), "5", "int");
 
@@ -206,35 +205,48 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlAttributeAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + ".gender", "\"male\"", "string");
+        // XML optional attribute access
+        debugTestRunner.assertExpression(context, XML_VAR + "?.gender", "\"male\"", "string");
+        // XML optional attribute access on non existing attribute
+        debugTestRunner.assertExpression(context, XML_VAR + "?.name", "()", "nil");
     }
 
     @Override
     @Test
     public void annotationAccessEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "(typeof a).@v1", "variable_tests:Annot (size = 2)", "map");
+        debugTestRunner.assertExpression(context, "(typeof a).@v2", "()", "nil");
+        debugTestRunner.assertExpression(context, "(typeof a).@v1[\"foo\"]", "\"v1 value\"", "string");
+        debugTestRunner.assertExpression(context, "(typeof a).@v1[\"bar\"]", "1", "int");
     }
 
     @Override
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
         // strings
-        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "f", "string");
+        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"\"", "string");
         // lists
         debugTestRunner.assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
         // maps
-        // debugTestRunner.assertExpression(context, mapVar + "[\"country\"]", "Sri Lanka", "string");
-        // debugTestRunner.assertExpression(context, mapVar + "[\"undefined\"]", "()", "nil");
+        debugTestRunner.assertExpression(context, MAP_VAR + "[\"country\"]", "\"Sri Lanka\"", "string");
+        debugTestRunner.assertExpression(context, MAP_VAR + "[\"undefined\"]", "()", "nil");
         // json
-        // debugTestRunner.assertExpression(context, jsonVar + "[\"color\"]", "red", "string");
-        // debugTestRunner.assertExpression(context, jsonVar + "[\"undefined\"]", "()", "nil");
-        // Todo - add following tests after the implementation
-        //  - xml member access
+        debugTestRunner.assertExpression(context, JSON_VAR + "[\"color\"]", "\"red\"", "string");
+        debugTestRunner.assertExpression(context, JSON_VAR + "[\"undefined\"]", "()", "nil");
+        // XML
+        debugTestRunner.assertExpression(context, XML_VAR + "[0]", "XMLElement", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + "[0][0]", "Praveen", "xml");
+        debugTestRunner.assertExpression(context, XML_VAR + "[2]", "XMLSequence (size = 0)", "xml");
     }
 
     @Override
     @Test
     public void functionCallEvaluationTest() throws BallerinaTestException {
+
+        // Function which includes asynchronous calls.
+        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
 
         // ---------------------- Required Parameters + named arguments ---------------------------------
 
@@ -250,68 +262,67 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // Call the function by passing a value only for the `baseSalary` parameter.
         // The `annualIncrement` and `bonusRate` parameters default to 20 and 0.02 respectively.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500)", "[2500, 20, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printSalaryDetails(2500)", "\"[2500, 20, 0.02]\"", "string");
 
         // Call the function by passing values only for the `baseSalary` and `annualIncrement`
         // parameters. The value for the `annualIncrement` parameter is passed as a named argument.
         // The `bonusRate` parameter defaults to 0.02.
         debugTestRunner.assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100)",
-                "[2500, 100, 0.02]", "string");
+                "\"[2500, 100, 0.02]\"", "string");
 
         // Call the function again by passing values only for the `baseSalary` and `annualIncrement`
         // parameters, now passing the value for the `annualIncrement` parameter as a positional argument.
         // The `bonusRate` parameter defaults to 0.02.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 100);", "[2500, 100, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 100);", "\"[2500, 100, 0.02]\"", "string");
 
         // Call the function by passing values only for the `baseSalary` and `bonusRate` parameters.
         // The `annualIncrement` parameter defaults to 20.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "[2500, 20, 0.1]",
+        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "\"[2500, 20, 0.1]\"",
                 "string");
 
         // In order to pass the value for `bonusRate` as a positional argument, a value would
         // have to be specified for the `annualIncrement` parameter too.
         // All arguments are positional arguments here.
-        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 20, 0.1);", "[2500, 20, 0.1]", "string");
+        debugTestRunner.assertExpression(context, "printSalaryDetails(2500, 20, 0.1);", "\"[2500, 20, 0.1]\"",
+                "string");
 
         // Call the function by passing values for all three parameters, the first argument as
         // a positional argument and the rest as named arguments.
         debugTestRunner.assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100, bonusRate = 0.1);",
-                "[2500, 100, 0.1]", "string");
+                "\"[2500, 100, 0.1]\"", "string");
 
         // Call the function by passing all three arguments as named arguments.
         // Any and all arguments after the first named argument need to be specified
         // as named arguments but could be specified in any order.
         debugTestRunner.assertExpression(context,
                 "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);",
-                "[2500, 100, 0.1]", "string");
+                "\"[2500, 100, 0.1]\"", "string");
 
         // ----------------------------  Rest Parameters  ------------------------------------------
-        // Todo - Enable once the debugger runtime helper module is restored.
 
         // Call the function by passing only the required parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "[2500, 20, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printDetails(\"Alice\");", "\"[Alice, 18, Module(s): ()]\"",
+                "string");
 
-        // Call the function by passing the required parameter and the defaultable parameter. Named arguments can
+        // Call the function by passing the required parameter and the defaultable parameter.Named arguments can
         // also be used since values are not passed for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Bob\", 20);", "[2500, 20, 0.02]", "string");
+        debugTestRunner.assertExpression(context, "printDetails(\"Bob\", 20);", "\"[Bob, 20, Module(s): ()]\"",
+                "string");
 
         // Call the function by passing the required parameter, the defaultable parameter, and one value for the rest
-        // parameter. Arguments cannot be passed as named arguments since values are specified for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Corey\", 19, \"Math\");", "[2500, 20, 0.02]",
-        // "string");
+        // parameter.Arguments cannot be passed as named arguments since values are specified for the rest parameter.
+        debugTestRunner.assertExpression(context, "printDetails(\"Corey\", 19, \"Math\");",
+                "\"[Corey, 19, Module(s): Math,]\"", "string");
 
         // Call the function by passing the required parameter, defaultable parameter,
-        // and multiple values for the rest parameter.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, \"Math\", \"Physics\");",
-        // "[2500, 20, 0.02]", "string");
+        //  and multiple values for the rest parameter.
+        debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, \"Math\", \"Physics\");",
+                "\"[Diana, 20, Module(s): Math,Physics,]\"", "string");
 
         // Pass an array as the rest parameter instead of calling the
         // function by passing each value separately.
-        // debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...modules);", "[2500, 20, 0.02]",
-        // "string");
-
-        // Function which includes asynchronous calls.
-        debugTestRunner.assertExpression(context, "getSum(10, 20);", "30", "int");
+        debugTestRunner.assertExpression(context, "printDetails(\"Diana\", 20, ...stringArrayVar);",
+                "\"[Diana, 20, Module(s): foo,bar,]\"", "string");
     }
 
     @Override
@@ -332,7 +343,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, DECIMAL_VAR + ".round()", "4", "decimal");
         debugTestRunner.assertExpression(context, DECIMAL_VAR + ".abs()", "3.5", "decimal");
         // error
-        debugTestRunner.assertExpression(context, ERROR_VAR + ".message()", "SimpleErrorType", "string");
+        debugTestRunner.assertExpression(context, ERROR_VAR + ".message()", "\"SimpleErrorType\"", "string");
         // float
         debugTestRunner.assertExpression(context, FLOAT_VAR + ".sin()", "0.5440211108893698", "float");
         debugTestRunner.assertExpression(context, FLOAT_VAR + ".pow(3.0)", "-1000.0", "float");
@@ -341,21 +352,21 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // int
         debugTestRunner.assertExpression(context, INT_VAR + ".abs()", "20", "int");
         // map
-        debugTestRunner.assertExpression(context, MAP_VAR + ".get(\"country\")", "Sri Lanka", "string");
+        debugTestRunner.assertExpression(context, MAP_VAR + ".get(\"country\")", "\"Sri Lanka\"", "string");
         // Todo - object
         // Todo - query
         // Todo - stream
         // string
         debugTestRunner.assertExpression(context, STRING_VAR + ".getCodePoint(1)", "111", "int");
-        debugTestRunner.assertExpression(context, STRING_VAR + ".substring(1,3)", "oo", "string");
+        debugTestRunner.assertExpression(context, STRING_VAR + ".substring(1,3)", "\"oo\"", "string");
         // Todo - table
         // Todo - typedesc
 
         // value
-        debugTestRunner.assertExpression(context, TYPEDESC_VAR + ".toBalString()", "typedesc int", "string");
+        debugTestRunner.assertExpression(context, TYPEDESC_VAR + ".toBalString()", "\"typedesc int\"", "string");
 
         // xml
-        debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "person", "string");
+        debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "\"person\"", "string");
         debugTestRunner.assertExpression(context, XML_VAR + ".children()", "XMLSequence (size = 2)",
                 "xml");
     }
@@ -363,7 +374,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void errorConstructorEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\")", "Simple Error", "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", " + ERROR_VAR + ")", "Simple Error",
+                "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", count=1)", "Simple Error", "error");
+        debugTestRunner.assertExpression(context, "error(\"Simple Error\", " + ERROR_VAR + ",count=1)", "Simple Error",
+                "error");
     }
 
     @Override
@@ -471,18 +487,20 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("%s + %s", DECIMAL_VAR, DECIMAL_VAR), "7.0", "decimal");
 
         // string + string
-        debugTestRunner.assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "foofoo", "string");
+        debugTestRunner.assertExpression(context, String.format("%s + %s", STRING_VAR, STRING_VAR), "\"foofoo\"",
+                "string");
         // string with leading and trailing whitespaces
-        debugTestRunner.assertExpression(context, "\" one \" + \" two \" + \" three \"", " one  two  three ", "string");
+        debugTestRunner.assertExpression(context, "\" one \" + \" two \" + \" three \"", "\" one  two  three \"",
+                "string");
         // string template concatenation
         String bStringTemplateExpr = String.format("string `name: ${%s}, age: ${%s}`", STRING_VAR, INT_VAR);
         debugTestRunner.assertExpression(context, String.format("%s + %s + %s", bStringTemplateExpr,
-                bStringTemplateExpr, bStringTemplateExpr), "name: foo, age: 20name: foo, age: 20name: foo, age: 20",
-                "string");
+                bStringTemplateExpr, bStringTemplateExpr),
+                "\"name: foo, age: 20name: foo, age: 20name: foo, age: 20\"", "string");
 
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
-                "XMLSequence (size = 10)", "xml");
+                "XMLSequence (size = 2)", "xml");
 
         //////////////////////////////-------------subtraction------------------//////////////////////////////////////
         // int - int
@@ -531,7 +549,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void rangeExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // inclusive range expressions
+        debugTestRunner.assertExpression(context, "1...10", "__IntRange", "object");
+        debugTestRunner.assertExpression(context, String.format("%s...%s+5", INT_VAR, INT_VAR), "__IntRange", "object");
+        // exclusive range expressions
+        debugTestRunner.assertExpression(context, "1..<10", "__IntRange", "object");
+        debugTestRunner.assertExpression(context, String.format("%s..<%s+5", INT_VAR, INT_VAR), "__IntRange",
+                "object");
     }
 
     @Override
@@ -704,14 +728,22 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // XML filter expressions
+        debugTestRunner.assertExpression(context, "xmlVar2.<items>", "XMLSequence (size = 1)", "xml");
+
+        // XML step expressions
+        debugTestRunner.assertExpression(context, "xmlVar2/*", "XMLSequence (size = 8)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/<planner>", "XMLSequence (size = 2)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/<planner|pen>", "XMLSequence (size = 4)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/<*>", "XMLSequence (size = 8)", "xml");
+        debugTestRunner.assertExpression(context, "xmlVar2/**/<name>", "XMLSequence (size = 8)", "xml");
     }
 
     @Override
     @Test
     public void remoteCallActionEvaluationTest() throws BallerinaTestException {
-        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR), "John",
-                "string");
+        debugTestRunner.assertExpression(context, String.format("%s->getName(\"John\")", CLIENT_OBJECT_VAR),
+                "\"John\"", "string");
         debugTestRunner.assertExpression(context, String.format("%s->getTotalMarks(78,90)", CLIENT_OBJECT_VAR),
                 "168", "int");
     }

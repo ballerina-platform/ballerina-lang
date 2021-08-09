@@ -17,8 +17,8 @@
 apply from: "$rootDir/gradle/ballerinaNativeStdLibBuild.gradle"
 
 dependencies {
-    implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-lang:internal')
 }
 
 description = 'Debugger adapter runtime utils implementation'

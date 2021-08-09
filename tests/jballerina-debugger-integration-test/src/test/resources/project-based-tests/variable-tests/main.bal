@@ -111,7 +111,7 @@ var stringValue = "Ballerina";
 var decimalValue = 100.0d;
 var byteValue = <byte>2;
 var floatValue = 2.0;
-json jsonVar = {name:"John", age:20};
+json jsonValue = {name:"John", age:20};
 var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
 // configurable variables
@@ -137,6 +137,33 @@ public function main() {
 
     string stringVar = "foo";
     xml xmlVar = xml `<person gender="male"><firstname>Praveen</firstname><lastname>Nada</lastname></person>`;
+    xml xmlVar2 = xml
+            `<items>
+                <!--Contents-->
+                <book>
+                    <name>A Study in Scarlet</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <planner>Daily Planner<kind>day</kind><pages>365</pages></planner>
+                <book>
+                    <name>The Sign of Four</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <pen><kind>marker</kind><color>blue</color></pen>
+            </items>
+            <items2>
+                <!--Contents-->
+                <book>
+                    <name>A Study in Scarlet</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <planner>Daily Planner<kind>day</kind><pages>365</pages></planner>
+                <book>
+                    <name>The Sign of Four</name>
+                    <author><name>Arthur Conan Doyle</name></author>
+                </book>
+                <pen><kind>marker</kind><color>blue</color></pen>
+            </items2>`;
 
     //------------------------ basic, structured type variables ------------------------//
 
@@ -193,7 +220,7 @@ public function main() {
     Student clientObjectVar = new Student();
 
     typedesc<int> typedescVar = int;
-    stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
+    stream<int, error?> oddNumberStream = new stream<int, error?>(new OddNumberGenerator());
 
     //------------------------ Other types ------------------------//
 
@@ -267,6 +294,7 @@ public function main() {
                    });
 
     intVar = addition(2, 3);
+    intVar = addition(3, 4);
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
@@ -283,9 +311,12 @@ function printDetails(string name, int age = 18, string... modules) returns stri
     if (modules.length() == 0) {
         moduleString = "Module(s): ()";
     } else {
-        moduleString = "Module(s): " + modules[0];
+        modules.forEach(function(string module) {
+            moduleString += 'module + ",";
+        });
+        moduleString = "Module(s): " + moduleString;
     }
-    return  string `[${name}, ${age}, ${moduleString}]`;
+    return string `[${name}, ${age}, ${moduleString}]`;
 }
 
 function addition(int a, int b) returns int {

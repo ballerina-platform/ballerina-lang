@@ -504,8 +504,7 @@
                           "kind": "WILDCARD_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "_",
+                              "kind": "UNDERSCORE_KEYWORD",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -638,38 +637,34 @@
                         },
                         {
                           "kind": "TYPED_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
+                              "kind": "ARRAY_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD",
-                                  "leadingMinutiae": [
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
+                                      "kind": "INT_KEYWORD",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        }
+                                      ]
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST_BINDING_PATTERN",
-                              "children": [
+                                },
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
-                                  "kind": "LIST",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "k"
-                                        }
-                                      ]
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "k"
                                     }
                                   ]
                                 },
@@ -683,6 +678,27 @@
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST_BINDING_PATTERN",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "OPEN_BRACKET_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_OPEN_BRACKET_TOKEN"
+                                  ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -691,7 +707,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {
@@ -705,23 +721,6 @@
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN"
-                          ],
-                          "leadingMinutiae": [
-                            {
-                              "kind": "INVALID_NODE_MINUTIAE",
-                              "invalidNode": {
-                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                "children": [
-                                  {
-                                    "kind": "CLOSE_BRACKET_TOKEN"
-                                  }
-                                ]
-                              }
-                            }
-                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -830,7 +829,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {
@@ -970,7 +969,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {
@@ -1134,8 +1133,7 @@
                                       "kind": "WILDCARD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "_",
+                                          "kind": "UNDERSCORE_KEYWORD",
                                           "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
@@ -1159,7 +1157,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
+                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
                           ]
                         },
                         {

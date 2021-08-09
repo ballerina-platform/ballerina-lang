@@ -90,6 +90,7 @@ public class ManifestBuilder {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
+    private static final String PLATFORM = "platform";
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
             Path projectPath) {
@@ -170,11 +171,11 @@ public class ManifestBuilder {
         }
 
         // Do not mutate toml tree
-        Map<String, TopLevelNode> otherEntries = new HashMap<>();
+        Map<String, Object> otherEntries = new HashMap<>();
         if (!tomlAstNode.entries().isEmpty()) {
-
-            for (Map.Entry<String, TopLevelNode> entry : tomlAstNode.entries().entrySet()) {
-                if (entry.getKey().equals(PACKAGE)) {
+            Map<String, Object> tomlMap = ballerinaToml.toml().toMap();
+            for (Map.Entry<String, Object> entry : tomlMap.entrySet()) {
+                if (entry.getKey().equals(PACKAGE) || entry.getKey().equals(PLATFORM)) {
                     continue;
                 }
                 otherEntries.put(entry.getKey(), entry.getValue());
@@ -185,7 +186,7 @@ public class ManifestBuilder {
         var dependencies = getDependencies();
 
         // Process platforms
-        TopLevelNode platformNode = otherEntries.remove("platform");
+        TopLevelNode platformNode = tomlAstNode.entries().get(PLATFORM);
         Map<String, PackageManifest.Platform> platforms = getPlatforms(platformNode);
 
         // Compiler plugin descriptor
@@ -405,6 +406,8 @@ public class ManifestBuilder {
 
         boolean skipTests = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.SKIP_TESTS.toString());
         boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
+        boolean experimental =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
         boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
         boolean testReport =
@@ -424,6 +427,7 @@ public class ManifestBuilder {
         return buildOptionsBuilder
                 .skipTests(skipTests)
                 .offline(offline)
+                .experimental(experimental)
                 .observabilityIncluded(observabilityIncluded)
                 .testReport(testReport)
                 .codeCoverage(codeCoverage)

@@ -35,8 +35,7 @@
                         },
                         "cmd": {
                             "type": "string",
-                            "pattern": ".*",
-                            "default": ""
+                            "pattern": ".*"
                         },
                         "user": {
                             "type": "object",
@@ -44,8 +43,7 @@
                             "properties": {
                                 "run_as": {
                                     "type": "string",
-                                    "pattern": "^(?!\\s*$).+",
-                                    "default": "ballerina"
+                                    "pattern": "^(?!\\s*$).+"
                                 }
                             }
                         }

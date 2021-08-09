@@ -48,6 +48,7 @@ public class JvmConstants {
     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
+    public static final String FUNCTION_PARAMETER = "io/ballerina/runtime/api/Parameter";
     public static final String B_STRING_VALUE = "io/ballerina/runtime/api/values/BString";
     public static final String NON_BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/NonBmpStringValue";
     public static final String BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/BmpStringValue";
@@ -125,6 +126,8 @@ public class JvmConstants {
     public static final String NEVER_TYPE = "io/ballerina/runtime/api/types/NeverType";
     public static final String NULL_TYPE = "io/ballerina/runtime/api/types/NullType";
     public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
+    public static final String INTERSECTABLE_REFERENCE_TYPE
+            = "io/ballerina/runtime/api/types/IntersectableReferenceType";
 
 
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
@@ -254,7 +257,7 @@ public class JvmConstants {
     public static final String HANDLE_ALL_THROWABLE_METHOD = "handleAllRuntimeErrorsAndExit";
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
-    public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrors";
+    public static final String HANDLE_STOP_PANIC_METHOD = "handleAllRuntimeErrors";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
@@ -292,6 +295,7 @@ public class JvmConstants {
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
+    public static final String CHECK_FLOAT_EXACT_EQUAL = "checkFloatExactEqual";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
@@ -302,6 +306,7 @@ public class JvmConstants {
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
+    public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

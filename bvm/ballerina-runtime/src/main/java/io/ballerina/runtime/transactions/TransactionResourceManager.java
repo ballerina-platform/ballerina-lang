@@ -62,7 +62,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
-import static java.util.Objects.isNull;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
@@ -164,12 +163,12 @@ public class TransactionResourceManager {
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
     public boolean getTransactionManagerEnabled() {
-        VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled");
-        Object keyVal = ConfigMap.get(managerEnabledKey);
-        if (isNull(keyVal)) {
+        VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled",
+                PredefinedTypes.TYPE_BOOLEAN, false);
+        if (!ConfigMap.containsKey(managerEnabledKey)) {
             return false;
         } else {
-            return (boolean) keyVal;
+            return (boolean) ConfigMap.get(managerEnabledKey);
         }
     }
 
@@ -179,12 +178,11 @@ public class TransactionResourceManager {
      * @return string log directory name
      */
     private String getTransactionLogDirectory() {
-        VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase");
-        Object transactionLogBase = ConfigMap.get(logKey);
-        if (isNull(transactionLogBase)) {
+        VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase", PredefinedTypes.TYPE_STRING, false);
+        if (!ConfigMap.containsKey(logKey)) {
             return "transaction_log_dir";
         } else {
-            return ((BString) transactionLogBase).getValue();
+            return ((BString) ConfigMap.get(logKey)).getValue();
         }
     }
 

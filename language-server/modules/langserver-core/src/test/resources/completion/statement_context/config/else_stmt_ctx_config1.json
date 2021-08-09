@@ -208,7 +208,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "P",
-      "filterText": "(retry)|(transaction)",
+      "filterText": "retry_transaction",
       "insertText": "retry transaction {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -654,6 +654,21 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "doSomeTask()",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "doSomeTask",
+      "insertText": "doSomeTask()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testInt",
       "kind": "Variable",
       "detail": "int",
@@ -674,21 +689,6 @@
       "sortText": "C",
       "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "doSomeTask()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "doSomeTask",
-      "insertText": "doSomeTask()",
       "insertTextFormat": "Snippet"
     }
   ]

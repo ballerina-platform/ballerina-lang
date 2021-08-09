@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
@@ -32,11 +34,13 @@ import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -321,6 +325,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
     private int workerSystemMovementSequence;
 
+    private DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
+
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
         if (codeGenerator == null) {
@@ -338,7 +344,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
-                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED));
+                CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
     }
 
     private void resetFunction() {
@@ -419,7 +425,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangClassDefinition classDefinition) {
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
         for (BLangSimpleVariable field : classDefinition.fields) {
+            DefaultValueState prevDefaultValueState = this.defaultValueState;
+            this.defaultValueState = DefaultValueState.OBJECT_FIELD_INITIALIZER;
             analyzeNode(field, objectEnv);
+            this.defaultValueState = prevDefaultValueState;
         }
 
         List<BLangFunction> bLangFunctionList = new ArrayList<>(classDefinition.functions);
@@ -539,14 +548,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
+
+            DefaultValueState prevDefaultValueState = this.defaultValueState;
+            if (this.defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                    this.defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+                this.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
+            }
             analyzeNode(funcNode.body, invokableEnv);
+            this.defaultValueState = prevDefaultValueState;
 
             boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
                     funcNode.symbol.type.getReturnType().isNullable();
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!isNeverOrNilableReturn && !this.statementReturns) {
-                this.dlog.error(funcNode.pos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
+                Location closeBracePos = getEndCharPos(funcNode.pos);
+                this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
             }
         }
@@ -554,6 +571,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithinTransactionCheckStack.pop();
         this.doneWithinTransactionCheckStack.pop();
         this.transactionalFuncCheckStack.pop();
+    }
+
+    private Location getEndCharPos(Location pos) {
+        LineRange lineRange = pos.lineRange();
+        LinePosition endLinePos = lineRange.endLine();
+        return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
+                endLinePos.offset() - 1, endLinePos.offset());
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -994,6 +1018,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorMatchPattern(BLangErrorMatchPattern firstErrorMatchPattern,
                                                   BLangErrorMatchPattern secondErrorMatchPattern) {
+        if (firstErrorMatchPattern == null || secondErrorMatchPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorMatchPattern.errorTypeReference,
                 secondErrorMatchPattern.errorTypeReference)) {
             return false;
@@ -1374,6 +1402,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private boolean checkSimilarErrorBindingPatterns(BLangErrorBindingPattern firstErrorBindingPattern,
                                                      BLangErrorBindingPattern secondErrorBindingPattern) {
+        if (firstErrorBindingPattern == null || secondErrorBindingPattern == null) {
+            return false;
+        }
+
         if (!checkSimilarErrorTypeReference(firstErrorBindingPattern.errorTypeReference,
                 secondErrorBindingPattern.errorTypeReference)) {
             return false;
@@ -1522,7 +1554,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             BLangTypeTestExpr secondTypeTest = (BLangTypeTestExpr) secondMatchGuard.expr;
             return ((BLangSimpleVarRef) firstTypeTest.expr).variableName.toString().equals(
                     ((BLangSimpleVarRef) secondTypeTest.expr).variableName.toString()) &&
-                    firstTypeTest.typeNode.getBType().tag == secondTypeTest.typeNode.getBType().tag;
+                    types.isAssignable(firstTypeTest.typeNode.getBType(),
+                            secondTypeTest.typeNode.getBType());
         }
         return false;
     }
@@ -3650,7 +3683,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangArrowFunction bLangArrowFunction) {
 
+        DefaultValueState prevDefaultValueState = this.defaultValueState;
+        if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT ||
+                defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+            this.defaultValueState = DefaultValueState.FUNCTION_IN_DEFAULT_VALUE;
+        }
         analyzeExpr(bLangArrowFunction.body.expr);
+        this.defaultValueState = prevDefaultValueState;
     }
 
     public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
@@ -3672,7 +3711,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         for (BLangSimpleVariable field : recordTypeNode.fields) {
+            DefaultValueState prevDefaultValueState = this.defaultValueState;
+            this.defaultValueState = DefaultValueState.RECORD_FIELD_DEFAULT;
             analyzeNode(field, recordEnv);
+            this.defaultValueState = prevDefaultValueState;
         }
     }
 
@@ -3800,7 +3842,43 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType exprType = env.enclInvokable.getReturnTypeNode().getBType();
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+
+        List<BType> equivalentErrorTypeList = checkedExpr.equivalentErrorTypeList;
+        if (equivalentErrorTypeList != null && !equivalentErrorTypeList.isEmpty()) {
+            if (defaultValueState == DefaultValueState.RECORD_FIELD_DEFAULT) {
+                dlog.error(checkedExpr.pos,
+                           DiagnosticErrorCode.INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION);
+                return;
+            }
+
+            if (defaultValueState == DefaultValueState.OBJECT_FIELD_INITIALIZER) {
+                BAttachedFunction initializerFunc =
+                        ((BObjectTypeSymbol) getEnclosingClass(env).getBType().tsymbol).initializerFunc;
+
+                if (initializerFunc == null) {
+                    dlog.error(checkedExpr.pos,
+                            DiagnosticErrorCode
+                                    .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD);
+                    return;
+                }
+
+                BType exprErrorTypes = getErrorTypes(checkedExpr.expr.getBType());
+                BType initMethodReturnType = initializerFunc.type.retType;
+                if (!types.isAssignable(exprErrorTypes, initMethodReturnType)) {
+                    dlog.error(checkedExpr.pos, DiagnosticErrorCode
+                            .INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH,
+                            initMethodReturnType, exprErrorTypes);
+                }
+                return;
+            }
+        }
+
+        if (enclInvokable == null) {
+            return;
+        }
+
+        BType exprType = enclInvokable.getReturnTypeNode().getBType();
 
         if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.getBType()), exprType)) {
             dlog.error(checkedExpr.pos, DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
@@ -4565,6 +4643,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return source + "->" + target;
     }
 
+    private BLangNode getEnclosingClass(SymbolEnv env) {
+        BLangNode node = env.node;
+
+        while (node.getKind() != NodeKind.CLASS_DEFN) {
+            env = env.enclEnv;
+            node = env.node;
+        }
+        return node;
+    }
+
     /**
      * Experimental feature list for JBallerina 1.0.0.
      *
@@ -4587,5 +4675,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
             return value;
         }
+    }
+
+    private enum DefaultValueState {
+        NOT_IN_DEFAULT_VALUE,
+        RECORD_FIELD_DEFAULT,
+        OBJECT_FIELD_INITIALIZER,
+        FUNCTION_IN_DEFAULT_VALUE
     }
 }

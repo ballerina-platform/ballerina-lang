@@ -536,6 +536,58 @@ function testObjectIsCheckWithCycles() {
     assertFalse(a3 is object { Quuz f; });
 }
 
+service class ServiceClassA {
+    remote function x() {
+    }
+}
+
+service class ServiceClassB {
+}
+
+service class ServiceClassC {
+    resource function get hello(string name) returns string {
+        return "Hello, " + name;
+    }
+}
+
+service class ServiceClassD {
+    remote function x() {
+        int a = 0;
+        float b = 0.0;
+    }
+
+    resource function get weight() returns float {
+        return 123.4;
+    }
+}
+
+function testServiceObjects() {
+    any a = new ServiceClassA();
+    any b = new ServiceClassB();
+    any c = new ServiceClassC();
+    any d = new ServiceClassD();
+
+    assertTrue(a is ServiceClassA);
+    assertTrue(a is ServiceClassB);
+    assertTrue(a is ServiceClassC);
+    assertTrue(a is ServiceClassD);
+
+    assertFalse(b is ServiceClassA);
+    assertTrue(b is ServiceClassB);
+    assertTrue(b is ServiceClassC);
+    assertFalse(b is ServiceClassD);
+
+    assertFalse(c is ServiceClassA);
+    assertTrue(c is ServiceClassB);
+    assertTrue(c is ServiceClassC);
+    assertFalse(c is ServiceClassD);
+
+    assertTrue(d is ServiceClassA);
+    assertTrue(d is ServiceClassB);
+    assertTrue(d is ServiceClassC);
+    assertTrue(d is ServiceClassD);
+}
+
 // ========================== Arrays ==========================
 
 function testSimpleArrays() returns [boolean, boolean, boolean, boolean, boolean] {
@@ -1212,6 +1264,21 @@ function testRecordIntersectionWithFunctionFields() {
     assertFalse(recordIntersectionWithFunctionFields());
 }
 
+type Colour "r"|"g"|"b";
+type Ints 1|2;
+
+function testBuiltInSubTypeTypeTestAgainstFiniteType() {
+    string:Char a = "r";
+    assertTrue(a is Colour);
+    a = "x";
+    assertFalse(a is Colour);
+
+    int:Unsigned16 b = 1;
+    assertTrue(b is Ints);
+    b = 4;
+    assertFalse(b is Ints);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }
@@ -1226,4 +1293,74 @@ function assertEquality(anydata expected, anydata actual) {
     }
 
     panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+// ========================== int subtypes ==========================
+
+function testIntSubtypes() {
+    byte val1 = 255;
+    assertTrue(val1 is byte);
+    assertTrue(val1 is int:Unsigned8);
+    assertTrue(val1 is int:Unsigned16);
+    assertTrue(val1 is int:Unsigned32);
+    assertTrue(val1 is int:Signed16);
+    assertTrue(val1 is int:Signed32);
+    assertTrue(val1 is int);
+
+    int:Unsigned8 val2 = 0;
+    assertTrue(val2 is byte);
+    assertTrue(val2 is int:Unsigned8);
+    assertTrue(val2 is int:Unsigned16);
+    assertTrue(val2 is int:Unsigned32);
+    assertTrue(val2 is int:Signed16);
+    assertTrue(val2 is int:Signed32);
+    assertTrue(val2 is int);
+
+    int:Unsigned16 val3 = 0x100;
+    assertFalse(val3 is byte);
+    assertFalse(val3 is int:Unsigned8);
+    assertTrue(val3 is int:Unsigned16);
+    assertTrue(val3 is int:Unsigned32);
+    assertTrue(val3 is int:Signed32);
+    assertTrue(val3 is int);
+
+    int:Unsigned32 val4 = 0x3;
+    assertTrue(val4 is byte);
+    assertTrue(val4 is int:Unsigned8);
+    assertTrue(val4 is int:Unsigned16);
+    assertTrue(val4 is int:Unsigned32);
+    assertTrue(val4 is int);
+
+    int:Signed8 val5 = 0x7f;
+    assertTrue(val5 is int:Signed8);
+    assertTrue(val5 is int:Signed16);
+    assertTrue(val5 is int:Signed32);
+    assertTrue(val5 is int);
+
+    int:Signed16 val6 = -128;
+    assertFalse(val6 is byte);
+    assertFalse(val6 is int:Unsigned8);
+    assertTrue(val6 is int:Signed8);
+    assertTrue(val6 is int:Signed16);
+    assertTrue(val6 is int:Signed32);
+    assertTrue(val6 is int);
+
+    int:Signed32 val7 = -2147483648;
+    assertFalse(val7 is byte);
+    assertFalse(val7 is int:Unsigned8);
+    assertFalse(val7 is int:Unsigned16);
+    assertFalse(val7 is int:Signed8);
+    assertFalse(val7 is int:Signed16);
+    assertTrue(val7 is int:Signed32);
+    assertTrue(val7 is int);
+
+    int val8 = 0;
+    assertTrue(val8 is byte);
+    assertTrue(val8 is int:Unsigned8);
+    assertTrue(val8 is int:Unsigned16);
+    assertTrue(val8 is int:Unsigned32);
+    assertTrue(val8 is int:Signed8);
+    assertTrue(val8 is int:Signed16);
+    assertTrue(val8 is int:Signed32);
+    assertTrue(val8 is int);
 }

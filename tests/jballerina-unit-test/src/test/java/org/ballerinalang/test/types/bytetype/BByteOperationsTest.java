@@ -352,9 +352,9 @@ public class BByteOperationsTest {
     public void testByteBitwiseComplement() {
         BValue[] returns = BRunUtil.invoke(result, "testByteBitwiseComplement");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
-        BByte value = (BByte) returns[0];
-        Assert.assertEquals(value.byteValue(), 64, "Invalid byte value returned.");
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger value = (BInteger) returns[0];
+        Assert.assertEquals(value.intValue(), -192, "Invalid byte value returned.");
     }
 
     @Test(description = "Test int bitwise complement")

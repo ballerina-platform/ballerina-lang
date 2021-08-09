@@ -36,7 +36,12 @@ public class BXmlText extends BSimpleVariable {
     @Override
     public String computeValue() {
         try {
-            return getStringValue(context, jvmValue);
+            String stringValue = getStringValue(context, jvmValue);
+            if (stringValue.isBlank()) {
+                return "<All Whitespaces>";
+            } else {
+                return stringValue;
+            }
         } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }

@@ -1,8 +1,7 @@
 module io.ballerina.observability {
-    requires gson;
+    requires com.google.gson;
     requires io.ballerina.lang;
     requires io.ballerina.runtime;
-    requires io.ballerina.config;
     requires io.opentelemetry.api;
     requires io.opentelemetry.sdk.testing;
     requires io.opentelemetry.sdk.trace;

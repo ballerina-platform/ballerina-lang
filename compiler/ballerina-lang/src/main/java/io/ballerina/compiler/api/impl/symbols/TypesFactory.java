@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -150,10 +151,11 @@ public class TypesFactory {
      * @return {@link TypeSymbol} generated
      */
     public TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
-        return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true);
+        return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true, false);
     }
 
-    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType) {
+    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
+                                 boolean typeRefFromIntersectType) {
         if (bType == null || bType.tag == NONE) {
             return null;
         }
@@ -169,7 +171,8 @@ public class TypesFactory {
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol);
+            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
+                    typeRefFromIntersectType);
         }
 
         TypeSymbol typeSymbol = createTypeDescriptor(bType, tSymbol, moduleID);
@@ -217,7 +220,8 @@ public class TypesFactory {
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
                 if (Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)) {
-                    return symbolFactory.createClassSymbol((BClassSymbol) tSymbol, tSymbol.name.value, objType);
+                    BTypeSymbol classSymbol = tSymbol.isLabel ? tSymbol.type.tsymbol : tSymbol;
+                    return symbolFactory.createClassSymbol((BClassSymbol) classSymbol, classSymbol.name.value, objType);
                 }
                 return objType;
             case RECORD:
@@ -254,6 +258,8 @@ public class TypesFactory {
                 return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
+            case NONE:
+                return new BallerinaNoneTypeSymbol(this.context, moduleID, (BNoType) bType);
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             default:

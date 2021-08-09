@@ -20,12 +20,14 @@ package io.ballerina.runtime.internal.types;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.TypeFlags;
+import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -45,15 +47,29 @@ public class BIntersectionType extends BType implements IntersectionType {
     private int typeFlags;
     private final boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
 
-    public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType, int typeFlags,
-                             boolean readonly) {
+    private String cachedToString;
+    private boolean resolving;
+
+    public BIntersectionType(Module pkg, Type[] constituentTypes, Type effectiveType,
+                             int typeFlags, boolean readonly) {
+        this(pkg, constituentTypes, typeFlags, readonly);
+        this.effectiveType = effectiveType;
+    }
+
+    public BIntersectionType(Module pkg, Type[] constituentTypes, IntersectableReferenceType effectiveType,
+                             int typeFlags, boolean readonly) {
+        this(pkg, constituentTypes, typeFlags, readonly);
+        this.effectiveType = effectiveType;
+        effectiveType.setIntersectionType(this);
+    }
+
+    private BIntersectionType(Module pkg, Type[] constituentTypes, int typeFlags, boolean readonly) {
         super(null, pkg, Object.class);
         this.constituentTypes = Arrays.asList(constituentTypes);
-        this.effectiveType = effectiveType;
         this.typeFlags = typeFlags;
         this.readonly = readonly;
-
         if (readonly) {
             this.immutableType = this;
         }
@@ -81,6 +97,19 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public String toString() {
+        if (resolving) {
+            return "";
+        }
+        resolving = true;
+        computeStringRepresentation();
+        resolving = false;
+        return cachedToString;
+    }
+
+    private void computeStringRepresentation() {
+        if (cachedToString != null) {
+            return;
+        }
         StringJoiner joiner = new StringJoiner(PADDED_AMPERSAND, OPENING_PARENTHESIS, CLOSING_PARENTHESIS);
 
         for (Type constituentType : this.constituentTypes) {
@@ -91,8 +120,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
             joiner.add(constituentType.toString());
         }
-
-        return joiner.toString();
+        cachedToString = joiner.toString();
     }
 
     @Override
@@ -148,7 +176,7 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
@@ -159,5 +187,15 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     public Type getEffectiveType() {
         return this.effectiveType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

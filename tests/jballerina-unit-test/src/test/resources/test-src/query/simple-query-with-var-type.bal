@@ -274,7 +274,7 @@ function testQueryExpressionWithSpreadOperatorV2() returns Teacher[] {
 
 public function testQueryWithStream() returns boolean {
     NumberGenerator numGen = new;
-    var numberStream = new stream<int, error>(numGen);
+    var numberStream = new stream<int, error?>(numGen);
 
     var oddNumberList = from var num in numberStream
                         where (num % 2 == 1)

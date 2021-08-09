@@ -15,22 +15,28 @@
 // under the License.
 
 
-import configUnionTypes.mod1;
-import ballerina/jballerina.java;
-import configUnionTypes.mod2;
+import configUnionTypes.type_defs;
+import configUnionTypes.imported_unions;
 import testOrg/configLib.mod1 as configLib;
+import testOrg/configLib.util;
+import configUnionTypes.union_ambiguity;
 import ballerina/test;
 
 configurable configLib:HttpVersion & readonly httpVersion = ?;
-configurable mod1:CountryCodes & readonly countryCode = ?;
-configurable mod1:CountryCodes[] countryCodes = ?;
+configurable type_defs:CountryCodes & readonly countryCode = ?;
+configurable type_defs:CountryCodes[] countryCodes = ?;
 
 type HttpResponse record {|
     configLib:HttpVersion httpVersion;
 |};
 
+type Person record {
+    string name;
+    int age?;
+};
+
 configurable HttpResponse httpResponse = ?;
-configurable mod1:Country country = ?;
+configurable type_defs:Country country = ?;
 
 configurable anydata anydataVar = ?;
 configurable int|string intStringVar = 2;
@@ -46,19 +52,23 @@ configurable configLib:GrantConfig config3 = ?;
 configurable map<configLib:ClientCredentialsGrantConfig>|map<configLib:RefreshTokenGrantConfig> configMap1 = ?;
 configurable map<configLib:ClientCredentialsGrantConfig|configLib:PasswordGrantConfig> configMap2 = ?;
 
+configurable int|Person recordUnionVar = ?;
+configurable float|table<Person> key(name) tableUnionVar = ?;
+
 public function main() {
     testEnumValues();
-    mod2:testEnumValues();
-    print("Tests passed");
+    imported_unions:testEnumValues();
+    union_ambiguity:test_ambiguous_union_type();
+    util:print("Tests passed");
 }
 
 function testEnumValues() {
     test:assertEquals(httpVersion, configLib:HTTP_1_1);
-    test:assertEquals(countryCode, mod1:SL);
+    test:assertEquals(countryCode, type_defs:SL);
     test:assertEquals(httpResponse.httpVersion, configLib:HTTP_2);
-    test:assertEquals(country.countryCode, mod1:US);
-    test:assertEquals(countryCodes[0], mod1:US);
-    test:assertEquals(countryCodes[1], mod1:SL);
+    test:assertEquals(country.countryCode, type_defs:US);
+    test:assertEquals(countryCodes[0], type_defs:US);
+    test:assertEquals(countryCodes[1], type_defs:SL);
     test:assertEquals(anydataVar, "hello");
     test:assertEquals(intStringVar, 12345);
     test:assertEquals(anydataArray.toString(), "[\"hello\",1,2,3.4,false]");
@@ -87,22 +97,7 @@ function testEnumValues() {
                                              "\"clientConfig\":{\"httpVersion\":\"HTTP_1_1\"," +
                                              "\"customHeaders\":{\"header1\":\"header1\"," +
                                              "\"header2\":\"header2\"}}},\"config2\":{\"password\":[\"1\",2,3]}}");
-
+    test:assertEquals(recordUnionVar.toString(), "{\"name\":\"Manu\",\"age\":12}");
+    test:assertEquals(tableUnionVar.toString(), "[{\"name\":\"Nadeeshan\",\"age\":11},{\"name\":\"Gabilan\"}," +
+    "{\"name\":\"Hinduja\",\"age\":15}]");
 }
-
-function print(string value) {
-    handle strValue = java:fromString(value);
-    handle stdout1 = stdout();
-    printInternal(stdout1, strValue);
-}
-
-public function stdout() returns handle = @java:FieldGet {
-    name: "out",
-    'class: "java/lang/System"
-} external;
-
-public function printInternal(handle receiver, handle strValue) = @java:Method {
-    name: "println",
-    'class: "java/io/PrintStream",
-    paramTypes: ["java.lang.String"]
-} external;
