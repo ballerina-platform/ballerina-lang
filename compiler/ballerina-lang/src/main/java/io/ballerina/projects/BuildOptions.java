@@ -56,6 +56,10 @@ public class BuildOptions {
         return this.compilationOptions.offlineBuild();
     }
 
+    public boolean sticky() {
+        return this.compilationOptions.sticky();
+    }
+
     public boolean experimental() {
         return this.compilationOptions.experimental();
     }
