@@ -1405,6 +1405,9 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetExpression letExpression) {
         SymbolEnv prevEnv = this.env;
+        // Set the enclInvokable of let expression since, when in module level the enclInvokable will be initFunction
+        // and the initFunction is created in desugar phase.
+        letExpression.env.enclInvokable = this.env.enclInvokable;
         this.env = letExpression.env;
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
@@ -7758,8 +7761,8 @@ public class Desugar extends BLangNodeVisitor {
                 getSafeAssignSuccessPattern(checkedExprVar.pos, checkedExprVar.symbol.type, true,
                                             checkedExprVar.symbol, null);
         BLangMatchTypedBindingPatternClause patternErrorCase =
-                getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList,
-                                          isCheckPanic);
+                getSafeAssignErrorPattern(checkedExpr.pos, this.env.enclInvokable.symbol,
+                        checkedExpr.equivalentErrorTypeList, isCheckPanic);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
