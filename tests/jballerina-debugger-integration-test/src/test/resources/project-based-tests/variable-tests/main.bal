@@ -251,16 +251,16 @@ public function main() {
     }
 
     // variable visibility in 'else' statement
-    if (false) {
+    if (1 == 0) {
         intVar = 2;
     } else {
         intVar = 3;
     }
 
     // variable visibility in 'else-if' statement
-    if (false) {
+    if (1 == 0) {
         intVar = 4;
-    } else if (true) {
+    } else if (1 == 1) {
         intVar = 5;
     } else {
         intVar = 6;
