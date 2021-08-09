@@ -178,9 +178,95 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
+    public List<ResolutionResponse> newResolvePackages(
+            List<ResolutionResponseDescriptor> responseDescriptors, Project currentProject) {
+        if (responseDescriptors.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<ResolutionResponse> resolutionResponses = new ArrayList<>();
+        Package currentPkg = currentProject != null ? currentProject.currentPackage() : null;
+        for (ResolutionResponseDescriptor responseDescriptor : responseDescriptors) {
+            Package resolvedPackage = null;
+            // Check whether the requested package is same as the current package
+            if (currentPkg != null && responseDescriptor.resolvedDescriptor().equals(currentPkg.descriptor())) {
+                resolvedPackage = currentPkg;
+            }
+
+            // If not try to load the package from the cache
+            if (resolvedPackage == null) {
+                resolvedPackage = loadFromCache(responseDescriptor);
+            }
+
+            // If not try to resolve from dist and central repositories
+            if (resolvedPackage == null) {
+                resolvedPackage = resolveFromRepository(responseDescriptor);
+            }
+
+            ResolutionResponse.ResolutionStatus resolutionStatus;
+            if (resolvedPackage == null) {
+                resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
+            } else {
+                resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
+                packageCache.cache(resolvedPackage);
+            }
+            resolutionResponses.add(ResolutionResponse.from(resolutionStatus, resolvedPackage, responseDescriptor));
+        }
+
+        return resolutionResponses;
+    }
+
+    @Override
     public List<ResolutionResponse> resolvePackages(List<ResolutionRequest> resolutionRequests) {
         return resolvePackages(resolutionRequests, null);
     }
+
+    private Package loadFromCache(ResolutionResponseDescriptor responseDescriptor) {
+        if (responseDescriptor.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+            // We are skipping the cache look up if the version is empty. This is the get the latest version.
+            return null;
+        }
+
+        Optional<Package> resolvedPackage = packageCache.getPackage(responseDescriptor.resolvedDescriptor().org(),
+                responseDescriptor.resolvedDescriptor().name(), responseDescriptor.resolvedDescriptor().version());
+        return resolvedPackage.orElse(null);
+    }
+
+    private Package resolveFromRepository(ResolutionResponseDescriptor responseDescriptor) {
+        Optional<Package> resolvedPackage;
+        PackageDescriptor requestedPkgDesc = responseDescriptor.resolvedDescriptor();
+
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                responseDescriptor.resolvedDescriptor(),
+                responseDescriptor.packageLoadRequest().scope(),
+                responseDescriptor.packageLoadRequest().offline());
+
+        if (requestedPkgDesc.isLangLibPackage()) {
+            return ballerinaDistRepo.getPackage(resolutionRequest).orElse(null);
+        }
+
+        if (responseDescriptor.packageLoadRequest().repositoryName().isPresent()) {
+            if (!customRepositories.containsKey(responseDescriptor.packageLoadRequest().repositoryName().get())) {
+                return null;
+            }
+            resolvedPackage = customRepositories.get(responseDescriptor.packageLoadRequest().repositoryName().get())
+                    .getPackage(resolutionRequest);
+            if (resolvedPackage.isEmpty()) {
+                return null;
+            }
+        } else {
+            resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
+            if (resolvedPackage.isEmpty()) {
+                resolvedPackage = ballerinaCentralRepo.getPackage(resolutionRequest);
+            }
+        }
+        return resolvedPackage.orElse(null);
+    }
+
+
+    /*
+    * ------------------------------- Old code ----------------------------
+    */
 
     private Package loadFromCache(ResolutionRequest resolutionRequest) {
         if (resolutionRequest.version().isEmpty()) {

@@ -28,20 +28,29 @@ public class ResolutionResponse {
     private final Package resolvedPackage;
     private final ResolutionRequest packageLoadRequest;
     private final ResolutionStatus status;
+    private final ResolutionResponseDescriptor responseDescriptor;
 
     // TODO We can use this call to send diagnostics if any
     private ResolutionResponse(ResolutionStatus resolutionStatus,
                                Package resolvedPackage,
-                               ResolutionRequest packageLoadRequest) {
+                               ResolutionRequest packageLoadRequest,
+                               ResolutionResponseDescriptor responseDescriptor) {
         this.resolvedPackage = resolvedPackage;
         this.packageLoadRequest = packageLoadRequest;
         this.status = resolutionStatus;
+        this.responseDescriptor = responseDescriptor;
     }
 
     public static ResolutionResponse from(ResolutionStatus resolutionStatus,
                                           Package resolvedPackage,
                                           ResolutionRequest packageLoadRequest) {
-        return new ResolutionResponse(resolutionStatus, resolvedPackage, packageLoadRequest);
+        return new ResolutionResponse(resolutionStatus, resolvedPackage, packageLoadRequest, null);
+    }
+
+    public static ResolutionResponse from(ResolutionStatus resolutionStatus,
+                                          Package resolvedPackage,
+                                          ResolutionResponseDescriptor responseDescriptor) {
+        return new ResolutionResponse(resolutionStatus, resolvedPackage, null, responseDescriptor);
     }
 
     public ResolutionStatus resolutionStatus() {
@@ -54,6 +63,10 @@ public class ResolutionResponse {
 
     public ResolutionRequest packageLoadRequest() {
         return packageLoadRequest;
+    }
+
+    public ResolutionResponseDescriptor responseDescriptor() {
+        return responseDescriptor;
     }
 
     /**

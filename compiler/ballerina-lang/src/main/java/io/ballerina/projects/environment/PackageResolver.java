@@ -38,4 +38,6 @@ public interface PackageResolver {
     List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
 
     List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
+
+    List<ResolutionResponse> newResolvePackages(List<ResolutionResponseDescriptor> responseDescriptors, Project project);
 }

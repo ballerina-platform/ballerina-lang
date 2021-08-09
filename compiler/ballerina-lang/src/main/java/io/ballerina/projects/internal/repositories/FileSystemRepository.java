@@ -222,7 +222,8 @@ public class FileSystemRepository implements PackageRepository {
         // we continue looking for the module in the remaining possible packages.
         List<PackageName> existing = importModuleRequest.possiblePackages().stream().map(PackageDescriptor::name)
                 .collect(Collectors.toList());
-        List<PackageName> remainingPackageNames = ProjectUtils.getPossiblePackageNames(importModuleRequest).stream()
+        List<PackageName> remainingPackageNames = ProjectUtils.getPossiblePackageNames(
+                importModuleRequest.packageOrg(), importModuleRequest.moduleName()).stream()
                 .filter(o -> !existing.contains(o)).collect(Collectors.toList());
 
         for (PackageName possiblePackageName : remainingPackageNames) {

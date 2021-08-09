@@ -177,7 +177,8 @@ public class PackageResolution {
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
             createDependencyGraphFromBALA();
         } else {
-            createDependencyGraphFromSources();
+//            createDependencyGraphFromSources();
+            createDependencyGraphFromSourcesNew(sticky);
         }
 
         // Once we reach this section, all the direct dependencies have been resolved
@@ -364,7 +365,7 @@ public class PackageResolution {
 
             resolutionRequests.add(ResolutionRequest.from(
                     PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion),
-                    directPkgDependency.scope, offline, lockingMode));
+                    directPkgDependency.scope, directPkgDependency.resolutionType, offline, lockingMode));
         }
 
         List<ResolutionResponseDescriptor> resolutionResponses =
@@ -388,6 +389,21 @@ public class PackageResolution {
         }
 
 //        DependencyGraph<PackageDescriptor> dependencyGraph = resolutionEngine.resolveDependencies();
+
+
+        List<ResolutionResponse> resolutionResponses1 =
+                packageResolver.newResolvePackages(resolutionResponses, rootPackageContext.project());
+        for (ResolutionResponse resolutionResponse : resolutionResponses1) {
+            if (resolutionResponse.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                continue;
+            }
+            depGraphBuilder.addDependency(rootPackageContext.descriptor(),
+                    resolutionResponse.resolvedPackage().descriptor(),
+                    resolutionResponse.responseDescriptor().packageLoadRequest().scope(),
+                    DependencyResolutionType.SOURCE,
+                    DependencyVersionKind.LATEST);
+        }
+
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
@@ -636,8 +652,16 @@ public class PackageResolution {
 
             Optional<DirectPackageDependency> pkgDepOptional = pkgContainer.get(pkgOrg, pkgName);
             if (pkgDepOptional.isEmpty()) {
+                PackageManifest.Dependency versionFromPackageManifest =
+                        getVersionFromPackageManifest(pkgDesc.org(), pkgDesc.name());
+                DirectPackageDependencyKind dependencyKind;
+                if (versionFromPackageManifest == null) {
+                    dependencyKind = DirectPackageDependencyKind.NEW;
+                } else {
+                    dependencyKind = DirectPackageDependencyKind.EXISTING;
+                }
                 pkgContainer.add(pkgOrg, pkgName, new DirectPackageDependency(pkgDesc,
-                        DirectPackageDependencyKind.EXISTING, moduleLoadRequest.scope(),
+                        dependencyKind, moduleLoadRequest.scope(),
                         moduleLoadRequest.dependencyResolvedType()));
             } else {
                 // There exists a direct dependency in the container
@@ -793,7 +817,7 @@ public class PackageResolution {
                     }
 
                     // The requested module is available in the resolvedPackage
-                    // Let's add it to the dependency graph.
+                    // Let's add it to the dependency graph.dependencyResolvedType
                     addPackageToDependencyGraph(resolutionResponse, dependencyResolvedType, dependencyVersionKind);
                 }
                 responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg, possiblePkgName,
