@@ -415,7 +415,7 @@ public class TypeChecker {
      */
 
     public static boolean checkFloatExactEqual(double lhsValue, double rhsValue) {
-        return Double.valueOf(lhsValue).equals(Double.valueOf(rhsValue));
+        return Double.valueOf(lhsValue).equals(rhsValue);
     }
 
     /**
