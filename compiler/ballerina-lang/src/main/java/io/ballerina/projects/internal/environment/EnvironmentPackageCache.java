@@ -76,4 +76,8 @@ public class EnvironmentPackageCache implements WritablePackageCache {
         }
         return foundList;
     }
+
+    public void removePackage(PackageId packageId) {
+        projects.remove(packageId);
+    }
 }
