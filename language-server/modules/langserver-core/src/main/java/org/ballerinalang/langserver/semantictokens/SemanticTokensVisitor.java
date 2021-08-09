@@ -97,7 +97,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
      * @param node Root node
      * @return {@link SemanticTokens}
      */
-    public SemanticTokens visitSemanticTokens(Node node) {
+    public SemanticTokens getSemanticTokens(Node node) {
         List<Integer> data = new ArrayList<>();
         visitSyntaxNode(node);
 
@@ -360,8 +360,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
 
     public void visit(KeySpecifierNode keySpecifierNode) {
         keySpecifierNode.fieldNames().forEach(field -> this.addSemanticToken(field, TokenTypes.PROPERTY.getId(),
-                TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId(), false, -1, -1)
-        );
+                TokenTypeModifiers.DECLARATION.getId(), false, -1, -1));
         visitSyntaxNode(keySpecifierNode);
     }
 

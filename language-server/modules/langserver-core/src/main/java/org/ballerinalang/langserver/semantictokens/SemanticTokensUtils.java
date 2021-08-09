@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.semantictokens;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
@@ -55,11 +54,8 @@ public class SemanticTokensUtils {
         if (docOptional.isEmpty()) {
             return new SemanticTokens(new ArrayList<>());
         }
-        SyntaxTree syntaxTree = docOptional.get().syntaxTree();
-        if (syntaxTree == null) {
-            return new SemanticTokens(new ArrayList<>());
-        }
-        return new SemanticTokensVisitor(semanticTokensContext).visitSemanticTokens(syntaxTree.rootNode());
+        return new SemanticTokensVisitor(semanticTokensContext).getSemanticTokens(docOptional.get().syntaxTree()
+                .rootNode());
     }
 
     /**
