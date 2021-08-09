@@ -19,11 +19,13 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import io.ballerina.projects.exceptions.InvalidBalaException;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyVersionKind;
@@ -32,6 +34,7 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
@@ -80,7 +83,9 @@ public class PackageResolution {
 
         this.depGraphBuilder = new PackageDependencyGraphBuilder(rootPackageContext.descriptor());
         this.moduleResolver = new ModuleResolver(packageResolver, rootPackageContext, depGraphBuilder);
-        dependencyGraph = buildDependencyGraph();
+
+        boolean sticky = rootPackageContext.project().buildOptions().sticky();
+        dependencyGraph = buildDependencyGraph(sticky);
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -167,7 +172,7 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky) {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
             createDependencyGraphFromBALA();
@@ -199,25 +204,27 @@ public class PackageResolution {
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
         if (compilationOptions.observabilityIncluded()) {
             {
-                PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
+                String moduleName = Names.OBSERVE.getValue();
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
-                        PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
             {
-                PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
+                String moduleName = Names.OBSERVE.getValue();
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
-                        PackageOrg.from(Names.BALLERINA_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
         }
+
+        // TODO Can we make this a builtin compiler plugin
         if ("k8s".equals(compilationOptions.getCloud()) || "docker".equals(compilationOptions.getCloud())) {
-            PackageName packageName = PackageName.from(Names.CLOUD.getValue());
+            String moduleName = Names.CLOUD.getValue();
             ModuleLoadRequest c2cModuleLoadReq = new ModuleLoadRequest(
-                    PackageOrg.from(Names.BALLERINA_ORG.value), packageName, ModuleName.from(packageName),
-                    null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                    PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
+                    PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
 
@@ -226,6 +233,8 @@ public class PackageResolution {
 
     DependencyManifest.Package getVersionFromDependencyManifest(PackageOrg requestedPkgOrg,
                                                                 PackageName requestedPkgName) {
+        // TODO Optimize this lookup.
+        // TODO Transform dependencies to multi-level map ==> Map<PackageOrg, Map<PackageName, Dependency>>
         if (rootPackageContext.dependencyManifest() != null) {
             for (DependencyManifest.Package dependency : rootPackageContext.dependencyManifest().packages()) {
                 if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
@@ -294,20 +303,91 @@ public class PackageResolution {
             }
 
             ImportModuleRequest importModuleRequest = new ImportModuleRequest(packageOrg,
-                    moduleLoadRequest.moduleName().toString());
+                    moduleLoadRequest.moduleName());
             try {
                 moduleResolver.resolve(importModuleRequest, 
                                        moduleLoadRequest.scope(),
                                        moduleLoadRequest.dependencyResolvedType());
             } catch (InvalidBalaException e) {
+                // TODO Temporary fix
+                ModuleName moduleName = ModuleName.from(rootPackageContext.descriptor().name());
                 ModuleDescriptor moduleDescriptor = ModuleDescriptor
-                        .from(moduleLoadRequest.moduleName(), rootPackageContext.descriptor());
+                        .from(moduleName, rootPackageContext.descriptor());
                 for (Location moduleLoadReqLocation : moduleLoadRequest.locations()) {
                     reportDiagnostic(e.getMessage(), ProjectDiagnosticErrorCode.INVALID_BALA_FILE.diagnosticId(),
                                      DiagnosticSeverity.ERROR, moduleLoadReqLocation, moduleDescriptor);
                 }
             }
         }
+    }
+
+    void createDependencyGraphFromSourcesNew(boolean sticky) {
+        // 1) Get PackageLoadRequests for all the direct dependencies of this package
+        LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
+
+        // Get the direct dependencies of the current package.
+        // This list does not contain langlib and the root package.
+        PackageContainer<DirectPackageDependency> directDepsContainer =
+                moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
+
+        // Create Resolution requests for each direct dependency
+        boolean offline = rootPackageContext.project().buildOptions().offlineBuild();
+        // Set the default locking mode based on the sticky build option.
+        PackageLockingMode lockingMode = sticky ? PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+
+        List<ResolutionRequest> resolutionRequests = new ArrayList<>();
+        for (DirectPackageDependency directPkgDependency : directDepsContainer.getAll()) {
+            PackageVersion depVersion;
+            PackageDescriptor depPkgDesc = directPkgDependency.pkgDesc();
+            if (directPkgDependency.dependencyKind() == DirectPackageDependencyKind.NEW) {
+                depVersion = directPkgDependency.pkgDesc.version();
+            } else if (directPkgDependency.dependencyKind() == DirectPackageDependencyKind.EXISTING) {
+                // Use the version specified in the Dependencies.toml file.
+                // Here are some additional constraints:
+                // If that dependency is a direct dependency then use the version otherwise leave it.
+                // The situation is that an indirect dependency(previous compilation) has become a
+                // direct dependency (this compilation). Here we ignore the previous indirect dependency version and
+                // look up Ballerina central repository for the latest version which is in the same compatible range.
+                PackageManifest.Dependency dependency = getVersionFromPackageManifest(
+                        depPkgDesc.org(), depPkgDesc.name());
+                depVersion = dependency.version();
+                if (dependency.isTransitive()) {
+                    // The dependency is a transitive dependency.
+                    // Locking mode should be SOFT irrespective of the stickiness.
+                    lockingMode = PackageLockingMode.SOFT;
+                }
+
+            } else {
+                throw new IllegalStateException("Unsupported direct dependency kind: " +
+                        directPkgDependency.dependencyKind());
+            }
+
+            resolutionRequests.add(ResolutionRequest.from(
+                    PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion),
+                    directPkgDependency.scope, offline, lockingMode));
+        }
+
+        List<ResolutionResponseDescriptor> resolutionResponses =
+                packageResolver.resolveDependencyVersions(resolutionRequests);
+
+        // TODO move this to the constructor of this class
+        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(),
+                rootPackageContext.descriptor(), offline, sticky);
+
+        for (ResolutionResponseDescriptor resolutionResponse : resolutionResponses) {
+            if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
+                // TODO Report diagnostics
+                continue;
+            }
+            PackageDescriptor pkgDesc = resolutionResponse.resolvedDescriptor();
+            // Following error cannot happen
+            DirectPackageDependency directPkgDep = directDepsContainer.get(pkgDesc.org(), pkgDesc.name())
+                    .orElseThrow(() -> new IllegalStateException("The package `" + pkgDesc +
+                            "` should be part of the direct dependency list"));
+            resolutionEngine.addDirectDependency(pkgDesc, directPkgDep.scope(), directPkgDep.resolutionType());
+        }
+
+//        DependencyGraph<PackageDescriptor> dependencyGraph = resolutionEngine.resolveDependencies();
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
@@ -457,15 +537,213 @@ public class PackageResolution {
             return responseMap.get(importModuleRequest);
         }
 
+        PackageOrg getPackageOrg(ModuleLoadRequest moduleLoadRequest) {
+            Optional<PackageOrg> optionalOrgName = moduleLoadRequest.orgName();
+            return optionalOrgName.orElseGet(rootPackageContext::packageOrg);
+        }
+
+        /**
+         * Resolves the given list of module names to Packages and returns that list.
+         * <p>
+         * The returned package list does not contain langlib packages and the root package.
+         */
+        PackageContainer<DirectPackageDependency> resolveModuleLoadRequests(
+                Collection<ModuleLoadRequest> moduleLoadRequests) {
+            PackageContainer<DirectPackageDependency> pkgContainer = new PackageContainer<>();
+            List<ImportModuleRequest> unresolvedModuleRequests = new ArrayList<>();
+            for (ModuleLoadRequest moduleLoadRequest : moduleLoadRequests) {
+                resolveModuleLoadRequest(moduleLoadRequest, pkgContainer, unresolvedModuleRequests);
+            }
+
+            // Resolve unresolved import module declarations
+            List<ImportModuleResponse> importModResponses =
+                    packageResolver.resolvePackageNames(unresolvedModuleRequests);
+            for (ImportModuleResponse importModResp : importModResponses) {
+                if (importModResp.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
+                    // TODO Report diagnostics
+                    // TODO Require a proper package.properties file.
+                    continue;
+                }
+
+                DirectPackageDependency newPkgDep;
+                ImportModuleRequest importModuleRequest = importModResp.importModuleRequest();
+                PackageDescriptor pkgDesc = importModResp.packageDescriptor();
+                Optional<DirectPackageDependency> pkgDepOptional = pkgContainer.get(pkgDesc.org(), pkgDesc.name());
+                ModuleLoadRequest moduleLoadRequest = importModuleRequest.moduleLoadRequest();
+                if (pkgDepOptional.isEmpty()) {
+                    newPkgDep = new DirectPackageDependency(pkgDesc,
+                            DirectPackageDependencyKind.NEW,
+                            moduleLoadRequest.scope(),
+                            moduleLoadRequest.dependencyResolvedType());
+                } else {
+                    DirectPackageDependency currentPkgDep = pkgDepOptional.get();
+                    // Do not override the scope, if the current scope is PackageDependencyScope.DEFAULT,
+                    PackageDependencyScope scope =
+                            currentPkgDep.scope() == PackageDependencyScope.DEFAULT ?
+                                    PackageDependencyScope.DEFAULT :
+                                    moduleLoadRequest.scope();
+
+                    // Do not override the resolutionType,
+                    // if the current resolutionType is DependencyResolutionType.SOURCE ,
+                    DependencyResolutionType resolutionType =
+                            currentPkgDep.resolutionType() == DependencyResolutionType.SOURCE ?
+                                    DependencyResolutionType.SOURCE :
+                                    moduleLoadRequest.dependencyResolvedType();
+                    newPkgDep = new DirectPackageDependency(pkgDesc,
+                            DirectPackageDependencyKind.NEW, scope, resolutionType);
+                }
+                pkgContainer.add(pkgDesc.org(), pkgDesc.name(), newPkgDep);
+                responseMap.put(importModuleRequest, importModResp);
+            }
+            return pkgContainer;
+        }
+
+        private void resolveModuleLoadRequest(ModuleLoadRequest moduleLoadRequest,
+                                              PackageContainer<DirectPackageDependency> pkgContainer,
+                                              List<ImportModuleRequest> unresolvedModuleRequests) {
+            PackageDescriptor pkgDesc;
+            PackageOrg pkgOrg = getPackageOrg(moduleLoadRequest);
+            String moduleName = moduleLoadRequest.moduleName();
+            Collection<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(
+                    pkgOrg, moduleLoadRequest.moduleName());
+            if (ProjectUtils.isBuiltInPackage(pkgOrg, moduleName)) {
+                pkgDesc = PackageDescriptor.from(pkgOrg, PackageName.from(moduleName));
+            } else {
+                if (possiblePkgNames.size() == 1) {
+                    // This is not a hierarchical module pkgName,
+                    // hence the package pkgName is same as the module pkgName
+                    pkgDesc = PackageDescriptor.from(pkgOrg, PackageName.from(moduleName));
+                } else {
+                    // This is a hierarchical module pkgName
+                    // This method returns a non-null pkgDesc if and only if that package contains the given module.
+                    pkgDesc = findHierarchicalModule(moduleName, pkgOrg, possiblePkgNames);
+                }
+            }
+
+            if (pkgDesc == null) {
+                // TODO How can use use possiblePackages?
+                ImportModuleRequest importModuleRequest = new ImportModuleRequest(
+                        pkgOrg, moduleLoadRequest /**possiblePkgNames**/);
+                unresolvedModuleRequests.add(importModuleRequest);
+                return;
+            }
+
+            PackageName pkgName = pkgDesc.name();
+            if (isRootPackage(pkgOrg, pkgName)) {
+                // Do not add the root package to the dependencies list
+                return;
+            }
+
+            Optional<DirectPackageDependency> pkgDepOptional = pkgContainer.get(pkgOrg, pkgName);
+            if (pkgDepOptional.isEmpty()) {
+                pkgContainer.add(pkgOrg, pkgName, new DirectPackageDependency(pkgDesc,
+                        DirectPackageDependencyKind.EXISTING, moduleLoadRequest.scope(),
+                        moduleLoadRequest.dependencyResolvedType()));
+            } else {
+                // There exists a direct dependency in the container
+                DirectPackageDependency currentPkgDep = pkgDepOptional.get();
+
+                // Use the current resolutionType only if it is DependencyResolutionType.SOURCE,
+                //  Override it otherwise.
+                DependencyResolutionType resolutionType =
+                        currentPkgDep.resolutionType() == DependencyResolutionType.SOURCE ?
+                                DependencyResolutionType.SOURCE :
+                                moduleLoadRequest.dependencyResolvedType();
+
+                // Use the current scope only if it is PackageDependencyScope.DEFAULT,
+                //  Override it otherwise.
+                PackageDependencyScope scope =
+                        currentPkgDep.scope() == PackageDependencyScope.DEFAULT ?
+                                PackageDependencyScope.DEFAULT :
+                                moduleLoadRequest.scope();
+
+                pkgContainer.add(pkgOrg, pkgName, new DirectPackageDependency(pkgDesc,
+                        DirectPackageDependencyKind.EXISTING, scope, resolutionType));
+            }
+
+            ImportModuleRequest importModuleRequest = new ImportModuleRequest(pkgOrg, moduleLoadRequest);
+            responseMap.put(importModuleRequest, new ImportModuleResponse(pkgOrg, pkgName, importModuleRequest));
+        }
+
+        private PackageDescriptor findHierarchicalModule(String moduleName,
+                                                         PackageOrg packageOrg,
+                                                         Collection<PackageName> possiblePkgNames) {
+            for (PackageName possiblePkgName : possiblePkgNames) {
+                PackageDescriptor pkgDesc = findHierarchicalModule(moduleName, packageOrg, possiblePkgName);
+                if (pkgDesc != null) {
+                    return pkgDesc;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Find the given module name in the dependencies.toml file recorded during the previous compilation.
+         *
+         * @param moduleName  Module name to be found
+         * @param packageOrg  organization name
+         * @param packageName Possible package name
+         * @return PackageDescriptor or null
+         */
+        private PackageDescriptor findHierarchicalModule(String moduleName,
+                                                         PackageOrg packageOrg,
+                                                         PackageName packageName) {
+            PackageDescriptor pkgDesc = findModuleInRootPackage(moduleName, packageOrg, packageName);
+            if (pkgDesc != null) {
+                return pkgDesc;
+            }
+
+            return findModuleInDependenciesToml(moduleName, packageOrg, packageName);
+        }
+
+        private PackageDescriptor findModuleInRootPackage(String moduleName,
+                                                          PackageOrg packageOrg,
+                                                          PackageName packageName) {
+            if (packageOrg.equals(rootPackageContext.packageOrg()) &&
+                    packageName.equals(rootPackageContext.packageName())) {
+                Optional<ModuleContext> moduleInPackage = PackageResolution.findModuleInPackage(
+                        rootPackageContext, moduleName);
+                if (moduleInPackage.isPresent()) {
+                    return rootPackageContext.descriptor();
+                }
+                // There is no such module in root package
+            }
+            return null;
+        }
+
+        private boolean isRootPackage(PackageOrg pkgOrg, PackageName pkgName) {
+            return pkgOrg.equals(rootPackageContext.packageOrg()) &&
+                    pkgName.equals(rootPackageContext.packageName());
+        }
+
+        private PackageDescriptor findModuleInDependenciesToml(String moduleName,
+                                                               PackageOrg packageOrg,
+                                                               PackageName packageName) {
+            // Check whether this package is already defined in the package manifest, if so get the version
+            PackageManifest.Dependency dependency = PackageResolution.this.getVersionFromPackageManifest(
+                    packageOrg, packageName);
+            if (dependency == null) {
+                return null;
+            }
+
+            List<String> modules = dependency.modules();
+            if (modules.contains(moduleName)) {
+                return PackageDescriptor.from(packageOrg, packageName);
+            }
+            return null;
+        }
+
         void resolve(ImportModuleRequest importModuleRequest, PackageDependencyScope scope,
-                DependencyResolutionType dependencyResolvedType) {
+                     DependencyResolutionType dependencyResolvedType) {
             ImportModuleResponse importModuleResponse = responseMap.get(importModuleRequest);
             if (importModuleResponse != null) {
                 return;
             }
 
             PackageOrg packageOrg = importModuleRequest.packageOrg();
-            List<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(importModuleRequest);
+            List<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(importModuleRequest.packageOrg(),
+                    importModuleRequest.moduleName());
             for (PackageName possiblePkgName : possiblePkgNames) {
                 if (packageOrg.equals(rootPackageContext.packageOrg()) &&
                         possiblePkgName.equals(rootPackageContext.packageName())) {
@@ -518,8 +796,8 @@ public class PackageResolution {
                     // Let's add it to the dependency graph.
                     addPackageToDependencyGraph(resolutionResponse, dependencyResolvedType, dependencyVersionKind);
                 }
-                responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg,
-                        possiblePkgName, importModuleRequest));
+                responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg, possiblePkgName,
+                        importModuleRequest));
                 return;
             }
 
@@ -555,6 +833,81 @@ public class PackageResolution {
                 depGraphBuilder.mergeGraph(resolvedPackage.packageContext().dependencyGraph(),
                         PackageDependencyScope.TEST_ONLY, dependencyVersionKind);
             }
+        }
+    }
+
+    private static class DirectPackageDependency {
+        private final PackageDescriptor pkgDesc;
+        private final DirectPackageDependencyKind dependencyKind;
+        private final PackageDependencyScope scope;
+        private final DependencyResolutionType resolutionType;
+
+        public DirectPackageDependency(PackageDescriptor pkgDesc,
+                                       DirectPackageDependencyKind dependencyKind,
+                                       PackageDependencyScope scope,
+                                       DependencyResolutionType resolutionType) {
+            this.pkgDesc = pkgDesc;
+            this.dependencyKind = dependencyKind;
+            this.scope = scope;
+            this.resolutionType = resolutionType;
+        }
+
+        public PackageDescriptor pkgDesc() {
+            return pkgDesc;
+        }
+
+        public DirectPackageDependencyKind dependencyKind() {
+            return dependencyKind;
+        }
+
+        public PackageDependencyScope scope() {
+            return scope;
+        }
+
+        public DependencyResolutionType resolutionType() {
+            return resolutionType;
+        }
+    }
+
+    private enum DirectPackageDependencyKind {
+        /**
+         * A dependency already recorded in Dependencies.toml.
+         */
+        EXISTING,
+        /**
+         * A new package dependency introduced via a new import declaration.
+         */
+        NEW
+    }
+
+    private static class PackageContainer<T> {
+        private final Map<PackageOrg, Map<PackageName, T>> pkgOrgMap;
+
+        public PackageContainer() {
+            this.pkgOrgMap = new HashMap<>();
+        }
+
+        void add(PackageOrg pkgOrg, PackageName pkgName, T t) {
+            Map<PackageName, T> pkgNameMap = pkgOrgMap.computeIfAbsent(pkgOrg, orgName -> new HashMap<>());
+            pkgNameMap.put(pkgName, t);
+            pkgOrgMap.put(pkgOrg, pkgNameMap);
+        }
+
+        Optional<T> get(PackageOrg pkgOrg, PackageName pkgName) {
+            Map<PackageName, T> pkgNameMap = pkgOrgMap.get(pkgOrg);
+            if (pkgNameMap == null) {
+                return Optional.empty();
+            }
+
+            return Optional.ofNullable(pkgNameMap.get(pkgName));
+        }
+
+        Collection<T> getAll() {
+            return pkgOrgMap.values()
+                    .stream()
+                    .map(Map::values)
+                    .flatMap(Collection::stream)
+                    .collect(Collectors.toList());
         }
     }
 }

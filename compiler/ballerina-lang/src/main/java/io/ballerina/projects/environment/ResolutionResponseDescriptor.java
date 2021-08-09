@@ -33,6 +33,8 @@ public class ResolutionResponseDescriptor {
     private final DependencyGraph<PackageDescriptor> dependencyGraph;
     private final ResolutionResponse.ResolutionStatus resolutionStatus;
 
+    // TODO Shall we add a diagnostic here.
+
     private ResolutionResponseDescriptor(ResolutionRequest packageLoadRequest,
                                          PackageDescriptor resolvedDescriptor,
                                          DependencyGraph<PackageDescriptor> dependencyGraph,
@@ -55,8 +57,8 @@ public class ResolutionResponseDescriptor {
                 packageLoadRequest, null, null, ResolutionResponse.ResolutionStatus.UNRESOLVED);
     }
 
-    public Optional<PackageDescriptor> resolvedDescriptor() {
-        return Optional.ofNullable(packageDescriptor);
+    public PackageDescriptor resolvedDescriptor() {
+        return packageDescriptor;
     }
 
     public ResolutionRequest packageLoadRequest() {

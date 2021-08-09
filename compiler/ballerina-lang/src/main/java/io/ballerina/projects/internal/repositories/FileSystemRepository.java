@@ -207,7 +207,8 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
-        List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(importModuleRequest);
+        List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(
+                importModuleRequest.packageOrg(), importModuleRequest.moduleName());
         for (PackageName possiblePackageName : possiblePackageNames) {
             List<PackageVersion> packageVersions = getPackageVersions(importModuleRequest.packageOrg().toString(),
                     possiblePackageName.toString());

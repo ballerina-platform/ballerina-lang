@@ -129,9 +129,9 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return y;
                             }
-                            if (!x.packageDescriptor().get().name().equals(y.packageDescriptor().get().name())) {
+                            if (!x.packageDescriptor().name().equals(y.packageDescriptor().name())) {
                                 ResolutionRequest resolutionRequest = ResolutionRequest
-                                        .from(y.packageDescriptor().get(), PackageDependencyScope.DEFAULT, true);
+                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT, true);
                                 List<PackageVersion> packageVersions =
                                         ballerinaDistRepo.getPackageVersions(resolutionRequest);
                                 // If module exists in both repos, then we check if a newer version of
@@ -166,8 +166,8 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return y;
                             }
-                            if (x.resolvedDescriptor().get().version().compareTo(
-                                    y.resolvedDescriptor().get().version()).equals(
+                            if (x.resolvedDescriptor().version().compareTo(
+                                    y.resolvedDescriptor().version()).equals(
                                     SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
                                 return y;
                             }
