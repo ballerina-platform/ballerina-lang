@@ -46,7 +46,7 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, 2, "'check' expression of type 'never' is not allowed", 30, 19);
         BAssertUtil.validateError(compile, 3, "incompatible types: expected '(string|error)'" +
                                               ", found '(string|int)'", 39, 25);
-        BAssertUtil.validateError(compile, 4, "invalid expression, expected a call expression", 54, 5);
+        BAssertUtil.validateError(compile, 4, "invalid expression, expected a call expression", 54, 11);
         BAssertUtil.validateError(compile, 5, "'check' expression of type 'never' is not allowed", 58, 5);
     }
 

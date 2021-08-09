@@ -79,12 +79,12 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 21, 22);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 22, 22);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 23, 28);
-        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 24, 27);
+        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 24, 40);
         validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 26, 27);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 27, 28);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 28, 28);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 29, 34);
-        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30, 34);
+        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30, 47);
         validateError(negativeSemanticResult, i++, "undefined error type descriptor 'MyError'", 36, 26);
         validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'c', expected " +
                 "'string', found 'int'", 37, 46);

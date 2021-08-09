@@ -407,6 +407,18 @@ public class TypeChecker {
     }
 
     /**
+     * Reference equality check for float values.
+     *
+     * @param lhsValue The value on the left-hand side
+     * @param rhsValue The value of the right-hand side
+     * @return True if values are reference equal, else false.
+     */
+
+    public static boolean checkFloatExactEqual(double lhsValue, double rhsValue) {
+        return Double.valueOf(lhsValue).equals(rhsValue);
+    }
+
+    /**
      * Check if two decimal values are equal in value.
      *
      * @param lhsValue The value on the left hand side
@@ -935,7 +947,9 @@ public class TypeChecker {
             return false;
         }
         return checkConstraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                               unresolvedTypes);
+                unresolvedTypes)
+                && checkConstraints(((BStreamType) sourceType).getCompletionType(), targetType.getCompletionType(),
+                unresolvedTypes);
     }
 
     private static boolean checkIsTableType(Type sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
@@ -3085,6 +3099,14 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    public static Object handleAnydataValues(Object sourceVal, Type targetType) {
+        if (sourceVal != null && !(sourceVal instanceof Number) && !(sourceVal instanceof BString) &&
+                !(sourceVal instanceof Boolean) && !(sourceVal instanceof BValue)) {
+            throw ErrorUtils.createJToBTypeCastError(sourceVal.getClass(), targetType);
+        }
+        return sourceVal;
     }
 
     private TypeChecker() {

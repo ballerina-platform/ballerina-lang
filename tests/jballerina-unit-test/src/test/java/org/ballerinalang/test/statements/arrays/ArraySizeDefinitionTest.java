@@ -37,7 +37,7 @@ public class ArraySizeDefinitionTest {
     private String undefinedSymbolError = "undefined symbol 'length'";
     private String invalidArrayLengthError = "invalid array length";
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testCompilationSizeReferenceErrors() {
         CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_test.bal");
         Assert.assertEquals(resultPositive.getDiagnostics().length, 0);
@@ -68,11 +68,11 @@ public class ArraySizeDefinitionTest {
         BAssertUtil.validateError(resultNegative, index++, incompatibleTypeError, 42, 12);
         BAssertUtil.validateError(resultNegative, index++, undefinedSymbolError, 43, 5);
         BAssertUtil.validateError(resultNegative, index++, sizeMismatchError, 44, 23);
-        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 8);
+        BAssertUtil.validateError(resultNegative, index++, invalidArrayLengthError, 45, 9);
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void arraySizeReferenceInDifferentScopeTest() {
         CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_scope_test.bal");
         Assert.assertEquals(resultPositive.getDiagnostics().length, 0);

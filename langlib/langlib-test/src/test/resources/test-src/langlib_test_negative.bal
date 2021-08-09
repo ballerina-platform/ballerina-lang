@@ -68,7 +68,7 @@ function foo() returns int|error {
 }
 
 public function joinStrings(){
-	string result = strings:join("string", "string...");
+    string result = strings:join("string", "string...");
 }
 
 type Ints 12|"foo";

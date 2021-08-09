@@ -432,18 +432,20 @@
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
                                       "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_INVALID_TOKEN"
-                                      ],
                                       "value": "bar",
                                       "leadingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "SLASH_TOKEN"
+                                                "kind": "SLASH_TOKEN",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INVALID_TOKEN"
+                                                ]
                                               }
                                             ]
                                           }
@@ -490,18 +492,20 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_TOKEN"
-                                  ],
                                   "value": "listner",
                                   "leadingMinutiae": [
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "ON_KEYWORD"
+                                            "kind": "ON_KEYWORD",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ]
                                           }
                                         ]
                                       }
