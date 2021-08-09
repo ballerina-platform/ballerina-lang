@@ -407,15 +407,19 @@ public class TypeChecker {
     }
 
     /**
-     * Reference equality check for float values.
+     * Equality check for float values.
      *
      * @param lhsValue The value on the left-hand side
      * @param rhsValue The value of the right-hand side
-     * @return True if values are reference equal, else false.
+     * @return True if values are equal, else false.
      */
 
-    public static boolean checkFloatExactEqual(double lhsValue, double rhsValue) {
-        return Double.valueOf(lhsValue).equals(rhsValue);
+    public static boolean checkFloatEqual(double lhsValue, double rhsValue) {
+        if (Double.isNaN(lhsValue) && Double.isNaN(rhsValue)) {
+            return true;
+        } else {
+            return lhsValue == rhsValue;
+        }
     }
 
     /**
@@ -426,6 +430,10 @@ public class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        if (lhsValue.valueKind == DecimalValueKind.NOT_A_NUMBER &&
+                rhsValue.valueKind == DecimalValueKind.NOT_A_NUMBER) {
+            return true;
+        }
         return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
     }
