@@ -60,9 +60,9 @@ public class IntersectionTypeApiTests {
     public void createIntersectionTypeWithIntersectionType() {
         ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
         BIntersectionType bIntersectionType1 =
-                new BIntersectionType(module, new Type[]{}, arrayType, 0, true);
+                new BIntersectionType(module, new Type[]{arrayType}, arrayType, 0, true);
         BIntersectionType bIntersectionType2 =
-                new BIntersectionType(module, new Type[]{}, bIntersectionType1, 0, true);
+                new BIntersectionType(module, new Type[]{bIntersectionType1}, bIntersectionType1, 0, true);
         Assert.assertEquals(bIntersectionType2.getTag(), TypeTags.INTERSECTION_TAG);
         Assert.assertEquals(bIntersectionType2.getEffectiveType(), bIntersectionType1);
         Assert.assertTrue(arrayType.getIntersectionType().isPresent());
