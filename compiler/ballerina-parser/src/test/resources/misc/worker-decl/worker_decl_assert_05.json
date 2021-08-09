@@ -219,9 +219,6 @@
                                 {
                                   "kind": "CLOSE_BRACE_TOKEN",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_NAMED_WORKER_NOT_ALLOWED_HERE"
-                                  ],
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -231,9 +228,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "WORKER_KEYWORD"
+                                            "kind": "WORKER_KEYWORD",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_NAMED_WORKER_NOT_ALLOWED_HERE"
+                                            ]
                                           }
                                         ]
                                       }
@@ -384,9 +386,6 @@
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_NAMED_WORKER_NOT_ALLOWED_HERE"
-                              ],
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -396,9 +395,14 @@
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
-                                        "kind": "WORKER_KEYWORD"
+                                        "kind": "WORKER_KEYWORD",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_NAMED_WORKER_NOT_ALLOWED_HERE"
+                                        ]
                                       }
                                     ]
                                   }
@@ -480,9 +484,6 @@
                     {
                       "kind": "LOCAL_VAR_DECL",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_NAMED_WORKER_NOT_ALLOWED_HERE"
-                      ],
                       "children": [
                         {
                           "kind": "LIST",
@@ -552,6 +553,7 @@
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
+                          "hasDiagnostics": true,
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -569,9 +571,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "WORKER_KEYWORD"
+                                    "kind": "WORKER_KEYWORD",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_NAMED_WORKER_NOT_ALLOWED_HERE"
+                                    ]
                                   }
                                 ]
                               }
