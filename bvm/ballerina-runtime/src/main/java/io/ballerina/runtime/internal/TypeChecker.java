@@ -2897,11 +2897,8 @@ public class TypeChecker {
             return lhsXMLSequence.getChildrenList().size() == 1 &&
                     isEqual(lhsXMLSequence.getChildrenList().get(0), rhsXml);
         }
-        if (lhsXMLSequence.getChildrenList().isEmpty() &&
-                TypeUtils.getType(rhsXml) == PredefinedTypes.TYPE_XML_NEVER) {
-            return true;
-        }
-        return false;
+        return lhsXMLSequence.getChildrenList().isEmpty() &&
+                TypeUtils.getType(rhsXml) == PredefinedTypes.TYPE_XML_NEVER;
     }
 
     /**
@@ -2914,13 +2911,10 @@ public class TypeChecker {
     private static boolean isEqual(XmlItem lhsXMLItem, XmlValue rhsXml) {
         if (rhsXml instanceof XmlItem) {
             XmlItem rhsXMLItem = (XmlItem) rhsXml;
-            boolean qNameEquals = rhsXMLItem.getQName().equals(lhsXMLItem.getQName());
-            if (!qNameEquals) {
+            if (!(rhsXMLItem.getQName().equals(lhsXMLItem.getQName()))) {
                 return false;
             }
-            boolean attrMapEquals = rhsXMLItem.getAttributesMap().entrySet()
-                    .equals(lhsXMLItem.getAttributesMap().entrySet());
-            if (!attrMapEquals) {
+            if (!(rhsXMLItem.getAttributesMap().entrySet().equals(lhsXMLItem.getAttributesMap().entrySet()))) {
                 return false;
             }
             return isEqual(rhsXMLItem.getChildrenSeq(), lhsXMLItem.getChildrenSeq());
@@ -2945,11 +2939,8 @@ public class TypeChecker {
             XmlText rhsXMLText = (XmlText) rhsXml;
             return lhsXMLText.getTextValue().equals(rhsXMLText.getTextValue());
         }
-        if (lhsXMLText.getType() == PredefinedTypes.TYPE_XML_NEVER && rhsXml instanceof XmlSequence &&
-                ((XmlSequence) rhsXml).getChildrenList().isEmpty()) {
-            return true;
-        }
-        return false;
+        return lhsXMLText.getType() == PredefinedTypes.TYPE_XML_NEVER && rhsXml instanceof XmlSequence &&
+                ((XmlSequence) rhsXml).getChildrenList().isEmpty();
     }
 
     /**
@@ -2960,11 +2951,11 @@ public class TypeChecker {
      * @return True if the XML values are equal, else false.
      */
     private static boolean isEqual(XmlComment lhsXMLComment, XmlValue rhsXml) {
-        if (rhsXml instanceof XmlComment) {
-            XmlComment rhXMLComment = (XmlComment) rhsXml;
-            return lhsXMLComment.getTextValue().equals(rhXMLComment.getTextValue());
+        if (!(rhsXml instanceof XmlComment)) {
+            return false;
         }
-        return false;
+        XmlComment rhXMLComment = (XmlComment) rhsXml;
+        return lhsXMLComment.getTextValue().equals(rhXMLComment.getTextValue());
     }
 
     /**
@@ -2975,12 +2966,11 @@ public class TypeChecker {
      * @return True if the XML values are equal, else false.
      */
     private static boolean isEqual(XmlPi lhsXMLPi, XmlValue rhsXml) {
-        if (rhsXml instanceof XmlPi) {
-            XmlPi rhsXMLPi = (XmlPi) rhsXml;
-            return lhsXMLPi.getData().equals(rhsXMLPi.getData()) &&
-                    lhsXMLPi.getTarget().equals(rhsXMLPi.getTarget());
+        if (!(rhsXml instanceof XmlPi)) {
+            return false;
         }
-        return false;
+        XmlPi rhsXMLPi = (XmlPi) rhsXml;
+        return lhsXMLPi.getData().equals(rhsXMLPi.getData()) && lhsXMLPi.getTarget().equals(rhsXMLPi.getTarget());
     }
 
     private static boolean isXMLSequenceChildrenEqual(List<BXml> lhsList, List<BXml> rhsList) {
