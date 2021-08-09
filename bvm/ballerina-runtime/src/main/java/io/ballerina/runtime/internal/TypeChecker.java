@@ -3087,6 +3087,14 @@ public class TypeChecker {
         return true;
     }
 
+    public static Object handleAnydataValues(Object sourceVal, Type targetType) {
+        if (sourceVal != null && !(sourceVal instanceof Number) && !(sourceVal instanceof BString) &&
+                !(sourceVal instanceof Boolean) && !(sourceVal instanceof BValue)) {
+            throw ErrorUtils.createJToBTypeCastError(sourceVal.getClass(), targetType);
+        }
+        return sourceVal;
+    }
+
     private TypeChecker() {
     }
 }
