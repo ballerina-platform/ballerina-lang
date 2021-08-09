@@ -198,6 +198,26 @@ function testLangLibCallOnFiniteType() {
     assertEquals(false, x.startsWith("a"));
 }
 
+function testIteratorWithUnicodeChar(int codePoint, int[] expected) returns error? {
+    string str = check string:fromCodePointInt(codePoint);
+    int i = 0;
+    foreach var ch in str {
+        assertEquals(expected, ch.toCodePointInts());
+    }
+}
+
+function testCharIterator(string stringValue) {
+    string result = "";
+    foreach var ch in stringValue {
+        result = result + ch;
+    }
+    assertEquals(stringValue, result);
+}
+
+function concatNonBMP(string prefix, string expected) {
+    string s = "👋world🤷!";
+    assertEquals(expected, prefix + s);
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

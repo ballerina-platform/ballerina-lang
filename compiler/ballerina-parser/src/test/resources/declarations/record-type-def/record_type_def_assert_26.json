@@ -68,17 +68,19 @@
                       "kind": "IDENTIFIER_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_ONLY_TYPE_REFERENCE_ALLOWED_AS_TYPE_INCLUSIONS"
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "INT_KEYWORD"
+                                "kind": "INT_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_ONLY_TYPE_REFERENCE_ALLOWED_AS_TYPE_INCLUSIONS"
+                                ]
                               }
                             ]
                           }
@@ -130,17 +132,19 @@
                       "kind": "IDENTIFIER_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_ONLY_TYPE_REFERENCE_ALLOWED_AS_TYPE_INCLUSIONS"
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "INT_KEYWORD"
+                                "kind": "INT_KEYWORD",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_ONLY_TYPE_REFERENCE_ALLOWED_AS_TYPE_INCLUSIONS"
+                                ]
                               }
                             ]
                           }
