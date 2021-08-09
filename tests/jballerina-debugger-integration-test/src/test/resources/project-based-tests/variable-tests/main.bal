@@ -294,6 +294,7 @@ public function main() {
                    });
 
     intVar = addition(2, 3);
+    intVar = addition(3, 4);
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {

@@ -233,6 +233,11 @@ public class CheckedExpressionOperatorTest {
         BRunUtil.invoke(result, "testCheckWithMixOfDefaultErrorAndDistinctErrors");
     }
 
+    @Test(description = "Test checked expressions in let expression")
+    public void testCheckInLetExpression() {
+        BRunUtil.invoke(result, "testCheckInLetExpression");
+    }
+
     @Test
     public void testCheckedExprWithNever() {
         BRunUtil.invoke(result, "testCheckedExprWithNever");

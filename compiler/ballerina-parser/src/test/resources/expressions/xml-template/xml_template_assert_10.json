@@ -157,8 +157,7 @@
                                       "kind": "IDENTIFIER_TOKEN",
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_INVALID_WHITESPACE_BEFORE",
-                                        "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
+                                        "ERROR_INVALID_WHITESPACE_BEFORE"
                                       ],
                                       "value": "z",
                                       "leadingMinutiae": [
@@ -166,9 +165,14 @@
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "INTERPOLATION_START_TOKEN"
+                                                "kind": "INTERPOLATION_START_TOKEN",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
+                                                ]
                                               }
                                             ]
                                           }
@@ -291,17 +295,21 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_MISSING_IDENTIFIER",
-                                        "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
+                                        "ERROR_MISSING_IDENTIFIER"
                                       ],
                                       "leadingMinutiae": [
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "hasDiagnostics": true,
                                             "children": [
                                               {
-                                                "kind": "INTERPOLATION_START_TOKEN"
+                                                "kind": "INTERPOLATION_START_TOKEN",
+                                                "hasDiagnostics": true,
+                                                "diagnostics": [
+                                                  "ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES"
+                                                ]
                                               }
                                             ]
                                           }

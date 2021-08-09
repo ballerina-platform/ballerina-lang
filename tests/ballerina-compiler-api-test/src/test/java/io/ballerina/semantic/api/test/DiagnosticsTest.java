@@ -67,8 +67,8 @@ public class DiagnosticsTest {
     private Object[][] getExpectedErrors() {
         return new Object[][]{
                 {"missing semicolon token", 18, 0},
+                {"invalid token 'string'", 21, 8},
                 {"missing identifier", 21, 8},
-                {"invalid token 'string'", 21, 15},
                 {"incompatible types: expected 'int', found 'string'", 17, 12},
                 {"incompatible types: 'int' cannot be cast to 'string'", 19, 15}
         };
