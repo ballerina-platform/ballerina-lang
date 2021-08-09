@@ -85,8 +85,35 @@ function returnTypeOfInt() returns typedesc<any> {
 }
 
 function compareTypeOfValues() {
+
+    // Basic Simple Type 
     int i = 34;
-    var t1 = typeof i;
-    var t2 = typeof i;
-    test:assertFalse(t1 === t2);    
+    test:assertFalse(typeof i === typeof i); 
+
+    // Structural types - Array, Tuple
+    int[] arr = [1, 2, 3];
+    test:assertTrue(typeof arr === typeof arr); 
+
+    [string, int] tuple = ["ballerina", 123];
+    test:assertTrue(typeof tuple === typeof tuple); 
+
+    // Structural types - Records, Maps
+    RecType0 rec = {name: "test"};
+    test:assertTrue(typeof rec === typeof rec); 
+    test:assertTrue(typeof rec === RecType0); 
+
+    map<string> mapVal = {s: "test"};
+    test:assertTrue(typeof mapVal === typeof mapVal); 
+
+    // Structural types -tables 
+    table<map<string>> tableVal = table [{s: "test"}];
+    test:assertTrue(typeof tableVal === typeof tableVal); 
+
+    // Behavioral types - Object
+    Obj0 obj = new ("abc", 123);
+    test:assertTrue(typeof obj === typeof obj); 
+
+    // Behavioral types - Error
+    error err = error("This is an error!");
+    test:assertTrue(typeof obj === typeof obj); 
 }
