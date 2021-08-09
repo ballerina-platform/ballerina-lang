@@ -83,6 +83,7 @@ public enum RuntimeErrors implements DiagnosticCode {
     OBJECT_INVALID_FINAL_FIELD_UPDATE("object.invalid.final.field.update", "RUNTIME_0053"),
     UNSUPPORTED_COMPARISON_OPERATION("unsupported.comparison.operation", "RUNTIME_0054"),
     UNORDERED_TYPES_IN_COMPARISON("unordered.types.in.comparison", "RUNTIME_0055"),
+    TYPE_ASSIGNABLE_ERROR("incompatible.type.assignment", "RUNTIME_0082"),
     CONFIG_TYPE_NOT_SUPPORTED("config.type.not.supported", "RUNTIME_0056"),
     CONFIG_INCOMPATIBLE_TYPE("config.incompatible.type", "RUNTIME_0057"),
     CONFIG_INVALID_BYTE_RANGE("config.invalid.byte.range", "RUNTIME_0058"),

@@ -43,9 +43,6 @@
             {
               "kind": "REST_PARAM",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_PARAMETER_AFTER_THE_REST_PARAMETER"
-              ],
               "children": [
                 {
                   "kind": "LIST",
@@ -70,6 +67,7 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
+                  "hasDiagnostics": true,
                   "value": "a",
                   "trailingMinutiae": [
                     {
@@ -91,9 +89,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "INT_KEYWORD"
+                            "kind": "INT_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_PARAMETER_AFTER_THE_REST_PARAMETER"
+                            ]
                           }
                         ]
                       }

@@ -38,7 +38,7 @@ public class ArraySizeDefinitionTest {
     private String invalidArrayLengthError = "invalid array length: array length should be a positive integer";
     private static final String SIZE_LIMIT_ERROR = "array length greater that '2147483637' not yet supported";
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testCompilationSizeReferenceErrors() {
         CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_test.bal");
         Assert.assertEquals(resultPositive.getDiagnostics().length, 0);
@@ -77,7 +77,7 @@ public class ArraySizeDefinitionTest {
         Assert.assertEquals(resultNegative.getDiagnostics().length, index);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void arraySizeReferenceInDifferentScopeTest() {
         CompileResult resultPositive = BCompileUtil.compile("test-src/statements/arrays/array_size_scope_test.bal");
         Assert.assertEquals(resultPositive.getDiagnostics().length, 0);
