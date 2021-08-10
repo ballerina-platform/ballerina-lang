@@ -6982,12 +6982,6 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.xmlType);
             return;
         }
-//        if (binaryExpr.rhsExpr.getBType().getKind() == TypeKind.UNION ||
-//                binaryExpr.lhsExpr.getBType().getKind() == TypeKind.UNION) {
-//            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.getBType());
-//            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.getBType());
-//            return;
-//        }
         binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.getBType());
         binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.getBType());
     }
