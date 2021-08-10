@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0.0
  */
-public interface ErrorType extends AnnotatableType {
+public interface ErrorType extends AnnotatableType, IntersectableReferenceType {
 
     Type getDetailType();
 

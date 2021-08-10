@@ -161,6 +161,7 @@ public class TypeDefBuilderHelper {
         initFunction.receiver = ASTBuilderUtil.createReceiver(location, type);
         BVarSymbol receiverSymbol = new BVarSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)),
                                                    names.fromIdNode(initFunction.receiver.name),
+                                                   names.originalNameFromIdNode(initFunction.receiver.name),
                                                    env.enclPkg.symbol.pkgID, type, null, location, VIRTUAL);
         initFunction.receiver.symbol = receiverSymbol;
         initFunction.attachedFunction = true;
@@ -172,9 +173,9 @@ public class TypeDefBuilderHelper {
         // Create the function symbol
         Name funcSymbolName = names.fromString(Symbols.getAttachedFuncSymbolName(structTypeName, suffix.value));
         initFunction.symbol = Symbols
-                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, env.enclPkg.symbol.pkgID,
-                                      initFunction.getBType(), symbol, initFunction.body != null,
-                                      initFunction.pos, VIRTUAL);
+                .createFunctionSymbol(Flags.asMask(initFunction.flagSet), funcSymbolName, funcSymbolName,
+                                      env.enclPkg.symbol.pkgID, initFunction.getBType(), symbol,
+                                      initFunction.body != null, initFunction.pos, VIRTUAL);
         initFunction.symbol.scope = new Scope(initFunction.symbol);
         initFunction.symbol.scope.define(receiverSymbol.name, receiverSymbol);
         initFunction.symbol.receiverSymbol = receiverSymbol;

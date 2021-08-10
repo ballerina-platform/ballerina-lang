@@ -6,11 +6,11 @@
   "source": "type_def/source/source1.bal",
   "items": [
     {
-      "label": "CONST1",
-      "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "D",
-      "insertText": "CONST1",
+      "label": "TestEnum",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "E",
+      "insertText": "TestEnum",
       "insertTextFormat": "Snippet"
     },
     {
@@ -25,19 +25,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TEST_TYPE",
+      "label": "ENUM_MEMBER1",
       "kind": "TypeParameter",
-      "detail": "Function",
-      "sortText": "AN",
-      "insertText": "TEST_TYPE",
+      "detail": "Singleton",
+      "sortText": "E",
+      "insertText": "ENUM_MEMBER1",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestEnum",
-      "kind": "Enum",
-      "detail": "enum",
-      "sortText": "E",
-      "insertText": "TestEnum",
+      "label": "CONST1",
+      "kind": "TypeParameter",
+      "detail": "Singleton",
+      "sortText": "D",
+      "insertText": "CONST1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -49,11 +49,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ENUM_MEMBER1",
+      "label": "TEST_TYPE",
       "kind": "TypeParameter",
-      "detail": "Singleton",
-      "sortText": "E",
-      "insertText": "ENUM_MEMBER1",
+      "detail": "Function",
+      "sortText": "AN",
+      "insertText": "TEST_TYPE",
       "insertTextFormat": "Snippet"
     },
     {
@@ -201,29 +201,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
@@ -243,6 +220,52 @@
             }
           },
           "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CE",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -289,29 +312,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "CE",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },

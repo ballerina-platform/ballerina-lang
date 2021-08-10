@@ -76,9 +76,11 @@ public class EvaluationUtils {
     public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.XmlFactory";
     public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
+    public static final String B_XML_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BXml";
     public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
     public static final String B_XML_SEQUENCE_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BXmlSequence";
     public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
+    public static final String B_STRING_ARRAY_CLASS = B_STRING_CLASS + "[]";
     public static final String B_OBJECT_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BObject";
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
@@ -121,6 +123,7 @@ public class EvaluationUtils {
     public static final String B_UNARY_INVERT_METHOD = "unaryInvert";
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String B_GET_TRAP_RESULT_METHOD = "getTrapResult";
+    public static final String GET_ANNOT_VALUE_METHOD = "getAnnotationValue";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
     public static final String CHECK_CAST_METHOD = "checkCast";
@@ -141,6 +144,8 @@ public class EvaluationUtils {
     public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
     public static final String CREATE_INT_RANGE_METHOD = "createIntRange";
     public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
+    public static final String GET_XML_FILTER_RESULT_METHOD = "getXMLFilterResult";
+    public static final String GET_XML_STEP_RESULT_METHOD = "getXMLStepResult";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
