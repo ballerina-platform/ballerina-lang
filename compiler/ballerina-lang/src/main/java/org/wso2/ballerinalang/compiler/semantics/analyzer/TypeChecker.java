@@ -3199,7 +3199,6 @@ public class TypeChecker extends BLangNodeVisitor {
         BObjectType actualObjectType = (BObjectType) actualType;
         List<BLangType> typeRefs = classNode.typeRefs;
         SymbolEnv typeDefEnv = SymbolEnv.createObjectConstructorObjectEnv(classNode, classNode.symbol.scope, env);
-//        classNode.oceEnvData = new OCEDynamicEnvironmentData(typeDefEnv, objectCtorExpression.typeInit);
         classNode.oceEnvData.typeInit = objectCtorExpression.typeInit;
         classNode.oceEnvData.capturedClosureEnv = typeDefEnv;
         if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
@@ -5667,7 +5666,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangInvokableNode encInvokable = env.enclInvokable;
         if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
                 env.node.getKind() != NodeKind.ARROW_EXPR && env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
-                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA)) {
+                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA) &&
+                !encInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
             return;
         }
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)

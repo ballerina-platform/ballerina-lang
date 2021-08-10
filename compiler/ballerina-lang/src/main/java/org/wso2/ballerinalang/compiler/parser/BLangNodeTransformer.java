@@ -1203,7 +1203,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
 
         anonClass.annAttachments = applyAll(objectConstructorExpressionNode.annotations());
-        addToTop(anonClass);
+//        addToTop(anonClass);
 
         NodeList<Token> objectConstructorQualifierList = objectConstructorExpressionNode.objectTypeQualifiers();
         for (Token qualifier : objectConstructorQualifierList) {
@@ -1237,6 +1237,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         invocationNode.name = (BLangIdentifier) nameReference.name;
         invocationNode.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
+
+        initNode.argsExpr.addAll(invocationNode.argExprs);
         initNode.initInvocation = invocationNode;
 
         objectCtorExpression.typeInit = initNode;
@@ -2755,7 +2757,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private VariableDefinitionNode createBLangVarDef(Location location,
-                                                 TypedBindingPatternNode typedBindingPattern,
+                                                TypedBindingPatternNode typedBindingPattern,
                                                 Optional<io.ballerina.compiler.syntax.tree.ExpressionNode> initializer,
                                                 Optional<Token> finalKeyword) {
         BindingPatternNode bindingPattern = typedBindingPattern.bindingPattern();
@@ -3845,8 +3847,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
         anonClassDef.setName(anonTypeGenName);
         anonClassDef.flagSet.add(Flag.PUBLIC);
-        //anonClassDef.flagSet.add(Flag.OBJECT_CTOR);
-//        anonClassDef.isObjectContructorDecl = true;
 
         Optional<TypeDescriptorNode> typeReference = serviceDeclarationNode.typeDescriptor();
         typeReference.ifPresent(typeReferenceNode -> {

@@ -996,7 +996,7 @@ public class Desugar extends BLangNodeVisitor {
             TopLevelNode topLevelNode = topLevelNodes.get(i);
             if (topLevelNode.getKind() == NodeKind.CLASS_DEFN &&
                             ((BLangClassDefinition) topLevelNode).isObjectContructorDecl) {
-                continue;
+//                continue;
             }
             if (topLevelNode.getKind() == NodeKind.CLASS_DEFN) {
                 ((BLangClassDefinition) topLevelNode).accept(this);
@@ -6433,9 +6433,6 @@ public class Desugar extends BLangNodeVisitor {
             invocation.expr = ASTBuilderUtil.createVariableRef(invocation.pos, invocation.exprSymbol);
             invocation.expr = rewriteExpr(invocation.expr);
         }
-
-
-
         switch (invocation.expr.getBType().tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
