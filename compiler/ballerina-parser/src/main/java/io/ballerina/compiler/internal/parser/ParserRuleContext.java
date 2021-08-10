@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser;
 
 /**
  * Parser rule contexts that represent each point in the grammar.
- * These represents the current scope during the parsing.
+ * These represent the current scope during the parsing.
  *
  * @since 1.2.0
  */
@@ -352,6 +352,7 @@ public enum ParserRuleContext {
 
     // Statements
     STATEMENT("statement"),
+    STATEMENTS("statements"),
     STATEMENT_WITHOUT_ANNOTS("statement-without-annots"),
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
