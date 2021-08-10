@@ -274,7 +274,7 @@ public class CommonUtil {
             case TUPLE:
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 String memberTypes = tupleType.memberTypeDescriptors().stream()
-                        .map(bType1 -> getDefaultValueForType(bType1, depth+1))
+                        .map(bType1 -> getDefaultValueForType(bType1, depth + 1))
                         .collect(Collectors.joining(", "));
                 typeString = "[" + memberTypes + "]";
                 break;
@@ -282,7 +282,7 @@ public class CommonUtil {
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth+1) + "]";
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1) + "]";
                 } else {
                     typeString = "[]";
                 }
@@ -294,7 +294,7 @@ public class CommonUtil {
                 typeString += getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
                         .map(recordFieldSymbol -> recordFieldSymbol.getName().get() + ": " +
-                                getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth+1))
+                                getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1))
                         .collect(Collectors.joining(", "));
                 typeString += "}";
                 break;
@@ -308,7 +308,7 @@ public class CommonUtil {
                     if (classSymbol.initMethod().isPresent()) {
                         List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().params().get();
                         String text = params.stream()
-                                .map(param -> getDefaultValueForType(param.typeDescriptor(), depth+1))
+                                .map(param -> getDefaultValueForType(param.typeDescriptor(), depth + 1))
                                 .collect(Collectors.joining(", "));
                         typeString = "new (" + text + ")";
                     } else {
@@ -325,7 +325,7 @@ public class CommonUtil {
                         member -> member.typeKind() == TypeDescKind.NIL
                 ).collect(Collectors.toList());
                 if (nilMembers.isEmpty()) {
-                    typeString = getDefaultValueForType(members.get(0), depth+1);
+                    typeString = getDefaultValueForType(members.get(0), depth + 1);
                 } else {
                     return "()";
                 }
@@ -343,15 +343,15 @@ public class CommonUtil {
                             .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
                             .findAny();
                     if (memberType.isPresent()) {
-                        typeString = getDefaultValueForType(memberType.get(), depth+1);
+                        typeString = getDefaultValueForType(memberType.get(), depth + 1);
                     }
                 } else {
-                    typeString = getDefaultValueForType(effectiveType, depth+1);
+                    typeString = getDefaultValueForType(effectiveType, depth + 1);
                 }
                 break;
             case TABLE:
                 TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
-                typeString = "table [" + getDefaultValueForType(rowType, depth+1) + "]";
+                typeString = "table [" + getDefaultValueForType(rowType, depth + 1) + "]";
                 break;
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
@@ -360,7 +360,7 @@ public class CommonUtil {
                     errorString.append(", ");
                     errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
                             .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth+1))
+                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1))
                             .collect(Collectors.joining(", ")));
                 }
                 errorString.append(")");
@@ -618,7 +618,7 @@ public class CommonUtil {
             for (int i = 0; i < requiredFields.size(); i++) {
                 RecordFieldSymbol field = requiredFields.get(i);
                 String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
-                        getRecordFieldCompletionInsertText(field, tabOffset + 1, i + 1, depth+1);
+                        getRecordFieldCompletionInsertText(field, tabOffset + 1, i + 1, depth + 1);
                 requiredFieldInsertTexts.add(fieldText);
             }
             insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
