@@ -408,7 +408,7 @@ public class CommonUtil {
         fields.forEach((name, field) -> {
             fieldCounter.getAndIncrement();
             String insertText =
-                    getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
+                    getRecordFieldCompletionInsertText(field, 0, fieldCounter.get());
 
             String detail;
             if (symbol.getLeft().getName().isPresent()) {
@@ -589,12 +589,21 @@ public class CommonUtil {
      * Get the completion item insert text for a BField.
      *
      * @param bField  BField to evaluate
-     * @param parents Parent record field symbols
      * @return {@link String} Insert text
      */
     public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
-                                                            List<RecordFieldSymbol> parents,
                                                             int tabOffset, int fieldId) {
+        return getRecordFieldCompletionInsertText(bField, tabOffset, fieldId, 1);
+    }
+    
+    private static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
+                                                            int tabOffset, int fieldId,
+                                                            int depth) {
+        // If the field refers to the same type as bField or a parent of bField, 
+        // it results in a stack overflow error. Avoiding that using the following check
+        if (depth > MAX_DEPTH) {
+            return "";
+        }
         TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
@@ -607,16 +616,10 @@ public class CommonUtil {
             List<String> requiredFieldInsertTexts = new ArrayList<>();
 
             for (int i = 0; i < requiredFields.size(); i++) {
-                // If the field refers to the same type as bField or a parent of bField, 
-                // it results in a stack overflow error. Avoiding that using the following check
                 RecordFieldSymbol field = requiredFields.get(i);
-                if (!parents.contains(field)) {
-                    List<RecordFieldSymbol> newParentsList = new ArrayList<>(parents);
-                    newParentsList.add(field);
-                    String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
-                            getRecordFieldCompletionInsertText(field, newParentsList, tabOffset + 1, i + 1);
-                    requiredFieldInsertTexts.add(fieldText);
-                }
+                String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
+                        getRecordFieldCompletionInsertText(field, tabOffset + 1, i + 1, depth+1);
+                requiredFieldInsertTexts.add(fieldText);
             }
             insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
             insertText.append(LINE_SEPARATOR)
