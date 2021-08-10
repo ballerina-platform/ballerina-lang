@@ -3733,8 +3733,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BType exprType = enclInvokable.getReturnTypeNode().getBType();
+        BType checkedExprType = checkedExpr.expr.getBType();
 
-        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.getBType()), exprType)) {
+        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExprType), exprType) &&
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
             dlog.error(checkedExpr.pos, DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
         if (!this.errorTypes.empty()) {
@@ -3941,6 +3943,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.accept(this);
         parent = myParent;
         checkAccess(node);
+        checkExpressionValidity(node);
     }
 
     private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env) {
@@ -3955,7 +3958,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.accept(this);
         parent = myParent;
         checkAccess(node);
+        checkExpressionValidity(node);
         this.env = prevEnv;
+    }
+
+    private  <E extends BLangExpression> void checkExpressionValidity(E exprNode) {
+        if (exprNode.getKind() == NodeKind.GROUP_EXPR ||
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprNode.getBType())) {
+            return;
+        }
+        if (!checkExpressionInValidParent(exprNode.parent)) {
+            dlog.error(exprNode.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
+        }
+    }
+
+    private boolean checkExpressionInValidParent(BLangNode currentParent) {
+        if (currentParent == null) {
+            return false;
+        }
+        if (currentParent.getKind() == NodeKind.GROUP_EXPR) {
+            return checkExpressionInValidParent(currentParent.parent);
+        }
+        return  currentParent.getKind() == NodeKind.EXPRESSION_STATEMENT ||
+                (currentParent.getKind() == NodeKind.VARIABLE &&
+                        ((BLangSimpleVariable) parent).typeNode.getBType().tag == TypeTags.FUTURE)
+                || currentParent.getKind() == NodeKind.TRAP_EXPR;
     }
 
     @Override

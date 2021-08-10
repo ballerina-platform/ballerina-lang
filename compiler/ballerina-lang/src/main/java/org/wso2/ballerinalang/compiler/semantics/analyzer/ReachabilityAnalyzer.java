@@ -406,14 +406,17 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         }
         if (funcNode.body != null) {
             analyzeReachability(funcNode.body);
-            boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
-                    funcNode.symbol.type.getReturnType().isNullable();
+            boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
+                    (funcNode.symbol.type.getReturnType());
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!isNeverOrNilableReturn && !this.statementReturnsPanicsOrFails) {
+            if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn &&
+                    !this.statementReturnsPanicsOrFails) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
+            } else if (isNeverReturn && !this.statementReturnsPanicsOrFails) {
+                this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
         }
 

@@ -106,6 +106,6 @@ public class CheckPanicExpressionOperatorTest {
         BAssertUtil.validateError(compileResult, 0, "expression of type 'never' or equivalent to type 'never' " +
                 "not allowed here", 18, 19);
         BAssertUtil.validateError(compileResult, 1, "expression of type 'never' or equivalent to type 'never' " +
-                "not allowed here", 27, 19);
+                "not allowed here", 28, 19);
     }
 }

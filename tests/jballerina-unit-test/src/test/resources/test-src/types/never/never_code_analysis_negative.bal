@@ -29,6 +29,7 @@ function unreached() returns never {
 function testCheckWithNeverTypeExpr() returns error? {
     any e1 = check unreached();
     any e2 = checkpanic unreached();
+    return;
 }
 
 function testNeverTypeRequiredAndDefaultableParamInInv() {
@@ -45,4 +46,5 @@ function num() returns error {
 
 function testInvalidUsageOfExprOfNeverInGroupedExpr() returns error? {
     error? x = check (unreached());
+    return;
 }
