@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -379,6 +380,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BLangSimpleVariable mapVar2 = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
                 mapSymbol.type, null, mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(mapSymbol.type);
+        BObjectType object = (BObjectType) classDef.getBType();
+        object.fields.put(mapSymbol.name.value, new BField(mapSymbol.name, classDef.pos, mapSymbol));
         classDef.fields.add(0, mapVar2);
         createClosureMapUpdateExpression(classDef);
 
@@ -411,7 +414,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
             BLangFieldBasedAccess fieldAccessExpr = ASTBuilderUtil.createFieldAccessExpr(selfVarRef, field.name);
             fieldAccessExpr.symbol = field.symbol;
             fieldAccessExpr.setBType(field.getBType());
-            fieldAccessExpr.isStoreOnCreation = true;
             BLangLiteral mapIndex = ASTBuilderUtil.createLiteral(
                     field.pos, symTable.stringType, fieldAccessExpr.field.value);
 
@@ -807,46 +809,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        // method we create the object constructor expression
-        BLangFunction enclInvokable = (BLangFunction) oceData.capturedClosureEnv.enclInvokable;
-
-        // this is the dynamic environment for object ctor.
-        SymbolEnv env = oceData.capturedClosureEnv;
-
-        // collect all map symbols from this env
-        oceData.enclMapSymbols = collectClosureMapSymbols(oceData.capturedClosureEnv, enclInvokable, false);
-
-        // update init method
-        // int x = i
-        // self[x] = i --- this is the usual way
-        // self[x] = self[$map$objectCtor$_4[x]]
-        var initFunction = classDefinition.generatedInitFunction;
-
-        // add each closure field info to class level map
-//        for (BLangSimpleVariable field : classDefinition.fields) {
-//
-//            // field has a default value which is a simple var ref
-//            if (field.expr != null && field.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-//                BLangSimpleVarRef varRef = (BLangSimpleVarRef) field.expr;
-//                if (varRef.symbol.closure) {
-//                    BLangIndexBasedAccess fieldMapAccessExpr =
-//                            ASTBuilderUtil.createIndexBasesAccessExpr(field.pos, field.getBType(), mapSymbol,
-//                                    ASTBuilderUtil
-//                                            .createLiteral(field.pos, symTable.stringType,
-//                                                    varRef.getVariableName()));
-////                    accessExpr.setBType(((BMapType) mapSymbol.type).constraint);
-////                    accessExpr.isLValue = true;
-//                    // Written to: 'map["x"] = 8'.
-//                    var assignmentStmt = ASTBuilderUtil.createAssignmentStmt(field.pos, fieldMapAccessExpr,
-//                            varRef);
-//                }
-//            }
-//        }
-
-        // propagate to attached methods
-
         desugar.visit(classDefinition);
-        desugar.rewrite(classDefinition.generatedInitFunction, oceData.capturedClosureEnv);
         result = classDefinition;
     }
 
@@ -1386,7 +1349,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             BLangFunction invokableFunc = (BLangFunction) env.enclInvokable;
             invokableFunc.paramClosureMap.putIfAbsent(absoluteLevel, createMapSymbol(
                     PARAMETER_MAP_NAME + absoluteLevel, env));
-            if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR) && invokableFunc.flagSet.contains(Flag.ATTACHED)) { //            assert (invokableFunc.attachedFunction == invokableFunc.flagSet.contains(Flag.ATTACHED));
+            if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR) && invokableFunc.attachedFunction) {
                 // a + b ==> a + $map$objectCtor_4[i]
                 BLangClassDefinition classDef = (BLangClassDefinition) invokableFunc.parent;
                 updateClosureVarsForAttachedObjects(classDef, localVarRef);
@@ -1480,7 +1443,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
                 BLangSimpleVarRef newVarRef = ASTBuilderUtil.createVariableRef(function.pos, objSym);
 
-//                BLangFieldBasedAccess mapVarRef = ASTBuilderUtil.createVariableRef(function.pos, mapVar.);
                 BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
                 assignmentStmt.expr = fieldAccess;
                 assignmentStmt.pos = function.pos;
@@ -1488,8 +1450,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
                 BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(function.pos, mapVar);
                 ((BLangBlockFunctionBody) bLangFunction.body).stmts.add(0, mapVarDef);
-                ((BLangBlockFunctionBody) bLangFunction.body).stmts.add(1, mapVarDef);
-                ((BLangBlockFunctionBody) bLangFunction.body).stmts.add(2, assignmentStmt);
+                ((BLangBlockFunctionBody) bLangFunction.body).stmts.add(1, assignmentStmt);
 
                 desugar.visit(bLangFunction);
             }
