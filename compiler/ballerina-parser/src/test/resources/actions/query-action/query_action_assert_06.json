@@ -110,17 +110,19 @@
                             {
                               "kind": "FROM_KEYWORD",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION"
-                              ],
                               "leadingMinutiae": [
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
-                                        "kind": "TABLE_KEYWORD"
+                                        "kind": "TABLE_KEYWORD",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION"
+                                        ]
                                       }
                                     ]
                                   }
@@ -336,17 +338,19 @@
                             {
                               "kind": "FROM_KEYWORD",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION"
-                              ],
                               "leadingMinutiae": [
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
-                                        "kind": "STREAM_KEYWORD"
+                                        "kind": "STREAM_KEYWORD",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION"
+                                        ]
                                       }
                                     ]
                                   }
@@ -413,9 +417,6 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_SELECT_CLAUSE_IN_QUERY_ACTION"
-                                  ],
                                   "value": "b",
                                   "trailingMinutiae": [
                                     {
@@ -426,9 +427,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "SELECT_KEYWORD"
+                                            "kind": "SELECT_KEYWORD",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_SELECT_CLAUSE_IN_QUERY_ACTION"
+                                            ]
                                           }
                                         ]
                                       }

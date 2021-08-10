@@ -607,11 +607,10 @@ public class SyntaxErrors {
                                                               STNode invalidNode,
                                                               DiagnosticCode diagnosticCode,
                                                               Object... args) {
-        List<STNode> minutiaeList = convertInvalidNodeToMinutiae(invalidNode);
+        List<STNode> minutiaeList = convertInvalidNodeToMinutiae(invalidNode, diagnosticCode, args);
         STNodeList leadingMinutiae = (STNodeList) toClone.leadingMinutiae();
         leadingMinutiae = leadingMinutiae.addAll(0, minutiaeList);
-        STToken cloned = toClone.modifyWith(leadingMinutiae, toClone.trailingMinutiae());
-        return diagnosticCode == null ? cloned : addDiagnostic(cloned, diagnosticCode, args);
+        return toClone.modifyWith(leadingMinutiae, toClone.trailingMinutiae());
     }
 
     /**
@@ -657,11 +656,10 @@ public class SyntaxErrors {
                                                                STNode invalidNode,
                                                                DiagnosticCode diagnosticCode,
                                                                Object... args) {
-        List<STNode> minutiaeList = convertInvalidNodeToMinutiae(invalidNode);
+        List<STNode> minutiaeList = convertInvalidNodeToMinutiae(invalidNode, diagnosticCode, args);
         STNodeList trailingMinutiae = (STNodeList) toClone.trailingMinutiae();
         trailingMinutiae = trailingMinutiae.addAll(minutiaeList);
-        STToken cloned = toClone.modifyWith(toClone.leadingMinutiae(), trailingMinutiae);
-        return diagnosticCode == null ? cloned : addDiagnostic(cloned, diagnosticCode, args);
+        return toClone.modifyWith(toClone.leadingMinutiae(), trailingMinutiae);
     }
 
     /**
@@ -669,23 +667,36 @@ public class SyntaxErrors {
      * <p>
      * Here are the steps:
      * <br/>
-     * 1) Iterates through all the tokens in the invalid node. For each token:
+     * 1) Iterates through all the tokens in the invalid node.
      * <br/>
-     * 2) Add the leading minutiae to the list
+     * 2) For the first token, add invalid node diagnostic.
      * <br/>
-     * 3) Create a new token without leading or trailing minutiae and add it to the list
+     * For each token:
      * <br/>
-     * 4) Add the trailing minutiae to the list
+     * 3) Add the leading minutiae to the list.
+     * <br/>
+     * 4) Create a new token without leading or trailing minutiae and add it to the list.
+     * <br/>
+     * 5) Add the trailing minutiae to the list.
      *
-     * @param invalidNode the invalid node to be converted
+     * @param invalidNode    the invalid node to be converted
+     * @param diagnosticCode the {@code DiagnosticCode} to be added
+     * @param args           additional arguments required to format the diagnostic message
      * @return a lit of {@code STMinutiae} nodes
      */
-    private static List<STNode> convertInvalidNodeToMinutiae(STNode invalidNode) {
+    private static List<STNode> convertInvalidNodeToMinutiae(STNode invalidNode,
+                                                             DiagnosticCode diagnosticCode,
+                                                             Object... args) {
         List<STNode> minutiaeList = new ArrayList<>();
         List<STToken> tokens = invalidNode.tokens();
         for (STToken token : tokens) {
             addMinutiaeToList(minutiaeList, token.leadingMinutiae());
             if (!token.isMissing()) {
+                if (diagnosticCode != null) {
+                    // Add diagnostic to the first invalid token
+                    token = addDiagnostic(token, diagnosticCode, args);
+                    diagnosticCode = null;
+                }
                 STToken tokenWithNoMinutiae = token.modifyWith(
                         STNodeFactory.createEmptyNodeList(), STNodeFactory.createEmptyNodeList());
                 minutiaeList.add(STNodeFactory.createInvalidNodeMinutiae(tokenWithNoMinutiae));

@@ -40,10 +40,6 @@
         },
         {
           "kind": "IDENTIFIER_TOKEN",
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
-          ],
           "value": "bar",
           "leadingMinutiae": [
             {

@@ -44,3 +44,17 @@ function testLangLibCallOnFiniteType() {
     float y = x.sum(1, 2.3);
     test:assertValueEqual(24.3, y);
 }
+
+function testFloatExactEquality() {
+    test:assertTrue(42.0 === 42.0);
+    test:assertFalse(1.0 === 12.0);
+    test:assertTrue(float:NaN === float:NaN);
+    test:assertFalse(-0.0 === 0.0);
+}
+
+function testFloatNotExactEquality() {
+    test:assertFalse(42.0 !== 42.0);
+    test:assertTrue(1.0 !== 12.0);
+    test:assertFalse(float:NaN !== float:NaN);
+    test:assertTrue(-0.0 !== 0.0);
+}

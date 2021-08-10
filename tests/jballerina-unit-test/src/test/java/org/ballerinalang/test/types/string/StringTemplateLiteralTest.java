@@ -309,6 +309,11 @@ public class StringTemplateLiteralTest {
         BRunUtil.invoke(result, "testStringTemplateExprWithUnionType");
     }
 
+    @Test(description = "Test numeric escapes inside string template")
+    public void testNumericEscapes() {
+        BRunUtil.invoke(result, "testNumericEscapes");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

@@ -55,6 +55,10 @@ public class IdentifierModifier extends TreeModifier {
     }
 
     public static String encodeIdentifier(String identifier, IdentifierType type) {
+        if (identifier.startsWith(QUOTED_IDENTIFIER_PREFIX)) {
+            identifier = identifier.substring(1);
+        }
+        identifier = IdentifierUtils.unescapeUnicodeCodepoints(identifier);
         return type == IdentifierType.METHOD_NAME ? IdentifierUtils.encodeFunctionIdentifier(identifier) :
                 IdentifierUtils.encodeNonFunctionIdentifier(identifier);
     }

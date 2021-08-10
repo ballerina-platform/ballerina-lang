@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.api.utils;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class IdentifierUtils {
 
-    private static final String UNICODE_REGEX = "\\\\u\\{([a-fA-F0-9]+)\\}";
+    private static final String UNICODE_REGEX = "\\\\(\\\\*)u\\{([a-fA-F0-9]+)\\}";
     public static final Pattern UNICODE_PATTERN = Pattern.compile(UNICODE_REGEX);
 
     private static final String CHAR_PREFIX = "$";
@@ -83,7 +83,20 @@ public class IdentifierUtils {
         if (identifier.contains(ESCAPE_PREFIX)) {
             identifier = encodeSpecialCharacters(identifier);
         }
-        return StringEscapeUtils.unescapeJava(identifier);
+        return unescapeJava(identifier);
+    }
+
+    /**
+     * <p>Unescapes any Java literals found in the {@code String}.
+     * For example, it will turn a sequence of {@code '\'} and
+     * {@code 'n'} into a newline character, unless the {@code '\'}
+     * is preceded by another {@code '\'}.</p>
+     *
+     * @param str the {@code String} to unescape, may be null
+     * @return a new unescaped {@code String}, {@code null} if null string input
+     */
+    public static String unescapeJava(String str) {
+        return StringEscapeUtils.unescapeJava(str);
     }
 
     private static Identifier encodeGeneratedName(String identifier) {
@@ -147,11 +160,36 @@ public class IdentifierUtils {
         Matcher matcher = UNICODE_PATTERN.matcher(identifier);
         StringBuffer buffer = new StringBuffer(identifier.length());
         while (matcher.find()) {
-            String ch = String.valueOf((char) Integer.parseInt(matcher.group(1), 16));
-            matcher.appendReplacement(buffer, Matcher.quoteReplacement(ch));
+            String leadingSlashes = matcher.group(1);
+            if (isEscapedNumericEscape(leadingSlashes)) {
+                // e.g. \\u{61}, \\\\u{61}
+                continue;    
+            }
+            
+            int codePoint = Integer.parseInt(matcher.group(2), 16);
+            char[] chars = Character.toChars(codePoint);
+            String ch = String.valueOf(chars);
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(leadingSlashes + ch));
         }
         matcher.appendTail(buffer);
         return String.valueOf(buffer);
+    }
+
+    /**
+     * Returns whether the <a href="https://ballerina.io/ballerina-spec/spec.html#NumericEscape">NumericEscape</a>
+     * is escaped, based on no. of leading backslashes.
+     *
+     * @param leadingSlashes preceding backslashes of the numeric escape.
+     *                       e.g. {@code \\u{61}} has 1 leading backslash.
+     * @return {@code true} if numeric escape is escaped, {@code false} otherwise.
+     */
+    public static boolean isEscapedNumericEscape(String leadingSlashes) {
+        return !isEven(leadingSlashes.length());
+    }
+
+    private static boolean isEven(int n) {
+        // (n & 1) is 0 when n is even.
+        return (n & 1) == 0;
     }
 
     private static boolean isUnicodePoint(String encodedName, int index) {

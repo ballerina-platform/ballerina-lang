@@ -66,7 +66,7 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "missing expression", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing open parenthesis token", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing semicolon token", 97, 1);
-        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 100, 5);
+        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 100, 11);
         Assert.assertEquals(result.getErrorCount(), indx);
     }
 

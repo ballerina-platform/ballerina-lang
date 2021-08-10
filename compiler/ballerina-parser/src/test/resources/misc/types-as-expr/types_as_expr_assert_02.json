@@ -204,17 +204,19 @@
                                                   "kind": "IDENTIFIER_TOKEN",
                                                   "isMissing": true,
                                                   "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_INVALID_USAGE_OF_VAR"
-                                                  ],
                                                   "leadingMinutiae": [
                                                     {
                                                       "kind": "INVALID_NODE_MINUTIAE",
                                                       "invalidNode": {
                                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                        "hasDiagnostics": true,
                                                         "children": [
                                                           {
-                                                            "kind": "VAR_KEYWORD"
+                                                            "kind": "VAR_KEYWORD",
+                                                            "hasDiagnostics": true,
+                                                            "diagnostics": [
+                                                              "ERROR_INVALID_USAGE_OF_VAR"
+                                                            ]
                                                           }
                                                         ]
                                                       }
