@@ -163,12 +163,14 @@ public abstract class CompletionTest {
         JsonArray expectedList = configJsonObject.get("items").getAsJsonArray();
         for (JsonElement expectedItem : expectedList) {
             String expectedInsertText = expectedItem.getAsJsonObject().get("insertText").getAsString();
-
+            String expectedKind = expectedItem.getAsJsonObject().get("kind").getAsString();
+    
             // Find this item in results
             int i = 0;
             for (; i < copyOfResultList.size(); i++) {
                 String actualInsertText = copyOfResultList.get(i).getAsJsonObject().get("insertText").getAsString();
-                if (expectedInsertText.equals(actualInsertText)) {
+                String actualKind = copyOfResultList.get(i).getAsJsonObject().get("kind").getAsString();
+                if (expectedInsertText.equals(actualInsertText) && expectedKind.equals(actualKind)) {
                     break;
                 }
             }
