@@ -517,9 +517,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private void validateDistinctType(BLangType typeNode, BType type) {
-        if (type == null) {
-            return;
-        }
         if (typeNode.flagSet.contains(Flag.DISTINCT) && !isDistinctAllowedOnType(type)) {
             dlog.error(typeNode.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
         }
