@@ -1,0 +1,35 @@
+{
+  "position": {
+    "line": 5,
+    "character": 29
+  },
+  "source": "record_type_desc/source/source17.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "next",
+      "kind": "Field",
+      "detail": "LinkedList.next",
+      "sortText": "G",
+      "insertText": "next: ${1:{value: \"\", next: {value: \"\", next: {value: \"\", next: {value: \"\", next: {value: , next: }}}}}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill LinkedList Required Fields",
+      "kind": "Property",
+      "detail": "LinkedList",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "next: {value: \"\", next: {value: \"\", next: {value: \"\", next: {value: \"\", next: {value: , next: }}}}}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
