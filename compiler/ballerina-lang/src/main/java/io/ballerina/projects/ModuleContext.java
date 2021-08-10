@@ -389,17 +389,17 @@ class ModuleContext {
         }
 
         pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);
-        symbolEnter.definePackage(pkgNode);
-        packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
+        try {
+            symbolEnter.definePackage(pkgNode);
+            packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
 
-        if (bootstrapLangLibName != null) {
-            compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
-        } else {
-            try {
+            if (bootstrapLangLibName != null) {
+                compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
+            } else {
                 compilerPhaseRunner.performTypeCheckPhases(pkgNode);
-            } catch (Throwable t) {
-                compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
             }
+        } catch (Throwable t) {
+            compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
         moduleContext.bLangPackage = pkgNode;
     }
