@@ -407,6 +407,18 @@ public class TypeChecker {
     }
 
     /**
+     * Reference equality check for float values.
+     *
+     * @param lhsValue The value on the left-hand side
+     * @param rhsValue The value of the right-hand side
+     * @return True if values are reference equal, else false.
+     */
+
+    public static boolean checkFloatExactEqual(double lhsValue, double rhsValue) {
+        return Double.valueOf(lhsValue).equals(rhsValue);
+    }
+
+    /**
      * Check if two decimal values are equal in value.
      *
      * @param lhsValue The value on the left hand side
@@ -608,7 +620,6 @@ public class TypeChecker {
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.CHAR_STRING_TAG:
@@ -631,6 +642,8 @@ public class TypeChecker {
             case TypeTags.SIGNED32_INT_TAG:
                 return sourceTypeTag == TypeTags.BYTE_TAG ||
                         (sourceTypeTag >= TypeTags.SIGNED8_INT_TAG && sourceTypeTag <= TypeTags.SIGNED32_INT_TAG);
+            case TypeTags.UNSIGNED8_INT_TAG:
+                return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG;
             case TypeTags.UNSIGNED16_INT_TAG:
                 return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.UNSIGNED8_INT_TAG ||
                         sourceTypeTag == TypeTags.UNSIGNED16_INT_TAG;
@@ -642,7 +655,8 @@ public class TypeChecker {
             case TypeTags.ANYDATA_TAG:
                 return sourceType.isAnydata();
             case TypeTags.SERVICE_TAG:
-                return checkIsServiceType(sourceType);
+                return checkIsServiceType(sourceType, targetType,
+                        unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
             case TypeTags.HANDLE_TAG:
                 return sourceTypeTag == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
@@ -934,7 +948,9 @@ public class TypeChecker {
             return false;
         }
         return checkConstraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
-                               unresolvedTypes);
+                unresolvedTypes)
+                && checkConstraints(((BStreamType) sourceType).getCompletionType(), targetType.getCompletionType(),
+                unresolvedTypes);
     }
 
     private static boolean checkIsTableType(Type sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
@@ -1791,9 +1807,9 @@ public class TypeChecker {
                 .isFlagOn(target.getFlags(), SymbolFlags.TRANSACTIONAL);
     }
 
-    private static boolean checkIsServiceType(Type sourceType) {
+    private static boolean checkIsServiceType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() == TypeTags.SERVICE_TAG) {
-            return true;
+            return checkObjectEquivalency(sourceType, (BObjectType) targetType, unresolvedTypes);
         }
 
         if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -3084,6 +3100,14 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    public static Object handleAnydataValues(Object sourceVal, Type targetType) {
+        if (sourceVal != null && !(sourceVal instanceof Number) && !(sourceVal instanceof BString) &&
+                !(sourceVal instanceof Boolean) && !(sourceVal instanceof BValue)) {
+            throw ErrorUtils.createJToBTypeCastError(sourceVal.getClass(), targetType);
+        }
+        return sourceVal;
     }
 
     private TypeChecker() {

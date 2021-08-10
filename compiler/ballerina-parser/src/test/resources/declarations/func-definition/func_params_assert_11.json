@@ -126,18 +126,20 @@
                 {
                   "kind": "IDENTIFIER_TOKEN",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_INVALID_TOKEN"
-                  ],
                   "value": "Person",
                   "leadingMinutiae": [
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "ASTERISK_TOKEN"
+                            "kind": "ASTERISK_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_INVALID_TOKEN"
+                            ]
                           }
                         ]
                       }

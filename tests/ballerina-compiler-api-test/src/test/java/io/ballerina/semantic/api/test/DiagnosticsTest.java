@@ -43,6 +43,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics();
         Object[][] expErrs = getExpectedErrors();
 
+        assertEquals(diagnostics.size(), expErrs.length);
         for (int i = 0; i < expErrs.length; i++) {
             assertDiagnostic(diagnostics.get(i), expErrs[i]);
         }
@@ -66,8 +67,8 @@ public class DiagnosticsTest {
     private Object[][] getExpectedErrors() {
         return new Object[][]{
                 {"missing semicolon token", 18, 0},
+                {"invalid token 'string'", 21, 8},
                 {"missing identifier", 21, 8},
-                {"invalid token 'string'", 21, 15},
                 {"incompatible types: expected 'int', found 'string'", 17, 12},
                 {"incompatible types: 'int' cannot be cast to 'string'", 19, 15}
         };

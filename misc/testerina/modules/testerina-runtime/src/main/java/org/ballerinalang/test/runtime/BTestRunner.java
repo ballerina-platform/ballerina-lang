@@ -60,12 +60,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
@@ -96,6 +101,11 @@ public class BTestRunner {
     private PrintStream outStream;
     private TesterinaReport tReport;
 
+    private List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r", "\t",
+            "\"", "\\", "!", "`"));
+    private List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private List<String> regexSpecialCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")", "+",
+            "^", "|"));
     /**
      * Create Test Runner with given loggers.
      *
@@ -499,8 +509,14 @@ public class BTestRunner {
         boolean isIncluded = false;
         List<String> keyList = suite.getDataKeyValues().get(testName);
         for (String keyValue : keyList) {
-            isIncluded = Pattern.matches(keyValue.replace(TesterinaConstants.WILDCARD, DOT +
-                            TesterinaConstants.WILDCARD), key);
+            String pattern = encode(keyValue, regexSpecialCharacters).replace(TesterinaConstants.WILDCARD, DOT +
+                    TesterinaConstants.WILDCARD);
+            String decodedKey = encode(key, regexSpecialCharacters);
+            if (pattern.equals(decodedKey)) {
+                isIncluded = true;
+            } else {
+                isIncluded = Pattern.matches(pattern, decodedKey);
+            }
             if (isIncluded) {
                 break;
             }
@@ -514,10 +530,9 @@ public class BTestRunner {
         Object valueSets;
         if (suite.isSingleDDTExecution()) {
             if (isIncludedKey(suite, testName, key)) {
-                valueSets = invokeTestFunction(suite, testName, classLoader, scheduler,
-                        argTypes, arg);
-                computeFunctionResult(testName + DATA_KEY_SEPARATOR + key,
-                        packageName, shouldSkip, failedOrSkippedTests, valueSets);
+                valueSets = invokeTestFunction(suite, testName, classLoader, scheduler, argTypes, arg);
+                computeFunctionResult(testName + DATA_KEY_SEPARATOR + key, packageName, shouldSkip,
+                        failedOrSkippedTests, valueSets);
             }
         } else {
             valueSets = invokeTestFunction(suite, testName, classLoader, scheduler, argTypes,
@@ -554,8 +569,8 @@ public class BTestRunner {
                     List<Object[]> argList = extractArguments((BMap) valueSets);
                     int i = 0;
                     for (Object[] arg : argList) {
-                        invokeDataDrivenTest(suite, test.getTestName(), keyValues.get(i), classLoader, scheduler,
-                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
+                        invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
+                                classLoader, scheduler, shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
                         i++;
                     }
                 } else if (valueSets instanceof BArray) {
@@ -946,7 +961,96 @@ public class BTestRunner {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
             errStream.println(errorMsg + ":" + e.getMessage());
         }
-
     }
 
+    /**
+     * Encode the provided set of special characters in the given key.
+     *
+     * @param key String
+     * @param specialCharacters List<String>
+     * @return String
+     */
+    private String encode(String key, List<String> specialCharacters) {
+        String encodedKey = key;
+        String encodedValue;
+        for (String character : specialCharacters) {
+            try {
+                if (encodedKey.contains(character)) {
+                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
+                    encodedKey = encodedKey.replace(character, encodedValue);
+                }
+            } catch (UnsupportedEncodingException e) {
+                errStream.println("Error occurred while encoding special characters in the data provider case value '"
+                        + key + "'");
+            }
+        }
+        return encodedKey;
+    }
+
+    /**
+     * Escape special characters in the given key.
+     *
+     * @param key String
+     * @return String
+     */
+    private String escapeSpecialCharacters(String key) {
+        String updatedKey = key;
+        if (!isBalanced(updatedKey)) {
+            updatedKey = encode(updatedKey, bracketCharacters);
+        }
+        updatedKey = encode(updatedKey, specialCharacters);
+        if (!(updatedKey.startsWith("'") && updatedKey.endsWith("'"))) {
+            updatedKey = "'" + updatedKey + "'";
+        }
+        return updatedKey;
+    }
+
+    /**
+     * Check if the brackets are balanced in given expression.
+     *
+     * @param expr String
+     * @return boolean
+     */
+    private boolean isBalanced(String expr) {
+        Deque<Character> stack = new ArrayDeque<>();
+        for (int i = 0; i < expr.length(); i++) {
+            char val = expr.charAt(i);
+            if (val == '(' || val == '[' || val == '{') {
+                stack.push(val);
+                continue;
+            }
+            if ((val == ')' || val == ']' || val == '}')) {
+                if (stack.isEmpty()) {
+                    return false;
+                }
+                char topElement;
+                switch (val) {
+                    case ')':
+                        topElement = stack.pop();
+                        if (topElement == '{' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case '}':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case ']':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '{') {
+                            return false;
+                        }
+                        break;
+                }
+            } else {
+                continue;
+            }
+        }
+        // If the brackets are balanced, stack needs to be empty.
+        return stack.isEmpty();
+    }
 }

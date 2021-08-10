@@ -1,6 +1,5 @@
 public simpleAddition function() -> () {
     %0(RETURN) ();
-    %0(RETURN) ();
     %1(LOCAL) int;
     %3(LOCAL) int;
     %5(TEMP) int;
