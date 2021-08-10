@@ -8253,9 +8253,8 @@ public class Desugar extends BLangNodeVisitor {
         //This will only check whether last statement is a return and just add a return statement.
         //This won't analyse if else blocks etc to see whether return statements are present
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) invokableNode.body;
-        boolean isNeverOrNilableReturn = invokableNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
-                invokableNode.symbol.type.getReturnType().isNullable();
-        if (invokableNode.workers.size() == 0 && isNeverOrNilableReturn && (funcBody.stmts.size() < 1 ||
+        if (invokableNode.workers.size() == 0 && invokableNode.symbol.type.getReturnType().isNullable()
+                && (funcBody.stmts.size() < 1 ||
                 funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             Location invPos = invokableNode.pos;
             Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),

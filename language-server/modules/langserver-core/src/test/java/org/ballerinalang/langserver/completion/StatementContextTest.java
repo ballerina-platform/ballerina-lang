@@ -48,9 +48,7 @@ public class StatementContextTest extends CompletionTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                "if_stmt_ctx_config3.json",
                 "elseif_stmt_ctx_config3.json",
-                "if_stmt_ctx_config3.json", // Blocked By #26317
                 "match_stmt_ctx_config8.json",
                 "match_stmt_ctx_config9.json",
                 "match_stmt_ctx_config10.json",

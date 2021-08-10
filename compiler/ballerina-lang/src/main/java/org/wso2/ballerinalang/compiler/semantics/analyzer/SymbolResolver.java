@@ -134,6 +134,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATO
  * @since 0.94
  */
 public class SymbolResolver extends BLangNodeVisitor {
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
@@ -1110,7 +1111,15 @@ public class SymbolResolver extends BLangNodeVisitor {
                         continue;
                     }
 
-                    int length = Integer.parseInt(sizeConstSymbol.type.toString());
+                    int length;
+                    long lengthCheck = Long.parseLong(sizeConstSymbol.type.toString());
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
+                        length = 0;
+                        dlog.error(size.pos,
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
                     arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }

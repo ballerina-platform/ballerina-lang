@@ -470,6 +470,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  * @since 1.3.0
  */
 public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
@@ -3472,12 +3473,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                    int length = 0;
+                    long lengthCheck = 0;
                     Token literalToken = ((BasicLiteralNode) keyExpr).literalToken();
-                    if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text()), symTable.intType));
-                    } else {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text(), 16), symTable.intType));
+
+                    try {
+                        if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                            lengthCheck = Long.parseLong(literalToken.text());
+                        } else {
+                            lengthCheck = Long.parseLong(literalToken.text().substring(2), 16);
+                        }
+                    } catch (NumberFormatException e) {
+                        dlog.error(((Node) literalToken).location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     }
+
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
+                        dlog.error(((Node) literalToken).location(),
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
+                    sizes.add(new BLangLiteral(length, symTable.intType));
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
                     sizes.add(new BLangLiteral(INFERRED_ARRAY_INDICATOR, symTable.intType));
                 } else {

@@ -1637,7 +1637,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (this.currDependentSymbol.isEmpty()) {
             return;
         }
-        BTypeSymbol tsymbol = userDefinedType.getBType().tsymbol;
+        BType resolvedType = userDefinedType.getBType();
+        if (resolvedType == symTable.semanticError) {
+            return;
+        }
+        BTypeSymbol tsymbol = resolvedType.tsymbol;
         BSymbol pop = this.currDependentSymbol.pop();
         this.currDependentSymbol.push(tsymbol);
         recordGlobalVariableReferenceRelationship(pop);

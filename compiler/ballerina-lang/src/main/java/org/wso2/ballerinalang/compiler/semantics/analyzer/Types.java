@@ -4427,6 +4427,9 @@ public class Types {
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env,
                                                   LinkedHashSet<BType> visitedTypes) {
+        if (!visitedTypes.add(tupleType)) {
+            return tupleType;
+        }
         List<BType> tupleTypes = tupleType.tupleTypes;
         if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
             if (tupleTypes.size() > arrayType.size) {
@@ -5587,7 +5590,10 @@ public class Types {
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
     }
 
-    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+    public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        if (type == null) {
+            return false;
+        }
         Set<BType> visitedTypeSet = new HashSet<>();
         visitedTypeSet.add(type);
         return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);

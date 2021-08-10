@@ -49,6 +49,7 @@ import java.util.Set;
  */
 public class SerialTreeParser extends TrialTreeParser {
     private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init");
+    private static final String COMMAND_PREFIX = "/";
     private final List<TreeParserTrial> nodeParserTrials;
 
     public SerialTreeParser(long timeOutDurationMs) {
@@ -78,8 +79,14 @@ public class SerialTreeParser extends TrialTreeParser {
                 errorMessage = "Code contains syntax error(s).";
             }
         }
-        addErrorDiagnostic(errorMessage);
-        addErrorDiagnostic("Parsing aborted due to errors.");
+        if (source.startsWith(COMMAND_PREFIX)) {
+            errorMessage = "Can not find the command: " + source.substring(0, source.length() - 1).trim();
+            addErrorDiagnostic(errorMessage);
+            addErrorDiagnostic("Please use \"/help\" command to view available commands.");
+        } else {
+            addErrorDiagnostic(errorMessage);
+            addErrorDiagnostic("Parsing aborted due to errors.");
+        }
         throw new TreeParserException();
     }
 

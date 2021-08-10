@@ -76,13 +76,13 @@ public class MultiplyOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(dataProvider = "dataToTestDivisionWithTypes", description = "Test multiplication with types")
-    public void testDivisionWithTypes(String functionName) {
+    @Test(dataProvider = "dataToTestMultiplicationWithTypes", description = "Test multiplication with types")
+    public void testMultiplicationWithTypes(String functionName) {
         BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
-    public Object[] dataToTestDivisionWithTypes() {
+    public Object[] dataToTestMultiplicationWithTypes() {
         return new Object[]{
                 "testMultiplicationWithTypes",
                 "testMultiplySingleton"
@@ -95,7 +95,7 @@ public class MultiplyOperationTest {
     }
 
     @Test(description = "Test binary statement with errors")
-    public void testSubtractStmtNegativeCases() {
+    public void testMultiplyStmtNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);

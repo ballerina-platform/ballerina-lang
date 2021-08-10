@@ -517,6 +517,8 @@ type Person2 record {
     int age;
 };
 
+type A [int, string|xml, A...];
+
 function testCloneWithTypeTupleToJSON() {
     [string, string, string] tupleValue1 = ["Mohan", "single", "LK2014"];
     json|error jsonValue = tupleValue1.cloneWithType();
@@ -569,6 +571,19 @@ function testCloneWithTypeTupleToJSON() {
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
+
+    A tupleValue9 = [1, ""];
+    jsonValue = tupleValue9.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    A tupleValue10 = [1,  xml `</elem>`];
+    jsonValue = tupleValue10.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[int,(string|xml<(lang.xml:Element|lang.xml:Comment|" +
+        "lang.xml:ProcessingInstruction|lang.xml:Text)>),A...]' value cannot be converted to 'json'");
 }
 
 function testCloneWithTypeJsonRec1() {
