@@ -60,16 +60,17 @@ public class TypeIds {
     public static Object typeIds(BTypedesc t, boolean primaryOnly) {
         Type describingType = t.getDescribingType();
         BTypeIdSet typeIdSet = getTypeIdSetForType(describingType);
+        if (typeIdSet == null) {
+            return null;
+        }
 
         ArrayList<Object> objects = new ArrayList<>();
-        if (typeIdSet != null) {
-            for (TypeId id : typeIdSet.getIds()) {
-                if (primaryOnly && !id.isPrimary()) {
-                    continue;
-                }
-                Object moduleId = createModuleId(id.getPkg());
-                objects.add(createTypeId(moduleId, id.getName()));
+        for (TypeId id : typeIdSet.getIds()) {
+            if (primaryOnly && !id.isPrimary()) {
+                continue;
             }
+            Object moduleId = createModuleId(id.getPkg());
+            objects.add(createTypeId(moduleId, id.getName()));
         }
 
         BArray arrayValue = ValueCreator.createArrayValue(objects.toArray(new Object[]{}), typeIdArrayType);
@@ -90,11 +91,13 @@ public class TypeIds {
                 break;
             case TypeTags.INTERSECTION_TAG:
                 BIntersectionType intersectionType = (BIntersectionType) describingType;
-                return getTypeIdSetForType(intersectionType.getEffectiveType());
+                typeIdSet = getTypeIdSetForType(intersectionType.getEffectiveType());
+                break;
             default:
-                typeIdSet = new BTypeIdSet();
+                return null;
         }
-        return typeIdSet;
+
+        return typeIdSet != null ? typeIdSet : new BTypeIdSet();
     }
 
     private static BMap<BString, Object> createModuleId(Module mod) {
@@ -117,22 +120,17 @@ public class TypeIds {
 
     // Compiler generate integer values for local-id when it's anonymous
     private static Object processLocalId(String localId) {
-        boolean isNumber = true;
         for (char c : localId.toCharArray()) {
             if (c < '0' || c > '9') {
-                isNumber = false;
-                break;
+                return StringUtils.fromString(localId);
             }
         }
 
-        if (isNumber) {
-            try {
-                return Long.parseLong(localId);
-            } catch (NumberFormatException e) {
-                // Ignore, the local-id must be user provided identifier.
-            }
+        try {
+            return Long.parseLong(localId);
+        } catch (NumberFormatException e) {
+            // Ignore, the local-id must be user provided identifier.
+            return StringUtils.fromString(localId);
         }
-
-        return StringUtils.fromString(localId);
     }
 }
