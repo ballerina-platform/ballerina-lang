@@ -377,7 +377,8 @@ public class JvmPackageGen {
             BIRPackage pkg = (BIRPackage) parentNode;
             func = findFunction(pkg.functions, funcName);
         } else {
-            throw new IllegalStateException();
+            // some generated functions will not have bir function
+            return null;
         }
 
         return func;
@@ -390,8 +391,7 @@ public class JvmPackageGen {
                 return func;
             }
         }
-
-        throw new IllegalStateException("cannot find function: '" + funcName + "'");
+        return null;
     }
 
     private BIRFunction getMainFunc(List<BIRFunction> funcs) {
@@ -450,7 +450,6 @@ public class JvmPackageGen {
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports, jvmCastGen);
 
                 generateLockForVariable(cw);
-                jvmTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, moduleTypeClass);
                 ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen);
                 moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
@@ -680,8 +679,13 @@ public class JvmPackageGen {
         } catch (MethodTooLargeException e) {
             String funcName = e.getMethodName();
             BIRFunction func = findFunction(node, funcName);
-            dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
-                       IdentifierUtils.decodeIdentifier(func.name.value));
+            if (func != null) {
+                dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
+                        IdentifierUtils.decodeIdentifier(func.name.value));
+            } else {
+                dlog.error(node.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
+                        IdentifierUtils.decodeIdentifier(funcName));
+            }
             result = new byte[0];
         } catch (ClassTooLargeException e) {
             dlog.error(node.pos, DiagnosticErrorCode.FILE_TOO_LARGE,
@@ -800,6 +804,8 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+        JvmAnnotationsGen jvmAnnotationsGen = new JvmAnnotationsGen(module, this, jvmTypeGen);
         valueGen.generateValueClasses(jarEntries, stringConstantsGen);
 
         // generate frame classes
@@ -808,6 +814,8 @@ public class JvmPackageGen {
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, moduleTypeClass, stringConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
+        jvmTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
+        jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
 
         // clear class name mappings

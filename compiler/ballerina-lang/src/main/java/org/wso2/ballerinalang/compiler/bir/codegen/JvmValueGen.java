@@ -152,7 +152,7 @@ class JvmValueGen {
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
     private final BType booleanType;
-    private static final int MAX_TYPES_PER_METHOD = 3;
+    private static final int MAX_CALLS_PER_CLIENT_METHOD = 3;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen) {
         this.module = module;
@@ -372,14 +372,14 @@ class JvmValueGen {
         List<Label> targetLabels = new ArrayList<>();
         String callMethodName = "call";
         for (BIRNode.BIRFunction optionalFunc : functions) {
-            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+            if (bTypesCount % MAX_CALLS_PER_CLIENT_METHOD == 0) {
                 mv = cw.visitMethod(ACC_PUBLIC, callMethodName, String.format("(L%s;L%s;[L%s;)L%s;",
                         STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
                 mv.visitCode();
                 defaultCaseLabel = new Label();
                 int remainingCases = functions.size() - bTypesCount;
-                if (remainingCases > MAX_TYPES_PER_METHOD) {
-                    remainingCases = MAX_TYPES_PER_METHOD;
+                if (remainingCases > MAX_CALLS_PER_CLIENT_METHOD) {
+                    remainingCases = MAX_CALLS_PER_CLIENT_METHOD;
                 }
                 List<Label> labels = JvmTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
                         bTypesCount, remainingCases, defaultCaseLabel);
@@ -428,7 +428,7 @@ class JvmValueGen {
             mv.visitInsn(ARETURN);
             i += 1;
             bTypesCount++;
-            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+            if (bTypesCount % MAX_CALLS_PER_CLIENT_METHOD == 0) {
                 if (bTypesCount == functions.size()) {
                     createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
                 } else {
@@ -446,7 +446,7 @@ class JvmValueGen {
             }
         }
 
-        if (methodCount !=0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
+        if (methodCount != 0 && bTypesCount % MAX_CALLS_PER_CLIENT_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
             mv.visitMaxs(i + 10, i + 10);
             mv.visitEnd();

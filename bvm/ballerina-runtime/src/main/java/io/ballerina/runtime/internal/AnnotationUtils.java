@@ -43,7 +43,7 @@ public class AnnotationUtils {
      * @param globalAnnotMap The global annotation map
      * @param bType          The type for which annotations need to be set
      */
-    public static void processAnnotations(MapValue globalAnnotMap, Type bType, Strand strand) {
+    public static void processAnnotations(MapValue globalAnnotMap, Type bType) {
         if (!(bType instanceof BAnnotatableType)) {
             return;
         }
