@@ -110,28 +110,28 @@ decimal d5 = 2.00;
 function testDecimalEquality() {
     test:assertTrue(d3 == d3);
     test:assertFalse(d3 == d4);
-    test:assertTrue(d1/d2 == d2/d2);
+    test:assertTrue(d4 == d5);
     test:assertTrue(d1 == d2);
 }
 
 function testDecimalNotEquality() {
     test:assertFalse(d3 != d3);
     test:assertTrue(d3 != d4);
-    test:assertFalse(d1/d2 != d2/d2);
+    test:assertFalse(d4 != d5);
     test:assertFalse(d1 != d2);
 }
 
 function testDecimalExactEquality() {
     test:assertTrue(d5 === d5);
     test:assertFalse(d3 === d4);
-    test:assertTrue(d1/d2 === d2/d2);
+    test:assertFalse(d4 === d5);
     test:assertTrue(d1 === d2);
 }
 
 function testDecimalNotExactEquality() {
     test:assertFalse(d5 !== d5);
     test:assertTrue(d3 !== d4);
-    test:assertFalse(d1/d2 !== d2/d2);
+    test:assertTrue(d4 !== d5);
     test:assertFalse(d1 !== d2);
 }
 

@@ -414,10 +414,6 @@ public class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        if (lhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER &&
-                rhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER) {
-            return true;
-        }
         return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
     }
@@ -431,10 +427,6 @@ public class TypeChecker {
      */
 
     public static boolean checkDecimalExactEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        if ((lhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER &&
-                rhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER)) {
-            return true;
-        }
         return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue)
                 && lhsValue.decimalValue().equals(rhsValue.decimalValue());
     }
