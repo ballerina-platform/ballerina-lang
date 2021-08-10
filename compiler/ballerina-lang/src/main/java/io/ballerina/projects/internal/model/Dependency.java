@@ -20,6 +20,7 @@ package io.ballerina.projects.internal.model;
 
 import io.ballerina.projects.PackageDependencyScope;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,12 +33,16 @@ public class Dependency {
     String name;
     String version;
     PackageDependencyScope scope;
+    boolean transitive;
     List<Dependency> dependencies;
+    List<Module> modules;
 
     public Dependency(String org, String name, String version) {
         this.org = org;
         this.name = name;
         this.version = version;
+        this.dependencies = Collections.emptyList();
+        this.modules = Collections.emptyList();
     }
 
     public String getOrg() {
@@ -66,5 +71,56 @@ public class Dependency {
 
     public void setScope(PackageDependencyScope scope) {
         this.scope = scope;
+    }
+
+    public boolean isTransitive() {
+        return transitive;
+    }
+
+    public void setTransitive(boolean transitive) {
+        this.transitive = transitive;
+    }
+
+    public List<Module> getModules() {
+        return modules;
+    }
+
+    public void setModules(List<Module> modules) {
+        this.modules = modules;
+    }
+
+    /**
+     * Represents a module of a dependency package.
+     *
+     * @since 2.0.0
+     */
+    public static class Module {
+        private final String org;
+        private final String packageName;
+        private final String version;
+        private final String moduleName;
+
+        public Module(String org, String packageName, String version, String moduleName) {
+            this.org = org;
+            this.packageName = packageName;
+            this.version = version;
+            this.moduleName = moduleName;
+        }
+
+        public String org() {
+            return org;
+        }
+
+        public String packageName() {
+            return packageName;
+        }
+
+        public String version() {
+            return version;
+        }
+
+        public String moduleName() {
+            return moduleName;
+        }
     }
 }

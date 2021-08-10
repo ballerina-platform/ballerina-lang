@@ -44,8 +44,7 @@ public class PackageJson {
     private String implementation_vendor;
     private String spec;                     // 2020R1
 
-    // Dependencies
-    private List<PackageManifest.Dependency> dependencies; //?
+    // Platform dependencies
     private List<PlatformLibrary> platformDependencies; //?
 
     // Templating support
@@ -152,14 +151,6 @@ public class PackageJson {
 
     public void setSpec(String spec) {
         this.spec = spec;
-    }
-
-    public List<PackageManifest.Dependency> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(List<PackageManifest.Dependency> dependencies) {
-        this.dependencies = dependencies;
     }
 
     public List<PlatformLibrary> getPlatformDependencies() {
