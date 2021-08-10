@@ -733,20 +733,17 @@ public class JvmInstructionGen {
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
-            this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "isNaN", "(D)Z", false);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
             this.mv.visitJumpInsn(IFEQ, label3);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
-            this.mv.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "isNaN", "(D)Z", false);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
             this.mv.visitJumpInsn(IFEQ, label3);
-
             this.mv.visitInsn(ICONST_1);
             this.mv.visitJumpInsn(GOTO, label2);
-
             this.mv.visitLabel(label3);
             this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(DCMPL);
             this.mv.visitJumpInsn(IFNE, label1);
-
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
@@ -776,29 +773,43 @@ public class JvmInstructionGen {
 
     private void generateNotEqualIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        this.generateBinaryRhsAndLhsLoad(binaryIns);
-
         Label label1 = new Label();
         Label label2 = new Label();
+        Label label3 = new Label();
 
         // It is assumed that both operands are of same type
         BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
         BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(LCMP);
             this.mv.visitJumpInsn(IFEQ, label1);
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkFloatEqual", "(DD)Z", false);
-            this.mv.visitJumpInsn(IFNE, label1);
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
+            this.mv.visitJumpInsn(IFEQ, label3);
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
+            this.mv.visitJumpInsn(IFEQ, label3);
+            this.mv.visitInsn(ICONST_0);
+            this.mv.visitJumpInsn(GOTO, label2);
+            this.mv.visitLabel(label3);
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
+            this.mv.visitInsn(DCMPL);
+            this.mv.visitJumpInsn(IFEQ, label1);
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalEqual",
                     String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
             this.mv.visitJumpInsn(IFNE, label1);
         } else {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.mv.visitJumpInsn(IFNE, label1);
@@ -842,6 +853,12 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
+        } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalExactEqual",
+                    String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
         } else {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isReferenceEqual",
@@ -888,6 +905,11 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
+        } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalExactEqual",
+                    String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            this.mv.visitJumpInsn(IFNE, label1);
         } else {
             this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isReferenceEqual",

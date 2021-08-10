@@ -407,22 +407,6 @@ public class TypeChecker {
     }
 
     /**
-     * Equality check for float values.
-     *
-     * @param lhsValue The value on the left-hand side
-     * @param rhsValue The value of the right-hand side
-     * @return True if values are equal, else false.
-     */
-
-    public static boolean checkFloatEqual(double lhsValue, double rhsValue) {
-        if (Double.isNaN(lhsValue) && Double.isNaN(rhsValue)) {
-            return true;
-        } else {
-            return lhsValue == rhsValue;
-        }
-    }
-
-    /**
      * Check if two decimal values are equal in value.
      *
      * @param lhsValue The value on the left hand side
@@ -430,12 +414,29 @@ public class TypeChecker {
      * @return True if values are equal, else false.
      */
     public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        if (lhsValue.valueKind == DecimalValueKind.NOT_A_NUMBER &&
-                rhsValue.valueKind == DecimalValueKind.NOT_A_NUMBER) {
+        if (lhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER &&
+                rhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER) {
             return true;
         }
         return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
+    }
+
+    /**
+     * Check if two decimal values are exactly equal.
+     *
+     * @param lhsValue The value on the left-hand side
+     * @param rhsValue The value of the right-hand side
+     * @return True if values are exactly equal, else false.
+     */
+
+    public static boolean checkDecimalExactEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        if ((lhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER &&
+                rhsValue.getValueKind() == DecimalValueKind.NOT_A_NUMBER)) {
+            return true;
+        }
+        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue)
+                && lhsValue.decimalValue().equals(rhsValue.decimalValue());
     }
 
     /**
