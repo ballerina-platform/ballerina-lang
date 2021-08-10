@@ -1148,7 +1148,22 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             defineAllUnresolvedCyclicTypesInScope(env);
-            unresolvedTypes.forEach(type -> defineNode(type, env));
+
+            int unresolvedTypeCount = unresolvedTypes.size();
+            for (int i = 0; i < unresolvedTypeCount; i++) {
+                for (BLangNode node : this.unresolvedTypes) {
+                    if ((node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CLASS_DEFN)
+                            && i != 0) { // Do not skip the first iteration
+                        String name = getTypeOrClassName(node);
+                        BSymbol bSymbol = symResolver.lookupSymbolInMainSpace(env, names.fromString(name));
+                        if (bSymbol != symTable.notFoundSymbol) {
+                            // skip already defined types
+                            continue;
+                        }
+                    }
+                    defineNode(node, env);
+                }
+            }
             return;
         }
         defineTypeNodes(unresolvedTypes, env);
@@ -1459,7 +1474,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         // check for unresolved fields if there are type inclusions. This record may be referencing another record
-        if (hasTypeInclusions && !this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
+        if (!this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
                 BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
