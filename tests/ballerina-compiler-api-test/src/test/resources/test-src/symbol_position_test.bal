@@ -112,3 +112,37 @@ public type Pet object {
 
     public function kind() returns string;
 };
+
+# Represents a customer object.
+#
+# + name - Name of the customer
+# + age - Age of the customer in years
+# + address - Address of the customer
+# + wealth - Account balance of the customer
+public class Customer {
+    public string name = "";
+    public int age = 0;
+    public string address = "";
+    public float wealth = 0;
+
+    # Gets invoked to initialize the `Customer` object.
+    #
+    # + name - Name of the customer for the constructor
+    # + age - Age of the customer for the constructor
+    public function init(string name, int age) {
+    }
+
+    # Get the address of the customer.
+    #
+    # + return - New address of the customer
+    public function getAddress() returns string {
+        return self.address ;
+    }
+
+    # Add the wealth of the customer.
+    #
+    # + amt - Amount to be added
+    # + rate - Interest rate
+    public function addWealth(int[] amt, float rate=1.5) {
+    }
+}

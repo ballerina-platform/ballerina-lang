@@ -1217,6 +1217,10 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        if (classDefinition.getMarkdownDocumentationAttachment() != null) {
+            lookupNodes(classDefinition.markdownDocumentationAttachment.parameters);
+        }
+
         lookupNodes(classDefinition.annAttachments);
 
         for (BLangSimpleVariable field : classDefinition.fields) {
