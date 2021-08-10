@@ -191,7 +191,7 @@ public abstract class BType implements Type {
         return pkg;
     }
 
-    public long getFlags(){
+    public long getFlags() {
         return 0;
     }
 }
