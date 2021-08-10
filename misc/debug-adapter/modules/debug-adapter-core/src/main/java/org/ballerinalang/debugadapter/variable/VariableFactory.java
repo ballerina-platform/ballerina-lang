@@ -141,8 +141,8 @@ public class VariableFactory {
             return new BByte(context, varName, value);
         } else if (valueTypeName.equals(JVMValueType.DECIMAL.getString())) {
             return new BDecimal(context, varName, value);
-        } else if (valueTypeName.equals(JVMValueType.BMPSTRING.getString())
-                || valueTypeName.equals(JVMValueType.NONBMPSTRING.getString())
+        } else if (valueTypeName.equals(JVMValueType.BMP_STRING.getString())
+                || valueTypeName.equals(JVMValueType.NON_BMP_STRING.getString())
                 || valueTypeName.equals(JVMValueType.J_STRING.getString())) {
             return new BString(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
