@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -35,10 +36,12 @@ import org.testng.annotations.Test;
 public class TypeDefinitionsTest {
 
     private CompileResult compileResult;
+    private CompileResult recordFieldRes;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/typedefs/type-definitions.bal");
+        recordFieldRes = BCompileUtil.compile("test-src/typedefs/record-type-field-resolving.bal");
     }
 
     @Test
@@ -154,8 +157,19 @@ public class TypeDefinitionsTest {
         BRunUtil.invoke(compileResult, "testTypeDefReferringToTypeDefDefinedAfter");
     }
 
+    @Test
+    public void testRecordTypeResolving() {
+        BRunUtil.invoke(recordFieldRes, "testRecordTypeResolving");
+    }
+
+    @Test
+    public void testRecordTypeResolvingWithTypeInclusion() {
+        BRunUtil.invoke(recordFieldRes, "testRecordTypeResolvingWithTypeInclusion");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
+        recordFieldRes = null;
     }
 }
