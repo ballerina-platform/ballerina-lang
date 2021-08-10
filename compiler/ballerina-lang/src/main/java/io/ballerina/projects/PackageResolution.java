@@ -178,7 +178,7 @@ public class PackageResolution {
             createDependencyGraphFromBALA();
         } else {
 //            createDependencyGraphFromSources();
-            createDependencyGraphFromSourcesNew(sticky);
+            return createDependencyGraphFromSourcesNew(sticky);
         }
 
         // Once we reach this section, all the direct dependencies have been resolved
@@ -322,7 +322,7 @@ public class PackageResolution {
         }
     }
 
-    void createDependencyGraphFromSourcesNew(boolean sticky) {
+    DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSourcesNew(boolean sticky) {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
@@ -368,14 +368,14 @@ public class PackageResolution {
                     directPkgDependency.scope, directPkgDependency.resolutionType, offline, lockingMode));
         }
 
-        List<ResolutionResponseDescriptor> resolutionResponses =
+        List<ResolutionResponseDescriptor> responseDescriptors =
                 packageResolver.resolveDependencyVersions(resolutionRequests);
 
         // TODO move this to the constructor of this class
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(),
                 rootPackageContext.descriptor(), offline, sticky);
 
-        for (ResolutionResponseDescriptor resolutionResponse : resolutionResponses) {
+        for (ResolutionResponseDescriptor resolutionResponse : responseDescriptors) {
             if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
                 continue;
@@ -388,21 +388,15 @@ public class PackageResolution {
             resolutionEngine.addDirectDependency(pkgDesc, directPkgDep.scope(), directPkgDep.resolutionType());
         }
 
-//        DependencyGraph<PackageDescriptor> dependencyGraph = resolutionEngine.resolveDependencies();
-
-
-        List<ResolutionResponse> resolutionResponses1 =
-                packageResolver.newResolvePackages(resolutionResponses, rootPackageContext.project());
-        for (ResolutionResponse resolutionResponse : resolutionResponses1) {
-            if (resolutionResponse.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+        for (ResolutionResponseDescriptor resolutionResponse : responseDescriptors) {
+            if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
+                // TODO Report diagnostics
                 continue;
             }
-            depGraphBuilder.addDependency(rootPackageContext.descriptor(),
-                    resolutionResponse.resolvedPackage().descriptor(),
-                    resolutionResponse.responseDescriptor().packageLoadRequest().scope(),
-                    DependencyResolutionType.SOURCE,
-                    DependencyVersionKind.LATEST);
+            resolutionEngine.addTransitiveDependencies(resolutionResponse.dependencyGraph().get());
         }
+
+        return resolutionEngine.resolveDependencies();
 
     }
 

@@ -109,7 +109,6 @@ public class PackageCache {
     }
 
     public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
-        System.out.println("----------caching: " + packageID.toString());
         String[] packageElements = packageID.toString().split(Names.VERSION_SEPARATOR.value);
         Map<String, BPackageSymbol> versionMap =
                 packageSymbolMap.computeIfAbsent(packageElements[0], k -> new LinkedHashMap<>());

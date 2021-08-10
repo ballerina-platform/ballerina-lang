@@ -22,6 +22,9 @@ import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ProjectEnvironment;
 
 /**
  * Responsible for creating the dependency graph with automatic version updates.
@@ -30,19 +33,19 @@ import io.ballerina.projects.Project;
  */
 public class ResolutionEngine {
     private final NewPackageDependencyGraphBuilder graphBuilder;
-//    private final Project rootProject;
+    private final Project rootProject;
     private final PackageDescriptor rootPkgDesc;
-//    private final boolean offline;
-//    private final boolean sticky;
+    private final boolean offline;
+    private final boolean sticky;
 
     public ResolutionEngine(Project rootProject,
                             PackageDescriptor rootPkgDesc,
                             boolean offline, // TODO Can we combine these two options into buildOptions
                             boolean sticky) {
-//        this.rootProject = rootProject;
+        this.rootProject = rootProject;
         this.rootPkgDesc = rootPkgDesc;
-//        this.offline = offline;
-//        this.sticky = sticky;
+        this.offline = offline;
+        this.sticky = sticky;
         this.graphBuilder = new NewPackageDependencyGraphBuilder(rootPkgDesc);
     }
 
@@ -52,7 +55,15 @@ public class ResolutionEngine {
         graphBuilder.addDependency(rootPkgDesc, dependency, scope, resolutionType);
     }
 
-    public DependencyGraph<PackageDescriptor> resolveDependencies() {
-        return null;
+    public DependencyGraph<ResolvedPackageDependency> resolveDependencies() {
+        // TODO recursively resolve conflicts and build the graph
+
+        ProjectEnvironment projectEnvContext = rootProject.projectEnvironmentContext();
+        PackageResolver packageResolver = projectEnvContext.getService(PackageResolver.class);
+        return graphBuilder.buildPackageDependencyGraph(packageResolver, rootProject, offline);
+    }
+
+    public void addTransitiveDependencies(DependencyGraph<PackageDescriptor> dependencyGraph) {
+        graphBuilder.mergeGraph(dependencyGraph, PackageDependencyScope.DEFAULT);
     }
 }
