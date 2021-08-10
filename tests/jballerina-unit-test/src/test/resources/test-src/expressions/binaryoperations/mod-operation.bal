@@ -69,6 +69,32 @@ function testModSingleton() {
     assertEqual(a1 % a7, 8);
 }
 
+function testModNullable() {
+    int? a1 = 10;
+    int? a2 = 3;
+    int? a3 = 5;
+    int? a4 = ();
+    int a5 = 2;
+    float? a6 = 10.0;
+    float? a7 = 5.0;
+    float? a8 = ();
+    float a9 = 4.0;
+
+    int? a10 = a1 % a5;
+    int? a11 = a3 % a2;
+    int? a12 = a3 % a4;
+    float? a13 = a6 % a7;
+    float? a14 = a7 % a9;
+    float? a15 = a8 % a9;
+
+    assertEqual(a10, 0);
+    assertEqual(a11, 2);
+    assertEqual(a12, ());
+    assertEqual(a13, 0.0);
+    assertEqual(a14, 1.0);
+    assertEqual(a15, ());
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

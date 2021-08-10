@@ -111,4 +111,9 @@ public class MultiplyOperationTest {
         BAssertUtil.validateError(resultNegative, 10, "operator '*' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, 11, "operator '*' not defined for 'C' and 'float'", 46, 14);
     }
+
+    @Test(description = "Test multiplication of nullable values")
+    public void testMultiplyNullable() {
+        BRunUtil.invoke(result, "testMultiplyNullable");
+    }
 }

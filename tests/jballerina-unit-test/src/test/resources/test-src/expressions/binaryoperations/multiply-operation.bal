@@ -87,6 +87,32 @@ function testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
     assertEqual(a4, 30.0d);
 }
 
+function testMultiplyNullable() {
+    int? a1 = 10;
+    int? a2 = 2;
+    int? a3 = 1;
+    int? a4 = ();
+    int a5 = 5;
+    float? a6 = 30.0;
+    float? a7 = 10.0;
+    float? a8 = ();
+    float a9 = 5.0;
+
+    int? a10 = (a1 * a2) * a5;
+    int? a11 = a5 * a3;
+    int? a12 = a4 * a1;
+    float? a13 = a6 * a7;
+    float? a14 = a6 * a9;
+    float? a15 = a6 * a8;
+
+    assertEqual(a10, 100);
+    assertEqual(a11, 5);
+    assertEqual(a12, ());
+    assertEqual(a13, 300.0);
+    assertEqual(a14, 150.0);
+    assertEqual(a15, ());
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

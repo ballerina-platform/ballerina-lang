@@ -424,7 +424,7 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 24);
+        Assert.assertEquals(compileResult.getErrorCount(), 21);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 14);
@@ -443,12 +443,9 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '<<' not defined for 'int' and 'string'", 108, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '>>' not defined for 'int' and 'string'", 114, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '>>>' not defined for 'int' and 'string'", 120, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
-        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 156, 18);
-        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 170, 19);
-        BAssertUtil.validateError(compileResult, i, "invalid token '='", 171, 19);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 126, 18);
+        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 140, 19);
+        BAssertUtil.validateError(compileResult, i, "invalid token '='", 141, 19);
     }
 
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
