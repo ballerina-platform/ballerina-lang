@@ -198,6 +198,28 @@ function testBitwiseXOROperation() {
     assertEqual(a13, 15);
 }
 
+function testBinaryBitwiseOperationsForNullable() {
+    int? a1 = 5;
+    int? a2 = a1 & 3;
+    assertEqual(a2, 1);
+
+    int? a3 = 10 + 2;
+    a2 = a1 & a3;
+    assertEqual(a2, 4);
+
+    a2 = a1 | 3;
+    assertEqual(a2, 7);
+
+    a2 = a1 | a3;
+    assertEqual(a2, 13);
+
+    a2 = a1 ^ 3;
+    assertEqual(a2, 6);
+
+    a2 = a1 ^ a3;
+    assertEqual(a2, 9);
+}
+
 function assertEqual(anydata actual, anydata expected) {
     if actual == expected {
         return;

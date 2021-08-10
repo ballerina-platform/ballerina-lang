@@ -54,6 +54,11 @@ public class BinaryBitwiseOperationTest {
         };
     }
 
+    @Test(description = "Test binary bitwise operations for nullable values")
+    public void testBinaryBitwiseOperationsForNullable() {
+        BRunUtil.invoke(result, "testBinaryBitwiseOperationsForNullable");
+    }
+
     @Test(description = "Test binary bitwise operations negative scenarios")
     public void testBinaryBitwiseOperationsNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 15);
