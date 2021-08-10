@@ -130,6 +130,11 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test
+    public void testRecordWithEnumFreeze() {
+        BValue[] returns = BRunUtil.invoke(result, "testRecordWithEnumFreeze");
+    }
+
+    @Test
     public void testBasicTypeNullableUnionFreeze() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicTypeNullableUnionFreeze", new BValue[]{});
         Assert.assertEquals(returns.length, 2);

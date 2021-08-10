@@ -54,6 +54,22 @@ function testStringFreeze(string a) returns [boolean, boolean] {
     return [a == b, (a.isReadOnly() && b.isReadOnly())];
 }
 
+enum Foo {
+    X
+}
+
+type Bar record {
+    Foo f;
+};
+
+function testRecordWithEnumFreeze() {
+    Bar b = {f: X};
+    anydata g = b;
+    anydata readOnlyBar = g.cloneReadOnly();
+    assertTrue(readOnlyBar.isReadOnly());
+    assertTrue(readOnlyBar is Bar & readonly);
+}
+
 function testBasicTypeNullableUnionFreeze() returns [boolean, boolean] {
     int? i = 5;
     anydata j = i.cloneReadOnly();
