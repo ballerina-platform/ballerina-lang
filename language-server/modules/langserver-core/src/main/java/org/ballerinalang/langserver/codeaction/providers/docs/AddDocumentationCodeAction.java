@@ -33,6 +33,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.hasDocs;
+
 /**
  * Code Action for adding single documentation.
  *
@@ -67,10 +69,10 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
                                                     NodeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
         NonTerminalNode matchedNode = posDetails.matchedTopLevelNode();
-        // TODO: disabled `hasDocs` check since update-doc code-action is fragile with compiler-phase-runner issue
-//        if (hasDocs(matchedNode)) {
-//            return Collections.emptyList();
-//        }
+        
+        if (hasDocs(matchedNode)) {
+            return Collections.emptyList();
+        }
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,

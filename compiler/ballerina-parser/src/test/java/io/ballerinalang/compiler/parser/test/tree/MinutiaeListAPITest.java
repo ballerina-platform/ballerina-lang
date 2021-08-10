@@ -17,15 +17,23 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TreeModifier;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.testng.Assert;
@@ -75,6 +83,52 @@ public class MinutiaeListAPITest extends AbstractSyntaxTreeAPITest {
                 SyntaxKind.END_OF_LINE_MINUTIAE
         };
         testMinutiaList(semicolonToken.trailingMinutiae(), expectedKinds);
+    }
+
+    @Test
+    public void testGetLeadingInvalidTokensAPI() {
+        FunctionDefinitionNode functionDefNode = (FunctionDefinitionNode)
+                getModulePartNode("invalid_token_minutiae_test_01.bal").members().get(0);
+        StatementNode statementNode = ((FunctionBodyBlockNode) functionDefNode.functionBody()).statements().get(0);
+
+        // test API for non-terminal nodes
+        List<Token> tokenList1 = statementNode.leadingInvalidTokens();
+        Assert.assertEquals(tokenList1.size(), 4);
+        Assert.assertEquals(tokenList1.get(0).kind(), SyntaxKind.SERVICE_KEYWORD);
+        Assert.assertEquals(tokenList1.get(1).kind(), SyntaxKind.CLIENT_KEYWORD);
+        Assert.assertEquals(tokenList1.get(2).kind(), SyntaxKind.ISOLATED_KEYWORD);
+        Assert.assertEquals(tokenList1.get(3).kind(), SyntaxKind.TRANSACTIONAL_KEYWORD);
+
+        // test API for tokens
+        TypeDescriptorNode typeDescriptorNode = ((VariableDeclarationNode) statementNode)
+                .typedBindingPattern().typeDescriptor();
+        List<Token> tokenList2 = ((BuiltinSimpleNameReferenceNode) typeDescriptorNode).name().leadingInvalidTokens();
+        Assert.assertEquals(tokenList1.size(), tokenList2.size());
+        for (int i = 0; i < tokenList1.size(); i++) {
+            Assert.assertEquals(tokenList1.get(i).kind(), tokenList2.get(i).kind());
+        }
+    }
+
+    @Test
+    public void testGetTrailingInvalidTokensAPI() {
+        TypeDefinitionNode typeDefinitionNode = (TypeDefinitionNode)
+                getModulePartNode("invalid_token_minutiae_test_02.bal").members().get(0);
+        RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor();
+        RecordFieldNode recordFieldNode = (RecordFieldNode) recordTypeDescNode.fields().get(0);
+
+        // test API for non-terminal nodes
+        List<Token> tokenList1 = recordFieldNode.trailingInvalidTokens();
+        Assert.assertEquals(tokenList1.size(), 3);
+        Assert.assertEquals(tokenList1.get(0).kind(), SyntaxKind.STRING_KEYWORD);
+        Assert.assertEquals(tokenList1.get(1).kind(), SyntaxKind.ELLIPSIS_TOKEN);
+        Assert.assertEquals(tokenList1.get(2).kind(), SyntaxKind.SEMICOLON_TOKEN);
+
+        // test API for tokens
+        List<Token> tokenList2 = recordFieldNode.semicolonToken().trailingInvalidTokens();
+        Assert.assertEquals(tokenList1.size(), tokenList2.size());
+        for (int i = 0; i < tokenList1.size(); i++) {
+            Assert.assertEquals(tokenList1.get(i).kind(), tokenList2.get(i).kind());
+        }
     }
 
     @Test

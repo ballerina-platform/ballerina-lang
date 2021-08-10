@@ -26,14 +26,12 @@ dependencies {
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
         exclude group: 'jaxen', module: 'jaxen'
     }
-    implementation 'org.apache.commons:commons-lang3'
+    implementation 'org.apache.commons:commons-text'
     implementation 'io.opentelemetry:opentelemetry-api'
     implementation('com.atomikos:transactions-jta:5.0.8') {
         exclude group: 'org.hibernate', module: 'hibernate'
     }
     implementation "javax.transaction:javax.transaction-api:1.3"
-    implementation project(':ballerina-config')
-    implementation project(':ballerina-logging')
     implementation project(':toml-parser')
     implementation project(':ballerina-tools-api')
 

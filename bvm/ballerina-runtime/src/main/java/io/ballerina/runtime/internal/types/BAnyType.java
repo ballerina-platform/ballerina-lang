@@ -27,6 +27,8 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.RefValue;
 
+import java.util.Optional;
+
 /**
  * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
  *
@@ -36,6 +38,7 @@ public class BAnyType extends BType implements AnyType {
 
     private final boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
 
     /**
      * Create a {@code BAnyType} which represents the any type.
@@ -78,12 +81,22 @@ public class BAnyType extends BType implements AnyType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

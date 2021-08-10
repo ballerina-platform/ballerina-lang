@@ -29,3 +29,9 @@ function testEnumRename() returns Colour {
     Colour clr = RED;
     return RED;
 }
+
+function testFunction(int param1) {
+    if param1 < 0 {
+        //doSomething
+    }
+}

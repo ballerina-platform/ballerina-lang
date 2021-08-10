@@ -107,13 +107,6 @@ public class RuntimeConstants {
                                                                                          MathContext.DECIMAL128);
     public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775807.6",
                                                                                          MathContext.DECIMAL128);
-
-    // ballerina environment properties.
-    public static final String UTIL_LOGGING_CONFIG_CLASS_PROPERTY = "java.util.logging.config.class";
-    public static final String UTIL_LOGGING_MANAGER_CLASS_PROPERTY = "java.util.logging.manager";
-    public static final String UTIL_LOGGING_CONFIG_CLASS_VALUE = "org.ballerinalang.logging.util.LogConfigReader";
-    public static final String UTIL_LOGGING_MANAGER_CLASS_VALUE = "org.ballerinalang.logging.BLogManager";
-
     // runtime related error message constant values
     public static final String INTERNAL_ERROR_MESSAGE =
             "ballerina: Oh no, something really went wrong.\n" +

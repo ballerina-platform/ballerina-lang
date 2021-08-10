@@ -1,7 +1,7 @@
 module io.ballerina.runtime {
     requires java.xml;
     requires woodstox.core.asl;
-    requires org.apache.commons.lang3;
+    requires org.apache.commons.text;
     requires axiom.api;
     requires java.logging;
     requires java.management;
@@ -10,8 +10,6 @@ module io.ballerina.runtime {
     requires java.transaction.xa;
     requires slf4j.api;
     requires axiom.impl;
-    requires io.ballerina.config;
-    requires io.ballerina.logging;
     requires io.ballerina.toml;
     requires io.ballerina.tools.api;
 
@@ -64,7 +62,8 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
             io.ballerina.lang.xml, org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
-    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime;
+    exports io.ballerina.runtime.internal.types to io.ballerina.lang.typedesc, io.ballerina.testerina.runtime,
+            org.ballerinalang.debugadapter.runtime;
     exports io.ballerina.runtime.observability.metrics.noop;
     exports io.ballerina.runtime.observability.tracer.noop;
 }

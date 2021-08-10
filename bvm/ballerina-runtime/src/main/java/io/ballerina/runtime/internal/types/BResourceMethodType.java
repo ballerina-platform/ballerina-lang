@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.Parameter;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
@@ -32,19 +33,16 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     public final String accessor;
     public final String[] resourcePath;
-    public final String[] paramNames;
-    public final Boolean[] paramDefaultability;
+    public final Parameter[] parameters;
 
-    public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags,
-                               String accessor, String[] resourcePath, String[] paramNames,
-                                 Boolean[] paramDefaultbility) {
+    public BResourceMethodType(String funcName, BObjectType parent, BFunctionType type, long flags, String accessor,
+                               String[] resourcePath, Parameter[] parameters) {
         super(funcName, parent, type, flags);
         this.type = type;
         this.flags = flags;
         this.accessor = accessor;
         this.resourcePath = resourcePath;
-        this.paramNames = paramNames;
-        this.paramDefaultability = paramDefaultbility;
+        this.parameters = parameters;
     }
 
     @Override
@@ -58,13 +56,18 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
         Type[] types = type.paramTypes;
         for (int i = 0; i < types.length; i++) {
             Type type = types[i];
-            sj.add(type.getName() + " " + paramNames[i]);
+            sj.add(type.getName() + " " + parameters[i].name);
         }
         return sj.toString();
     }
 
+    @Deprecated
     @Override
     public String[] getParamNames() {
+        String[] paramNames = new String[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            paramNames[i] = parameters[i].name;
+        }
         return paramNames;
     }
 
@@ -80,12 +83,21 @@ public class BResourceMethodType extends BMethodType implements ResourceMethodTy
 
     @Override
     public <T extends MethodType> MethodType duplicate() {
-        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, paramNames,
-                paramDefaultability);
+        return new BResourceMethodType(funcName, parentObjectType, type, flags, accessor, resourcePath, parameters);
+    }
+
+    @Deprecated
+    @Override
+    public Boolean[] getParamDefaultability() {
+        Boolean[] paramDefaults = new Boolean[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            paramDefaults[i] = parameters[i].isDefault;
+        }
+        return paramDefaults;
     }
 
     @Override
-    public Boolean[] getParamDefaultability() {
-        return paramDefaultability;
+    public Parameter[] getParameters() {
+        return parameters;
     }
 }

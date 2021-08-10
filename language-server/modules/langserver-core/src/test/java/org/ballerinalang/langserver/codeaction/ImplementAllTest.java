@@ -50,7 +50,7 @@ public class ImplementAllTest extends AbstractCodeActionTest {
                 {"implementAllInService1.json", "implementAllInService.bal"},
                 {"implementAllInService2.json", "implementAllInService.bal"},
                 {"implementAllObj1.json", "implementAllObj.bal"},
-                {"implementAllObj1.json", "implementAllObj.bal"},
+                {"implementAllObj2.json", "implementAllObj.bal"},
         };
     }
 }

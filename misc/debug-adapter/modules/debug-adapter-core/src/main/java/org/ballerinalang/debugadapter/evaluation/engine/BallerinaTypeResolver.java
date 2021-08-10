@@ -30,6 +30,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
@@ -38,7 +39,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_UTILS_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_ARRAY_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
@@ -51,6 +54,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTAN
  */
 public class BallerinaTypeResolver {
 
+    static final String ARRAY_TYPE_SUFFIX = "\\[\\]$";
     private static final String UNION_TYPE_SEPARATOR_REGEX = "\\|";
 
     /**
@@ -73,7 +77,32 @@ public class BallerinaTypeResolver {
         return resolvedTypes;
     }
 
+    /**
+     * @param context        debug context
+     * @param typeDescriptor type descriptor string
+     * @return a collection of resolved types
+     * @throws EvaluationException if unsupported type(s) found
+     */
+    public static List<Value> resolve(SuspendedContext context, String typeDescriptor) throws EvaluationException {
+        List<Value> resolvedTypes = new ArrayList<>();
+        // If the type is a union, resolves each sub type iteratively.
+        if (typeDescriptor.contains(UNION_TYPE_SEPARATOR_REGEX)) {
+            String[] unionTypes = typeDescriptor.split(UNION_TYPE_SEPARATOR_REGEX);
+            for (String typeName : unionTypes) {
+                resolvedTypes.add(resolveSingleType(context, typeName.trim()));
+            }
+        } else {
+            resolvedTypes.add(resolveSingleType(context, typeDescriptor.trim()));
+        }
+        return resolvedTypes;
+    }
+
     private static Value resolveSingleType(SuspendedContext context, String typeName) throws EvaluationException {
+        boolean arrayTypeDetected = false;
+        if (typeName.endsWith(ARRAY_TYPE_SUFFIX)) {
+            arrayTypeDetected = true;
+            typeName = typeName.replaceAll(ARRAY_TYPE_SUFFIX, "");
+        }
         // Checks if the type name matches with ballerina predefined types.
         Optional<Value> result = resolvePredefinedType(context, typeName);
         // If any predefined type is not found, falls back to named types resolving.
@@ -84,7 +113,19 @@ public class BallerinaTypeResolver {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                     "failed to resolve type '" + typeName + "'."));
         }
-        return result.get();
+
+        return arrayTypeDetected ? createBArrayType(context, result.get()) : result.get();
+    }
+
+    private static Value createBArrayType(SuspendedContext context, Value type) throws EvaluationException {
+        List<String> argTypeNames = new ArrayList<>();
+        argTypeNames.add(EvaluationUtils.B_TYPE_CLASS);
+        RuntimeStaticMethod createArrayMethod = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS,
+                CREATE_ARRAY_TYPE_METHOD, argTypeNames);
+        List<Value> methodArgs = new ArrayList<>();
+        methodArgs.add(type);
+        createArrayMethod.setArgValues(methodArgs);
+        return createArrayMethod.invokeSafely();
     }
 
     private static Optional<Value> resolvePredefinedType(SuspendedContext context, String typeName) {

@@ -141,6 +141,11 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testTypeTestInWhereClause");
     }
 
+    @Test(description = "Test type test in variable defined in let clause")
+    public void testTypeNarrowingVarDefinedWithLet() {
+        BRunUtil.invoke(result, "testTypeNarrowingVarDefinedWithLet");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

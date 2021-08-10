@@ -29,6 +29,7 @@ import io.ballerina.runtime.internal.values.TupleValueImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -43,6 +44,7 @@ public class BTupleType extends BType implements TupleType {
     private int typeFlags;
     private boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
     public boolean isCyclic = false;
     private boolean resolving;
     private boolean resolvingReadonly;
@@ -268,12 +270,22 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

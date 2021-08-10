@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -73,7 +74,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -134,6 +134,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FINITE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
@@ -142,6 +143,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTEGER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTABLE_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
@@ -1305,8 +1307,12 @@ public class JvmTypeGen {
     private void createObjectMemberFunction(MethodVisitor mv, BAttachedFunction attachedFunc,
                                                    BObjectType objType) {
 
-        String implClassName = Symbols.isRemote(attachedFunc.symbol) ? REMOTE_METHOD_TYPE_IMPL : METHOD_TYPE_IMPL;
-        mv.visitTypeInsn(NEW, implClassName);
+        if (Symbols.isRemote(attachedFunc.symbol)) {
+            createRemoteFunction(mv, attachedFunc, objType);
+            return;
+        }
+
+        mv.visitTypeInsn(NEW, METHOD_TYPE_IMPL);
 
         mv.visitInsn(DUP);
 
@@ -1323,9 +1329,56 @@ public class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, implClassName, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
-                           false);
+        mv.visitMethodInsn(INVOKESPECIAL, METHOD_TYPE_IMPL, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL),
+                false);
+    }
+
+    private void createRemoteFunction(MethodVisitor mv, BAttachedFunction attachedFunc, BObjectType objType) {
+        mv.visitTypeInsn(NEW, REMOTE_METHOD_TYPE_IMPL);
+
+        mv.visitInsn(DUP);
+
+        // Load function name
+        mv.visitLdcInsn(decodeIdentifier(attachedFunc.funcName.value));
+
+        // Load the parent object type
+        loadType(mv, objType);
+        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+
+        // Load the field type
+        loadType(mv, attachedFunc.type);
+
+        // Load flags
+        mv.visitLdcInsn(attachedFunc.symbol.flags);
+
+        loadFunctionParameters(mv, attachedFunc.symbol.params);
+
+        mv.visitMethodInsn(INVOKESPECIAL, REMOTE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;J[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
+                        FUNCTION_PARAMETER), false);
+
+    }
+
+    private void loadFunctionParameters(MethodVisitor mv, List<BVarSymbol> params) {
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(paramSymbol.name.value);
+            mv.visitLdcInsn(paramSymbol.isDefaultable);
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
+                    false);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;)V",
+                    STRING_VALUE, BOOLEAN_VALUE), false);
+            mv.visitInsn(AASTORE);
+        }
     }
 
     private void createResourceFunction(MethodVisitor mv, BResourceFunction resourceFunction,
@@ -1367,38 +1420,11 @@ public class JvmTypeGen {
             mv.visitInsn(AASTORE);
         }
 
-        List<BVarSymbol> params = resourceFunction.symbol.params;
-        mv.visitLdcInsn((long) params.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol paramSymbol = params.get(i);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.name.value);
-            mv.visitInsn(AASTORE);
-        }
-
-        mv.visitLdcInsn((long) params.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, BOOLEAN_VALUE);
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol paramSymbol = params.get(i);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.isDefaultable);
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                    String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-            mv.visitInsn(AASTORE);
-        }
+        loadFunctionParameters(mv, resourceFunction.symbol.params);
 
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;[L%s;)V",
-                        STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL, STRING_VALUE, STRING_VALUE, STRING_VALUE,
-                        BOOLEAN_VALUE),
-                false);
+                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
+                        STRING_VALUE, STRING_VALUE, FUNCTION_PARAMETER), false);
     }
 
     // -------------------------------------------------------
@@ -1981,9 +2007,14 @@ public class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(bType));
 
         loadReadonlyFlag(mv, bType);
-
+        String effectiveTypeClass;
+        if (bType.effectiveType instanceof IntersectableReferenceType) {
+            effectiveTypeClass = INTERSECTABLE_REFERENCE_TYPE;
+        } else {
+            effectiveTypeClass = TYPE;
+        }
         mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;[L%s;L%s;IZ)V", MODULE, TYPE, TYPE), false);
+                           String.format("(L%s;[L%s;L%s;IZ)V", MODULE, TYPE, effectiveTypeClass), false);
     }
 
     /**

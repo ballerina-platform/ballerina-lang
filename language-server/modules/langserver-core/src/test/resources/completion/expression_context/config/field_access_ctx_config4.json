@@ -109,7 +109,7 @@
     {
       "label": "filter(function () func)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -128,7 +128,7 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text value; |}? ;}",
+      "detail": "object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}? ;}",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -143,7 +143,7 @@
     {
       "label": "strip()",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -158,7 +158,7 @@
     {
       "label": "slice(int startIndex, int endIndex)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -177,7 +177,7 @@
     {
       "label": "children()",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -192,7 +192,7 @@
     {
       "label": "get(int i)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>",
+      "detail": "xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -211,7 +211,7 @@
     {
       "label": "elements(string? nm)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element>",
+      "detail": "xml<xml:Element>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -230,7 +230,7 @@
     {
       "label": "text()",
       "kind": "Function",
-      "detail": "ballerina/lang.xml:0.8.0:Text",
+      "detail": "xml:Text",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -245,7 +245,7 @@
     {
       "label": "elementChildren(string? nm)",
       "kind": "Function",
-      "detail": "xml<ballerina/lang.xml:0.8.0:Element>",
+      "detail": "xml<xml:Element>",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -255,25 +255,6 @@
       "sortText": "D",
       "filterText": "elementChildren",
       "insertText": "elementChildren(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "map(function () func)",
-      "kind": "Function",
-      "detail": "xml<xml<ballerina/lang.xml:0.8.0:Element|ballerina/lang.xml:0.8.0:Comment|ballerina/lang.xml:0.8.0:ProcessingInstruction|ballerina/lang.xml:0.8.0:Text>>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
-        }
-      },
-      "sortText": "D",
-      "filterText": "map",
-      "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -422,6 +403,25 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "map(function () func)",
+      "kind": "Function",
+      "detail": "xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function ()` func: a function to apply to each child or parameter `item`  \n  \n**Return** `xml<xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>>`   \n- new xml value containing result of applying function `func` to each child or parameter `item`  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "map",
+      "insertText": "map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

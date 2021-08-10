@@ -140,17 +140,17 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         String text = "import ballerina/http;\n" +
                 "import ballerina/lang.'object as lang;\n" +
                 "\n" +
-                "public & function foo() returns int {" +
+                "public % function foo() returns int {" +
                 "int a = 5;" +
                 "return a;" +
                 "}";
-        int position = text.indexOf("&");
+        int position = text.indexOf("%");
 
         SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
         ModulePartNode modulePartNode = syntaxTree.rootNode();
 
         Token token = modulePartNode.findToken(position, true);
-        Assert.assertEquals(SyntaxKind.BITWISE_AND_TOKEN, token.kind());
+        Assert.assertEquals(SyntaxKind.PERCENT_TOKEN, token.kind());
         Assert.assertEquals(SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE, token.parent().kind());
 
         token = modulePartNode.findToken(position, false);

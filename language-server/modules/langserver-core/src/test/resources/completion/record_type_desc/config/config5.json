@@ -349,30 +349,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "error",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "error",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "S",
       "filterText": "client",
       "insertText": "client ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -466,6 +448,36 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "STRING_VAL_TWO",
+      "kind": "Variable",
+      "detail": "string value two",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "D",
+      "insertText": "STRING_VAL_TWO",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "T5",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "O",
+      "insertText": "T5",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testIntValue",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "D",
+      "insertText": "testIntValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -504,6 +516,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testStringValue",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "testStringValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "helloFunction()",
       "kind": "Function",
       "detail": "string",
@@ -519,55 +539,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "T5",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "O",
-      "insertText": "T5",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "STRING_VAL_TWO",
-      "kind": "Variable",
-      "detail": "string value two",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "D",
-      "insertText": "STRING_VAL_TWO",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "STRING_VAL",
-      "kind": "Variable",
-      "detail": "string value",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "D",
-      "insertText": "STRING_VAL",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TR1",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "O",
       "insertText": "TR1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testIntValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "testIntValue",
       "insertTextFormat": "Snippet"
     },
     {
@@ -582,11 +558,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testStringValue",
+      "label": "STRING_VAL",
       "kind": "Variable",
-      "detail": "string",
+      "detail": "string value",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
       "sortText": "D",
-      "insertText": "testStringValue",
+      "insertText": "STRING_VAL",
       "insertTextFormat": "Snippet"
     },
     {
