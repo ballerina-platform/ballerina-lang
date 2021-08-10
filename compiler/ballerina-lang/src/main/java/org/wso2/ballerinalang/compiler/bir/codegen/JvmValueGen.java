@@ -561,6 +561,7 @@ public class JvmValueGen {
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmBStringConstantsGen stringConstantsGen,
+                                          JvmUnionTypeConstantsGen unionTypeConstantsGen,
                                           AsyncDataCollector asyncDataCollector) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -569,7 +570,7 @@ public class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, unionTypeConstantsGen, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
@@ -1253,7 +1254,8 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, JvmBStringConstantsGen stringConstantsGen) {
+    void generateValueClasses(Map<String, byte[]> jarEntries, JvmBStringConstantsGen stringConstantsGen,
+                              JvmUnionTypeConstantsGen unionTypeConstantsGen) {
 
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
@@ -1263,12 +1265,12 @@ public class JvmValueGen {
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
                 byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, stringConstantsGen
-                        , asyncDataCollector);
+                        , unionTypeConstantsGen, asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, stringConstantsGen
-                        , asyncDataCollector);
+                        , unionTypeConstantsGen, asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
@@ -1279,12 +1281,13 @@ public class JvmValueGen {
 
     private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
                                           JvmBStringConstantsGen stringConstantsGen,
+                                          JvmUnionTypeConstantsGen unionTypeConstantsGen,
                                           AsyncDataCollector asyncDataCollector) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, unionTypeConstantsGen, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen =  new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});

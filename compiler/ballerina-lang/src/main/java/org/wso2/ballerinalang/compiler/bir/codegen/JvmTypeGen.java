@@ -170,17 +170,20 @@ public class JvmTypeGen {
     private final JvmBStringConstantsGen stringConstantsGen;
     private final TypeHashVisitor typeHashVisitor;
     private final PackageID packageID;
+    private final JvmUnionTypeConstantsGen unionTypeConstantsGen;
     private final String anonTypesClass;
     private final String recordsClass;
     private final String objectsClass;
     private final String errorsClass;
 
-    public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen, PackageID packageID) {
+    public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen, JvmUnionTypeConstantsGen unionTypeConstantsGen,
+                      PackageID packageID) {
         this.stringConstantsGen = stringConstantsGen;
         this.packageID = packageID;
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         typeHashVisitor = new TypeHashVisitor();
+        this.unionTypeConstantsGen = unionTypeConstantsGen;
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
@@ -420,7 +423,9 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        loadUnionType(mv, unionType);
+                        unionTypeConstantsGen.setJvmTypeGen(this);
+                        String varName = unionTypeConstantsGen.add((BUnionType) bType);
+                        unionTypeConstantsGen.generateGetBUnionType(mv, varName);
                     }
                     return;
                 case TypeTags.INTERSECTION:
@@ -697,13 +702,12 @@ public class JvmTypeGen {
     }
 
     /**
-     * Generate code to load an instance of the given union type
-     * to the top of the stack.
+     * Generate code to load an instance of the given union type to the top of the stack.
      *
      * @param mv        method visitor
      * @param unionType union type to load
      */
-    private void loadUnionType(MethodVisitor mv, BUnionType unionType) {
+    void loadUnionType(MethodVisitor mv, BUnionType unionType) {
         // Create the union type
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
