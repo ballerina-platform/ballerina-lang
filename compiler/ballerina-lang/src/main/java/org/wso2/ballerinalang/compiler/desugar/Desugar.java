@@ -6951,6 +6951,9 @@ public class Desugar extends BLangNodeVisitor {
                 case BITWISE_LEFT_SHIFT:
                 case BITWISE_RIGHT_SHIFT:
                 case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                case BITWISE_AND:
+                case BITWISE_OR:
+                case BITWISE_XOR:
                     return true;
             }
         }

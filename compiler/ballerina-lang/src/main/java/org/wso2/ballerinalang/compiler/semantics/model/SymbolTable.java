@@ -644,6 +644,7 @@ public class SymbolTable {
 
         OperatorKind[] binaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.MUL,
                     OperatorKind.DIV, OperatorKind.MOD, OperatorKind.BITWISE_AND,
+                OperatorKind.BITWISE_OR, OperatorKind.BITWISE_XOR,
                 OperatorKind.BITWISE_LEFT_SHIFT, OperatorKind.BITWISE_RIGHT_SHIFT,
                 OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT};
 
