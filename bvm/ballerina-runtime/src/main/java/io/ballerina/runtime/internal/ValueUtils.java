@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -155,5 +156,17 @@ public class ValueUtils {
             // Ignore : issue #22871 is opened to fix this
         }
         return null;
+    }
+
+    /**
+     * Provide the readonly Xml Value that is equivalent to a given string value.
+     *
+     * @param value string value
+     * @return immutable Xml value
+     */
+    public static BXml createReadOnlyXmlValue(String value) {
+        BXml xml = TypeConverter.stringToXml(value);
+        xml.freezeDirect();
+        return xml;
     }
 }

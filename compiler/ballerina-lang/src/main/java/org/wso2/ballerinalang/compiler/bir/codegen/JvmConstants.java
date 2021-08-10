@@ -126,6 +126,8 @@ public class JvmConstants {
     public static final String NEVER_TYPE = "io/ballerina/runtime/api/types/NeverType";
     public static final String NULL_TYPE = "io/ballerina/runtime/api/types/NullType";
     public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
+    public static final String INTERSECTABLE_REFERENCE_TYPE
+            = "io/ballerina/runtime/api/types/IntersectableReferenceType";
 
 
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
@@ -293,6 +295,7 @@ public class JvmConstants {
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
+    public static final String CHECK_FLOAT_EXACT_EQUAL = "checkFloatExactEqual";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
@@ -303,6 +306,7 @@ public class JvmConstants {
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
+    public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";

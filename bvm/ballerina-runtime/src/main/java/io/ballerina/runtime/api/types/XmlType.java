@@ -22,6 +22,6 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0.0
  */
-public interface XmlType extends Type {
+public interface XmlType extends SelectivelyImmutableReferenceType {
 
 }

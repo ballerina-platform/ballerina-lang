@@ -151,6 +151,10 @@ public class StaticMethods {
                 return StringUtils.fromString("sample value return");
             case 3:
                 return 54.88;
+            case 4:
+                return null;
+            case 5:
+                return ValueCreator.createMapValue(PredefinedTypes.TYPE_ANYDATA);
             default:
                 return true;
         }
@@ -169,9 +173,11 @@ public class StaticMethods {
         }
     }
 
-    public static Object acceptNothingInvalidAnyReturn() {
+    public static Object acceptNothingInvalidAnydataReturn() {
         return "invalid java string";
     }
+
+
 
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
         p.set(StringUtils.fromString("age"), newVal);

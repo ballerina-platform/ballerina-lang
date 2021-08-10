@@ -519,7 +519,8 @@ public class JvmPackageGen {
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
                 module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.constValue.type,
-                        null, constant.name, VarScope.GLOBAL, VarKind.CONSTANT, "", constant.origin));
+                        null, constant.name, constant.originalName, VarScope.GLOBAL, VarKind.CONSTANT, "",
+                        constant.origin));
             }
         }
         String pkgName = JvmCodeGenUtil.getPackageName(module.packageID);

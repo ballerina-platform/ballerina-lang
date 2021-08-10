@@ -194,6 +194,13 @@ public class Names {
         return fromString(identifier.value);
     }
 
+    public Name originalNameFromIdNode(BLangIdentifier identifier) {
+        if (identifier.originalValue == null || identifier.value.equals(identifier.originalValue)) {
+            return fromString(identifier.value);
+        }
+        return fromString(identifier.originalValue);
+    }
+
     public Name fromString(String value) {
         // value cannot be null
         if (value.equals("")) {
