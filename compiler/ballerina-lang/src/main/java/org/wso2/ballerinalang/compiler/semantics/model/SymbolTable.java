@@ -444,6 +444,12 @@ public class SymbolTable {
         // Binary arithmetic operators
         defineIntegerArithmeticOperations();
 
+        // Binary operators for optional integer types
+        defineOptionalIntegerOperations();
+
+        // Binary operators for optional floating point types
+        defineOptionalFloatingPointOperations();
+
         // XML arithmetic operators
         defineXmlStringConcatanationOperations();
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType);
@@ -630,6 +636,36 @@ public class SymbolTable {
         }
     }
 
+    private void defineOptionalIntegerOperations() {
+
+        BType intOptional = BUnionType.create(null, intType, nilType);
+        ((BUnionType) intOptional).setNullable(true);
+        BType byteOptional = BUnionType.create(null, byteType, nilType);
+        ((BUnionType) byteOptional).setNullable(true);
+
+        OperatorKind[] binaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.MUL,
+                    OperatorKind.DIV, OperatorKind.MOD, OperatorKind.BITWISE_AND,
+                OperatorKind.BITWISE_LEFT_SHIFT, OperatorKind.BITWISE_RIGHT_SHIFT,
+                OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT};
+
+        for (OperatorKind operator: binaryOperators) {
+            defineBinaryOperator(operator, intOptional, intOptional, intOptional);
+            defineBinaryOperator(operator, intType, intOptional, intOptional);
+            defineBinaryOperator(operator, intOptional, intType, intOptional);
+            defineBinaryOperator(operator, byteOptional, byteOptional, intOptional);
+            defineBinaryOperator(operator, intType, byteOptional, intOptional);
+            defineBinaryOperator(operator, byteOptional, intType, intOptional);
+        }
+
+        OperatorKind[] unaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.BITWISE_COMPLEMENT};
+
+        for (OperatorKind operator: unaryOperators) {
+            defineUnaryOperator(operator, intOptional, intOptional);
+            defineUnaryOperator(operator, byteOptional, intOptional);
+        }
+
+    }
+
     private void defineIntegerBitwiseAndOperations() {
         BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
         BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
@@ -722,6 +758,32 @@ public class SymbolTable {
             for (BType intRhs : allIntTypes) {
                 defineBinaryOperator(rightShiftOpKind, signedLhs, intRhs, intType);
             }
+        }
+    }
+
+    private void defineOptionalFloatingPointOperations() {
+        BType floatOptional = BUnionType.create(null, floatType, nilType);
+        ((BUnionType) floatOptional).setNullable(true);
+        BType decimalOptional = BUnionType.create(null, decimalType, nilType);
+        ((BUnionType) decimalOptional).setNullable(true);
+
+        OperatorKind[] binaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.MUL,
+                OperatorKind.DIV, OperatorKind.MOD};
+
+        for (OperatorKind operator: binaryOperators) {
+            defineBinaryOperator(operator, floatType, floatOptional, floatOptional);
+            defineBinaryOperator(operator, floatOptional, floatType, floatOptional);
+            defineBinaryOperator(operator, floatOptional, floatOptional, floatOptional);
+            defineBinaryOperator(operator, decimalType, decimalOptional, decimalOptional);
+            defineBinaryOperator(operator, decimalOptional, decimalType, decimalOptional);
+            defineBinaryOperator(operator, decimalOptional, decimalOptional, decimalOptional);
+        }
+
+        OperatorKind[] unaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.BITWISE_COMPLEMENT};
+
+        for (OperatorKind operator: unaryOperators) {
+            defineUnaryOperator(operator, floatOptional, floatOptional);
+            defineUnaryOperator(operator, decimalOptional, decimalOptional);
         }
     }
 

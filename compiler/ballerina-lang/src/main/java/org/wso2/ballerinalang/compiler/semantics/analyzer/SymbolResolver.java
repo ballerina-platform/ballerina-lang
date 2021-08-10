@@ -1855,6 +1855,21 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (types.size() == opType.paramTypes.size()) {
                 boolean match = true;
                 for (int i = 0; i < types.size(); i++) {
+                    if ((types.get(i).getKind() == TypeKind.UNION) &&
+                            (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
+                        if (types.get(i).isNullable() && opType.paramTypes.get(i).isNullable()) {
+                            BType nilLiftTypeOne = ((BUnionType) types.get(i)).getMemberTypes().iterator().next();
+                            BType nilLiftTypeTwo = ((BUnionType) opType.paramTypes.get(i)).
+                                    getMemberTypes().iterator().next();
+                            if (nilLiftTypeOne.tag == nilLiftTypeTwo.tag) {
+                                continue;
+                            } else {
+                                match = false;
+                            }
+                        } else {
+                            match = false;
+                        }
+                    }
                     if (types.get(i).tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }
