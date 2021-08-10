@@ -98,7 +98,6 @@ import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IOR;
-import static org.objectweb.asm.Opcodes.ISHL;
 import static org.objectweb.asm.Opcodes.ISHR;
 import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.IUSHR;
@@ -131,6 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_XML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHECK_FLOAT_EXACT_EQUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -810,8 +810,9 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(IFNE, label1);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, CHECK_FLOAT_EXACT_EQUAL, "(DD)Z", false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else {
@@ -847,8 +848,8 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(IFEQ, label1);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, CHECK_FLOAT_EXACT_EQUAL, "(DD)Z", false);
+            this.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else {
@@ -1014,12 +1015,16 @@ public class JvmInstructionGen {
             if (opType1Tag == TypeTags.BYTE) {
                 this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
+            } else {
+                jvmCastGen.generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
             }
 
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             if (opType2Tag == TypeTags.BYTE) {
                 this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
                 byteResult = true;
+            } else {
+                jvmCastGen.generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
             }
 
             this.mv.visitInsn(LAND);
@@ -1091,21 +1096,18 @@ public class JvmInstructionGen {
     private void generateBitwiseLeftShiftIns(BIRNonTerminator.BinaryOp binaryIns) {
 
         this.loadVar(binaryIns.rhsOp1.variableDcl);
-        this.loadVar(binaryIns.rhsOp2.variableDcl);
+        BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
+        if (firstOpType.tag == TypeTags.BYTE) {
+            this.mv.visitInsn(I2L);
+        }
 
+        this.loadVar(binaryIns.rhsOp2.variableDcl);
         BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
 
-        BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-        if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
-            this.mv.visitInsn(LSHL);
-        } else {
-            this.mv.visitInsn(ISHL);
-            this.mv.visitInsn(I2L);
-        }
-
+        this.mv.visitInsn(LSHL);
         this.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 

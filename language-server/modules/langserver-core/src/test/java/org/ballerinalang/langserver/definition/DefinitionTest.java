@@ -47,7 +47,6 @@ public class DefinitionTest {
     protected Path configRoot;
     protected Path sourceRoot;
     protected Gson gson = new Gson();
-    protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
     private static final Logger log = LoggerFactory.getLogger(DefinitionTest.class);
 
@@ -81,7 +80,8 @@ public class DefinitionTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("left");
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result")
+                .getAsJsonArray("left");
         this.alterExpectedStdlibUri(expected);
         this.alterActualUri(actual);
         Assert.assertEquals(actual, expected);
@@ -94,7 +94,8 @@ public class DefinitionTest {
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         JsonArray expected = configObject.getAsJsonArray("result");
-        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("left");
+        JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result")
+                .getAsJsonArray("left");
         this.alterExpectedUri(expected, root);
         this.alterActualUri(actual);
         Assert.assertEquals(actual, expected);
@@ -113,6 +114,8 @@ public class DefinitionTest {
                 {"defProject7.json", "project"},
                 {"defProject9.json", "project"},
                 {"defProject10.json", "project"},
+                {"defProject11.json", "project"},
+                {"defProject12.json", "project"},
                 {"def_record_config1.json", "project"},
                 // TODO Blocked by #30688 causing module of user defined errors to become lang.annotations
                 // {"def_error_config1.json", "project"},

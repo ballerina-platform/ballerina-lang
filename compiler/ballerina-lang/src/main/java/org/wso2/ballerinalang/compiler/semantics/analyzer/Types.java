@@ -1565,15 +1565,23 @@ public class Types {
     }
 
     private int getObjectFuncCount(BObjectTypeSymbol sym) {
+        int count = 0;
+        for (BAttachedFunction attachedFunc : sym.attachedFuncs) {
+            // Resource functions does not consider as a part of type.
+            if (!Symbols.isResource(attachedFunc.symbol)) {
+                count++;
+            }
+        }
+
         // If an explicit initializer is available, it could mean,
         // 1) User explicitly defined an initializer
         // 2) The object type is coming from an already compiled source, hence the initializer is already set.
         //    If it's coming from a compiled binary, the attached functions list of the symbol would already contain
         //    the initializer in it.
         if (sym.initializerFunc != null && sym.attachedFuncs.contains(sym.initializerFunc)) {
-            return sym.attachedFuncs.size() - 1;
+            return count - 1;
         }
-        return sym.attachedFuncs.size();
+        return count;
     }
 
     public boolean checkRecordEquivalency(BRecordType rhsType, BRecordType lhsType, Set<TypePair> unresolvedTypes) {
@@ -4713,8 +4721,8 @@ public class Types {
                 anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
-                symTable.builtinPos, VIRTUAL);
+                Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
+                false, symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
                                                                          bInvokableType, symTable.builtinPos);

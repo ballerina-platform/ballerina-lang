@@ -46,16 +46,21 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
 
-    public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
-                      SymbolOrigin origin) {
-        super(VARIABLE, flags, name, pkgID, type, owner, pos, origin);
+    public BVarSymbol(long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
+                      Location pos, SymbolOrigin origin) {
+        super(VARIABLE, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.annots = new ArrayList<>();
         this.kind = SymbolKind.VARIABLE;
     }
 
-    public BVarSymbol(long flags, boolean isIgnorable, Name name, PackageID pkgID, BType type, BSymbol owner,
-                      Location pos, SymbolOrigin origin) {
-        this(flags, name, pkgID, type, owner, pos, origin);
+    public BVarSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner, Location pos,
+                      SymbolOrigin origin) {
+        this(flags, name, name, pkgID, type, owner, pos, origin);
+    }
+
+    public BVarSymbol(long flags, boolean isIgnorable, Name name, Name originalName, PackageID pkgID, BType type,
+                      BSymbol owner, Location pos, SymbolOrigin origin) {
+        this(flags, name, originalName, pkgID, type, owner, pos, origin);
         this.isWildcard = isIgnorable;
     }
 

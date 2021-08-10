@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
  * @since 2.0.0
  */
 public class MatchStatementSyntaxErrorsTest {
-
     private CompileResult result;
 
     @BeforeClass

@@ -21,6 +21,7 @@ package io.ballerina.toml.validator;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
+import io.ballerina.toml.semantic.ast.TomlInlineTableValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
@@ -294,6 +295,46 @@ public class SchemaValidator extends TomlNodeVisitor {
                         "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.BOOLEAN));
                 tomlBooleanValueNode.addDiagnostic(diagnostic);
             }
+        }
+    }
+
+    @Override
+    public void visit(TomlInlineTableValueNode tomlInlineTableValueNode) {
+        if (schema.type() != Type.OBJECT) {
+            if (!tomlInlineTableValueNode.isMissingNode()) {
+                TomlDiagnostic diagnostic = getTomlDiagnostic(tomlInlineTableValueNode.location(), "TVE0002",
+                        "error.invalid.type", DiagnosticSeverity.ERROR, getTypeErrorMessage(Type.OBJECT));
+                tomlInlineTableValueNode.addDiagnostic(diagnostic);
+            }
+            return;
+        }
+        Schema schema = (Schema) this.schema;
+        Map<String, AbstractSchema> properties = schema.properties();
+        List<String> requiredFields = getRequiredFields(schema);
+        
+        for (TopLevelNode topLevelNode : tomlInlineTableValueNode.elements()) {
+            String key = topLevelNode.key().name();
+            AbstractSchema abstractSchema = properties.get(key);
+            requiredFields.remove(key);
+            if (abstractSchema != null) {
+                visitNode(topLevelNode, abstractSchema, key);
+                continue;
+            }
+            if (!schema.hasAdditionalProperties()) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0001", "error.unexpected.property",
+                        DiagnosticSeverity.ERROR);
+                TomlDiagnostic diagnostic = new TomlDiagnostic(topLevelNode.location(), diagnosticInfo,
+                        getUnexpectedPropertyErrorMessage(key));
+                tomlInlineTableValueNode.addDiagnostic(diagnostic);
+            }
+        }
+
+        for (String field : requiredFields) {
+            DiagnosticInfo diagnosticInfo = new DiagnosticInfo("TVE0006", "error.required.field.missing",
+                    DiagnosticSeverity.ERROR);
+            TomlDiagnostic diagnostic = new TomlDiagnostic(tomlInlineTableValueNode.location(), diagnosticInfo,
+                    getRequiredErrorMessage(field));
+            tomlInlineTableValueNode.addDiagnostic(diagnostic);
         }
     }
 

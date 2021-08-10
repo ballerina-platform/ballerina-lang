@@ -239,24 +239,6 @@
       "sortText": "R",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1:Client(string url)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `string` url"
-        }
-      },
-      "sortText": "C",
-      "insertText": "module1:Client(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }

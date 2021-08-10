@@ -424,15 +424,15 @@ public class CompoundAssignmentTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");
         int i = 0;
-        Assert.assertEquals(compileResult.getErrorCount(), 24);
+        Assert.assertEquals(compileResult.getErrorCount(), 33);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'any' and 'int'", 5, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'any' and 'int'", 13, 5);
-        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 14);
-        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 25, 14);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 20, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 25, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'string' and 'int'", 35, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '-' not defined for 'string' and 'int'", 41, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '(int|error)'", 47, 5);
-        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 53, 14);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 53, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 59, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'string'", 65, 5);
         BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'float', found 'int'", 73, 12);
@@ -446,9 +446,27 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 132, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
-        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 156, 18);
-        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 170, 19);
-        BAssertUtil.validateError(compileResult, i, "invalid token '='", 171, 19);
+        BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 156, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 170, 17);
+        BAssertUtil.validateError(compileResult, i++, "invalid token '='", 171, 17);
+        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and 'int'",
+                180, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and 'int'",
+                181, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for '(int|string)' and 'int'",
+                182, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and 'SomeType'",
+                185, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and 'SomeType'",
+                186, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for '(int|string)' and 'SomeType'",
+                187, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and '12|A'",
+                190, 5);
+        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and '12|A'",
+                191, 5);
+        BAssertUtil.validateError(compileResult, i, "operator '^' not defined for '(int|string)' and '12|A'",
+                192, 5);
     }
 
     @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
@@ -466,7 +484,10 @@ public class CompoundAssignmentTest {
                 "testCompoundAssignmentDivisionWithTypes",
                 "testCompoundAssignmentBitwiseLeftShift",
                 "testCompoundAssignmentBitwiseRightShift",
-                "testCompoundAssignmentBitwiseUnsignedRightShift"
+                "testCompoundAssignmentBitwiseUnsignedRightShift",
+                "testCompoundAssignmentBitwiseANDOperation",
+                "testCompoundAssignmentBitwiseOROperation",
+                "testCompoundAssignmentBitwiseXOROperation"
         };
     }
 

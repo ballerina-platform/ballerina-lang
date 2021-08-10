@@ -76,6 +76,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_ANYDATA_VALUES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -622,6 +623,10 @@ public class JvmCastGen {
         if (!(sourceType.jTag == JTypeTags.JREF || sourceType.jTag == JTypeTags.JARRAY)) {
             // if value types, then ad box instruction
             generateJCastToBAny(mv, indexMap, sourceType, symbolTable.anydataType);
+        } else {
+            jvmTypeGen.loadType(mv, symbolTable.anydataType);
+            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, HANDLE_ANYDATA_VALUES,
+                    String.format("(L%s;L%s;)L%s;", OBJECT, TYPE, OBJECT), false);
         }
     }
 

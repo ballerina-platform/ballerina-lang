@@ -18,10 +18,13 @@
 package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Represents a terminal node in the Ballerina syntax tree.
@@ -82,9 +85,23 @@ public class Token extends Node {
             return Collections::emptyIterator;
         }
 
-        return () -> internalNode.diagnostics().stream()
-                .map(this::createSyntaxDiagnostic)
-                .iterator();
+        return () -> collectDiagnostics().iterator();
+    }
+
+    private List<Diagnostic> collectDiagnostics() {
+        List<Diagnostic> diagnosticList = new ArrayList<>();
+
+        // Collect diagnostics inside invalid token minutiae
+        leadingInvalidTokens().forEach(token -> token.diagnostics().forEach(diagnosticList::add));
+        trailingInvalidTokens().forEach(token -> token.diagnostics().forEach(diagnosticList::add));
+
+        // Collect token diagnostics
+        for (STNodeDiagnostic stNodeDiagnostic : internalNode.diagnostics()) {
+            Diagnostic syntaxDiagnostic = createSyntaxDiagnostic(stNodeDiagnostic);
+            diagnosticList.add(syntaxDiagnostic);
+        }
+
+        return diagnosticList;
     }
 
     @Override

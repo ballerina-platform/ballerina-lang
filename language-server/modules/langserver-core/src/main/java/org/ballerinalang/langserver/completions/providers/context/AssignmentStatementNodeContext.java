@@ -116,7 +116,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         }
         TypeSymbol rawType = CommonUtil.getRawType(type.get());
         if (rawType.kind() == SymbolKind.CLASS) {
-            completionItems.add(this.getImplicitNewCompletionItem((ClassSymbol) rawType, context));
+            completionItems.add(this.getImplicitNewCItemForClass((ClassSymbol) rawType, context));
         }
 
         return completionItems;

@@ -28,7 +28,7 @@
                     "character": 28
                   }
                 },
-                "newText": "# Description\n#\n# + name - Name of the student    \n# + id - Field Description    \n# + vals - Field Description"
+                "newText": "# Description\n#\n# + name - Name of the student  \n# + id - Field Description  \n# + vals - Field Description"
               }
             ]
           }

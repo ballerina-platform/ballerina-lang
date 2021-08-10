@@ -2,9 +2,6 @@ $lambda$_0 function(map<...>, int) -> int {
     %0(RETURN) int;
     %1(ARG) ...;
     %2(ARG) int;
-    %0(RETURN) int;
-    %1(ARG) ...;
-    %2(ARG) int;
     %3(LOCAL) int;
     %6(TEMP) int;
     %7(TEMP) boolean;
