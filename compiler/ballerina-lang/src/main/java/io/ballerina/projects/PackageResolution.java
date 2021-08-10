@@ -224,8 +224,19 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    PackageManifest.Package getVersionFromPackageManifest(PackageOrg requestedPkgOrg, PackageName requestedPkgName) {
-        for (PackageManifest.Package dependency : rootPackageContext.manifest().dependencies()) {
+    DependencyManifest.Package getVersionFromDependencyManifest(PackageOrg requestedPkgOrg,
+                                                                        PackageName requestedPkgName) {
+        for (DependencyManifest.Package dependency : rootPackageContext.dependencyManifest().packages()) {
+            if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
+                return dependency;
+            }
+        }
+        return null;
+    }
+
+    PackageManifest.LocalPackage getVersionFromPackageManifest(PackageOrg requestedPkgOrg,
+                                                                       PackageName requestedPkgName) {
+        for (PackageManifest.LocalPackage dependency : rootPackageContext.packageManifest().localPackages()) {
             if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
                 return dependency;
             }
@@ -464,11 +475,21 @@ public class PackageResolution {
                         continue;
                     }
                 } else {
-                    // Check whether this package is already defined in the package manifest, if so get the version
-                    PackageManifest.Package dependency = PackageResolution.this.getVersionFromPackageManifest(
+                    PackageVersion packageVersion = null;
+                    String repository = null;
+                    // Check whether this package is already defined as a local dependency, if so get the version
+                    PackageManifest.LocalPackage localDependency = PackageResolution.this
+                            .getVersionFromPackageManifest(packageOrg, possiblePkgName);
+                    if (localDependency != null) {
+                        packageVersion = localDependency.version();
+                        repository = localDependency.repository();
+                    }
+                    // Check whether this package is already defined in the dependency manifest, if so get the version
+                    DependencyManifest.Package dependency = PackageResolution.this.getVersionFromDependencyManifest(
                             packageOrg, possiblePkgName);
-                    PackageVersion packageVersion = dependency != null ? dependency.version() : null;
-                    String repository = dependency != null ? dependency.repository() : null;
+                    if (dependency != null) {
+                        packageVersion = dependency.version();
+                    }
                     DependencyVersionKind dependencyVersionKind = packageVersion != null ?
                             DependencyVersionKind.USER_SPECIFIED : DependencyVersionKind.LATEST;
 

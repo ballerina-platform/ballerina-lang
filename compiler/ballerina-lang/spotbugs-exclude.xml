@@ -313,6 +313,11 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.projects.internal.BalaFiles"/>
+        <Method name="createDependencyManifestFromBalaFile"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.projects.util.ProjectUtils"/>
         <Method name="extractBala"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>

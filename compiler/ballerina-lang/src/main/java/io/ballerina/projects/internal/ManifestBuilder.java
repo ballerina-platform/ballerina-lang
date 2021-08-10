@@ -36,7 +36,6 @@ import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
-import io.ballerina.toml.semantic.ast.TomlInlineTableValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
@@ -49,8 +48,6 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
@@ -65,6 +62,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
+import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
 import static io.ballerina.projects.util.ProjectUtils.guessOrgName;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -76,7 +75,6 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 public class ManifestBuilder {
 
     private TomlDocument ballerinaToml;
-    private Optional<TomlDocument> dependenciesToml;
     private Optional<TomlDocument> compilerPluginToml;
     private DiagnosticResult diagnostics;
     private List<Diagnostic> diagnosticList;
@@ -94,20 +92,21 @@ public class ManifestBuilder {
     private static final String SCOPE = "scope";
     private static final String PLATFORM = "platform";
 
-    private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
-            Path projectPath) {
+    private ManifestBuilder(TomlDocument ballerinaToml,
+                            TomlDocument compilerPluginToml,
+                            Path projectPath) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
-        this.dependenciesToml = Optional.ofNullable(dependenciesToml);
         this.compilerPluginToml = Optional.ofNullable(compilerPluginToml);
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
     }
 
-    public static ManifestBuilder from(TomlDocument ballerinaToml, TomlDocument dependenciesToml,
-            TomlDocument compilerPluginToml, Path projectPath) {
-        return new ManifestBuilder(ballerinaToml, dependenciesToml, compilerPluginToml, projectPath);
+    public static ManifestBuilder from(TomlDocument ballerinaToml,
+                                       TomlDocument compilerPluginToml,
+                                       Path projectPath) {
+        return new ManifestBuilder(ballerinaToml, compilerPluginToml, projectPath);
     }
 
     public DiagnosticResult diagnostics() {
@@ -117,7 +116,6 @@ public class ManifestBuilder {
 
         // Add toml syntax diagnostics
         this.diagnosticList.addAll(ballerinaToml.toml().diagnostics());
-        dependenciesToml.ifPresent(tomlDocument -> this.diagnosticList.addAll(tomlDocument.toml().diagnostics()));
         diagnostics = new DefaultDiagnosticResult(this.diagnosticList);
         return diagnostics;
     }
@@ -184,13 +182,12 @@ public class ManifestBuilder {
             }
         }
 
-        // Validate Dependencies.toml
-        validateDependenciesTomlAgainstSchema();
-        // Process dependencies
-        List<PackageManifest.Package> dependencies = getDependencies();
         // Process platforms
         TopLevelNode platformNode = tomlAstNode.entries().get(PLATFORM);
         Map<String, PackageManifest.Platform> platforms = getPlatforms(platformNode);
+
+        // Process local repo dependencies
+        List<PackageManifest.LocalPackage> localRepoDependencies = getLocalRepoDependencies();
 
         // Compiler plugin descriptor
         Optional<CompilerPluginDescriptor> pluginDescriptor;
@@ -200,9 +197,8 @@ public class ManifestBuilder {
             pluginDescriptor = Optional.empty();
         }
 
-        return PackageManifest
-                .from(packageDescriptor, pluginDescriptor, dependencies, platforms, otherEntries,
-                      diagnostics(), license, authors, keywords, exported, repository);
+        return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
+                                    diagnostics(), license, authors, keywords, exported, repository);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -257,78 +253,6 @@ public class ManifestBuilder {
     private BuildOptions parseBuildOptions() {
         TomlTableNode tomlTableNode = ballerinaToml.toml().rootNode();
         return setBuildOptions(tomlTableNode);
-    }
-
-    private void validateDependenciesTomlAgainstSchema() {
-        if (dependenciesToml.isPresent()) {
-            TomlValidator dependenciesTomlValidator;
-            try {
-                dependenciesTomlValidator = new TomlValidator(
-                        Schema.from(FileUtils.readFileAsString("dependencies-toml-schema.json")));
-            } catch (IOException e) {
-                throw new ProjectException("Failed to read the Dependencies.toml validator schema file.");
-            }
-            // Validate dependencies toml using dependencies toml schema
-            dependenciesTomlValidator.validate(dependenciesToml.get().toml());
-        }
-    }
-
-    private List<PackageManifest.Package> getDependencies() {
-        if (dependenciesToml.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
-        if (tomlTableNode.entries().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        TopLevelNode packageEntries = tomlTableNode.entries().get(PACKAGE);
-        if (packageEntries == null || packageEntries.kind() == TomlType.NONE) {
-            return Collections.emptyList();
-        }
-
-        List<PackageManifest.Package> dependencies = new ArrayList<>();
-        if (packageEntries.kind() == TomlType.TABLE_ARRAY) {
-            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) packageEntries;
-
-            for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
-                String name = getStringValueFromDependencyNode(dependencyNode, "name");
-                String org = getStringValueFromDependencyNode(dependencyNode, "org");
-                String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
-                String scope = getStringValueFromDependencyNode(dependencyNode, SCOPE);
-                boolean transitive = getBooleanValueFromDependencyNode(dependencyNode, "transitive");
-                List<PackageManifest.Dependency> transDependencies = getTransDependenciesFromDependencyNode(
-                        dependencyNode);
-                List<PackageManifest.Module> modules = getModulesFromDependencyNode(dependencyNode);
-
-                // If name, org or version, one of the value is null, ignore dependency
-                if (name == null || org == null || version == null) {
-                    continue;
-                }
-
-                PackageName depName = PackageName.from(name);
-                PackageOrg depOrg = PackageOrg.from(org);
-                PackageVersion depVersion;
-                try {
-                    depVersion = PackageVersion.from(version);
-                } catch (ProjectException e) {
-                    // Ignore exception and dependency
-                    // Diagnostic will be added by toml schema validator for the semver version error
-                    continue;
-                }
-
-                if (dependencyNode.entries().containsKey(REPOSITORY)) {
-                    String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
-                    dependencies.add(new PackageManifest.Package(depName, depOrg, depVersion, repository, scope,
-                                                                 transitive, transDependencies, modules));
-                    continue;
-                }
-                dependencies.add(new PackageManifest.Package(depName, depOrg, depVersion, scope, transitive,
-                                                             transDependencies, modules));
-            }
-        }
-        return dependencies;
     }
 
     private Map<String, PackageManifest.Platform> getPlatforms(TopLevelNode platformNode) {
@@ -397,6 +321,44 @@ public class ManifestBuilder {
         }
 
         return platforms;
+    }
+
+    private List<PackageManifest.LocalPackage> getLocalRepoDependencies() {
+        TomlTableNode rootNode = ballerinaToml.toml().rootNode();
+        if (rootNode.entries().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TopLevelNode dependencyEntries = rootNode.entries().get("dependency");
+        if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
+            return Collections.emptyList();
+        }
+
+        List<PackageManifest.LocalPackage> dependencies = new ArrayList<>();
+        if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+
+            for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
+                String name = getStringValueFromDependencyNode(dependencyNode, "name");
+                String org = getStringValueFromDependencyNode(dependencyNode, "org");
+                String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
+                String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
+
+                PackageName depName = PackageName.from(name);
+                PackageOrg depOrg = PackageOrg.from(org);
+                PackageVersion depVersion;
+                try {
+                    depVersion = PackageVersion.from(version);
+                } catch (ProjectException e) {
+                    // Ignore exception and dependency
+                    // Diagnostic will be added by toml schema validator for the semver version error
+                    continue;
+                }
+
+                dependencies.add(new PackageManifest.LocalPackage(depName, depOrg, depVersion, repository));
+            }
+        }
+        return dependencies;
     }
 
     private void reportInvalidPathDiagnostic(TomlTableNode tomlTableNode, String path) {
@@ -501,96 +463,6 @@ public class ManifestBuilder {
         return elements;
     }
 
-    private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
-        if (topLevelNode == null) {
-            return null;
-        }
-        return getStringFromTomlTableNode(topLevelNode);
-    }
-
-    private boolean getBooleanValueFromDependencyNode(TomlTableNode pkgNode, String key) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
-        if (topLevelNode == null) {
-            return false;
-        }
-        return getBooleanFromTomlTableNode(topLevelNode);
-    }
-
-    private List<PackageManifest.Dependency> getTransDependenciesFromDependencyNode(TomlTableNode pkgNode) {
-        List<PackageManifest.Dependency> transDependencies = new ArrayList<>();
-        var topLevelNode = pkgNode.entries().get("dependencies");
-        if (topLevelNode == null) {
-            return transDependencies;
-        }
-        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
-            TomlValueNode transDepsValueNode = ((TomlKeyValueNode) topLevelNode).value();
-            if (transDepsValueNode != null && transDepsValueNode.kind() == TomlType.ARRAY) {
-                TomlArrayValueNode transDepsArrayValueNode = (TomlArrayValueNode) transDepsValueNode;
-                for (TomlValueNode transDepValueNode : transDepsArrayValueNode.elements()) {
-                    if (transDepValueNode != null && transDepValueNode.kind() == TomlType.INLINE_TABLE) {
-                        String orgValue = null;
-                        String nameValue = null;
-                        TomlInlineTableValueNode inlineTableNode = (TomlInlineTableValueNode) transDepValueNode;
-                        for (TopLevelNode inlineTableEntry : inlineTableNode.elements()) {
-                            if (inlineTableEntry != null && inlineTableEntry.kind() == TomlType.KEY_VALUE) {
-                                TomlKeyValueNode inlineTableKeyValue = (TomlKeyValueNode) inlineTableEntry;
-                                if (inlineTableKeyValue.key().name().equals("org")) {
-                                    orgValue = inlineTableKeyValue.value().toString();
-                                } else if (inlineTableKeyValue.key().name().equals("name")) {
-                                    nameValue = inlineTableKeyValue.value().toString();
-                                }
-                            }
-                        }
-                        if (orgValue != null && nameValue != null) {
-                            transDependencies.add(new PackageManifest.Dependency(PackageName.from(nameValue),
-                                                                                 PackageOrg.from(orgValue)));
-                        }
-                    }
-                }
-            }
-        }
-        return transDependencies;
-    }
-
-    private List<PackageManifest.Module> getModulesFromDependencyNode(TomlTableNode pkgNode) {
-        List<PackageManifest.Module> modules = new ArrayList<>();
-        var topLevelNode = pkgNode.entries().get("modules");
-        if (topLevelNode == null) {
-            return modules;
-        }
-        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
-            TomlValueNode transDepsValueNode = ((TomlKeyValueNode) topLevelNode).value();
-            if (transDepsValueNode != null && transDepsValueNode.kind() == TomlType.ARRAY) {
-                TomlArrayValueNode transDepsArrayValueNode = (TomlArrayValueNode) transDepsValueNode;
-                for (TomlValueNode transDepValueNode : transDepsArrayValueNode.elements()) {
-                    if (transDepValueNode != null && transDepValueNode.kind() == TomlType.INLINE_TABLE) {
-                        String orgValue = null;
-                        String pkgNameValue = null;
-                        String moduleNameValue = null;
-                        TomlInlineTableValueNode inlineTableNode = (TomlInlineTableValueNode) transDepValueNode;
-                        for (TopLevelNode inlineTableEntry : inlineTableNode.elements()) {
-                            if (inlineTableEntry != null && inlineTableEntry.kind() == TomlType.KEY_VALUE) {
-                                TomlKeyValueNode inlineTableKeyValue = (TomlKeyValueNode) inlineTableEntry;
-                                if ("org".equals(inlineTableKeyValue.key().name())) {
-                                    orgValue = inlineTableKeyValue.value().toString();
-                                } else if ("packageName".equals(inlineTableKeyValue.key().name())) {
-                                    pkgNameValue = inlineTableKeyValue.value().toString();
-                                } else if ("moduleName".equals(inlineTableKeyValue.key().name())) {
-                                    moduleNameValue = inlineTableKeyValue.value().toString();
-                                }
-                            }
-                        }
-                        if (orgValue != null && pkgNameValue != null && moduleNameValue != null) {
-                            modules.add(new PackageManifest.Module(orgValue, pkgNameValue, moduleNameValue));
-                        }
-                    }
-                }
-            }
-        }
-        return modules;
-    }
-
     private String getStringValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -599,39 +471,11 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    private String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
-        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
-            TomlValueNode value = keyValueNode.value();
-            if (value.kind() == TomlType.STRING) {
-                TomlStringValueNode stringValueNode = (TomlStringValueNode) value;
-                return stringValueNode.getValue();
-            }
+    private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
+        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null) {
+            return null;
         }
-        return null;
-    }
-
-    private boolean getBooleanFromTomlTableNode(TopLevelNode topLevelNode) {
-        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
-            TomlValueNode value = keyValueNode.value();
-            if (value.kind() == TomlType.BOOLEAN) {
-                TomlBooleanValueNode booleanValueNode = (TomlBooleanValueNode) value;
-                return booleanValueNode.getValue();
-            }
-        }
-        return false;
-    }
-
-    private String convertDiagnosticToString(Diagnostic diagnostic) {
-        LineRange lineRange = diagnostic.location().lineRange();
-
-        LineRange oneBasedLineRange = LineRange.from(
-                lineRange.filePath(),
-                LinePosition.from(lineRange.startLine().line(), lineRange.startLine().offset() + 1),
-                LinePosition.from(lineRange.endLine().line(), lineRange.endLine().offset() + 1));
-
-        return diagnostic.diagnosticInfo().severity().toString() + " [" +
-                oneBasedLineRange.filePath() + ":" + oneBasedLineRange + "] " + diagnostic.message();
+        return getStringFromTomlTableNode(topLevelNode);
     }
 }
