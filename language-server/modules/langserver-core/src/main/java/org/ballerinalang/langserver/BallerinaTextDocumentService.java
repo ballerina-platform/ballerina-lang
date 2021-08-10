@@ -39,7 +39,6 @@ import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
@@ -81,7 +80,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SemanticTokens;
-import org.eclipse.lsp4j.SemanticTokensCapabilities;
 import org.eclipse.lsp4j.SemanticTokensParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureHelpParams;
@@ -570,14 +568,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<SemanticTokens> semanticTokensFull(SemanticTokensParams params) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                SemanticTokensCapabilities capabilities =
-                        this.clientCapabilities.getTextDocCapabilities().getSemanticTokens();
-                if (capabilities == null || !capabilities.getDynamicRegistration()) {
-                    if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableSemanticHighlighting()) {
-                        return new SemanticTokens(new ArrayList<>());
-                    }
-                }
-
                 SemanticTokensContext semanticTokensContext = ContextBuilder.buildSemanticTokensContext(
                         params.getTextDocument().getUri(), this.workspaceManager, this.serverContext);
                 return SemanticTokensUtils.getSemanticTokens(semanticTokensContext);

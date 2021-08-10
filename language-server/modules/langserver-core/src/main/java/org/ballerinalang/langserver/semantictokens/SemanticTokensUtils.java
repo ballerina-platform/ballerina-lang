@@ -18,14 +18,20 @@ package org.ballerinalang.langserver.semantictokens;
 import io.ballerina.projects.Document;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.eclipse.lsp4j.Registration;
+import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.SemanticTokens;
 import org.eclipse.lsp4j.SemanticTokensLegend;
 import org.eclipse.lsp4j.SemanticTokensServerFull;
 import org.eclipse.lsp4j.SemanticTokensWithRegistrationOptions;
+import org.eclipse.lsp4j.Unregistration;
+import org.eclipse.lsp4j.UnregistrationParams;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -88,5 +94,35 @@ public class SemanticTokensUtils {
     public static SemanticTokensWithRegistrationOptions getSemanticTokensRegistrationOptions() {
         SemanticTokensLegend semanticTokensLegend = new SemanticTokensLegend(getTokenTypes(), getTokenTypeModifiers());
         return new SemanticTokensWithRegistrationOptions(semanticTokensLegend, new SemanticTokensServerFull(false));
+    }
+
+    /**
+     * Register semantic tokens capability.
+     *
+     * @param languageClient Language client instance
+     */
+    public static void registerSemanticTokensCapability(ExtendedLanguageClient languageClient) {
+        if (languageClient == null) {
+            return;
+        }
+        SemanticTokensWithRegistrationOptions options = SemanticTokensUtils.getSemanticTokensRegistrationOptions();
+        Registration registration = new Registration(SemanticTokensConstants.REGISTRATION_ID,
+                SemanticTokensConstants.REQUEST_METHOD, options);
+        languageClient.registerCapability(new RegistrationParams(Collections.singletonList(registration)));
+    }
+
+    /**
+     * Unregister semantic tokens capability.
+     *
+     * @param languageClient Language client instance
+     */
+    public static void unRegisterSemanticTokensCapability(ExtendedLanguageClient languageClient) {
+        if (languageClient == null) {
+            return;
+        }
+        Unregistration unregistration = new Unregistration(SemanticTokensConstants.REGISTRATION_ID,
+                SemanticTokensConstants.REQUEST_METHOD);
+        languageClient.unregisterCapability(
+                new UnregistrationParams(Collections.singletonList(unregistration)));
     }
 }
