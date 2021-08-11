@@ -60,7 +60,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for function and function type symbols.
+ * Test cases for type symbols.
  *
  * @since 2.0.0
  */
