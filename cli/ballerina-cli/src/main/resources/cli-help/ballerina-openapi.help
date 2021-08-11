@@ -88,7 +88,7 @@ EXAMPLES
        OpenAPI schema property as nillable.
           $ bal openapi -i hello.yaml --nullable
 
-       Generate both the Ballerina client and service files including given license or copyright header
+       Generate both the Ballerina client and service files including given license or copyright header.
           $ bal openapi -i hello.yaml --license license.txt
 
        Export an OpenAPI definition for the `/hello` service of the `hello_service.bal` file.
