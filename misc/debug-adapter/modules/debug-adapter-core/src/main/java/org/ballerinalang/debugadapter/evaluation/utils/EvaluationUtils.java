@@ -93,9 +93,9 @@ public class EvaluationUtils {
     public static final String JAVA_LANG_CLASSLOADER = "java.lang.ClassLoader";
     public static final String JAVA_OBJECT_ARRAY_CLASS = JAVA_OBJECT_CLASS + "[]";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
+    public static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_INT_CLASS = "java.lang.Integer";
-    private static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_FLOAT_CLASS = "java.lang.Float";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
     private static final String JAVA_LANG_CLASS = "java.lang.Class";
@@ -146,6 +146,7 @@ public class EvaluationUtils {
     public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
     public static final String GET_XML_FILTER_RESULT_METHOD = "getXMLFilterResult";
     public static final String GET_XML_STEP_RESULT_METHOD = "getXMLStepResult";
+    public static final String GET_STRING_AT_METHOD = "getStringAt";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     private static final String FOR_NAME_METHOD = "forName";
