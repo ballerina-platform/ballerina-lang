@@ -407,6 +407,9 @@ public class PackageResolution {
             moduleName = ModuleName.from(packageName);
         } else {
             String moduleNamePart = moduleNameStr.substring(packageName.value().length() + 1);
+            if (moduleNamePart.isEmpty()) {
+                moduleNamePart = null;
+            }
             moduleName = ModuleName.from(packageName, moduleNamePart);
         }
         ModuleContext resolvedModule = resolvedPackage.moduleContext(moduleName);

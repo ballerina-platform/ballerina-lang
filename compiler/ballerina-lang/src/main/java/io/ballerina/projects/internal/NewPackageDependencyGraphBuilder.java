@@ -157,6 +157,9 @@ public class NewPackageDependencyGraphBuilder {
     private ResolutionResponse findResolutionResponse(PackageDescriptor pkgDesc,
                                                       List<ResolutionResponse> resolutionResponses) {
         for (ResolutionResponse resolutionResponse : resolutionResponses) {
+            if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                continue;
+            }
             if (resolutionResponse.resolvedPackage().descriptor().equals(pkgDesc)) {
                 return resolutionResponse;
             }
