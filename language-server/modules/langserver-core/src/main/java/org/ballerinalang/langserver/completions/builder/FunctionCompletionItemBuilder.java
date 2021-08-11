@@ -322,8 +322,13 @@ public final class FunctionCompletionItemBuilder {
                 continue;
             }
             ParameterSymbol param = parameterDefs.get(i);
-            args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.getName().isEmpty() ? ""
-                    : " " + param.getName().get()));
+            if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
+                args.add("");
+            } else {
+                args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.getName().isEmpty() ? ""
+                        : " " + param.getName().get()));
+            }
         }
         restParam.ifPresent(param -> {
             // Rest param is represented as an array type symbol

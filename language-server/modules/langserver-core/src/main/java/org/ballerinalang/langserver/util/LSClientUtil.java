@@ -100,7 +100,8 @@ public class LSClientUtil {
      */
     public static boolean isDynamicCommandRegistrationSupported(LanguageServerContext serverContext) {
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        return Boolean.TRUE.equals(clientCapabilities.getWorkspaceCapabilities().getExecuteCommand()
+        return clientCapabilities.getWorkspaceCapabilities().getExecuteCommand() != null
+                && Boolean.TRUE.equals(clientCapabilities.getWorkspaceCapabilities().getExecuteCommand()
                 .getDynamicRegistration());
     }
 
@@ -111,7 +112,8 @@ public class LSClientUtil {
      * @return True if dynamic command registration is supported
      */
     public static boolean isDynamicCommandRegistrationSupported(ClientCapabilities clientCapabilities) {
-        return Boolean.TRUE.equals(clientCapabilities.getWorkspace().getExecuteCommand().getDynamicRegistration());
+        return clientCapabilities.getWorkspace().getExecuteCommand() != null &&
+                Boolean.TRUE.equals(clientCapabilities.getWorkspace().getExecuteCommand().getDynamicRegistration());
     }
 
     /**
