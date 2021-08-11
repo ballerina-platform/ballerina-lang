@@ -19,6 +19,8 @@ import java.util.UUID;
 
 /**
  * Constants related to the semantic tokens APIs.
+ *
+ * @since 2.0.0
  */
 public class SemanticTokensConstants {
 

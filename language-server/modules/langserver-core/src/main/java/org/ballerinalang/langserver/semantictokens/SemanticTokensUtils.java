@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 
 /**
  * Semantic tokens util class.
+ *
+ * @since 2.0.0
  */
 public class SemanticTokensUtils {
 
