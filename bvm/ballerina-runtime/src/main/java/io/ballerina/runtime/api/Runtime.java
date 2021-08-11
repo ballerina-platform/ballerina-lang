@@ -19,22 +19,15 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.ObjectType;
-import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.util.Map;
 import java.util.function.Function;
-
-import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 
 /**
  * External API to be used by the interop users to control Ballerina runtime behavior.
@@ -110,33 +103,12 @@ public class Runtime {
      public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Object... args) {
          Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-         boolean isIsolate = isIsolated(object.getType(), methodName);
-         if (isIsolate) {
+         if (object.getType().isIsolated(methodName)) {
              return scheduler.schedule(new Object[1], func, null, callback, strandName, metadata).result;
          } else {
              return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, null,
                                                     PredefinedTypes.TYPE_NULL, strandName, metadata).result;
          }
-     }
-
-    private boolean isIsolated(ObjectType type, String methodName) {
-        if (!SymbolFlags.isFlagOn(type.getFlags(), SymbolFlags.ISOLATED)) {
-            return false;
-        }
-        for (MethodType method : type.getMethods()) {
-            if (method.getName().equals(methodName)) {
-                return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
-            }
-        }
-        if (type.getTag() == SERVICE_TAG) {
-            for (ResourceMethodType method : ((BServiceType) type).getResourceMethods()) {
-                if (method.getName().equals(methodName)) {
-                    return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
-                }
-            }
-        }
-        assert false : "object type does not contain method : " + methodName;
-        return false;
      }
 
     /**
@@ -162,8 +134,7 @@ public class Runtime {
             throw new NullPointerException();
         }
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        boolean isIsolate = isIsolated(object.getType(), methodName);
-        if (isIsolate) {
+        if (object.getType().isIsolated(methodName)) {
             return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
                                       metadata);
         } else {
