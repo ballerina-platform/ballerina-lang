@@ -71,7 +71,8 @@ public class TypeofOverLiteralExpressionTest {
     @DataProvider(name = "function-provider")
     public Object[] provideFunctionNames() {
         return new String[]{"typeDescOfExpressionsOfLiterals", "passTypeofToAFunction", "typeDescOfARecord",
-                "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues"};
+                "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues",
+                "typeOfImmutableStructuralValues"};
     }
 
     @AfterClass

@@ -46,6 +46,8 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -109,7 +111,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
         this.minSize = memTypes.size();
         this.size = refValues.length;
-        setTypedescValue();
+        this.typedesc = getTypedescValue(tupleType, this);
     }
 
     public TupleValueImpl(TupleType type) {
@@ -135,7 +137,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             }
             this.refValues[i] = memType.getZeroValue();
         }
-        setTypedescValue();
+        this.typedesc = getTypedescValue(tupleType, this);
     }
 
     public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
@@ -147,7 +149,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.size = size < memCount ? memCount : (int) size;
         this.minSize = memCount;
         this.hasRestElement = this.tupleType.getRestType() != null;
-        setTypedescValue();
 
         if (type.getRestType() == null) {
             this.maxSize = this.size;
@@ -161,6 +162,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (size >= memCount) {
+            this.typedesc = getTypedescValue(tupleType, this);
             return;
         }
 
@@ -172,10 +174,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
             this.refValues[i] = memType.getZeroValue();
         }
-    }
-
-    private void setTypedescValue() {
-        this.typedesc = new TypedescValueImpl(tupleType);
+        this.typedesc = getTypedescValue(tupleType, this);
     }
 
     @Override
@@ -567,6 +566,7 @@ public class TupleValueImpl extends AbstractArrayValue {
                 ((RefValue) value).freezeDirect();
             }
         }
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     /**

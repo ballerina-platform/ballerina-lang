@@ -88,32 +88,59 @@ function compareTypeOfValues() {
 
     // Basic Simple Type 
     int i = 34;
-    test:assertFalse(typeof i === typeof i); 
+    test:assertFalse(typeof i === typeof i);
 
     // Structural types - Array, Tuple
     int[] arr = [1, 2, 3];
-    test:assertTrue(typeof arr === typeof arr); 
+    test:assertTrue(typeof arr === typeof arr);
 
     [string, int] tuple = ["ballerina", 123];
-    test:assertTrue(typeof tuple === typeof tuple); 
+    test:assertTrue(typeof tuple === typeof tuple);
 
     // Structural types - Records, Maps
     RecType0 rec = {name: "test"};
-    test:assertTrue(typeof rec === typeof rec); 
-    test:assertTrue(typeof rec === RecType0); 
+    test:assertTrue(typeof rec === typeof rec);
+    test:assertTrue(typeof rec === RecType0);
 
     map<string> mapVal = {s: "test"};
-    test:assertTrue(typeof mapVal === typeof mapVal); 
+    test:assertTrue(typeof mapVal === typeof mapVal);
 
     // Structural types -tables 
     table<map<string>> tableVal = table [{s: "test"}];
-    test:assertTrue(typeof tableVal === typeof tableVal); 
+    test:assertTrue(typeof tableVal === typeof tableVal);
 
     // Behavioral types - Object
     Obj0 obj = new ("abc", 123);
-    test:assertTrue(typeof obj === typeof obj); 
+    test:assertTrue(typeof obj === typeof obj);
 
     // Behavioral types - Error
     error err = error("This is an error!");
     test:assertTrue(typeof err === typeof err);
+}
+
+function typeOfImmutableStructuralValues() {
+
+    // Structural types - Array, Tuple
+    int[] & readonly arr = [1, 2, 3];
+    test:assertTrue(typeof arr === typeof arr);
+    test:assertEquals((typeof arr).toString(), "typedesc [1,2,3]");
+
+    [string, int] & readonly tuple = ["ballerina", 123];
+    test:assertTrue(typeof tuple === typeof tuple);
+    test:assertEquals((typeof tuple).toString(), "typedesc ballerina 123");
+
+    // Structural types - Records, Maps
+    RecType0 & readonly rec = {name: "test"};
+    test:assertTrue(typeof rec === typeof rec);
+    test:assertTrue(typeof rec !== RecType0);
+    test:assertEquals((typeof rec).toString(), "typedesc {\"name\":\"test\"}");
+
+    map<string> & readonly mapVal = {s: "test"};
+    test:assertTrue(typeof mapVal === typeof mapVal);
+    test:assertEquals((typeof mapVal).toString(), "typedesc {\"s\":\"test\"}");
+
+    // Structural types -tables 
+    table<map<string>> & readonly tableVal = table [{s: "test"}];
+    test:assertTrue(typeof tableVal === typeof tableVal);
+    test:assertEquals((typeof tableVal).toString(), "typedesc [{\"s\":\"test\"}]");
 }
