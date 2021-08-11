@@ -40,5 +40,6 @@ public interface PackageResolver {
 
     List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
 
-    List<ResolutionResponse> newResolvePackages(List<PackageDescriptor> responseDescriptors, boolean offline, Project project);
+    List<ResolutionResponse> newResolvePackages(
+            List<PackageDescriptor> responseDescriptors, boolean offline, Project project);
 }

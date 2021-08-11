@@ -18,6 +18,7 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
@@ -292,14 +293,14 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.SOFT);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.SOFT);
         ResolutionRequest resolutionRequest2 = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("cache"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.SOFT);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.SOFT);
         // Adding an unrelated package to test the unresolved packages
         ResolutionRequest resolutionRequest3 = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("dummy"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.SOFT);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.SOFT);
 
         List<ResolutionRequest> resolutionRequestList = new ArrayList<>();
         resolutionRequestList.add(resolutionRequest);
@@ -331,7 +332,7 @@ public class DependencyGraphTests extends BaseTest {
         // Test passing the request with a version
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.2")),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.SOFT);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.SOFT);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
@@ -348,14 +349,14 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.2")),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
         ResolutionRequest resolutionRequest2 = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("cache"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
         // Adding an unrelated package to test the unresolved packages
         ResolutionRequest resolutionRequest3 = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("dummy"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
 
         List<ResolutionRequest> resolutionRequestList = new ArrayList<>();
         resolutionRequestList.add(resolutionRequest);
@@ -387,7 +388,7 @@ public class DependencyGraphTests extends BaseTest {
         // Test passing an unavailable version but compatible with an existing version (1.4.2)
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.0")),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.4.2");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
@@ -396,7 +397,7 @@ public class DependencyGraphTests extends BaseTest {
         // Test passing an unavailable version that is not compatible with any existing versions (1.3.2)
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.3.2")),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
         Assert.assertNull(responseDescriptors.get(0).resolvedDescriptor());
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
@@ -405,7 +406,7 @@ public class DependencyGraphTests extends BaseTest {
         // Test passing the request without the version
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.MEDIUM);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
         responseDescriptors = packageResolver.resolveDependencyVersions(Collections.singletonList(resolutionRequest));
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
@@ -422,14 +423,14 @@ public class DependencyGraphTests extends BaseTest {
 
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.2")),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.HARD);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.HARD);
         ResolutionRequest resolutionRequest2 = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("cache"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.HARD);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.HARD);
         // Adding an unrelated package to test the unresolved packages
         ResolutionRequest resolutionRequest3 = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("dummy"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.HARD);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.HARD);
 
         List<ResolutionRequest> resolutionRequestList = new ArrayList<>();
         resolutionRequestList.add(resolutionRequest);
@@ -461,7 +462,7 @@ public class DependencyGraphTests extends BaseTest {
         // Test passing an unavailable version
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.0")),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.HARD);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.HARD);
         responseDescriptors = packageResolver.resolveDependencyVersions(
                 Collections.singletonList(resolutionRequest));
         Assert.assertNull(responseDescriptors.get(0).resolvedDescriptor());
@@ -471,7 +472,7 @@ public class DependencyGraphTests extends BaseTest {
         // Test passing with no version
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), null),
-                PackageDependencyScope.DEFAULT, true, PackageLockingMode.HARD);
+                PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.HARD);
         responseDescriptors = packageResolver.resolveDependencyVersions(
                 Collections.singletonList(resolutionRequest));
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");

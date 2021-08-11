@@ -38,7 +38,7 @@ public final class ResolutionRequest {
     private final PackageDependencyScope scope;
 
     private DependencyResolutionType dependencyResolutionType;
-    // TODO Why did we introduce the offline flag here.
+    // TODO Why did we introduce the offline flag here. Remove before master merge.
     private final boolean offline;
 
     // TODO rethink about this

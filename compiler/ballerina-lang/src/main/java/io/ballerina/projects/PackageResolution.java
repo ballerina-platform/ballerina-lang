@@ -177,8 +177,8 @@ public class PackageResolution {
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
             createDependencyGraphFromBALA();
         } else {
-//            createDependencyGraphFromSources();
-            return createDependencyGraphFromSourcesNew(sticky);
+            createDependencyGraphFromSources();
+//            return createDependencyGraphFromSourcesNew(sticky);
         }
 
         // Once we reach this section, all the direct dependencies have been resolved
@@ -502,7 +502,10 @@ public class PackageResolution {
                 return Optional.empty();
             }
 
-            PackageName packageName = importModuleResponse.packageName();
+            PackageName packageName;
+            // TODO remove the null check and else block once the new resolution is fully done
+            packageName = importModuleResponse.packageDescriptor().name();
+
             Optional<Package> optionalPackage = getPackage(packageOrg,
                                                            packageName);
             if (optionalPackage.isEmpty()) {
@@ -632,8 +635,9 @@ public class PackageResolution {
 
             if (pkgDesc == null) {
                 // TODO How can use use possiblePackages?
+                List<PackageDescriptor> possiblePackages = Collections.emptyList();
                 ImportModuleRequest importModuleRequest = new ImportModuleRequest(
-                        pkgOrg, moduleLoadRequest /**possiblePkgNames**/);
+                        pkgOrg, moduleLoadRequest, possiblePackages);
                 unresolvedModuleRequests.add(importModuleRequest);
                 return;
             }
@@ -680,7 +684,8 @@ public class PackageResolution {
             }
 
             ImportModuleRequest importModuleRequest = new ImportModuleRequest(pkgOrg, moduleLoadRequest);
-            responseMap.put(importModuleRequest, new ImportModuleResponse(pkgOrg, pkgName, importModuleRequest));
+            responseMap.put(importModuleRequest, new ImportModuleResponse(
+                    PackageDescriptor.from(pkgOrg, pkgName), importModuleRequest));
         }
 
         private PackageDescriptor findHierarchicalModule(String moduleName,
@@ -745,7 +750,8 @@ public class PackageResolution {
                 return null;
             }
 
-            List<String> modules = dependency.modules();
+            List<String> modules = dependency.modules().stream().map(PackageManifest.DependencyModule::moduleName)
+                    .collect(Collectors.toList());
             if (modules.contains(moduleName)) {
                 return PackageDescriptor.from(packageOrg, packageName);
             }
@@ -814,8 +820,8 @@ public class PackageResolution {
                     // Let's add it to the dependency graph.dependencyResolvedType
                     addPackageToDependencyGraph(resolutionResponse, dependencyResolvedType, dependencyVersionKind);
                 }
-                responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg, possiblePkgName,
-                        importModuleRequest));
+                responseMap.put(importModuleRequest, new ImportModuleResponse(
+                        PackageDescriptor.from(packageOrg, possiblePkgName), importModuleRequest));
                 return;
             }
 
