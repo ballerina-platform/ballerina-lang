@@ -131,7 +131,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testRecordWithEnumFreeze() {
-        BValue[] returns = BRunUtil.invoke(result, "testRecordWithEnumFreeze");
+        BRunUtil.invoke(result, "testRecordWithEnumFreeze");
     }
 
     @Test
