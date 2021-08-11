@@ -369,7 +369,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // error child variable visibility test
         Map<String, Variable> errorChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("errorVar"));
-        debugTestRunner.assertVariable(errorChildVariables, "details", "map<ballerina/lang.value:1.0.0:Cloneable " +
+        debugTestRunner.assertVariable(errorChildVariables, "details", "map<ballerina/lang.value:1.0.0:Cloneable> " +
                 "(size = 1)", "map");
         debugTestRunner.assertVariable(errorChildVariables, "message", "\"SimpleErrorType\"", "string");
 
