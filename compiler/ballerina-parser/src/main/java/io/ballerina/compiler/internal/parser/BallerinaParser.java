@@ -14930,7 +14930,6 @@ public class BallerinaParser extends AbstractParser {
                 STNode params = STNodeFactory.createEmptyNodeList();
                 STNode anonFuncParam =
                         STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
-                endContext();
                 return anonFuncParam;
             default:
                 return STNodeFactory.createNilLiteralNode(openParen, closeParen);
@@ -17210,7 +17209,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        STNode member = parseStatementStartingBracedListFirstMember();
+        STNode member = parseStatementStartingBracedListFirstMember(openBrace.isMissing());
         SyntaxKind nodeType = getBracedListType(member);
         STNode stmt;
         switch (nodeType) {
@@ -17349,7 +17348,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseStatementStartingBracedListFirstMember() {
+    private STNode parseStatementStartingBracedListFirstMember(boolean isOpenBraceMissing) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case READONLY_KEYWORD:
@@ -17381,6 +17380,12 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN:
                 return parseRestBindingPattern();
             default:
+                // If the openBrace is missing we should not rout this as another `BLOCK_STMT`. This is done to prevent
+                // infinite loop
+                if (isOpenBraceMissing) {
+                    readonlyKeyword = STNodeFactory.createEmptyNode();
+                    return parseIdentifierRhsInStmtStartingBrace(readonlyKeyword);
+                }
                 // Then treat parent as a block statement
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 return parseStatements();

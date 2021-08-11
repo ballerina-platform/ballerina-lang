@@ -146,7 +146,7 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("{foo : .@ a }", "access-expr/annot_access_expr_assert_08.json");
         test("[foo, .@ a]", "access-expr/annot_access_expr_assert_09.json");
         test("let int a = .@ a in c", "access-expr/annot_access_expr_assert_10.json");
-        test("from int a in b where .@ select .@", "access-expr/annot_access_expr_assert_11.json");
+        test("from int a in b where .@c select .@", "access-expr/annot_access_expr_assert_11.json");
     }
 
     @Test
@@ -165,7 +165,7 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
         test("{foo : ?. a };", "access-expr/optional_field_access_expr_assert_05.json");
         test("[foo, ?. a];", "access-expr/optional_field_access_expr_assert_06.json");
         test("let int a = ?. b in c;", "access-expr/optional_field_access_expr_assert_07.json");
-        test("from int a in b where ?. select ?. ;", "access-expr/optional_field_access_expr_assert_08.json");
+        test("from int a in b where ?.c select ?. ;", "access-expr/optional_field_access_expr_assert_08.json");
     }
 
     @Test
