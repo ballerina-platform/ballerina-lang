@@ -701,10 +701,6 @@
                                   "kind": "COMMA_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    },
-                                    {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
                                     }
@@ -894,10 +890,6 @@
                             {
                               "kind": "TABLE_KEYWORD",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -1320,10 +1312,6 @@
                               "kind": "OBJECT_KEYWORD",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -1513,10 +1501,6 @@
                                 "ERROR_MISSING_LET_VARIABLE_DECLARATION"
                               ],
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -1937,10 +1921,6 @@
                               "kind": "IS_KEYWORD",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -2123,10 +2103,6 @@
                                 {
                                   "kind": "STREAM_KEYWORD",
                                   "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    },
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
@@ -2413,10 +2389,6 @@
                                     {
                                       "kind": "FROM_KEYWORD",
                                       "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        },
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"

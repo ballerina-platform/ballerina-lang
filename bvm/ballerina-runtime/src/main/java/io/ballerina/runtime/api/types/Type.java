@@ -77,6 +77,8 @@ public interface Type {
 
     boolean isReadOnly();
 
+    long getFlags();
+
    /*
     * @deprecated Cast to @SelectivelyImmutableReferenceType and use getImmutableType.
     */
