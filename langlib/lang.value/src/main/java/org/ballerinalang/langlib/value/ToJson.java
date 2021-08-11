@@ -59,8 +59,10 @@ public class ToJson {
     public static Object toJson(Object value) {
         try {
             return convert(value, new ArrayList<>());
-        } catch (Exception e) {
+        } catch (BError e) {
             return e;
+        } catch (BallerinaException e) {
+            throw createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 

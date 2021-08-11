@@ -1892,6 +1892,18 @@ function testToStringOnCycles() {
      assert(x.toString(), "{\"ee\":3,\"1\":{\"qq\":5,\"1\":...,\"2\":[2,3,5,...]}}");
 }
 
+function testToJsonWithCyclicParameter() {
+    anydata[] x = [];
+    x.push(x);
+    json|error y = trap x.toJson();
+    assert(y is error, true);
+    error err = <error> y;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}CyclicValueReferenceError");
+    assert(messageString, "'anydata[]' value has cyclic reference");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
         return;
