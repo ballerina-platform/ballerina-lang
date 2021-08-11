@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 8,
-                    "character": 0
+                    "line": 7,
+                    "character": 1
                   },
                   "end": {
-                    "line": 8,
-                    "character": 0
+                    "line": 7,
+                    "character": 1
                   }
                 },
-                "newText": "\n\nfunction assignInteger(string a, int b, boolean c) returns int {\n    return 0;\n}\n"
+                "newText": "\n\nfunction assignInteger(string s, int b, boolean b1) returns int {\n    return 0;\n}\n"
               }
             ]
           }
