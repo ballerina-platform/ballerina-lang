@@ -96,6 +96,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private int shutdown = 1;
 
     private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
+    private static final String LS_ENABLE_SEMANTIC_HIGHLIGHTING = "enableSemanticHighlighting";
 
     public BallerinaLanguageServer() {
         this(new LanguageServerContextImpl());
@@ -144,19 +145,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         // Set LS semantic tokens capabilities
-        SemanticTokensCapabilities tokensCapabilities = params.getCapabilities().getTextDocument().getSemanticTokens();
-        if (tokensCapabilities != null) {
-            if (tokensCapabilities.getDynamicRegistration()) {
-                registerSemanticTokensConfigListener();
-                if (params.getCapabilities().getWorkspace().getDidChangeConfiguration() == null) {
-                    SemanticTokensUtils.registerSemanticTokensCapability(
-                            serverContext.get(ExtendedLanguageClient.class));
-                }
-            } else {
-                res.getCapabilities().setSemanticTokensProvider(
-                        SemanticTokensUtils.getSemanticTokensRegistrationOptions());
-            }
-        }
+        registerSemanticTokensCapabilities(params, params.getCapabilities().getTextDocument().getSemanticTokens(),
+                res);
 
         // Check and set prepare rename provider
         if (params.getCapabilities().getTextDocument().getRename() != null &&
@@ -317,5 +307,36 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             }
         }
         return false;
+    }
+
+    private void registerSemanticTokensCapabilities(InitializeParams params, SemanticTokensCapabilities capabilities,
+                                                    InitializeResult result) {
+        if (capabilities == null) {
+            return;
+        }
+        boolean hasConfig = false;
+        boolean enabledSemanticHighlighting = false;
+        if (params.getInitializationOptions() != null) {
+            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
+            if (initOptions.has(LS_ENABLE_SEMANTIC_HIGHLIGHTING)) {
+                hasConfig = true;
+                if (initOptions.get(LS_ENABLE_SEMANTIC_HIGHLIGHTING).getAsBoolean()) {
+                    enabledSemanticHighlighting = true;
+                }
+            }
+        }
+
+        if (capabilities.getDynamicRegistration()) {
+            registerSemanticTokensConfigListener();
+            ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
+            if (!hasConfig || enabledSemanticHighlighting) {
+                SemanticTokensUtils.registerSemanticTokensCapability(languageClient);
+            } else {
+                SemanticTokensUtils.unRegisterSemanticTokensCapability(languageClient);
+            }
+        } else if (!hasConfig || enabledSemanticHighlighting) {
+            result.getCapabilities().setSemanticTokensProvider(
+                    SemanticTokensUtils.getSemanticTokensRegistrationOptions());
+        }
     }
 }
