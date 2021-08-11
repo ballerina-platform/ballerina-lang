@@ -285,6 +285,10 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        if (funcNode.getMarkdownDocumentationAttachment() != null) {
+            lookupNodes(funcNode.markdownDocumentationAttachment.parameters);
+        }
+
         lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
@@ -1614,6 +1618,7 @@ class SymbolFinder extends BaseVisitor {
                         return true;
                     }
                 }
+
             }
         }
 
