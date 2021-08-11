@@ -28,6 +28,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
 
     INVALID_BALA_FILE("BCE5000", "invalid.bala.file"),
+    MODULE_NOT_FOUND("BCE5100", "module.not.found"),
     ;
 
     private final String diagnosticId;

@@ -129,9 +129,9 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return y;
                             }
-                            if (!x.packageDescriptor().get().name().equals(y.packageDescriptor().get().name())) {
+                            if (!x.packageDescriptor().name().equals(y.packageDescriptor().name())) {
                                 ResolutionRequest resolutionRequest = ResolutionRequest
-                                        .from(y.packageDescriptor().get(), PackageDependencyScope.DEFAULT, true);
+                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT, true);
                                 List<PackageVersion> packageVersions =
                                         ballerinaDistRepo.getPackageVersions(resolutionRequest);
                                 // If module exists in both repos, then we check if a newer version of
@@ -166,8 +166,8 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return y;
                             }
-                            if (x.resolvedDescriptor().get().version().compareTo(
-                                    y.resolvedDescriptor().get().version()).equals(
+                            if (x.resolvedDescriptor().version().compareTo(
+                                    y.resolvedDescriptor().version()).equals(
                                     SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
                                 return y;
                             }
@@ -178,9 +178,87 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
+    public List<ResolutionResponse> newResolvePackages(
+            List<PackageDescriptor> packageDescriptors, boolean offline, Project currentProject) {
+        if (packageDescriptors.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<ResolutionResponse> resolutionResponses = new ArrayList<>();
+        Package currentPkg = currentProject != null ? currentProject.currentPackage() : null;
+        for (PackageDescriptor packageDescriptor : packageDescriptors) {
+            Package resolvedPackage = null;
+            // Check whether the requested package is same as the current package
+            if (currentPkg != null && packageDescriptor.equals(currentPkg.descriptor())) {
+                resolvedPackage = currentPkg;
+            }
+
+            // If not try to load the package from the cache
+            if (resolvedPackage == null) {
+                resolvedPackage = loadFromCache(packageDescriptor);
+            }
+
+            // If not try to resolve from dist and central repositories
+            if (resolvedPackage == null) {
+                resolvedPackage = resolveFromRepository(packageDescriptor, offline);
+            }
+
+            ResolutionResponse.ResolutionStatus resolutionStatus;
+            if (resolvedPackage == null) {
+                resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
+            } else {
+                resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
+                packageCache.cache(resolvedPackage);
+            }
+            resolutionResponses.add(ResolutionResponse.from(resolutionStatus, resolvedPackage, packageDescriptor));
+        }
+
+        return resolutionResponses;
+    }
+
+    @Override
     public List<ResolutionResponse> resolvePackages(List<ResolutionRequest> resolutionRequests) {
         return resolvePackages(resolutionRequests, null);
     }
+
+    private Package loadFromCache(PackageDescriptor packageDescriptor) {
+        Optional<Package> resolvedPackage = packageCache.getPackage(packageDescriptor.org(),
+                packageDescriptor.name(), packageDescriptor.version());
+        return resolvedPackage.orElse(null);
+    }
+
+    private Package resolveFromRepository(PackageDescriptor requestedPkgDesc, boolean offline) {
+        Optional<Package> resolvedPackage;
+
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                requestedPkgDesc, PackageDependencyScope.DEFAULT, offline);
+
+        if (requestedPkgDesc.isLangLibPackage()) {
+            return ballerinaDistRepo.getPackage(resolutionRequest).orElse(null);
+        }
+
+        if (requestedPkgDesc.repository().isPresent()) {
+            if (!customRepositories.containsKey(requestedPkgDesc.repository().get())) {
+                return null;
+            }
+            resolvedPackage = customRepositories.get(requestedPkgDesc.repository().get())
+                    .getPackage(resolutionRequest);
+            if (resolvedPackage.isEmpty()) {
+                return null;
+            }
+        } else {
+            resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
+            if (resolvedPackage.isEmpty()) {
+                resolvedPackage = ballerinaCentralRepo.getPackage(resolutionRequest);
+            }
+        }
+        return resolvedPackage.orElse(null);
+    }
+
+
+    /*
+    * ------------------------------- Old code ----------------------------
+    */
 
     private Package loadFromCache(ResolutionRequest resolutionRequest) {
         if (resolutionRequest.version().isEmpty()) {
