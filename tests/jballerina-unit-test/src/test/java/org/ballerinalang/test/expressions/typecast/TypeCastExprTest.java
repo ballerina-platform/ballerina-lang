@@ -607,6 +607,16 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
     }
 
+    @Test(description = "Test type cast to union type with int subtypes.")
+    public void testCastingToIntSubtypesInUnion() {
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnion");
+    }
+
+    @Test(description = "Test erroneous type cast to union type with int subtypes.")
+    public void testCastingToIntSubtypesInUnionNegative() {
+        BRunUtil.invoke(result, "testCastingToIntSubtypesInUnionNegative");
+    }
+
     @Test
     public void testSameTypeCast() {
         BValue[] returns = BRunUtil.invoke(result, "testSameTypeCast");

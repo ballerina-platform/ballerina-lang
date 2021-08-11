@@ -5,17 +5,19 @@
     {
       "kind": "OPEN_BRACKET_TOKEN",
       "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION"
-      ],
       "leadingMinutiae": [
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "hasDiagnostics": true,
             "children": [
               {
-                "kind": "AT_TOKEN"
+                "kind": "AT_TOKEN",
+                "hasDiagnostics": true,
+                "diagnostics": [
+                  "ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION"
+                ]
               }
             ]
           }

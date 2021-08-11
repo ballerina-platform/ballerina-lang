@@ -24,6 +24,9 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectableReferenceType;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -119,9 +122,9 @@ public class ReadOnlyUtils {
             return ((BIntersectionType) type).getEffectiveType();
         }
 
-        Type immutableType = type.getImmutableType();
+        IntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
-            return ((BIntersectionType) immutableType).getEffectiveType();
+            return immutableType.getEffectiveType();
         }
 
         return null;
@@ -129,7 +132,8 @@ public class ReadOnlyUtils {
 
 
     private static Type getImmutableType(Type type, Set<Type> unresolvedTypes) {
-        if (TypeChecker.isInherentlyImmutableType(type)) {
+        if (TypeChecker.isInherentlyImmutableType(type) || (SymbolFlags.isFlagOn(type.getFlags(),
+                SymbolFlags.READONLY))) {
             return type;
         }
 
@@ -142,7 +146,7 @@ public class ReadOnlyUtils {
 
     private static BIntersectionType setImmutableIntersectionType(Type type, Set<Type> unresolvedTypes) {
 
-        Type immutableType = type.getImmutableType();
+        Type immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
             return (BIntersectionType) immutableType;
         }
@@ -326,7 +330,8 @@ public class ReadOnlyUtils {
                                                                    // for records and objects
                                                                    new Type[]{originalType,
                                                                            PredefinedTypes.TYPE_READONLY},
-                                                                   effectiveType, typeFlags, true);
+                                                                   (IntersectableReferenceType) effectiveType,
+                                                                   typeFlags, true);
         originalType.setImmutableType(intersectionType);
         return intersectionType;
     }

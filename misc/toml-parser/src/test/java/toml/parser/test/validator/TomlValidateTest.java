@@ -126,4 +126,20 @@ public class TomlValidateTest {
         Assert.assertEquals(diagnostic.message(), "'version' of the dependency is missing");
         Assert.assertEquals(diagnostic1.message(), "'version' of the dependency is missing");
     }
+
+    @Test
+    public void testInlineValue() throws IOException {
+        Path resourceDirectory = basePath.resolve("inline-value.json");
+        Path sampleInput = basePath.resolve("inline-value.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        List<Diagnostic> diagnostics = toml.diagnostics();
+        Assert.assertEquals(diagnostics.size(), 2);
+
+        Diagnostic diagnostic = diagnostics.get(0);
+        Diagnostic diagnostic1 = diagnostics.get(1);
+        Assert.assertEquals(diagnostic.message(), "missing required field 'name'");
+        Assert.assertEquals(diagnostic1.message(), "key 'test' not supported in schema 'Dependencies Toml Spec'");
+    }
 }

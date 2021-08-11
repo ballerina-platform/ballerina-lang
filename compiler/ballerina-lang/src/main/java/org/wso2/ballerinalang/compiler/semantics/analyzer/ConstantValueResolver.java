@@ -61,6 +61,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
+    private Map<String, String> constantMap = new HashMap<String, String>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -79,6 +80,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.dlog.setCurrentPackageId(packageID);
         constants.forEach(constant -> this.unresolvedConstants.put(constant.symbol, constant));
         constants.forEach(constant -> constant.accept(this));
+        constantMap.clear();
+        constants.forEach(constant -> checkUniqueness(constant));
     }
 
     @Override
@@ -433,6 +436,22 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 return newResult;
             default:
                 return null;
+        }
+    }
+
+    private void checkUniqueness(BLangConstant constant) {
+        if (constant.expr instanceof BLangLiteral) {
+            String nameString = constant.name.value;
+            Object value = ((BLangLiteral) constant.expr).value;
+            String valueString = value == null ? ((BLangLiteral) constant.expr).originalValue : String.valueOf(value);
+            if (constantMap.containsKey(nameString)) {
+                if (!valueString.equals(constantMap.get(nameString))) {
+                    dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString,
+                            constantMap.get(nameString));
+                }
+            } else {
+                constantMap.put(nameString, valueString);
+            }
         }
     }
 }
