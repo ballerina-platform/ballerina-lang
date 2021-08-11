@@ -81,7 +81,7 @@ public class Flags {
     public static final long INFER = ANY_FUNCTION << 1;                         //  40
     public static final long ENUM_MEMBER = INFER << 1;                          //  41
     public static final long QUERY_LAMBDA = ENUM_MEMBER << 1;                   //  42
-
+    public static final long CLOSURE_LAMBDA = QUERY_LAMBDA << 1;
 
     public static long asMask(Set<Flag> flagSet) {
         long mask = 0;
@@ -204,6 +204,9 @@ public class Flags {
                 case QUERY_LAMBDA:
                     mask |= QUERY_LAMBDA;
                     break;
+                case ClOSURE_LAMBDA:
+                    mask |= CLOSURE_LAMBDA;
+                    break;
             }
         }
         return mask;
@@ -324,6 +327,9 @@ public class Flags {
                     break;
                 case QUERY_LAMBDA:
                     flagVal = QUERY_LAMBDA;
+                    break;
+                case ClOSURE_LAMBDA:
+                    flagVal = CLOSURE_LAMBDA;
                     break;
                 default:
                     continue;
