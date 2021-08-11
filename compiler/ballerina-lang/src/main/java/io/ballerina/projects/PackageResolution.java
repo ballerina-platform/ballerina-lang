@@ -31,6 +31,7 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyVersionKind;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
@@ -175,15 +176,16 @@ public class PackageResolution {
     private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky) {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
+            // TODO Update the Bala path
             createDependencyGraphFromBALA();
         } else {
-            createDependencyGraphFromSources();
-//            return createDependencyGraphFromSourcesNew(sticky);
+            return createDependencyGraphFromSources(sticky);
         }
 
         // Once we reach this section, all the direct dependencies have been resolved
         // Here we resolve all transitive dependencies
         // TODO Check for cycles
+        // TODO Update Bala path
         return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
                 packageCache, rootPackageContext.project());
     }
@@ -324,7 +326,7 @@ public class PackageResolution {
         }
     }
 
-    DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSourcesNew(boolean sticky) {
+    DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky) {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
@@ -906,36 +908,5 @@ public class PackageResolution {
          * A new package dependency introduced via a new import declaration.
          */
         NEW
-    }
-
-    private static class PackageContainer<T> {
-        private final Map<PackageOrg, Map<PackageName, T>> pkgOrgMap;
-
-        public PackageContainer() {
-            this.pkgOrgMap = new HashMap<>();
-        }
-
-        void add(PackageOrg pkgOrg, PackageName pkgName, T t) {
-            Map<PackageName, T> pkgNameMap = pkgOrgMap.computeIfAbsent(pkgOrg, orgName -> new HashMap<>());
-            pkgNameMap.put(pkgName, t);
-            pkgOrgMap.put(pkgOrg, pkgNameMap);
-        }
-
-        Optional<T> get(PackageOrg pkgOrg, PackageName pkgName) {
-            Map<PackageName, T> pkgNameMap = pkgOrgMap.get(pkgOrg);
-            if (pkgNameMap == null) {
-                return Optional.empty();
-            }
-
-            return Optional.ofNullable(pkgNameMap.get(pkgName));
-        }
-
-        Collection<T> getAll() {
-            return pkgOrgMap.values()
-                    .stream()
-                    .map(Map::values)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
-        }
     }
 }
