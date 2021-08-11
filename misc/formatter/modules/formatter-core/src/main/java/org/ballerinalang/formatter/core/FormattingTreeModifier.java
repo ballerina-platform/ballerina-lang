@@ -3823,8 +3823,12 @@ public class FormattingTreeModifier extends TreeModifier {
                         leadingMinutiae.add(getNewline());
                     }
                     if (!env.preserveIndentation) {
+                        int indentation = env.currentIndentation;
+                        if (isClosingTypeToken(token)) {
+                            indentation += options.getTabSize();
+                        }
                         // Then add padding to match the current indentation level
-                        addWhitespace(env.currentIndentation, leadingMinutiae);
+                        addWhitespace(indentation, leadingMinutiae);
                     }
 
                     leadingMinutiae.add(minutiae);
@@ -4134,6 +4138,17 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         return false;
+    }
+
+    private boolean isClosingTypeToken(Token token) {
+        switch (token.kind()) {
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACE_PIPE_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
