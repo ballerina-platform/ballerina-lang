@@ -36,10 +36,10 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
     boolean isIsolated();
 
     /**
-     * Provides given @{@link ObjectType}  function is isolated.
+     * Provides given @{@link ObjectType} method is isolated.
      *
-     * @param functionName function name
-     * @return true if @{@link ObjectType}  function is isolated otherwise false.
+     * @param methodName method name
+     * @return true if @{@link ObjectType} method is isolated otherwise false.
      */
-    boolean isIsolated(String functionName);
+    boolean isIsolated(String methodName);
 }
