@@ -233,6 +233,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
     public void visit(BLangPackage pkgNode) {
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+        for (BLangFunction bLangFunction : pkgNode.functions) {
+            if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
+                SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(bLangFunction, bLangFunction.originalFuncSymbol.scope,
+                                                                pkgEnv);
+                rewriteParamsOfFunction(bLangFunction, funcEnv);
+            }
+        }
+
         pkgNode.services.forEach(service -> rewrite(service, pkgEnv));
         pkgNode.globalVars.forEach(globalVar -> rewrite(globalVar, pkgEnv));
         pkgNode.typeDefinitions.forEach(typeDefinition -> rewrite(typeDefinition, pkgEnv));
@@ -301,8 +309,24 @@ public class ClosureDesugar extends BLangNodeVisitor {
             addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.getBType());
         }
 
-        for (BLangVariable param : funcNode.requiredParams) {
-            param.typeNode = rewrite(param.typeNode, funcEnv);
+        if (funcNode.flagSet.contains(Flag.LAMBDA)) {
+            rewriteParamsOfFunction(funcNode, funcEnv);
+        }
+        funcNode.body = rewrite(funcNode.body, funcEnv);
+        result = funcNode;
+    }
+
+    public void rewriteParamsOfFunction(BLangFunction funcNode, SymbolEnv funcEnv) {
+        for (BLangSimpleVariable bLangSimpleVariable : funcNode.requiredParams) {
+            bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, funcEnv);
+            if (!Symbols.isFlagOn(bLangSimpleVariable.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+                continue;
+            }
+            Map<String, BLangLambdaFunction> defaultValues =
+                                                ((BInvokableTypeSymbol) funcNode.getBType().tsymbol).defaultValues;
+            BLangLambdaFunction lambdaExpr = defaultValues.get(bLangSimpleVariable.symbol.name.value);
+            rewriteExpr(lambdaExpr, funcEnv);
+            bLangSimpleVariable.expr = rewrite(bLangSimpleVariable.expr, funcEnv);
         }
         if (funcNode.restParam != null) {
             funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
@@ -310,9 +334,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeNode = rewrite(funcNode.returnTypeNode, funcEnv);
         }
-
-        funcNode.body = rewrite(funcNode.body, funcEnv);
-        result = funcNode;
     }
 
     @Override
@@ -354,7 +375,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
         if (funcNode.body == null) {
             funcNode.body = ASTBuilderUtil.createBlockFunctionBody(funcNode.pos);
         }
-        ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, mapVarDef);
+        if (funcNode.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            ((BLangBlockFunctionBody) funcNode.body).stmts.add(0, mapVarDef);
+        }
     }
 
     /**
@@ -407,7 +430,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
         accessExpr.isLValue = true;
         BLangAssignment stmt = desugar.rewrite(ASTBuilderUtil.createAssignmentStmt(funcNode.pos, accessExpr,
                 localVarRef), symbolEnv);
-        ((BLangBlockFunctionBody) funcNode.body).stmts.add(position, stmt);
+        if (funcNode.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            ((BLangBlockFunctionBody) funcNode.body).stmts.add(position, stmt);
+        }
     }
 
     @Override
