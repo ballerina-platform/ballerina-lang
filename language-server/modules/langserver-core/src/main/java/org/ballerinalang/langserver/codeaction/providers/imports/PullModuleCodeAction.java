@@ -51,7 +51,8 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     @Override
     public boolean isEnabled(LanguageServerContext serverContext) {
-        return true;
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        return clientCapabilities != null && clientCapabilities.getInitializationOptions().isPullModuleSupported();
     }
 
     @Override
@@ -64,11 +65,6 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
         Optional<String> moduleName = positionDetails.diagnosticProperty(MISSING_MODULE_NAME_INDEX);
         if (moduleName.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        LSClientCapabilities clientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (!clientCapabilities.getInitializationOptions().isPullModuleSupported()) {
             return Collections.emptyList();
         }
 
