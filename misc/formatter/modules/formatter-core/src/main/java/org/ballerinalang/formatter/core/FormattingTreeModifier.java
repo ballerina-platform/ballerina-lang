@@ -3903,6 +3903,7 @@ public class FormattingTreeModifier extends TreeModifier {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
                     preserveIndentation(true);
+                    removeTrailingWS(trailingMinutiae);
                     trailingMinutiae.add(getNewline());
                     consecutiveNewlines++;
                     break;
@@ -3942,6 +3943,18 @@ public class FormattingTreeModifier extends TreeModifier {
         // reset the line length
         env.lineLength = 0;
         return NodeFactory.createEndOfLineMinutiae(FormatterUtils.NEWLINE_SYMBOL);
+    }
+
+    private List<Minutiae> removeTrailingWS(List<Minutiae> trailingMinutiae) {
+        int minutiaeCount = trailingMinutiae.size();
+        for (int i = minutiaeCount - 1; i > -1; i--) {
+            if (trailingMinutiae.get(i).kind() == SyntaxKind.WHITESPACE_MINUTIAE) {
+                trailingMinutiae.remove(i);
+            } else {
+                return trailingMinutiae;
+            }
+        }
+        return trailingMinutiae;
     }
 
     /**

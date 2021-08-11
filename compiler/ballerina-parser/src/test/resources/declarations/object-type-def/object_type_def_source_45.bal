@@ -8,7 +8,7 @@ type Calculator object {
         b = y;
         c = a
         + b;
-    } 
+    }
 
     function add(int x, int y)
      {
@@ -19,5 +19,5 @@ type Calculator object {
         b = y;
         c = a
         + b;
-    } 
+    }
 };

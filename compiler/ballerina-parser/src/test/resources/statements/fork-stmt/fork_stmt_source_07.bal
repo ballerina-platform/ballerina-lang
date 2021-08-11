@@ -1,5 +1,5 @@
 public function foo() {
-    fork 
+    fork
         worker w1 returns int {
             int i = 23;
 
