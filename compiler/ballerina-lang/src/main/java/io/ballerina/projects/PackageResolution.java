@@ -225,17 +225,19 @@ public class PackageResolution {
     }
 
     DependencyManifest.Package getVersionFromDependencyManifest(PackageOrg requestedPkgOrg,
-                                                                        PackageName requestedPkgName) {
-        for (DependencyManifest.Package dependency : rootPackageContext.dependencyManifest().packages()) {
-            if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
-                return dependency;
+                                                                PackageName requestedPkgName) {
+        if (rootPackageContext.dependencyManifest() != null) {
+            for (DependencyManifest.Package dependency : rootPackageContext.dependencyManifest().packages()) {
+                if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
+                    return dependency;
+                }
             }
         }
         return null;
     }
 
     PackageManifest.LocalPackage getVersionFromPackageManifest(PackageOrg requestedPkgOrg,
-                                                                       PackageName requestedPkgName) {
+                                                               PackageName requestedPkgName) {
         for (PackageManifest.LocalPackage dependency : rootPackageContext.packageManifest().localPackages()) {
             if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
                 return dependency;

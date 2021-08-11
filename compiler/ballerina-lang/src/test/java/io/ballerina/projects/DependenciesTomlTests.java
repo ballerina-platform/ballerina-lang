@@ -36,12 +36,12 @@ import java.util.List;
 public class DependenciesTomlTests {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
-    private static final Path BAL_TOML_REPO = RESOURCE_DIRECTORY.resolve("ballerina-toml");
     private static final Path DEPENDENCIES_TOML_REPO = RESOURCE_DIRECTORY.resolve("dependencies-toml");
 
     @Test
     public void testValidDependenciesToml() throws IOException {
-        DependencyManifest depsManifest = getDependencyManifest(BAL_TOML_REPO.resolve("dependencies-valid.toml"));
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-valid.toml"));
         Assert.assertFalse(depsManifest.diagnostics().hasErrors());
 
         List<DependencyManifest.Package> dependencies = depsManifest.packages();
@@ -148,7 +148,8 @@ public class DependenciesTomlTests {
 
     @Test
     public void testEmptyDependenciesToml() throws IOException {
-        DependencyManifest depsManifest = getDependencyManifest(BAL_TOML_REPO.resolve("dependencies-empty.toml"));
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-empty.toml"));
         Assert.assertFalse(depsManifest.diagnostics().hasErrors());
 
         List<DependencyManifest.Package> dependencies = depsManifest.packages();
@@ -157,7 +158,8 @@ public class DependenciesTomlTests {
 
     @Test
     public void testInvalidDependenciesToml() throws IOException {
-        DependencyManifest depsManifest = getDependencyManifest(BAL_TOML_REPO.resolve("dependencies-non-array.toml"));
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-non-array.toml"));
         Assert.assertTrue(depsManifest.diagnostics().hasErrors());
         Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
                             "incompatible type for key 'package': expected 'ARRAY', found 'OBJECT'");
