@@ -96,23 +96,23 @@ public class BObjectType extends BStructureType implements ObjectType {
         return SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
     }
     @Override
-    public boolean isIsolated(String functionName) {
+    public boolean isIsolated(String methodName) {
         if (!isIsolated()) {
             return false;
         }
         for (MethodType method : getMethods()) {
-            if (method.getName().equals(functionName)) {
+            if (method.getName().equals(methodName)) {
                 return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
             }
         }
         if (getTag() == SERVICE_TAG) {
             for (ResourceMethodType method : ((BServiceType) this).getResourceMethods()) {
-                if (method.getName().equals(functionName)) {
+                if (method.getName().equals(methodName)) {
                     return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
                 }
             }
         }
-        assert false : "object type does not contain method : " + functionName;
+        assert false : "object type does not contain method : " + methodName;
         return false;
     }
 
