@@ -72,7 +72,7 @@ public class TypeofOverLiteralExpressionTest {
     public Object[] provideFunctionNames() {
         return new String[]{"typeDescOfExpressionsOfLiterals", "passTypeofToAFunction", "typeDescOfARecord",
                 "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues",
-                "typeOfImmutableStructuralValues"};
+                "typeOfImmutableStructuralValues", "typeOfWithCloneReadOnly"};
     }
 
     @AfterClass
