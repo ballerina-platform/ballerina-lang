@@ -10455,8 +10455,9 @@ public class BallerinaParser extends AbstractParser {
         STNode content;
         STNode endingBackTick;
         if (startingBackTick.isMissing()) {
+            // Create new missing startingBackTick token which as no diagnostic.
             startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
-            endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);;
+            endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
             content = STNodeFactory.createEmptyNodeList();
             STNode templateExpr = STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION,
                     xmlKeyword, startingBackTick, content, endingBackTick);
@@ -13226,6 +13227,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         if (startingBackTick.isMissing()) {
+            // Create new missing startingBackTick token which as no diagnostic.
             startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
             STNode endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
             STNode content = STNodeFactory.createEmptyNode();
