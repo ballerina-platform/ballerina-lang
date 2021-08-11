@@ -216,7 +216,7 @@ public class RecordVariableReferenceTest {
                 "incompatible types: expected 'map<error>', " +
                         "found 'record {| never name?; boolean married; Object...; |}'",
                 164, 16);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 51);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expr in assignment lhs", 198, 5);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

@@ -317,6 +317,11 @@ public class FreezeAndIsFrozenTest {
         BRunUtil.invoke(result, "testFrozenTupleUpdate", new BValue[0]);
     }
 
+    @Test
+    public void testFrozenRecursiveTupleUpdate() {
+        BRunUtil.invoke(result, "testFrozenRecursiveTupleUpdate");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
                     "\"cannot update 'readonly' field 'name' in record of type '\\(DeptEmployee & readonly\\)'\".*")
@@ -362,6 +367,11 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[1].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[1]).booleanValue(), "Expected value to be readonly since no error " +
                 "was encountered");
+    }
+
+    @Test
+    public void testRecursiveTupleFreeze() {
+        BRunUtil.invoke(result, "testRecursiveTupleFreeze");
     }
 
     @Test(description = "test an array of type not purely anydata, a combination of anydata and non-anydata")

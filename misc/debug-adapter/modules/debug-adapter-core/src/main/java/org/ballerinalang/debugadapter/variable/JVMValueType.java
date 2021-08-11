@@ -16,47 +16,49 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.INTERNAL_VALUE_PREFIX;
+
 /**
  * Ballerina JVM variable types.
  */
 public enum JVMValueType {
 
-    BOOLEAN("boolean"),
     INT("int"),
+    BYTE("byte"),
     LONG("long"),
     FLOAT("float"),
     DOUBLE("double"),
-    BYTE("byte"),
+    BOOLEAN("boolean"),
     J_INT("java.lang.Int"),
     J_LONG("java.lang.Long"),
-    J_BOOLEAN("java.lang.Boolean"),
     J_DOUBLE("java.lang.Double"),
     J_STRING("java.lang.String"),
     J_OBJECT("java.lang.Object"),
-    BMPSTRING("io.ballerina.runtime.internal.values.BmpStringValue"),
-    NONBMPSTRING("io.ballerina.runtime.internal.values.NonBmpStringValue"),
-    DECIMAL("io.ballerina.runtime.internal.values.DecimalValue"),
-    OBJECT_VALUE("io.ballerina.runtime.internal.values.ObjectValue"),
-    ARRAY_VALUE("io.ballerina.runtime.internal.values.ArrayValue"),
-    TUPLE_VALUE("io.ballerina.runtime.internal.values.TupleValue"),
-    MAP_VALUE("io.ballerina.runtime.internal.values.MapValue"),
-    ERROR_VALUE("io.ballerina.runtime.internal.values.ErrorValue"),
-    TYPEDESC_VALUE("io.ballerina.runtime.internal.values.TypedescValue"),
-    FUTURE_VALUE("io.ballerina.runtime.internal.values.FutureValue"),
-    HANDLE_VALUE("io.ballerina.runtime.internal.values.HandleValue"),
-    STREAM_VALUE("io.ballerina.runtime.internal.values.StreamValue"),
-    TABLE_VALUE("io.ballerina.runtime.internal.values.TableValue"),
-    XML_COMMENT("io.ballerina.runtime.internal.values.XmlComment"),
-    XML_ITEM("io.ballerina.runtime.internal.values.XmlItem"),
-    XML_PI("io.ballerina.runtime.internal.values.XmlPi"),
-    XML_SEQUENCE("io.ballerina.runtime.internal.values.XmlSequence"),
-    XML_TEXT("io.ballerina.runtime.internal.values.XmlText"),
-    XML_ATTRIB_MAP("io.ballerina.runtime.internal.values.AttributeMapValueImpl"),
-    FP_VALUE("io.ballerina.runtime.internal.values.FPValue"),
+    J_BOOLEAN("java.lang.Boolean"),
+    BTYPE_JSON("BJsonType"),
     BTYPE_OBJECT("BObjectType"),
     BTYPE_RECORD("BRecordType"),
-    BTYPE_JSON("BJsonType"),
-    BTYPE_SERVICE("BServiceType");
+    BTYPE_SERVICE("BServiceType"),
+    BMP_STRING(INTERNAL_VALUE_PREFIX + "BmpStringValue"),
+    NON_BMP_STRING(INTERNAL_VALUE_PREFIX + "NonBmpStringValue"),
+    DECIMAL(INTERNAL_VALUE_PREFIX + "DecimalValue"),
+    OBJECT_VALUE(INTERNAL_VALUE_PREFIX + "ObjectValue"),
+    ARRAY_VALUE(INTERNAL_VALUE_PREFIX + "ArrayValue"),
+    TUPLE_VALUE(INTERNAL_VALUE_PREFIX + "TupleValue"),
+    MAP_VALUE(INTERNAL_VALUE_PREFIX + "MapValue"),
+    ERROR_VALUE(INTERNAL_VALUE_PREFIX + "ErrorValue"),
+    TYPEDESC_VALUE(INTERNAL_VALUE_PREFIX + "TypedescValue"),
+    FUTURE_VALUE(INTERNAL_VALUE_PREFIX + "FutureValue"),
+    HANDLE_VALUE(INTERNAL_VALUE_PREFIX + "HandleValue"),
+    STREAM_VALUE(INTERNAL_VALUE_PREFIX + "StreamValue"),
+    TABLE_VALUE(INTERNAL_VALUE_PREFIX + "TableValue"),
+    XML_COMMENT(INTERNAL_VALUE_PREFIX + "XmlComment"),
+    FP_VALUE(INTERNAL_VALUE_PREFIX + "FPValue"),
+    XML_PI(INTERNAL_VALUE_PREFIX + "XmlPi"),
+    XML_TEXT(INTERNAL_VALUE_PREFIX + "XmlText"),
+    XML_ITEM(INTERNAL_VALUE_PREFIX + "XmlItem"),
+    XML_SEQUENCE(INTERNAL_VALUE_PREFIX + "XmlSequence"),
+    XML_ATTRIB_MAP(INTERNAL_VALUE_PREFIX + "AttributeMapValueImpl");
 
     private final String value;
 

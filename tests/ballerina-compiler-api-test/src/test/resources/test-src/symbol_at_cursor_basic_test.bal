@@ -121,3 +121,16 @@ function func1(string a, int b) returns function (int,function (int, int) r)  {
 }
 
 function exprBodyScope(string myStr) returns string => myStr;
+
+enum Keyword {
+  nil,
+  'boolean,
+  'int,
+  'string,
+  'never,
+  'any,
+  union,
+  intersection
+}
+
+type Atype Keyword;
