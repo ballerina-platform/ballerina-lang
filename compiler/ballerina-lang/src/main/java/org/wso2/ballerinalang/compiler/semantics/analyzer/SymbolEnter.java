@@ -1470,11 +1470,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        // check for unresolved fields if there are type inclusions. This record may be referencing another record
+        // check for unresolved fields. This record may be referencing another record
         if (!this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
-                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
+                Scope scope = new Scope(structureTypeNode.symbol);
+                structureTypeNode.symbol.scope = scope;
+                SymbolEnv typeEnv = SymbolEnv.createTypeEnv(structureTypeNode, scope, env);
+                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, typeEnv);
                 if (referencedType == symTable.noType) {
                     if (this.unresolvedRecordDueToFields.add(typeDefinition) &&
                             !this.unresolvedTypes.contains(typeDefinition)) {
