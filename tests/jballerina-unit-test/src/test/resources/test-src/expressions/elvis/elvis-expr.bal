@@ -134,3 +134,29 @@ function testElvisNestedTupleTypeCaseThree() returns [string, int] {
     var rT = xT ?: (x2T ?: dT);
     return rT;
 }
+
+function testElvisAsArgumentPositive() returns string|error {
+    string[] filters = [];
+    json j = {};
+    string? mergable = check j.mergeable;
+    string s = mergable ?: "";
+    filters.push(s);
+    filters.push(mergable ?: "");
+
+    assertEquals(filters[0], filters[1]);
+    return filters[0];
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquals(anydata expected, anydata actual) {
+    if (expected == actual) {
+        return;
+    }
+
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}

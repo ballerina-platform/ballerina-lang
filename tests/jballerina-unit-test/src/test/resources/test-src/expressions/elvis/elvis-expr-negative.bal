@@ -19,3 +19,9 @@ function testElvisValueTypeNotMatchingTypeWithLHS () returns (int) {
     b = x ?: 3;
     return b;
 }
+
+function testElvisAsArgumentPositive() {
+    int[] filters = [];
+    int? x = 1;
+    filters.push(x ?: "");
+}
