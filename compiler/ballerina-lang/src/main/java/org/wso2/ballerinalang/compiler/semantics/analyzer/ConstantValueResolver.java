@@ -86,10 +86,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
         this.currentConstSymbol.value = visitExpr(constant.expr);
-        if (this.currentConstSymbol.value != null) {
-            unresolvedConstants.remove(this.currentConstSymbol);
-            this.currentConstSymbol = tempCurrentConstSymbol;
-        }
+        unresolvedConstants.remove(this.currentConstSymbol);
+        this.currentConstSymbol = tempCurrentConstSymbol;
     }
 
     @Override
@@ -118,6 +116,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         BLangConstantValue constVal = constSymbol.value;
         if (constVal != null) {
             this.result = constVal;
+            return;
+        }
+
+        if (!this.unresolvedConstants.containsKey(varRef.symbol)) {
+            dlog.error(varRef.pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION,
+                    "cannot resolve '" + varRef.symbol.name.value + "'");
+            this.result = null;
             return;
         }
 

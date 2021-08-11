@@ -32,7 +32,7 @@ public class SimpleConstantNegativeTest {
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/constant/" +
                 "simple-literal-constant-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 65);
+        Assert.assertEquals(compileResult.getErrorCount(), 66);
 
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'",
@@ -147,7 +147,9 @@ public class SimpleConstantNegativeTest {
                 294, 17);
         BAssertUtil.validateError(compileResult, index++, "constant declarations are allowed only at module level",
                 298, 1);
-        BAssertUtil.validateError(compileResult, index, "type is required for constants with expressions",
+        BAssertUtil.validateError(compileResult, index++, "type is required for constants with expressions",
                 301, 25);
+        BAssertUtil.validateError(compileResult, index,
+                "invalid constant expression, reason 'cannot resolve 'UT_COUNT''", 302, 27);
     }
 }
