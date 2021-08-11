@@ -26,7 +26,7 @@ skipTests = false
 cloud = "k8s"
 taintCheck = true
 
-[dependency]
+[deps]
 id = "my-id"
 name = "hello"
 
