@@ -3,5 +3,4 @@ type LinkedList record {|
     LinkedList next;
 |};
 
-LinkedList l1 = {value: "", n};
-
+LinkedList l1 = {};

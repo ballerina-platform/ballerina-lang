@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 5,
-    "character": 29
+    "character": 17
   },
-  "source": "record_type_desc/source/source17.bal",
+  "source": "expression_context/source/mapping_expr_ctx_source47.bal",
   "items": [
     {
       "label": "readonly",
@@ -19,7 +19,15 @@
       "kind": "Field",
       "detail": "LinkedList.next",
       "sortText": "G",
-      "insertText": "next: ${1:{value: \"\", next: {value: \"\", next: {value: \"\", next: {value: \"\", next: {value: , next: }}}}}}",
+      "insertText": "next: ${1:{value: 0, next: {value: 0, next: {value: 0, next: {value: 0, next: {value: , next: }}}}}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value",
+      "kind": "Field",
+      "detail": "LinkedList.value",
+      "sortText": "G",
+      "insertText": "value: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -28,7 +36,7 @@
       "detail": "LinkedList",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "next: {value: \"\", next: {value: \"\", next: {value: \"\", next: {value: \"\", next: {value: , next: }}}}}",
+      "insertText": "next: {value: 0, next: {value: 0, next: {value: 0, next: {value: 0, next: {value: , next: }}}}},\nvalue: 0",
       "insertTextFormat": "Snippet"
     }
   ]

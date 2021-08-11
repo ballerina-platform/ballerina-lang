@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 5,
-    "character": 29
+    "character": 17
   },
-  "source": "record_type_desc/source/source15.bal",
+  "source": "expression_context/source/mapping_expr_ctx_source45.bal",
   "items": [
     {
       "label": "readonly",
@@ -23,12 +23,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "value",
+      "kind": "Field",
+      "detail": "LinkedList.value",
+      "sortText": "G",
+      "insertText": "value: \"${2}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Fill LinkedList Required Fields",
       "kind": "Property",
       "detail": "LinkedList",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "next: ()",
+      "insertText": "next: (),\nvalue: \"\"",
       "insertTextFormat": "Snippet"
     }
   ]

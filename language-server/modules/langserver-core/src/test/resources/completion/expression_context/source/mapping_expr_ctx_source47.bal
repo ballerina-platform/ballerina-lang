@@ -1,7 +1,6 @@
 type LinkedList record {|
-    string value;
+    decimal value;
     LinkedList|int next;
 |};
 
-LinkedList l1 = {value: "", n};
-
+LinkedList l1 = {};
