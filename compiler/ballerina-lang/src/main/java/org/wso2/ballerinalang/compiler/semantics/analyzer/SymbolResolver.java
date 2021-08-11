@@ -1662,7 +1662,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                                                                         Flags.asMask(functionTypeNode.flagSet),
                                                                         env.enclPkg.symbol.pkgID, invokableType,
-                                                                        env.scope.owner, functionTypeNode.pos, SOURCE);
+                                                                        env.scope.owner, functionTypeNode.pos, VIRTUAL);
                 invokableTypeSymbol.params = null;
                 invokableTypeSymbol.restParam = null;
                 invokableTypeSymbol.returnType = null;
@@ -1673,7 +1673,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
                         Flags.asMask(functionTypeNode.flagSet),
                         env.enclPkg.symbol.pkgID, functionTypeNode.getBType(),
-                        env.scope.owner, functionTypeNode.pos, SOURCE);
+                        env.scope.owner, functionTypeNode.pos, VIRTUAL);
                 invokableType = new BInvokableType(invokableTypeSymbol);
                 invokableTypeSymbol.type = invokableType;
                 functionTypeNode.symbol = invokableTypeSymbol;
