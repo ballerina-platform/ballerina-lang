@@ -227,7 +227,7 @@ public class InteropMethodGen {
         }
 
         // Load java method parameters
-        birFuncParamIndex = jField.isStatic() ? 0 : 2;
+        birFuncParamIndex = jField.isStatic() ? 0 : 1;
         if (birFuncParamIndex < birFuncParams.size()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             int paramLocalVarIndex = indexMap.addIfNotExists(birFuncParam.name.value, birFuncParam.type);
