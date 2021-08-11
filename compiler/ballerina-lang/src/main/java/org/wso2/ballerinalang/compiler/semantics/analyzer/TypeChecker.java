@@ -5371,11 +5371,6 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypes));
         }
 
-        if (actualType.tag == TypeTags.NEVER) {
-            dlog.error(checkedExpr.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_WITH_CHECKED_EXPR,
-                    operatorType);
-        }
-
         resultType = types.checkType(checkedExpr, actualType, expType);
     }
 

@@ -34,6 +34,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for the positions of symbols.
@@ -56,11 +57,15 @@ public class SymbolPositionTest {
     public void testSymbolPositions(int sLine, int sCol, int eLine, int eCol, String expSymbolName) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(sLine, sCol));
 
-        if (!symbol.isPresent()) {
+        if (symbol.isEmpty()) {
             assertNull(expSymbolName);
         }
 
+        assertTrue(symbol.isPresent());
+        assertTrue(symbol.get().getName().isPresent());
         assertEquals(symbol.get().getName().get(), expSymbolName);
+
+        assertTrue(symbol.get().getLocation().isPresent());
 
         Location pos = symbol.get().getLocation().get();
         assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
@@ -112,5 +117,36 @@ public class SymbolPositionTest {
                 {69, 23},
                 {72, 20},
         };
+    }
+
+    @Test(dataProvider = "TypeDefPositionProvider")
+    public void testTypeDefPositions(int sLine, int sCol, String expSymbolName, int defSLine, int defSCol,
+                                     int defELine, int defECol) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(sLine, sCol));
+
+        if (symbol.isEmpty()) {
+            assertNull(expSymbolName);
+        }
+
+        assertTrue(symbol.isPresent());
+        assertTrue(symbol.get().getName().isPresent());
+        assertEquals(symbol.get().getName().get(), expSymbolName);
+
+        assertTrue(symbol.get().getLocation().isPresent());
+
+        Location pos = symbol.get().getLocation().get();
+        assertEquals(pos.lineRange().filePath(), "symbol_position_test.bal");
+        assertEquals(pos.lineRange().startLine().line(), defSLine);
+        assertEquals(pos.lineRange().startLine().offset(), defSCol);
+        assertEquals(pos.lineRange().endLine().line(), defELine);
+        assertEquals(pos.lineRange().endLine().offset(), defECol);
+    }
+
+    @DataProvider(name = "TypeDefPositionProvider")
+    public Object[][] getTypeDefPositions() {
+            return new Object[][] {
+                    {88, 4, "Module", 78, 12, 78, 18},
+                    {80, 5, "TypeDef", 80, 5, 80, 12},
+            };
     }
 }

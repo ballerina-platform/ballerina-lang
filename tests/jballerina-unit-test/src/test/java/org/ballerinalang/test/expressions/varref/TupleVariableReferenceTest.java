@@ -296,7 +296,7 @@ public class TupleVariableReferenceTest {
         };
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testTupleVariablesReferencesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
                 "-semantics-negative.bal");
@@ -343,7 +343,7 @@ public class TupleVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid expr in assignment lhs", 160, 33);
+                "invalid expr in assignment lhs", 160, 5);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'boolean[]', found " +
                 "'[string,boolean...]'", 173, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[int,string,string]', found " +
@@ -351,7 +351,7 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testTupleVariablesReferencesDataFlowNegative() {
         resultSemanticsNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/tuple_variable_reference_dataflow_negative.bal");

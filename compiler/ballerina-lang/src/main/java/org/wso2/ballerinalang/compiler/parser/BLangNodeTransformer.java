@@ -470,6 +470,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  * @since 1.3.0
  */
 public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
@@ -486,6 +487,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private Stack<BLangStatement> additionalStatements = new Stack<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
+
+    private  HashSet<String> constantSet = new HashSet<String>();
 
     public BLangNodeTransformer(CompilerContext context,
                                 PackageID packageID, String entryName) {
@@ -576,7 +579,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         compilationUnit.name = currentCompUnitName;
         compilationUnit.setPackageID(packageID);
         Location pos = getPosition(modulePart);
-
         // Generate import declarations
         for (ImportDeclarationNode importDecl : modulePart.imports()) {
             BLangImportPackage bLangImport = (BLangImportPackage) importDecl.apply(this);
@@ -594,6 +596,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
         this.currentCompilationUnit = null;
+        constantSet.clear();
         return compilationUnit;
     }
 
@@ -819,6 +822,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // any of the type def visiting logic in symbol enter.
             constantNode.associatedTypeDefinition = typeDef;
         }
+        String constantName = constantNode.name.value;
+        if (constantSet.contains(constantName)) {
+            dlog.error(constantNode.name.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, constantName);
+        } else {
+            constantSet.add(constantName);
+        }
         return constantNode;
     }
 
@@ -1026,11 +1035,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             parent = parent.parent();
         }
 
-        errorType.isAnonymous = checkIfAnonymous(parameterizedTypeDescNode);
+        errorType.isAnonymous = this.isInLocalContext || checkIfAnonymous(parameterizedTypeDescNode);
         errorType.isLocal = this.isInLocalContext;
 
         if (parent.kind() != SyntaxKind.TYPE_DEFINITION
-                && (isDistinctError || (!errorType.isLocal && typeParam.isPresent()))) {
+                && (!errorType.isLocal && (isDistinctError || typeParam.isPresent()))) {
+            if (isDistinctError) {
+                errorType.flagSet.add(Flag.DISTINCT);
+            }
             return deSugarTypeAsUserDefType(errorType);
         }
 
@@ -1048,8 +1060,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
-        BLangType typeNode = createTypeNode(distinctTypeDesc.typeDescriptor());
-        typeNode.flagSet.add(Flag.DISTINCT);
+        TypeDescriptorNode type = distinctTypeDesc.typeDescriptor();
+        BLangType typeNode = createTypeNode(type);
+
+        // DISTINCT flag is already added to defined error type
+        if (!(type.kind() == SyntaxKind.ERROR_TYPE_DESC && typeNode.getKind() == NodeKind.USER_DEFINED_TYPE)) {
+            typeNode.flagSet.add(Flag.DISTINCT);
+        }
         return typeNode;
     }
 
@@ -3462,12 +3479,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                    int length = 0;
+                    long lengthCheck = 0;
                     Token literalToken = ((BasicLiteralNode) keyExpr).literalToken();
-                    if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text()), symTable.intType));
-                    } else {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text(), 16), symTable.intType));
+
+                    try {
+                        if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                            lengthCheck = Long.parseLong(literalToken.text());
+                        } else {
+                            lengthCheck = Long.parseLong(literalToken.text().substring(2), 16);
+                        }
+                    } catch (NumberFormatException e) {
+                        dlog.error(((Node) literalToken).location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     }
+
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
+                        dlog.error(((Node) literalToken).location(),
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
+                    sizes.add(new BLangLiteral(length, symTable.intType));
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
                     sizes.add(new BLangLiteral(INFERRED_ARRAY_INDICATOR, symTable.intType));
                 } else {
@@ -3578,7 +3610,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             typeNodeAssociated.addValue(deepLiteral);
             bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
         }
-
         return bLangConstant;
     }
 

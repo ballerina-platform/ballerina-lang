@@ -44,11 +44,11 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ge
  *
  * @since 2.0.0
  */
-public class XMLTemplateEvaluator extends Evaluator {
+public class XMLTemplateExpressionEvaluator extends Evaluator {
 
     private final TemplateExpressionNode syntaxNode;
 
-    public XMLTemplateEvaluator(SuspendedContext context, TemplateExpressionNode templateExpressionNode) {
+    public XMLTemplateExpressionEvaluator(SuspendedContext context, TemplateExpressionNode templateExpressionNode) {
         super(context);
         this.syntaxNode = templateExpressionNode;
     }

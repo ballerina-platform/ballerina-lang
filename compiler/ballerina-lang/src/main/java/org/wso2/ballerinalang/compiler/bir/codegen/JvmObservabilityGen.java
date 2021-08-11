@@ -644,8 +644,10 @@ class JvmObservabilityGen {
                         BIRBasicBlock newTargetBB = insertBasicBlock(func, eeTargetIndex + 3);
                         swapBasicBlockContent(errorEntry.targetBB, newTargetBB);
 
+                        String uniqueId = String.format("%s$%s", INVOCATION_INSTRUMENTATION_TYPE,
+                                newCurrentBB.id.value); // Unique ID to work with EEs covering multiple BBs
                         injectCheckErrorCalls(errorEntry.targetBB, errorReportBB, newTargetBB, func.localVars,
-                                desugaredInsPos, errorEntry.errorOp, INVOCATION_INSTRUMENTATION_TYPE);
+                                desugaredInsPos, errorEntry.errorOp, uniqueId);
                         injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPos, errorEntry.errorOp,
                                 INVOCATION_INSTRUMENTATION_TYPE);
                         injectStopObservationCall(observeEndBB, desugaredInsPos);

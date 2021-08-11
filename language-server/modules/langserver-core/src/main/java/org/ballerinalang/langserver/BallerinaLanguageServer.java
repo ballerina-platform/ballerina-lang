@@ -76,6 +76,7 @@ import static org.ballerinalang.langserver.Experimental.EXAMPLES_PROVIDER;
  */
 public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         implements ExtendedLanguageClientAware, ExtendedLanguageServer {
+
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
@@ -135,14 +136,15 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
         // Check and set prepare rename provider
-        if (Boolean.TRUE.equals(params.getCapabilities().getTextDocument().getRename().getPrepareSupport())) {
+        if (params.getCapabilities().getTextDocument().getRename() != null &&
+                Boolean.TRUE.equals(params.getCapabilities().getTextDocument().getRename().getPrepareSupport())) {
             RenameOptions renameOptions = new RenameOptions();
             renameOptions.setPrepareProvider(true);
             res.getCapabilities().setRenameProvider(renameOptions);
         } else {
             res.getCapabilities().setRenameProvider(true);
         }
-        
+
         // We are not registering commands here because they need to be registered/unregistered dynamically.
         // Only if the client doesn't support dynamic command registration, we do registration here
         if (!LSClientUtil.isDynamicCommandRegistrationSupported(params.getCapabilities())) {
@@ -164,12 +166,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         experimentalServerCapabilities.put(API_EDITOR_PROVIDER.getValue(), true);
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
-
         TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
         WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
         LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
-                                                                         workspaceClientCapabilities,
-                                                                         experimentalClientCapabilities);
+                workspaceClientCapabilities,
+                experimentalClientCapabilities);
         this.serverContext.put(LSClientCapabilities.class, capabilities);
         this.serverContext.put(ServerCapabilities.class, res.getCapabilities());
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);

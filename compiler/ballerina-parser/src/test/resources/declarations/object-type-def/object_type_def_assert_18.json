@@ -32,9 +32,6 @@
             {
               "kind": "CLIENT_KEYWORD",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_DUPLICATE_QUALIFIER"
-              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -44,9 +41,14 @@
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "hasDiagnostics": true,
                     "children": [
                       {
-                        "kind": "CLIENT_KEYWORD"
+                        "kind": "CLIENT_KEYWORD",
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_DUPLICATE_QUALIFIER"
+                        ]
                       }
                     ]
                   }

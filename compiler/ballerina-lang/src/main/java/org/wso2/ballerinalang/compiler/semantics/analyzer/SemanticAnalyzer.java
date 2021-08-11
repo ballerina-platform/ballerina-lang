@@ -519,6 +519,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+            HashSet<String> enumElements = new HashSet<String>();
+            BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  typeDefinition.typeNode;
+            for (int j = bLangUnionTypeNode.memberTypeNodes.size() - 1; j >= 0; j--) {
+                BLangUserDefinedType nextType = (BLangUserDefinedType) bLangUnionTypeNode.memberTypeNodes.get(j);
+                String nextTypeName = nextType.typeName.value;
+                if (enumElements.contains(nextTypeName)) {
+                    dlog.error(nextType.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, nextTypeName);
+                } else {
+                    enumElements.add(nextTypeName);
+                }
+            }
         }
 
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
@@ -816,7 +827,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BType detailType = errorType.detailType.getBType();
-        if (!types.isValidErrorDetailType(detailType)) {
+        if (detailType != null && !types.isValidErrorDetailType(detailType)) {
             dlog.error(errorType.detailType.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_TYPE, errorType.detailType,
                     symTable.detailType);
         }

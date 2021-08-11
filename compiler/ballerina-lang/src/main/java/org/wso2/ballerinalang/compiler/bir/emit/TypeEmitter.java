@@ -107,6 +107,8 @@ class TypeEmitter {
                 return "xml:Text";
             case TypeTags.DECIMAL:
                 return "decimal";
+            case TypeTags.CHAR_STRING:
+                return "string:Char";
             case TypeTags.UNION:
                 return emitBUnionType((BUnionType) bType, tabs);
             case TypeTags.INTERSECTION:

@@ -134,6 +134,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATO
  * @since 0.94
  */
 public class SymbolResolver extends BLangNodeVisitor {
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final CompilerContext.Key<SymbolResolver> SYMBOL_RESOLVER_KEY =
             new CompilerContext.Key<>();
 
@@ -215,8 +216,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }
-
-            dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            if (symbol.kind != SymbolKind.CONSTANT) {
+                dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, name);
+            }
             return false;
         }
 
@@ -513,8 +515,42 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
 
+        validateDistinctType(typeNode, resultType);
+
         typeNode.setBType(resultType);
         return resultType;
+    }
+
+    private void validateDistinctType(BLangType typeNode, BType type) {
+        if (typeNode.flagSet.contains(Flag.DISTINCT) && !isDistinctAllowedOnType(type)) {
+            dlog.error(typeNode.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
+        }
+    }
+
+    private boolean isDistinctAllowedOnType(BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            for (BType constituentType : ((BIntersectionType) type).getConstituentTypes()) {
+                if (!isDistinctAllowedOnType(constituentType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (!isDistinctAllowedOnType(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+
+        }
+
+        return type.tag == TypeTags.ERROR
+                || type.tag == TypeTags.OBJECT
+                || type.tag == TypeTags.NONE
+                || type.tag == TypeTags.SEMANTIC_ERROR;
     }
 
     /**
@@ -1117,7 +1153,15 @@ public class SymbolResolver extends BLangNodeVisitor {
                         continue;
                     }
 
-                    int length = Integer.parseInt(sizeConstSymbol.type.toString());
+                    int length;
+                    long lengthCheck = Long.parseLong(sizeConstSymbol.type.toString());
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
+                        length = 0;
+                        dlog.error(size.pos,
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
                     arrType = new BArrayType(resultType, arrayTypeSymbol, length, BArrayState.CLOSED);
                 }
             }
@@ -1361,9 +1405,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                 .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
                                    null, env.scope.owner, errorTypeNode.pos, SOURCE);
 
+        PackageID packageID = env.enclPkg.packageID;
         if (env.node.getKind() != NodeKind.PACKAGE) {
             errorTypeSymbol.name = names.fromString(
-                    anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+                    anonymousModelHelper.getNextAnonymousTypeKey(packageID));
             symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, env);
         }
 
@@ -1374,6 +1419,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         markParameterizedType(errorType, detailType);
 
         errorType.typeIdSet = BTypeIdSet.emptySet();
+
+        if (errorTypeNode.isAnonymous && errorTypeNode.flagSet.contains(Flag.DISTINCT)) {
+            errorType.typeIdSet.add(
+                    BTypeIdSet.from(packageID, anonymousModelHelper.getNextAnonymousTypeId(packageID), true));
+        }
 
         resultType = errorType;
     }
@@ -2082,7 +2132,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
             }
 
-            return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
+            return createIntersectionErrorType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
                                           constituentBTypes, existingErrorDetailType, env);
         }
 
@@ -2121,10 +2171,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                 env, symTable, anonymousModelHelper, names, flagSet);
     }
 
-    private BIntersectionType defineIntersectionType(BErrorType intersectionErrorType,
-                                                     Location pos,
-                                                     LinkedHashSet<BType> constituentBTypes,
-                                                     boolean isAlreadyDefinedDetailType, SymbolEnv env) {
+    private BIntersectionType createIntersectionErrorType(BErrorType intersectionErrorType,
+                                                          Location pos,
+                                                          LinkedHashSet<BType> constituentBTypes,
+                                                          boolean isAlreadyDefinedDetailType, SymbolEnv env) {
 
         BSymbol owner = intersectionErrorType.tsymbol.owner;
         PackageID pkgId = intersectionErrorType.tsymbol.pkgID;
@@ -2133,10 +2183,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (!isAlreadyDefinedDetailType && intersectionErrorType.detailType.tag == TypeTags.RECORD) {
             defineErrorDetailRecord((BRecordType) intersectionErrorType.detailType, pos, pkgEnv);
         }
-        return defineErrorIntersectionType(intersectionErrorType, constituentBTypes, pkgId, owner);
+        return createIntersectionErrorType(intersectionErrorType, constituentBTypes, pkgId, owner, pos);
     }
 
-    private BLangTypeDefinition defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
+    private void defineErrorDetailRecord(BRecordType detailRecord, Location pos, SymbolEnv env) {
         BRecordTypeSymbol detailRecordSymbol = (BRecordTypeSymbol) detailRecord.tsymbol;
 
         for (BField field : detailRecord.fields.values()) {
@@ -2152,22 +2202,19 @@ public class SymbolResolver extends BLangNodeVisitor {
                                                                                                 detailRecordTypeNode,
                                                                                                 env);
         detailRecordTypeDefinition.pos = pos;
-        return detailRecordTypeDefinition;
     }
 
-    private BIntersectionType defineErrorIntersectionType(IntersectableReferenceType effectiveType,
+    private BIntersectionType createIntersectionErrorType(IntersectableReferenceType effectiveType,
                                                           LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
-                                                          BSymbol owner) {
+                                                          BSymbol owner, Location pos) {
 
-        BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
-                                                                      Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                      Names.EMPTY, pkgId, null, owner,
-                                                                      symTable.builtinPos, VIRTUAL);
+        BTypeSymbol intersectionTypeSymbol =
+                Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
+                        pkgId, null, owner, pos, VIRTUAL);
 
-        BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,
-                                                                   effectiveType);
+        BIntersectionType intersectionType =
+                new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType);
         intersectionTypeSymbol.type = intersectionType;
-
         return intersectionType;
     }
 
