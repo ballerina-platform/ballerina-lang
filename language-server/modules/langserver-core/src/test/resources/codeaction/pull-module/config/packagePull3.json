@@ -3,9 +3,9 @@
   "character": 26,
   "expected": [
     {
-      "title": "Pull missing module(s)",
+      "title": "Pull unresolved modules",
       "command": {
-        "title": "Pull missing module(s)",
+        "title": "Pull unresolved modules",
         "command": "ballerina.packages.pull",
         "arguments": [
           {
