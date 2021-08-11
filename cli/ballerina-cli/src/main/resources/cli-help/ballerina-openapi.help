@@ -43,10 +43,10 @@ OPTIONS
 
         (-n| --nullable)
             This option is to generate all the record fields that are not specifically mentioned as
-             `nullable:false` in openAPI schema property as nillable to reduce the type conversion errors.
+             `nullable:false` in the openAPI schema property as nullable to reduce the type conversion errors.
 
         (--license) <license-file-path>
-            This option is to generate all ballerina files including the given copyright or license header.
+            This option is to generate all Ballerina files including the given copyright or license header.
 
         (-s| --service ) <current-service-name>
             This service name is used to identify the service that need to documented as openApi 
@@ -54,7 +54,7 @@ OPTIONS
             generation.
 
         (--json)
-            This option is used to generate JSON file in ballerina to openapi command.
+            This option is used to generate the JSON file in the Ballerina to OpenAPI command.
 
         (--tags) <tag-names>
             This tags use to filter the operations tag need to generate services. This option uses 
@@ -85,14 +85,14 @@ EXAMPLES
           $ bal openapi -i hello.yaml --mode service --operations operation_ID
 
        Generate all the record fields that are not specifically mentioned as `nullable:false` in
-       OpenAPI schema property as nillable.
+       the OpenAPI schema property as nullable.
           $ bal openapi -i hello.yaml --nullable
 
-       Generate both the Ballerina client and service files including given license or copyright header.
+       Generate both the Ballerina client and service files including the given license or copyright header.
           $ bal openapi -i hello.yaml --license license.txt
 
        Export an OpenAPI definition for the `/hello` service of the `hello_service.bal` file.
           $ bal openapi -i hello_service.bal --service-name /hello
 
-       Generate OpenAPI specification with JSON format.
+       Generate an OpenAPI specification in the JSON format.
           $ bal openapi -i hello_service.bal --json
