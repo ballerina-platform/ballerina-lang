@@ -198,10 +198,6 @@ public class RuntimeUtils {
         return version.split("\\.")[0];
     }
 
-    public static String getClassName(String version) {
-        return version.split("\\.")[0];
-    }
-
     private RuntimeUtils() {
     }
 }
