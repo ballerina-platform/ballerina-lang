@@ -517,6 +517,8 @@ type Person2 record {
     int age;
 };
 
+type A [int, string|xml, A...];
+
 function testCloneWithTypeTupleToJSON() {
     [string, string, string] tupleValue1 = ["Mohan", "single", "LK2014"];
     json|error jsonValue = tupleValue1.cloneWithType();
@@ -569,6 +571,19 @@ function testCloneWithTypeTupleToJSON() {
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(<string> checkpanic err.detail()["message"], "'[string,(xml<(lang.xml:Element|lang.xml:Comment|" +
          "lang.xml:ProcessingInstruction|lang.xml:Text)>|int)]' value cannot be converted to 'json'");
+
+    A tupleValue9 = [1, ""];
+    jsonValue = tupleValue9.cloneWithType();
+    assert(jsonValue is error, false);
+    assert(jsonValue is json[], true);
+
+    A tupleValue10 = [1,  xml `</elem>`];
+    jsonValue = tupleValue10.cloneWithType();
+    assert(jsonValue is error, true);
+    err = <error> jsonValue;
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(<string> checkpanic err.detail()["message"], "'[int,(string|xml<(lang.xml:Element|lang.xml:Comment|" +
+        "lang.xml:ProcessingInstruction|lang.xml:Text)>),A...]' value cannot be converted to 'json'");
 }
 
 function testCloneWithTypeJsonRec1() {
@@ -917,6 +932,111 @@ function testCloneWithTypeIntArrayToUnionArray() {
     messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
     assert(messageString, "'float[]' value cannot be converted to '(lang.int:Signed16|lang.int:Unsigned8|decimal)[]'");
+}
+
+function testCloneWithTypeArrayToTupleWithRestType() {
+    int[] arr = [1, 2, 3];
+    [decimal, byte...]|error a = arr.cloneWithType();
+    assert(checkpanic a, <[decimal, byte...]> [1.0, 2, 3]);
+}
+
+function testCloneWithTypeArrayToTupleWithRestTypeUnionType() {
+    int[] arr = [1, 128, 255];
+    [int|decimal, byte|int:Unsigned8...]|error b = arr.cloneWithType();
+    assert(checkpanic b, [1, 128, 255]);
+}
+
+function testCloneWithTypeArrayToUnionTupleNegative() {
+    int[] arr = [1, 2, 3];
+    [int|decimal, byte|int:Unsigned8]|error c = arr.cloneWithType();
+    assert(c is error, true);
+    error err = <error> c;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[(int|decimal),(byte|lang.int:Unsigned8)]'");
+}
+
+function testCloneWithTypeArrayToTupleWithMoreTargetTypes() {
+    int[] arr = [1, 2];
+    [int, float, decimal, byte]|error d = arr.cloneWithType();
+    assert(d is error, true);
+    error err = <error> d;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[int,float,decimal,byte]'");
+}
+
+function testCloneWithTypeArrayToTupleWithUnionRestTypeNegative() {
+    int[] arr = [1, 2, 3];
+    [float|decimal, int|byte...]|error e = arr.cloneWithType();
+    assert(e is error, true);
+    error err = <error> e;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[(float|decimal),(int|byte)...]'");
+}
+
+function testCloneWithTypeArrayToTupleNegative() {
+    float[] arr = [1, 2.3, 3.5];
+    [string, string:Char, string|string:Char]|error f = arr.cloneWithType();
+    assert(f is error, true);
+    error err = <error> f;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'float[]' value cannot be converted to '[string,lang.string:Char,(string|lang.string:Char)]'");
+}
+
+function testCloneWithTypeArrayToTupleWithStructureRestTypeNegative() {
+    int[] arr = [10, 20, 30];
+    [map<int>, [string, int]...]|error g = arr.cloneWithType();
+    assert(g is error, true);
+    error err = <error> g;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'int[]' value cannot be converted to '[map<int>,[string,int]...]'");
+}
+
+function testCloneWithTypeTupleRestType() {
+    [int, float, int|float...] t = [1, 2.5, 3, 5.2];
+
+    [float...]|error a = t.cloneWithType();
+    assert(checkpanic a, [1.0, 2.5, 3.0, 5.2]);
+}
+
+function testCloneWithTypeUnionTuple() {
+    [int, float, int|decimal...] t = [1, 2.5, 3, 4.2];
+
+    [byte|int:Unsigned8, int|float, int|byte, byte|int:Unsigned32]|error b = t.cloneWithType();
+    assert(checkpanic b, [1, 2.5, 3, 4]);
+}
+
+function testCloneWithTypeTupleRestTypeNegative() {
+    [int, float, int|float...] t = [1, 2.5, 3, 5.2];
+
+    [string...]|error c = t.cloneWithType();
+    assert(c is error, true);
+    error err = <error> c;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[string...]'");
+}
+
+function testCloneWithTypeUnionTupleRestTypeNegative() {
+    [int, float, int|float...] t = [1, 2.5, 3, 5.2];
+
+    [int|float, decimal|int...]|error d = t.cloneWithType();
+    assert(d is error, true);
+    error err = <error> d;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(messageString, "'[int,float,(int|float)...]' value cannot be converted to '[(int|float),(decimal|int)...]'");
 }
 
 type StringArray string[];
@@ -2099,4 +2219,47 @@ function foo(*KeyVals kvPairs) returns string {
 public function testDestructuredNamedArgs() returns any {
    string actual =  foo(message = "This is a sample message", a = "foo", b = "bar", c = 100);
    assertEquality("{\"message\":\"This is a sample message\",\"a\":\"foo\",\"b\":\"bar\",\"c\":100}", actual);
+}
+
+type Ints 12|21;
+type Strings "a"|"bc";
+type True true;
+type Boolean false|true;
+type Combo 1|2f|"abc"|false|true;
+
+function testToStringOnSubTypes() {
+    int a = 12;
+    byte b = 12;
+    int:Signed8 c = 12;
+
+    string s1 = a.toString();
+    string s2 = b.toString();
+    string s3 = c.toString();
+
+    assertEquality("12", s1);
+    assertEquality(s1, s2);
+    assertEquality(s1, s3);
+
+    string:Char e = "x";
+    assertEquality("x", e.toString());
+}
+
+function testToStringOnFiniteTypes() {
+    Ints d = 21;
+    assertEquality("21", d.toString());
+
+    Strings f = "bc";
+    assertEquality("bc", f.toString());
+
+    Ints|Strings g = 21;
+    assertEquality("21", g.toString());
+
+    True h = true;
+    assertEquality("true", h.toString());
+
+    Boolean i = false;
+    assertEquality("false", i.toString());
+
+    Combo j = 2.0;
+    assertEquality("2.0", j.toString());
 }

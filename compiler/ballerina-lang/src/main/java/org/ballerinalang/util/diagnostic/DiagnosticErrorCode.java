@@ -154,6 +154,17 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2115", "required.param.not.allowed.after.included.record.param"),
     INCOMPATIBLE_SUB_TYPE_FIELD("BCE2116", "incompatible.sub.type.field"),
     MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE2117", "missing.key.expr.in.member.access.expr"),
+    FIELD_ACCESS_CANNOT_BE_USED_TO_ACCESS_OPTIONAL_FIELDS(
+            "BCE2118", "field.access.cannot.be.used.to.access.optional.fields"),
+    UNDECLARED_FIELD_IN_RECORD("BCE2119", "undeclared.field.in.record"),
+    INVALID_FIELD_ACCESS_IN_RECORD_TYPE("BCE2120", "invalid.field.access.in.record.type"),
+    UNDECLARED_AND_OPTIONAL_FIELDS_IN_UNION_OF_RECORDS("BCE2121", "undeclared.and.optional.fields.in.union.of.records"),
+    UNDECLARED_FIELD_IN_UNION_OF_RECORDS("BCE2122", "undeclared.field.in.union.of.records"),
+    OPTIONAL_FIELD_IN_UNION_OF_RECORDS("BCE2123", "optional.field.in.union.of.records"),
+    ALREADY_INITIALIZED_SYMBOL("BCE2124", "already.initialized.symbol"),
+    ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
+            "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
+    INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -217,9 +228,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE("BCE2422", "invalid.function.pointer.invocation.with.type"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("BCE2423", "type.cast.not.yet.supported.for.type"),
-    EQUALITY_NOT_YET_SUPPORTED("BCE2424", "equality.not.yet.supported.for.type"),
-    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("BCE2425", "let.expression.not.yet.supported.record.field"),
-    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("BCE2426", "let.expression.not.yet.supported.object.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_RECORD_FIELD("BCE2424", "let.expression.not.yet.supported.record.field"),
+    LET_EXPRESSION_NOT_YET_SUPPORTED_OBJECT_FIELD("BCE2425", "let.expression.not.yet.supported.object.field"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("BCE2500", "incompatible.types.cast"),
@@ -436,15 +446,17 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE3030", "checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
-    NEVER_TYPE_NOT_ALLOWED_WITH_CHECKED_EXPR("BCE3033", "never.type.not.allowed.with.checked.expr"),
+
+    EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED("BCE3033", "expression.of.never.type.not.allowed"),
+    THIS_FUNCTION_SHOULD_PANIC("BCE3034", "this.function.should.panic"),
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
-            "BCE3034", "fail.expr.no.matching.error.return.in.encl.invokable"),
-    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3035", "on.fail.no.matching.error"),
+            "BCE3035", "fail.expr.no.matching.error.return.in.encl.invokable"),
+    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3036", "on.fail.no.matching.error"),
 
-    START_REQUIRE_INVOCATION("BCE3036", "start.require.invocation"),
-    INVALID_EXPR_STATEMENT("BCE3037", "invalid.expr.statement"),
-    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3038", "invalid.action.invocation.as.expr"),
+    START_REQUIRE_INVOCATION("BCE3037", "start.require.invocation"),
+    INVALID_EXPR_STATEMENT("BCE3038", "invalid.expr.statement"),
+    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3039", "invalid.action.invocation.as.expr"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("BCE3100", "invalid.token"),
@@ -718,7 +730,14 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNIMPLEMENTED_REFERENCED_METHOD_IN_OBJECT_CTOR("BCE4006", "unimplemented.referenced.method.in.object.constructor"),
     UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE("BCE4007", "unsupported.remote.method.name.in.scope"),
     WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY("BCE4008", "wild.card.binding.pattern.only.supports.type.any"),
-    CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY("BCE4009", "configurable.variable.module.ambiguity")
+    CONFIGURABLE_VARIABLE_MODULE_AMBIGUITY("BCE4009", "configurable.variable.module.ambiguity"),
+
+    INVALID_USAGE_OF_CHECK_IN_RECORD_FIELD_DEFAULT_EXPRESSION("BCE4010",
+            "invalid.usage.of.check.in.record.field.default.expression"),
+    INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD("BCE4011",
+            "invalid.usage.of.check.in.object.field.initializer.in.object.with.no.init.method"),
+    INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH("BCE4012",
+            "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch")
     ;
 
     private String diagnosticId;

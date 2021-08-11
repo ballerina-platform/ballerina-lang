@@ -451,11 +451,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes.clear();
     }
 
-    private void defineErrorType(BErrorType errorType, SymbolEnv env) {
+    private void defineErrorType(Location pos, BErrorType errorType, SymbolEnv env) {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
         BTypeSymbol errorTSymbol = errorType.tsymbol;
         errorTSymbol.scope = new Scope(errorTSymbol);
-        pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
+
+        if (symResolver.checkForUniqueSymbol(pos, pkgEnv, errorTSymbol)) {
+            pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
+        }
 
         SymbolEnv prevEnv = this.env;
         this.env = pkgEnv;
@@ -757,10 +760,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
         boolean isPublicType = flags.contains(Flag.PUBLIC);
         Name className = names.fromIdNode(classDefinition.name);
+        Name classOrigName = names.originalNameFromIdNode(classDefinition.name);
 
         BClassSymbol tSymbol = Symbols.createClassSymbol(Flags.asMask(flags), className, env.enclPkg.symbol.pkgID, null,
                                                          env.scope.owner, classDefinition.name.pos,
                                                          getOrigin(className, flags), classDefinition.isServiceDecl);
+        tSymbol.originalName = classOrigName;
         tSymbol.scope = new Scope(tSymbol);
         tSymbol.markdownDocumentation = getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
@@ -822,9 +827,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public void visit(BLangAnnotation annotationNode) {
         Name annotName = names.fromIdNode(annotationNode.name);
+        Name annotOrigName = names.originalNameFromIdNode(annotationNode.name);
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                                                                             annotationNode.getAttachPoints(),
-                                                                            annotName, env.enclPkg.symbol.pkgID, null,
+                                                                            annotName, annotOrigName,
+                                                                            env.enclPkg.symbol.pkgID, null,
                                                                             env.scope.owner, annotationNode.name.pos,
                                                                             getOrigin(annotName));
         annotationSymbol.markdownDocumentation =
@@ -1156,7 +1163,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
         BErrorType intersectionErrorType = types.createErrorType(null, Flags.PUBLIC, env);
         intersectionErrorType.tsymbol.name = names.fromString(typeDef.name.value);
-        defineErrorType(intersectionErrorType, env);
+        defineErrorType(typeDef.pos, intersectionErrorType, env);
 
         this.intersectionTypes.add(typeDef);
     }
@@ -1286,7 +1293,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TABLE_TYPE:
             case ERROR_TYPE:
             case FUNCTION_TYPE:
-            case STREAM_TYPE:
+            case STREAM_TYPE:    
                 return true;
             default:
                 return false;
@@ -1432,12 +1439,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        boolean isErrorIntersection = isErrorIntersection(definedType);
-        if (isErrorIntersection) {
-            populateSymbolNamesForErrorIntersection(definedType, typeDefinition);
-            populateUndefinedErrorIntersection(definedType, typeDefinition, env);
-        }
-
         // Check for any circular type references
         boolean hasTypeInclusions = false;
         NodeKind typeNodeKind = typeDefinition.typeNode.getKind();
@@ -1477,8 +1478,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
-                                                           Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
-                                                           env.scope.owner, typeDefinition.pos, SOURCE);
+                                                           Names.EMPTY, env.enclPkg.symbol.pkgID,
+                                                           definedType, env.scope.owner, typeDefinition.pos, SOURCE);
         }
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
@@ -1507,6 +1508,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 //            typeDefSymbol = definedType.tsymbol;
 //        }
 
+
+        boolean isErrorIntersection = isErrorIntersection(definedType);
+        if (isErrorIntersection) {
+            populateSymbolNameOfErrorIntersection(definedType, typeDefinition);
+            populateAllReadyDefinedErrorIntersection(definedType, typeDefinition, env);
+        }
+
 //        boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION);
         boolean isNonLabelIntersectionType = types.referenceTypeMatchesTag(definedType, TypeTags.INTERSECTION) && !label;
         BType referenceConstraintType = types.getConstraintFromReferenceType(definedType);
@@ -1515,6 +1523,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         typeDefSymbol.markdownDocumentation = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         typeDefSymbol.name = names.fromIdNode(typeDefinition.getName());
+        typeDefSymbol.originalName = names.originalNameFromIdNode(typeDefinition.getName());
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
@@ -1532,18 +1541,57 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType = distinctType;
             } else if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
                     ((BIntersectionType) referenceConstraintType).effectiveType.getKind() == TypeKind.ERROR) {
-                populateErrorTypeIds((BErrorType) ((BIntersectionType) referenceConstraintType).effectiveType,
-                                     (BLangIntersectionTypeNode) typeDefinition.typeNode, typeDefinition.name.value);
+                boolean distinctFlagPresentInTypeDef = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
+
+                BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
+                int numberOfDistinctConstituentTypes = 0;
+                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
+                for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
+                    BType type = constituentType.getBType();
+
+                    if (type.getKind() == TypeKind.ERROR) {
+                        if (constituentType.flagSet.contains(Flag.DISTINCT)) {
+                            numberOfDistinctConstituentTypes++;
+                            typeIdSet.addSecondarySet(((BErrorType) type).typeIdSet.getAll());
+                        } else {
+                            typeIdSet.add(((BErrorType) type).typeIdSet);
+                        }
+                    }
+                }
+
+                BErrorType effectiveType = (BErrorType) ((BIntersectionType) referenceConstraintType).effectiveType;
+
+                // if the distinct keyword is part of a distinct-type-descriptor that is the
+                // only distinct-type-descriptor occurring within a module-type-defn,
+                // then the local id is the name of the type defined by the module-type-defn.
+                if (numberOfDistinctConstituentTypes == 1
+                        || (numberOfDistinctConstituentTypes == 0 && distinctFlagPresentInTypeDef)) {
+                    BTypeIdSet typeIdSetForDefinedType = BTypeIdSet.from(
+                            env.enclPkg.packageID,
+                            typeDefinition.name.value,
+                            typeDefinition.flagSet.contains(Flag.PUBLIC),
+                            typeIdSet);
+                    effectiveType.typeIdSet.add(typeIdSetForDefinedType);
+                } else {
+                    for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
+                        if (constituentType.getBType().getKind() != TypeKind.ERROR) {
+                            continue;
+                        }
+                        if (constituentType.flagSet.contains(Flag.DISTINCT)) {
+                            typeIdSet.add(BTypeIdSet.from(env.enclPkg.packageID,
+                                    anonymousModelHelper.getNextAnonymousTypeId(env.enclPkg.packageID), true));
+                        }
+                    }
+                    effectiveType.typeIdSet.add(typeIdSet);
+                }
+
             } else if (referenceConstraintType.getKind() == TypeKind.OBJECT) {
-                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) referenceConstraintType,
+                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
                                                                  typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
-            } else if (referenceConstraintType.getKind() == TypeKind.UNION) {
-                validateUnionForDistinctType((BUnionType) referenceConstraintType, typeDefinition.pos);
-            } else {
-                dlog.error(typeDefinition.pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
             }
+            definedType.flags |= Flags.DISTINCT;
         }
 
         typeDefSymbol.flags |= Flags.asMask(typeDefinition.flagSet);
@@ -1591,7 +1639,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 handleLangLibTypes(typeDefinition);
                 return;
             }
-            if (!isErrorIntersection) { // We have already defined for IntersectionTtypeDef
+            // We may have already defined error intersection
+            if (!isErrorIntersection || lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
                 defineSymbol(typeDefinition.name.pos, typeDefSymbol);
             }
         }
@@ -1599,49 +1648,76 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void invalidateAlreadyDefinedErrorType(BLangTypeDefinition typeDefinition) {
         // We need to invalidate the already defined type as we don't have a way to undefine it.
-        BSymbol alreadyDefinedTypeSymbol =
-                                symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
+        BSymbol alreadyDefinedTypeSymbol = lookupTypeSymbol(env, typeDefinition.name);
         if (alreadyDefinedTypeSymbol.type.tag == TypeTags.ERROR) {
             alreadyDefinedTypeSymbol.type = symTable.errorType;
         }
     }
 
-    private void populateErrorTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name) {
+    private void populateErrorTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name,
+                                      boolean distinctFlagPresentInTypeDef) {
         BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
+        int numberOfDistinctConstituentTypes = 0;
+
         for (BLangType constituentType : typeNode.constituentTypeNodes) {
             BType type = symResolver.resolveTypeNode(constituentType, env);
 
             if (type.getKind() == TypeKind.ERROR) {
-                typeIdSet = BTypeIdSet.getIntersection(typeIdSet, ((BErrorType) type).typeIdSet);
+                if (constituentType.flagSet.contains(Flag.DISTINCT)) {
+                    numberOfDistinctConstituentTypes++;
+                    typeIdSet.addSecondarySet(((BErrorType) type).typeIdSet.getAll());
+                } else {
+                    typeIdSet.add(((BErrorType) type).typeIdSet);
+                }
             }
         }
-        effectiveType.typeIdSet = BTypeIdSet.from(env.enclPkg.packageID, name, true, typeIdSet);
+
+        // if the distinct keyword is part of a distinct-type-descriptor that is the
+        // only distinct-type-descriptor occurring within a module-type-defn,
+        // then the local id is the name of the type defined by the module-type-defn.
+        if (numberOfDistinctConstituentTypes == 1
+                || (numberOfDistinctConstituentTypes == 0 && distinctFlagPresentInTypeDef)) {
+            effectiveType.typeIdSet = BTypeIdSet.from(env.enclPkg.packageID, name, true, typeIdSet);
+        } else {
+            for (BLangType constituentType : typeNode.constituentTypeNodes) {
+                if (constituentType.flagSet.contains(Flag.DISTINCT)) {
+                    typeIdSet.add(BTypeIdSet.from(env.enclPkg.packageID,
+                                    anonymousModelHelper.getNextAnonymousTypeId(env.enclPkg.packageID), true));
+                }
+            }
+            effectiveType.typeIdSet = typeIdSet;
+        }
     }
 
-    private void populateUndefinedErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition,
-                                                    SymbolEnv env) {
+    private void populateAllReadyDefinedErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition,
+                                                          SymbolEnv env) {
+
+        BSymbol bSymbol = lookupTypeSymbol(env, typeDefinition.name);
+        BErrorType alreadyDefinedErrorType = (BErrorType) bSymbol.type;
+
+        boolean distinctFlagPresent = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
 
         BIntersectionType intersectionType = (BIntersectionType) definedType;
-        BTypeSymbol alreadyDefinedErrorTypeSymbol =
-                (BTypeSymbol) symResolver.lookupSymbolInMainSpace(env,
-                                                                  names.fromString(typeDefinition.name.value));
-        BErrorType alreadyDefinedErrorType = (BErrorType) alreadyDefinedErrorTypeSymbol.type;
         BErrorType errorType = (BErrorType) intersectionType.effectiveType;
-
-        if (typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT)) {
-            errorType.typeIdSet.add(
-                    BTypeIdSet.from(env.enclPkg.packageID, typeDefinition.name.value,
-                            typeDefinition.flagSet.contains(Flag.PUBLIC)));
-        }
+        populateErrorTypeIds(errorType, (BLangIntersectionTypeNode) typeDefinition.typeNode,
+                typeDefinition.name.value, distinctFlagPresent);
 
         alreadyDefinedErrorType.typeIdSet = errorType.typeIdSet;
         alreadyDefinedErrorType.detailType = errorType.detailType;
         alreadyDefinedErrorType.flags = errorType.flags;
         alreadyDefinedErrorType.name = errorType.name;
         intersectionType.effectiveType = alreadyDefinedErrorType;
+
+        if (!errorType.typeIdSet.isEmpty()) {
+            definedType.flags |= Flags.DISTINCT;
+        }
     }
 
-    private void populateSymbolNamesForErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition) {
+    private BSymbol lookupTypeSymbol(SymbolEnv env, BLangIdentifier name) {
+        return symResolver.lookupSymbolInMainSpace(env, names.fromString(name.value));
+    }
+
+    private void populateSymbolNameOfErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition) {
         String typeDefName = typeDefinition.name.value;
         definedType.tsymbol.name = names.fromString(typeDefName);
 
@@ -1668,8 +1744,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             enumMembers.add((BConstantSymbol) ((BLangUserDefinedType) member).symbol);
         }
 
-        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
-                               definedType, env.scope.owner, typeDefinition.pos, SOURCE);
+        return new BEnumSymbol(enumMembers, Flags.asMask(typeDefinition.flagSet), Names.EMPTY, Names.EMPTY,
+                               env.enclPkg.symbol.pkgID, definedType, env.scope.owner, typeDefinition.pos, SOURCE);
     }
 
     private BObjectType getDistinctObjectType(BLangTypeDefinition typeDefinition, BObjectType definedType,
@@ -1772,7 +1848,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         for (BLangNode unresolvedNode : unresolvedTypes) {
-            if (unresolvedNode.getKind() == NodeKind.TYPE_DEFINITION && 
+            if (unresolvedNode.getKind() == NodeKind.TYPE_DEFINITION &&
                     ((BLangTypeDefinition) unresolvedNode).hasCyclicReference) {
                 defineSymbolsForCyclicTypeDefinitions((BLangTypeDefinition) unresolvedNode, env);
             }
@@ -1786,21 +1862,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         dependencyList.add(member.tsymbol.name.value);
         dlog.error(typeDef.getPosition(), DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
         return symTable.semanticError;
-    }
-
-    private void validateUnionForDistinctType(BUnionType definedType, Location pos) {
-        Set<BType> memberTypes = definedType.getMemberTypes();
-        TypeKind firstTypeKind = null;
-        for (BType type : memberTypes) {
-            TypeKind typeKind = type.getKind();
-            if (firstTypeKind == null && (typeKind == TypeKind.ERROR || typeKind == TypeKind.OBJECT)) {
-                firstTypeKind = typeKind;
-
-            }
-            if (typeKind != firstTypeKind) {
-                dlog.error(pos, DiagnosticErrorCode.DISTINCT_TYPING_ONLY_SUPPORT_OBJECTS_AND_ERRORS);
-            }
-        }
     }
 
     private BErrorType getDistinctErrorType(BLangTypeDefinition typeDefinition, BErrorType definedType,
@@ -1823,14 +1884,18 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BTypeIdSet calculateTypeIdSet(BLangTypeDefinition typeDefinition, boolean isPublicType,
                                           BTypeIdSet secondary) {
         String name = typeDefinition.flagSet.contains(Flag.ANONYMOUS)
-                ? anonymousModelHelper.getNextDistinctErrorId(env.enclPkg.packageID)
+                ? anonymousModelHelper.getNextAnonymousTypeId(env.enclPkg.packageID)
                 : typeDefinition.getName().value;
 
         return BTypeIdSet.from(env.enclPkg.packageID, name, isPublicType, secondary);
     }
 
     private boolean isDistinctFlagPresent(BLangTypeDefinition typeDefinition) {
-        return typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
+        if (typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT)) {
+            return true;
+        }
+
+        return false;
     }
 
     private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
@@ -1874,9 +1939,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangWorker workerNode) {
         BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
                                                                    names.fromIdNode(workerNode.name),
+                                                                   names.originalNameFromIdNode(workerNode.name),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    workerNode.pos, SOURCE);
         workerSymbol.markdownDocumentation = getMarkdownDocAttachment(workerNode.markdownDocumentationAttachment);
+        workerSymbol.originalName = names.originalNameFromIdNode(workerNode.name);
         workerNode.symbol = workerSymbol;
         defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
     }
@@ -1922,7 +1989,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
-                getFuncSymbolName(funcNode),
+                getFuncSymbolName(funcNode), getFuncSymbolOriginalName(funcNode),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner,
                 funcNode.hasBody(), funcNode.name.pos, SOURCE);
         funcSymbol.source = funcNode.pos.lineRange().filePath();
@@ -1961,6 +2028,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                         symTable.builtinPos : funcNode.name.pos;
         BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                    getFuncSymbolName(funcNode),
+                                                                   getFuncSymbolOriginalName(funcNode),
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    funcNode.hasBody(), symbolPos,
                                                                    getOrigin(funcNode.name.value));
@@ -2070,8 +2138,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create a new constant symbol.
         Name name = names.fromIdNode(constant.name);
         PackageID pkgID = env.enclPkg.symbol.pkgID;
-        return new BConstantSymbol(Flags.asMask(constant.flagSet), name, pkgID, symTable.semanticError, symTable.noType,
-                                   env.scope.owner, constant.name.pos, getOrigin(name));
+        return new BConstantSymbol(Flags.asMask(constant.flagSet), name, names.originalNameFromIdNode(constant.name),
+                                   pkgID, symTable.semanticError, symTable.noType, env.scope.owner,
+                                   constant.name.pos, getOrigin(name));
     }
 
     @Override
@@ -2086,14 +2155,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name varName = names.fromIdNode(varNode.name);
+        Name varOrigName = names.originalNameFromIdNode(varNode.name);
         if (varName == Names.EMPTY || varName == Names.IGNORE) {
             // This is a variable created for a return type
             // e.g. function foo() (int);
             return;
         }
 
-        BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.getBType(), varName, env,
-                                               varNode.internal);
+        BVarSymbol varSymbol = defineVarSymbol(varNode.name.pos, varNode.flagSet, varNode.getBType(), varName,
+                                               varOrigName, env, varNode.internal);
         if (isDeprecated(varNode.annAttachments)) {
             varSymbol.flags |= Flags.DEPRECATED;
         }
@@ -2639,11 +2709,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         //TODO check below field position
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BLangRecordVariable.BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
-            String fieldName = bLangRecordVariableKeyValue.key.value;
-            BField bField = new BField(names.fromString(fieldName), recordVar.pos,
-                    new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                            fieldType, recordSymbol, recordVar.pos, SOURCE));
-            fields.put(fieldName, bField);
+            Name fieldName = names.fromIdNode(bLangRecordVariableKeyValue.key);
+            BField bField = new BField(fieldName, recordVar.pos,
+                    new BVarSymbol(0, fieldName, names.originalNameFromIdNode(bLangRecordVariableKeyValue.key),
+                                   env.enclPkg.symbol.pkgID, fieldType, recordSymbol, recordVar.pos, SOURCE));
+            fields.put(fieldName.getValue(), bField);
         }
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;
@@ -3554,11 +3624,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
 
-                BType detailType = Optional.ofNullable(errorTypeNode.detailType)
-                        .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
-                        .orElse(symTable.detailType);
-
                 BType typeDefType = typeDef.symbol.type;
+                if (typeDefType.tag == TypeTags.TYPEREFDESC) {
+                    ((BErrorType) ((BTypeReferenceType) typeDef.symbol.type).constraint).detailType = detailType;
+                } else {
+                    ((BErrorType) typeDef.symbol.type).detailType = detailType;
+                }
+                BType detailType = getDetailType(typeDefEnv, errorTypeNode);
                 if (typeDefType.tag == TypeTags.TYPEREFDESC) {
                     ((BErrorType) ((BTypeReferenceType) typeDef.symbol.type).constraint).detailType = detailType;
                 } else {
@@ -3574,6 +3646,24 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
+    }
+
+    private BType getDetailType(SymbolEnv typeDefEnv, BLangErrorType errorTypeNode) {
+        BLangType detailType = errorTypeNode.detailType;
+        if (detailType != null && detailType.getKind() == NodeKind.CONSTRAINED_TYPE) {
+            BLangType constraint = ((BLangConstrainedType) detailType).constraint;
+            if (constraint.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                BLangUserDefinedType userDefinedType = (BLangUserDefinedType) constraint;
+                if (userDefinedType.typeName.value.equals(TypeDefBuilderHelper.INTERSECTED_ERROR_DETAIL)) {
+                    errorTypeNode.detailType = null;
+                    return ((BErrorType) errorTypeNode.getBType()).detailType;
+                }
+            }
+        }
+
+        return Optional.ofNullable(errorTypeNode.detailType)
+                .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
+                .orElse(symTable.detailType);
     }
 
     private void defineFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
@@ -4196,6 +4286,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             invokableSymbol.retType = tsymbol.returnType;
             invokableSymbol.flags = tsymbol.flags;
         }
+        varSymbol.originalName = symbol.getOriginalName();
         varSymbol.owner = symbol.owner;
         varSymbol.originalSymbol = symbol;
         defineShadowedSymbol(location, varSymbol, targetEnv);
@@ -4210,9 +4301,15 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName,
                                       SymbolEnv env, boolean isInternal) {
+        return defineVarSymbol(pos, flagSet, varType, varName, varName, env, isInternal);
+    }
+
+    public BVarSymbol defineVarSymbol(Location pos, Set<Flag> flagSet, BType varType, Name varName, Name origName,
+                                      SymbolEnv env, boolean isInternal) {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
+        varSymbol.originalName = origName;
         boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
                 flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
                 flagSet.contains(Flag.INCLUDED);
@@ -4450,6 +4547,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         return names.fromIdNode(funcNode.name);
     }
 
+    private Name getFuncSymbolOriginalName(BLangFunction funcNode) {
+        return names.originalNameFromIdNode(funcNode.name);
+    }
+
     private Name getFieldSymbolName(BLangSimpleVariable receiver, BLangSimpleVariable variable) {
         return names.fromString(Symbols.getAttachedFuncSymbolName(
                 receiver.getBType().tsymbol.name.value, variable.name.value));
@@ -4596,22 +4697,23 @@ public class SymbolEnter extends BLangNodeVisitor {
                 Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));
         BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
 
+        BInvokableSymbol referencedFuncSymbol = referencedFunc.symbol;
         if (matchingObjFuncSym != symTable.notFoundSymbol) {
             if (!includedFunctionNames.add(referencedFuncName)) {
                 dlog.error(typeRef.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, referencedFuncName);
                 return;
             }
 
-            if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
+            if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFuncSymbol)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
                 Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticErrorCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
-                           getCompleteFunctionSignature(referencedFunc.symbol),
+                           getCompleteFunctionSignature(referencedFuncSymbol),
                            getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
             }
 
             if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
-                    referencedFunc.symbol) && !types.isAssignable(matchingObjFuncSym.type, referencedFunc.type)) {
+                    referencedFuncSymbol) && !types.isAssignable(matchingObjFuncSym.type, referencedFunc.type)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
                 Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticErrorCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
@@ -4620,14 +4722,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        if (Symbols.isPrivate(referencedFunc.symbol)) {
-            // we should not copy private functions.
+        if (Symbols.isPrivate(referencedFuncSymbol) || Symbols.isResource(referencedFuncSymbol)) {
+            // we should not copy private functions. And we ignore the resource functions as they are not part of the
+            // type.
             return;
         }
 
         // If not, define the function symbol within the object.
         // Take a copy of the symbol, with the new name, and the package ID same as the object type.
-        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFunc.symbol,
+        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFuncSymbol,
                 typeDefSymbol, funcName, typeDefSymbol.pkgID, typeRef.pos, getOrigin(funcName));
         defineSymbol(typeRef.pos, funcSymbol, objEnv);
 

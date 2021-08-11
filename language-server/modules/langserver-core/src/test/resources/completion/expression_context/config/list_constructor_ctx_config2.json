@@ -75,29 +75,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "ARR",
-      "insertText": "value3",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value as value3 ;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
@@ -337,15 +314,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "ASQ",
-      "filterText": "object",
-      "insertText": "object ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -578,6 +546,29 @@
       "sortText": "ARR",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "ARR",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
     }
   ]
 }

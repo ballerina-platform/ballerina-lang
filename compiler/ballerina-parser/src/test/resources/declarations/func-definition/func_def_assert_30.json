@@ -469,6 +469,10 @@
                   "kind": "CLOSE_BRACE_PIPE_TOKEN",
                   "leadingMinutiae": [
                     {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
                       "kind": "COMMENT_MINUTIAE",
                       "value": "// certain record"
                     },

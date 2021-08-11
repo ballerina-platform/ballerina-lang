@@ -33,9 +33,6 @@
                             {
                               "kind": "HASH_TOKEN",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_INVALID_TOKEN"
-                              ],
                               "leadingMinutiae": [
                                 {
                                   "kind": "COMMENT_MINUTIAE",
@@ -49,9 +46,14 @@
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
-                                        "kind": "CLOSE_BRACE_TOKEN"
+                                        "kind": "CLOSE_BRACE_TOKEN",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_INVALID_TOKEN"
+                                        ]
                                       }
                                     ]
                                   }

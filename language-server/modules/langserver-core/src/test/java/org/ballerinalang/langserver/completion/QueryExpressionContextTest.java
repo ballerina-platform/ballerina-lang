@@ -43,9 +43,6 @@ public class QueryExpressionContextTest extends CompletionTest {
     @Override
     public List<String> skipList() {
         return Arrays.asList(
-                // table
-                "query_expr_ctx_config2.json",
-                "query_expr_ctx_config5.json",
                 // TODO ST identifies the wrong token when there's a newline. Need to look at that.
                 "query_expr_ctx_join_clause_config6a.json",
                 // TODO: Suggestions in join's on clause should be limited to lists being joined
@@ -55,6 +52,7 @@ public class QueryExpressionContextTest extends CompletionTest {
                 "query_expr_ctx_onconflict_clause_config1a.json",
                 // Order By [asc/desc]
                 "query_expr_ctx_orderby_clause_config4.json",
+                "query_expr_ctx_config3.json", // issue #31449
                 "query_expr_ctx_config4.json" // issue #31449
         );
     }

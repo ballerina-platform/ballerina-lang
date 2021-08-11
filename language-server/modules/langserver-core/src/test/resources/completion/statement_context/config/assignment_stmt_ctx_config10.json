@@ -373,15 +373,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "S",
-      "filterText": "object",
-      "insertText": "object ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -492,21 +483,6 @@
       "detail": "string",
       "sortText": "AB",
       "insertText": "hello",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "func()",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "func",
-      "insertText": "func()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -660,6 +636,14 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "func",
+      "kind": "Variable",
+      "detail": "function () returns string",
+      "sortText": "D",
+      "insertText": "func",
       "insertTextFormat": "Snippet"
     }
   ]

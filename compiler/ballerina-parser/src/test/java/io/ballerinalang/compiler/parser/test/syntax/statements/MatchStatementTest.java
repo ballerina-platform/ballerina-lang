@@ -96,7 +96,7 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_11.bal", "match-stmt/match_stmt_assert_11.json");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMatchStmtRecoveryInvalidErrorMatchPatterns() {
         testFile("match-stmt/match_stmt_source_13.bal", "match-stmt/match_stmt_assert_13.json");
     }

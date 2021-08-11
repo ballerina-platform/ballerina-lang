@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -101,6 +102,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.SIPUSH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
@@ -138,10 +140,12 @@ public class MethodGen {
     private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
+    private final CompilerContext compilerContext;
 
-    public MethodGen(JvmPackageGen jvmPackageGen) {
+    public MethodGen(JvmPackageGen jvmPackageGen, CompilerContext compilerContext) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
+        this.compilerContext = compilerContext;
     }
 
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
@@ -150,7 +154,7 @@ public class MethodGen {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                                                          jvmTypeGen, jvmCastGen, stringConstantsGen, moduleClassName,
-                                                         asyncDataCollector);
+                                                         asyncDataCollector, compilerContext);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, stringConstantsGen, moduleClassName,
                                attachedType, asyncDataCollector);
@@ -216,7 +220,8 @@ public class MethodGen {
         addCasesForBasicBlocks(func, funcName, labelGen, labels, states);
 
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
-                                                          jvmCastGen, stringConstantsGen, asyncDataCollector);
+                                                          jvmCastGen, stringConstantsGen, asyncDataCollector,
+                                                          compilerContext);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
@@ -258,7 +263,6 @@ public class MethodGen {
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
 
         mv.visitMaxs(0, 0);
-
         mv.visitEnd();
     }
 
@@ -480,6 +484,9 @@ public class MethodGen {
             processTerminator(mv, func, module, funcName, terminator, jvmTypeGen, localVarOffset);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
                                   returnVarRefIndex, attachedType);
+
+            lastScope = JvmCodeGenUtil
+                    .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
@@ -955,7 +962,7 @@ public class MethodGen {
             // local vars have visible range information
             if (localVar.kind == VarKind.LOCAL) {
                 if (localVar.startBB != null) {
-                    startLabel = labelGen.getLabel(funcName + JvmCodeGenUtil.SCOPE_PREFIX + localVar.insScope.id);
+                    startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
                     endLabel = labelGen.getLabel(funcName + endBB.id.value + "beforeTerm");

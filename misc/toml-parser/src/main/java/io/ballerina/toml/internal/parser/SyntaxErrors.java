@@ -106,6 +106,10 @@ public class SyntaxErrors {
             case ARRAY_TABLE_FIRST_START:
             case ARRAY_TABLE_SECOND_START:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACKET_TOKEN;
+            case INLINE_TABLE_END:
+                return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
+            case INLINE_TABLE_START:
+                return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case DOT:
                 return DiagnosticErrorCode.ERROR_MISSING_DOT_TOKEN;
             case STRING_END:

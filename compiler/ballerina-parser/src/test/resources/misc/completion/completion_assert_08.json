@@ -91,10 +91,6 @@
                               ],
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -443,10 +439,6 @@
                                   "kind": "PIPE_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    },
-                                    {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
                                     }
@@ -585,10 +577,6 @@
                                 }
                               ],
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -764,10 +752,6 @@
                               "kind": "RIGHT_ARROW_TOKEN",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -916,10 +900,6 @@
                               "kind": "SYNC_SEND_TOKEN",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -1052,10 +1032,6 @@
                                 }
                               ],
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -1503,10 +1479,6 @@
                                         }
                                       ],
                                       "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        },
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"

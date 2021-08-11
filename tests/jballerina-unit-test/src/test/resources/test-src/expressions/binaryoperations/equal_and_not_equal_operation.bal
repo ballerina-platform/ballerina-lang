@@ -861,7 +861,14 @@ function testSimpleXmlPositive() returns boolean {
     xml x6 = xml `<?target data?>`;
     xml x7 = xml `<!-- I'm a comment -->`;
     xml x8 = xml `<!-- I'm a comment -->`;
-    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8);
+    xml x11 = xml `<book>The Lost World</book><!-- I'm a comment -->`;
+    boolean x9 = x11 == xml `<book>The Lost World</book><!-- I'm a comment -->`;
+    boolean x10 = x1 == xml `<book>The Lost World</book>`;
+    boolean x12 = x3 == xml `Hello, world!`;
+    boolean x13 = x5 == xml `<?target data?>`;
+    boolean x14 = x7 == xml `<!-- I'm a comment -->`;
+    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8) &&
+    x9 && x10 && x12 && x13 && x14 && x11 != x8 && x3 != x5 && x7 != x1 && x6 != x7;
 }
 
 function testReferenceEqualityXml() {
@@ -1032,6 +1039,20 @@ public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
     xml x2 = xml `<name>Book Two</name>`;
     xml x3 = x2.get(0);
     return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
+}
+
+function testXmlStringNegative() {
+    anydata x1 = xml `<book>The Lost World</book>`;
+    anydata x2 = "<book>The Lost World</book>";
+    anydata x3 = xml `Hello, world!`;
+    anydata x4 = "Hello, world!";
+    anydata x5 = xml `<?target data?>`;
+    anydata x6 = "<?target data?>";
+    anydata x7 = xml `<!-- I'm comment -->`;
+    anydata x8 = "<!-- I'm comment -->";
+    boolean result =  x1 == x2 || !(x1 != x2) || x3 == x4 || !(x3 != x4) || x5 == x6 || !(x5 != x6) || x7 == x8 || !(x7
+     != x8) || x2 == x1 || !(x2 != x1) || x4 == x3 || !(x4 != x3) || x6 == x5 || !(x6 != x5) || x8 == x7 || !(x8 != x7);
+     assert(result, false);
 }
 
 public function testJsonRecordMapEqualityPositive() returns boolean {
@@ -1389,6 +1410,52 @@ function testTupleJSONEquality() {
     assert(j != l, true);
 }
 
+function testIntersectingUnionEquality() {
+    string:Char? a = "a";
+    string b = "a";
+    assert(a == b, true);
+    assert(a != b, false);
+    assert(b == a, true);
+    assert(b != a, false);
+    assert(a == "a", true);
+    assert(a != "a", false);
+    assert("a" == a, true);
+    assert("a" != a, false);
+
+    string c = "x";
+    assert(a == c, false);
+    assert(a != c, true);
+    assert(c == a, false);
+    assert(c != a, true);
+    assert(a == "x", false);
+    assert(a != "x", true);
+    assert("abc" == a, false);
+    assert("abc" != a, true);
+}
+
+class MyObj2 {}
+type MyObject1 object {};
+
+function testEqualityWithNonAnydataType() {
+    map<int|string> a = { one: 1, two: "two" };
+    map<any> b = { one: 1, two: "two" };
+    assert(a == b, true);
+    assert(a != b, false);
+
+    any c = 5;
+    int d = 5;
+    assert(c == d, true);
+    assert(c != d, false);
+
+    MyObject1? obj1 = ();
+    assert(obj1 == (), true);
+    assert(obj1 != (), false);
+
+    MyObj2? obj2 = new;
+    assert(obj2 == (), false);
+    assert(obj2 != (), true);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
@@ -1399,4 +1466,3 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
-

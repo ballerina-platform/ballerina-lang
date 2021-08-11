@@ -30,6 +30,7 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
@@ -48,6 +49,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -64,6 +66,7 @@ import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBu
 import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.ParameterCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.StreamTypeInitCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
@@ -395,26 +398,49 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return colonPos < cursor;
     }
 
-    protected LSCompletionItem getExplicitNewCompletionItem(ClassSymbol clsSymbol, BallerinaCompletionContext context) {
-        CompletionItem cItem = FunctionCompletionItemBuilder.build(clsSymbol,
-                FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-        MethodSymbol initMethod = clsSymbol.initMethod().isPresent() ? clsSymbol.initMethod().get() : null;
+    protected Optional<LSCompletionItem> getExplicitNewCompletionItem(Symbol symbol,
+                                                                      BallerinaCompletionContext context) {
+        if (SymbolUtil.isClassDefinition(symbol)) {
+            ClassSymbol classSymbol = (ClassSymbol) symbol;
+            CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
+                    FunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
+            MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
 
-        return new SymbolCompletionItem(context, initMethod, cItem);
+            return Optional.of(new SymbolCompletionItem(context, initMethod, cItem));
+        } else if (SymbolUtil.isOfType(symbol, TypeDescKind.STREAM)) {
+            TypeDefinitionSymbol typeSymbol = (TypeDefinitionSymbol) symbol;
+            CompletionItem cItem = StreamTypeInitCompletionItemBuilder.build(typeSymbol, context);
+
+            return Optional.of(new SymbolCompletionItem(context, typeSymbol.typeDescriptor(), cItem));
+        }
+
+        return Optional.empty();
     }
 
     /**
      * Get the implicit new expression completion item.
      *
-     * @param classSymbol object type symbol
-     * @param context     Language server operation context
+     * @param symbol  object type symbol
+     * @param context Language server operation context
      * @return {@link LSCompletionItem} generated
      */
-    protected LSCompletionItem getImplicitNewCompletionItem(ClassSymbol classSymbol,
-                                                            BallerinaCompletionContext context) {
-        CompletionItem cItem = FunctionCompletionItemBuilder.build(classSymbol,
+    protected LSCompletionItem getImplicitNewCItemForStreamType(TypeSymbol symbol,
+                                                                BallerinaCompletionContext context) {
+        CompletionItem cItem = StreamTypeInitCompletionItemBuilder.build();
+        return new SymbolCompletionItem(context, symbol, cItem);
+    }
+
+    /**
+     * Get the implicit new expression completion item.
+     *
+     * @param symbol  object type symbol
+     * @param context Language server operation context
+     * @return {@link LSCompletionItem} generated
+     */
+    protected LSCompletionItem getImplicitNewCItemForClass(ClassSymbol symbol, BallerinaCompletionContext context) {
+        CompletionItem cItem = FunctionCompletionItemBuilder.build(symbol,
                 FunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
-        MethodSymbol initMethod = classSymbol.initMethod().isPresent() ? classSymbol.initMethod().get() : null;
+        MethodSymbol initMethod = symbol.initMethod().isPresent() ? symbol.initMethod().get() : null;
 
         return new SymbolCompletionItem(context, initMethod, cItem);
     }
@@ -464,7 +490,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         query pipeline starts with from keyword and also being added with the actions
          */
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        // Here we do not add the error keyword since it will be added via the module completion items
+        // Here we do not add the error and object keywords since it will be added via the module completion items
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
@@ -474,7 +500,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK.get()));
@@ -485,7 +510,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
-        
+
         Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
@@ -495,14 +520,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         // TODO: anon function expressions, 
         return completionItems;
     }
-    
+
     protected Predicate<Symbol> getExpressionContextSymbolFilter() {
         Predicate<Symbol> symbolFilter = CommonUtil.getVariableFilterPredicate();
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib
         symbolFilter = symbolFilter.or(symbol -> (symbol.kind() == FUNCTION
                 || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
                 && !symbol.getName().orElse("").equals(Names.ERROR.getValue()));
-        
+
         return symbolFilter;
     }
 

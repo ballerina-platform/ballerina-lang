@@ -17,11 +17,13 @@ package org.ballerinalang.langserver.command.executors;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -51,6 +53,7 @@ import org.eclipse.lsp4j.services.LanguageClient;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -134,16 +137,28 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         List<String> args = new ArrayList<>();
         int argIndex = 1;
+        List<SymbolKind> argumentKindList = Arrays.asList(SymbolKind.VARIABLE, SymbolKind.CONSTANT);
         for (FunctionArgumentNode fnArgNode : fnCallExprNode.get().arguments()) {
-            Optional<TypeSymbol> type = semanticModel.type(fnArgNode);
-
-            String varName = CommonUtil.generateName(argIndex, visibleSymbolNames);
-            if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, type.get()) + " " + varName);
+            Optional<TypeSymbol> type = semanticModel.typeOf(fnArgNode);
+            Optional<Symbol> symbol;
+            if (fnArgNode.kind() == SyntaxKind.POSITIONAL_ARG) {
+                symbol = semanticModel.symbol(((PositionalArgumentNode) fnArgNode).expression());
             } else {
-                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, null) + " " + varName);
+                symbol = semanticModel.symbol(fnArgNode);
+            }
+            String varName = "";
+            if (symbol.isPresent() && argumentKindList.contains(symbol.get().kind())) {
+                varName = symbol.get().getName().orElse("");
             }
 
+            if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
+                varName = CommonUtil.generateParameterName(varName, argIndex,
+                        CommonUtil.getRawType(type.get()), visibleSymbolNames);
+                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, type.get()) + " " + varName);
+            } else {
+                varName = CommonUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
+                args.add(FunctionGenerator.getParameterTypeAsString(codeActionContext, null) + " " + varName);
+            }
             visibleSymbolNames.add(varName);
             argIndex++;
         }
@@ -157,13 +172,24 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             return Collections.emptyList();
         }
 
+        LanguageClient client = context.getLanguageClient();
+        List<TextEdit> edits = new ArrayList<>();
+        Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(fnCallExprNode.get());
+        Range insertRange;
+        if (enclosingNode.isPresent()) {
+            LineRange endLineRange = enclosingNode.get().lineRange();
+            newLineAtEnd = false;
+            insertRange = new Range(new Position(endLineRange.endLine().line(), endLineRange.endLine().offset()),
+                    new Position(endLineRange.endLine().line(), endLineRange.endLine().offset()));
+
+        } else {
+            insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
+        }
+
         // Generate function
         String function = FunctionGenerator.generateFunction(codeActionContext, !newLineAtEnd, functionName,
                 args, returnTypeSymbol.get());
 
-        LanguageClient client = context.getLanguageClient();
-        List<TextEdit> edits = new ArrayList<>();
-        Range insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         edits.add(new TextEdit(insertRange, function));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits);
         return CommandUtil.applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
@@ -175,5 +201,16 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     @Override
     public String getCommand() {
         return COMMAND;
+    }
+
+    private Optional<NonTerminalNode> findEnclosingModulePartNode(NonTerminalNode node) {
+        NonTerminalNode reference = node;
+        while (reference != null && reference.parent() != null) {
+            if (reference.parent().kind() == SyntaxKind.MODULE_PART) {
+                return Optional.of(reference);
+            }
+            reference = reference.parent();
+        }
+        return Optional.empty();
     }
 }

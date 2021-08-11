@@ -19,7 +19,7 @@ package io.ballerina.compiler.internal.parser;
 
 /**
  * Parser rule contexts that represent each point in the grammar.
- * These represents the current scope during the parsing.
+ * These represent the current scope during the parsing.
  *
  * @since 1.2.0
  */
@@ -32,10 +32,11 @@ public enum ParserRuleContext {
     TOP_LEVEL_NODE_WITHOUT_METADATA("top-level-node-without-metadata"),
     TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
     FUNC_DEF("func-def"),
+    FUNC_DEF_START("function-def-start"),
     FUNC_DEF_OR_FUNC_TYPE("func-def-or-func-type"),
-    FUNC_DEF_OR_TYPE_FIRST_QUALIFIER("func-def-or-type-first-qualifier"),
-    FUNC_DEF_OR_TYPE_SECOND_QUALIFIER("func-def-or-type-second-qualifier"),
-    FUNC_DEF_OR_TYPE_WITHOUT_FIRST_QUALIFIER("func-def-or-type-without-first-qualifier"),
+    FUNC_DEF_FIRST_QUALIFIER("func-def-first-qualifier"),
+    FUNC_DEF_SECOND_QUALIFIER("func-def-second-qualifier"),
+    FUNC_DEF_WITHOUT_FIRST_QUALIFIER("func-def-without-first-qualifier"),
     PARAM_LIST("parameters"),
     PARAMETER_START("parameter-start"),
     PARAMETER_START_WITHOUT_ANNOTATION("parameter-start-without-annotation"),
@@ -45,6 +46,7 @@ public enum ParserRuleContext {
     REST_PARAM("rest-parameter"),
     PARAM_START("parameter-start"),
     PARAM_RHS("param-rhs"),
+    FUNC_TYPE_PARAM_RHS("function-type-desc-param-rhs"),
     REST_PARAM_RHS("rest-param-rhs"),
     AFTER_PARAMETER_TYPE("after-parameter-type"),
     PARAMETER_NAME_RHS("parameter-name-rhs"),
@@ -94,8 +96,8 @@ public enum ParserRuleContext {
     OBJECT_CONSTRUCTOR_MEMBER("object-constructor-member"),
     CLASS_MEMBER("class-member"),
     OBJECT_TYPE_MEMBER("object-type-member"),
-    CLASS_MEMBER_START("class-member-start"),
-    OBJECT_MEMBER_START("object-member-start"),
+    CLASS_MEMBER_OR_OBJECT_MEMBER_START("class-member-or-object-member-start"),
+    OBJECT_CONSTRUCTOR_MEMBER_START("object-constructor-member-start"),
     CLASS_MEMBER_OR_OBJECT_MEMBER_WITHOUT_META("class-member-or-object-member-without-metadata"),
     OBJECT_CONS_MEMBER_WITHOUT_META("object-constructor-member-without-metadata"),
     OBJECT_FUNC_OR_FIELD("object-func-or-field"),
@@ -350,6 +352,7 @@ public enum ParserRuleContext {
 
     // Statements
     STATEMENT("statement"),
+    STATEMENTS("statements"),
     STATEMENT_WITHOUT_ANNOTS("statement-without-annots"),
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
@@ -466,6 +469,7 @@ public enum ParserRuleContext {
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
+    NOT_IS_KEYWORD("!is"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -545,6 +549,7 @@ public enum ParserRuleContext {
     ORDER_DIRECTION("order-direction"),
     VAR_REF_COLON("var-ref-colon"),
     TYPE_REF_COLON("type-ref-colon"),
+    METHOD_CALL_DOT("method-call-dot"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -683,7 +688,6 @@ public enum ParserRuleContext {
     ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
     TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
-    TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC("top.level.func.def.or.func.type.desc"),
     MAP_TYPE_OR_TYPE_REF("map-type-or-type-ref"),
     OBJECT_TYPE_OR_TYPE_REF("object-type-or-type-ref"),
     STREAM_TYPE_OR_TYPE_REF("stream-type-or-type-ref"),
@@ -705,6 +709,7 @@ public enum ParserRuleContext {
     LIST_BINDING_PATTERN_RHS("list-binding-pattern-rhs"),
     TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
     ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
+    ANNOTATION_DECL_START("annotation-declaration-start"),
     ;
 
     private String value;

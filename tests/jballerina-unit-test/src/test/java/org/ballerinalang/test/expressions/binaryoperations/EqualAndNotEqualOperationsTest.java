@@ -661,6 +661,11 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testXmlStringNegative() {
+        BRunUtil.invoke(result, "testXmlStringNegative");
+    }
+
+    @Test
     public void testReferenceEqualityXml() {
         BRunUtil.invoke(result, "testReferenceEqualityXml");
     }
@@ -668,6 +673,11 @@ public class EqualAndNotEqualOperationsTest {
     @Test
     public void testXmlNeverAndXmlSequenceEquality() {
         BRunUtil.invoke(result, "testXmlNeverAndXmlSequenceEquality");
+    }
+
+    @Test
+    public void testEqualityWithNonAnydataType() {
+        BRunUtil.invoke(result, "testEqualityWithNonAnydataType");
     }
 
     @Test
@@ -829,6 +839,11 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testIntersectingUnionEquality() {
+        BRunUtil.invoke(result, "testIntersectingUnionEquality");
+    }
+
+    @Test
     public void testArrayTupleEqualityNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayTupleEqualityNegative");
         Assert.assertEquals(returns.length, 1);
@@ -893,20 +908,24 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, i++, "operator '!=' not defined for 'int[]' and '[float,float]'", 82, 35);
         validateError(resultNegative, i++, "operator '==' not defined for 'int[]' and '[int,float]'", 85, 23);
         validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and 'int[]'", 85, 35);
-        validateError(resultNegative, i++, "operator '==' not defined for '[int,map<int>]' and '[int,float]'", 99,
-                      23);
-        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and '[int,map<int>]'", 99,
-                      35);
-        validateError(resultNegative, i++, "operator '==' not defined for 'any' and 'int'", 103, 15);
-        validateError(resultNegative, i++, "operator '!=' not defined for 'int' and 'any'", 103, 27);
-        validateError(resultNegative, i++, "operator '==' not defined for 'map<(int|string)>' and 'map'", 107, 15);
-        validateError(resultNegative, i++, "operator '!=' not defined for 'map' and 'map<(int|string)>'", 107, 27);
-        validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and '()'", 154, 9);
-        validateError(resultNegative, i++, "operator '==' not defined for 'Foo' and '()'", 160, 9);
+        validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and '()'", 138, 9);
+        validateError(resultNegative, i++, "operator '==' not defined for 'Foo' and '()'", 144, 9);
         validateError(resultNegative, i++, "operator '==' not defined for 'function () returns (string)' and '()'",
-                      166, 9);
+                      150, 9);
         validateError(resultNegative, i++, "operator '!=' not defined for 'readonly' and 'map<int>'",
-                184, 12);
+                168, 12);
+        validateError(resultNegative, i++, "operator '==' not defined for '[int,map<int>]' and '[int,float]'", 179,
+                23);
+        validateError(resultNegative, i++, "operator '!=' not defined for '[int,float]' and '[int,map<int>]'", 179,
+                35);
+        validateError(resultNegative, i++, "operator '==' not defined for 'MyObject' and '()'", 182,
+                15);
+        validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and '()'", 182,
+                30);
+        validateError(resultNegative, i++, "operator '==' not defined for 'MyObject' and 'MyObject'", 184,
+                15);
+        validateError(resultNegative, i++, "operator '!=' not defined for 'MyObject' and 'MyObject'", 184,
+                32);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -1110,4 +1129,5 @@ public class EqualAndNotEqualOperationsTest {
     public void testTableEquality() {
         BRunUtil.invoke(result, "testTableEquality");
     }
+
 }

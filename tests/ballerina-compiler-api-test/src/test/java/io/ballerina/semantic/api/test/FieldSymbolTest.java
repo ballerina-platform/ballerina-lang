@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -38,6 +39,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for record/object/class field symbols.
@@ -118,6 +120,21 @@ public class FieldSymbolTest {
                 {31, 19, "lName", STRING, false, "private string lName"},
                 {32, 8, "age", INT, true, "int age"},
         };
+    }
+
+    @Test
+    public void testRecordFieldSymbolPos() {
+        Symbol symbol = getSymbol(51, 14);
+        assertEquals(symbol.kind(), SymbolKind.RECORD_FIELD);
+
+        RecordFieldSymbol fieldSymbol = (RecordFieldSymbol) symbol;
+        assertTrue(fieldSymbol.getLocation().isPresent());
+
+        Location symbolPos = fieldSymbol.getLocation().get();
+        assertEquals(symbolPos.lineRange().startLine().line(), 45);
+        assertEquals(symbolPos.lineRange().startLine().offset(), 12);
+        assertEquals(symbolPos.lineRange().endLine().line(), 45);
+        assertEquals(symbolPos.lineRange().endLine().offset(), 17);
     }
 
     private Symbol getSymbol(int line, int col) {

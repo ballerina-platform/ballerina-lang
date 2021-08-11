@@ -67,9 +67,6 @@
         {
           "kind": "NAMED_ARG",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG"
-          ],
           "children": [
             {
               "kind": "SIMPLE_NAME_REFERENCE",
@@ -97,9 +94,11 @@
             },
             {
               "kind": "NUMERIC_LITERAL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                  "hasDiagnostics": true,
                   "value": "18",
                   "trailingMinutiae": [
                     {
@@ -121,9 +120,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
                             "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG"
+                            ],
                             "value": "10"
                           }
                         ]

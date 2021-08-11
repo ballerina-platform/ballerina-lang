@@ -126,15 +126,20 @@ class BIRTestUtils {
             BIRNode.BIRFunction expectedFunction = expectedFunctions.get(i);
 
             // assert name
-            Bir.ConstantPoolEntry constantPoolEntry = constantPoolEntries.get(actualFunction.nameCpIndex());
-            assertConstantPoolEntry(constantPoolEntry, expectedFunction.name.value);
+            Bir.ConstantPoolEntry constantPoolEntryName = constantPoolEntries.get(actualFunction.nameCpIndex());
+            assertConstantPoolEntry(constantPoolEntryName, expectedFunction.name.value);
+
+            // assert original name
+            Bir.ConstantPoolEntry constantPoolEntryOrigName =
+                    constantPoolEntries.get(actualFunction.originalNameCpIndex());
+            assertConstantPoolEntry(constantPoolEntryOrigName, expectedFunction.originalName.value);
 
             // assert markdown document
             assertMarkdownDocument(actualFunction.doc(), expectedFunction.markdownDocAttachment, constantPoolEntries);
 
             // assert annotation attachments
             assertAnnotationAttachments(actualFunction.annotationAttachmentsContent(),
-                                        expectedFunction.annotAttachments, constantPoolEntries);
+                    expectedFunction.annotAttachments, constantPoolEntries);
 
             // assert return type annotation attachments
             assertAnnotationAttachments(actualFunction.returnTypeAnnotations(), expectedFunction.returnTypeAnnots,
@@ -185,6 +190,8 @@ class BIRTestUtils {
     private static int generateExpectedScopeEntries(List<BIRNode.BIRBasicBlock> bbList, int instructionOffset,
             Map<Integer, ExpectedScopeEntry> scopes, Set<BirScope> visitedScopes) {
         for (BIRNode.BIRBasicBlock bb : bbList) {
+            boolean hasParent;
+            ExpectedScopeEntry expectedScopeEntry;
             for (BIRAbstractInstruction instruction : bb.instructions) {
                 instructionOffset++;
                 BirScope instructionScope = instruction.scope;
@@ -194,13 +201,27 @@ class BIRTestUtils {
                 }
 
                 visitedScopes.add(instructionScope);
-                boolean hasParent = instructionScope.parent != null;
+                hasParent = instructionScope.parent != null;
 
-                ExpectedScopeEntry expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
+                expectedScopeEntry = new ExpectedScopeEntry(instructionScope.id,
                         instructionOffset,  hasParent ? 1 : 0, hasParent ? instructionScope.parent.id : null);
                 scopes.put(instructionScope.id, expectedScopeEntry);
                 putParentScopesAsWell(scopes, instructionScope.parent, instructionOffset);
 
+            }
+            
+            BIRTerminator terminator = bb.terminator;
+            BirScope terminatorScope = terminator.scope;
+            if (terminatorScope != null) {
+                if (visitedScopes.contains(terminatorScope)) {
+                    continue;
+                }
+                visitedScopes.add(terminatorScope);
+                hasParent = terminatorScope.parent != null;
+                expectedScopeEntry = new ExpectedScopeEntry(terminatorScope.id, instructionOffset, hasParent ? 1 : 0,
+                        hasParent ? terminatorScope.parent.id : null);
+                scopes.put(terminatorScope.id, expectedScopeEntry);
+                putParentScopesAsWell(scopes, terminatorScope.parent, instructionOffset);
             }
         }
         return instructionOffset;
@@ -456,6 +477,10 @@ class BIRTestUtils {
             assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.nameCpIndex()),
                     expectedTypeDefinition.internalName.value);
 
+            // assert original name
+            assertConstantPoolEntry(constantPoolEntries.get(actualTypeDefinition.originalNameCpIndex()),
+                    expectedTypeDefinition.originalName.value);
+
             // assert flags
             assertFlags(actualTypeDefinition.flags(), expectedTypeDefinition.flags);
 
@@ -556,6 +581,10 @@ class BIRTestUtils {
             // assert name
             assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.nameCpIndex()),
                     expectedAnnotation.name.value);
+
+            // assert original name
+            assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.originalNameCpIndex()),
+                    expectedAnnotation.originalName.value);
 
             // assert type
             assertConstantPoolEntry(constantPoolEntries.get(actualAnnotation.annotationTypeCpIndex()),

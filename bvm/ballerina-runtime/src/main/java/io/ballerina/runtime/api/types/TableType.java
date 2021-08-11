@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.types;
  *
  * @since 1.3.0
  */
-public interface TableType extends Type {
+public interface TableType extends SelectivelyImmutableReferenceType {
 
     Type getConstrainedType();
 

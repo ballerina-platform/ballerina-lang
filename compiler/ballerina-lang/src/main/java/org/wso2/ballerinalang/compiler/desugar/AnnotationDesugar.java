@@ -673,6 +673,7 @@ public class AnnotationDesugar {
     private BInvokableSymbol createInvokableSymbol(BLangFunction function, PackageID pkgID, BSymbol owner) {
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(function.flagSet),
                                                                        new Name(function.name.value),
+                                                                       new Name(function.name.originalValue),
                                                                        pkgID, function.getBType(), owner, true,
                                                                        function.pos, VIRTUAL);
         functionSymbol.retType = function.returnTypeNode.getBType();

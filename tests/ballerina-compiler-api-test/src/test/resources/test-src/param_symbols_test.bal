@@ -59,3 +59,12 @@ type Grades record {
     int physics;
     int chemistry;
 };
+
+function exprBodyScope(string myStr) returns string => myStr
+
+function defFunc(boolean k) {
+}
+
+function funcWithFuncParam(function (int) abc, function (boolean) pqr = defFunc, function (string)... xyz) {
+
+}

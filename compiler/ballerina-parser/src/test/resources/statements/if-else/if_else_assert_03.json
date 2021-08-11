@@ -139,9 +139,6 @@
                             {
                               "kind": "IF_KEYWORD",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT"
-                              ],
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -163,9 +160,14 @@
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
-                                        "kind": "AT_TOKEN"
+                                        "kind": "AT_TOKEN",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT"
+                                        ]
                                       }
                                     ]
                                   }

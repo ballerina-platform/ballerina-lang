@@ -115,6 +115,7 @@
             <package name="org.ballerinalang.test.structs.*"/>
             <package name="org.ballerinalang.test.testerina.*"/>
             <package name="org.ballerinalang.test.typedefs.*"/>
+            <package name="org.ballerinalang.test.typechecker.*"/>
 
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.types.anydata.*"/>

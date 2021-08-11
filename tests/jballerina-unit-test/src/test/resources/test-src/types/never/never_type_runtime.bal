@@ -85,7 +85,7 @@ type Record record {|
 
 type Record2 record {|
     int i;
-    never[2] j = [];
+    never[] j = [];
 |};
 
 function testNeverRuntime11() {
@@ -97,7 +97,7 @@ function testNeverRuntime11() {
 function testNeverRuntime12() {
     Record x = {i: 1, j: []};
     boolean b = x is Record2;
-    assertEquality(false, b);
+    assertEquality(true, b);
 }
 
 function testNeverWithAnyAndAnydataRuntime() {

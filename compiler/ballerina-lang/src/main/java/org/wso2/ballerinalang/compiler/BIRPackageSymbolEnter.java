@@ -385,15 +385,16 @@ public class BIRPackageSymbolEnter {
 
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
+        String funcOrigName = getStringCPEntryValue(dataInStream);
         String workerName = getStringCPEntryValue(dataInStream);
         var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
         BInvokableSymbol invokableSymbol =
-                Symbols.createFunctionSymbol(flags, names.fromString(funcName), this.env.pkgSymbol.pkgID, funcType,
-                                             this.env.pkgSymbol, Symbols.isFlagOn(flags, Flags.NATIVE),
-                                             pos, toOrigin(origin));
+                Symbols.createFunctionSymbol(flags, names.fromString(funcName), names.fromString(funcOrigName),
+                                             this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
+                                             Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
         invokableSymbol.source = pos.lineRange().filePath();
         invokableSymbol.retType = funcType.retType;
 
@@ -458,6 +459,7 @@ public class BIRPackageSymbolEnter {
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
         Location pos = readPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
+        String typeDefOrigName = getStringCPEntryValue(dataInStream);
 
         var flags = dataInStream.readLong();
         boolean isLabel = dataInStream.readByte() == 1;
@@ -512,6 +514,7 @@ public class BIRPackageSymbolEnter {
 //        defineMarkDownDocAttachment(symbol, docBytes);
 //
 //        symbol.name = names.fromString(typeDefName);
+//        symbol.originalName = names.fromString(typeDefOrigName);
 //        symbol.type = type;
 //        symbol.pkgID = this.env.pkgSymbol.pkgID;
 //        symbol.flags = flags;
@@ -638,6 +641,7 @@ public class BIRPackageSymbolEnter {
 
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getStringCPEntryValue(dataInStream);
+        String originalName = getStringCPEntryValue(dataInStream);
 
         var flags = dataInStream.readLong();
         byte origin = dataInStream.readByte();
@@ -654,6 +658,7 @@ public class BIRPackageSymbolEnter {
         BType annotationType = readBType(dataInStream);
 
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
+                                                                            names.fromString(originalName),
                                                                             this.env.pkgSymbol.pkgID, null,
                                                                             this.env.pkgSymbol, pos, toOrigin(origin));
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
@@ -878,8 +883,9 @@ public class BIRPackageSymbolEnter {
                 BParameterizedType varType = (BParameterizedType) type;
                 varType.paramSymbol = paramsMap.get(varType.name);
                 varType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PARAMETERIZED | varType.paramSymbol.flags,
-                                                  varType.paramSymbol.name, varType.paramSymbol.pkgID, varType,
-                                                  invSymbol, varType.paramSymbol.pos, VIRTUAL);
+                                                  varType.paramSymbol.name, varType.paramSymbol.originalName,
+                                                  varType.paramSymbol.pkgID, varType, invSymbol,
+                                                  varType.paramSymbol.pos, VIRTUAL);
                 break;
             case TypeTags.MAP:
             case TypeTags.FUTURE:
@@ -946,7 +952,6 @@ public class BIRPackageSymbolEnter {
     private String getStringCPEntryValue(DataInputStream dataInStream) throws IOException {
         int pkgNameCPIndex = dataInStream.readInt();
         StringCPEntry stringCPEntry = (StringCPEntry) this.env.constantPool[pkgNameCPIndex];
-
         return stringCPEntry.value;
     }
 
@@ -1123,7 +1128,7 @@ public class BIRPackageSymbolEnter {
                         Name initFuncName = names.fromString(recordInitFuncName);
                         boolean isNative = Symbols.isFlagOn(recordInitFuncFlags, Flags.NATIVE);
                         BInvokableSymbol recordInitFuncSymbol =
-                                Symbols.createFunctionSymbol(recordInitFuncFlags,
+                                Symbols.createFunctionSymbol(recordInitFuncFlags, initFuncName,
                                                              initFuncName, env.pkgSymbol.pkgID, recordInitFuncType,
                                                              env.pkgSymbol, isNative, symTable.builtinPos,
                                                              COMPILED_SOURCE);
@@ -1632,9 +1637,11 @@ public class BIRPackageSymbolEnter {
                 BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
                 Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
                         objectSymbol.name.value, attachedFuncName));
+                Name funcOrigName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                        objectSymbol.originalName.value, attachedFuncName));
                 BInvokableSymbol attachedFuncSymbol =
-                        Symbols.createFunctionSymbol(attachedFuncFlags,
-                                funcName, env.pkgSymbol.pkgID, attachedFuncType,
+                        Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
+                                env.pkgSymbol.pkgID, attachedFuncType,
                                 env.pkgSymbol, false, symTable.builtinPos,
                                 COMPILED_SOURCE);
                 attachedFuncSymbol.retType = attachedFuncType.retType;

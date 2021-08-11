@@ -63,6 +63,7 @@ public class STToken extends STNode {
         this.widthWithLeadingMinutiae = this.width + leadingMinutiae.width;
         this.widthWithTrailingMinutiae = this.width + trailingMinutiae.width;
         this.widthWithMinutiae = this.width + leadingMinutiae.width + trailingMinutiae.width;
+        updateDiagnostics(leadingMinutiae, trailingMinutiae);
     }
 
     public String text() {
@@ -141,5 +142,12 @@ public class STToken extends STNode {
         leadingMinutiae.writeTo(builder);
         builder.append(kind.stringValue());
         trailingMinutiae.writeTo(builder);
+    }
+
+    private void updateDiagnostics(STNode leadingMinutiae, STNode trailingMinutiae) {
+        if (leadingMinutiae.flags.contains(STNodeFlags.HAS_DIAGNOSTICS) ||
+                trailingMinutiae.flags.contains(STNodeFlags.HAS_DIAGNOSTICS)) {
+            this.flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+        }
     }
 }

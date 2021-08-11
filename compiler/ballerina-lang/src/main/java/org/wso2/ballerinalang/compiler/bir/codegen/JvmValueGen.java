@@ -564,7 +564,7 @@ class JvmValueGen {
         this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
-        return jvmPackageGen.getBytes(cw, className, typeDef);
+        return jvmPackageGen.getBytes(cw, typeDef);
     }
 
     private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
@@ -625,7 +625,7 @@ class JvmValueGen {
 
         // Attached functions are empty for type-labeling. In such cases, call the init() of
         // the original type value;
-        if (attachedFuncs.size() != 0) {
+        if (!attachedFuncs.isEmpty()) {
             initFuncName = attachedFuncs.get(0).name.value;
             valueClassName = className;
         } else {
@@ -714,7 +714,7 @@ class JvmValueGen {
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
 
-        return jvmPackageGen.getBytes(cw, className, typeDef);
+        return jvmPackageGen.getBytes(cw, typeDef);
     }
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
@@ -1421,6 +1421,6 @@ class JvmValueGen {
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
 
         cw.visitEnd();
-        return jvmPackageGen.getBytes(cw, className, typeDef);
+        return jvmPackageGen.getBytes(cw, typeDef);
     }
 }

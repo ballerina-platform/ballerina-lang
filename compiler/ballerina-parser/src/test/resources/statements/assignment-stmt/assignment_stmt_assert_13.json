@@ -10,17 +10,19 @@
           "kind": "IDENTIFIER_TOKEN",
           "isMissing": true,
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS"
-          ],
           "leadingMinutiae": [
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
                 "children": [
                   {
                     "kind": "IDENTIFIER_TOKEN",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS"
+                    ],
                     "value": "a"
                   }
                 ]
