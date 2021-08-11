@@ -229,6 +229,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g|x', found 'r|g|b'", 536, 26);
         BAssertUtil.validateError(negativeResult, i++, "missing non-defaultable required record field 'b'", 556, 16);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 556, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '" +
+                "(int|string|boolean)'", 566, 17);
         Assert.assertEquals(negativeResult.getErrorCount(), i - 2);
         Assert.assertEquals(negativeResult.getWarnCount(), 2);
     }
@@ -472,15 +474,6 @@ public class TypeGuardTest {
     public void testUpdatingTypeNarrowedVar_1() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_1");
         Assert.assertEquals(returns[0].stringValue(), "string: hello");
-    }
-
-    @Test
-    public void testUpdatingTypeNarrowedVar_2() {
-        BValue[] returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_2", new BValue[] { new BInteger(2) });
-        Assert.assertEquals(returns[0].stringValue(), "int: 2");
-
-        returns = BRunUtil.invoke(result, "testUpdatingTypeNarrowedVar_2", new BValue[] { new BInteger(8) });
-        Assert.assertEquals(returns[0].stringValue(), "int: -1");
     }
 
     @Test
