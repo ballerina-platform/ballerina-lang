@@ -713,7 +713,7 @@ public class MethodGen {
 
     private void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
                                               int index, String frameName) {
-        JType jType = (JType) localVar.type;
+        JType jType = (JType) getConstrainedTypeFromRefType(localVar.type);
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:

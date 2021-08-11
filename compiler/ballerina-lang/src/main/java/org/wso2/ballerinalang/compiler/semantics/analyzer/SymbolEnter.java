@@ -3625,11 +3625,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
 
                 BType typeDefType = typeDef.symbol.type;
-                if (typeDefType.tag == TypeTags.TYPEREFDESC) {
-                    ((BErrorType) ((BTypeReferenceType) typeDef.symbol.type).constraint).detailType = detailType;
-                } else {
-                    ((BErrorType) typeDef.symbol.type).detailType = detailType;
-                }
                 BType detailType = getDetailType(typeDefEnv, errorTypeNode);
                 if (typeDefType.tag == TypeTags.TYPEREFDESC) {
                     ((BErrorType) ((BTypeReferenceType) typeDef.symbol.type).constraint).detailType = detailType;

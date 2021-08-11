@@ -498,6 +498,9 @@ public class AnnotationDesugar {
         if (annTypeSymbol instanceof BTypeDefinitionSymbol && annTypeSymbol.type.tsymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
             literalNode.setBType(annTypeSymbol.type);
+        } else if (annTypeSymbol instanceof BStructureTypeSymbol) {
+            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
+            literalNode.setBType(bStructSymbol.type);
         }
 
         //Add Root Descriptor

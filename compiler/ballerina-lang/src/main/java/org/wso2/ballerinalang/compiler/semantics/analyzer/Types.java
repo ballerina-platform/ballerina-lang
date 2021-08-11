@@ -3360,18 +3360,28 @@ public class Types {
                     .allMatch(expression -> isAssignableToFiniteType(expType, (BLangLiteral) expression));
         }
 
-        if (expType.tag == TypeTags.UNION) {
-            List<BType> unionMemberTypes = getAllTypes(expType);
+        if (targetType.tag == TypeTags.UNION) {
+            List<BType> unionMemberTypes = getAllTypes(targetType);
             return finiteType.getValueSpace().stream()
-                    .allMatch(valueExpr -> {
-                        for (BType targetMemType : unionMemberTypes) {
-                            targetMemType = getConstraintFromReferenceType(targetMemType);
-                            if (targetMemType.tag == TypeTags.FINITE ?
-                                    isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-                                    isAssignable(valueExpr.getBType(), expType, unresolvedTypes) ||
-                                    isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
-                                                                                   targetMemType)));
+                    .allMatch(valueExpr ->  unionMemberTypes.stream()
+                            .anyMatch(targetMemType -> getConstraintFromReferenceType(targetMemType).tag == TypeTags.FINITE ?
+                                    isAssignableToFiniteType(getConstraintFromReferenceType(targetMemType), (BLangLiteral) valueExpr) :
+                                    isAssignable(valueExpr.getBType(), getConstraintFromReferenceType(targetMemType), unresolvedTypes) ||
+                                            isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
+                                                    getConstraintFromReferenceType(targetMemType))));
         }
+//        if (expType.tag == TypeTags.UNION) {
+//            List<BType> unionMemberTypes = getAllTypes(expType);
+//            return finiteType.getValueSpace().stream()
+//                    .allMatch(valueExpr -> {
+//                        for (BType targetMemType : unionMemberTypes) {
+//                            targetMemType = getConstraintFromReferenceType(targetMemType);
+//                            if (targetMemType.tag == TypeTags.FINITE ?
+//                                    isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
+//                                    isAssignable(valueExpr.getBType(), expType, unresolvedTypes) ||
+//                                    isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
+//                                                                                   targetMemType)));
+//        }
 
         for (BLangExpression expression : finiteType.getValueSpace()) {
             if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&

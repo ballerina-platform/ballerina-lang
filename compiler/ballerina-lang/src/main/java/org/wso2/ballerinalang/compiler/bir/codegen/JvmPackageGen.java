@@ -728,7 +728,7 @@ public class JvmPackageGen {
                 if (typeSymbol instanceof BTypeDefinitionSymbol) {
                     objectTypeSymbol = (BObjectTypeSymbol) ((BTypeDefinitionSymbol) symbol.scope.lookup(lookupKey).symbol).type.tsymbol;
                 } else {
-                    objectTypeSymbol = (BObjectTypeSymbol) symbol.scope.lookup(lookupKey).symbol;
+                    objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
                 }
                 if (objectTypeSymbol != null) {
                     return objectTypeSymbol.type;

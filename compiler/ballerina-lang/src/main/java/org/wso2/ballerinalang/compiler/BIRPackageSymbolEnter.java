@@ -496,6 +496,7 @@ public class BIRPackageSymbolEnter {
             symbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
                     names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
                     pos, SOURCE);
+            symbol.originalName = names.fromString(typeDefOrigName);
             if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
                 type.tsymbol = symbol;
             }
@@ -523,6 +524,7 @@ public class BIRPackageSymbolEnter {
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) type.tsymbol);
+//            this.structureTypes.add((BStructureTypeSymbol) symbol);
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);

@@ -203,17 +203,17 @@ public class JvmTerminatorGen {
         mv.visitJumpInsn(IFNE, yieldLabel);
     }
 
-    private void loadDefaultValue(MethodVisitor mv, BType bType) {
-        BType type = jvmCastGen.getConstraintFromReferenceType(bType);
-        if (TypeTags.isIntegerTypeTag(type.tag)) {
+    private void loadDefaultValue(MethodVisitor mv, BType type) {
+        BType bType = jvmCastGen.getConstraintFromReferenceType(type);
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             return;
-        } else if (TypeTags.isStringTypeTag(type.tag) || TypeTags.isXMLTypeTag(type.tag)) {
+        } else if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
             return;
         }
 
-        switch (type.tag) {
+        switch (bType.tag) {
             case TypeTags.FLOAT:
                 mv.visitInsn(DCONST_0);
                 break;
@@ -253,7 +253,7 @@ public class JvmTerminatorGen {
                         false);
                 break;
             case JTypeTags.JTYPE:
-                loadDefaultJValue(mv, (JType) type);
+                loadDefaultJValue(mv, (JType) bType);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

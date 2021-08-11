@@ -393,7 +393,6 @@ public class JvmTypeGen {
                     }
                     break;
                 case TypeTags.ERROR:
-
                     // populate detail field
                     mv.visitTypeInsn(CHECKCAST, ERROR_TYPE_IMPL);
                     mv.visitInsn(DUP);
@@ -1128,6 +1127,10 @@ public class JvmTypeGen {
      * @param userDefinedType bType
      */
     private void addCyclicFlag(MethodVisitor mv, BType userDefinedType) {
+        if (userDefinedType.tag == TypeTags.TYPEREFDESC) {
+            addCyclicFlag(mv, ((BTypeReferenceType) userDefinedType).constraint);
+            return;
+        }
         loadCyclicFlag(mv, userDefinedType);
         switch (userDefinedType.tag) {
             case TypeTags.TUPLE:
@@ -1135,9 +1138,6 @@ public class JvmTypeGen {
                 break;
             case TypeTags.UNION:
                 mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-                break;
-            case TypeTags.TYPEREFDESC:
-                addCyclicFlag(mv, ((BTypeReferenceType) userDefinedType).constraint);
                 break;
         }
     }
@@ -2089,7 +2089,6 @@ public class JvmTypeGen {
      * @param bType user defined type
      */
     private void loadUserDefinedType(MethodVisitor mv, BType bType) {
-
         BTypeSymbol typeSymbol = bType.tsymbol.isTypeParamResolved ? bType.tsymbol.typeParamTSymbol : bType.tsymbol;
         BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
         PackageID packageID = typeSymbol.pkgID;
