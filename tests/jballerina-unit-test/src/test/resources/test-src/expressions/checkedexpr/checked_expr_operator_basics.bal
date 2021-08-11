@@ -319,6 +319,20 @@ function testCheckInLetExpression() returns error? {
     assertEquality(3.33, location1);
 }
 
+function testCheckedExprWithNever() {
+    error? e = checkingFunc();
+    assertTrue(e is error && e.message() == "io error");
+}
+
+function checkingFunc() returns error? {
+    check getErr();
+}
+
+function getErr() returns error {
+    error e = error("io error");
+    return e;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {

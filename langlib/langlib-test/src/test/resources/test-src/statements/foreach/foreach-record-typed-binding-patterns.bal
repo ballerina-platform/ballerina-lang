@@ -134,7 +134,7 @@ function testForeachWithClosedRecordWithNoFields() {
     };
     any a = "ABC";
     foreach var x in f {
-        a = x;
+        a = "DEF";
     }
     assertEquality("ABC", a);
 }

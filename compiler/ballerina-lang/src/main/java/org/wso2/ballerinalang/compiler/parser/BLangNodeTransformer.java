@@ -1035,11 +1035,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             parent = parent.parent();
         }
 
-        errorType.isAnonymous = checkIfAnonymous(parameterizedTypeDescNode);
+        errorType.isAnonymous = this.isInLocalContext || checkIfAnonymous(parameterizedTypeDescNode);
         errorType.isLocal = this.isInLocalContext;
 
         if (parent.kind() != SyntaxKind.TYPE_DEFINITION
-                && (isDistinctError || (!errorType.isLocal && typeParam.isPresent()))) {
+                && (!errorType.isLocal && (isDistinctError || typeParam.isPresent()))) {
+            if (isDistinctError) {
+                errorType.flagSet.add(Flag.DISTINCT);
+            }
             return deSugarTypeAsUserDefType(errorType);
         }
 
@@ -1057,8 +1060,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
-        BLangType typeNode = createTypeNode(distinctTypeDesc.typeDescriptor());
-        typeNode.flagSet.add(Flag.DISTINCT);
+        TypeDescriptorNode type = distinctTypeDesc.typeDescriptor();
+        BLangType typeNode = createTypeNode(type);
+
+        // DISTINCT flag is already added to defined error type
+        if (!(type.kind() == SyntaxKind.ERROR_TYPE_DESC && typeNode.getKind() == NodeKind.USER_DEFINED_TYPE)) {
+            typeNode.flagSet.add(Flag.DISTINCT);
+        }
         return typeNode;
     }
 

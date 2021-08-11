@@ -5590,7 +5590,10 @@ public class Types {
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
     }
 
-    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+    public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        if (type == null) {
+            return false;
+        }
         Set<BType> visitedTypeSet = new HashSet<>();
         visitedTypeSet.add(type);
         return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
