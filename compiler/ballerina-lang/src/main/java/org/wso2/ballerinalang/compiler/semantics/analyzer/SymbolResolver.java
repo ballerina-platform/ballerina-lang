@@ -770,6 +770,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.MAIN);
     }
 
+    public BSymbol lookupMainSpaceSymbolInPackage(BSymbol pkgSymbol, Location pos, SymbolEnv env, Name name) {
+        return lookupMemberSymbol(pos, pkgSymbol.scope, env, name, SymTag.MAIN);
+    }
+
     public BSymbol lookupPrefixSpaceSymbolInPackage(Location pos,
                                                     SymbolEnv env,
                                                     Name pkgAlias,
