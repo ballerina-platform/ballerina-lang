@@ -112,7 +112,7 @@ public class ValueUtils {
         // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         io.ballerina.runtime.internal.values.ValueCreator
                 valueCreator = io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(packageId.toString());
-        Object[] fields = new Object[fieldValues.length * 2];
+        Object[] fields = new Object[fieldValues.length];
 
         // Here the variables are initialized with default values
         Scheduler scheduler = null;
@@ -120,10 +120,8 @@ public class ValueUtils {
         boolean prevBlockedOnExtern = false;
         BObject objectValue;
 
-        // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
-            fields[j++] = true;
         }
         try {
             // Check for non-blocking call
