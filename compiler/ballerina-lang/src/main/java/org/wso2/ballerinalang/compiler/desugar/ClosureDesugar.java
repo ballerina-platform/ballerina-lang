@@ -1286,17 +1286,48 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         BSymbol varRefSym = localVarRef.symbol;
-        if (!varRefSym.closure || localVarRef.closureDesugared) {
+        if (!varRefSym.closure || localVarRef.closureDesugared || env.enclInvokable == null) {
             result = localVarRef;
             return;
         }
 
-        if (varRefSym.owner.getKind() == SymbolKind.INVOKABLE_TYPE) {
-            int indexOfParam = ((BInvokableTypeSymbol) varRefSym.owner).params.indexOf(varRefSym) + 1;
-            ((BLangFunction) env.enclInvokable).paramClosureMap.putIfAbsent((-1) * indexOfParam,
-                                                                            (BVarSymbol) varRefSym);
+        boolean isMemberOfFunction = (Symbols.isFlagOn(varRefSym.flags, Flags.REQUIRED_PARAM) ||
+                                      Symbols.isFlagOn(varRefSym.flags, Flags.DEFAULTABLE_PARAM));
+
+        if (env.enclInvokable.flagSet.contains(Flag.ClOSURE_LAMBDA) &&
+                (varRefSym.owner.getKind() == SymbolKind.INVOKABLE_TYPE ||
+                        varRefSym.owner == env.enclInvokable.symbol.owner)) {
+            TreeMap<Integer, BVarSymbol> paramClosureMap = ((BLangFunction) env.enclInvokable).paramClosureMap;
+            if (paramClosureMap.containsValue(varRefSym)) {
+                result = localVarRef;
+                return;
+            }
+            if (paramClosureMap.size() == 0) {
+                paramClosureMap.putIfAbsent(-1, (BVarSymbol) varRefSym);
+                result = localVarRef;
+                return;
+            }
+            int index = paramClosureMap.firstKey();
+            if (index >= 0) {
+                paramClosureMap.putIfAbsent(-1, (BVarSymbol) varRefSym);
+            } else {
+                paramClosureMap.putIfAbsent(index - 1, (BVarSymbol) varRefSym);
+            }
             result = localVarRef;
             return;
+        }
+
+        if (isMemberOfFunction) {
+            if (env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
+                if (varRefSym.owner.getKind() == SymbolKind.INVOKABLE_TYPE ||
+                        env.enclInvokable.name.value.equals(varRefSym.owner.name.value)) {
+                    result = localVarRef;
+                    return;
+                }
+            } else {
+                result = localVarRef;
+                return;
+            }
         }
 
         // If it is marked as a closure variable then the following calculations are carried out.
