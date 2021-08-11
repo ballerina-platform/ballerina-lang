@@ -27,8 +27,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Test DependenciesToml.
@@ -44,7 +47,7 @@ public class DependenciesTomlTests {
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-valid.toml"));
         Assert.assertFalse(depsManifest.diagnostics().hasErrors());
 
-        List<DependencyManifest.Package> dependencies = depsManifest.packages();
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
         Assert.assertEquals(dependencies.size(), 2);
 
         DependencyManifest.Package twitter = dependencies.get(0);
@@ -152,7 +155,7 @@ public class DependenciesTomlTests {
                 DEPENDENCIES_TOML_REPO.resolve("dependencies-empty.toml"));
         Assert.assertFalse(depsManifest.diagnostics().hasErrors());
 
-        List<DependencyManifest.Package> dependencies = depsManifest.packages();
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
         Assert.assertEquals(dependencies.size(), 0);
     }
 

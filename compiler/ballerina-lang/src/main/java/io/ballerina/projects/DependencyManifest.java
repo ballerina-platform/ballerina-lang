@@ -19,9 +19,12 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageContainer;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a Dependencies.toml file.
@@ -32,10 +35,17 @@ public class DependencyManifest {
 
     private final List<Package> packages;
     private final DiagnosticResult diagnostics;
+    private final PackageContainer<Package> pkgContainer;
 
     private DependencyManifest(List<Package> packages, DiagnosticResult diagnostics) {
         this.packages = Collections.unmodifiableList(packages);
         this.diagnostics = diagnostics;
+
+        // Populate a container for efficient access to packages
+        this.pkgContainer = new PackageContainer<>();
+        for (Package dependency : packages) {
+            this.pkgContainer.add(dependency.org(), dependency.name(), dependency);
+        }
     }
 
     public static DependencyManifest from(List<Package> dependencies, DiagnosticResult diagnostics) {
@@ -46,8 +56,12 @@ public class DependencyManifest {
         return new DependencyManifest(dependencies, new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
-    public List<Package> packages() {
+    public Collection<Package> packages() {
         return packages;
+    }
+
+    public Optional<Package> dependency(PackageOrg org, PackageName name) {
+        return pkgContainer.get(org, name);
     }
 
     public DiagnosticResult diagnostics() {
