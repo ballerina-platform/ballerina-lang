@@ -33,8 +33,8 @@ import java.util.Optional;
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final Optional<CompilerPluginDescriptor> compilerPluginDesc;
-    private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
+    private final List<LocalPackage> localPackages;
     private final DiagnosticResult diagnostics;
     private final List<String> license;
     private final List<String> authors;
@@ -48,14 +48,14 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                            List<Dependency> dependencies,
                             Map<String, Platform> platforms,
+                            List<LocalPackage> localPackages,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
-        this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
+        this.localPackages = Collections.unmodifiableList(localPackages);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
         this.diagnostics = diagnostics;
         this.license = Collections.emptyList();
@@ -67,8 +67,8 @@ public class PackageManifest {
 
     private PackageManifest(PackageDescriptor packageDesc,
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                            List<Dependency> dependencies,
                             Map<String, Platform> platforms,
+                            List<LocalPackage> localPackages,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics,
                             List<String> license,
@@ -78,8 +78,8 @@ public class PackageManifest {
                             String repository) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
-        this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
+        this.localPackages = Collections.unmodifiableList(localPackages);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
         this.diagnostics = diagnostics;
         this.license = license;
@@ -90,22 +90,22 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
-        return new PackageManifest(packageDesc, Optional.empty(), Collections.emptyList(),
-                Collections.emptyMap(), Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()));
+        return new PackageManifest(packageDesc, Optional.empty(), Collections.emptyMap(), Collections.emptyList(),
+                                   Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                                       List<Dependency> dependencies,
-                                       Map<String, Platform> platforms) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, Collections.emptyMap(),
+                                       Map<String, Platform> platforms,
+                                       List<LocalPackage> localPackages) {
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
-                                       List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
+                                       List<LocalPackage> localPackages,
                                        Map<String, Object> otherEntries,
                                        DiagnosticResult diagnostics,
                                        List<String> license,
@@ -113,20 +113,20 @@ public class PackageManifest {
                                        List<String> keywords,
                                        List<String> export,
                                        String repository) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, otherEntries, diagnostics,
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, otherEntries, diagnostics,
                                    license, authors, keywords, export, repository);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-            Optional<CompilerPluginDescriptor> compilerPluginDesc,
-            List<Dependency> dependencies,
-            Map<String, Platform> platforms,
-            List<String> license,
-            List<String> authors,
-            List<String> keywords,
-            List<String> export,
-            String repository) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, Collections.emptyMap(),
+                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       Map<String, Platform> platforms,
+                                       List<LocalPackage> localPackages,
+                                       List<String> license,
+                                       List<String> authors,
+                                       List<String> keywords,
+                                       List<String> export,
+                                       String repository) {
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, Collections.emptyMap(),
                                    new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
                                    export, repository);
     }
@@ -149,10 +149,6 @@ public class PackageManifest {
 
     public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
         return compilerPluginDesc;
-    }
-
-    public List<Dependency> dependencies() {
-        return dependencies;
     }
 
     public Platform platform(String platformCode) {
@@ -184,149 +180,12 @@ public class PackageManifest {
         return repository;
     }
 
+    public List<LocalPackage> localPackages() {
+        return localPackages;
+    }
+
     public DiagnosticResult diagnostics() {
         return diagnostics;
-    }
-
-    /**
-     * Represents a dependency of a package.
-     *
-     * @since 2.0.0
-     */
-    public static class Dependency {
-        private final PackageName packageName;
-        private final PackageOrg packageOrg;
-        private final PackageVersion semanticVersion;
-        private final String scope;
-        private final boolean transitive;
-        private final List<TransitiveDependency> dependencies;
-        private final List<DependencyModule> modules;
-        public String repository;
-
-        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
-            this.packageName = packageName;
-            this.packageOrg = packageOrg;
-            this.semanticVersion = semanticVersion;
-            this.scope = null;
-            this.transitive = false;
-            this.dependencies = Collections.emptyList();
-            this.modules = Collections.emptyList();
-        }
-
-        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
-                          String scope, boolean transitive, List<TransitiveDependency> dependencies,
-                          List<DependencyModule> modules) {
-            this.packageName = packageName;
-            this.packageOrg = packageOrg;
-            this.semanticVersion = semanticVersion;
-            this.scope = scope;
-            this.transitive = transitive;
-            this.dependencies = dependencies;
-            this.modules = modules;
-        }
-
-        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
-                          String repository, String scope, boolean transitive,
-                          List<TransitiveDependency> dependencies, List<DependencyModule> modules) {
-            this.packageName = packageName;
-            this.packageOrg = packageOrg;
-            this.semanticVersion = semanticVersion;
-            this.repository = repository;
-            this.scope = scope;
-            this.transitive = transitive;
-            this.dependencies = dependencies;
-            this.modules = modules;
-        }
-
-        public PackageName name() {
-            return packageName;
-        }
-
-        public PackageOrg org() {
-            return packageOrg;
-        }
-
-        public PackageVersion version() {
-            return semanticVersion;
-        }
-
-        public String repository() {
-            return repository;
-        }
-
-        public String scope() {
-            return scope;
-        }
-
-        public boolean isTransitive() {
-            return transitive;
-        }
-
-        public List<TransitiveDependency> dependencies() {
-            return dependencies;
-        }
-
-        public List<DependencyModule> modules() {
-            return modules;
-        }
-    }
-
-    /**
-     * Represents a transitive dependency of a package.
-     *
-     * @since 2.0.0
-     */
-    public static class TransitiveDependency {
-        private final PackageName packageName;
-        private final PackageOrg packageOrg;
-
-        public TransitiveDependency(PackageName packageName, PackageOrg packageOrg) {
-            this.packageName = packageName;
-            this.packageOrg = packageOrg;
-        }
-
-        public PackageName name() {
-            return packageName;
-        }
-
-        public PackageOrg org() {
-            return packageOrg;
-        }
-    }
-
-    /**
-     * Represents a module of a dependency.
-     *
-     * @since 2.0.0
-     */
-    public static class DependencyModule {
-        private final String org;
-        private final String packageName;
-        private final String version;
-        private final String moduleName;
-
-        public DependencyModule(String org, String packageName, String version, String moduleName) {
-            this.org = org;
-            this.packageName = packageName;
-            this.version = version;
-            this.moduleName = moduleName;
-        }
-
-        public String org() {
-            return org;
-        }
-
-        public String packageName() {
-            return packageName;
-        }
-
-        public String version() {
-            return version;
-        }
-
-        public String moduleName() {
-            return moduleName;
-        }
     }
 
     /**
@@ -362,6 +221,49 @@ public class PackageManifest {
 
         public List<Map<String, Object>> repositories() {
             return repositories;
+        }
+    }
+
+    /**
+     * Represents a local dependency package.
+     *
+     * @since 2.0.0
+     */
+    public static class LocalPackage {
+        private final PackageName packageName;
+        private final PackageOrg packageOrg;
+        private final PackageVersion semanticVersion;
+        private final String repository;
+
+        public LocalPackage(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.semanticVersion = semanticVersion;
+            this.repository = null;
+        }
+
+        public LocalPackage(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
+                            String repository) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.semanticVersion = semanticVersion;
+            this.repository = repository;
+        }
+
+        public PackageName name() {
+            return packageName;
+        }
+
+        public PackageOrg org() {
+            return packageOrg;
+        }
+
+        public PackageVersion version() {
+            return semanticVersion;
+        }
+
+        public String repository() {
+            return repository;
         }
     }
 

@@ -240,7 +240,6 @@ public class BuildProject extends Project {
             for (ModuleDescriptor moduleDescriptor : moduleDescriptors) {
                 Dependency.Module module = new Dependency.Module(moduleDescriptor.org().value(),
                                                                  moduleDescriptor.packageName().value(),
-                                                                 moduleDescriptor.version().value().toString(),
                                                                  moduleDescriptor.name().toString());
                 modules.add(module);
             }

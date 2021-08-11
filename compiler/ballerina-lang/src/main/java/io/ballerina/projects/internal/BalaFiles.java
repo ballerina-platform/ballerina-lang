@@ -21,6 +21,7 @@ package io.ballerina.projects.internal;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDescriptor;
@@ -194,6 +195,14 @@ public class BalaFiles {
         }
     }
 
+    public static DependencyManifest createDependencyManifest(Path balaPath) {
+        if (balaPath.toFile().isDirectory()) {
+            return createDependencyManifestFromBalaDir(balaPath);
+        } else {
+            return createDependencyManifestFromBalaFile(balaPath);
+        }
+    }
+
     public static DependencyGraphResult createPackageDependencyGraph(Path balaPath) {
         DependencyGraphResult dependencyGraphResult;
         if (balaPath.toFile().isDirectory()) {
@@ -273,6 +282,33 @@ public class BalaFiles {
         return getPackageManifest(packageJson, Optional.empty());
     }
 
+    private static DependencyManifest createDependencyManifestFromBalaFile(Path balrPath) {
+        URI zipURI = URI.create("jar:" + balrPath.toAbsolutePath().toUri());
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            Path depsGraphJsonPath = zipFileSystem.getPath(DEPENDENCY_GRAPH_JSON);
+            if (Files.notExists(depsGraphJsonPath)) {
+                throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balrPath + "'");
+            }
+
+            // Load `dependency-graph.json`
+            DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(balrPath, depsGraphJsonPath);
+            return getDependencyManifest(dependencyGraphJson);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read balr file:" + balrPath);
+        }
+    }
+
+    private static DependencyManifest createDependencyManifestFromBalaDir(Path balrPath) {
+        Path depsGraphJsonPath = balrPath.resolve(DEPENDENCY_GRAPH_JSON);
+        if (Files.notExists(depsGraphJsonPath)) {
+            throw new ProjectException(DEPENDENCY_GRAPH_JSON + " does not exists in '" + balrPath + "'");
+        }
+
+        // Load `dependency-graph.json`
+        DependencyGraphJson dependencyGraphJson = readDependencyGraphJson(balrPath, depsGraphJsonPath);
+        return getDependencyManifest(dependencyGraphJson);
+    }
+
     private static void extractPlatformLibraries(PackageJson packageJson, Path balaPath, FileSystem zipFileSystem) {
         if (packageJson.getPlatformDependencies() == null) {
             return;
@@ -347,13 +383,57 @@ public class BalaFiles {
             platforms.put(packageJson.getPlatform(), platform);
         }
 
+        List<PackageManifest.LocalPackage> localPackages = new ArrayList<>();
+        if (packageJson.getLocalDependencies() != null) {
+            packageJson.getLocalDependencies().forEach(localDependency -> {
+                PackageManifest.LocalPackage localPackage = new PackageManifest.LocalPackage(
+                        PackageName.from(localDependency.getName()), PackageOrg.from(localDependency.getOrg()),
+                        PackageVersion.from(localDependency.getVersion()), localDependency.getRepository());
+                localPackages.add(localPackage);
+            });
+        }
+
         return compilerPluginJson.map(pluginJson -> PackageManifest
-                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), Collections.emptyList(),
-                      platforms, packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), platforms, localPackages,
+                      packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
                       packageJson.getExport(), packageJson.getSourceRepository())).orElseGet(() -> PackageManifest
-                .from(pkgDesc, Optional.empty(), Collections.emptyList(), platforms, packageJson.getLicenses(),
+                .from(pkgDesc, Optional.empty(), platforms, localPackages, packageJson.getLicenses(),
                       packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
                       packageJson.getSourceRepository()));
+    }
+
+    private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
+        List<DependencyManifest.Package> packages = new ArrayList<>();
+        for (Dependency dependency : dependencyGraphJson.getPackageDependencyGraph()) {
+            List<DependencyManifest.Dependency> dependencies = new ArrayList<>();
+            List<DependencyManifest.Module> modules = new ArrayList<>();
+            for (Dependency transDependency : dependency.getDependencies()) {
+                DependencyManifest.Dependency dep = new DependencyManifest.Dependency(
+                        PackageName.from(transDependency.getName()), PackageOrg.from(transDependency.getOrg()));
+                dependencies.add(dep);
+            }
+
+            if (dependency.getModules() != null && !dependency.getModules().isEmpty()) {
+                for (Dependency.Module depModule : dependency.getModules()) {
+                    DependencyManifest.Module module = new DependencyManifest.Module(depModule.org(),
+                                                                                     depModule.packageName(),
+                                                                                     depModule.moduleName());
+                    modules.add(module);
+                }
+            }
+
+            DependencyManifest.Package pkg = new
+                    DependencyManifest.Package(PackageName.from(dependency.getName()),
+                                               PackageOrg.from(dependency.getOrg()),
+                                               PackageVersion.from(dependency.getVersion()),
+                                               dependency.getScope() != null ? dependency.getScope().name() : null,
+                                               dependency.isTransitive(),
+                                               dependencies,
+                                               modules);
+            packages.add(pkg);
+        }
+
+        return DependencyManifest.from(packages);
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {
@@ -366,6 +446,18 @@ public class BalaFiles {
             throw new ProjectException("Failed to read the package.json in '" + balaPath + "'");
         }
         return packageJson;
+    }
+
+    private static DependencyGraphJson readDependencyGraphJson(Path balaPath, Path depsGraphJsonPath) {
+        DependencyGraphJson dependencyGraphJson;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(depsGraphJsonPath)) {
+            dependencyGraphJson = gson.fromJson(bufferedReader, DependencyGraphJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid " + DEPENDENCY_GRAPH_JSON + " format in '" + balaPath + "'");
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the " + DEPENDENCY_GRAPH_JSON + " in '" + balaPath + "'");
+        }
+        return dependencyGraphJson;
     }
 
     private static CompilerPluginJson readCompilerPluginJson(Path balaPath, Path compilerPluginJsonPath) {
