@@ -536,3 +536,23 @@ function testIntersectionOfBuiltInSubTypeWithFiniteType() {
         "r"|"g"|"x" e2 = e;
     }
 }
+
+type Quux record {|
+    int i = 1;
+    boolean b;
+|};
+
+type Corge record {|
+    byte i = 1;
+    boolean|string b;
+|};
+
+
+function testTypeDefinitionForNewTypeCreatedInTypeGuardNegative() {
+    record {| byte i = 101;  boolean b; |} rec = {b: true};
+    Quux f = rec;
+    if f is Corge {
+        var x = [f];
+        x[0] = {i: 256};
+    }
+}

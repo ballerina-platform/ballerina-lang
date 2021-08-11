@@ -227,6 +227,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '2|3', found '1|2'", 524, 18);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r', found 'r|g|b'", 530, 18);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'r|g|x', found 'r|g|b'", 536, 26);
+        BAssertUtil.validateError(negativeResult, i++, "missing non-defaultable required record field 'b'", 556, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 556, 20);
         Assert.assertEquals(negativeResult.getErrorCount(), i - 2);
         Assert.assertEquals(negativeResult.getWarnCount(), 2);
     }
@@ -684,7 +686,7 @@ public class TypeGuardTest {
                 "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2",
                 "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField", "testSameVarNameInDifferentScopes",
                 "testNarrowedTypeResetWithNestedTypeGuards", "testNarrowedTypeResetWithMultipleBranches",
-                "testIntersectionOfBuiltInSubTypeWithFiniteType"};
+                "testIntersectionOfBuiltInSubTypeWithFiniteType", "testTypeDefinitionForNewTypeCreatedInTypeGuard"};
     }
 
     @Test

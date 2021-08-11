@@ -1621,6 +1621,34 @@ function testIntersectionOfBuiltInSubTypeWithFiniteType() {
     }
 }
 
+type Quux record {|
+    int i;
+    boolean b?;
+|};
+
+type Corge record {|
+    byte i;
+    boolean|string b?;
+|};
+
+type Grault record {|
+    byte i = 101;
+    boolean b?;
+|};
+
+function testTypeDefinitionForNewTypeCreatedInTypeGuard() {
+    Grault rec = {};
+    Quux f = rec;
+    assertEquality(true, f is Corge);
+    if f is Corge {
+        var x = [f];
+        x[0] = {i: 1};
+        any v = x[0];
+        assertEquality(true, v is Grault);
+        assertEquality(false, v is record {| byte i = 101; boolean s; |});
+    }
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
