@@ -61,6 +61,36 @@ public class Runtime {
         return new Runtime(strand.scheduler);
     }
 
+    /**
+     * Invoke Object method asynchronously. This will schedule the function and block the strand.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
+     *                   optional and can be null.
+     * @param metadata   Meta data of new strand.
+     * @param callback   Callback which will get notify once method execution done.
+     * @param isIsolated Ensures function can be called preserving isolation
+     * @param properties Set of properties for strand
+     * @param returnType Expected return type of this method
+     * @param args       Ballerina function arguments.
+     * @return           {@link FutureValue} containing return value of executing this method.
+     */
+    public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
+                                     boolean isIsolated, Callback callback, Map<String, Object> properties,
+                                     Type returnType, Object... args) {
+        if (object == null) {
+            throw new NullPointerException();
+        }
+        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+        if (isIsolated) {
+            return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                    metadata);
+        } else {
+            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
+                    returnType, strandName, metadata);
+        }
+    }
 
      /**
       * Invoke Object method asynchronously. This will schedule the function and block the strand.
@@ -72,7 +102,9 @@ public class Runtime {
       * @param metadata   Meta data of new strand.
       * @param callback   Callback which will get notify once method execution done.
       * @param args       Ballerina function arguments.
-      * @return the result of the function invocation
+      * @return           the result of the function invocation
+      * @deprecated       Use {@link #invokeMethodAsync(BObject, String, String, StrandMetadata, boolean,
+      *                   Callback, Map, Type, Object...)} providing isolation of method call.
       */
      public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Object... args) {
@@ -119,6 +151,8 @@ public class Runtime {
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
      * @return           {@link FutureValue} containing return value of executing this method.
+     * @deprecated       Use {@link #invokeMethodAsync(BObject, String, String, StrandMetadata, boolean,
+     *                   Callback, Map, Type, Object...)} providing isolation of method call.
      */
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Map<String, Object> properties,

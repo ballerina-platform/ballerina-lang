@@ -27,4 +27,19 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
     void setMethods(MethodType[] methodTypes);
 
     MethodType[] getMethods();
+
+    /**
+     * Provides given @{@link ObjectType} is isolated.
+     *
+     * @return true if object is isolated otherwise false.
+     */
+    boolean isIsolated();
+
+    /**
+     * Provides given @{@link ObjectType}  function is isolated.
+     *
+     * @param functionName function name
+     * @return true if @{@link ObjectType}  function is isolated otherwise false.
+     */
+    boolean isIsolated(String functionName);
 }
