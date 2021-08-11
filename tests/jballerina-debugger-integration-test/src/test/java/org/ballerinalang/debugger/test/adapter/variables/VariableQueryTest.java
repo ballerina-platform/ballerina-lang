@@ -129,16 +129,15 @@ public class VariableQueryTest extends BaseTestCase {
         tableGrandChildrenVariables = debugTestRunner.fetchChildVariables(tableChildVariables.get("[999]"));
         debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "1000", "int");
 
-        // TODO - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/32014
         // table child variable query test with start = 0 and count = 0
-        // tableChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("tableVar"), 0, 0);
-        // Assert.assertEquals(tableChildVariables.size(), 1000);
-        // tableGrandChildrenVariables =
-        //         debugTestRunner.fetchChildVariables(tableChildVariables.get("[0]"));
-        // debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "1", "int");
-        // tableGrandChildrenVariables =
-        //         debugTestRunner.fetchChildVariables(tableChildVariables.get("[999]"));
-        // debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "1000", "int");
+        tableChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("tableVar"), 0, 0);
+        Assert.assertEquals(tableChildVariables.size(), 1000);
+        tableGrandChildrenVariables =
+                debugTestRunner.fetchChildVariables(tableChildVariables.get("[0]"));
+        debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "1", "int");
+        tableGrandChildrenVariables =
+                debugTestRunner.fetchChildVariables(tableChildVariables.get("[999]"));
+        debugTestRunner.assertVariable(tableGrandChildrenVariables, "id", "1000", "int");
 
         // table child variable query test with start = 600 and count = 100
         tableChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("tableVar"), 600, 100);
