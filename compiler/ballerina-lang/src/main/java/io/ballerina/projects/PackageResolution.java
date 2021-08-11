@@ -349,7 +349,7 @@ public class PackageResolution {
                 // The situation is that an indirect dependency(previous compilation) has become a
                 // direct dependency (this compilation). Here we ignore the previous indirect dependency version and
                 // look up Ballerina central repository for the latest version which is in the same compatible range.
-                PackageManifest.Dependency dependency = getVersionFromPackageManifest(
+                DependencyManifest.Package dependency = getVersionFromDependencyManifest(
                         depPkgDesc.org(), depPkgDesc.name());
                 depVersion = dependency.version();
                 if (dependency.isTransitive()) {
@@ -653,10 +653,10 @@ public class PackageResolution {
 
             Optional<DirectPackageDependency> pkgDepOptional = pkgContainer.get(pkgOrg, pkgName);
             if (pkgDepOptional.isEmpty()) {
-                PackageManifest.Dependency versionFromPackageManifest =
-                        getVersionFromPackageManifest(pkgDesc.org(), pkgDesc.name());
+                DependencyManifest.Package versionFromDependencyManifest =
+                        getVersionFromDependencyManifest(pkgDesc.org(), pkgDesc.name());
                 DirectPackageDependencyKind dependencyKind;
-                if (versionFromPackageManifest == null) {
+                if (versionFromDependencyManifest == null) {
                     dependencyKind = DirectPackageDependencyKind.NEW;
                 } else {
                     dependencyKind = DirectPackageDependencyKind.EXISTING;
@@ -747,13 +747,13 @@ public class PackageResolution {
                                                                PackageOrg packageOrg,
                                                                PackageName packageName) {
             // Check whether this package is already defined in the package manifest, if so get the version
-            PackageManifest.Dependency dependency = PackageResolution.this.getVersionFromPackageManifest(
+            DependencyManifest.Package dependency = PackageResolution.this.getVersionFromDependencyManifest(
                     packageOrg, packageName);
             if (dependency == null) {
                 return null;
             }
 
-            List<String> modules = dependency.modules().stream().map(PackageManifest.DependencyModule::moduleName)
+            List<String> modules = dependency.modules().stream().map(DependencyManifest.Module::moduleName)
                     .collect(Collectors.toList());
             if (modules.contains(moduleName)) {
                 return PackageDescriptor.from(packageOrg, packageName);
