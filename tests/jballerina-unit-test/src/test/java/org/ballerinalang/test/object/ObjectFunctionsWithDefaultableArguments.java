@@ -232,19 +232,19 @@ public class ObjectFunctionsWithDefaultableArguments {
     public void testObjectCasting1() {
         BValue[] returns = BRunUtil.invoke(result, "testObjectCasting1");
         BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 200);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 2.2);
+        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 400);
+        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 4.4);
 
         bValueArray = (BValueArray) returns[1];
         Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 40);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 2.2);
+        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 4.4);
 
         bValueArray = (BValueArray) returns[2];
         Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 40);
         Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 22.2);
 
         bValueArray = (BValueArray) returns[3];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 200);
+        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 400);
         Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 22.2);
     }
 
@@ -252,19 +252,19 @@ public class ObjectFunctionsWithDefaultableArguments {
     public void testObjectCasting12() {
         BValue[] returns = BRunUtil.invoke(result, "testObjectCasting2");
         BValueArray bValueArray = (BValueArray) returns[0];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 400);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 4.4);
+        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 200);
+        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 2.2);
 
         bValueArray = (BValueArray) returns[1];
         Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 80);
-        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 4.4);
+        Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 2.2);
 
         bValueArray = (BValueArray) returns[2];
         Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 80);
         Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 44.4);
 
         bValueArray = (BValueArray) returns[3];
-        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 400);
+        Assert.assertEquals(((BInteger) bValueArray.getRefValue(0)).intValue(), 200);
         Assert.assertEquals(((BFloat) bValueArray.getRefValue(1)).floatValue(), 44.4);
     }
 
