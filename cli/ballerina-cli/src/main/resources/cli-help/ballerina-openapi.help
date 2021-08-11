@@ -46,7 +46,7 @@ OPTIONS
              `nullable:false` in openAPI schema property as nillable to reduce the type conversion errors.
 
         (--license) <license-file-path>
-            This option is to generate all ballerina files including given copyright or license header.
+            This option is to generate all ballerina files including the given copyright or license header.
 
         (-s| --service ) <current-service-name>
             This service name is used to identify the service that need to documented as openApi 
