@@ -131,7 +131,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIRArgument> args,
+                    List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
