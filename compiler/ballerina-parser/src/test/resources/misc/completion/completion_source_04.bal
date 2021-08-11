@@ -1,6 +1,6 @@
 public function foobar() {
     {
-        final 
+        final
     }
 }
 
