@@ -2188,7 +2188,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType varArgType = restArgsExpression.getBType();
+        BType varArgType = types.getConstraintFromReferenceType(restArgsExpression.getBType());
         if (varArgType.tag == TypeTags.ARRAY) {
             if (!Symbols.isFlagOn(((BArrayType) varArgType).eType.flags, Flags.ISOLATED)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_FUNCTION_AS_ARGUMENT);
@@ -2689,7 +2689,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
-            if (!invokedOnSelf && invocation.getBType().tag == TypeTags.NIL) {
+            if (!invokedOnSelf && types.getConstraintFromReferenceType(invocation.getBType()).tag == TypeTags.NIL) {
                 return true;
             }
 

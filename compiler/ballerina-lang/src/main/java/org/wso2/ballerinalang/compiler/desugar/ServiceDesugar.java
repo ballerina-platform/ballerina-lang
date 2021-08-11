@@ -233,7 +233,7 @@ public class ServiceDesugar {
     }
 
     private BType getListenerTypeWithoutError(BType type) {
-        if (type.tag == TypeTags.UNION) {
+        if (types.getConstraintFromReferenceType(type).tag == TypeTags.UNION) {
             LinkedHashSet<BType> members = new LinkedHashSet<>();
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (types.isAssignable(memberType, symTable.errorType)) {
@@ -247,8 +247,8 @@ public class ServiceDesugar {
     }
 
     private BType getListenerType(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+        if (types.getConstraintFromReferenceType(type).tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) types.getConstraintFromReferenceType(type)).getMemberTypes()) {
                 if (types.checkListenerCompatibility(memberType)) {
                     return memberType;
                 }

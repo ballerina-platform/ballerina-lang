@@ -506,8 +506,16 @@ public class BIRBinaryWriter {
         }
     }
 
+    private BType getConstrainedTypeFromRefType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
+    }
+
     private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
-        BType annotType = annotValue.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)annotValue.type).constraint :  annotValue.type;
+        BType annotType = getConstrainedTypeFromRefType(annotValue.type);
         if (annotType.tag == TypeTags.ARRAY) {
             writeType(annotBuf, annotType);
             BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;

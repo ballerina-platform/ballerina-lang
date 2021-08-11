@@ -440,8 +440,8 @@ public class TypeParamAnalyzer {
                 return;
             case TypeTags.TYPEREFDESC:
                 if (actualType.tag == TypeTags.TYPEREFDESC) {
-                    findTypeParam(loc, ((BTypeReferenceType) expType).constraint,
-                            ((BTypeReferenceType) actualType).constraint, env, resolvedTypes, result);
+                    findTypeParam(loc, types.getConstraintFromReferenceType(expType),
+                            types.getConstraintFromReferenceType(actualType), env, resolvedTypes, result);
                 }
                 return;
         }
@@ -674,7 +674,7 @@ public class TypeParamAnalyzer {
         if (isTypeParam(expType)) {
             for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
                 if (typeParamEntry.typeParam.tag == TypeTags.TYPEREFDESC && expType.tag != TypeTags.TYPEREFDESC) {
-                    typeParamEntry.typeParam = ((BTypeReferenceType) typeParamEntry.typeParam).constraint;
+                    typeParamEntry.typeParam = types.getConstraintFromReferenceType(typeParamEntry.typeParam);
                 }
                 if (typeParamEntry.typeParam == expType) {
                     return typeParamEntry.boundType;

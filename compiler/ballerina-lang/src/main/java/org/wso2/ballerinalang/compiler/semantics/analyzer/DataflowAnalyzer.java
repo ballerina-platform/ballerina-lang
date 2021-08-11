@@ -994,8 +994,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
         List<String> fieldNames = null;
-        if (constructorExpr.getBType().tag == TypeTags.TABLE) {
-            fieldNames = ((BTableType) constructorExpr.getBType()).fieldNameList;
+        if (types.getConstraintFromReferenceType(constructorExpr.getBType()).tag == TypeTags.TABLE) {
+            fieldNames = ((BTableType) types.getConstraintFromReferenceType(constructorExpr.getBType())).fieldNameList;
             if (fieldNames != null) {
                 return fieldNames;
             }
@@ -2044,7 +2044,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {
         BLangExpression expr = fieldAccess.expr;
 
-        BType exprType = expr.getBType();
+        BType exprType = types.getConstraintFromReferenceType(expr.getBType());
 
         if (types.isSubTypeOfBaseType(exprType, TypeTags.OBJECT) &&
                 isFinalFieldInAllObjects(fieldAccess.pos, exprType, fieldAccess.field.value)) {
@@ -2052,7 +2052,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isFinalFieldInAllObjects(Location pos, BType type, String fieldName) {
+    private boolean isFinalFieldInAllObjects(Location pos, BType btype, String fieldName) {
+        BType type = types.getConstraintFromReferenceType(btype);
         if (type.tag == TypeTags.OBJECT) {
 
             BField field = ((BObjectType) type).fields.get(fieldName);

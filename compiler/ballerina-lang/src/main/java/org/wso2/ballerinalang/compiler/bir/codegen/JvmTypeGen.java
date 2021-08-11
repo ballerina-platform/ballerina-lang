@@ -229,6 +229,14 @@ public class JvmTypeGen {
         typeHashVisitor = new TypeHashVisitor();
     }
 
+    private BType getConstrainedTypeFromRefType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
+    }
+
     /**
      * Create static fields to hold the user defined types.
      *
@@ -238,8 +246,7 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = typeDef.type.tag == TypeTags.TYPEREFDESC ?
-                    ((BTypeReferenceType) typeDef.type).constraint : typeDef.type;
+            BType bType = getConstrainedTypeFromRefType(typeDef.type);
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
                 String name = typeDef.internalName.value;
@@ -294,8 +301,7 @@ public class JvmTypeGen {
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             String name = optionalTypeDef.internalName.value;
-            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
-                    ((BTypeReferenceType) optionalTypeDef.type).constraint : optionalTypeDef.type;
+            BType bType = getConstrainedTypeFromRefType(optionalTypeDef.type);
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
 
@@ -338,8 +344,7 @@ public class JvmTypeGen {
         List<String> funcNames = new ArrayList<>();
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
-                    ((BTypeReferenceType) optionalTypeDef.type).constraint : optionalTypeDef.type;
+            BType bType = getConstrainedTypeFromRefType(optionalTypeDef.type);
             if (!(bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE)) {
                 continue;
@@ -392,9 +397,10 @@ public class JvmTypeGen {
                     mv.visitTypeInsn(CHECKCAST, ERROR_TYPE_IMPL);
                     mv.visitInsn(DUP);
                     mv.visitInsn(DUP);
-                    loadType(mv, ((BErrorType) bType).detailType.tag == TypeTags.TYPEREFDESC ?
-                            ((BTypeReferenceType)((BErrorType) bType).detailType).constraint :
-                            ((BErrorType) bType).detailType);
+//                    loadType(mv, ((BErrorType) bType).detailType.tag == TypeTags.TYPEREFDESC ?
+//                            ((BTypeReferenceType)((BErrorType) bType).detailType).constraint :
+//                            ((BErrorType) bType).detailType);
+                    loadType(mv, ((BErrorType) bType).detailType);
                     mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD,
                                        String.format("(L%s;)V", TYPE), false);
                     BTypeIdSet typeIdSet = ((BErrorType) bType).typeIdSet;
@@ -613,8 +619,7 @@ public class JvmTypeGen {
         List<BIRTypeDefinition> errorTypeDefs = new ArrayList<>();
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type.tag == TypeTags.TYPEREFDESC ?
-                    ((BTypeReferenceType) optionalTypeDef.type).constraint : optionalTypeDef.type;
+            BType bType = getConstrainedTypeFromRefType(optionalTypeDef.type);
             if (bType.tag == TypeTags.RECORD) {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {

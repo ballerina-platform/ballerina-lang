@@ -188,9 +188,17 @@ public class JvmDesugarPhase {
         return paramTypes;
     }
 
+    private static BType getConstraintFromReferenceType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
+    }
+
     static void rewriteRecordInits(List<BIRTypeDefinition> typeDefs) {
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType recordType = typeDef.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)typeDef.type).constraint : typeDef.type;
+            BType recordType = getConstraintFromReferenceType(typeDef.type);
             if (recordType.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -275,7 +283,7 @@ public class JvmDesugarPhase {
                                                                  encodedVsInitialIds));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds);
-            BType bType = typeDefinition.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)typeDefinition.type).constraint : typeDefinition.type;
+            BType bType = getConstraintFromReferenceType(typeDefinition.type);
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
@@ -365,7 +373,7 @@ public class JvmDesugarPhase {
                                                                   encodedVsInitialIds);
             typeDefinition.internalName = getInitialIdString(typeDefinition.internalName, names, encodedVsInitialIds);
             replaceEncodedFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds);
-            BType bType = typeDefinition.type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)typeDefinition.type).constraint : typeDefinition.type;
+            BType bType = getConstraintFromReferenceType(typeDefinition.type);
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;

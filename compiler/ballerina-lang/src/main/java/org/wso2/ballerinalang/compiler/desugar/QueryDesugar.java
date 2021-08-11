@@ -276,16 +276,17 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
-            if (TypeTags.isXMLTypeTag(queryExpr.getBType().tag) || (queryExpr.getBType().tag == TypeTags.UNION &&
-                    ((BUnionType) queryExpr.getBType()).getMemberTypes().stream()
-                            .allMatch(memType -> TypeTags.isXMLTypeTag(memType.tag)))) {
+            if (TypeTags.isXMLTypeTag(types.getConstraintFromReferenceType(queryExpr.getBType()).tag) ||
+                    (types.getConstraintFromReferenceType(queryExpr.getBType()).tag == TypeTags.UNION &&
+                    ((BUnionType) types.getConstraintFromReferenceType(queryExpr.getBType())).getMemberTypes().stream()
+                            .allMatch(memType -> TypeTags.isXMLTypeTag(types.getConstraintFromReferenceType(memType).tag)))) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
-            } else if (TypeTags.isStringTypeTag(queryExpr.getBType().tag)) {
+            } else if (TypeTags.isStringTypeTag(types.getConstraintFromReferenceType(queryExpr.getBType()).tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = queryExpr.getBType();
-                if (arrayType.tag == TypeTags.UNION) {
-                    arrayType = ((BUnionType) arrayType).getMemberTypes()
+                if (types.getConstraintFromReferenceType(arrayType).tag == TypeTags.UNION) {
+                    arrayType = ((BUnionType) types.getConstraintFromReferenceType(arrayType)).getMemberTypes()
                             .stream().filter(m -> m.tag == TypeTags.ARRAY)
                             .findFirst().orElse(symTable.arrayType);
                 }
@@ -421,11 +422,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
         BType completionType = symTable.nilType;
-        if (resultType.tag == TypeTags.ARRAY) {
+        if (types.getConstraintFromReferenceType(resultType).tag == TypeTags.ARRAY) {
             constraintType = ((BArrayType) resultType).eType;
-        } else if (resultType.tag == TypeTags.STREAM) {
-            constraintType = ((BStreamType) resultType).constraint;
-            completionType = ((BStreamType) resultType).completionType;
+        } else if (types.getConstraintFromReferenceType(resultType).tag == TypeTags.STREAM) {
+            constraintType = ((BStreamType) types.getConstraintFromReferenceType(resultType)).constraint;
+            completionType = ((BStreamType) types.getConstraintFromReferenceType(resultType)).completionType;
         }
         BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
@@ -748,8 +749,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         final BType type = queryExpr.getBType();
         String name = getNewVarName();
         BType tableType = type;
-        if (type.tag == TypeTags.UNION) {
-            tableType = ((BUnionType) type).getMemberTypes()
+        if (types.getConstraintFromReferenceType(type).tag == TypeTags.UNION) {
+            tableType = ((BUnionType) types.getConstraintFromReferenceType(type)).getMemberTypes()
                     .stream().filter(m -> m.tag == TypeTags.TABLE)
                     .findFirst().orElse(symTable.tableType);
         }
@@ -1113,9 +1114,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BVarSymbol symbol : symbols) {
             BType type = symbol.type;
             String key = symbol.name.value;
-            if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
+            if (types.getConstraintFromReferenceType(type).tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
                 List<BVarSymbol> nestedSymbols = new ArrayList<>();
-                for (BField field : ((BStructureType) type).fields.values()) {
+                for (BField field : ((BStructureType) types.getConstraintFromReferenceType(type)).fields.values()) {
                     nestedSymbols.add(field.symbol);
                 }
                 addFrameValueToFrame(frame, key, defineNilFrameForType(nestedSymbols, blockStmt, pos), blockStmt, pos);

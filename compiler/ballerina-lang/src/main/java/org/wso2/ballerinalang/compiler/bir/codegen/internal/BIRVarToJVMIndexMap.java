@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
@@ -62,9 +63,17 @@ public class BIRVarToJVMIndexMap {
 
     public int addIfNotExists(String varRefName, BType bType) {
         if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
-            this.add(varRefName, bType);
+            this.add(varRefName, getConstrainedTypeFromRefType(bType));
         }
         return get(varRefName);
+    }
+
+    private static BType getConstrainedTypeFromRefType(BType refType) {
+        BType constraint = refType;
+        if(refType.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) refType).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
     }
 
     public int get(String varRefName) {

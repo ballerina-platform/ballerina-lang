@@ -204,7 +204,7 @@ public class JvmTerminatorGen {
     }
 
     private void loadDefaultValue(MethodVisitor mv, BType bType) {
-        BType type = bType.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)bType).constraint : bType;
+        BType type = jvmCastGen.getConstraintFromReferenceType(bType);
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             mv.visitInsn(LCONST_0);
             return;

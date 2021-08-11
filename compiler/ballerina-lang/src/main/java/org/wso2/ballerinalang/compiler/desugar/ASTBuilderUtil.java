@@ -660,11 +660,18 @@ public class ASTBuilderUtil {
         return arrayLiteralNode;
     }
 
-    static BLangListConstructorExpr createListConstructorExpr(Location pos, BType type) {
+    private static BType getConstrainedTypeFromRefType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
+    }
+
+    static BLangListConstructorExpr createListConstructorExpr(Location pos, BType bType) {
+        BType type = getConstrainedTypeFromRefType(bType);
         if (type.tag == TypeTags.INTERSECTION) {
             type = ((BIntersectionType) type).effectiveType;
-        } else if (type.tag == TypeTags.TYPEREFDESC) {
-            type = ((BTypeReferenceType) type).constraint;
         }
 
         if (type.tag != TypeTags.ARRAY && type.tag != TypeTags.TUPLE) {

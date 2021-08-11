@@ -573,13 +573,20 @@ public class MethodGen {
         mv.visitTypeInsn(CHECKCAST, frameName);
     }
 
+    private BType getConstrainedTypeFromRefType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
+    }
+
+
     private void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                              BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            BType bType = localVar.type;
-            if (bType.tag == TypeTags.TYPEREFDESC) {
-                bType = ((BTypeReferenceType) bType).constraint;
-            }
+            BType bType = getConstrainedTypeFromRefType(localVar.type);
+
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
@@ -740,10 +747,8 @@ public class MethodGen {
     private void generateFrameClassFieldUpdate(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                                BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            BType bType = localVar.type;
-            if (bType.tag == TypeTags.TYPEREFDESC) {
-                bType = ((BTypeReferenceType) bType).constraint;
-            }
+            BType bType = getConstrainedTypeFromRefType(localVar.type);
+
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 

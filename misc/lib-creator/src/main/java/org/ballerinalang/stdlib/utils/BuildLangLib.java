@@ -143,6 +143,7 @@ public class BuildLangLib {
             Files.copy(generatedJarFilePath, targetJarFilePath);
 
             //Generate docs
+            //todo @chiran
 //            out.println("Generating docs...");
 //            BallerinaDocGenerator.generateAPIDocs(project, targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY)
 //                    .toString(), true);

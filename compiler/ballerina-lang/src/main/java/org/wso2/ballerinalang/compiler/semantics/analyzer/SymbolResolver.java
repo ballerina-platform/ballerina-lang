@@ -497,14 +497,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.env = prevEnv;
         this.diagCode = preDiagCode;
 
-        if (this.resultType != symTable.noType) {
+        if (types.getConstraintFromReferenceType(this.resultType) != symTable.noType) {
             // If the typeNode.nullable is true then convert the resultType to a union type
             // if it is not already a union type, JSON type, or any type
-            if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) this.resultType;
+            if (typeNode.nullable && types.getConstraintFromReferenceType(this.resultType).tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) types.getConstraintFromReferenceType(this.resultType);
                 unionType.add(symTable.nilType);
-            } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-                this.resultType = BUnionType.create(null, resultType, symTable.nilType);
+            } else if (typeNode.nullable && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.JSON && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.ANY) {
+                this.resultType = BUnionType.create(null, this.resultType, symTable.nilType);
             }
         }
 
@@ -671,15 +671,16 @@ public class SymbolResolver extends BLangNodeVisitor {
                             format("Union type '%s' does not have member types", type.toString()));
                 }
 
-                BType member = itr.next();
-                if (member.tag == TypeTags.TYPEREFDESC) {
-                    member = ((BTypeReferenceType) member).constraint;
-                }
+                BType member = types.getConstraintFromReferenceType(itr.next());
+
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
                     bSymbol = lookupLangLibMethod(member, name);
                 } else {
                     bSymbol = symTable.notFoundSymbol;
                 }
+                break;
+            case TypeTags.TYPEREFDESC:
+                bSymbol = lookupLangLibMethod(types.getConstraintFromReferenceType(type), name);
                 break;
             default:
                 bSymbol = symTable.notFoundSymbol;
@@ -1386,16 +1387,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = constrainedType;
     }
 
-    private void validateXMLConstraintType(BType constraintType, Location pos) {
+    private void validateXMLConstraintType(BType type, Location pos) {
+        BType constraintType = types.getConstraintFromReferenceType(type);
         int constrainedTag = constraintType.tag;
-        BType constType = constraintType;
-        if(constrainedTag == TypeTags.TYPEREFDESC) {
-            constType = ((BTypeReferenceType)constraintType).constraint;
-            constrainedTag = constType.tag;
-        }
 
         if (constrainedTag == TypeTags.UNION) {
-            checkUnionTypeForXMLSubTypes((BUnionType) constType, pos);
+            checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
             return;
         }
 
@@ -1406,12 +1403,11 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, Location pos) {
         for (BType memberType : constraintUnionType.getMemberTypes()) {
+            memberType = types.getConstraintFromReferenceType(memberType);
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
-            if (memberType.tag == TypeTags.TYPEREFDESC) {
-                memberType = ((BTypeReferenceType) memberType).constraint;
-            }
+
             if (!TypeTags.isXMLTypeTag(memberType.tag)) {
                 dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
                            constraintUnionType);
@@ -1887,10 +1883,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (types.size() == opType.paramTypes.size()) {
                 boolean match = true;
                 for (int i = 0; i < types.size(); i++) {
-                    BType t = types.get(i);
-                    if (t.tag == TypeTags.TYPEREFDESC) {
-                        t = ((BTypeReferenceType) t).constraint;
-                    }
+                    BType t = this.types.getConstraintFromReferenceType(types.get(i));
                     if (t.tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }

@@ -1200,8 +1200,16 @@ public class JvmCastGen {
                            String.format("(L%s;)V", STRING_VALUE), false);
     }
 
+    public BType getConstraintFromReferenceType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
+    }
+
     private void generateCheckCastToChar(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "stringToChar",
                                String.format("(L%s;)L%s;", OBJECT, B_STRING_VALUE), false);
@@ -1274,7 +1282,7 @@ public class JvmCastGen {
     }
 
     private void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (sourceType.tag == TypeTags.ANY || sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.INTERSECTION) {
             checkCast(mv, symbolTable.anydataType);
@@ -1285,7 +1293,7 @@ public class JvmCastGen {
     }
 
     private void generateCheckCastToJSON(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.INTERSECTION ||
@@ -1471,7 +1479,7 @@ public class JvmCastGen {
     }
 
     private void generateCastToFloat(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (sourceType.tag == TypeTags.FLOAT) {
             return;
         }
@@ -1493,7 +1501,7 @@ public class JvmCastGen {
     }
 
     private void generateCastToString(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
@@ -1526,7 +1534,7 @@ public class JvmCastGen {
     }
 
     private void generateCastToDecimal(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", DECIMAL_VALUE),
                     false);
@@ -1556,7 +1564,7 @@ public class JvmCastGen {
     }
 
     private void generateCastToBoolean(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (sourceType.tag == TypeTags.BOOLEAN) {
             return;
         }
@@ -1576,7 +1584,7 @@ public class JvmCastGen {
     }
 
     private void generateCastToByte(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (sourceType.tag == TypeTags.BYTE) {
             return;
         }
@@ -1596,7 +1604,7 @@ public class JvmCastGen {
     }
 
     private void generateCastToAny(MethodVisitor mv, BType type) {
-        BType sourceType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType) type).constraint : type;
+        BType sourceType = getConstraintFromReferenceType(type);
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE), false);
             return;

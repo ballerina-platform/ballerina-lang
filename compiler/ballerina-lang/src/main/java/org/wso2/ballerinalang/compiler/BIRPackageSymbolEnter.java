@@ -400,10 +400,7 @@ public class BIRPackageSymbolEnter {
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (this.currentStructure != null) {
-            BType attachedType = this.currentStructure.type;
-            if (attachedType.tag == TypeTags.TYPEREFDESC) {
-                attachedType = ((BTypeReferenceType) attachedType).constraint;
-            }
+            BType attachedType = types.getConstraintFromReferenceType(this.currentStructure.type);
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -497,7 +494,7 @@ public class BIRPackageSymbolEnter {
             symbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
                     names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
                     pos, SOURCE);
-            if (type.tsymbol.name == Names.EMPTY) {
+            if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
                 type.tsymbol = symbol;
             }
 //        }
@@ -890,8 +887,6 @@ public class BIRPackageSymbolEnter {
                 ConstrainedType constrainedType = (ConstrainedType) type;
                 populateParameterizedType((BType) constrainedType.getConstraint(), paramsMap, invSymbol);
                 break;
-            case TypeTags.TYPEREFDESC:
-                break;
             case TypeTags.XML:
                 populateParameterizedType(((BXMLType) type).constraint, paramsMap, invSymbol);
                 break;
@@ -933,6 +928,8 @@ public class BIRPackageSymbolEnter {
                     populateParameterizedType(t, paramsMap, invSymbol);
                 }
                 break;
+            case TypeTags.TYPEREFDESC:
+                populateParameterizedType(types.getConstraintFromReferenceType(type), paramsMap, invSymbol);
         }
     }
 

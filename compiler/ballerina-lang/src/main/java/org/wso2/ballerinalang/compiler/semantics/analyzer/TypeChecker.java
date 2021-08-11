@@ -362,9 +362,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return expr.getBType();
         }
 
-        if (expType.tag == TypeTags.TYPEREFDESC) {
-            expType = ((BTypeReferenceType) expType).constraint;
-        }
+        expType = types.getConstraintFromReferenceType(expType);
 
         if (expType.tag == TypeTags.INTERSECTION) {
             expType = ((BIntersectionType) expType).effectiveType;
@@ -381,9 +379,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         expr.accept(this);
 
-        if (resultType.tag == TypeTags.TYPEREFDESC) {
-            resultType = ((BTypeReferenceType) resultType).constraint;
-        }
+        resultType = types.getConstraintFromReferenceType(resultType);
 
         if (resultType.tag == TypeTags.INTERSECTION) {
             resultType = ((BIntersectionType) resultType).effectiveType;
@@ -443,7 +439,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BType exprType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
 
-        if (exprType.tag == TypeTags.UNION) {
+        if (types.getConstraintFromReferenceType(exprType).tag == TypeTags.UNION) {
             dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
                        xmlNavigation.expr.getBType());
         }
@@ -476,10 +472,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.getBType().tag);
         Object literalValue = literalExpr.value;
-        BType expectedType = expType;
-        if(expectedType.tag == TypeTags.TYPEREFDESC) {
-            expectedType = ((BTypeReferenceType)expType).constraint;
-        }
+        BType expectedType = types.getConstraintFromReferenceType(expType);
         if (literalType.tag == TypeTags.INT || literalType.tag == TypeTags.BYTE) {
             if (expectedType.tag == TypeTags.FLOAT) {
                 literalType = symTable.floatType;
@@ -541,9 +534,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BType intSubType = null;
                 boolean intOrIntCompatibleTypeFound = false;
                 for (BType memType : memberTypes) {
-                    if (memType.tag == TypeTags.TYPEREFDESC) {
-                        memType = ((BTypeReferenceType) memType).constraint;
-                    }
+                    memType = types.getConstraintFromReferenceType(memType);
                     if ((memType.tag != TypeTags.INT && TypeTags.isIntegerTypeTag(memType.tag)) ||
                             memType.tag == TypeTags.BYTE) {
                         intSubType = memType;
@@ -653,9 +644,7 @@ public class TypeChecker extends BLangNodeVisitor {
             if (expectedType.tag == TypeTags.UNION) {
                 Set<BType> memberTypes = ((BUnionType) expectedType).getMemberTypes();
                 for (BType memType : memberTypes) {
-                    if(memType.tag == TypeTags.TYPEREFDESC) {
-                        memType = ((BTypeReferenceType)memType).constraint;
-                    }
+                    memType = types.getConstraintFromReferenceType(memType);
                     if (TypeTags.isStringTypeTag(memType.tag)) {
                         return setLiteralValueAndGetType(literalExpr, memType);
                     } else if (memType.tag == TypeTags.JSON || memType.tag == TypeTags.ANYDATA ||
@@ -781,8 +770,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getFiniteTypeWithValuesOfSingleType(BUnionType unionType, BType matchType) {
         List<BFiniteType> finiteTypeMembers = unionType.getMemberTypes().stream()
-                .filter(memType -> memType.tag == TypeTags.FINITE)
-                .map(memFiniteType -> (BFiniteType) memFiniteType)
+                .filter(memType -> types.getConstraintFromReferenceType(memType).tag == TypeTags.FINITE)
+                .map(memFiniteType -> (BFiniteType) types.getConstraintFromReferenceType(memFiniteType))
                 .collect(Collectors.toList());
 
         if (finiteTypeMembers.isEmpty()) {
@@ -2990,7 +2979,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     memberType = ((BTypeReferenceType) memberType).constraint;
                 }
                 if (types.isAssignable(memberType, symTable.errorType)) {
-                    if (memberType.tag == TypeTags.INTERSECTION) {
+                    if (memberType.tag == TypeTags.TYPEREFDESC) {
+                        expandedCandidates.add(((BTypeReferenceType) memberType).constraint);
+                    } else if (memberType.tag == TypeTags.INTERSECTION) {
                         expandedCandidates.add(((BIntersectionType) memberType).effectiveType);
                     } else {
                         expandedCandidates.add(memberType);
@@ -2998,7 +2989,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         } else if (types.isAssignable(candidateType, symTable.errorType)) {
-            if (candidateType.tag == TypeTags.INTERSECTION) {
+            if (candidateType.tag == TypeTags.TYPEREFDESC) {
+                expandedCandidates.add(((BTypeReferenceType) candidateType).constraint);
+            } else if (candidateType.tag == TypeTags.INTERSECTION) {
                 expandedCandidates.add(((BIntersectionType) candidateType).effectiveType);
             } else {
                 expandedCandidates.add(candidateType);
@@ -4829,8 +4822,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType listType = fieldType.tag != TypeTags.TYPEREFDESC ? fieldType :
                 ((BTypeReferenceType) fieldType).constraint;
 
-        listType = fieldType.tag != TypeTags.INTERSECTION ? fieldType :
-                ((BIntersectionType) fieldType).effectiveType;
+        listType = listType.tag != TypeTags.INTERSECTION ? listType :
+                ((BIntersectionType) listType).effectiveType;
 
         boolean errored = false;
 

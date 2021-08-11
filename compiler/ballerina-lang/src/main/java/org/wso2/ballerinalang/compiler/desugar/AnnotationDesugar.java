@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
@@ -494,9 +495,9 @@ public class AnnotationDesugar {
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
-        if (annTypeSymbol instanceof BStructureTypeSymbol) {
-            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
-            literalNode.setBType(bStructSymbol.type);
+        if (annTypeSymbol instanceof BTypeDefinitionSymbol && annTypeSymbol.type.tsymbol instanceof BStructureTypeSymbol) {
+            bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
+            literalNode.setBType(annTypeSymbol.type);
         }
 
         //Add Root Descriptor
@@ -828,7 +829,8 @@ public class AnnotationDesugar {
         return hasTypeSymbol(symbol, expr.getBType());
     }
 
-    private boolean hasTypeSymbol(BTypeSymbol symbol, BType bType) {
+    private boolean hasTypeSymbol(BTypeSymbol symbol, BType type) {
+        BType bType = types.getConstraintFromReferenceType(type);
         if (bType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
                 if (hasTypeSymbol(symbol, memberType)) {

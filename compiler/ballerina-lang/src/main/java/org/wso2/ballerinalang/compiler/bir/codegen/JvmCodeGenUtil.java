@@ -602,14 +602,22 @@ public class JvmCodeGenUtil {
         }
     }
 
+    private static BType getConstrainedTypeFromRefType(BType refType) {
+        BType constraint = refType;
+        if(refType.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) refType).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
+    }
+
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmBStringConstantsGen stringConstantsGen) {
-
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
+        int typeTag = getConstrainedTypeFromRefType(bType).tag;
+        if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);
             return;
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
+        } else if (TypeTags.isStringTypeTag(typeTag)) {
             String val = String.valueOf(constVal);
             String varName = stringConstantsGen.addBString(val);
             String stringConstantsClass = stringConstantsGen.getStringConstantsClass();
@@ -617,7 +625,7 @@ public class JvmCodeGenUtil {
             return;
         }
 
-        switch (bType.tag) {
+        switch (typeTag) {
             case TypeTags.BYTE:
                 int byteValue = ((Number) constVal).intValue();
                 mv.visitLdcInsn(byteValue);

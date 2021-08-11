@@ -344,10 +344,7 @@ public class JvmInstructionGen {
 
     public void generateVarLoad(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
-        BType bType = varDcl.type;
-        if (bType.tag == TypeTags.TYPEREFDESC) {
-            bType = ((BTypeReferenceType) bType).constraint;
-        }
+        BType bType = getConstrainedTypeFromRefType(varDcl.type);
 
         switch (varDcl.kind) {
             case GLOBAL: {
@@ -438,10 +435,7 @@ public class JvmInstructionGen {
 
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
-        BType bType = varDcl.type;
-        if (bType.tag == TypeTags.TYPEREFDESC) {
-            bType = ((BTypeReferenceType) bType).constraint;
-        }
+        BType bType = getConstrainedTypeFromRefType(varDcl.type);
         if (varDcl.kind == VarKind.GLOBAL) {
             String varName = varDcl.name.value;
             String className = jvmPackageGen.lookupGlobalVarClassName(currentPackageName, varName);
@@ -667,16 +661,8 @@ public class JvmInstructionGen {
         Label label1 = new Label();
         Label label2 = new Label();
 
-        BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
-        BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-
-        if (lhsOpType.tag == TypeTags.TYPEREFDESC) {
-            lhsOpType = ((BTypeReferenceType) lhsOpType).constraint;
-        }
-
-        if (rhsOpType.tag == TypeTags.TYPEREFDESC) {
-            rhsOpType = ((BTypeReferenceType) rhsOpType).constraint;
-        }
+        BType lhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.mv.visitInsn(LCMP);
@@ -746,16 +732,8 @@ public class JvmInstructionGen {
         Label label1 = new Label();
         Label label2 = new Label();
 
-        BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
-        BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-
-        if (lhsOpType.tag == TypeTags.TYPEREFDESC) {
-            lhsOpType = ((BTypeReferenceType) lhsOpType).constraint;
-        }
-
-        if (rhsOpType.tag == TypeTags.TYPEREFDESC) {
-            rhsOpType = ((BTypeReferenceType) rhsOpType).constraint;
-        }
+        BType lhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.mv.visitInsn(LCMP);
@@ -797,16 +775,8 @@ public class JvmInstructionGen {
         Label label2 = new Label();
 
         // It is assumed that both operands are of same type
-        BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
-        BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-
-        if (lhsOpType.tag == TypeTags.TYPEREFDESC) {
-            lhsOpType = ((BTypeReferenceType) lhsOpType).constraint;
-        }
-
-        if (rhsOpType.tag == TypeTags.TYPEREFDESC) {
-            rhsOpType = ((BTypeReferenceType) rhsOpType).constraint;
-        }
+        BType lhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.mv.visitInsn(LCMP);
@@ -845,16 +815,8 @@ public class JvmInstructionGen {
         Label label1 = new Label();
         Label label2 = new Label();
 
-        BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
-        BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-
-        if (lhsOpType.tag == TypeTags.TYPEREFDESC) {
-            lhsOpType = ((BTypeReferenceType) lhsOpType).constraint;
-        }
-
-        if (rhsOpType.tag == TypeTags.TYPEREFDESC) {
-            rhsOpType = ((BTypeReferenceType) rhsOpType).constraint;
-        }
+        BType lhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.mv.visitInsn(LCMP);
@@ -891,15 +853,8 @@ public class JvmInstructionGen {
         Label label2 = new Label();
 
         // It is assumed that both operands are of same type
-        BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
-        BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
-        if (lhsOpType.tag == TypeTags.TYPEREFDESC) {
-            lhsOpType = ((BTypeReferenceType) lhsOpType).constraint;
-        }
-
-        if (rhsOpType.tag == TypeTags.TYPEREFDESC) {
-            rhsOpType = ((BTypeReferenceType) rhsOpType).constraint;
-        }
+        BType lhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType rhsOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
             this.mv.visitInsn(LCMP);
@@ -946,17 +901,14 @@ public class JvmInstructionGen {
         this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue", String.format(
                 "(L%s;L%s;)L%s;", TYPEDESC_VALUE, JvmConstants.B_STRING_VALUE, OBJECT), false);
 
-        BType targetType = binaryIns.lhsOp.variableDcl.type;
+        BType targetType = getConstrainedTypeFromRefType(binaryIns.lhsOp.variableDcl.type);
         jvmCastGen.addUnboxInsn(this.mv, targetType);
         this.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
     private void generateAddIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = binaryIns.lhsOp.variableDcl.type;
-        if (bType.tag == TypeTags.TYPEREFDESC) {
-            bType = ((BTypeReferenceType) bType).constraint;
-        }
+        BType bType = getConstrainedTypeFromRefType(binaryIns.lhsOp.variableDcl.type);
 
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
@@ -985,10 +937,8 @@ public class JvmInstructionGen {
 
     private void generateSubIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = binaryIns.lhsOp.variableDcl.type;
-        if (bType.tag == TypeTags.TYPEREFDESC) {
-            bType = ((BTypeReferenceType) bType).constraint;
-        }
+        BType bType = getConstrainedTypeFromRefType(binaryIns.lhsOp.variableDcl.type);
+
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "subtractExact", "(JJ)J", false);
@@ -1006,10 +956,8 @@ public class JvmInstructionGen {
 
     private void generateDivIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = binaryIns.lhsOp.variableDcl.type;
-        if (bType.tag == TypeTags.TYPEREFDESC) {
-            bType = ((BTypeReferenceType) bType).constraint;
-        }
+        BType bType = getConstrainedTypeFromRefType(binaryIns.lhsOp.variableDcl.type);
+
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "divide", "(JJ)J", false);
@@ -1027,10 +975,8 @@ public class JvmInstructionGen {
 
     private void generateMulIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = binaryIns.lhsOp.variableDcl.type;
-        if (bType.tag == TypeTags.TYPEREFDESC) {
-            bType = ((BTypeReferenceType) bType).constraint;
-        }
+        BType bType = getConstrainedTypeFromRefType(binaryIns.lhsOp.variableDcl.type);
+
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "multiplyExact", "(JJ)J", false);
@@ -1048,10 +994,8 @@ public class JvmInstructionGen {
 
     private void generateRemIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType bType = binaryIns.lhsOp.variableDcl.type;
-        if (bType.tag == TypeTags.TYPEREFDESC) {
-            bType = ((BTypeReferenceType) bType).constraint;
-        }
+        BType bType = getConstrainedTypeFromRefType(binaryIns.lhsOp.variableDcl.type);
+
         this.generateBinaryRhsAndLhsLoad(binaryIns);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitMethodInsn(INVOKESTATIC, MATH_UTILS, "remainder", "(JJ)J", false);
@@ -1069,16 +1013,9 @@ public class JvmInstructionGen {
 
     private void generateBitwiseAndIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType opType1 = binaryIns.rhsOp1.variableDcl.type;
-        BType opType2 = binaryIns.rhsOp2.variableDcl.type;
+        BType opType1 = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType opType2 = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
-        if (opType1.tag == TypeTags.TYPEREFDESC) {
-            opType1 = ((BTypeReferenceType) opType1).constraint;
-        }
-
-        if (opType2.tag == TypeTags.TYPEREFDESC) {
-            opType2 = ((BTypeReferenceType) opType2).constraint;
-        }
         int opType1Tag = opType1.tag;
         int opType2Tag = opType2.tag;
 
@@ -1116,16 +1053,8 @@ public class JvmInstructionGen {
 
     private void generateBitwiseOrIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType opType1 = binaryIns.rhsOp1.variableDcl.type;
-        BType opType2 = binaryIns.rhsOp2.variableDcl.type;
-
-        if (opType1.tag == TypeTags.TYPEREFDESC) {
-            opType1 = ((BTypeReferenceType) opType1).constraint;
-        }
-
-        if (opType2.tag == TypeTags.TYPEREFDESC) {
-            opType2 = ((BTypeReferenceType) opType2).constraint;
-        }
+        BType opType1 = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType opType2 = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
         if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
@@ -1153,16 +1082,8 @@ public class JvmInstructionGen {
 
     private void generateBitwiseXorIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        BType opType1 = binaryIns.rhsOp1.variableDcl.type;
-        BType opType2 = binaryIns.rhsOp2.variableDcl.type;
-
-        if (opType1.tag == TypeTags.TYPEREFDESC) {
-            opType1 = ((BTypeReferenceType) opType1).constraint;
-        }
-
-        if (opType2.tag == TypeTags.TYPEREFDESC) {
-            opType2 = ((BTypeReferenceType) opType2).constraint;
-        }
+        BType opType1 = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+        BType opType2 = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
 
         if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
@@ -1192,18 +1113,14 @@ public class JvmInstructionGen {
         this.loadVar(binaryIns.rhsOp1.variableDcl);
         this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-        BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-        if (secondOpType.tag == TypeTags.TYPEREFDESC) {
-            secondOpType = ((BTypeReferenceType) secondOpType).constraint;
-        }
+        BType secondOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
+
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
 
-        BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-        if (firstOpType.tag == TypeTags.TYPEREFDESC) {
-            firstOpType = ((BTypeReferenceType) firstOpType).constraint;
-        }
+        BType firstOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+
         if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
             this.mv.visitInsn(LSHL);
         } else {
@@ -1219,18 +1136,14 @@ public class JvmInstructionGen {
         this.loadVar(binaryIns.rhsOp1.variableDcl);
         this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-        BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-        if (secondOpType.tag == TypeTags.TYPEREFDESC) {
-            secondOpType = ((BTypeReferenceType) secondOpType).constraint;
-        }
+        BType secondOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
+
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
 
-        BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-        if (firstOpType.tag == TypeTags.TYPEREFDESC) {
-            firstOpType = ((BTypeReferenceType) firstOpType).constraint;
-        }
+        BType firstOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+
         if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
             this.mv.visitInsn(LSHR);
         } else {
@@ -1245,18 +1158,14 @@ public class JvmInstructionGen {
         this.loadVar(binaryIns.rhsOp1.variableDcl);
         this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-        BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-        if (secondOpType.tag == TypeTags.TYPEREFDESC) {
-            secondOpType = ((BTypeReferenceType) secondOpType).constraint;
-        }
+        BType secondOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp2.variableDcl.type);
+
         if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
             this.mv.visitInsn(L2I);
         }
 
-        BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-        if (firstOpType.tag == TypeTags.TYPEREFDESC) {
-            firstOpType = ((BTypeReferenceType) firstOpType).constraint;
-        }
+        BType firstOpType = getConstrainedTypeFromRefType(binaryIns.rhsOp1.variableDcl.type);
+
         if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
             this.mv.visitInsn(LUSHR);
         } else {
@@ -1454,18 +1363,24 @@ public class JvmInstructionGen {
         this.storeToVar(stringLoadIns.lhsOp.variableDcl);
     }
 
-    void generateArrayNewIns(BIRNonTerminator.NewArray inst) {
+    private BType getConstrainedTypeFromRefType(BType refType) {
+        BType constraint = refType;
+        if(refType.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) refType).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
+    }
 
-        if (inst.type.tag == TypeTags.ARRAY) {
+    void generateArrayNewIns(BIRNonTerminator.NewArray inst) {
+        BType instType = getConstrainedTypeFromRefType(inst.type);
+        if (instType.tag == TypeTags.ARRAY) {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             this.mv.visitInsn(DUP);
-            jvmTypeGen.loadType(this.mv, inst.type);
+            jvmTypeGen.loadType(this.mv, instType);
             this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
-            BType elementType = ((BArrayType) inst.type).eType;
-            if (elementType.tag == TypeTags.TYPEREFDESC) {
-                elementType = ((BTypeReferenceType) elementType).constraint;
-            }
+            BType elementType = getConstrainedTypeFromRefType(((BArrayType) instType).eType);
+
             if (elementType.tag == TypeTags.RECORD || (elementType.tag == TypeTags.INTERSECTION &&
                     ((BIntersectionType) elementType).effectiveType.tag == TypeTags.RECORD)) {
                 visitNewRecordArray(elementType);
@@ -1477,7 +1392,7 @@ public class JvmInstructionGen {
         } else {
             this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
             this.mv.visitInsn(DUP);
-            jvmTypeGen.loadType(this.mv, inst.type);
+            jvmTypeGen.loadType(this.mv, instType);
             this.loadVar(inst.sizeOp.variableDcl);
             loadListInitialValues(inst);
             this.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, JVM_INIT_METHOD,
@@ -1487,7 +1402,7 @@ public class JvmInstructionGen {
     }
 
     private void visitNewRecordArray(BType type) {
-        BType elementType = type.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)type).constraint : type;
+        BType elementType = getConstrainedTypeFromRefType(type);
         BTypeSymbol tsymbol = elementType.tag == TypeTags.RECORD ? elementType.tsymbol :
                 ((BIntersectionType) elementType).effectiveType.tsymbol;
         String typeOwner = JvmCodeGenUtil.getPackageName(elementType.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
@@ -1504,8 +1419,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         this.loadVar(inst.rhsOp.variableDcl);
 
-        BType valueType = inst.rhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ?
-                ((BTypeReferenceType) inst.rhsOp.variableDcl.type).constraint : inst.rhsOp.variableDcl.type;
+        BType valueType = getConstrainedTypeFromRefType(inst.rhsOp.variableDcl.type);
 
         String method = "add";
 
@@ -1532,8 +1446,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         BType bType = inst.lhsOp.variableDcl.type;
 
-        BType varRefType = inst.rhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ?
-                ((BTypeReferenceType) inst.rhsOp.variableDcl.type).constraint : inst.rhsOp.variableDcl.type;
+        BType varRefType = getConstrainedTypeFromRefType(inst.rhsOp.variableDcl.type);
         if (varRefType.tag == TypeTags.TUPLE) {
             if (inst.fillingRead) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "fillAndGetRefValue",
@@ -1666,14 +1579,15 @@ public class JvmInstructionGen {
     private void handleErrorUnionType(BIRNonTerminator.TypeTest typeTestIns) {
         loadVar(typeTestIns.rhsOp.variableDcl);
         mv.visitTypeInsn(INSTANCEOF, BERROR);
-        if (typeTestIns.type.tag != TypeTags.ERROR) {
+        BType errorType = getConstrainedTypeFromRefType(typeTestIns.type);
+        if (errorType.tag != TypeTags.ERROR) {
             generateNegateBoolean();
         }
         storeToVar(typeTestIns.lhsOp.variableDcl);
     }
 
     private boolean canOptimizeType(BIRNode.BIRVariableDcl rhsVar, BType type) {
-        BType rhsType = rhsVar.type;
+        BType rhsType = getConstrainedTypeFromRefType(rhsVar.type);
         if (rhsType.tag != TypeTags.UNION) {
             return false;
         }
@@ -1769,7 +1683,7 @@ public class JvmInstructionGen {
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
 
-        BType type = inst.type;
+        BType type = getConstrainedTypeFromRefType(inst.type);
         if (type.tag != TypeTags.INVOKABLE) {
             throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", type));
         }
@@ -1996,8 +1910,7 @@ public class JvmInstructionGen {
 
         this.loadVar(unaryOp.rhsOp.variableDcl);
 
-        BType btype = unaryOp.rhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ?
-                ((BTypeReferenceType) unaryOp.rhsOp.variableDcl.type).constraint : unaryOp.rhsOp.variableDcl.type;
+        BType btype = getConstrainedTypeFromRefType(unaryOp.rhsOp.variableDcl.type);
         if (TypeTags.isIntegerTypeTag(btype.tag)) {
             this.mv.visitInsn(LNEG);
         } else if (btype.tag == TypeTags.BYTE) {
@@ -2016,8 +1929,7 @@ public class JvmInstructionGen {
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
-        BType type = newTypeDesc.type.tag == TypeTags.TYPEREFDESC ?
-                ((BTypeReferenceType) newTypeDesc.type).constraint : newTypeDesc.type;
+        BType type = getConstrainedTypeFromRefType(newTypeDesc.type);
         if (type.tag == TypeTags.RECORD && closureVars.isEmpty() && type.tsymbol != null) {
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
@@ -2030,7 +1942,7 @@ public class JvmInstructionGen {
     }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
-        BType type = btype.tag == TypeTags.TYPEREFDESC ? ((BTypeReferenceType)btype).constraint : btype;
+        BType type = getConstrainedTypeFromRefType(btype);
         String className = TYPEDESC_VALUE_IMPL;
         if (type.tag == TypeTags.RECORD) {
             className = getTypeDescClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID), toNameString(type));

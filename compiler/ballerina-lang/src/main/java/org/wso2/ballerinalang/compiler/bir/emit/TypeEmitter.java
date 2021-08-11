@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -415,9 +416,17 @@ class TypeEmitter {
         return str.toString();
     }
 
-    /////////////////////// Emitting type reference ///////////////////////////
-    static String emitTypeRef(BType bType, int tabs) {
+    private static BType getConstraintFromReferenceType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
+    }
 
+    /////////////////////// Emitting type reference ///////////////////////////
+    static String emitTypeRef(BType type, int tabs) {
+        BType bType = getConstraintFromReferenceType(type);
         String tName = getTypeName(bType);
         if (!("".equals(tName))) {
             return tName;

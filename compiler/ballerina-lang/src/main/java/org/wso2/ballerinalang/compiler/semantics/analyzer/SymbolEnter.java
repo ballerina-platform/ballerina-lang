@@ -569,11 +569,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // resolved by the time we reach here. It is achieved by ordering the typeDefs
         // according to the precedence.
         for (BLangType typeRef : classDefinition.typeRefs) {
-            BType type = typeRef.getBType();
-
-            if (type.tag == TypeTags.TYPEREFDESC) {
-                type = ((BTypeReferenceType) type).constraint;
-            }
+            BType type = types.getConstraintFromReferenceType(typeRef.getBType());
 
             if (type == null || type == symTable.semanticError) {
                 return;
@@ -619,10 +615,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangSimpleVariable> referencedFields = new ArrayList<>();
 
         for (BLangType typeRef : classDefinition.typeRefs) {
-            BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
-            if (referredType.tag == TypeTags.TYPEREFDESC) {
-                referredType = ((BTypeReferenceType) referredType).constraint;
-            }
+            BType referredType = types.getConstraintFromReferenceType(symResolver.resolveTypeNode(typeRef, typeDefEnv));
             if (referredType == symTable.semanticError) {
                 continue;
             }
@@ -669,9 +662,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (tag == TypeTags.OBJECT) {
                 BObjectType objectType;
-                if (referredType.tag == TypeTags.TYPEREFDESC) {
-                    referredType = ((BTypeReferenceType) referredType).constraint;
-                }
+                referredType = types.getConstraintFromReferenceType(referredType);
+
                 if (referredType.tag == TypeTags.INTERSECTION) {
                     effectiveIncludedType = objectType = (BObjectType) ((BIntersectionType) referredType).effectiveType;
                 } else {
@@ -1658,10 +1650,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isErrorIntersection(BType definedType) {
-        BType type = definedType;
-        if (definedType.tag == TypeTags.TYPEREFDESC) {
-            type = ((BTypeReferenceType) definedType).constraint;
-        }
+        BType type = types.getConstraintFromReferenceType(definedType);
+
         if (type.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) type;
             return intersectionType.effectiveType.tag == TypeTags.ERROR;
@@ -2135,7 +2125,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (varSymbol.type.tag == TypeTags.INVOKABLE) {
             BInvokableSymbol symbol = (BInvokableSymbol) varSymbol;
-            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
+            BTypeSymbol typeSymbol = symbol.type.tsymbol.kind == SymbolKind.TYPE_DEF ? symbol.type.tsymbol.type.tsymbol : symbol.type.tsymbol;
+            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) typeSymbol;
+//            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
             symbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             symbol.restParam = tsymbol.restParam;
             symbol.retType = tsymbol.returnType;
@@ -3796,11 +3788,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangType typeNode = typeDefNode.typeNode;
             NodeKind kind = typeNode.getKind();
             if (kind == NodeKind.INTERSECTION_TYPE_NODE) {
-                BType currentType = typeNode.getBType();
-
-                if (currentType.tag == TypeTags.TYPEREFDESC) {
-                    currentType = ((BTypeReferenceType) currentType).constraint;
-                }
+                BType currentType = types.getConstraintFromReferenceType(typeNode.getBType());
 
                 if (currentType.tag != TypeTags.INTERSECTION) {
                     continue;
