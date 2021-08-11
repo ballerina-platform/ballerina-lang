@@ -70,7 +70,8 @@ public class Runtime {
      *                   optional and can be null.
      * @param metadata   Meta data of new strand.
      * @param callback   Callback which will get notify once method execution done.
-     * @param isIsolated Ensures function can be called preserving isolation
+     * @param isIsolated Ensures method can be called preserving isolation with no data race is possible for the
+     *                   mutable state freely reachable from the arguments that it passes to the function.
      * @param properties Set of properties for strand
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
