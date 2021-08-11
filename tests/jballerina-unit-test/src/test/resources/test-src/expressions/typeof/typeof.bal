@@ -144,3 +144,35 @@ function typeOfImmutableStructuralValues() {
     test:assertTrue(typeof tableVal === typeof tableVal);
     test:assertEquals((typeof tableVal).toString(), "typedesc [{\"s\":\"test\"}]");
 }
+
+function typeOfWithCloneReadOnly() {
+
+    // Structural types - Array, Tuple
+    int[] arr = [1, 2, 3];
+    any val = arr.cloneReadOnly();
+    test:assertTrue(typeof val === typeof val);
+    test:assertEquals((typeof val).toString(), "typedesc [1,2,3]");
+
+    [string, int] tuple = ["ballerina", 123];
+    val = tuple.cloneReadOnly();
+    test:assertTrue(typeof val === typeof val);
+    test:assertEquals((typeof val).toString(), "typedesc ballerina 123");
+
+    // Structural types - Records, Maps
+    RecType0 rec = {name: "test"};
+    val = rec.cloneReadOnly();
+    test:assertTrue(typeof val === typeof val);
+    test:assertTrue(typeof val !== RecType0);
+    test:assertEquals((typeof val).toString(), "typedesc {\"name\":\"test\"}");
+
+    map<string> mapVal = {s: "test"};
+    val = mapVal.cloneReadOnly();
+    test:assertTrue(typeof val === typeof val);
+    test:assertEquals((typeof val).toString(), "typedesc {\"s\":\"test\"}");
+
+    // Structural types -tables 
+    table<map<string>> tableVal = table [{s: "test"}];
+    val = tableVal.cloneReadOnly();
+    test:assertTrue(typeof val === typeof val);
+    test:assertEquals((typeof val).toString(), "typedesc [{\"s\":\"test\"}]");
+}
