@@ -18,8 +18,6 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.PackageDescriptor;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.environment.ResolutionResponse;
 
 /**
@@ -28,24 +26,10 @@ import io.ballerina.projects.environment.ResolutionResponse;
  * @since 2.0.0
  */
 public class ImportModuleResponse {
-    // TODO remove the below 2
-    private PackageOrg packageOrg;
-    private PackageName packageName;
 
     private final PackageDescriptor packageDescriptor;
     private final ImportModuleRequest importModuleRequest;
     private final ResolutionResponse.ResolutionStatus resolutionStatus;
-
-    // TODO Remove this constructor
-    public ImportModuleResponse(PackageOrg packageOrg,
-                                PackageName packageName,
-                                ImportModuleRequest importModuleRequest) {
-        this.packageOrg = packageOrg;
-        this.packageName = packageName;
-        this.importModuleRequest = importModuleRequest;
-        this.resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
-        packageDescriptor = null;
-    }
 
     public ImportModuleResponse(PackageDescriptor packageDescriptor,
                                 ImportModuleRequest importModuleRequest) {
@@ -58,14 +42,6 @@ public class ImportModuleResponse {
         this.packageDescriptor = null;
         this.importModuleRequest = importModuleRequest;
         this.resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
-    }
-
-    public PackageOrg packageOrg() {
-        return packageOrg;
-    }
-
-    public PackageName packageName() {
-        return packageName;
     }
 
     public ImportModuleRequest importModuleRequest() {

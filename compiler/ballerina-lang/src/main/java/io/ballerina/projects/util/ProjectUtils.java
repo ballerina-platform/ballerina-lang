@@ -573,7 +573,8 @@ public class ProjectUtils {
         pkgGraphDependencies.forEach(graphDependency -> {
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
             addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
-                                 descriptor.version().value().toString(), null, Collections.emptyList());
+                                 descriptor.version().value().toString(), null, false, Collections.emptyList(),
+                                 Collections.emptyList());
             content.append("\n");
         });
         return String.valueOf(content);
@@ -582,7 +583,7 @@ public class ProjectUtils {
     /**
      * Get `Dependencies.toml` content as a string.
      *
-     * @param pkgDependencies direct dependencies of the package dependency graph
+     * @param pkgDependencies       direct dependencies of the package dependency graph
      * @return Dependencies.toml` content
      */
     public static String getDependenciesTomlContent(List<Dependency> pkgDependencies) {
@@ -598,14 +599,16 @@ public class ProjectUtils {
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
             addDependencyContent(content, dependency.getOrg(), dependency.getName(), dependency.getVersion(),
-                                 getDependencyScope(dependency.getScope()), dependency.getDependencies());
+                                 getDependencyScope(dependency.getScope()), dependency.isTransitive(),
+                                 dependency.getDependencies(), dependency.getModules());
             content.append("\n");
         });
         return String.valueOf(content);
     }
 
     private static void addDependencyContent(StringBuilder content, String org, String name, String version,
-                                             String scope, List<Dependency> dependencies) {
+                                             String scope, boolean transitive, List<Dependency> dependencies,
+                                             List<Dependency.Module> modules) {
         content.append("[[package]]\n");
         content.append("org = \"").append(org).append("\"\n");
         content.append("name = \"").append(name).append("\"\n");
@@ -613,12 +616,47 @@ public class ProjectUtils {
         if (scope != null) {
             content.append("scope = \"").append(scope).append("\"\n");
         }
+        content.append("transitive = ").append(transitive).append("\n");
+
+        // write dependencies
         if (!dependencies.isEmpty()) {
+            var count = 1;
+            content.append("dependencies = [\n");
             for (Dependency transDependency : dependencies) {
-                content.append("[[package.dependencies]]").append("\n");
-                content.append("org = \"").append(transDependency.getOrg()).append("\"\n");
-                content.append("name = \"").append(transDependency.getName()).append("\"\n");
+                content.append("\t{");
+                content.append("org = \"").append(transDependency.getOrg()).append("\", ");
+                content.append("name = \"").append(transDependency.getName()).append("\"");
+                content.append("}");
+
+                if (count != dependencies.size()) {
+                    content.append(",\n");
+                } else {
+                    content.append("\n");
+                }
+                count++;
             }
+            content.append("]\n");
+        }
+
+        // write modules
+        if (!modules.isEmpty()) {
+            var count = 1;
+            content.append("modules = [\n");
+            for (Dependency.Module module : modules) {
+                content.append("\t{");
+                content.append("org = \"").append(module.org()).append("\", ");
+                content.append("packageName = \"").append(module.packageName()).append("\", ");
+                content.append("moduleName = \"").append(module.moduleName()).append("\"");
+                content.append("}");
+
+                if (count != modules.size()) {
+                    content.append(",\n");
+                } else {
+                    content.append("\n");
+                }
+                count++;
+            }
+            content.append("]\n");
         }
     }
 

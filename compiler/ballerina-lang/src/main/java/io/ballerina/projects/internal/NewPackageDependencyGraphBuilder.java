@@ -23,10 +23,16 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionResponse;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -102,6 +108,65 @@ public class NewPackageDependencyGraphBuilder {
         // TODO   ....
     }
 
+    public DependencyGraph<ResolvedPackageDependency> buildPackageDependencyGraph(PackageResolver packageResolver,
+                                                                                   Project rootProject,
+                                                                                   boolean offline) {
+        List<PackageDescriptor> packageDescriptors = new ArrayList<>();
+        vertices.forEach((key, value) -> packageDescriptors.add(value.pkgDesc));
+        List<ResolutionResponse> resolutionResponses =
+                packageResolver.newResolvePackages(packageDescriptors, offline, rootProject);
+        DependencyGraph.DependencyGraphBuilder<ResolvedPackageDependency> depGraphBuilder =
+                DependencyGraph.DependencyGraphBuilder.getBuilder();
+
+        for (Map.Entry<Vertex, Set<Vertex>> graphNodeEntrySet : depGraph.entrySet()) {
+            Vertex graphNode = graphNodeEntrySet.getKey();
+            StaticPackageDependency staticPkgDep = vertices.get(graphNode);
+
+            ResolutionResponse directDepResponse = findResolutionResponse(staticPkgDep.pkgDesc, resolutionResponses);
+            if (directDepResponse == null) {
+                continue;
+            }
+            ResolvedPackageDependency directPackageDep = new ResolvedPackageDependency(
+                    directDepResponse.resolvedPackage(),
+                    staticPkgDep.scope,
+                    graphNode.dependencyResolvedType);
+
+            List<ResolvedPackageDependency> resolvedTransitiveDeps = new ArrayList<>();
+            Set<Vertex> transitiveDepGraphNodes = graphNodeEntrySet.getValue();
+            for (Vertex transitiveDepGraphNode : transitiveDepGraphNodes) {
+                StaticPackageDependency transitivePkgDep = vertices.get(transitiveDepGraphNode);
+
+                ResolutionResponse transitiveDepResponse =
+                        findResolutionResponse(transitivePkgDep.pkgDesc, resolutionResponses);
+                if (transitiveDepResponse == null) {
+                    continue;
+                }
+                ResolvedPackageDependency transitivePackageDep =
+                        new ResolvedPackageDependency(
+                                transitiveDepResponse.resolvedPackage(),
+                                transitivePkgDep.scope,
+                                graphNode.dependencyResolvedType);
+                resolvedTransitiveDeps.add(transitivePackageDep);
+            }
+            depGraphBuilder.addDependencies(directPackageDep, resolvedTransitiveDeps);
+        }
+        return depGraphBuilder.build();
+    }
+
+    private ResolutionResponse findResolutionResponse(PackageDescriptor pkgDesc,
+                                                      List<ResolutionResponse> resolutionResponses) {
+        for (ResolutionResponse resolutionResponse : resolutionResponses) {
+            if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
+                continue;
+            }
+            if (resolutionResponse.resolvedPackage().descriptor().equals(pkgDesc)) {
+                return resolutionResponse;
+            }
+        }
+
+        return null;
+    }
+
     private static class Vertex {
         private final PackageOrg org;
         private final PackageName name;
@@ -151,11 +216,18 @@ public class NewPackageDependencyGraphBuilder {
     private static class StaticPackageDependency {
         private final PackageDescriptor pkgDesc;
         private final PackageDependencyScope scope;
-//        private final boolean dirty; // touched, unresolved.
+        private final boolean dirty; // touched, unresolved.
 
         public StaticPackageDependency(PackageDescriptor pkgDesc, PackageDependencyScope scope) {
             this.pkgDesc = pkgDesc;
             this.scope = scope;
+            this.dirty = false;
+        }
+
+        public StaticPackageDependency(PackageDescriptor pkgDesc, PackageDependencyScope scope, boolean dirty) {
+            this.pkgDesc = pkgDesc;
+            this.scope = scope;
+            this.dirty = dirty;
         }
 
         public PackageDescriptor pkgDesc() {
@@ -164,6 +236,10 @@ public class NewPackageDependencyGraphBuilder {
 
         public PackageDependencyScope scope() {
             return scope;
+        }
+
+        public boolean dirty() {
+            return dirty;
         }
     }
 }

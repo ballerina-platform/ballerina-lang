@@ -19,16 +19,21 @@ artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"
 
+[[dependency]]
+org = "abc"
+name = "test"
+version = "1.0.0"
+repository = "local"
+
+[[dependency]]
+org = "xyz"
+name = "sample"
+version = "2.0.0"
+repository = "local"
+
 [build-options]
 observabilityIncluded = true
 offline = true
 skipTests = false
 cloud = "k8s"
 taintCheck = true
-
-[deps]
-id = "my-id"
-name = "hello"
-
-[[testingProperty]]
-name = "test1"
