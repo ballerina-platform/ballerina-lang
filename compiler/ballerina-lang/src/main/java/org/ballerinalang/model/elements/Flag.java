@@ -184,5 +184,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a query lambda function.
      */
-    QUERY_LAMBDA
+    QUERY_LAMBDA,
+    /**
+     * Indicates flagged node is a closure lambda function.
+     */
+    ClOSURE_LAMBDA
 }

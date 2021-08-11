@@ -1259,12 +1259,6 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
         for (BLangSimpleVariable param : functionTypeNode.params) {
-            if (param.expr != null) {
-                String closureName = CLOSURE_FOR_DEFAULT_VALUE + UNDERSCORE + closureCount++;
-                createClosureForDefaultValue(closureName, param.name.value, param,
-                                             (BInvokableTypeSymbol) functionTypeNode.symbol, typeDefEnv);
-                continue;
-            }
             rewrite(param, typeDefEnv);
         }
         if (functionTypeNode.restParam != null) {
@@ -1385,6 +1379,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
         if (((varNode.symbol.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE)
                 && (varNode.symbol.owner.tag & SymTag.LET) != SymTag.LET
+                && (varNode.symbol.owner.tag & SymTag.FUNCTION_TYPE) != SymTag.FUNCTION_TYPE
                 && (varNode.symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
             varNode.expr = null;
             result = varNode;
@@ -1395,8 +1390,14 @@ public class Desugar extends BLangNodeVisitor {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
 
-        // Return if this assignment is not a safe assignment
-        BLangExpression bLangExpression = rewriteExpr(varNode.expr);
+        BLangExpression bLangExpression;
+        if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+            String closureName = CLOSURE_FOR_DEFAULT_VALUE + UNDERSCORE + closureCount++;
+            bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode,
+                    (BInvokableTypeSymbol) env.node.getBType().tsymbol, env, varNode.symbol.owner);
+        } else {
+            bLangExpression = rewriteExpr(varNode.expr);
+        }
         if (bLangExpression != null) {
             bLangExpression = addConversionExprIfRequired(bLangExpression, varNode.getBType());
         }
@@ -5893,8 +5894,7 @@ public class Desugar extends BLangNodeVisitor {
             if (varSymbol.originalSymbol != null) {
                 varRefExpr.symbol = varSymbol.originalSymbol;
             }
-            if (!varSymbol.closure && encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
-                                                             !encInvokable.flagSet.contains(Flag.QUERY_LAMBDA)) {
+            if (!varSymbol.closure && encInvokable != null && encInvokable.flagSet.contains(Flag.ClOSURE_LAMBDA)) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol =
                         symResolver.lookupClosureVarSymbol(encInvokableEnv, varRefExpr.symbol.name, SymTag.VARIABLE);
@@ -5981,13 +5981,14 @@ public class Desugar extends BLangNodeVisitor {
         return env;
     }
 
-    private void createClosureForDefaultValue(String closureName, String paramName, BLangSimpleVariable varNode,
-                                              BInvokableTypeSymbol symbol, SymbolEnv typeDefEnv) {
-        BLangFunction function =
-                createFunction(closureName, varNode.pos, symbol.pkgID, symbol.owner, varNode.getBType());
+    private BLangExpression createClosureForDefaultValue(String closureName, String paramName,
+                                                         BLangSimpleVariable varNode,
+                                                         BInvokableTypeSymbol symbol, SymbolEnv typeDefEnv,
+                                                         BSymbol owner) {
+        BLangFunction function = createFunction(closureName, varNode.pos, symbol.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
         returnStmt.expr = varNode.expr;
-        BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, symbol.pkgID, symbol.owner);
+        BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, symbol.pkgID, owner);
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function, lambdaFunctionSymbol);
         lambdaFunction.capturedClosureEnv = typeDefEnv.createClone();
         rewrite(function, typeDefEnv);
@@ -5995,6 +5996,7 @@ public class Desugar extends BLangNodeVisitor {
         env.enclPkg.functions.add(function);
         env.enclPkg.topLevelNodes.add(function);
         symbol.defaultValues.put(paramName, lambdaFunction);
+        return returnStmt.expr;
     }
 
     private BLangFunction createFunction(String funcName, Location pos, PackageID pkgID, BSymbol owner, BType bType) {
@@ -6019,6 +6021,7 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.scope = new Scope(functionSymbol);
         function.symbol = functionSymbol;
         function.flagSet.add(Flag.PUBLIC);
+        function.flagSet.add(Flag.ClOSURE_LAMBDA);
         return function;
     }
 

@@ -106,6 +106,10 @@ public class BInvokableType extends BType implements InvokableType {
             return false;
         }
 
+        if (tsymbol != null ? !tsymbol.equals(that.tsymbol) : that.tsymbol != null) {
+            return false;
+        }
+
         if (retType != null ? !retType.equals(that.retType) : that.retType != null) {
             return false;
         }

@@ -37,7 +37,6 @@ public class InvokeAsExternal {
         argList.add(Scheduler.getStrand());
         for (Object arg : args) {
             argList.add(arg);
-            argList.add(true);
         }
         return function.call(argList.toArray());
     }

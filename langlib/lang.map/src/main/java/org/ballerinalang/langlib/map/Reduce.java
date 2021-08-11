@@ -49,8 +49,8 @@ public class Reduce {
         Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{parentStrand, accum.get(), true,
-                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       () -> new Object[]{parentStrand, accum.get(),
+                                                               m.get(m.getKeys()[index.incrementAndGet()])},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
     }
