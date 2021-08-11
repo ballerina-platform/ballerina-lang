@@ -70,7 +70,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -226,7 +225,7 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(invokableTypeSymbol.defaultValues.size());
         invokableTypeSymbol.defaultValues.forEach((k, v) -> {
             buff.writeInt(addStringCPEntry(k));
-            buff.writeInt(addStringCPEntry(((BLangLambdaFunction) v).function.name.value));
+            buff.writeInt(addStringCPEntry(v.function.name.value));
         });
     }
 
