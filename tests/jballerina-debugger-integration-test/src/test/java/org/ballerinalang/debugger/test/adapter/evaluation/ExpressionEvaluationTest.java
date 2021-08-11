@@ -226,7 +226,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
         // strings
-        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"\"", "string");
+        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"f\"", "string");
         // lists
         debugTestRunner.assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
         // maps
@@ -412,8 +412,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("typeof %s", FLOAT_VAR), "-10.0", "typedesc");
         // reference types
         debugTestRunner.assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
-        // Need to change this result to `o` after fixing issue #32102
-        debugTestRunner.assertExpression(context, String.format("typeof %s[1]", STRING_VAR), "f", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "f", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc",
                 "typedesc");
     }
