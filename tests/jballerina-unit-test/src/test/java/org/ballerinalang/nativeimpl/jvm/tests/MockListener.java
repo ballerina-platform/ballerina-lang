@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
@@ -44,7 +45,7 @@ public class MockListener {
         if (service != null) {
             CountDownLatch latch = new CountDownLatch(1);
             Runtime runtime = env.getRuntime();
-            runtime.invokeMethodAsync(service, name.getValue(), null, null,
+            runtime.invokeMethodAsync(service, name.getValue(), null, null, true,
                                       new Callback() {
                                           @Override
                                           public void notifySuccess(Object result) {
@@ -56,7 +57,7 @@ public class MockListener {
                                               err = error;
                                               latch.countDown();
                                           }
-                             }, new HashMap<>());
+                             }, null, PredefinedTypes.TYPE_NULL, new HashMap<>());
             latch.await();
         }
         return err;
