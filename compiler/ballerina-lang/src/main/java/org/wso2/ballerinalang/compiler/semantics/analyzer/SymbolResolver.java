@@ -1756,7 +1756,6 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return symTable.notFoundSymbol;
         }
 
-
         if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||
                     (types.isValueType(lhsType) && types.isValueType(rhsType))) {
