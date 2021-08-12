@@ -1,27 +1,27 @@
 function foo1() {
-    wait 
+    wait
 }
 
 function foo2() {
     wait {a: }
     wait {a, }
-    wait b | 
+    wait b |
 }
 
 function foo3() {
-    start 
+    start
 }
 
 function foo4() {
-    a -> 
+    a ->
 }
 
 function foo5() {
-    a ->> 
+    a ->>
 }
 
 function foo6() {
-    <- 
+    <-
 }
 
 function foo7() {
@@ -34,7 +34,7 @@ function foo8() {
 }
 
 function foo9() {
-    from 
+    from
      }
 
 function bar() returns int {

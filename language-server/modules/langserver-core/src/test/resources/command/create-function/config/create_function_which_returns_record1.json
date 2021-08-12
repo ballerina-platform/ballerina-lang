@@ -20,12 +20,12 @@
               {
                 "range": {
                   "start": {
-                    "line": 9,
-                    "character": 0
+                    "line": 8,
+                    "character": 1
                   },
                   "end": {
-                    "line": 9,
-                    "character": 0
+                    "line": 8,
+                    "character": 1
                   }
                 },
                 "newText": "\n\nfunction createData() returns Data {\n    return {id: \"\", value: \"\", count: 0};\n}\n"

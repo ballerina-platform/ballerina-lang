@@ -242,6 +242,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DOCUMENTATION_NOT_ATTACHED_TO_A_CONSTRUCT("BCE0525", "error.documentation.not.attached.to.a.construct"),
     ERROR_MISSING_MATCH_PATTERN("BCE0526", "error.missing.match.pattern"),
     ERROR_MISSING_TYPE_REFERENCE("BCE0527", "error.missing.type.reference"),
+    ERROR_MISSING_BACKTICK_STRING("BCE0528", "error.missing.backtick.string"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
