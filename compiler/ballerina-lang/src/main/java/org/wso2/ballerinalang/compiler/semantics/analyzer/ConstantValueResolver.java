@@ -123,13 +123,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         if (!this.unresolvedConstants.containsKey(varRef.symbol)) {
-            dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, varRef.symbol.name.value);
+            dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.value);
             this.result = null;
             return;
         }
 
         // if the referring constant is not yet resolved, then go and resolve it first.
-        this.unresolvedConstants.get(varRef.symbol).accept(this);
+        this.unresolvedConstants.get(constSymbol).accept(this);
         this.result = constSymbol.value;
     }
 

@@ -151,7 +151,6 @@ public class SimpleConstantNegativeTest {
                 297, 5);
         BAssertUtil.validateError(compileResult, index++, "type is required for constants with expressions",
                 301, 25);
-        BAssertUtil.validateError(compileResult, index,
-                "cannot resolve constant 'UT_COUNT'", 302, 27);
+        BAssertUtil.validateError(compileResult, index, "cannot resolve constant 'UT_COUNT'", 302, 27);
     }
 }
