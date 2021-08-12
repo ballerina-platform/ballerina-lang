@@ -444,8 +444,21 @@ public class SymbolTable {
         // Binary arithmetic operators
         defineIntegerArithmeticOperations();
 
-        // Binary operators for optional integer types
-        defineOptionalIntegerOperations();
+        // Binary arithmetic operators for nullable integer types
+        defineNullableIntegerArithmeticOperations();
+
+        // Binary bitwise operators for nullable integer types
+        defineNullableIntegerBitwiseOperations(OperatorKind.BITWISE_AND);
+        defineNullableIntegerBitwiseOperations(OperatorKind.BITWISE_OR);
+        defineNullableIntegerBitwiseOperations(OperatorKind.BITWISE_XOR);
+
+        // Binary shift operators for nullable integer types
+        defineNullableIntegerLeftShiftOperations();
+        defineNullableIntegerRightShiftOperations(OperatorKind.BITWISE_RIGHT_SHIFT);
+        defineNullableIntegerRightShiftOperations(OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT);
+
+        // Unary operators for nullable integer types
+        defineNullableIntegerUnaryOperations();
 
         // Binary operators for optional floating point types
         defineOptionalFloatingPointOperations();
@@ -605,6 +618,24 @@ public class SymbolTable {
         }
     }
 
+    private void defineNullableIntegerUnaryOperations() {
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType,
+                unsigned8IntType};
+
+        BUnionType[] nullableIntTypes = new BUnionType[8];
+
+        for (int i=0; i<intTypes.length; i++) {
+            nullableIntTypes[i] = BUnionType.create(null, intTypes[i], nilType);
+        }
+
+        for (BUnionType type : nullableIntTypes) {
+            defineUnaryOperator(OperatorKind.ADD, type, nullableIntTypes[0]);
+            defineUnaryOperator(OperatorKind.SUB, type, nullableIntTypes[0]);
+            defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, type, nullableIntTypes[0]);
+        }
+    }
+
     private void defineXmlStringConcatanationOperations() {
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, xmlType, charStringType, xmlType);
@@ -635,35 +666,41 @@ public class SymbolTable {
         }
     }
 
-    private void defineOptionalIntegerOperations() {
+    private void defineNullableIntegerArithmeticOperations() {
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType,
+                unsigned8IntType};
 
-        BType intOptional = BUnionType.create(null, intType, nilType);
-        ((BUnionType) intOptional).setNullable(true);
-        BType byteOptional = BUnionType.create(null, byteType, nilType);
-        ((BUnionType) byteOptional).setNullable(true);
+        BUnionType[] nullableIntTypes = new BUnionType[8];
 
-        OperatorKind[] binaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.MUL,
-                    OperatorKind.DIV, OperatorKind.MOD, OperatorKind.BITWISE_AND,
-                OperatorKind.BITWISE_OR, OperatorKind.BITWISE_XOR,
-                OperatorKind.BITWISE_LEFT_SHIFT, OperatorKind.BITWISE_RIGHT_SHIFT,
-                OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT};
-
-        for (OperatorKind operator: binaryOperators) {
-            defineBinaryOperator(operator, intOptional, intOptional, intOptional);
-            defineBinaryOperator(operator, intType, intOptional, intOptional);
-            defineBinaryOperator(operator, intOptional, intType, intOptional);
-            defineBinaryOperator(operator, byteOptional, byteOptional, intOptional);
-            defineBinaryOperator(operator, intType, byteOptional, intOptional);
-            defineBinaryOperator(operator, byteOptional, intType, intOptional);
+        for (int i=0; i<intTypes.length; i++) {
+            nullableIntTypes[i] = BUnionType.create(null, intTypes[i], nilType);
         }
 
-        OperatorKind[] unaryOperators = {OperatorKind.ADD, OperatorKind.SUB, OperatorKind.BITWISE_COMPLEMENT};
-
-        for (OperatorKind operator: unaryOperators) {
-            defineUnaryOperator(operator, intOptional, intOptional);
-            defineUnaryOperator(operator, byteOptional, intOptional);
+        for (BUnionType lhs : nullableIntTypes) {
+            for (BUnionType rhs : nullableIntTypes) {
+                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, nullableIntTypes[0]);
+            }
         }
 
+        for (BType lhs : intTypes) {
+            for (BUnionType rhs : nullableIntTypes) {
+                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.ADD, rhs, lhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.SUB, rhs, lhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.DIV, rhs, lhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.MUL, rhs, lhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.MOD, rhs, lhs, nullableIntTypes[0]);
+            }
+        }
     }
 
     private void defineIntegerBitwiseAndOperations() {
@@ -730,6 +767,53 @@ public class SymbolTable {
         }
     }
 
+    private void defineNullableIntegerBitwiseOperations(OperatorKind opKind) {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
+
+        BUnionType[] unsignedNullableIntTypes = new BUnionType[4];
+        BUnionType[] signedNullableIntTypes = new BUnionType[4];
+
+        for (int i=0; i<unsignedIntTypes.length; i++) {
+            unsignedNullableIntTypes[i] = BUnionType.create(null, unsignedIntTypes[i], nilType);
+            signedNullableIntTypes[i] = BUnionType.create(null, signedIntTypes[i], nilType);
+        }
+
+        for (BType unsigned : unsignedNullableIntTypes) {
+            for (BType signed : signedNullableIntTypes) {
+                defineBinaryOperator(opKind, unsigned, signed, unsigned);
+            }
+        }
+
+        for (int i = 0; i < unsignedNullableIntTypes.length; i++) {
+            for (int j = 0; j < signedNullableIntTypes.length; j++) {
+                BType unsignedIntTypeLhs = unsignedNullableIntTypes[i];
+                BType unsignedIntTypeRhs = signedNullableIntTypes[j];
+                defineBinaryOperator(opKind, unsignedIntTypeLhs, unsignedIntTypeRhs,
+                        i <= j ? unsignedIntTypeLhs : unsignedIntTypeRhs);
+            }
+        }
+
+        for (BType signed : signedNullableIntTypes) {
+            for (BType unsigned : unsignedNullableIntTypes) {
+                defineBinaryOperator(opKind, signed, unsigned, unsigned);
+            }
+        }
+
+        for (BType signedLhs : signedNullableIntTypes) {
+            for (BType signedRhs : signedNullableIntTypes) {
+                defineBinaryOperator(opKind, signedLhs, signedRhs, signedNullableIntTypes[0]);
+            }
+        }
+
+        for (BType signedLhs : signedNullableIntTypes) {
+            for (BType signedRhs : signedIntTypes) {
+                defineBinaryOperator(opKind, signedLhs, signedRhs, signedNullableIntTypes[0]);
+                defineBinaryOperator(opKind, signedRhs, signedLhs, signedNullableIntTypes[0]);
+            }
+        }
+    }
+
     private void defineIntegerLeftShiftOperations() {
         BType[] allIntTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
                 unsigned16IntType, unsigned8IntType};
@@ -737,6 +821,31 @@ public class SymbolTable {
         for (BType lhs : allIntTypes) {
             for (BType rhs : allIntTypes) {
                 defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, lhs, rhs, intType);
+            }
+        }
+    }
+
+    private void defineNullableIntegerLeftShiftOperations() {
+        BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType,
+                unsigned8IntType};
+
+        BUnionType[] nullableIntTypes = new BUnionType[8];
+
+        for (int i=0; i<intTypes.length; i++) {
+            nullableIntTypes[i] = BUnionType.create(null, intTypes[i], nilType);
+        }
+
+        for (BUnionType lhs : nullableIntTypes) {
+            for (BUnionType rhs : nullableIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, lhs, rhs, nullableIntTypes[0]);
+            }
+        }
+
+        for (BType lhs : intTypes) {
+            for (BUnionType rhs : nullableIntTypes) {
+                defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, lhs, rhs, nullableIntTypes[0]);
+                defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, rhs, lhs, nullableIntTypes[0]);
             }
         }
     }
@@ -759,6 +868,67 @@ public class SymbolTable {
                 defineBinaryOperator(rightShiftOpKind, signedLhs, intRhs, intType);
             }
         }
+    }
+
+    private void defineNullableIntegerRightShiftOperations(OperatorKind rightShiftOpKind) {
+        BType[] unsignedIntTypes = {byteType, unsigned8IntType, unsigned16IntType, unsigned32IntType};
+        BType[] signedIntTypes = {intType, signed8IntType, signed16IntType, signed32IntType};
+
+        BUnionType[] unsignedNullableIntTypes = new BUnionType[4];
+        BUnionType[] signedNullableIntTypes = new BUnionType[4];
+
+        for (int i=0; i<unsignedIntTypes.length; i++) {
+            unsignedNullableIntTypes[i] = BUnionType.create(null, unsignedIntTypes[i], nilType);
+            signedNullableIntTypes[i] = BUnionType.create(null, signedIntTypes[i], nilType);
+        }
+
+        BType[] allIntTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
+                unsigned16IntType,
+                unsigned8IntType};
+
+        BUnionType[] nullableAllIntTypes = new BUnionType[8];
+
+        for (int i=0; i<allIntTypes.length; i++) {
+            nullableAllIntTypes[i] = BUnionType.create(null, allIntTypes[i], nilType);
+        }
+
+        for (BType unsignedLhs : unsignedNullableIntTypes) {
+            for (BType intRhs : nullableAllIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, unsignedLhs, intRhs, unsignedLhs);
+            }
+        }
+
+        for (BType unsignedLhs : unsignedNullableIntTypes) {
+            for (BType intRhs : allIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, unsignedLhs, intRhs, unsignedLhs);
+            }
+        }
+
+        for (int i=0; i<unsignedIntTypes.length; i++) {
+            for (int j=0; j<nullableAllIntTypes.length; j++) {
+                defineBinaryOperator(rightShiftOpKind, unsignedIntTypes[i], nullableAllIntTypes[j],
+                        unsignedIntTypes[i]);
+            }
+        }
+
+        for (BType signedLhs : signedNullableIntTypes) {
+            for (BType intRhs : nullableAllIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, signedLhs, intRhs, nullableAllIntTypes[0]);
+            }
+        }
+
+        for (BType signedLhs : signedIntTypes) {
+            for (BType intRhs : nullableAllIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, signedLhs, intRhs, nullableAllIntTypes[0]);
+            }
+        }
+
+        for (BType signedLhs : signedNullableIntTypes) {
+            for (BType intRhs : allIntTypes) {
+                defineBinaryOperator(rightShiftOpKind, signedLhs, intRhs, nullableAllIntTypes[0]);
+            }
+        }
+
     }
 
     private void defineOptionalFloatingPointOperations() {
