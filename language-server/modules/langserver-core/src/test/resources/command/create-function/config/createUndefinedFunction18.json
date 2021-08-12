@@ -20,12 +20,12 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 11,
-                                        "character": 0
+                                        "line": 10,
+                                        "character": 1
                                     },
                                     "end": {
-                                        "line": 11,
-                                        "character": 0
+                                        "line": 10,
+                                        "character": 1
                                     }
                                 },
                                 "newText": "\n\nfunction getCounter() returns Counter {\n    return new (());\n}\n"

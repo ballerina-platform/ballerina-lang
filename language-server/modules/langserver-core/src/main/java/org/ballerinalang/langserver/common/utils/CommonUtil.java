@@ -254,12 +254,8 @@ public class CommonUtil {
     private static String getDefaultValueForType(TypeSymbol bType, int depth) {
         String typeString;
         
-        if (depth > MAX_DEPTH) {
+        if (depth > MAX_DEPTH || bType == null) {
             return "";
-        }
-        
-        if (bType == null) {
-            return "()";
         }
 
         TypeSymbol rawType = getRawType(bType);
@@ -321,9 +317,8 @@ public class CommonUtil {
             case UNION:
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
-                List<TypeSymbol> nilMembers = members.stream().filter(
-                        member -> member.typeKind() == TypeDescKind.NIL
-                ).collect(Collectors.toList());
+                List<TypeSymbol> nilMembers = members.stream()
+                        .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
                 if (nilMembers.isEmpty()) {
                     typeString = getDefaultValueForType(members.get(0), depth + 1);
                 } else {
@@ -386,7 +381,7 @@ public class CommonUtil {
                     break;
                 }
 
-                typeString = "()";
+                typeString = "";
                 break;
         }
         return typeString;
