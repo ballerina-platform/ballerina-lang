@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
@@ -38,4 +39,7 @@ public interface PackageResolver {
     List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
 
     List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
+
+    List<ResolutionResponse> newResolvePackages(
+            List<PackageDescriptor> responseDescriptors, boolean offline, Project project);
 }

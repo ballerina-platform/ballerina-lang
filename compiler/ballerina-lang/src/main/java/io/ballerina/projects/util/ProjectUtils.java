@@ -32,7 +32,6 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.Settings;
-import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
@@ -667,16 +666,16 @@ public class ProjectUtils {
         return null;
     }
 
-    public static List<PackageName> getPossiblePackageNames(ImportModuleRequest importModuleRequest) {
+    public static List<PackageName> getPossiblePackageNames(PackageOrg packageOrg, String moduleName) {
         var pkgNameBuilder = new StringJoiner(".");
 
         // If built in package, return moduleName as it is
-        if (isBuiltInPackage(importModuleRequest.packageOrg(), importModuleRequest.moduleName())) {
-            pkgNameBuilder.add(importModuleRequest.moduleName());
+        if (isBuiltInPackage(packageOrg, moduleName)) {
+            pkgNameBuilder.add(moduleName);
             return Collections.singletonList(PackageName.from(pkgNameBuilder.toString()));
         }
 
-        String[] modNameParts = importModuleRequest.moduleName().split("\\.");
+        String[] modNameParts = moduleName.split("\\.");
         List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
         for (String modNamePart : modNameParts) {
             pkgNameBuilder.add(modNamePart);

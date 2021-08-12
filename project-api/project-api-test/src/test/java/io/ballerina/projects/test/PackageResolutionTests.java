@@ -25,6 +25,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -407,7 +408,8 @@ public class PackageResolutionTests extends BaseTest {
         List<ImportModuleResponse>  moduleResponse = new ArrayList<>();
         for (ImportModuleRequest request: moduleRequests) {
             String[] parts = request.moduleName().split("[.]");
-            moduleResponse.add(new ImportModuleResponse(request.packageOrg(), PackageName.from(parts[0]), request));
+            moduleResponse.add(new ImportModuleResponse(
+                    PackageDescriptor.from(request.packageOrg(), PackageName.from(parts[0])), request));
         }
 
         when(mockResolver.resolvePackageNames(any())).thenReturn(moduleResponse);

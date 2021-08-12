@@ -19,6 +19,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.environment.ModuleLoadRequest;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,8 @@ public class ImportModuleRequest {
     private final String moduleName;
     private final List<PackageDescriptor> possiblePackages;
 
+    private ModuleLoadRequest moduleLoadRequest;
+
     // TODO remove this constructor
     public ImportModuleRequest(PackageOrg packageOrg, String moduleName) {
         this.packageOrg = packageOrg;
@@ -46,12 +49,32 @@ public class ImportModuleRequest {
         this.possiblePackages = possiblePackages;
     }
 
+    public ImportModuleRequest(PackageOrg packageOrg, ModuleLoadRequest moduleLoadRequest) {
+        this.packageOrg = packageOrg;
+        this.moduleName = moduleLoadRequest.moduleName();
+        this.moduleLoadRequest = moduleLoadRequest;
+        this.possiblePackages = null;
+    }
+
+    public ImportModuleRequest(PackageOrg packageOrg,
+                               ModuleLoadRequest moduleLoadRequest,
+                               List<PackageDescriptor> possiblePackages) {
+        this.packageOrg = packageOrg;
+        this.moduleName = moduleLoadRequest.moduleName();
+        this.moduleLoadRequest = moduleLoadRequest;
+        this.possiblePackages = possiblePackages;
+    }
+
     public PackageOrg packageOrg() {
         return packageOrg;
     }
 
     public String moduleName() {
         return moduleName;
+    }
+
+    public ModuleLoadRequest moduleLoadRequest() {
+        return moduleLoadRequest;
     }
 
     @Override

@@ -305,11 +305,11 @@ class ModuleContext {
     }
 
     private void addModuleDependency(PackageOrg org,
-                                     ModuleName moduleName,
+                                     String moduleName,
                                      PackageDependencyScope scope,
                                      Set<ModuleDependency> moduleDependencies,
                                      DependencyResolution dependencyResolution) {
-        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName.toString());
+        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName);
         if (resolvedModuleOptional.isEmpty()) {
             return;
         }

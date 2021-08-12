@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -173,23 +174,22 @@ public class FileSystemRepository implements PackageRepository {
             List<ResolutionRequest> packageLoadRequests) {
         List<ResolutionResponseDescriptor> descriptorSet = new ArrayList<>();
         for (ResolutionRequest resolutionRequest : packageLoadRequests) {
-            List<PackageVersion> versions = getPackageVersions(resolutionRequest);
-            if (!versions.isEmpty()) {
-                PackageVersion latest = findLatest(resolutionRequest, versions);
-                if (latest != null) {
-                    PackageDescriptor resolvedDescriptor = PackageDescriptor
-                            .from(resolutionRequest.orgName(), resolutionRequest.packageName(), latest);
-                    Path balaPath = getPackagePath(resolutionRequest.orgName().toString(),
-                            resolutionRequest.packageName().toString(), latest.toString());
-                    BalaFiles.DependencyGraphResult packageDependencyGraph =
-                            BalaFiles.createPackageDependencyGraph(balaPath);
-                    DependencyGraph<PackageDescriptor> dependencyGraph =
-                            packageDependencyGraph.packageDependencyGraph();
-                    ResolutionResponseDescriptor responseDescriptor = ResolutionResponseDescriptor
-                            .from(resolutionRequest, resolvedDescriptor, dependencyGraph);
-                    descriptorSet.add(responseDescriptor);
-                    continue;
-                }
+            List<PackageVersion> versions = getCompatiblePackageVersions(
+                    resolutionRequest.packageDescriptor(), resolutionRequest.packageLockingMode());
+            PackageVersion latest = findLatest(versions);
+            if (latest != null) {
+                PackageDescriptor resolvedDescriptor = PackageDescriptor
+                        .from(resolutionRequest.orgName(), resolutionRequest.packageName(), latest);
+                Path balaPath = getPackagePath(resolutionRequest.orgName().toString(),
+                        resolutionRequest.packageName().toString(), latest.toString());
+                BalaFiles.DependencyGraphResult packageDependencyGraph =
+                        BalaFiles.createPackageDependencyGraph(balaPath);
+                DependencyGraph<PackageDescriptor> dependencyGraph =
+                        packageDependencyGraph.packageDependencyGraph();
+                ResolutionResponseDescriptor responseDescriptor = ResolutionResponseDescriptor
+                        .from(resolutionRequest, resolvedDescriptor, dependencyGraph);
+                descriptorSet.add(responseDescriptor);
+                continue;
             }
             descriptorSet.add(ResolutionResponseDescriptor.from(resolutionRequest));
         }
@@ -207,39 +207,100 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
-        List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(importModuleRequest);
-        for (PackageName possiblePackageName : possiblePackageNames) {
+        // Check if the imported module is available in a possible package locked in the Dependencies.toml
+        for (PackageDescriptor possiblePackage : importModuleRequest.possiblePackages()) {
+            List<PackageVersion> packageVersions = getCompatiblePackageVersions(
+                    possiblePackage, PackageLockingMode.SOFT);
+            ImportModuleResponse importModuleResponse = getImportModuleResponse(
+                    importModuleRequest, possiblePackage.name(), packageVersions);
+            if (importModuleResponse != null) {
+                return importModuleResponse;
+            }
+        }
+
+        // If the module is not found in the possible packages locked in the Dependencies.toml
+        // we continue looking for the module in the remaining possible packages.
+        List<PackageName> existing = importModuleRequest.possiblePackages().stream().map(PackageDescriptor::name)
+                .collect(Collectors.toList());
+        List<PackageName> remainingPackageNames = ProjectUtils.getPossiblePackageNames(
+                importModuleRequest.packageOrg(), importModuleRequest.moduleName()).stream()
+                .filter(o -> !existing.contains(o)).collect(Collectors.toList());
+
+        for (PackageName possiblePackageName : remainingPackageNames) {
             List<PackageVersion> packageVersions = getPackageVersions(importModuleRequest.packageOrg().toString(),
                     possiblePackageName.toString());
-            Comparator<PackageVersion> comparator = (v1, v2) -> {
 
-                SemanticVersion.VersionCompatibilityResult versionCompatibilityResult = v1.compareTo(v2);
-                if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
-                    return -1;
-                }
-                return 1;
-            };
-
-            packageVersions.sort(comparator);
-            for (PackageVersion packageVersion : packageVersions) {
-                Path balaPath = getPackagePath(importModuleRequest.packageOrg().toString(),
-                        possiblePackageName.toString(), packageVersion.toString());
-                if (Files.notExists(balaPath)) {
-                    continue;
-                }
-                BalaFiles.DependencyGraphResult packageDependencyGraph =
-                        BalaFiles.createPackageDependencyGraph(balaPath);
-                Set<ModuleDescriptor> moduleDescriptors = packageDependencyGraph.moduleDependencies().keySet();
-                for (ModuleDescriptor moduleDescriptor : moduleDescriptors) {
-                    if (importModuleRequest.moduleName().equals(moduleDescriptor.name().toString())) {
-                        PackageDescriptor packageDescriptor = PackageDescriptor
-                                .from(importModuleRequest.packageOrg(), possiblePackageName, packageVersion);
-                        return new ImportModuleResponse(packageDescriptor, importModuleRequest);
-                    }
-                }
+            ImportModuleResponse importModuleResponse = getImportModuleResponse(
+                    importModuleRequest, possiblePackageName, packageVersions);
+            if (importModuleResponse != null) {
+                return importModuleResponse;
             }
         }
         return new ImportModuleResponse(importModuleRequest);
+    }
+
+    private ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest,
+                                                         PackageName packageName,
+                                                         List<PackageVersion> packageVersions) {
+        Comparator<PackageVersion> comparator = (v1, v2) -> {
+
+            PackageVersion latest = getLatest(v1, v2);
+            if (v1 == latest) {
+                return 1;
+            }
+            return -1;
+        };
+        packageVersions.sort(comparator);
+
+        for (PackageVersion packageVersion : packageVersions) {
+            Path balaPath = getPackagePath(importModuleRequest.packageOrg().toString(),
+                    packageName.toString(), packageVersion.toString());
+            BalaFiles.DependencyGraphResult packageDependencyGraph =
+                    BalaFiles.createPackageDependencyGraph(balaPath);
+            Set<ModuleDescriptor> moduleDescriptors = packageDependencyGraph.moduleDependencies().keySet();
+            for (ModuleDescriptor moduleDescriptor : moduleDescriptors) {
+                if (importModuleRequest.moduleName().equals(moduleDescriptor.name().toString())) {
+                    PackageDescriptor packageDescriptor = PackageDescriptor
+                            .from(importModuleRequest.packageOrg(), packageName, packageVersion);
+                    return new ImportModuleResponse(packageDescriptor, importModuleRequest);
+                }
+            }
+        }
+        return null;
+    }
+
+    private List<PackageVersion> getCompatiblePackageVersions(
+            PackageDescriptor packageDescriptor, PackageLockingMode packageLockingMode) {
+        List<PackageVersion> packageVersions = getPackageVersions(
+                packageDescriptor.org().toString(), packageDescriptor.name().toString());
+        CompatibleRange compatibilityRange = getCompatibilityRange(packageDescriptor.version(), packageLockingMode);
+
+        if (compatibilityRange.equals(CompatibleRange.LATEST)) {
+            return packageVersions;
+        }
+
+        SemanticVersion minVersion = SemanticVersion.from(packageDescriptor.version().toString());
+        if (compatibilityRange.equals(CompatibleRange.LOCK_MAJOR)) {
+            List<PackageVersion> filteredPackageVersions = packageVersions.stream().filter(packageVersion -> {
+                SemanticVersion semVerOther = SemanticVersion.from(packageVersion.toString());
+                return (minVersion.major() == semVerOther.major());
+            }).collect(Collectors.toList());
+            return filteredPackageVersions;
+        }
+
+        if (compatibilityRange.equals(CompatibleRange.LOCK_MINOR)) {
+            List<PackageVersion> filteredPackageVersions = packageVersions.stream().filter(packageVersion -> {
+                SemanticVersion semVerOther = SemanticVersion.from(packageVersion.toString());
+                return (minVersion.major() == semVerOther.major() && minVersion.minor() == semVerOther.minor());
+            }).collect(Collectors.toList());
+            return filteredPackageVersions;
+        }
+
+        if (packageVersions.contains(packageDescriptor.version())) {
+            return Collections.singletonList(packageDescriptor.version());
+        }
+
+        return Collections.emptyList();
     }
 
     private List<PackageVersion> getPackageVersions(String org, String name) {
@@ -287,29 +348,26 @@ public class FileSystemRepository implements PackageRepository {
         return availableVersions;
     }
 
-    private PackageVersion findLatest(ResolutionRequest resolutionRequest, List<PackageVersion> packageVersions) {
-        if (resolutionRequest.version().isEmpty()) {
-            return findLatest(packageVersions);
-        }
-        if (resolutionRequest.packageLockingMode().equals(PackageLockingMode.SOFT)) {
-            return findLatest(packageVersions);
-        }
-        if (resolutionRequest.packageLockingMode().equals(PackageLockingMode.MEDIUM)) {
-            SemanticVersion semVer = SemanticVersion.from(resolutionRequest.version().get().toString());
-            List<PackageVersion> filteredPackageVersions = packageVersions.stream().filter(packageVersion -> {
-                SemanticVersion semVerOther = SemanticVersion.from(packageVersion.toString());
-                return (semVer.major() == semVerOther.major()
-                        && semVer.minor() == semVerOther.minor()
-                        && !semVerOther.lessThan(semVer));
-            }).collect(Collectors.toList());
-            return findLatest(filteredPackageVersions);
-        }
-        if (resolutionRequest.packageLockingMode().equals(PackageLockingMode.HARD)) {
-            if (packageVersions.contains(resolutionRequest.packageDescriptor().version())) {
-                return resolutionRequest.packageDescriptor().version();
+    private CompatibleRange getCompatibilityRange(PackageVersion minVersion, PackageLockingMode packageLockingMode) {
+        if (minVersion != null) {
+            SemanticVersion semVer = SemanticVersion.from(minVersion.toString());
+            if (semVer.isInitialVersion()) {
+                if (packageLockingMode.equals(PackageLockingMode.HARD)) {
+                    return CompatibleRange.EXACT;
+                }
+                return CompatibleRange.LOCK_MINOR;
+            }
+            if (packageLockingMode.equals(PackageLockingMode.HARD)) {
+                return CompatibleRange.EXACT;
+            }
+            if (packageLockingMode.equals(PackageLockingMode.MEDIUM)) {
+                return CompatibleRange.LOCK_MINOR;
+            }
+            if (packageLockingMode.equals(PackageLockingMode.SOFT)) {
+                return CompatibleRange.LOCK_MAJOR;
             }
         }
-        return null;
+        return CompatibleRange.LATEST;
     }
 
     private PackageVersion findLatest(List<PackageVersion> packageVersions) {
@@ -338,5 +396,24 @@ public class FileSystemRepository implements PackageRepository {
             // Find the the latest version
             return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
         }
+    }
+
+    private enum CompatibleRange {
+        /**
+         * Latest stable (if any), else latest pre-release.
+         */
+        LATEST,
+        /**
+         * Latest minor version of the locked major version.
+         */
+        LOCK_MAJOR,
+        /**
+         * Latest patch version of the locked major and minor versions.
+         */
+        LOCK_MINOR,
+        /**
+         * Exact version provided.
+         */
+        EXACT
     }
 }

@@ -55,6 +55,10 @@ class CompilationOptions {
         return toBooleanDefaultIfNull(offlineBuild);
     }
 
+    boolean sticky() {
+        return false;
+    }
+
     boolean experimental() {
         return toBooleanDefaultIfNull(experimental);
     }
