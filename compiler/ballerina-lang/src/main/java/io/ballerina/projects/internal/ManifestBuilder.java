@@ -392,6 +392,8 @@ public class ManifestBuilder {
         final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
         boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
+        boolean sticky =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
@@ -409,6 +411,7 @@ public class ManifestBuilder {
                 .cloud(cloud)
                 .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
+                .sticky(sticky)
                 .build();
     }
 
