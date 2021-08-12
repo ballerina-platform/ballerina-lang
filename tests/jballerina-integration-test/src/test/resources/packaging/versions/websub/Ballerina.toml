@@ -1,0 +1,6 @@
+[package]
+org = "waruna"
+name = "websub"
+version = "1.0.1"
+
+export = ["websub.server"]

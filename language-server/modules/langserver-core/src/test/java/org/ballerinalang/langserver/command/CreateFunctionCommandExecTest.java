@@ -78,6 +78,8 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"projectCreateUndefinedFunction3.json", "testproject/main.bal"},
                 {"projectCreateUndefinedFunction4.json", "testproject/main.bal"},
                 {"projectCreateUndefinedFunction5.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunction6.json", "testproject/main.bal"},
+
                 // Let Expression
                 {"projectCreateUndefinedFunctionInLet.json", "testproject/school.bal"},
                 {"projectCreateUndefinedFunctionInLet2.json", "testproject/school.bal"},

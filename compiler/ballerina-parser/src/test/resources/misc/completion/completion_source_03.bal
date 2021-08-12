@@ -3,7 +3,7 @@ enum Language1 {
     }
 
 enum Language2 {
-    ENG = 
+    ENG =
 }
 
 enum Language3 {

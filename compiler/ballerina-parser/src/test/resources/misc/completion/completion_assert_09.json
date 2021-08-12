@@ -152,7 +152,7 @@
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                    "ERROR_MISSING_EXPRESSION"
                                   ]
                                 }
                               ]
@@ -509,7 +509,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_MISSING_IDENTIFIER"
+                                        "ERROR_MISSING_EXPRESSION"
                                       ]
                                     }
                                   ]
@@ -701,10 +701,6 @@
                                   "kind": "COMMA_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    },
-                                    {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
                                     }
@@ -719,7 +715,7 @@
                                       "isMissing": true,
                                       "hasDiagnostics": true,
                                       "diagnostics": [
-                                        "ERROR_MISSING_IDENTIFIER"
+                                        "ERROR_MISSING_EXPRESSION"
                                       ]
                                     }
                                   ]
@@ -894,10 +890,6 @@
                             {
                               "kind": "TABLE_KEYWORD",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -1320,10 +1312,6 @@
                               "kind": "OBJECT_KEYWORD",
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -1514,10 +1502,6 @@
                               ],
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
-                                {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
@@ -1544,7 +1528,7 @@
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                    "ERROR_MISSING_EXPRESSION"
                                   ]
                                 }
                               ]
@@ -1756,7 +1740,7 @@
                                   "isMissing": true,
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                    "ERROR_MISSING_EXPRESSION"
                                   ]
                                 }
                               ]
@@ -1936,10 +1920,6 @@
                             {
                               "kind": "IS_KEYWORD",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                },
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
@@ -2124,10 +2104,6 @@
                                   "kind": "STREAM_KEYWORD",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    },
-                                    {
                                       "kind": "END_OF_LINE_MINUTIAE",
                                       "value": "\n"
                                     }
@@ -2205,7 +2181,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
+                                            "ERROR_MISSING_EXPRESSION"
                                           ]
                                         }
                                       ]
@@ -2414,10 +2390,6 @@
                                       "kind": "FROM_KEYWORD",
                                       "trailingMinutiae": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        },
-                                        {
                                           "kind": "END_OF_LINE_MINUTIAE",
                                           "value": "\n"
                                         }
@@ -2474,7 +2446,7 @@
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
+                                            "ERROR_MISSING_EXPRESSION"
                                           ]
                                         }
                                       ]

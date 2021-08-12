@@ -3624,8 +3624,7 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-
-        if (!isPureType(lhsType) || !isPureType(rhsType)) {
+        if (!isAnydata(lhsType) && !isAnydata(rhsType)) {
             return false;
         }
 
@@ -5590,7 +5589,10 @@ public class Types {
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
     }
 
-    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+    public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        if (type == null) {
+            return false;
+        }
         Set<BType> visitedTypeSet = new HashSet<>();
         visitedTypeSet.add(type);
         return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);

@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 22,
-                "character": 20
-            },
-            "end": {
-                "line": 22,
-                "character": 41
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 25,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 25,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction createListener(Car a) returns module1:Listener {\n    return new (0);\n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 22,
+        "character": 20
+      },
+      "end": {
+        "line": 22,
+        "character": 41
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 24,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 24,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction createListener(Car myCar) returns module1:Listener {\n    return new (0);\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

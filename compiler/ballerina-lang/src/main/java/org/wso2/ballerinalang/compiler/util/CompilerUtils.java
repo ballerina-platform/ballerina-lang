@@ -50,4 +50,8 @@ public class CompilerUtils {
         return compilerOptions.isSet(optionName) && Boolean.parseBoolean(compilerOptions.get(optionName));
     }
 
+    public static String getMajorVersion(String version) {
+        return version.split("\\.")[0];
+    }
+
 }
