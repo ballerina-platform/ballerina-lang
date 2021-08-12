@@ -37,6 +37,10 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -100,25 +104,62 @@ public class DependencyManifestBuilder {
     }
 
     private DependencyManifest parseAsDependencyManifest() {
-        // Validate Dependencies.toml
-        validateDependenciesTomlAgainstSchema();
-        // Process dependencies
-        List<DependencyManifest.Package> packages = getPackages();
-        return DependencyManifest.from(packages, diagnostics());
+        if (dependenciesToml.isEmpty() || dependenciesToml.get().toml().rootNode().entries().isEmpty()) {
+            return DependencyManifest.from(null, Collections.emptyList(), diagnostics());
+        }
+
+        // Check `dependencies-toml-version` exists
+        String dependenciesTomlVersion = getDependenciesTomlVersion();
+
+        // Latest `Dependencies.toml`
+        if (dependenciesTomlVersion != null) {
+            validateDependenciesTomlAgainstSchema("dependencies-toml-schema.json");
+            List<DependencyManifest.Package> packages = getPackages();
+            return DependencyManifest.from(dependenciesTomlVersion, packages, diagnostics());
+        }
+
+        // Old `Dependencies.toml`
+        reportDiagnostic("Detected an old version of 'Dependencies.toml' file. This will be updated to v2 format.",
+                         ProjectDiagnosticErrorCode.OLD_DEPENDENCIES_TOML.diagnosticId(), DiagnosticSeverity.WARNING,
+                         dependenciesToml.get().toml().rootNode().location());
+        validateDependenciesTomlAgainstSchema("old-dependencies-toml-schema.json");
+        List<DependencyManifest.Package> packages = getPackagesFromOldBallerinaToml();
+        return DependencyManifest.from(null, packages, diagnostics());
     }
 
-    private void validateDependenciesTomlAgainstSchema() {
+    private void validateDependenciesTomlAgainstSchema(String schemaName) {
         if (dependenciesToml.isPresent()) {
             TomlValidator dependenciesTomlValidator;
             try {
-                dependenciesTomlValidator = new TomlValidator(
-                        Schema.from(FileUtils.readFileAsString("dependencies-toml-schema.json")));
+                dependenciesTomlValidator = new TomlValidator(Schema.from(FileUtils.readFileAsString(schemaName)));
             } catch (IOException e) {
-                throw new ProjectException("Failed to read the Dependencies.toml validator schema file.");
+                throw new ProjectException("Failed to read the Dependencies.toml validator schema file:" + schemaName);
             }
             // Validate dependencies toml using dependencies toml schema
             dependenciesTomlValidator.validate(dependenciesToml.get().toml());
         }
+    }
+
+    private String getDependenciesTomlVersion() {
+        if (dependenciesToml.isEmpty()) {
+            return null;
+        }
+
+        TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
+        if (tomlTableNode.entries().isEmpty()) {
+            return null;
+        }
+
+        TopLevelNode ballerinaEntries = tomlTableNode.entries().get("ballerina");
+        if (ballerinaEntries == null || ballerinaEntries.kind() == TomlType.NONE) {
+            return null;
+        }
+
+        if (ballerinaEntries.kind() == TomlType.TABLE) {
+            TomlTableNode ballerinaTableNode = (TomlTableNode) ballerinaEntries;
+            return getStringValueFromDependencyNode(ballerinaTableNode, "dependencies-toml-version");
+        }
+        return null;
     }
 
     private List<DependencyManifest.Package> getPackages() {
@@ -171,6 +212,68 @@ public class DependencyManifestBuilder {
             }
         }
         return dependencies;
+    }
+
+    private List<DependencyManifest.Package> getPackagesFromOldBallerinaToml() {
+        if (dependenciesToml.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<DependencyManifest.Package> packages = new ArrayList<>();
+        TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
+
+        if (tomlTableNode.entries().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TopLevelNode dependencyEntries = tomlTableNode.entries().get("dependency");
+        if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
+            return Collections.emptyList();
+        }
+
+        if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+
+            for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
+                String name = getStringValueFromDependencyNode(dependencyNode, "name");
+                String org = getStringValueFromDependencyNode(dependencyNode, "org");
+                String version = getStringValueFromDependencyNode(dependencyNode, "version");
+
+                // If name, org or version, one of the value is null, ignore dependency
+                if (name == null || org == null || version == null) {
+                    continue;
+                }
+
+                PackageName depName = PackageName.from(name);
+                PackageOrg depOrg = PackageOrg.from(org);
+                PackageVersion depVersion;
+                try {
+                    depVersion = PackageVersion.from(version);
+                } catch (ProjectException e) {
+                    // Ignore exception and dependency
+                    // Diagnostic will be added by toml schema validator for the semver version error
+                    continue;
+                }
+
+                // If local packages found in the `Dependencies.toml`
+                if (dependencyNode.entries().containsKey("repository")) {
+                    String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
+                    String message = "Detected local dependency declarations in 'Dependencies.toml' file. "
+                            + "Add them to 'Ballerina.toml' using following syntax:\n"
+                            + "[[dependency]]\n"
+                            + "org = \"" + depOrg + "\"\n"
+                            + "name = \"" + depName + "\"\n"
+                            + "version = \"" + depVersion + "\"\n"
+                            + "repository = \"" + repository + "\"\n";
+                    reportDiagnostic(message,
+                                     ProjectDiagnosticErrorCode.LOCAL_PACKAGES_IN_DEPENDENCIES_TOML.diagnosticId(),
+                                     DiagnosticSeverity.WARNING, dependencyNode.location());
+                    continue;
+                }
+                packages.add(new DependencyManifest.Package(depName, depOrg, depVersion));
+            }
+        }
+        return packages;
     }
 
     private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
@@ -261,5 +364,11 @@ public class DependencyManifestBuilder {
             }
         }
         return modules;
+    }
+
+    void reportDiagnostic(String message, String diagnosticErrorCode, DiagnosticSeverity severity, Location location) {
+        var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
+        var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+        this.diagnosticList.add(diagnostic);
     }
 }

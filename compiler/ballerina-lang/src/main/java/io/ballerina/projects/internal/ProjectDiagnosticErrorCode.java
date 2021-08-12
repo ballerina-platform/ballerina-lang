@@ -28,6 +28,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 public enum ProjectDiagnosticErrorCode implements DiagnosticCode {
 
     INVALID_BALA_FILE("BCE5000", "invalid.bala.file"),
+    OLD_DEPENDENCIES_TOML("BCE5001", "old.dependencies.toml"),
+    LOCAL_PACKAGES_IN_DEPENDENCIES_TOML("BCE5002", "local.packages.in.dependencies.toml"),
     ;
 
     private final String diagnosticId;
