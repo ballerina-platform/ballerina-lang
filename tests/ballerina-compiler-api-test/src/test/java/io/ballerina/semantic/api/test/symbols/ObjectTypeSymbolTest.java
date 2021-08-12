@@ -65,8 +65,17 @@ public class ObjectTypeSymbolTest {
 
     @Test
     public void testObjectTypeQualifiers() {
-        ObjectTypeSymbol object = getObjectType(42, 5);
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(42, 5));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
+
+        TypeDefinitionSymbol typeDef = (TypeDefinitionSymbol) symbol.get();
+        TypeSymbol type = typeDef.typeDescriptor();
+        assertEquals(type.typeKind(), TypeDescKind.OBJECT);
+
+        ObjectTypeSymbol object = (ObjectTypeSymbol) type;
         List<Qualifier> qualifiers = object.qualifiers();
+
         assertEquals(qualifiers.size(), 2);
         assertTrue(qualifiers.contains(Qualifier.CLIENT));
         assertTrue(qualifiers.contains(Qualifier.ISOLATED));
@@ -96,19 +105,7 @@ public class ObjectTypeSymbolTest {
         assertEquals(typeRef.typeDescriptor().typeKind(), TypeDescKind.OBJECT);
     }
 
-    // private utils
-    private ObjectTypeSymbol getObjectType(int line, int col) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-
-        assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
-
-        TypeDefinitionSymbol typeDef = (TypeDefinitionSymbol) symbol.get();
-        TypeSymbol type = typeDef.typeDescriptor();
-        assertEquals(type.typeKind(), TypeDescKind.OBJECT);
-        return (ObjectTypeSymbol) type;
-    }
-
+    // utils
     private void assertField(int line, int col) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
