@@ -1152,19 +1152,24 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             defineAllUnresolvedCyclicTypesInScope(env);
 
+            Set<String> alreadyDefinedTypeDefNames = new HashSet<>();
             int unresolvedTypeCount = unresolvedTypes.size();
             for (int i = 0; i < unresolvedTypeCount; i++) {
                 for (BLangNode node : this.unresolvedTypes) {
+                    String name = getTypeOrClassName(node);
+                    boolean symbolNotFound = false;
                     if ((node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CLASS_DEFN)
                             && i != 0) { // Do not skip the first iteration
-                        String name = getTypeOrClassName(node);
                         BSymbol bSymbol = symResolver.lookupSymbolInMainSpace(env, names.fromString(name));
-                        if (bSymbol != symTable.notFoundSymbol) {
-                            // skip already defined types
-                            continue;
-                        }
+                        symbolNotFound = (bSymbol == symTable.notFoundSymbol);
                     }
-                    defineNode(node, env);
+
+                    boolean notFoundInList = alreadyDefinedTypeDefNames.add(name);
+
+                    // Prevent defining already defined type names.
+                    if (notFoundInList || symbolNotFound) {
+                        defineNode(node, env);
+                    }
                 }
             }
             return;
