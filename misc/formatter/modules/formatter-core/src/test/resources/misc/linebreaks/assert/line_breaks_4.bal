@@ -1,15 +1,15 @@
 public function foo() {
     foreach string animal in animals {
-        match 
-    animal 
+        match
+    animal
             {
-            "Mouse" => 
+            "Mouse" =>
             {
             }
             "Dog"|"Canine" => {
             }
 
-            "Cat"|"Feline" => 
+            "Cat"|"Feline" =>
             {
             }
             _ => {
@@ -18,19 +18,19 @@ public function foo() {
     }
 
     int i = <
-                @qwe 
+                @qwe
                 @abc>test();
 
     Person person = <Person>
     employee;
 
     if (true
-    ) 
+    )
     {
     }
 
-    error? flushResult = 
-    flush 
+    error? flushResult =
+    flush
     w2
     ;
 
@@ -40,20 +40,20 @@ public function foo() {
                             } Arthur Conan Doyle</author>
                          </book>`;
 
-    fork 
+    fork
     {
         worker w1 returns int {
             return 20;
         }
     }
 
-    return 
+    return
         20
     ;
 }
 
 function foo(string
-|int id) returns int|error 
+|int id) returns int|error
 {
 }
 

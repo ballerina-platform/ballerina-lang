@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 10,
-                "character": 32
-            },
-            "end": {
-                "line": 10,
-                "character": 55
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 17,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 17,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction convertStudent(module1:Student a) returns module1:Student {\n    return {name: \"\", age: 0};\n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 10,
+        "character": 32
+      },
+      "end": {
+        "line": 10,
+        "character": 55
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 18,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 18,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction convertStudent(module1:Student student) returns module1:Student {\n    return {name: \"\", age: 0};\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

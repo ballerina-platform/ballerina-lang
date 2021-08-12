@@ -453,7 +453,7 @@ public class XmlFactory {
      * @return true if the two are equal, false if not equal or an exception is thrown while checking equality
      */
     public static boolean isEqual(BXml xmlOne, BXml xmlTwo) {
-        return xmlOne.equals(xmlTwo);
+        return TypeChecker.isEqual(xmlOne, xmlTwo);
     }
 
     /**
