@@ -111,7 +111,7 @@ public class ValueUtils {
      * @return value of the object.
      */
     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
-        Strand currentStrand = getStrand();
+        Strand currentStrand = Scheduler.getStrandNoException();
         // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         io.ballerina.runtime.internal.values.ValueCreator
                 valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
@@ -149,13 +149,7 @@ public class ValueUtils {
         return objectValue;
     }
 
-    private static Strand getStrand() {
-        try {
-            return Scheduler.getStrand();
-        } catch (Exception ex) {
-            // Ignore : issue #22871 is opened to fix this
-        }
-        return null;
+    private ValueUtils() {
     }
 
     /**
