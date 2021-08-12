@@ -67,8 +67,8 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
 
     error err = <error> res;
     assertEquality(MAPPING_INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in record of type 'readonly_objects:(testorg/readonly_objects:1.0.0:Details & readonly)'",
-                   err.detail()["message"]);
+    assertEquality("cannot update 'readonly' field 'name' in record of type " +
+                        "'readonly_objects:(testorg/readonly_objects:1:Details & readonly)'", err.detail()["message"]);
 
     fn = function () {
         obj.dept = {name: "finance"};

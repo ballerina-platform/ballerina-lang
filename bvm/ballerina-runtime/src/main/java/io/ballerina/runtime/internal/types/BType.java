@@ -114,7 +114,7 @@ public abstract class BType implements Type {
                 return false;
             }
 
-            if (thisModule.getVersion() == null || otherModule.getVersion() == null) {
+            if (thisModule.getMajorVersion() == null || otherModule.getMajorVersion() == null) {
                 return thisModule.getOrg().equals(otherModule.getOrg()) &&
                         thisModule.getName().equals(otherModule.getName());
             }
@@ -184,7 +184,7 @@ public abstract class BType implements Type {
     }
 
     private boolean hasAllNullConstituents(Module module) {
-        return module.getOrg() == null && module.getName() == null && module.getVersion() == null;
+        return module.getOrg() == null && module.getName() == null && module.getMajorVersion() == null;
     }
 
     public Module getPkg() {

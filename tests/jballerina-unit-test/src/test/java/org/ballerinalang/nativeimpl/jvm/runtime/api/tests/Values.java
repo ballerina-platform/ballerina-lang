@@ -46,8 +46,8 @@ import java.util.Optional;
  */
 public class Values {
 
-    private static Module objectModule = new Module("testorg", "runtime_api.objects", "1.0.0");
-    private static Module recordModule = new Module("testorg", "runtime_api.records", "1.0.0");
+    private static Module objectModule = new Module("testorg", "runtime_api.objects", "1");
+    private static Module recordModule = new Module("testorg", "runtime_api.records", "1");
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
