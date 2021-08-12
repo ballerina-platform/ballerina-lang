@@ -631,6 +631,26 @@ public class CommonUtil {
     }
 
     /**
+     * Generates a variable name.
+     *
+     * @param name {@link BLangNode}
+     * @return random argument name
+     */
+    public static String generateVariableName(String name, Set<String> names) {
+        return generateVariableName(1, name, names);
+    }
+
+    /**
+     * Generates a variable name.
+     *
+     * @param symbol {@link Symbol}
+     * @return random argument name
+     */
+    public static String generateVariableName(Symbol symbol, Set<String> names) {
+        return generateVariableName(1, symbol.kind().name(), names);
+    }
+
+    /**
      * Generates a random name.
      *
      * @param value    index of the argument
@@ -662,26 +682,6 @@ public class CommonUtil {
             return generateVariableName(1, ((BLangInvocation) bLangNode).name.value, names);
         }
         return newName;
-    }
-
-    /**
-     * Generates a variable name.
-     *
-     * @param name {@link BLangNode}
-     * @return random argument name
-     */
-    public static String generateVariableName(String name, Set<String> names) {
-        return generateVariableName(1, name, names);
-    }
-
-    /**
-     * Generates a variable name.
-     *
-     * @param symbol {@link Symbol}
-     * @return random argument name
-     */
-    public static String generateVariableName(Symbol symbol, Set<String> names) {
-        return generateVariableName(1, symbol.kind().name(), names);
     }
 
     /**
@@ -720,20 +720,6 @@ public class CommonUtil {
         } else {
             return generateName(1, names);
         }
-    }
-
-    /**
-     * Whether the given module is a langlib module.
-     *
-     * @param moduleID Module ID to evaluate
-     * @return {@link Boolean} whether langlib or not
-     */
-    public static boolean isLangLib(ModuleID moduleID) {
-        return isLangLib(moduleID.orgName(), moduleID.moduleName());
-    }
-
-    public static boolean isLangLib(String orgName, String moduleName) {
-        return orgName.equals("ballerina") && moduleName.startsWith("lang.");
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
@@ -810,6 +796,137 @@ public class CommonUtil {
             newName = generateName(++suffix, names);
         }
         return newName;
+    }
+
+    /**
+     * Generates a parameter name.
+     *
+     * @param arg          Argument name.
+     * @param position     Argument position.
+     * @param type         Type symbol of the argument.
+     * @param visibleNames Visible symbol names.
+     * @return
+     */
+    public static String generateParameterName(String arg, int position, TypeSymbol type, Set<String> visibleNames) {
+        String newName;
+        if (arg.isEmpty() || !isValidIdentifier(arg)) {
+            String typeName = type != null ? type.typeKind().getName() : "";
+            if (!typeName.isEmpty()) {
+                newName = typeName.substring(0, 1).toLowerCase(Locale.getDefault());
+                return toCamelCase(getValidatedSymbolName(visibleNames, newName));
+            } else {
+                return generateName(position, visibleNames);
+            }
+        } else {
+            return toCamelCase(getValidatedSymbolName(visibleNames, arg));
+        }
+    }
+
+    /**
+     * Get a validated symbol name against the visible symbols.
+     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
+     *
+     * @param visibleNames visible symbol names in the context.
+     * @param symbolName   raw symbol name to modify with the numbered suffix
+     * @return {@link String} modified symbol name
+     */
+    public static String getValidatedSymbolName(Set<String> visibleNames, String symbolName) {
+        if (!visibleNames.contains(symbolName)) {
+            return symbolName;
+        }
+        List<Integer> suffixList = visibleNames.parallelStream().map(sName -> {
+            if (sName == null) {
+                return -2;
+            }
+            if (sName.equals(symbolName)) {
+                return 0;
+            }
+            String modifiedName = sName.replaceFirst(symbolName, "");
+
+            if (!modifiedName.isEmpty() && modifiedName.chars().allMatch(Character::isDigit)) {
+                return Integer.parseInt(modifiedName);
+            }
+
+            return -3;
+        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
+
+        for (int i = 0; i < suffixList.size(); i++) {
+            Integer suffix = suffixList.get(i);
+            if (i == suffixList.size() - 1 || (suffix + 1) != suffixList.get(i + 1)) {
+                return symbolName + (suffix + 1);
+            }
+        }
+        return symbolName;
+    }
+
+    /**
+     * Get the validated symbol name against the visible symbols.
+     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
+     *
+     * @param context    completion context
+     * @param symbolName raw symbol name to modify with the numbered suffix
+     * @return {@link String} modified symbol name
+     */
+    public static String getValidatedSymbolName(PositionedOperationContext context, String symbolName) {
+        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
+        Set<String> visibleSymbolNames = symbols.stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+        return getValidatedSymbolName(visibleSymbolNames, symbolName);
+    }
+
+    /**
+     * Coverts a given text to camel case.
+     *
+     * @param text text to be converted.
+     * @return {@link String} converted string.
+     */
+    private static String toCamelCase(String text) {
+        String[] words = text.split("[\\W_]+");
+        StringBuilder result = new StringBuilder();
+        if (words.length == 1) {
+            if (!StringUtils.isAllUpperCase(words[0])) {
+                String word = words[0];
+                word = Character.toLowerCase(word.charAt(0)) + word.substring(1);
+                return word;
+            }
+            return words[0];
+        }
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.isEmpty()) {
+                continue;
+            }
+            if (i == 0) {
+                word = word.toLowerCase();
+            } else {
+                word = Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase();
+            }
+            result.append(word);
+        }
+        return result.toString();
+    }
+
+    /**
+     * Whether the given module is a langlib module.
+     * public static String generateParameterName(String arg, Set<String> visibleNames) {
+     * visibleNames.addAll(BALLERINA_KEYWORDS);
+     * String newName = arg.replaceAll(".+[\\:\\.]", "");
+     * <p>
+     * <p>
+     * }
+     *
+     * @param moduleID Module ID to evaluate
+     * @return {@link Boolean} whether langlib or not
+     */
+    public static boolean isLangLib(ModuleID moduleID) {
+        return isLangLib(moduleID.orgName(), moduleID.moduleName());
+    }
+
+    public static boolean isLangLib(String orgName, String moduleName) {
+        return orgName.equals("ballerina") && moduleName.startsWith("lang.");
     }
 
     /**
@@ -1121,43 +1238,6 @@ public class CommonUtil {
         return modNameComponents[modNameComponents.length - 1];
     }
 
-    /**
-     * Get the validated symbol name against the visible symbols.
-     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
-     *
-     * @param context    completion context
-     * @param symbolName raw symbol name to modify with the numbered suffix
-     * @return {@link String} modified symbol name
-     */
-    public static String getValidatedSymbolName(PositionedOperationContext context, String symbolName) {
-        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
-        List<Integer> variableNumbers = symbols.parallelStream().map(symbol -> {
-            if (symbol.getName().isEmpty()) {
-                return -2;
-            }
-            String sName = symbol.getName().get();
-            if (sName.equals(symbolName)) {
-                return 0;
-            }
-            String modifiedName = sName.replaceFirst(symbolName, "");
-
-            if (!modifiedName.isEmpty() && modifiedName.chars().allMatch(Character::isDigit)) {
-                return Integer.parseInt(modifiedName);
-            }
-
-            return -3;
-        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
-
-        for (int i = 0; i < variableNumbers.size(); i++) {
-            Integer intVal = variableNumbers.get(i);
-            if (i == variableNumbers.size() - 1 || (intVal + 1) != variableNumbers.get(i + 1)) {
-                return symbolName + (intVal + 1);
-            }
-        }
-
-        return symbolName;
-    }
-
     public static boolean isKeyword(String token) {
         return CommonUtil.BALLERINA_KEYWORDS.contains(token);
     }
@@ -1182,7 +1262,7 @@ public class CommonUtil {
      * (1) any variable defined
      * (2) Function Parameters
      * (3) Service/ resource path parameters
-     * 
+     *
      * @return {@link Predicate<Symbol>}
      */
     public static Predicate<Symbol> getVariableFilterPredicate() {

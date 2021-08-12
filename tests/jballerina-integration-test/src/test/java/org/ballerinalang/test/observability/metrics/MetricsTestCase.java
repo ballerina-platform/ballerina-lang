@@ -53,7 +53,7 @@ public class MetricsTestCase extends ObservabilityBaseTest {
     protected static final String TEST_SRC_PROJECT_NAME = "metrics_tests";
     private static final String TEST_SRC_ORG_NAME = "intg_tests";
     protected static final String TEST_SRC_PACKAGE_NAME = "metrics_tests";
-    private static final String MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0.0.1";
+    private static final String MODULE_ID = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME + ":0";
 
     protected static final String MOCK_CLIENT_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_PACKAGE_NAME
             + "/MockClient";
@@ -325,18 +325,18 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         testFunctionMetrics(metrics, fileName + ":19:1", 1,
                 Tag.of("src.function.name", "main"),
                 Tag.of("src.main", "true"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0.0.1"),
+                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
                 Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
                 Tag.of("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
                 Tag.of("src.function.name", "getSum"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0.0.1"),
+                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
                 Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":38:12", 3,
                 Tag.of("src.function.name", "calculateSumWithObservability"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0.0.1"),
+                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
                 Tag.of("entrypoint.function.name", "main")
         );
     }

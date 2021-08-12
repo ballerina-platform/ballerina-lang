@@ -154,6 +154,9 @@ public function testCyclicUserDefinedTypes() {
     assert(d is XTuple3[], true);
 }
 
+type J [int, J[2]];
+type K [int, J[]];
+
 function testIndirectRecursion() {
     P test1 = ["nil", ["|"], "&", "any", ["listRef"], ["functionRef", 2]];
     assert(test1[2] is XIntersection4, true);
@@ -182,6 +185,9 @@ function testIndirectRecursion() {
         test6 = [["nil", [], "&"]];
     }
     assert(test6[0][1][0] is string, true);
+
+    K tempTuple = [1, []];
+    assert(tempTuple[1] is J[], true);
 }
 
 type G [int, string, G...];

@@ -46,7 +46,7 @@ import java.util.HashMap;
 public class TypeIds {
     private static final String PACKAGE_NAME = "lang.typedesc";
     private static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
-    private static final String PACKAGE_VERSION = "1.0.0";
+    private static final String PACKAGE_VERSION = "1";
     private static final Module BALLERINA_TYPEDESC_PKG_ID =
             new Module(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 
@@ -105,7 +105,7 @@ public class TypeIds {
         map.put("organization", StringUtils.fromString(mod.getOrg()));
         map.put("name", StringUtils.fromString(mod.getName()));
         map.put("platformParts",
-                ValueCreator.createArrayValue(new BString[]{StringUtils.fromString(mod.getVersion())}));
+                ValueCreator.createArrayValue(new BString[]{StringUtils.fromString(mod.getMajorVersion())}));
 
         return ValueCreator.createReadonlyRecordValue(BALLERINA_TYPEDESC_PKG_ID, MODULE_ID_TYPE_SIG, map);
     }
