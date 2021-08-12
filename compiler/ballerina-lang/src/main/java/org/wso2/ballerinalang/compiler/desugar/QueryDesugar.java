@@ -845,7 +845,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(FRAME_PARAMETER_NAME),
                                                 this.env.scope.owner.pkgID, frameType, this.env.scope.owner, pos,
                                                 VIRTUAL);
-        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, null,
+        BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, FRAME_PARAMETER_NAME,
                 frameSymbol.type, null, frameSymbol);
         BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
 
@@ -1302,8 +1302,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     // ---- Visitor methods to replace frame access and mark closure variables ---- //
     @Override
     public void visit(BLangLambdaFunction lambda) {
+        if (!lambda.function.flagSet.contains(Flag.QUERY_LAMBDA) && lambda.capturedClosureEnv.enclInvokable != null) {
+            lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
+        }
         lambda.function.accept(this);
-        env.enclPkg.lambdaFunctions.add(lambda);
     }
 
     @Override

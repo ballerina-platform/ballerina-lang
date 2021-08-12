@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.emit;
 
-import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
@@ -585,7 +584,7 @@ class InstructionEmitter {
         callStr.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIRArgument ref : term.args) {
+        for (BIROperand ref : term.args) {
             if (ref != null) {
                 callStr.append(emitVarRef(ref));
                 i += 1;
@@ -621,7 +620,7 @@ class InstructionEmitter {
         str.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIRArgument ref : term.args) {
+        for (BIROperand ref : term.args) {
             if (ref != null) {
                 str.append(emitVarRef(ref));
                 i += 1;
@@ -748,7 +747,7 @@ class InstructionEmitter {
         callStr.append("(");
         int i = 0;
         int argLength = term.args.size();
-        for (BIRArgument ref : term.args) {
+        for (BIROperand ref : term.args) {
             if (ref != null) {
                 callStr.append(emitVarRef(ref));
                 i += 1;

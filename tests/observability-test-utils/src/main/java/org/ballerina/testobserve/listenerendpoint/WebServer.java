@@ -221,15 +221,13 @@ public class WebServer {
             BObject serviceObject = resource.getServiceObject();
             String resourceFunctionName = resource.getResourceFunctionName();
             int paramCount = resource.getParamTypes().length;
-            Object[] args = new Object[paramCount * 2];
+            Object[] args = new Object[paramCount];
             if (paramCount >= 1) {
                 args[0] = callerObject;
-                args[1] = true;
             }
             if (paramCount >= 2 && request.method() == HttpMethod.POST) {
                 String bodyContent = request.content().toString(StandardCharsets.UTF_8);
-                args[2] = StringUtils.fromString(bodyContent);
-                args[3] = true;
+                args[1] = StringUtils.fromString(bodyContent);
             }
 
             ObserverContext observerContext = new ObserverContext();

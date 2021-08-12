@@ -3086,6 +3086,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) TreeBuilder.createFunctionTypeNode();
         functionTypeNode.pos = getPosition(functionTypeDescriptorNode);
         functionTypeNode.returnsKeywordExists = true;
+        functionTypeNode.isInTypeDefinitionContext = isInTypeDefinitionContext(functionTypeDescriptorNode.parent());
 
         if (functionTypeDescriptorNode.functionSignature().isPresent()) {
             FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature().get();
@@ -3096,7 +3097,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 if (child.kind() == SyntaxKind.REST_PARAM) {
                     functionTypeNode.restParam = (BLangSimpleVariable) param;
                 } else {
-                    functionTypeNode.params.add((BLangVariable) param);
+                    functionTypeNode.params.add((BLangSimpleVariable) param);
                 }
             }
 
@@ -5959,6 +5960,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             default:
                 return false;
         }
+    }
+
+    private boolean isInTypeDefinitionContext(Node parent) {
+        while (parent != null) {
+            if (parent instanceof TypeDefinitionNode) {
+                return true;
+            }
+            parent = parent.parent();
+        }
+        return false;
     }
 
     private boolean isNumericLiteral(SyntaxKind syntaxKind) {

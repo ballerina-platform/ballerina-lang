@@ -60,7 +60,7 @@ public class OptionTest {
         CliSpec cliSpec = new CliSpec(option, operands, args);
         Object[] mainArgs = cliSpec.getMainArgs();
         Assert.assertEquals(StringUtils.fromString("--Sri Lanka"), mainArgs[1]);
-        BMap map = (BMap) mainArgs[3];
+        BMap map = (BMap) mainArgs[2];
         Assert.assertEquals(map.get(StringUtils.fromString("name")), StringUtils.fromString("Riyafa"));
         args[0] = "--na";
         try {

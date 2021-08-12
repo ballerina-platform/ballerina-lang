@@ -25,8 +25,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
-import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
-import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -357,10 +355,10 @@ class JvmObservabilityGen {
             }
 
             // Creating and adding function parameters
-            List<BIRArgument> funcParamOperands = new ArrayList<>();
+            List<BIROperand> funcParamOperands = new ArrayList<>();
             Name selfArgName = new Name("%self");
             for (int i = 0; i < asyncCallIns.args.size(); i++) {
-                BIRArgument arg = asyncCallIns.args.get(i);
+                BIROperand arg = asyncCallIns.args.get(i);
                 BIRFunctionParameter funcParam;
                 if (arg.variableDcl.kind == VarKind.SELF) {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
@@ -374,7 +372,7 @@ class JvmObservabilityGen {
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
                     desugaredFunc.argsCount++;
                 }
-                funcParamOperands.add(new BIRArgument(ArgumentState.PROVIDED, funcParam));
+                funcParamOperands.add(new BIROperand(funcParam));
             }
 
             // Generating function body
@@ -390,8 +388,8 @@ class JvmObservabilityGen {
             asyncCallIns.calleePkg = currentPkgId;
             asyncCallIns.isVirtual = attachedTypeDef != null;
             if (attachedTypeDef != null) {
-                asyncCallIns.args.add(0, new BIRArgument(ArgumentState.PROVIDED, new BIRVariableDcl(
-                                      attachedTypeDef.type, selfArgName, VarScope.FUNCTION, VarKind.SELF)));
+                asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type, selfArgName,
+                                                                           VarScope.FUNCTION, VarKind.SELF)));
             }
         }
     }

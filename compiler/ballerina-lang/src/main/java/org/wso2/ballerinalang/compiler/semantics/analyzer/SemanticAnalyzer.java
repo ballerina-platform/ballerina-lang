@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -184,6 +185,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
@@ -197,6 +199,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -421,8 +424,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangExpression expr = param.expr;
             if (expr != null) {
                 funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, expr.getBType());
-                ((BInvokableTypeSymbol) funcNode.getBType().tsymbol).paramDefaultValTypes.put(param.symbol.name.value,
-                                                                                              expr.getBType());
             }
 
             validateIsolatedParamUsage(inIsolatedFunction, param, false);
@@ -494,12 +495,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.TABLE_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
-            analyzeDef(typeDefinition.typeNode, env);
+        analyzeDef(typeDefinition.typeNode, env);
+
+        if (typeDefinition.typeNode.getBType().tag == TypeTags.INVOKABLE) {
+            BInvokableTypeSymbol symbol = (BInvokableTypeSymbol) typeDefinition.symbol;
+            BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symbol.type.tsymbol;
+            symbol.params = tsymbol.params;
+            symbol.restParam = tsymbol.restParam;
+            symbol.returnType = tsymbol.returnType;
         }
 
         final List<BAnnotationSymbol> annotSymbols = new ArrayList<>();
@@ -674,7 +677,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTableKeyTypeConstraint keyTypeConstraint) {
+        analyzeDef(keyTypeConstraint.keyType, env);
+    }
+
+    @Override
     public void visit(BLangTableTypeNode tableTypeNode) {
+        analyzeDef(tableTypeNode.constraint, env);
+        if (tableTypeNode.tableKeyTypeConstraint != null) {
+            analyzeDef(tableTypeNode.tableKeyTypeConstraint, env);
+        }
         BType constraint = tableTypeNode.constraint.getBType();
         if (!types.isAssignable(constraint, symTable.mapAllType)) {
             dlog.error(tableTypeNode.constraint.pos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
@@ -734,6 +746,78 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateDefaultable(recordTypeNode);
         recordTypeNode.analyzed = true;
+    }
+
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        SymbolEnv funcEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
+        for (BLangVariable param : functionTypeNode.params) {
+            analyzeDef(param, funcEnv);
+        }
+        if (functionTypeNode.restParam != null) {
+            analyzeDef(functionTypeNode.restParam.typeNode, funcEnv);
+        }
+        if (functionTypeNode.returnTypeNode != null) {
+            analyzeDef(functionTypeNode.returnTypeNode, funcEnv);
+        }
+        functionTypeNode.analyzed = true;
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
+        if (userDefinedType.getBType() == null) {
+            userDefinedType.setBType(symResolver.resolveTypeNode(userDefinedType, env));
+        }
+    }
+
+    @Override
+    public void visit(BLangValueType valueType) {
+        if (valueType.getBType() == null) {
+            valueType.setBType(symResolver.resolveTypeNode(valueType, env));
+        }
+    }
+
+    @Override
+    public void visit(BLangBuiltInRefTypeNode builtInRefTypeNode) {
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        analyzeDef(streamType.constraint, env);
+    }
+
+    @Override
+    public void visit(BLangArrayType arrayType) {
+        analyzeDef(arrayType.elemtype, env);
+    }
+
+    @Override
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+        for (BLangType langType : intersectionTypeNode.constituentTypeNodes) {
+            analyzeDef(langType, env);
+        }
+    }
+    @Override
+    public void visit(BLangConstrainedType constrainedType) {
+        analyzeDef(constrainedType.constraint, env);
+    }
+
+    @Override
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        List<BLangType> unionMemberTypes = unionTypeNode.memberTypeNodes;
+        for (BLangType memType : unionMemberTypes) {
+            analyzeDef(memType, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        for (BLangType memType : tupleTypeNode.memberTypeNodes) {
+            analyzeDef(memType, env);
+        }
+        if (tupleTypeNode.restParamType != null) {
+            analyzeDef(tupleTypeNode.restParamType, env);
+        }
     }
 
     @Override
@@ -812,6 +896,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeVarNode(varNode, env, AttachPoint.Point.OBJECT_FIELD, AttachPoint.Point.FIELD);
         } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
             analyzeVarNode(varNode, env, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
+        } else if ((ownerSymTag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) {
+            analyzeVarNode(varNode, env, AttachPoint.Point.PARAMETER);
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (isListenerDecl) {
@@ -1073,19 +1159,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 analyzeDef(errorType, env);
                 break;
             case FUNCTION_TYPE:
-                if (typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
-                    BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) typeNode;
-                    List<BLangVariable> params = functionTypeNode.params;
-                    for (BLangVariable param : params) {
-                        analyzeTypeNode(param.typeNode, env);
-                    }
-                    if (functionTypeNode.restParam != null) {
-                        analyzeTypeNode(functionTypeNode.restParam.typeNode, env);
-                    }
-                    if (functionTypeNode.returnTypeNode != null) {
-                        analyzeTypeNode(functionTypeNode.returnTypeNode, env);
-                    }
+                if (((BLangFunctionTypeNode) typeNode).analyzed) {
+                    return;
                 }
+                analyzeDef(typeNode, env);
                 break;
             case CONSTRAINED_TYPE:
                 analyzeTypeNode(((BLangConstrainedType) typeNode).constraint, env);
@@ -1119,6 +1196,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // defined record type.
         if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE &&
                 !((BLangRecordTypeNode) varNode.typeNode).analyzed) {
+            analyzeDef(varNode.typeNode, env);
+        }
+
+        if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.FUNCTION_TYPE &&
+                !((BLangFunctionTypeNode) varNode.typeNode).analyzed) {
             analyzeDef(varNode.typeNode, env);
         }
 

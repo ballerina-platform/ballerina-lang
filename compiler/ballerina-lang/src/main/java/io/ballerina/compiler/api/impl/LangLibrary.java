@@ -140,6 +140,9 @@ public class LangLibrary {
 
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib) {
         for (BInvokableSymbol symbol : langLib.values()) {
+            if (Symbols.isFlagOn(symbol.flags, Flags.CLOSURE_LAMBDA)) {
+                continue;
+            }
             String name = symbol.getOriginalName().getValue();
             FunctionSymbol method = symbolFactory.createFunctionSymbol(symbol, name);
             list.add(method);

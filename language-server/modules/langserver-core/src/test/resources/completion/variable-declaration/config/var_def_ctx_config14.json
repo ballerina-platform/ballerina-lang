@@ -720,6 +720,22 @@
       "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "AN",
+      "insertText": "",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "AN",
+      "insertText": "",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

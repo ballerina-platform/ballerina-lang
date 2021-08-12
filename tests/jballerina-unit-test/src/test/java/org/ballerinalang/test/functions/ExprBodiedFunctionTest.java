@@ -57,10 +57,10 @@ public class ExprBodiedFunctionTest {
         validateError(result, index++, "incompatible types: expected 'int', found 'function (int,int) returns (int)'",
                 26, 1);
         validateError(result, index++, "invalid token 'sum'", 26, 10);
-        validateError(result, index++, "incompatible types: expected 'int', found 'typedesc<int>'", 26, 43);
-        validateError(result, index++, "missing semicolon token", 26, 47);
-        validateError(result, index++, "unknown type 'x'", 26, 47);
-        validateError(result, index++, "missing identifier", 26, 49);
+        validateError(result, index++, "incompatible types: expected 'int', found 'typedesc<int>'", 26, 45);
+        validateError(result, index++, "missing semicolon token", 26, 49);
+        validateError(result, index++, "unknown type 'x'", 26, 49);
+        validateError(result, index++, "missing identifier", 26, 51);
 
         Assert.assertEquals(result.getErrorCount(), index);
     }

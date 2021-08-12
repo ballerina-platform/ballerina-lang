@@ -381,8 +381,8 @@ function testFuncPtrAsRecordField() returns string {
     p.fullName = function () returns string {
         return p.lname + ", " + p.fname;
     };
-
-    return p.fullName();
+    function() returns string fp = <function() returns string>p["fullName"];
+    return fp();
 }
 
 type Address record {
