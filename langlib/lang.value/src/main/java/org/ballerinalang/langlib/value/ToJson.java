@@ -60,7 +60,7 @@ public class ToJson {
         try {
             return convert(value, new ArrayList<>());
         } catch (BError e) {
-            return e;
+            throw e;
         } catch (BallerinaException e) {
             throw createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, StringUtils.fromString(e.getDetail()));
         }

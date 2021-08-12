@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
 import ballerina/lang.'value as value;
 
 type Address record {
@@ -1902,6 +1903,27 @@ function testToJsonWithCyclicParameter() {
     string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}CyclicValueReferenceError");
     assert(messageString, "'anydata[]' value has cyclic reference");
+}
+
+type RecordWithAny record {|
+    int id;
+    string str;
+    any val;
+|};
+
+function testToJsonConversionError() {
+    handle h = java:fromString("xyz");
+    any a = h;
+    table<RecordWithAny> tb = table [
+            {id: 12, str: "abc", val: a},
+            {id: 34, str: "def", val: a}
+    ];
+    json|error j = trap tb.toJson();
+    assert(j is error, true);
+    error err = <error> j;
+    var message = err.detail()["message"];
+    string messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
 }
 
 function assert(anydata actual, anydata expected) {
