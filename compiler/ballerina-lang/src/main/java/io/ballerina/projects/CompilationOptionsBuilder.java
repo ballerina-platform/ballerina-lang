@@ -33,6 +33,7 @@ class CompilationOptionsBuilder {
     private String dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
+    private Boolean sticky;
 
     public CompilationOptionsBuilder() {
     }
@@ -79,6 +80,10 @@ class CompilationOptionsBuilder {
 
     public CompilationOptions build() {
         return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, listConflictedClasses);
+                dumpBirFile, cloud, listConflictedClasses, sticky);
+    }
+
+    public void sticky(Boolean value) {
+        sticky = value;
     }
 }

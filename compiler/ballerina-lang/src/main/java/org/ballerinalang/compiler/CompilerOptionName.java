@@ -64,6 +64,8 @@ public enum CompilerOptionName {
 
     LIST_CONFLICTED_CLASSES("listConflictedClasses"),
 
+    STICKY("sticky"),
+
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.
      * If the option is set, then the compilation is initiated by the Project APT.

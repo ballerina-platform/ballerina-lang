@@ -49,6 +49,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder sticky(Boolean value) {
+        compilationOptionsBuilder.sticky(value);
+        return this;
+    }
+
     public BuildOptionsBuilder listConflictedClasses(Boolean value) {
         compilationOptionsBuilder.listConflictedClasses(value);
         return this;
