@@ -168,6 +168,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
             "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
+    CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
