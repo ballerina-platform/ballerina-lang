@@ -191,6 +191,21 @@ public class DependenciesTomlTests {
     }
 
     @Test
+    public void testDependenciesTomlWithoutDepsTomlVersion() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("without-deps-toml-version.toml"));
+        depsManifest.diagnostics().diagnostics().forEach(OUT::println);
+        // old dependency version warning
+        Assert.assertTrue(depsManifest.diagnostics().hasWarnings());
+        Assert.assertEquals(depsManifest.diagnostics().warnings().iterator().next().message(),
+                            "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
+        // [[package]] not supported in the old dependencies toml spec
+        Assert.assertTrue(depsManifest.diagnostics().hasErrors());
+        Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
+                            "key 'package' not supported in schema 'Dependencies Toml Spec'");
+    }
+
+    @Test
     public void testValidOldVersionDependenciesToml() throws IOException {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("old-dependencies-valid.toml"));

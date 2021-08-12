@@ -845,7 +845,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(ballerinaToml.entries().size(), 1);
 
         TomlTableNode dependenciesToml = currentPackage.dependenciesToml().get().tomlAstNode();
-        Assert.assertEquals(dependenciesToml.entries().size(), 1);
+        Assert.assertEquals(dependenciesToml.entries().size(), 2);
 
         TomlTableNode cloudToml = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(cloudToml.entries().size(), 1);
@@ -933,6 +933,8 @@ public class TestBuildProject extends BaseTest {
 
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
+                        "[ballerina]\n" +
+                        "dependencies-toml-version = \"2\"\n\n" +
                         "[[package]]\n" +
                         "org = \"foo\"\n" +
                         "name = \"package_dep\"\n" +
@@ -951,6 +953,8 @@ public class TestBuildProject extends BaseTest {
         // Set the old version again
         project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
+                "[ballerina]\n" +
+                "dependencies-toml-version = \"2\"\n\n" +
                 "[[package]]\n" +
                 "org = \"foo\"\n" +
                 "name = \"package_dep\"\n" +
