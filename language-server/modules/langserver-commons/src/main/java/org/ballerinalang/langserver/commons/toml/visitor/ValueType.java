@@ -39,7 +39,7 @@ public enum ValueType {
     /**
      * Returns the starting separator of the value type.
      *
-     * @return
+     * @return {@link String} starting separator for value type.
      */
     public String getStartingSeparator() {
         return startingSeparator;
@@ -48,7 +48,7 @@ public enum ValueType {
     /**
      * Returns the ending separator of the value type.
      *
-     * @return
+     * @return ending separator for value type.
      */
     public String getEndingSeparator() {
         return endingSeparator;

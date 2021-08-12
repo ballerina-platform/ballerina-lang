@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.commons.CompletionExtension;
 /**
  * Represents the Toml completion extensions.
  *
- * @since 2.0.0/
+ * @since 2.0.0
  */
 public interface TomlCompletionExtension extends CompletionExtension {
 

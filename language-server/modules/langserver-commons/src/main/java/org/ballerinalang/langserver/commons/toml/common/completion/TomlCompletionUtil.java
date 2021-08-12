@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.commons.toml.common.completion;
 
-import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.KeyValueNode;
 import io.ballerina.toml.syntax.tree.NodeList;
@@ -46,11 +45,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Represents the Toml completion utils.
+ * Contains utility functions required for providing auto-completion for .toml files.
  *
  * @since 2.0.0
  */
-public abstract class TomlCompletionUtil {
+public class TomlCompletionUtil {
+
+    private TomlCompletionUtil() {
+
+    }
 
     /**
      * Find and set the Toml node information based on the context.
@@ -126,22 +129,17 @@ public abstract class TomlCompletionUtil {
      *
      * @param topLevelNodes The set of top-level toml nodes.
      * @param completions   The set of completion items.
-     * @return
+     * @return {@link Map<String,CompletionItem>} Map of top-level node key to completion item.
      */
     public static Map<String, CompletionItem> addTopLevelNodeCompletions(Set<TomlNode> topLevelNodes,
-                                                                            Map<String, CompletionItem> completions) {
+                                                                         Map<String, CompletionItem> completions) {
         for (TomlNode topLevelNode : topLevelNodes) {
             String key = topLevelNode.getKey();
-            if (completions.containsKey(key)) {
+            if (completions.containsKey(key) || !(topLevelNode.type() == TomlNodeType.TABLE ||
+                    topLevelNode.type() == TomlNodeType.TABLE_ARRAY)) {
                 continue;
             }
-            CompletionItem item;
-            if (topLevelNode.type() == TomlNodeType.TABLE || topLevelNode.type() == TomlNodeType.TABLE_ARRAY) {
-                item = createTopLevelCompletionItem(topLevelNode);
-            } else {
-                continue;
-            }
-            completions.put(key, item);
+            completions.put(key, createTopLevelCompletionItem(topLevelNode));
         }
         return completions;
     }
@@ -155,34 +153,14 @@ public abstract class TomlCompletionUtil {
      */
     public static Map<String, CompletionItem> removeExistingTableKeys(Map<String, CompletionItem> completions,
                                                                       DocumentNode documentNode) {
-        List<String> existingKeys = completions.entrySet().stream()
-                .filter(entry -> isTableDeclared(documentNode, entry.getKey()))
-                .map(Map.Entry::getKey).collect(Collectors.toList());
+        List<String> existingKeys = completions.keySet().stream()
+                .filter(key -> documentNode.members().stream().filter(node -> node.kind() == SyntaxKind.TABLE)
+                        .map(node -> TomlSyntaxTreeUtil.toQualifiedName(((TableNode) node).identifier().value()))
+                        .collect(Collectors.toSet()).contains(key)).collect(Collectors.toList());
         for (String key : existingKeys) {
             completions.remove(key);
         }
         return completions;
-    }
-
-    /**
-     * Returns if the given table key is already declared in the Toml document context.
-     *
-     * @param documentNode Toml document node.
-     * @param tableKey     table key.
-     * @return {@link Boolean}
-     */
-    public static Boolean isTableDeclared(DocumentNode documentNode, String tableKey) {
-        NodeList<DocumentMemberDeclarationNode> members = documentNode.members();
-        for (DocumentMemberDeclarationNode documentMemberNode : members) {
-            if (documentMemberNode.kind() == SyntaxKind.TABLE) {
-                TableNode rootTableNode = (TableNode) documentMemberNode;
-                String rootTableNodeKey = TomlSyntaxTreeUtil.toQualifiedName(rootTableNode.identifier().value());
-                if (tableKey.equals(rootTableNodeKey)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**
@@ -196,8 +174,10 @@ public abstract class TomlCompletionUtil {
         item.setInsertText(node.getTomlSyntax());
         if (node.type() == TomlNodeType.TABLE) {
             item.setDetail(TomlSyntaxTreeUtil.TABLE);
-        } else {
+        } else if (node.type() == TomlNodeType.TABLE_ARRAY) {
             item.setDetail(TomlSyntaxTreeUtil.TABLE_ARRAY);
+        } else {
+            item.setDetail("Top Level Node");
         }
         item.setLabel(node.getKey());
         item.setKind(CompletionItemKind.Snippet);
@@ -216,15 +196,15 @@ public abstract class TomlCompletionUtil {
     /**
      * Finds and returns the set of completion items corresponding to a given top-level node key.
      *
-     * @param snippets completion items.
-     * @param tableKey qualified table key.
-     * @return
+     * @param snippets        completion items.
+     * @param topLevelNodeKey qualified table or table array key.
+     * @return {@link Map<String, CompletionItem>} completion items of properties under the provided top-level node.
      */
     public static Map<String, CompletionItem> findCompletionItemsFromQualifiedKey(Map<TomlNode, Map<String,
-            CompletionItem>> snippets, String tableKey) {
+            CompletionItem>> snippets, String topLevelNodeKey) {
         List<Map.Entry<TomlNode, Map<String, CompletionItem>>> filteredMap =
                 snippets.entrySet().stream().filter(entry ->
-                        tableKey.equals((entry.getKey().getKey()))).collect(Collectors.toList());
+                        topLevelNodeKey.equals((entry.getKey().getKey()))).collect(Collectors.toList());
         if (filteredMap.size() == 1) {
             return filteredMap.get(0).getValue();
         }

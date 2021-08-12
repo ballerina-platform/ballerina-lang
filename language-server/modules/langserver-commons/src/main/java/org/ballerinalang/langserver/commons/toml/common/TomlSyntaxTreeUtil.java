@@ -36,6 +36,10 @@ public class TomlSyntaxTreeUtil {
     public static final String TABLE_ARRAY = "Table Array";
     public static final String TABLE = "Table";
 
+    private TomlSyntaxTreeUtil() {
+
+    }
+
     /**
      * Returns the qualified key identifier given a KeyNode.
      * i.e: table1.subtable1.subtable2
@@ -57,7 +61,7 @@ public class TomlSyntaxTreeUtil {
      *
      * @param position
      * @param node
-     * @return
+     * @return Whether the position is with in the node.
      */
     public static boolean withinTextRange(int position, NonTerminalNode node) {
         TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
@@ -84,6 +88,12 @@ public class TomlSyntaxTreeUtil {
         return resourcePath;
     }
 
+    /**
+     * Returns the default value given a type.
+     *
+     * @param type value type.
+     * @return {@link String} default value.
+     */
     public static String getDefaultValueForType(ValueType type) {
         switch (type) {
             case NUMBER:

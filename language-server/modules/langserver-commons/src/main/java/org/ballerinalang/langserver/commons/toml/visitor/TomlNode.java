@@ -25,21 +25,23 @@ package org.ballerinalang.langserver.commons.toml.visitor;
 public interface TomlNode {
 
     /**
-     * Get toml syntax based on key.
+     * Get Toml syntax corresponding to the node.
      *
-     * @return
+     * @return {@link String} Toml specific syntax.
      */
     String getTomlSyntax();
 
     /**
-     * Get toml key.
+     * Get the qualified name of the node.
      *
-     * @return
+     * @return {@link String} Node key.
      */
     String getKey();
 
     /**
+     * Get the type of the node.
      *
+     * @return {@link TomlNodeType} Node type.
      */
     TomlNodeType type();
 

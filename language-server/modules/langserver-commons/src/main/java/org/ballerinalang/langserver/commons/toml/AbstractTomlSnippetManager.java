@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.toml.visitor.TomlSchemaVisitor;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,22 +33,23 @@ import java.util.Map;
  */
 public abstract class AbstractTomlSnippetManager {
 
-    private final Map<TomlNode, Map<String, CompletionItem>> completions;
-
-    public AbstractTomlSnippetManager() {
-        Schema schema = Schema.from(getValidationSchema());
-        TomlSchemaVisitor visitor = new TomlSchemaVisitor();
-        schema.accept(visitor);
-        this.completions = visitor.getAllCompletionSnippets();
-    }
+    private Map<TomlNode, Map<String, CompletionItem>> completions = new HashMap<>();
+    private boolean isSchemaVisited = false;
 
     /**
      * Returns a Map of Toml node and corresponding list of completion items that is
      * allowed under each top-level Toml node.
      *
-     * @return {@link Map< TomlNode ,Map<String,CompletionItem>>}.
+     * @return {@link Map< TomlNode, Map<String,CompletionItem>>}.
      */
     public Map<TomlNode, Map<String, CompletionItem>> getCompletionProposals() {
+        if (!isSchemaVisited) {
+            Schema schema = Schema.from(getValidationSchema());
+            TomlSchemaVisitor visitor = new TomlSchemaVisitor();
+            schema.accept(visitor);
+            this.completions = visitor.getAllCompletionSnippets();
+            this.isSchemaVisited = true;
+        }
         return Collections.unmodifiableMap(completions);
     }
 
@@ -57,5 +59,4 @@ public abstract class AbstractTomlSnippetManager {
      * @return {@link String} Schema string corresponding to the snippet manager.
      */
     public abstract String getValidationSchema();
-
 }

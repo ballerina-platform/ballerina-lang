@@ -53,7 +53,7 @@ public class ProjectPaths {
             throw new ProjectException("provided path is not a regular file: " + filepath);
         }
 
-        // Check if the file is insidexistse a Ballerina package directory
+        // Check if the file is inside a Ballerina package directory
         Optional<Path> projectRoot = findProjectRoot(filepath);
         if (projectRoot.isEmpty()) {
             throw new ProjectException("provided file path does not belong to a Ballerina package: " + filepath);

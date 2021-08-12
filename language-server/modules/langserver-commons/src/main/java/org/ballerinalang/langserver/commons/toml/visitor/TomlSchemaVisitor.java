@@ -45,20 +45,14 @@ import java.util.stream.Collectors;
 public class TomlSchemaVisitor extends SchemaVisitor {
 
     private final Map<TomlNode, Map<String, CompletionItem>> completions = new HashMap<>();
-    private Map<String, CompletionItem> topLevelNodeStore;
+    private Map<String, CompletionItem> currentTopLevelNodePropertyMap;
     private TomlNode topLevelNodeKey;
-
-    private Map<String, CompletionItem> initCompletionStore() {
-        if (this.topLevelNodeStore == null) {
-            return new HashMap<>();
-        }
-        return this.topLevelNodeStore;
-    }
 
     @Override
     public void visit(Schema objectSchema) {
         Map<String, AbstractSchema> properties = objectSchema.properties();
-        Map<String, CompletionItem> topLevelNodeStore = initCompletionStore();
+        Map<String, CompletionItem> completionStoreForCurrentTopLevelNode =
+                this.currentTopLevelNodePropertyMap != null ? this.currentTopLevelNodePropertyMap : new HashMap<>();
 
         for (Map.Entry<String, AbstractSchema> property : properties.entrySet()) {
             String propertyKey = property.getKey();
@@ -69,7 +63,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
                     propertyKey = getQualifiedTableKey(propertyKey);
                     Table tableNode = new Table(propertyKey);
                     CompletionItem item = generateCompletionItem(tableNode, TomlSyntaxTreeUtil.TABLE);
-                    topLevelNodeStore.put(propertyKey, item);
+                    completionStoreForCurrentTopLevelNode.put(propertyKey, item);
                     Map<String, CompletionItem> store = new HashMap<>();
                     visitNode(propertyValue, tableNode, store);
                     this.completions.put(tableNode, store);
@@ -78,19 +72,22 @@ public class TomlSchemaVisitor extends SchemaVisitor {
                     //json array may contain json objects as elements in the array. i.e: array of tables,
                     // array of strings
                     visitNode(propertyValue, new Array(propertyKey, getQualifiedTableKey(propertyKey), ValueType.ARRAY),
-                            topLevelNodeStore);
+                            completionStoreForCurrentTopLevelNode);
                     break;
                 case STRING:
-                    visitNode(propertyValue, new KeyValuePair(propertyKey, ValueType.STRING), topLevelNodeStore);
+                    visitNode(propertyValue, new KeyValuePair(propertyKey, ValueType.STRING),
+                            completionStoreForCurrentTopLevelNode);
                     break;
                 case INTEGER:
-                    visitNode(propertyValue, new KeyValuePair(propertyKey, ValueType.NUMBER), topLevelNodeStore);
+                    visitNode(propertyValue, new KeyValuePair(propertyKey, ValueType.NUMBER),
+                            completionStoreForCurrentTopLevelNode);
                     break;
                 case BOOLEAN:
-                    visitNode(propertyValue, new KeyValuePair(propertyKey, ValueType.BOOLEAN), topLevelNodeStore);
+                    visitNode(propertyValue, new KeyValuePair(propertyKey, ValueType.BOOLEAN),
+                            completionStoreForCurrentTopLevelNode);
                     break;
                 default:
-                    visitNode(propertyValue, new Table(propertyKey), topLevelNodeStore);
+                    visitNode(propertyValue, new Table(propertyKey), completionStoreForCurrentTopLevelNode);
             }
         }
     }
@@ -99,7 +96,7 @@ public class TomlSchemaVisitor extends SchemaVisitor {
     public void visit(ArraySchema arraySchema) {
         AbstractSchema items = arraySchema.items();
         if (items.type() == Type.OBJECT) {
-            Map<String, CompletionItem> topLevelNodeStore = this.topLevelNodeStore;
+            Map<String, CompletionItem> topLevelNodeStore = this.currentTopLevelNodePropertyMap;
             TableArray tableArray = new TableArray(((Array) this.topLevelNodeKey).getQname());
             CompletionItem item = generateCompletionItem(tableArray, TomlSyntaxTreeUtil.TABLE_ARRAY);
             topLevelNodeStore.put(tableArray.getKey(), item);
@@ -109,39 +106,39 @@ public class TomlSchemaVisitor extends SchemaVisitor {
             this.completions.put(this.topLevelNodeKey, store);
         } else if (items.type() == Type.ARRAY) {
             String arrayKey = ((Array) this.topLevelNodeKey).getQname();
-            visitNode(items, new Array(arrayKey, arrayKey, ValueType.ARRAY), this.topLevelNodeStore);
+            visitNode(items, new Array(arrayKey, arrayKey, ValueType.ARRAY), this.currentTopLevelNodePropertyMap);
         } else {
             CompletionItem item = generateCompletionItem(this.topLevelNodeKey, TomlSyntaxTreeUtil.ARRAY);
-            this.topLevelNodeStore.put(this.topLevelNodeKey.getKey(), item);
+            this.currentTopLevelNodePropertyMap.put(this.topLevelNodeKey.getKey(), item);
         }
     }
 
     @Override
     public void visit(BooleanSchema booleanSchema) {
         CompletionItem item = generateCompletionItem(this.topLevelNodeKey, TomlSyntaxTreeUtil.BOOLEAN);
-        this.topLevelNodeStore.put(this.topLevelNodeKey.getKey(), item);
+        this.currentTopLevelNodePropertyMap.put(this.topLevelNodeKey.getKey(), item);
     }
 
     @Override
     public void visit(NumericSchema numericSchema) {
         CompletionItem item = generateCompletionItem(this.topLevelNodeKey, TomlSyntaxTreeUtil.NUMBER);
-        this.topLevelNodeStore.put(this.topLevelNodeKey.getKey(), item);
+        this.currentTopLevelNodePropertyMap.put(this.topLevelNodeKey.getKey(), item);
     }
 
     @Override
     public void visit(StringSchema stringSchema) {
         CompletionItem item = generateCompletionItem(this.topLevelNodeKey, TomlSyntaxTreeUtil.STRING);
-        this.topLevelNodeStore.put(this.topLevelNodeKey.getKey(), item);
+        this.currentTopLevelNodePropertyMap.put(this.topLevelNodeKey.getKey(), item);
     }
 
     private void visitNode(AbstractSchema schema, TomlNode newKey, Map<String, CompletionItem> newTopLevelStore) {
         TomlNode oldKey = this.topLevelNodeKey;
-        Map<String, CompletionItem> oldStore = this.topLevelNodeStore;
+        Map<String, CompletionItem> oldStore = this.currentTopLevelNodePropertyMap;
         this.topLevelNodeKey = newKey;
-        this.topLevelNodeStore = newTopLevelStore;
+        this.currentTopLevelNodePropertyMap = newTopLevelStore;
         schema.accept(this);
         this.topLevelNodeKey = oldKey;
-        this.topLevelNodeStore = oldStore;
+        this.currentTopLevelNodePropertyMap = oldStore;
     }
 
     private String getQualifiedTableKey(String key) {
@@ -183,10 +180,10 @@ public class TomlSchemaVisitor extends SchemaVisitor {
      * returns the completions which corresponds to key-value pairs under each qualified key.
      * eg: platform, platform.java11 have individual completions items generated by the toml
      * schema visitor for Ballerina toml. But they are not valid.
-     * Only the platform.java11.dependency is valid.
+     * Only platform.java11.dependency is valid.
      *
      * @param completions
-     * @return
+     * @return {@link Map<TomlNode,Map<String,CompletionItem>>} Optimized completion item map.
      */
     protected Map<TomlNode, Map<String, CompletionItem>> removeTopLevelKeyCompletionItems(
             Map<TomlNode, Map<String, CompletionItem>> completions) {

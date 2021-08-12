@@ -35,7 +35,6 @@ public class BallerinaTomlSnippetManager extends AbstractTomlSnippetManager {
             new LanguageServerContext.Key<>();
 
     private BallerinaTomlSnippetManager(LanguageServerContext context) {
-        super();
         context.put(BALLERINA_TOML_SNIPPET_MANAGER_KEY, this);
     }
 
