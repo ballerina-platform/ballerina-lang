@@ -27,6 +27,9 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
  */
 public enum DiagnosticErrorCode implements DiagnosticCode {
 
+    // The member represents a special error for unhandled exceptions from the compiler
+    BAD_SAD_FROM_COMPILER("BCE9999", "bad.sad.from.compiler"),
+
     UNDEFINED_MODULE("BCE2000", "undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("BCE2001", "cyclic.module.imports.detected"),
     UNUSED_IMPORT_MODULE("BCE2002", "unused.import.module"),
