@@ -625,7 +625,7 @@ public class SymbolTable {
 
         BUnionType[] nullableIntTypes = new BUnionType[8];
 
-        for (int i=0; i<intTypes.length; i++) {
+        for (int i = 0; i < intTypes.length; i++) {
             nullableIntTypes[i] = BUnionType.create(null, intTypes[i], nilType);
         }
 
@@ -673,7 +673,7 @@ public class SymbolTable {
 
         BUnionType[] nullableIntTypes = new BUnionType[8];
 
-        for (int i=0; i<intTypes.length; i++) {
+        for (int i = 0; i < intTypes.length; i++) {
             nullableIntTypes[i] = BUnionType.create(null, intTypes[i], nilType);
         }
 
@@ -774,7 +774,7 @@ public class SymbolTable {
         BUnionType[] unsignedNullableIntTypes = new BUnionType[4];
         BUnionType[] signedNullableIntTypes = new BUnionType[4];
 
-        for (int i=0; i<unsignedIntTypes.length; i++) {
+        for (int i = 0; i < unsignedIntTypes.length; i++) {
             unsignedNullableIntTypes[i] = BUnionType.create(null, unsignedIntTypes[i], nilType);
             signedNullableIntTypes[i] = BUnionType.create(null, signedIntTypes[i], nilType);
         }
@@ -832,7 +832,7 @@ public class SymbolTable {
 
         BUnionType[] nullableIntTypes = new BUnionType[8];
 
-        for (int i=0; i<intTypes.length; i++) {
+        for (int i = 0; i < intTypes.length; i++) {
             nullableIntTypes[i] = BUnionType.create(null, intTypes[i], nilType);
         }
 
@@ -877,7 +877,7 @@ public class SymbolTable {
         BUnionType[] unsignedNullableIntTypes = new BUnionType[4];
         BUnionType[] signedNullableIntTypes = new BUnionType[4];
 
-        for (int i=0; i<unsignedIntTypes.length; i++) {
+        for (int i = 0; i < unsignedIntTypes.length; i++) {
             unsignedNullableIntTypes[i] = BUnionType.create(null, unsignedIntTypes[i], nilType);
             signedNullableIntTypes[i] = BUnionType.create(null, signedIntTypes[i], nilType);
         }
@@ -888,7 +888,7 @@ public class SymbolTable {
 
         BUnionType[] nullableAllIntTypes = new BUnionType[8];
 
-        for (int i=0; i<allIntTypes.length; i++) {
+        for (int i = 0; i < allIntTypes.length; i++) {
             nullableAllIntTypes[i] = BUnionType.create(null, allIntTypes[i], nilType);
         }
 
@@ -904,8 +904,8 @@ public class SymbolTable {
             }
         }
 
-        for (int i=0; i<unsignedIntTypes.length; i++) {
-            for (int j=0; j<nullableAllIntTypes.length; j++) {
+        for (int i = 0; i < unsignedIntTypes.length; i++) {
+            for (int j = 0; j < nullableAllIntTypes.length; j++) {
                 defineBinaryOperator(rightShiftOpKind, unsignedIntTypes[i], nullableAllIntTypes[j],
                         unsignedIntTypes[i]);
             }
