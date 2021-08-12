@@ -149,6 +149,6 @@ public class SimpleConstantNegativeTest {
                 294, 17);
         BAssertUtil.validateError(compileResult, index++, "constant declarations are allowed only at module level",
                 297, 5);
-        BAssertUtil.validateError(compileResult, index, "self referenced variable 'CONST1'", 300, 20);
+        BAssertUtil.validateError(compileResult, index, "self referenced constant 'CONST1'", 300, 20);
     }
 }

@@ -123,7 +123,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
 
         if (this.currentConstSymbol == constSymbol) {
-            dlog.error(varRef.pos, DiagnosticErrorCode.SELF_REFERENCE_VAR, constSymbol.name);
+            dlog.error(varRef.pos, DiagnosticErrorCode.SELF_REFERENCE_CONSTANT, constSymbol.name);
             return;
         }
 

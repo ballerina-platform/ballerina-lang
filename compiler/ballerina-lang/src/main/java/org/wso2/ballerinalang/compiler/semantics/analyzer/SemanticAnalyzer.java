@@ -119,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
@@ -189,6 +190,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -883,7 +885,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType);
         }
 
-        checkSelfReferencesInRhsListConstructorExpr(varNode, rhsExpr);
+        checkSelfReferencesInVarNode(varNode, rhsExpr);
         transferForkFlag(varNode);
     }
 
@@ -1250,36 +1252,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         typeChecker.checkExpr(varNode.expr, env, varNode.getBType());
-        checkSelfReferencesInRhsListConstructorExpr(varNode, varNode.expr);
+        checkSelfReferencesInVarNode(varNode, varNode.expr);
     }
 
-    private void checkSelfReferencesInRhsListConstructorExpr(BLangVariable variable, BLangExpression rhsExpr) {
-        if (rhsExpr.getKind() != NodeKind.LIST_CONSTRUCTOR_EXPR) {
-            return;
-        }
-        BLangListConstructorExpr listExpr = (BLangListConstructorExpr) rhsExpr;
+    private void checkSelfReferencesInVarNode(BLangVariable variable, BLangExpression rhsExpr) {
         switch (variable.getKind()) {
             case VARIABLE:
                 SymbolEnv simpleVarEnv = this.env.enclVarSym != null ? this.env :
                         SymbolEnv.createVarInitEnv(variable, this.env, variable.symbol);
-                for (int i = 0; i < listExpr.exprs.size(); i++) {
-                    checkSelfReferences(listExpr.exprs.get(i), simpleVarEnv);
-                }
+                checkSelfReferences(rhsExpr, simpleVarEnv);
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-                if (listExpr.exprs.size() > tupleVariable.memberVariables.size()) {
+                if (rhsExpr.getKind() != NodeKind.LIST_CONSTRUCTOR_EXPR ||
+                        ((BLangListConstructorExpr) rhsExpr).exprs.size() > tupleVariable.memberVariables.size()) {
                     return;
                 }
+                BLangListConstructorExpr listExpr = (BLangListConstructorExpr) rhsExpr;
                 for (int i = 0; i < listExpr.exprs.size(); i++) {
-                    if (listExpr.exprs.get(i).getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
-                        checkSelfReferencesInRhsListConstructorExpr(tupleVariable.memberVariables.get(i),
-                                listExpr.exprs.get(i));
-                        continue;
+                    for (int j = 0; j < tupleVariable.memberVariables.size(); j++) {
+                        if (listExpr.exprs.get(i).getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+                            checkSelfReferencesInVarNode(tupleVariable.memberVariables.get(j),
+                                    listExpr.exprs.get(i));
+                            continue;
+                        }
+                        BLangVariable memberVar = tupleVariable.memberVariables.get(j);
+                        SymbolEnv varEnv = SymbolEnv.createVarInitEnv(memberVar, this.env, memberVar.symbol);
+                        checkSelfReferences(listExpr.exprs.get(i), varEnv);
                     }
-                    BLangVariable memberVar = tupleVariable.memberVariables.get(i);
-                    SymbolEnv varEnv = SymbolEnv.createVarInitEnv(memberVar, this.env, memberVar.symbol);
-                    checkSelfReferences(listExpr.exprs.get(i), varEnv);
                 }
                 break;
         }
@@ -1290,6 +1290,40 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
             if (varRef.symbol != null && ((varRef.symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
                 typeChecker.checkSelfReferences(varRef.pos, varInitEnv, (BVarSymbol) varRef.symbol);
+            }
+            return;
+        }
+        if (expr.getKind() == NodeKind.LET_EXPR) {
+            for (BLangLetVariable letVar : ((BLangLetExpression) expr).letVarDeclarations) {
+                checkSelfReferences(((BLangVariable) letVar.definitionNode.getVariable()).expr, varInitEnv);
+            }
+            return;
+        }
+        if (expr.getKind() == NodeKind.INVOCATION) {
+            for (BLangExpression argExpr : ((BLangInvocation) expr).argExprs) {
+                checkSelfReferences(argExpr, varInitEnv);
+            }
+            return;
+        }
+        if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
+            BLangListConstructorExpr listExpr = (BLangListConstructorExpr) expr;
+            for (int i = 0; i < listExpr.exprs.size(); i++) {
+                checkSelfReferences(listExpr.exprs.get(i), varInitEnv);
+            }
+            return;
+        }
+        if (expr.getKind() == RECORD_LITERAL_EXPR) {
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expr;
+            for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
+                if (field.isKeyValueField()) {
+                    BLangRecordLiteral.BLangRecordKeyValueField pair =
+                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                    checkSelfReferences(pair.valueExpr, varInitEnv);
+                    continue;
+                }
+                if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                    checkSelfReferences((BLangSimpleVarRef) field, varInitEnv);
+                }
             }
         }
     }
