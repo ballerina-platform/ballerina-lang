@@ -66,15 +66,9 @@ public class BMap extends IndexedCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            Value valueAsObject = getValueAsObject(context, jvmValue);
-            List<String> methodArgTypeNames = Collections.singletonList(JAVA_OBJECT_CLASS);
-            RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
-                    methodArgTypeNames);
-            method.setArgValues(Collections.singletonList(valueAsObject));
-            Value value = method.invokeSafely();
-            String typeDescValue = VariableFactory.getVariable(context, value).computeValue();
-            typeDescValue = typeDescValue.split(MAP_TYPEDESC_SEPARATOR)[0].trim();
-            return String.format("%s (size = %d)", typeDescValue, getChildrenCount());
+            // Todo - include constraint type (e.g. map<TYPE>), once we have language level support to get the simple
+            //  type
+            return String.format("map (size = %d)", getChildrenCount());
         } catch (Exception e) {
             return VariableUtils.getBType(jvmValue);
         }
