@@ -30,7 +30,6 @@
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTestNew" />
             <class name="io.ballerina.semantic.api.test.FieldSymbolTest" />
             <class name="io.ballerina.semantic.api.test.LangLibFunctionTest" />
-            <class name="io.ballerina.semantic.api.test.ParameterSymbolTest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
             <class name="io.ballerina.semantic.api.test.SymbolEquivalenceTest" />
@@ -105,7 +104,9 @@
 
             <!--Symbols-->
             <class name="io.ballerina.semantic.api.test.symbols.FunctionSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.FunctionTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ObjectTypeSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.ParameterSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.RecordTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInMappingConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
