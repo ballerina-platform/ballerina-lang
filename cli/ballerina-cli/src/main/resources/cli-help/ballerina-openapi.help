@@ -62,8 +62,7 @@ OPTIONS
             with command of OpenAPI to Ballerina file generation.
 
         (--operations) <operation-names>
-            These operations are used to filter the operations that are needed to generate services.
-            This option is used with the command of the OpenAPI to Ballerina file generation.
+            Optional. List of operations to generate the Ballerina service or client.
 
 DEFAULT BEHAVIOR
        If no options are provided, the help text for the OpenAPI Tool is shown.
