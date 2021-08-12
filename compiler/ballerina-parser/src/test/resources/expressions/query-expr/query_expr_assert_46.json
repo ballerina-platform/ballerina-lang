@@ -121,7 +121,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_EXPRESSION"
+                                "ERROR_MISSING_IDENTIFIER"
                               ]
                             }
                           ]

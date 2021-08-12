@@ -9,8 +9,11 @@ public function main() {
     LoopContext ctx = {outer: (), str: "ABC", ascending: true, descending: false};
     int a = join;
     int limit = 5;
+    boolean equals = true;
     match order {
-        by => {}
-        select => {}
+        by => {
+        }
+        select => {
+        }
     }
 }
