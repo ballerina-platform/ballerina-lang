@@ -38,7 +38,6 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.HANDLE;
@@ -48,7 +47,6 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
@@ -109,8 +107,8 @@ public class TypeSymbolTest {
 //                {46, 4, ERROR, "error<ErrorData>"},
                 {47, 4, HANDLE, "handle"},
                 {48, 4, STREAM, "stream<Person, error>"},
-                {52, 4, SINGLETON, "10"},
-                {53, 4, SINGLETON, "FOO"},
+//                {52, 4, SINGLETON, "10"},
+//                {53, 4, SINGLETON, "FOO"},
                 {54, 4, ANY, "any"},
                 {55, 4, NEVER, "never"},
                 {56, 4, READONLY, "readonly"},
@@ -121,7 +119,7 @@ public class TypeSymbolTest {
                 {60, 4, ANYDATA, "anydata"},
                 {61, 4, JSON, "json"},
                 {62, 4, BYTE, "byte"},
-                {63, 13, ERROR, "error"},
+//                {63, 13, ERROR, "error"},
         };
     }
 
@@ -162,13 +160,20 @@ public class TypeSymbolTest {
         };
     }
 
-    @Test
-    public void testConstRef() {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(41, 8));
-
+    @Test(dataProvider = "ConstRefPosProvider")
+    public void testConstRef(int line, int col, String expName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), SymbolKind.CONSTANT);
-        assertEquals(symbol.get().getName().get(), "TEN");
+        assertEquals(symbol.get().getName().get(), expName);
+    }
+
+    @DataProvider(name = "ConstRefPosProvider")
+    public Object[][] getConstRefPos() {
+        return new Object[][]{
+                {41, 8, "TEN"},
+                {53, 4, "FOO"},
+        };
     }
 
     // private utils
