@@ -500,8 +500,6 @@ function testErrorStackTrace() {
     Person person = new("John", 25);
 }
 
-
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

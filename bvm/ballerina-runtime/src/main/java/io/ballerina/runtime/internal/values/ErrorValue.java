@@ -418,12 +418,9 @@ public class ErrorValue extends BError implements RefValue {
                                                      stackFrame.getLineNumber()));
 
         }
-        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-            // Remove java sources for bal stacktrace if they are not extern functions.
-            return Optional.empty();
-        }
-        if (methodName == GENERATE_METHOD_INIT) {
-            // Remove the stack frame which have compiler added init method name
+        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX) || methodName == GENERATE_METHOD_INIT) {
+            // Remove java sources for bal stacktrace if they are not extern functions or
+            // the stack frames which have compiler added init method name
             return Optional.empty();
         }
         return Optional.of(
