@@ -433,6 +433,7 @@ public class JvmCodeGenUtil {
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
+                return String.format(")L%s;", OBJECT);
             case TypeTags.OBJECT:
                 return String.format(")L%s;", B_OBJECT);
             case TypeTags.INVOKABLE:
