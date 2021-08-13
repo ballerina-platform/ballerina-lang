@@ -28,10 +28,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Test DependenciesToml.
@@ -55,7 +53,7 @@ public class DependenciesTomlTests {
         Assert.assertEquals(twitter.name().value(), "twitter");
         Assert.assertEquals(twitter.version().toString(), "2.3.4");
         Assert.assertFalse(twitter.isTransitive());
-        List<DependencyManifest.Dependency> twitterTransDependencies = twitter.dependencies();
+        List<DependencyManifest.Dependency> twitterTransDependencies = new ArrayList<>(twitter.dependencies());
         Assert.assertEquals(twitterTransDependencies.size(), 5);
 
         DependencyManifest.Dependency twitterFirstTransDependency = twitterTransDependencies.get(0);

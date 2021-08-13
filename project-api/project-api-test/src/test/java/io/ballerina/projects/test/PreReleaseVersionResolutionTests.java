@@ -95,7 +95,8 @@ public class PreReleaseVersionResolutionTests {
     }
 
     @Test(description = "There are pre-release and stables versions of a package dependency available in " +
-            "a repository. The resolution logic should pic the latest stable version in that case")
+            "a repository. The resolution logic should pic the latest stable version in that case",
+            enabled = false)
     public void testVersionResolutionWithPreReleaseVersion() {
         // package_l_with_stable_dep --> package_k (version is not specified)
         // There are three versions of package_k in the repository: 1.1.0-alpha, 1.1.0-beta and 1.0.0

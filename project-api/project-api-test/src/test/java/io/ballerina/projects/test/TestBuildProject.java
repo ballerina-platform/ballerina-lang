@@ -918,7 +918,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = BuildProject.load(projectPath, new BuildOptionsBuilder().sticky(true).build());
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
