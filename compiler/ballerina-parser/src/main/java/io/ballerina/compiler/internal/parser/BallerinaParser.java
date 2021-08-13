@@ -11223,7 +11223,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseQueryExprRhs(STNode queryConstructType, boolean isRhsExpr) {
-        this.tokenReader.startMode(ParserMode.QUERY);
+        this.tokenReader.startKeywordMode(KeywordMode.QUERY);
         switchContext(ParserRuleContext.QUERY_EXPRESSION);
         STNode fromClause = parseFromClause(isRhsExpr);
 
@@ -11284,7 +11284,7 @@ public class BallerinaParser extends AbstractParser {
         STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         STNode onConflictClause = parseOnConflictClause(isRhsExpr);
 
-        this.tokenReader.endMode();
+        this.tokenReader.endKeywordMode();
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause,
                 onConflictClause);
     }

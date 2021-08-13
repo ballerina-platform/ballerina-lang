@@ -926,7 +926,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.CONFIGURABLE:
                 return getSyntaxToken(SyntaxKind.CONFIGURABLE_KEYWORD);
             default:
-                if (this.mode == ParserMode.QUERY) {
+                if (this.keywordModes.contains(KeywordMode.QUERY)) {
                     return getQueryCtxKeywordOrIdentifier(tokenText);
                 }
                 return getIdentifierToken();

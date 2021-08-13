@@ -30,7 +30,6 @@ public enum ParserMode {
     TEMPLATE,
     INTERPOLATION,
     INTERPOLATION_BRACED_CONTENT,
-    QUERY,
 
     // Documentation Parser
     DOC_LINE_START_HASH,
