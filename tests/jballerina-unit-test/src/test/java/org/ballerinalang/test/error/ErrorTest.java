@@ -411,6 +411,22 @@ public class ErrorTest {
                 "\t   ... 4 more");
     }
 
+    @Test
+    public void testErrorStackTrace() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testErrorStackTrace");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error\n" +
+                "\tat Person:init(error_test.bal:495)\n" +
+                "\t   error_test:testErrorStackTrace(error_test.bal:500)");
+    }
+
     @AfterClass
     public void cleanup() {
         errorTestResult = null;

@@ -68,13 +68,14 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+    private static final String GENERATE_METHOD_INIT = "$init$";
 
     public ErrorValue(BString message) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
@@ -421,11 +422,15 @@ public class ErrorValue extends BError implements RefValue {
             // Remove java sources for bal stacktrace if they are not extern functions.
             return Optional.empty();
         }
+        if (methodName == GENERATE_METHOD_INIT) {
+            // Remove the stack frame which have compiler added init method name
+            return Optional.empty();
+        }
         return Optional.of(
                 new StackTraceElement(cleanupClassName(className), methodName, fileName, stackFrame.getLineNumber()));
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
+        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "");
     }
 }
