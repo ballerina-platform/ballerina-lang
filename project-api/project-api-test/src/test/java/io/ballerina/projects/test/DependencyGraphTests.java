@@ -115,6 +115,9 @@ public class DependencyGraphTests extends BaseTest {
 
         // 2) update version of the package_c dependency in Dependencies.toml
         project.currentPackage().dependenciesToml().get().modify().withContent(
+                        "[ballerina]\n" +
+                        "dependencies-toml-version = \"2\"\n" +
+                        "\n" +
                         "[[dependency]]\n" +
                         "org = \"foo\"\n" +
                         "name = \"package_dep\"\n" +

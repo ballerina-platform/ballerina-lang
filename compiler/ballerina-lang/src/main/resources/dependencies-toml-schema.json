@@ -8,13 +8,6 @@
     "ballerina": {
       "type": "object",
       "properties": {
-        "version": {
-          "type": "string",
-          "pattern": "^[a-zA-Z0-9_.]*$",
-          "message": {
-            "pattern": "invalid 'version' under [ballerina]: 'version' should only contain alphanumeric characters"
-          }
-        },
         "dependencies-toml-version": {
           "type": "string",
           "pattern": "^[a-zA-Z0-9_.]*$",
@@ -24,7 +17,6 @@
         }
       },
       "required": [
-        "version",
         "dependencies-toml-version"
       ],
       "message": {
