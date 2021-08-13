@@ -305,7 +305,8 @@ function testErrorMatchPattern16() {
     errorMatchPattern18(err6));
 
     any|error err7 = error("Error", error("Invalid Op"), code1 = [12, "A", 10.5, 1], code2 = {a: "A", b: [1, 2]});
-    assertEquals("message:Error cause:Invalid Op details:{\"a\":[12,A,10.5,1],\"rest\":{\"code2\":{\"a\":\"A\",\"b\":[1,2]}}}",
+    assertEquals("message:Error cause:Invalid Op details:{\"a\":[12,\"A\",10.5,1],\"rest\":{\"code2\":{\"a\":\"A\"," +
+    "\"b\":[1,2]}}}",
     errorMatchPattern19(err7));
 }
 

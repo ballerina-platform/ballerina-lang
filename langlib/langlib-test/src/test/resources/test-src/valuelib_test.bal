@@ -1636,7 +1636,7 @@ public function testFromJsonWithTypeWithTypeReferences() {
    FooBar f = checkpanic j.fromJsonWithType();
    assert(f is FooBar, true);
    assert(f is [string...], true);
-   assert(f.toString(), "[foo]");
+   assert(f.toString(), "[\"foo\"]");
  }
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
