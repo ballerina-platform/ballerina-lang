@@ -1,0 +1,5 @@
+[[dependency]]
+org = "waruna"
+name = "http"
+version = "1.1.1"
+repository = "local"

@@ -153,7 +153,7 @@ public class ErrorCreator {
      */
     public static BError createError(Module module, String errorTypeName,
                                      BString message, BError cause, Object details) {
-        ValueCreator valueCreator = ValueCreator.getValueCreator(module.toString());
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
         return valueCreator.createErrorValue(errorTypeName, message, cause, details);
     }
 

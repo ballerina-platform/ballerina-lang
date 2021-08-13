@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -56,7 +57,11 @@ public abstract class ValueCreator {
         runtimeValueCreators.put(key, valueCreator);
     }
 
-    private static String getLookupKey(String orgName, String moduleName, String version) {
+    public static String getLookupKey(Module module) {
+        return getLookupKey(module.getOrg(), module.getName(), module.getMajorVersion());
+    }
+
+    public static String getLookupKey(String orgName, String moduleName, String majorVersion) {
         if (DOT.equals(moduleName)) {
             return moduleName;
         }
@@ -66,16 +71,16 @@ public abstract class ValueCreator {
             pkgName = orgName + ORG_NAME_SEPARATOR;
         }
 
-        if (version == null || version.equals(EMPTY)) {
+        if (majorVersion == null || majorVersion.equals(EMPTY)) {
             return pkgName + moduleName;
         }
 
-        return pkgName + moduleName + VERSION_SEPARATOR + version;
+        return pkgName + moduleName + VERSION_SEPARATOR + majorVersion;
     }
 
     public static ValueCreator getValueCreator(String key) {
         if (!runtimeValueCreators.containsKey(key)) {
-            throw new BallerinaException("Value creator object is not available");
+            throw new BallerinaException("Value creator object is not available for: " + key);
         }
         return runtimeValueCreators.get(key);
     }
