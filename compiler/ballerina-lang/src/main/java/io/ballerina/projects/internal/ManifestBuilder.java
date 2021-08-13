@@ -75,7 +75,7 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 public class ManifestBuilder {
 
     private TomlDocument ballerinaToml;
-    private Optional<TomlDocument> compilerPluginToml;
+    private TomlDocument compilerPluginToml;
     private DiagnosticResult diagnostics;
     private List<Diagnostic> diagnosticList;
     private PackageManifest packageManifest;
@@ -97,7 +97,7 @@ public class ManifestBuilder {
                             Path projectPath) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
-        this.compilerPluginToml = Optional.ofNullable(compilerPluginToml);
+        this.compilerPluginToml = compilerPluginToml;
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
@@ -190,15 +190,13 @@ public class ManifestBuilder {
         List<PackageManifest.Dependency> localRepoDependencies = getLocalRepoDependencies();
 
         // Compiler plugin descriptor
-        Optional<CompilerPluginDescriptor> pluginDescriptor;
-        if (this.compilerPluginToml.isPresent()) {
-            pluginDescriptor = Optional.of(CompilerPluginDescriptor.from(this.compilerPluginToml.get()));
-        } else {
-            pluginDescriptor = Optional.empty();
+        CompilerPluginDescriptor pluginDescriptor = null;
+        if (this.compilerPluginToml != null) {
+            pluginDescriptor = CompilerPluginDescriptor.from(this.compilerPluginToml);
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                                    diagnostics(), license, authors, keywords, exported, repository);
+                diagnostics(), license, authors, keywords, exported, repository);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {

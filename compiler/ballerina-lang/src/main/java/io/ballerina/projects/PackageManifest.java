@@ -32,7 +32,7 @@ import java.util.Optional;
  */
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
-    private final Optional<CompilerPluginDescriptor> compilerPluginDesc;
+    private final CompilerPluginDescriptor compilerPluginDesc;
     private final Map<String, Platform> platforms;
     private final List<Dependency> dependencies;
     private final DiagnosticResult diagnostics;
@@ -47,7 +47,7 @@ public class PackageManifest {
     private final Map<String, Object> otherEntries;
 
     private PackageManifest(PackageDescriptor packageDesc,
-                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -66,7 +66,7 @@ public class PackageManifest {
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
-                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -90,12 +90,12 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
-        return new PackageManifest(packageDesc, Optional.empty(), Collections.emptyMap(), Collections.emptyList(),
+        return new PackageManifest(packageDesc, null, Collections.emptyMap(), Collections.emptyList(),
                                    Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
@@ -103,7 +103,7 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        Map<String, Object> otherEntries,
@@ -118,7 +118,7 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
                                        List<Dependency> dependencies,
                                        List<String> license,
@@ -148,7 +148,7 @@ public class PackageManifest {
     }
 
     public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
-        return compilerPluginDesc;
+        return Optional.ofNullable(compilerPluginDesc);
     }
 
     public Platform platform(String platformCode) {

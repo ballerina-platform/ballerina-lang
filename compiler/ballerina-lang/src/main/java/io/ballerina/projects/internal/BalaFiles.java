@@ -393,17 +393,18 @@ public class BalaFiles {
         }
 
         return compilerPluginJson.map(pluginJson -> PackageManifest
-                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), platforms, dependencies,
-                      packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                      packageJson.getExport(), packageJson.getSourceRepository())).orElseGet(() -> PackageManifest
-                .from(pkgDesc, Optional.empty(), platforms, dependencies, packageJson.getLicenses(),
-                      packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                      packageJson.getSourceRepository()));
+                .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
+                        packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                        packageJson.getExport(), packageJson.getSourceRepository())).orElseGet(() -> PackageManifest
+                .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
+                        packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
+                        packageJson.getSourceRepository()));
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
         List<DependencyManifest.Package> packages = new ArrayList<>();
-        for (io.ballerina.projects.internal.model.Dependency dependency : dependencyGraphJson.getPackageDependencyGraph()) {
+        for (io.ballerina.projects.internal.model.Dependency dependency :
+                dependencyGraphJson.getPackageDependencyGraph()) {
             List<DependencyManifest.Dependency> dependencies = new ArrayList<>();
             List<DependencyManifest.Module> modules = new ArrayList<>();
             for (io.ballerina.projects.internal.model.Dependency transDependency : dependency.getDependencies()) {
