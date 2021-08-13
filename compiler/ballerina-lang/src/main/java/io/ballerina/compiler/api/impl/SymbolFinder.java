@@ -285,10 +285,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
-        if (funcNode.getMarkdownDocumentationAttachment() != null) {
-            lookupNodes(funcNode.markdownDocumentationAttachment.parameters);
-        }
-
+        lookupNode(funcNode.markdownDocumentationAttachment);
         lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
@@ -336,10 +333,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
-        if (typeDefinition.getMarkdownDocumentationAttachment() != null) {
-            lookupNodes(typeDefinition.markdownDocumentationAttachment.parameters);
-        }
-
+        lookupNode(typeDefinition.markdownDocumentationAttachment);
         lookupNodes(typeDefinition.annAttachments);
         lookupNode(typeDefinition.typeNode);
     }
@@ -1221,10 +1215,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
-        if (classDefinition.getMarkdownDocumentationAttachment() != null) {
-            lookupNodes(classDefinition.markdownDocumentationAttachment.parameters);
-        }
-
+        lookupNode(classDefinition.markdownDocumentationAttachment);
         lookupNodes(classDefinition.annAttachments);
 
         for (BLangSimpleVariable field : classDefinition.fields) {
@@ -1451,7 +1442,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
-        // ignore
+        lookupNodes(bLangMarkdownDocumentation.parameters);
     }
 
     @Override
