@@ -617,7 +617,8 @@ public class TypeChecker {
         }
 
         if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG &&
-                (targetTypeTag <= TypeTags.NULL_TAG || targetTypeTag == TypeTags.XML_TEXT_TAG)) {
+                (targetTypeTag == TypeTags.FINITE_TYPE_TAG || targetTypeTag <= TypeTags.NULL_TAG ||
+                        targetTypeTag == TypeTags.XML_TEXT_TAG)) {
             return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
         }
 
