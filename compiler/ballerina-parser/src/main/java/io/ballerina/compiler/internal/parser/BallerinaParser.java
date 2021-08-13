@@ -5684,8 +5684,8 @@ public class BallerinaParser extends AbstractParser {
         STNode openParen = parseOpenParenthesis();
 
         if (peek().kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-            // Could be nill literal or empty param-list of an implicit-anon-func-expr'
-            return parseNilLiteralOrEmptyAnonFuncParamRhs(openParen);
+            // Could be nil literal or empty param-list of an implicit-anon-func-expr'
+            return STNodeFactory.createNilLiteralNode(openParen, consume());
         }
 
         startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
@@ -5697,19 +5697,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseBracedExprOrAnonFuncParamRhs(openParen, expr, isRhsExpr);
-    }
-
-    private STNode parseNilLiteralOrEmptyAnonFuncParamRhs(STNode openParen) {
-        STNode closeParen = parseCloseParenthesis();
-        STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
-            return STNodeFactory.createNilLiteralNode(openParen, closeParen);
-        } else {
-            STNode params = STNodeFactory.createEmptyNodeList();
-            STNode anonFuncParam =
-                    STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
-            return anonFuncParam;
-        }
     }
 
     private STNode parseBracedExprOrAnonFuncParamRhs(STNode openParen, STNode expr, boolean isRhsExpr) {
@@ -10874,6 +10861,11 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case BRACED_EXPRESSION:
                 params = getAnonFuncParam((STBracedExpressionNode) params);
+                break;
+            case NIL_LITERAL:
+                STNilLiteralNode nilLiteralNode = (STNilLiteralNode) params;
+                params = STNodeFactory.createImplicitAnonymousFunctionParameters(nilLiteralNode.openParenToken,
+                        STNodeFactory.createNodeList(new ArrayList<>()), nilLiteralNode.closeParenToken);
                 break;
             default:
                 STToken syntheticParam = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
