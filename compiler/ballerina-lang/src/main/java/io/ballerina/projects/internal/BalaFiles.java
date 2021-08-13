@@ -396,10 +396,11 @@ public class BalaFiles {
         return compilerPluginJson.map(pluginJson -> PackageManifest
                 .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), platforms, localPackages,
                       packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                      packageJson.getExport(), packageJson.getSourceRepository())).orElseGet(() -> PackageManifest
-                .from(pkgDesc, Optional.empty(), platforms, localPackages, packageJson.getLicenses(),
-                      packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                      packageJson.getSourceRepository()));
+                      packageJson.getExport(), packageJson.getSourceRepository(), packageJson.getBallerinaVersion()))
+                .orElseGet(() -> PackageManifest
+                        .from(pkgDesc, Optional.empty(), platforms, localPackages, packageJson.getLicenses(),
+                              packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
+                              packageJson.getSourceRepository(), packageJson.getBallerinaVersion()));
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
