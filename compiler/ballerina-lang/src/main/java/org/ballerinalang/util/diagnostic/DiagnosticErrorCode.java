@@ -27,6 +27,9 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
  */
 public enum DiagnosticErrorCode implements DiagnosticCode {
 
+    // The member represents a special error for unhandled exceptions from the compiler
+    BAD_SAD_FROM_COMPILER("BCE9999", "bad.sad.from.compiler"),
+
     UNDEFINED_MODULE("BCE2000", "undefined.module"),
     CYCLIC_MODULE_IMPORTS_DETECTED("BCE2001", "cyclic.module.imports.detected"),
     UNUSED_IMPORT_MODULE("BCE2002", "unused.import.module"),
@@ -165,6 +168,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED(
             "BCE2125", "array.length.greater.that.2147483637.not.yet.supported"),
     INVALID_ARRAY_LENGTH("BCE2126", "invalid.array.length"),
+    CANNOT_RESOLVE_CONST("BCE2127", "cannot.resolve.const"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),

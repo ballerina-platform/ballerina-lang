@@ -129,6 +129,10 @@ public class SuspendedContext {
         return Optional.ofNullable(project.currentPackage().packageVersion().toString());
     }
 
+    public Optional<String> getPackageMajorVersion() {
+        return Optional.of(String.valueOf(project.currentPackage().packageVersion().value().major()));
+    }
+
     public Optional<String> getModuleName() {
         return Optional.ofNullable(project.currentPackage().getDefaultModule().moduleName().toString());
     }

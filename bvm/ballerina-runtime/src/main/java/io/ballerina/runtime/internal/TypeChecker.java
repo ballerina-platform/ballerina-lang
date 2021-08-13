@@ -3084,7 +3084,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.ARRAY_TAG:
-                return checkFillerValue((BArrayType) type);
+                return checkFillerValue((BArrayType) type, unanalyzedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -3092,13 +3092,26 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkFillerValue((BRecordType) type, unanalyzedTypes);
             case TypeTags.TUPLE_TAG:
-                BTupleType tupleType = (BTupleType) type;
-                return tupleType.getTupleTypes().stream().allMatch(TypeChecker::hasFillerValue);
+                return checkFillerValue((BTupleType) type, unanalyzedTypes);
             case TypeTags.UNION_TAG:
                 return checkFillerValue((BUnionType) type, unanalyzedTypes);
             default:
                 return false;
         }
+    }
+
+    private static boolean checkFillerValue(BTupleType tupleType,  List<Type> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(tupleType)) {
+            return true;
+        }
+        unAnalyzedTypes.add(tupleType);
+
+        for (Type member : tupleType.getTupleTypes()) {
+            if (!hasFillerValue(member, unAnalyzedTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkFillerValue(BUnionType type,  List<Type> unAnalyzedTypes) {
@@ -3140,8 +3153,8 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkFillerValue(BArrayType type) {
-        return type.getState() == ArrayState.OPEN || hasFillerValue(type.getElementType());
+    private static boolean checkFillerValue(BArrayType type, List<Type> unAnalyzedTypes) {
+        return type.getState() == ArrayState.OPEN || hasFillerValue(type.getElementType(), unAnalyzedTypes);
     }
 
     private static boolean checkFillerValue(BObjectType type) {

@@ -111,12 +111,12 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             return className;
         }
         // for ballerina package source files,
-        // qualified class name ::= <package_name>.<module_name>.<package_version>.<file_name>
+        // qualified class name ::= <package_name>.<module_name>.<package_major_version>.<file_name>
         ModuleID moduleMeta = functionDef.getModule().get().id();
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))
-                .add(moduleMeta.version().replaceAll("\\.", "_"))
+                .add(moduleMeta.version().split("\\.")[0])
                 .add(className)
                 .toString();
     }

@@ -34,20 +34,20 @@ public class Module {
 
     private String org;
     private String name;
-    private String version;
+    private String majorVersion;
     private int hashCode;
 
-    public Module(String org, String name, String version) {
+    public Module(String org, String name, String majorVersion) {
         this.org = org;
         this.name = name;
-        this.version = version;
-        hashCode = Objects.hash(org, name, version);
+        this.majorVersion = majorVersion;
+        hashCode = Objects.hash(org, name, majorVersion);
     }
 
     public Module(String org, String name) {
         this.org = org;
         this.name = name;
-        this.version = "";
+        this.majorVersion = "";
         hashCode = Objects.hash(org, name);
     }
 
@@ -59,8 +59,13 @@ public class Module {
         return name;
     }
 
+    @Deprecated
     public String getVersion() {
-        return version;
+        return majorVersion;
+    }
+
+    public String getMajorVersion() {
+        return majorVersion;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class Module {
         Module bPackage = (Module) o;
         return Objects.equals(org, bPackage.org) &&
                 Objects.equals(name, bPackage.name) &&
-                Objects.equals(version, bPackage.version);
+                Objects.equals(majorVersion, bPackage.majorVersion);
     }
 
     @Override
@@ -88,11 +93,11 @@ public class Module {
             orgName = this.org + ORG_NAME_SEPARATOR;
         }
 
-        if (version == null || version.equals(EMPTY)) {
+        if (majorVersion == null || majorVersion.equals(EMPTY)) {
             return orgName + this.name;
         }
 
-        return orgName + this.name + VERSION_SEPARATOR + this.version;
+        return orgName + this.name + VERSION_SEPARATOR + this.majorVersion;
     }
 
     @Override
