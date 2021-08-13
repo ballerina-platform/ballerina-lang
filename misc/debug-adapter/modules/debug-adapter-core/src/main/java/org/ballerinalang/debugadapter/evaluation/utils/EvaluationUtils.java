@@ -156,6 +156,7 @@ public class EvaluationUtils {
     private static final String DOUBLE_VALUE_METHOD = "doubleValue";
 
     // Misc
+    public static final String SELF_VAR_NAME = "self";
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
 
@@ -249,6 +250,19 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
                     methodName));
         }
+    }
+
+    /**
+     * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
+     * accepts only the sub classes of @{@link java.lang.Object}.
+     */
+    public static List<Value> getAsObjects(SuspendedContext context, List<Value> argValueList)
+            throws EvaluationException {
+        List<Value> boxedValues = new ArrayList<>();
+        for (Value value : argValueList) {
+            boxedValues.add(getValueAsObject(context, value));
+        }
+        return boxedValues;
     }
 
     /**

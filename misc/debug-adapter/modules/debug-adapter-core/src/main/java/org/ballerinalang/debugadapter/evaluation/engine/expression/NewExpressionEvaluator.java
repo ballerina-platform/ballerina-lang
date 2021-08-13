@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_OBJECT_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -108,10 +107,6 @@ public class NewExpressionEvaluator extends Evaluator {
                     "too many arguments in call to '" + OBJECT_INIT_METHOD_NAME + "'."));
         }
 
-        // Validates user provided args against the `init` method signature.
-        if (initMethodRef.isPresent()) {
-            generateNamedArgs(context, OBJECT_INIT_METHOD_NAME, initMethodRef.get().typeDescriptor(), argEvaluators);
-        }
         List<String> argTypeNames = new ArrayList<>();
         argTypeNames.add(JAVA_STRING_CLASS);
         argTypeNames.add(JAVA_STRING_CLASS);

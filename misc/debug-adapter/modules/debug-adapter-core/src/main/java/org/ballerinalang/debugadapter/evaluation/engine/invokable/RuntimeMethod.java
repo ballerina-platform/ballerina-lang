@@ -53,8 +53,6 @@ public abstract class RuntimeMethod extends JvmMethod {
             // Evaluates all function argument expressions at first.
             for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
                 argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
-                // Assuming all the arguments are positional args.
-                argValueList.add(VMUtils.make(context, true).getJdiValue());
             }
             return argValueList;
         } catch (Exception e) {

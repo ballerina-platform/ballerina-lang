@@ -51,123 +51,35 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ST
  */
 public abstract class GeneratedMethod extends JvmMethod {
 
-    protected Map<String, Value> namedArgValues;
-
     GeneratedMethod(SuspendedContext context, Method methodRef) {
         super(context, methodRef);
-        this.namedArgValues = null;
     }
 
-    public void setNamedArgValues(Map<String, Value> namedArgValues) {
-        this.namedArgValues = namedArgValues;
+    public Method getJDIMethodRef() {
+        return methodRef;
     }
 
     @Override
     protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
-        try {
-            if (argValues == null && argEvaluators == null && namedArgValues == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString()
-                        , methodRef.name()));
-            }
-
-            List<Type> types = method.methodRef.argumentTypes();
-            // Removes injected arguments added during the jvm method gen phase.
-            for (int index = types.size() - 1; index >= 0; index -= 2) {
-                types.remove(index);
-            }
-
-            List<Value> argValueList = new ArrayList<>();
-            if (argValues != null) {
-                argValues.forEach(value -> {
-                    argValueList.add(value);
-                    // Assuming all the arguments are positional args.
-                    argValueList.add(VMUtils.make(context, true).getJdiValue());
-                });
-                // Here we use the existing strand instance to execute the function invocation expression.
-                Value strand = getCurrentStrand();
-                argValueList.add(0, strand);
-
-                return getAsObjects(argValueList);
-            }
-
-            if (namedArgValues != null) {
-                // Here we use the existing strand instance to execute the function invocation expression.
-                Value strand = getCurrentStrand();
-                namedArgValues.put(STRAND_VAR_NAME, strand);
-                List<LocalVariable> args = method.methodRef.arguments();
-                List<String> argNames = args.stream()
-                        .filter(LocalVariable::isArgument)
-                        .map(LocalVariable::name)
-                        .collect(Collectors.toList());
-
-                for (int i = 0, argNamesSize = argNames.size(); i < argNamesSize; i++) {
-                    String argName = argNames.get(i);
-
-                    // This is a hack to avoid the weird issue introduced after the "self" variable being added to the
-                    // variable table. Now all the object methods contain 'self' as a method argument when retrieving
-                    // from 'methodRef.arguments()', even if the actual method does not have it.
-                    if (argName.equals("self")) {
-                        continue;
-                    }
-                    // If this is a defaultable parameter
-                    if (namedArgValues.get(argName) == null &&
-                            namedArgValues.get(argName + DEFAULTABLE_PARAM_SUFFIX) != null) {
-                        argValueList.add(getDefaultValue(args.get(i)));
-                        argValueList.add(VMUtils.make(context, false).getJdiValue());
-                    } else {
-                        argValueList.add(namedArgValues.get(argName));
-                        if (!argName.equals(STRAND_VAR_NAME)) {
-                            argValueList.add(VMUtils.make(context, true).getJdiValue());
-                        }
-                    }
-                }
-
-                return getAsObjects(argValueList);
-            }
-
-            // Evaluates all function argument expressions at first.
-            for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
-                argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
-                // Assuming all the arguments are positional args.
-                argValueList.add(VMUtils.make(context, true).getJdiValue());
-            }
-
-            return getAsObjects(argValueList);
-        } catch (ClassNotLoadedException | AbsentInformationException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                    methodRef.name()));
+        if (argValues == null && argEvaluators == null) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString()
+                    , methodRef.name()));
         }
-    }
 
-    private Value getDefaultValue(LocalVariable localVariable) {
-        try {
-            Type type = localVariable.type();
-            if (type instanceof ByteType || type instanceof ShortType || type instanceof IntegerType ||
-                    type instanceof LongType) {
-                return VMUtils.make(context, 0).getJdiValue();
-            } else if (type instanceof FloatType || type instanceof DoubleType) {
-                return VMUtils.make(context, 0.0).getJdiValue();
-            } else if (type instanceof BooleanType) {
-                return VMUtils.make(context, false).getJdiValue();
-            } else {
-                return null;
-            }
-        } catch (ClassNotLoadedException e) {
-            return null;
+        List<Value> argValueList = new ArrayList<>();
+        if (argValues != null) {
+            // Here we use the existing strand instance to execute the function invocation expression.
+            Value strand = context.getCurrentStrand();
+            argValueList.add(strand);
+            argValueList.addAll(argValues);
+            return argValueList;
         }
-    }
 
-    /**
-     * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
-     * accepts only the sub classes of @{@link java.lang.Object}.
-     */
-    private List<Value> getAsObjects(List<Value> argValueList) {
-        return argValueList.stream().map(value -> {
-            try {
-                return EvaluationUtils.getValueAsObject(context, value);
-            } catch (EvaluationException e) {
-                return null;
-            }
-        }).collect(Collectors.toList());
+        // Evaluates all function argument expressions at first.
+        for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
+            argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
+        }
+
+        return EvaluationUtils.getAsObjects(context, argValueList);
     }
 }

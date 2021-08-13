@@ -16,9 +16,18 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.ClassNotLoadedException;
+import com.sun.jdi.DoubleType;
+import com.sun.jdi.FloatType;
+import com.sun.jdi.IntegerType;
+import com.sun.jdi.LocalVariable;
+import com.sun.jdi.LongType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.ShortType;
+import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
@@ -30,12 +39,15 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.runtime.api.types.BooleanType;
+import io.ballerina.runtime.api.types.ByteType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
@@ -46,12 +58,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_REST_ARG_ARRAY_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.SELF_VAR_NAME;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getUnionTypeFrom;
@@ -68,8 +83,10 @@ public class InvocationArgProcessor {
     private static final String GET_ELEMENT_TYPE_METHOD = "getElementType";
     private static final String UNKNOWN = "unknown";
 
-    public static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionTypeSymbol
-            definition, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
+    public static List<Value> generateOrderedArgsList(SuspendedContext context, String functionName,
+                                                      FunctionTypeSymbol definition, Method jdiMethodRef,
+                                                      List<Map.Entry<String, Evaluator>> argEvaluators)
+            throws EvaluationException {
 
         boolean namedArgsFound = false;
         boolean restArgsFound = false;
@@ -211,12 +228,12 @@ public class InvocationArgProcessor {
         if (restArgsFound && !restArgsProcessed) {
             argValues.put(restParamName, getRestArgArray(context, restArrayType, restValues.toArray(new Value[0])));
         }
-        return argValues;
+        return getOrderedArgList(context, argValues, jdiMethodRef);
     }
 
-    public static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName,
-                                                       FunctionSignatureNode functionSignature,
-                                                       List<Map.Entry<String, Evaluator>> argEvaluators)
+    public static List<Value> generateOrderedArgsList(SuspendedContext context, String functionName,
+                                                      FunctionSignatureNode functionSignature, Method jdiMethodRef,
+                                                      List<Map.Entry<String, Evaluator>> argEvaluators)
             throws EvaluationException {
 
         boolean namedArgsFound = false;
@@ -353,7 +370,42 @@ public class InvocationArgProcessor {
         if (restArgsFound && !restArgsProcessed) {
             argValues.put(restParamName, getRestArgArray(context, restArrayType, restValues.toArray(new Value[0])));
         }
-        return argValues;
+        return getOrderedArgList(context, argValues, jdiMethodRef);
+    }
+
+    private static List<Value> getOrderedArgList(SuspendedContext context, Map<String, Value> namedArgValues,
+                                                 Method methodRef) throws EvaluationException {
+        try {
+            List<Value> argValueList = new ArrayList<>();
+            List<LocalVariable> args = methodRef.arguments();
+            List<String> argNames = args.stream()
+                    .filter(LocalVariable::isArgument)
+                    .map(LocalVariable::name)
+                    .collect(Collectors.toList());
+
+            for (int i = 0, argNamesSize = argNames.size(); i < argNamesSize; i++) {
+                String argName = argNames.get(i);
+
+                // This is a hack to avoid the weird issue introduced after the "self" variable being added to the
+                // variable table. Now all the object methods contain 'self' as a method argument when retrieving
+                // from 'methodRef.arguments()', even if the actual method does not have it.
+                if (argName.equals(SELF_VAR_NAME) || argName.equals(STRAND_VAR_NAME)) {
+                    continue;
+                }
+                // If this is a defaultable parameter
+                if (namedArgValues.get(argName) == null &&
+                        namedArgValues.get(argName + DEFAULTABLE_PARAM_SUFFIX) != null) {
+                    argValueList.add(getDefaultValue(context, args.get(i)));
+                } else {
+                    argValueList.add(namedArgValues.get(argName));
+                }
+            }
+
+            return EvaluationUtils.getAsObjects(context, argValueList);
+        } catch (AbsentInformationException e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
+                    methodRef.name()));
+        }
     }
 
     private static Value getRestArgArray(SuspendedContext context, Value arrayType, Value... values)
@@ -442,6 +494,24 @@ public class InvocationArgProcessor {
 
     private static boolean isRestArg(Map.Entry<String, Evaluator> arg) {
         return !arg.getKey().isEmpty() && arg.getKey().equals(REST_ARG_IDENTIFIER);
+    }
+
+    private static Value getDefaultValue(SuspendedContext context, LocalVariable localVariable) {
+        try {
+            Type type = localVariable.type();
+            if (type instanceof ByteType || type instanceof ShortType || type instanceof IntegerType ||
+                    type instanceof LongType) {
+                return VMUtils.make(context, 0).getJdiValue();
+            } else if (type instanceof FloatType || type instanceof DoubleType) {
+                return VMUtils.make(context, 0.0).getJdiValue();
+            } else if (type instanceof BooleanType) {
+                return VMUtils.make(context, false).getJdiValue();
+            } else {
+                return null;
+            }
+        } catch (ClassNotLoadedException e) {
+            return null;
+        }
     }
 
     private enum ArgType {

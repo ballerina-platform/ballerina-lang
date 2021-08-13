@@ -100,26 +100,6 @@ public abstract class JvmMethod {
     }
 
     /**
-     * Returns the JDI value of the strand instance that is being used, by visiting visible variables of the given
-     * debug context.
-     *
-     * @return JDI value of the strand instance that is being used
-     */
-    protected Value getCurrentStrand() throws EvaluationException {
-        try {
-            Value strand = context.getFrame().getValue(context.getFrame().visibleVariableByName(STRAND_VAR_NAME));
-            if (strand == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
-                        methodRef.name()));
-            }
-            return strand;
-        } catch (JdiProxyException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
-                    methodRef));
-        }
-    }
-
-    /**
      * Checks if the exception is an instance of {@link io.ballerina.runtime.api.values.BError} and if so,
      * returns its JDI value instance.
      */

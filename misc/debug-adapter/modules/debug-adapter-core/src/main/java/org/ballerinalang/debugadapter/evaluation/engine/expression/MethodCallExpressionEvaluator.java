@@ -23,10 +23,8 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VoidValue;
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
@@ -50,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
+import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateOrderedArgsList;
 import static org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_VALUE;
@@ -171,9 +169,9 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
             isFoundObjectMethod = true;
             GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
-            Map<String, Value> argValueMap = generateNamedArgs(context, methodName, objectMethodDef.get()
-                    .typeDescriptor(), argEvaluators);
-            objectMethod.setNamedArgValues(argValueMap);
+            List<Value> argValueMap = generateOrderedArgsList(context, methodName, objectMethodDef.get()
+                    .typeDescriptor(), objectMethod.getJDIMethodRef(), argEvaluators);
+            objectMethod.setArgValues(argValueMap);
             return objectMethod.invokeSafely();
         } catch (EvaluationException e) {
             // If the object method is not found, we have to ignore the Evaluation Exception and try to find any
@@ -236,19 +234,10 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
         argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
         FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
-        Map<String, Value> argValueMap = generateNamedArgs(context, methodName, functionSignature, argEvaluators);
-        langLibMethod.setNamedArgValues(argValueMap);
+        List<Value> argValueMap = generateOrderedArgsList(context, methodName, functionSignature,
+                langLibMethod.getJDIMethodRef(), argEvaluators);
+        langLibMethod.setArgValues(argValueMap);
         return langLibMethod.invokeSafely();
-    }
-
-    protected Optional<ClassSymbol> findClassDefWithinModule(String className) {
-        SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        return semanticContext.moduleSymbols()
-                .stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.CLASS
-                        && modifyName(symbol.getName().get()).equals(className))
-                .findFirst()
-                .map(symbol -> (ClassSymbol) symbol);
     }
 
     protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
