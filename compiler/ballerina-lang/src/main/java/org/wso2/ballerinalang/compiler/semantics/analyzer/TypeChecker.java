@@ -5566,7 +5566,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
+    public void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticErrorCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
