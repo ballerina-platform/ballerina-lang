@@ -45,6 +45,7 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class NewPackageDependencyGraphBuilder {
+    // TODO how about a multi-level map here Map<PackageOrg, Map<PackageName, StaticPackageDependency>>
     private final Map<Vertex, StaticPackageDependency> vertices = new HashMap<>();
     private final Map<Vertex, Set<Vertex>> depGraph = new HashMap<>();
 
@@ -90,6 +91,10 @@ public class NewPackageDependencyGraphBuilder {
         }
     }
 
+    public boolean isNodeExists(PackageOrg org, PackageName name) {
+        return vertices.containsKey(new Vertex(org, name));
+    }
+
     public void mergeGraph(DependencyGraph<PackageDescriptor> theirGraph, PackageDependencyScope scope) {
         for (PackageDescriptor theirPkgDesc : theirGraph.getNodes()) {
             addNode(theirPkgDesc, scope);
@@ -106,6 +111,7 @@ public class NewPackageDependencyGraphBuilder {
         }
 
         // TODO   ....
+        // TODO handle version conflicts
     }
 
     public DependencyGraph<ResolvedPackageDependency> buildPackageDependencyGraph(PackageResolver packageResolver,
