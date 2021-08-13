@@ -45,9 +45,9 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "missing identifier", 139, 13);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
-                "missing identifier", 143, 12);
+                "invalid token 'int'", 143, 12);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
-                "invalid token 'int'", 143, 16);
+                "missing identifier", 143, 12);
         BAssertUtil.validateError(resultSemanticsNegative, index,
                 "incomplete quoted identifier", 147, 12);
     }

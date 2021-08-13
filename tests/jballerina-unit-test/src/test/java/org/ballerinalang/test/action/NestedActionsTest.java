@@ -42,7 +42,9 @@ public class NestedActionsTest {
     @Test
     public void testNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/action/nested_actions_negative.bal");
-        validateError(result, 0, "action invocation as an expression not allowed here", 35, 33);
-        assertEquals(result.getErrorCount(), 1);
+        int i = 0;
+        validateError(result, i++, "action invocation as an expression not allowed here", 35, 33);
+        validateError(result, i++, "action invocation as an expression not allowed here", 35, 45);
+        assertEquals(result.getErrorCount(), i);
     }
 }

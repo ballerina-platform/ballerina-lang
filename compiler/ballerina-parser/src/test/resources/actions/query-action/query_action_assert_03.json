@@ -343,9 +343,6 @@
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_SELECT_CLAUSE_IN_QUERY_ACTION"
-                                  ],
                                   "value": "b",
                                   "trailingMinutiae": [
                                     {
@@ -356,9 +353,14 @@
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
                                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
                                         "children": [
                                           {
-                                            "kind": "SELECT_KEYWORD"
+                                            "kind": "SELECT_KEYWORD",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_SELECT_CLAUSE_IN_QUERY_ACTION"
+                                            ]
                                           }
                                         ]
                                       }
@@ -779,9 +781,6 @@
                         {
                           "kind": "CLOSE_BRACE_TOKEN",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_INVALID_TOKEN"
-                          ],
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -791,9 +790,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
-                                    "kind": "SEMICOLON_TOKEN"
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_TOKEN"
+                                    ]
                                   }
                                 ]
                               }

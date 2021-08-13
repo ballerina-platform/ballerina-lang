@@ -1,6 +1,5 @@
 {
   "kind": "IMPORT_DECLARATION",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IMPORT_KEYWORD",
@@ -28,10 +27,6 @@
     },
     {
       "kind": "SEMICOLON_TOKEN",
-      "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
-      ],
       "leadingMinutiae": [
         {
           "kind": "INVALID_NODE_MINUTIAE",

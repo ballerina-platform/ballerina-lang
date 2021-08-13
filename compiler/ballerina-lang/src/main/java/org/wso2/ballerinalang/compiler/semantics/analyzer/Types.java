@@ -3624,8 +3624,7 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-
-        if (!isPureType(lhsType) || !isPureType(rhsType)) {
+        if (!isAnydata(lhsType) && !isAnydata(rhsType)) {
             return false;
         }
 
@@ -4427,6 +4426,9 @@ public class Types {
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env,
                                                   LinkedHashSet<BType> visitedTypes) {
+        if (!visitedTypes.add(tupleType)) {
+            return tupleType;
+        }
         List<BType> tupleTypes = tupleType.tupleTypes;
         if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
             if (tupleTypes.size() > arrayType.size) {
@@ -4721,8 +4723,8 @@ public class Types {
                 anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
-                Flags.PUBLIC, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner, false,
-                symTable.builtinPos, VIRTUAL);
+                Flags.PUBLIC, Names.EMPTY, Names.EMPTY, env.enclPkg.symbol.pkgID, bInvokableType, env.scope.owner,
+                false, symTable.builtinPos, VIRTUAL);
         initFuncSymbol.retType = symTable.nilType;
         recordSymbol.initializerFunc = new BAttachedFunction(Names.INIT_FUNCTION_SUFFIX, initFuncSymbol,
                                                                          bInvokableType, symTable.builtinPos);
@@ -5587,7 +5589,10 @@ public class Types {
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
     }
 
-    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+    public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        if (type == null) {
+            return false;
+        }
         Set<BType> visitedTypeSet = new HashSet<>();
         visitedTypeSet.add(type);
         return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);

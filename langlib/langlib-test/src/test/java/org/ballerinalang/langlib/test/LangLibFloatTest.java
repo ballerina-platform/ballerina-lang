@@ -26,6 +26,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -78,5 +79,18 @@ public class LangLibFloatTest {
     @Test
     public void testLangLibCallOnFiniteType() {
         BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
+    }
+
+    @Test(dataProvider = "functionsWithFloatExactEqualityChecks")
+    public void testFunctionsWithFloatExactEqualityChecks(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsWithFloatExactEqualityChecks() {
+        return new String[] {
+                "testFloatExactEquality",
+                "testFloatNotExactEquality"
+        };
     }
 }

@@ -230,6 +230,7 @@
         </groups>
         <classes>
             <class name="org.ballerinalang.test.packaging.ModuleExecutionFlowTests"/>
+            <class name="org.ballerinalang.test.packaging.MultipleModuleVersionTests"/>
             <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
         </classes>
     </test>

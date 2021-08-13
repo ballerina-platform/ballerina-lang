@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 4,
-                "character": 16
-            },
-            "end": {
-                "line": 4,
-                "character": 45
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 6,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 6,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction addTeacher(mod2:Teacher a, string b) returns int {\n    return 0;\n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 4,
+        "character": 16
+      },
+      "end": {
+        "line": 4,
+        "character": 45
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 5,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 5,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction addTeacher(mod2:Teacher teacher, string s) returns int {\n    return 0;\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }
