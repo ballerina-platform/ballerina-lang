@@ -1898,10 +1898,8 @@ function testToJsonWithCyclicParameter() {
     json|error y = trap x.toJson();
     assert(y is error, true);
     error err = <error> y;
-    var message = err.detail()["message"];
-    string messageString = message is error ? message.toString() : message.toString();
     assert(err.message(), "{ballerina/lang.value}CyclicValueReferenceError");
-    assert(messageString, "'anydata[]' value has cyclic reference");
+    assert(<string> checkpanic err.detail()["message"], "'anydata[]' value has cyclic reference");
 }
 
 function assert(anydata actual, anydata expected) {
