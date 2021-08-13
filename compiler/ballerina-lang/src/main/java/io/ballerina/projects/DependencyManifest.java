@@ -30,20 +30,32 @@ import java.util.List;
  */
 public class DependencyManifest {
 
+    private final String dependenciesTomlVersion;
     private final List<Package> packages;
     private final DiagnosticResult diagnostics;
 
-    private DependencyManifest(List<Package> packages, DiagnosticResult diagnostics) {
+    private DependencyManifest(String dependenciesTomlVersion,
+                               List<Package> packages,
+                               DiagnosticResult diagnostics) {
+        this.dependenciesTomlVersion = dependenciesTomlVersion;
         this.packages = Collections.unmodifiableList(packages);
         this.diagnostics = diagnostics;
     }
 
-    public static DependencyManifest from(List<Package> dependencies, DiagnosticResult diagnostics) {
-        return new DependencyManifest(dependencies, diagnostics);
+    public static DependencyManifest from(String dependenciesTomlVersion,
+                                          List<Package> dependencies,
+                                          DiagnosticResult diagnostics) {
+        return new DependencyManifest(dependenciesTomlVersion, dependencies, diagnostics);
     }
 
-    public static DependencyManifest from(List<Package> dependencies) {
-        return new DependencyManifest(dependencies, new DefaultDiagnosticResult(Collections.emptyList()));
+    public static DependencyManifest from(String dependenciesTomlVersion,
+                                          List<Package> dependencies) {
+        return new DependencyManifest(dependenciesTomlVersion, dependencies,
+                                      new DefaultDiagnosticResult(Collections.emptyList()));
+    }
+
+    public String dependenciesTomlVersion() {
+        return dependenciesTomlVersion;
     }
 
     public List<Package> packages() {

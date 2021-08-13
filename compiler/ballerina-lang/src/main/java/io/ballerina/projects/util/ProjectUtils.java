@@ -592,7 +592,6 @@ public class ProjectUtils {
                 + "# It should not be modified by hand.\n\n";
         StringBuilder content = new StringBuilder(comment);
         content.append("[ballerina]\n");
-        content.append("version = \"").append(RepoUtils.getBallerinaShortVersion()).append("\"\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
                 .append("\"\n\n");
 
