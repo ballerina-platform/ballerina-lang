@@ -13,47 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.completions;
+package org.ballerinalang.langserver.commons.toml;
 
-import io.ballerina.toml.syntax.tree.Node;
 import io.ballerina.toml.syntax.tree.NonTerminalNode;
+import io.ballerina.toml.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 
-import java.util.List;
+import java.util.Optional;
 
 /**
- * Represents the Completion operation context for toml.
+ * Represents the completion operation context for toml.
  *
  * @since 2.0.0
  */
-@Deprecated
 public interface TomlCompletionContext extends CompletionContext {
 
     /**
-     * Set the node at cursor.
+     * Set the Node at cursor.
      *
-     * @param node {@link NonTerminalNode} at the cursor position
+     * @param node Node at cursor
      */
     void setNodeAtCursor(NonTerminalNode node);
 
     /**
-     * Get the node at the completion request triggered cursor position.
+     * Get the node at cursor.
      *
-     * @return {@link NonTerminalNode} at the cursor position
+     * @return {@link NonTerminalNode} nodeAtCursor
      */
-    NonTerminalNode getNodeAtCursor();
+    Optional<NonTerminalNode> getNodeAtCursor();
 
     /**
-     * Add a resolver to the resolver chain.
+     * Get the current toml syntax tree.
      *
-     * @param node {@link Node} to be added to the chain
+     * @return {@link Optional<SyntaxTree>} toml syntax tree
      */
-    void addResolver(Node node);
+    Optional<SyntaxTree> getTomlSyntaxTree();
 
     /**
-     * Get the resolver chain which is the list of node evaluated against the completion item resolving.
+     * Get the language server context.
      *
-     * @return {@link List} of nodes
+     * @return {@link LanguageServerContext}
      */
-    List<Node> getResolverChain();
+    LanguageServerContext getLanguageServerContext();
+
 }
