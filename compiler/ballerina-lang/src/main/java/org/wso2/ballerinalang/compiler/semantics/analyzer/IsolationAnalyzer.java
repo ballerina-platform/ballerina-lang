@@ -416,17 +416,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         analyzeNode(funcNode.body, funcEnv);
 
-        if (!isIsolated(symbol.flags) && this.inferredIsolated && !Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
-            if (isBallerinaModule(env.enclPkg)) {
-                dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
-            }
-
-            if (functionIsolationInferenceInfo != null &&
-                    functionIsolationInferenceInfo.dependsOnlyOnInferableConstructs &&
-                    // Init method isolation depends on the object field-initializers too, so we defer inference.
-                    !funcNode.objInitFunction) {
-                functionIsolationInferenceInfo.inferredIsolated = true;
-            }
+        if (this.inferredIsolated &&
+                !isIsolated(symbol.flags) &&
+                !Symbols.isFlagOn(symbol.flags, Flags.WORKER) &&
+                functionIsolationInferenceInfo != null &&
+                functionIsolationInferenceInfo.dependsOnlyOnInferableConstructs &&
+                // Init method isolation depends on the object field-initializers too, so we defer inference.
+                !funcNode.objInitFunction) {
+            functionIsolationInferenceInfo.inferredIsolated = true;
         }
 
         this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
@@ -2368,11 +2365,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         if (inLockStatement) {
             copyInLockInfoStack.peek().nonIsolatedInvocations.add(invocationExpr);
         }
-    }
-
-    private boolean isBallerinaModule(BLangPackage module) {
-        String orgName = module.packageID.orgName.value;
-        return orgName.equals("ballerina") || orgName.equals("ballerinax");
     }
 
     private boolean isInIsolatedFunction(BLangInvokableNode enclInvokable) {

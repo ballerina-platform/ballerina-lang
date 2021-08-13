@@ -1674,7 +1674,11 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createFunctionTypeDescriptor(List<STNode> qualifierList, STNode functionKeyword,
                                                 STNode funcSignature, boolean hasFuncSignature) {
-        STNode qualifierNodeList = createFuncTypeQualNodeList(qualifierList, hasFuncSignature);
+        // Validate function type qualifiers
+        STNode[] nodes = createFuncTypeQualNodeList(qualifierList, functionKeyword, hasFuncSignature);
+        STNode qualifierNodeList = nodes[0];
+        functionKeyword = nodes[1];
+
         return STNodeFactory.createFunctionTypeDescriptorNode(qualifierNodeList, functionKeyword, funcSignature);
     }
 
@@ -2735,6 +2739,18 @@ public class BallerinaParser extends AbstractParser {
                 recover(peek(), ParserRuleContext.NIL_OR_PARENTHESISED_TYPE_DESC_RHS);
                 return parseNilOrParenthesisedTypeDescRhs(openParen);
         }
+    }
+
+    /**
+     * Parse simple type descriptor in terminal expression.
+     *
+     * @return Parsed node
+     */
+    private STNode parseSimpleTypeInTerminalExpr() {
+        startContext(ParserRuleContext.TYPE_DESC_IN_EXPRESSION);
+        STNode simpleTypeDescriptor = parseSimpleTypeDescriptor();
+        endContext();
+        return simpleTypeDescriptor;
     }
 
     /**
@@ -4909,17 +4925,13 @@ public class BallerinaParser extends AbstractParser {
             case OBJECT_KEYWORD:
                 return parseObjectConstructorExpression(annots, qualifiers);
             case XML_KEYWORD:
-                STToken nextNextToken = getNextNextToken();
-                if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
-                    return parseXMLTemplateExpression();
-                }
-                return parseSimpleTypeDescriptor();
+                return parseXMLTemplateExpression();
             case STRING_KEYWORD:
-                nextNextToken = getNextNextToken();
+                STToken nextNextToken = getNextNextToken();
                 if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseStringTemplateExpression();
                 }
-                return parseSimpleTypeDescriptor();
+                return parseSimpleTypeInTerminalExpr();
             case FUNCTION_KEYWORD:
                 return parseExplicitFunctionExpression(annots, qualifiers, isRhsExpr);
             case NEW_KEYWORD:
@@ -4943,7 +4955,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
             default:
                 if (isSimpleTypeInExpression(nextToken.kind)) {
-                    return parseSimpleTypeDescriptor();
+                    return parseSimpleTypeInTerminalExpr();
                 }
 
                 recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION);
@@ -10443,8 +10455,22 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseXMLTemplateExpression() {
         STNode xmlKeyword = parseXMLKeyword();
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
-        STNode content = parseTemplateContentAsXML();
-        STNode endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+
+        STNode content;
+        STNode endingBackTick;
+        if (startingBackTick.isMissing()) {
+            // Create new missing startingBackTick token which as no diagnostic.
+            startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            content = STNodeFactory.createEmptyNodeList();
+            STNode templateExpr = STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION,
+                    xmlKeyword, startingBackTick, content, endingBackTick);
+            templateExpr = SyntaxErrors.addDiagnostic(templateExpr, DiagnosticErrorCode.ERROR_MISSING_BACKTICK_STRING);
+            return templateExpr;
+        }
+
+        content = parseTemplateContentAsXML();
+        endingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createTemplateExpressionNode(SyntaxKind.XML_TEMPLATE_EXPRESSION, xmlKeyword,
                 startingBackTick, content, endingBackTick);
     }
@@ -10686,20 +10712,20 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFunctionTypeDesc(List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_TYPE_DESC);
-        STNode qualifierList;
         STNode functionKeyword = parseFunctionKeyword();
-        STNode signature;
 
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN ||
+        boolean hasFuncSignature = false;
+        STNode signature = STNodeFactory.createEmptyNode();
+        if (peek().kind == SyntaxKind.OPEN_PAREN_TOKEN ||
                 isSyntaxKindInList(qualifiers, SyntaxKind.TRANSACTIONAL_KEYWORD)) {
             signature = parseFuncSignature(true);
-            qualifierList = createFuncTypeQualNodeList(qualifiers, true);
-        } else {
-            signature = STNodeFactory.createEmptyNode();
-            qualifierList = createFuncTypeQualNodeList(qualifiers, false);
-
+            hasFuncSignature = true;
         }
+
+        // Validate function type qualifiers
+        STNode[] nodes = createFuncTypeQualNodeList(qualifiers, functionKeyword, hasFuncSignature);
+        STNode qualifierList = nodes[0];
+        functionKeyword = nodes[1];
 
         endContext();
         return STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword, signature);
@@ -10709,7 +10735,8 @@ public class BallerinaParser extends AbstractParser {
         return nodeList.get(nodeList.size() - 1);
     }
 
-    private STNode createFuncTypeQualNodeList(List<STNode> qualifierList, boolean hasFuncSignature) {
+    private STNode[] createFuncTypeQualNodeList(List<STNode> qualifierList, STNode functionKeyword,
+                                                boolean hasFuncSignature) {
         // Validate qualifiers and create a STNodeList
         List<STNode> validatedList = new ArrayList<>();
 
@@ -10725,15 +10752,16 @@ public class BallerinaParser extends AbstractParser {
             } else if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
                 validatedList.add(qualifier);
             } else if (qualifierList.size() == nextIndex) {
-                addInvalidNodeToNextToken(qualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-                        ((STToken) qualifier).text());
+                functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
             } else {
                 updateANodeInListWithLeadingInvalidNode(qualifierList, nextIndex, qualifier,
                         DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
             }
         }
 
-        return STNodeFactory.createNodeList(validatedList);
+        STNode nodeList = STNodeFactory.createNodeList(validatedList);
+        return new STNode[]{ nodeList, functionKeyword };
     }
 
     private boolean isRegularFuncQual(SyntaxKind tokenKind) {
@@ -10759,8 +10787,13 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExplicitFunctionExpression(STNode annots, List<STNode> qualifiers, boolean isRhsExpr) {
         startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
-        STNode qualifierList = createFuncTypeQualNodeList(qualifiers, true);
         STNode funcKeyword = parseFunctionKeyword();
+
+        // Validate function type qualifiers
+        STNode[] nodes = createFuncTypeQualNodeList(qualifiers, funcKeyword, true);
+        STNode qualifierList = nodes[0];
+        funcKeyword = nodes[1];
+
         STNode funcSignature = parseFuncSignature(false);
         // Context ended inside parseAnonFuncBody method
         STNode funcBody = parseAnonFuncBody(isRhsExpr);
@@ -13205,6 +13238,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
         if (startingBackTick.isMissing()) {
+            // Create new missing startingBackTick token which as no diagnostic.
             startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
             STNode endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
             STNode content = STNodeFactory.createEmptyNode();
@@ -14920,14 +14954,26 @@ public class BallerinaParser extends AbstractParser {
         STNode qualifierList;
         STNode functionKeyword = parseFunctionKeyword();
         STNode funcSignature;
+
         if (peek().kind == SyntaxKind.OPEN_PAREN_TOKEN) {
             funcSignature = parseFuncSignature(true);
-            qualifierList = createFuncTypeQualNodeList(qualifiers, true);
+
+            // Validate function type qualifiers
+            STNode[] nodes = createFuncTypeQualNodeList(qualifiers, functionKeyword, true);
+            qualifierList = nodes[0];
+            functionKeyword = nodes[1];
+
             endContext();
             return parseAnonFuncExprOrFuncTypeDesc(qualifierList, functionKeyword, funcSignature);
         }
+
         funcSignature = STNodeFactory.createEmptyNode();
-        qualifierList = createFuncTypeQualNodeList(qualifiers, false);
+
+        // Validate function type qualifiers
+        STNode[] nodes = createFuncTypeQualNodeList(qualifiers, functionKeyword, false);
+        qualifierList = nodes[0];
+        functionKeyword = nodes[1];
+
         STNode funcTypeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword,
                                                                              funcSignature);
         if (getCurrentContext() != ParserRuleContext.STMT_START_BRACKETED_LIST) {

@@ -45,7 +45,7 @@ import java.util.Map;
  * Tests the options feature in bal cli commands.
  */
 public class OptionTest {
-    private static final Module module = new Module("$anon", ".", "0.0.0");
+    private static final Module module = new Module("$anon", ".", "0");
     public static final String RECORD_NAME = "Student";
     public static final String ARRAY_NAME = "array";
 

@@ -665,33 +665,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (obj instanceof XmlItem) {
-            XmlItem that = (XmlItem) obj;
-            boolean qNameEquals = that.getQName().equals(this.getQName());
-            if (!qNameEquals) {
-                return false;
-            }
-
-            boolean attrMapEquals = that.attributes.entrySet().equals(this.attributes.entrySet());
-            if (!attrMapEquals) {
-                return false;
-            }
-
-            return that.children.equals(this.children);
-        }
-        if (obj instanceof XmlSequence) {
-            XmlSequence other = (XmlSequence) obj;
-            return other.children.size() == 1 && this.equals(other.children.get(0));
-        }
-        return false;
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(name, children, attributes, probableParents);
     }
