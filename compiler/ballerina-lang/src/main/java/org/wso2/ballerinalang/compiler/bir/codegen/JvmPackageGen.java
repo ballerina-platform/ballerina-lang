@@ -117,6 +117,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewrit
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR module to JVM byte code generation class.
@@ -213,7 +214,7 @@ public class JvmPackageGen {
         } else if (!moduleId.name.value.equals(cleanedPkg.name.value)) {
             return false;
         } else {
-            return moduleId.version.value.equals(cleanedPkg.version.value);
+            return getMajorVersion(moduleId.version.value).equals(getMajorVersion(cleanedPkg.version.value));
         }
     }
 
@@ -327,7 +328,7 @@ public class JvmPackageGen {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE,
                            JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
                                                           STRING_VALUE), false);
@@ -521,7 +522,8 @@ public class JvmPackageGen {
         if (isEntry) {
             for (BIRNode.BIRConstant constant : module.constants) {
                 module.globalVars.add(new BIRGlobalVariableDcl(constant.pos, constant.flags, constant.constValue.type,
-                        null, constant.name, VarScope.GLOBAL, VarKind.CONSTANT, "", constant.origin));
+                        null, constant.name, constant.originalName, VarScope.GLOBAL, VarKind.CONSTANT, "",
+                        constant.origin));
             }
         }
         String pkgName = JvmCodeGenUtil.getPackageName(module.packageID);

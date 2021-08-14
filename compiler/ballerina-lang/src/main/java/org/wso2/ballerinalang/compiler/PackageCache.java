@@ -28,6 +28,8 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
+
 /**
  * A cache of parsed package nodes.
  *
@@ -97,7 +99,7 @@ public class PackageCache {
         Map<String, BPackageSymbol> versionMap = packageSymbolMap.get(packageElements[0]);
         if (versionMap != null) {
             if (packageElements.length > 1) {
-                return versionMap.get(packageElements[1]);
+                return versionMap.get(getMajorVersion(packageElements[1]));
             } else {
                 Iterator<BPackageSymbol> itr = versionMap.values().iterator();
                 if (itr.hasNext()) {
@@ -113,7 +115,7 @@ public class PackageCache {
         Map<String, BPackageSymbol> versionMap =
                 packageSymbolMap.computeIfAbsent(packageElements[0], k -> new LinkedHashMap<>());
         if (packageElements.length > 1) {
-            versionMap.put(packageElements[1], packageSymbol);
+            versionMap.put(getMajorVersion(packageElements[1]), packageSymbol);
         } else {
             versionMap.put(Names.DEFAULT_VERSION.value, packageSymbol);
         }

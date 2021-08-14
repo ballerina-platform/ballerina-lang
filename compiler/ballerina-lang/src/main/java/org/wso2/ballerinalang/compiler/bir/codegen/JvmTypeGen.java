@@ -17,9 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -105,6 +107,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTEGER_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTABLE_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_TYPE;
@@ -121,7 +124,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NEVER_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NULL_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -150,6 +152,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -213,7 +216,6 @@ public class JvmTypeGen {
                                                 String.format("L%s;", TYPEDESC_VALUE), null, null);
         fvTypeDesc.visitEnd();
     }
-
 
     // -------------------------------------------------------
     //              getAnonType() generation methods
@@ -289,14 +291,12 @@ public class JvmTypeGen {
         mv.visitEnd();
     }
 
-
     public int typeFlag(BType type) {
         isAnydataUniqueVisitor.reset();
         isPureTypeUniqueVisitor.reset();
         return TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
                 isPureTypeUniqueVisitor.visit(type));
     }
-
 
     // -------------------------------------------------------
     //              Type loading methods
@@ -720,7 +720,7 @@ public class JvmTypeGen {
 
                 mv.visitLdcInsn(packageID.orgName.value);
                 mv.visitLdcInsn(packageID.name.value);
-                mv.visitLdcInsn(packageID.version.value);
+                mv.visitLdcInsn(getMajorVersion(packageID.version.value));
                 mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                         String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
             }
@@ -744,9 +744,9 @@ public class JvmTypeGen {
 
     public boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {
         if ((unionType.tsymbol != null) && (unionType.tsymbol.name != null)) {
-            mv.visitLdcInsn(unionType.tsymbol.name.getValue());
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.tsymbol.name.getValue()));
         } else if (unionType.name != null) {
-            mv.visitLdcInsn(unionType.name.getValue());
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.name.getValue()));
         } else {
             return false;
         }
@@ -801,7 +801,7 @@ public class JvmTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -831,9 +831,14 @@ public class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(bType));
 
         loadReadonlyFlag(mv, bType);
-
+        String effectiveTypeClass;
+        if (bType.effectiveType instanceof IntersectableReferenceType) {
+            effectiveTypeClass = INTERSECTABLE_REFERENCE_TYPE;
+        } else {
+            effectiveTypeClass = TYPE;
+        }
         mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;[L%s;L%s;IZ)V", MODULE, TYPE, TYPE), false);
+                           String.format("(L%s;[L%s;L%s;IZ)V", MODULE, TYPE, effectiveTypeClass), false);
     }
 
     /**
@@ -1062,7 +1067,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = toNameString(finiteType);
+        String name = IdentifierUtils.decodeIdentifier(toNameString(finiteType));
         mv.visitLdcInsn(name);
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);

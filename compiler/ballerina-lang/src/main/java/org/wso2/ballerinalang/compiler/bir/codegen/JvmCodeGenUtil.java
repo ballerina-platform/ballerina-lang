@@ -99,6 +99,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * The common functions used in CodeGen.
@@ -239,7 +240,7 @@ public class JvmCodeGenUtil {
         mv.visitInsn(Opcodes.DUP);
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         if (metaData.typeName == null) {
             mv.visitInsn(Opcodes.ACONST_NULL);
         } else {
@@ -278,10 +279,9 @@ public class JvmCodeGenUtil {
         String packageName = "";
         String orgName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.orgName.value);
         String moduleName = IdentifierUtils.encodeNonFunctionIdentifier(packageID.name.value);
-        String version = packageID.version.value;
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
-            if (!version.equals("")) {
-                packageName = getVersionDirectoryName(version) + separator;
+            if (!packageID.version.value.equals("")) {
+                packageName = getMajorVersion(packageID.version.value) + separator;
             }
             packageName = moduleName + separator + packageName;
         }
@@ -290,10 +290,6 @@ public class JvmCodeGenUtil {
             packageName = orgName + separator + packageName;
         }
         return packageName;
-    }
-
-    static String getVersionDirectoryName(String name) {
-        return name.replace(".", "_");
     }
 
     public static String getModuleLevelClassName(PackageID packageID, String sourceFileName) {

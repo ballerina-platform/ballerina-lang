@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
@@ -162,6 +163,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFiel
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -441,7 +443,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(typeId.packageID.orgName.value);
         mv.visitLdcInsn(typeId.packageID.name.value);
-        mv.visitLdcInsn(typeId.packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(typeId.packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1097,7 +1099,7 @@ public class JvmCreateTypeGen {
 
         // Load type name
         String name = getFullName(recordType);
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package path
         // TODO: get it from the type
@@ -1108,7 +1110,7 @@ public class JvmCreateTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1239,7 +1241,7 @@ public class JvmCreateTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1270,7 +1272,7 @@ public class JvmCreateTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1304,7 +1306,7 @@ public class JvmCreateTypeGen {
         PackageID packageID = tupleType.tsymbol.pkgID;
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1361,13 +1363,10 @@ public class JvmCreateTypeGen {
      */
     private void addCyclicFlag(MethodVisitor mv, BType userDefinedType) {
         jvmTypeGen.loadCyclicFlag(mv, userDefinedType);
-        switch (userDefinedType.tag) {
-            case TypeTags.TUPLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-                break;
-            case TypeTags.UNION:
-                mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-                break;
+        if (userDefinedType.tag == TypeTags.TUPLE) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
+        } else if (userDefinedType.tag == TypeTags.UNION) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
         }
     }
 
@@ -1702,7 +1701,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
 
         // Load error type name
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package
         mv.visitTypeInsn(NEW, MODULE);
@@ -1710,7 +1709,7 @@ public class JvmCreateTypeGen {
         PackageID packageID = errorType.tsymbol.pkgID;
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 

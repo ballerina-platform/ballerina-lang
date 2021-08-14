@@ -262,8 +262,8 @@ public class ErrorTest {
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
                 " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 139, 11);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 25);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 139, 17);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 139, 19);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
                 " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 140, 11);
         BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'int', expected a subtype of" +
@@ -335,7 +335,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:128)\n\t" +
+                "at ballerina.lang.array.1:slice(array.bal:128)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:339)");
     }
 
@@ -386,6 +386,33 @@ public class ErrorTest {
     @Test
     public void testErrorBindingPattern() {
         BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
+    }
+
+    @Test
+    public void testStackTraceWithErrorCauseLocation() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStackTraceWithErrorCauseLocation");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error1\n" +
+                "\tat error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "cause: error2\n" +
+                "\tat error_test:baz(error_test.bal:479)\n" +
+                "\t   error_test:x(error_test.bal:475)\n" +
+                "\t   error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "cause: error3\n" +
+                "\tat error_test:foobar(error_test.bal:484)\n" +
+                "\t   error_test:baz(error_test.bal:479)\n" +
+                "\t   error_test:x(error_test.bal:475)\n" +
+                "\t   error_test:foo(error_test.bal:470)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)");
     }
 
     @AfterClass

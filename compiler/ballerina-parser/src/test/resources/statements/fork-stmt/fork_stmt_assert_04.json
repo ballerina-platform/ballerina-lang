@@ -106,10 +106,6 @@
                     {
                       "kind": "NAMED_WORKER_DECLARATION",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE",
-                        "ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE"
-                      ],
                       "children": [
                         {
                           "kind": "LIST",
@@ -174,6 +170,7 @@
                         },
                         {
                           "kind": "BLOCK_STATEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "OPEN_BRACE_TOKEN",
@@ -309,6 +306,7 @@
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN",
+                              "hasDiagnostics": true,
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -332,9 +330,14 @@
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
-                                        "kind": "INT_KEYWORD"
+                                        "kind": "INT_KEYWORD",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE"
+                                        ]
                                       }
                                     ]
                                   }
@@ -409,9 +412,14 @@
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "hasDiagnostics": true,
                                     "children": [
                                       {
                                         "kind": "IDENTIFIER_TOKEN",
+                                        "hasDiagnostics": true,
+                                        "diagnostics": [
+                                          "ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE"
+                                        ],
                                         "value": "c"
                                       }
                                     ]

@@ -74,9 +74,6 @@
         {
           "kind": "CLOSE_BRACE_TOKEN",
           "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED"
-          ],
           "leadingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -86,9 +83,14 @@
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "hasDiagnostics": true,
                 "children": [
                   {
-                    "kind": "TYPE_KEYWORD"
+                    "kind": "TYPE_KEYWORD",
+                    "hasDiagnostics": true,
+                    "diagnostics": [
+                      "ERROR_LOCAL_TYPE_DEFINITION_NOT_ALLOWED"
+                    ]
                   }
                 ]
               }

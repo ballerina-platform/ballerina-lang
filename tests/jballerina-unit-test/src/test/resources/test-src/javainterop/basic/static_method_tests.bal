@@ -141,7 +141,7 @@ public function testStringCast() {
 
 public function testGetCurrentModule() {
      string moduleString =  getCurrentModule(4);
-     test:assertEquals(moduleString, "$anon#.#0.0.0#4");
+     test:assertEquals(moduleString, "$anon#.#0#4");
 }
 
 public function testGetDefaultValueWithBEnv() {

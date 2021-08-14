@@ -131,6 +131,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_XML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHECK_FLOAT_EXACT_EQUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -810,8 +811,9 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(IFNE, label1);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, CHECK_FLOAT_EXACT_EQUAL, "(DD)Z", false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else {
@@ -847,8 +849,8 @@ public class JvmInstructionGen {
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(IFEQ, label1);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, CHECK_FLOAT_EXACT_EQUAL, "(DD)Z", false);
+            this.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else {

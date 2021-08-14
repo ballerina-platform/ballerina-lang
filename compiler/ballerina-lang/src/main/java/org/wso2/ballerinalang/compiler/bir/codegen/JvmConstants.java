@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.model.elements.PackageID;
@@ -126,6 +127,8 @@ public class JvmConstants {
     public static final String NEVER_TYPE = "io/ballerina/runtime/api/types/NeverType";
     public static final String NULL_TYPE = "io/ballerina/runtime/api/types/NullType";
     public static final String HANDLE_TYPE = "io/ballerina/runtime/api/types/HandleType";
+    public static final String INTERSECTABLE_REFERENCE_TYPE
+            = "io/ballerina/runtime/api/types/IntersectableReferenceType";
 
 
     public static final String TYPE_IMPL = "io/ballerina/runtime/internal/types/BType";
@@ -195,6 +198,7 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
     public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
+    public static final String IDENTIFIER_UTILS = "io/ballerina/runtime/api/utils/IdentifierUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -300,6 +304,7 @@ public class JvmConstants {
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
+    public static final String CHECK_FLOAT_EXACT_EQUAL = "checkFloatExactEqual";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";
@@ -308,8 +313,9 @@ public class JvmConstants {
     public static final String RECORD_INIT_WRAPPER_NAME = "$init";
     public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
-    public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
+    public static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
     public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
+    public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -354,9 +360,6 @@ public class JvmConstants {
     public static final int TYPE_FLAG_NILABLE = 1;
     public static final int TYPE_FLAG_ANYDATA = 2;
     public static final int TYPE_FLAG_PURETYPE = 4;
-
-    // ballerina error reasons for ASM operations.
-    public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
 
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";

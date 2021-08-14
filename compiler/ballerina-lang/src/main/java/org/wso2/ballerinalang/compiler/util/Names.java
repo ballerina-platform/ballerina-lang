@@ -146,6 +146,7 @@ public class Names {
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name DEFAULT_MAJOR_VERSION = new Name("0");
     public static final Name JAVA_VERSION = new Name(BLangCompilerConstants.JAVA_VERSION);
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
@@ -191,6 +192,13 @@ public class Names {
     public Name fromIdNode(BLangIdentifier identifier) {
         // identifier.value cannot be null
         return fromString(identifier.value);
+    }
+
+    public Name originalNameFromIdNode(BLangIdentifier identifier) {
+        if (identifier.originalValue == null || identifier.value.equals(identifier.originalValue)) {
+            return fromString(identifier.value);
+        }
+        return fromString(identifier.originalValue);
     }
 
     public Name fromString(String value) {

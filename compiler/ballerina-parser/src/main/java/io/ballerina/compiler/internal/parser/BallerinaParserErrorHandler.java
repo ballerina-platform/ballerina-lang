@@ -274,8 +274,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] EXPRESSION_START = { ParserRuleContext.BASIC_LITERAL,
             ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
-            ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.TYPE_CAST,
-            ParserRuleContext.BRACED_EXPRESSION, ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION,
+            ParserRuleContext.TYPE_CAST, ParserRuleContext.BRACED_EXPRESSION,
+            ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION, ParserRuleContext.LIST_CONSTRUCTOR,
             ParserRuleContext.LET_EXPRESSION, ParserRuleContext.TEMPLATE_START, ParserRuleContext.XML_KEYWORD,
             ParserRuleContext.STRING_KEYWORD, ParserRuleContext.BASE16_KEYWORD, ParserRuleContext.BASE64_KEYWORD,
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
@@ -283,7 +283,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.OBJECT_CONSTRUCTOR,
             ParserRuleContext.ERROR_CONSTRUCTOR, ParserRuleContext.TRANSACTIONAL_KEYWORD,
             ParserRuleContext.TYPEOF_EXPRESSION, ParserRuleContext.TRAP_KEYWORD, ParserRuleContext.UNARY_EXPRESSION,
-            ParserRuleContext.CHECKING_KEYWORD };
+            ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.MAPPING_CONSTRUCTOR };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };

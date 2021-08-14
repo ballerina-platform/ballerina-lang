@@ -378,7 +378,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
-        // Todo
+        debugTestRunner.assertEvaluationError(context, "stringVar.<items>", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "filter expressions are not supported on type 'string'"));
+        debugTestRunner.assertEvaluationError(context, "intVar/<items>", String.format(EvaluationExceptionKind
+                .CUSTOM_ERROR.getString(), "step expressions are not supported on type 'int'"));
     }
 
     @Test
