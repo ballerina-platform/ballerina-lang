@@ -41,6 +41,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmAnnotationsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -804,6 +807,7 @@ public class JvmPackageGen {
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
         JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+        JvmCreateTypeGen jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, module.packageID);
         JvmAnnotationsGen jvmAnnotationsGen = new JvmAnnotationsGen(module, this, jvmTypeGen);
         valueGen.generateValueClasses(jarEntries, stringConstantsGen);
 
@@ -813,9 +817,9 @@ public class JvmPackageGen {
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, moduleTypeClass, stringConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
-        jvmTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
-        jvmTypeGen.generateValueCreatorClasses(this, module, moduleInitClass, jarEntries, symbolTable);
-        jvmTypeGen.generateAnonTypeClass(this, module, moduleInitClass, jarEntries);
+        jvmCreateTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
+        jvmCreateTypeGen.generateValueCreatorClasses(this, module, moduleInitClass, jarEntries, symbolTable);
+        jvmCreateTypeGen.generateAnonTypeClass(this, module, moduleInitClass, jarEntries);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
 
