@@ -424,9 +424,8 @@ public class JvmPackageGen {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
                 jvmTypeGen.generateUserDefinedTypeFields(cw, module.typeDefs);
-                jvmTypeGen.generateGetAnonTypeMethod(cw, module.typeDefs, moduleInitClass);
-                jvmTypeGen.generateValueCreatorMethods(cw, module.typeDefs, module.packageID, moduleInitClass,
-                                                       symbolTable, asyncDataCollector);
+                jvmTypeGen.generateGetAnonTypeMethod(cw);
+                jvmTypeGen.generateValueCreatorMethods(cw);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
@@ -815,6 +814,8 @@ public class JvmPackageGen {
         generateModuleClasses(module, jarEntries, moduleInitClass, moduleTypeClass, stringConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
         jvmTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
+        jvmTypeGen.generateValueCreatorClasses(this, module, moduleInitClass, jarEntries, symbolTable);
+        jvmTypeGen.generateAnonTypeClass(this, module, moduleInitClass, jarEntries);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
 

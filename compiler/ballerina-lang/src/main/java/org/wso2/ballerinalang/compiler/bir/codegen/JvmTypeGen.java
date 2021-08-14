@@ -25,7 +25,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
+import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,7 @@ import java.util.TreeSet;
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
@@ -162,7 +164,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ERRORS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECTS_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NEVER_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NULL_TYPE;
@@ -224,8 +230,12 @@ public class JvmTypeGen {
     private final JvmBStringConstantsGen stringConstantsGen;
     private final TypeHashVisitor typeHashVisitor;
     private final PackageID packageID;
-    private static final int MAX_TYPES_PER_METHOD = 100;
-    private final String moduleTypeClass;
+    private static final int MAX_TYPES_PER_METHOD = 2;
+    private final String moduleTypesClass;
+    private final String moduleAnonTypesClass;
+    private final String moduleRecordsClass;
+    private final String moduleObjectsClass;
+    private final String moduleErrorsClass;
 
     public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen, PackageID packageID) {
         this.stringConstantsGen = stringConstantsGen;
@@ -233,7 +243,11 @@ public class JvmTypeGen {
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         typeHashVisitor = new TypeHashVisitor();
-        this.moduleTypeClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
+        this.moduleTypesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
+        this.moduleAnonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
+        this.moduleRecordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
+        this.moduleObjectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
+        this.moduleErrorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CLASS_NAME);
     }
 
     /**
@@ -274,11 +288,11 @@ public class JvmTypeGen {
                                   Map<String, byte[]> jarEntries,
                                   String moduleInitClass, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleTypeClass, null, OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleTypesClass, null, OBJECT, null);
         generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(moduleTypeClass + ".class", bytes);
+        jarEntries.put(moduleTypesClass + ".class", bytes);
     }
 
     void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
@@ -291,13 +305,12 @@ public class JvmTypeGen {
         mv.visitCode();
 
         // Invoke create-type-instances method
-        mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, CREATE_TYPE_INSTANCES_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, CREATE_TYPE_INSTANCES_METHOD, "()V", false);
 
         // Invoke the populate-type functions
         for (String funcName : populateTypeFuncNames) {
-            mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, funcName, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, funcName, "()V", false);
         }
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -308,7 +321,7 @@ public class JvmTypeGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD, "()V", null, null);
         mv.visitCode();
         for (int i = 0; i < instanceSplits; i++) {
-            mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, CREATE_TYPE_INSTANCES_METHOD + i, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, CREATE_TYPE_INSTANCES_METHOD + i, "()V", false);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -533,11 +546,6 @@ public class JvmTypeGen {
     }
 
     static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
-                                             List<? extends NamedNode> nodes, Label defaultCaseLabel) {
-        return createLabelsForSwitch(mv, nameRegIndex, nodes, 0, nodes.size(), defaultCaseLabel);
-    }
-
-    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
                                              List<? extends NamedNode> nodes, int start,
                                              int length, Label defaultCaseLabel) {
         mv.visitVarInsn(ALOAD, nameRegIndex);
@@ -558,12 +566,6 @@ public class JvmTypeGen {
         }
         mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels.toArray(new Label[0]));
         return labels;
-    }
-
-    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
-                                                 List<? extends NamedNode> nodes,
-                                                 List<Label> labels, Label defaultCaseLabel) {
-        return createLabelsForEqualCheck(mv, nameRegIndex, nodes, 0, nodes.size(), labels, defaultCaseLabel);
     }
 
     static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
@@ -595,15 +597,34 @@ public class JvmTypeGen {
     //              getAnonType() generation methods
     // -------------------------------------------------------
 
-    void generateGetAnonTypeMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefinitions, String typeOwnerClass) {
+    void generateGetAnonTypeMethod(ClassWriter cw) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, GET_ANON_TYPE,
                 String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), null, null);
         mv.visitCode();
+        mv.visitVarInsn(ILOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitMethodInsn(INVOKESTATIC, moduleAnonTypesClass, GET_ANON_TYPE, String.format("(IL%s;)L%s;",
+                STRING_VALUE, TYPE), false);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
 
-        int hashParamRegIndex = 1;
-        int shapeParamRegIndex = 2;
-        Label defaultCaseLabel = new Label();
+    public void generateAnonTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
+                                      String moduleInitClass, Map<String, byte[]> jarEntries) {
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleAnonTypesClass, null, OBJECT, null);
+        generateGetAnonTypeMainMethod(cw, module.typeDefs, moduleInitClass);
+        cw.visitEnd();
+        byte[] bytes = jvmPackageGen.getBytes(cw, module);
+        jarEntries.put(moduleAnonTypesClass + ".class", bytes);
+    }
 
+    private void generateGetAnonTypeMainMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefinitions,
+                                           String moduleInitClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, GET_ANON_TYPE,
+                String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), null, null);
+        mv.visitCode();
         // filter anon types and sorts them before generating switch case.
         Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(TYPE_HASH_COMPARATOR);
         for (BIRTypeDefinition t : typeDefinitions) {
@@ -612,28 +633,82 @@ public class JvmTypeGen {
                 typeDefSet.add(t);
             }
         }
+        AnonTypeHashInfo anonTypeHashSwitch = createLabelsForAnonTypeHashSwitch(typeDefSet);
+        if (anonTypeHashSwitch.labelFieldMapping.isEmpty()) {
+            Label defaultCaseLabel = new Label();
+            createDefaultCase(mv, defaultCaseLabel, 1, "No such type: ");
+        } else {
+            mv.visitVarInsn(ILOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitMethodInsn(INVOKESTATIC, moduleAnonTypesClass, GET_ANON_TYPE + 0,
+                    String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
+            mv.visitInsn(ARETURN);
+            generateGetAnonTypeSplitMethods(cw, anonTypeHashSwitch, moduleInitClass);
+        }
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
 
-        Map<String, Label> labels = createLabelsForAnonTypeHashSwitch(mv, hashParamRegIndex,
-                typeDefSet, defaultCaseLabel);
+    void generateGetAnonTypeSplitMethods(ClassWriter cw,  AnonTypeHashInfo anonTypeHashSwitch,
+                                        String typeOwnerClass) {
 
-        for (Map.Entry<String, Label> labelEntry : labels.entrySet()) {
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+
+        int hashParamRegIndex = 0;
+        int shapeParamRegIndex = 1;
+        Label defaultCaseLabel = new Label();
+        Map<String, Label> labelFieldMapping = anonTypeHashSwitch.labelFieldMapping;
+        int i = 0;
+        for (Map.Entry<String, Label> labelEntry : labelFieldMapping.entrySet()) {
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_ANON_TYPE + methodCount++,
+                        String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), null, null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                mv.visitVarInsn(ILOAD, hashParamRegIndex);
+                int remainingCases = labelFieldMapping.size() - bTypesCount;
+                if (remainingCases > MAX_TYPES_PER_METHOD) {
+                    remainingCases = MAX_TYPES_PER_METHOD;
+                }
+                int[] hashes = Arrays.copyOfRange(anonTypeHashSwitch.hashes, bTypesCount, bTypesCount + remainingCases);
+                Label[] labels = Arrays.copyOfRange(anonTypeHashSwitch.labels, bTypesCount,
+                        bTypesCount + remainingCases);
+                mv.visitLookupSwitchInsn(defaultCaseLabel, hashes, labels);
+            }
+            mv.visitVarInsn(ILOAD, hashParamRegIndex);
             String fieldName = labelEntry.getKey();
             Label targetLabel = labelEntry.getValue();
             mv.visitLabel(targetLabel);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
             mv.visitInsn(ARETURN);
+            i++;
+            bTypesCount++;
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                if (bTypesCount == labelFieldMapping.size()) {
+                    createDefaultCase(mv, defaultCaseLabel, shapeParamRegIndex, "No such type: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ILOAD, hashParamRegIndex);
+                    mv.visitVarInsn(ALOAD, shapeParamRegIndex);
+                    mv.visitMethodInsn(INVOKESTATIC, moduleAnonTypesClass, GET_ANON_TYPE + methodCount,
+                            String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
+                    mv.visitInsn(ARETURN);
+                }
+                mv.visitMaxs(i + 10, i + 10);
+                mv.visitEnd();
+            }
         }
-
-        createDefaultCase(mv, defaultCaseLabel, shapeParamRegIndex, "No such type: ");
-        mv.visitMaxs(typeDefSet.size() + 10, typeDefSet.size() + 10);
-        mv.visitEnd();
+        if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, shapeParamRegIndex, "No such type: ");
+            mv.visitMaxs(i + 10, i + 10);
+            mv.visitEnd();
+        }
     }
 
-    private Map<String, Label> createLabelsForAnonTypeHashSwitch(MethodVisitor mv,
-                                                                 int nameRegIndex,
-                                                                 Set<BIRTypeDefinition> nodes,
-                                                                 Label defaultCaseLabel) {
-        mv.visitVarInsn(ILOAD, nameRegIndex);
+    private AnonTypeHashInfo createLabelsForAnonTypeHashSwitch(Set<BIRTypeDefinition> nodes) {
+
         // Create labels for the cases
         Map<String, Label> labelFieldMapping = new LinkedHashMap<>();
         Map<Integer, Label> labelHashMapping = new LinkedHashMap<>();
@@ -656,62 +731,215 @@ public class JvmTypeGen {
         }
         int[] hashes = labelHashMapping.keySet().stream().mapToInt(Integer::intValue).toArray();
         Label[] labels = labelHashMapping.values().toArray(new Label[0]);
-        mv.visitLookupSwitchInsn(defaultCaseLabel, hashes, labels);
-        return labelFieldMapping;
+        return new AnonTypeHashInfo(hashes, labels, labelFieldMapping);
+    }
+
+    static class AnonTypeHashInfo {
+
+        int[] hashes;
+        Label[] labels;
+        Map<String, Label> labelFieldMapping;
+
+        public AnonTypeHashInfo(int[] hashes, Label[] labels, Map<String, Label> labelFieldMapping) {
+            this.hashes = hashes;
+            this.labels = labels;
+            this.labelFieldMapping = labelFieldMapping;
+        }
     }
 
     // -------------------------------------------------------
     //              Runtime value creation methods
     // -------------------------------------------------------
 
-    void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
-                                     PackageID moduleId, String typeOwnerClass, SymbolTable symbolTable,
-                                     AsyncDataCollector asyncDataCollector) {
+    void generateValueCreatorMethods(ClassWriter cw) {
+        generateRecordValueCreateMethod(cw);
+        generateObjectValueCreateMethod(cw);
+        generateErrorValueCreateMethod(cw);
+    }
+
+    private void generateRecordValueCreateMethod(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
+                String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
+                String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitMethodInsn(INVOKESTATIC, moduleRecordsClass, CREATE_RECORD_VALUE,
+                String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE), false);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateObjectValueCreateMethod(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE,
+                String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT,
+                        B_OBJECT), null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitVarInsn(ALOAD, 4);
+        mv.visitVarInsn(ALOAD, 5);
+        mv.visitMethodInsn(INVOKESTATIC, moduleObjectsClass, CREATE_OBJECT_VALUE,
+                String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
+                        STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), false);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateErrorValueCreateMethod(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_ERROR_VALUE,
+                String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR, OBJECT, BERROR), null,
+                null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 3);
+        mv.visitVarInsn(ALOAD, 4);
+        mv.visitMethodInsn(INVOKESTATIC, moduleErrorsClass, CREATE_ERROR_VALUE,
+                String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR, OBJECT, BERROR), false);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    void generateValueCreatorClasses(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
+                                     String moduleInitClass, Map<String, byte[]> jarEntries,
+                                     SymbolTable symbolTable) {
 
         // due to structural type same name can appear twice, need to remove duplicates
         Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
-        List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
-        List<BIRTypeDefinition> errorTypeDefs = new ArrayList<>();
+        List<BIRTypeDefinition> objectTypeDefList = new ArrayList<>();
+        List<BIRTypeDefinition> errorTypeDefList = new ArrayList<>();
 
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
+        for (BIRTypeDefinition optionalTypeDef : module.typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                objectTypeDefs.add(optionalTypeDef);
+                objectTypeDefList.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.ERROR) {
-                errorTypeDefs.add(optionalTypeDef);
+                errorTypeDefList.add(optionalTypeDef);
             }
         }
-
-        ArrayList<BIRTypeDefinition> recordTypeDefs = new ArrayList<>(recordTypeDefSet);
-        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncDataCollector);
-        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable, asyncDataCollector);
-        generateErrorValueCreateMethod(cw, errorTypeDefs, typeOwnerClass, symbolTable);
+        ArrayList<BIRTypeDefinition> recordTypeDefList = new ArrayList<>(recordTypeDefSet);
+        generateRecordsClass(jvmPackageGen, module, moduleInitClass, jarEntries, recordTypeDefList);
+        generateObjectsClass(jvmPackageGen, module, moduleInitClass, jarEntries, objectTypeDefList,
+                symbolTable);
+        generateErrorsClass(jvmPackageGen, module, moduleInitClass, jarEntries, errorTypeDefList,
+                symbolTable);
     }
 
-    private void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
-                                                 PackageID moduleId, String typeOwnerClass,
-                                                 AsyncDataCollector asyncDataCollector) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
+    public void generateRecordsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
+                                     String moduleInitClass, Map<String, byte[]> jarEntries,
+                                     List<BIRTypeDefinition> recordTypeDefList) {
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleRecordsClass, null, OBJECT, null);
+        String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
+        generateStaticInitializer(module, cw, moduleRecordsClass, CREATE_RECORD_VALUE, metadataVarName);
+        generateCreateRecordMethods(cw, recordTypeDefList, module.packageID, moduleInitClass, moduleRecordsClass,
+                metadataVarName);
+        cw.visitEnd();
+        byte[] bytes = jvmPackageGen.getBytes(cw, module);
+        jarEntries.put(moduleRecordsClass + ".class", bytes);
+    }
+
+    public void generateObjectsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
+                                     String moduleInitClass, Map<String, byte[]> jarEntries,
+                                     List<BIRTypeDefinition> objectTypeDefList,
+                                     SymbolTable symbolTable) {
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleObjectsClass, null, OBJECT, null);
+        String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
+        generateStaticInitializer(module, cw, moduleObjectsClass, CREATE_OBJECT_VALUE, metadataVarName);
+        generateCreateObjectMethods(cw, objectTypeDefList, module.packageID, moduleInitClass, moduleObjectsClass,
+                symbolTable, metadataVarName);
+
+        cw.visitEnd();
+        byte[] bytes = jvmPackageGen.getBytes(cw, module);
+        jarEntries.put(moduleObjectsClass + ".class", bytes);
+    }
+
+    public void generateErrorsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
+                                    String moduleInitClass, Map<String, byte[]> jarEntries,
+                                    List<BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleErrorsClass, null, OBJECT, null);
+        generateCreateErrorMethods(cw, errorTypeDefList, moduleInitClass, moduleErrorsClass, symbolTable);
+        cw.visitEnd();
+        byte[] bytes = jvmPackageGen.getBytes(cw, module);
+        jarEntries.put(moduleErrorsClass + ".class", bytes);
+    }
+
+    private void generateStaticInitializer(BIRNode.BIRPackage module, ClassWriter cw,
+                                           String typeOwnerClass, String varName, String metaDataVarName) {
+        FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, metaDataVarName, String.format("L%s;", STRAND_METADATA),
+                null, null);
+        fv.visitEnd();
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+        mv.visitCode();
+        JvmCodeGenUtil.genStrandMetadataField(mv, typeOwnerClass, module.packageID, metaDataVarName,
+                new ScheduleFunctionInfo(varName));
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateCreateRecordMethods(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefList,
+                                             PackageID moduleId, String moduleInitClass, String typeOwnerClass,
+                                             String metadataVarName) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_RECORD_VALUE,
                 String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
                 String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
-
         mv.visitCode();
+        if (recordTypeDefList.isEmpty()) {
+            createDefaultCase(mv, new Label(), 1, "No such record: ");
+        } else {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + 0,
+                    String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE), false);
+            mv.visitInsn(ARETURN);
+            generateCreateRecordMethodSplits(cw, recordTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
+                    metadataVarName);
+        }
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
 
-        int fieldNameRegIndex = 1;
+    private void generateCreateRecordMethodSplits(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefList,
+                                                  PackageID moduleId, String moduleInitClass, String typeOwnerClass,
+                                                  String metadataVarName) {
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+
+        List<Label> targetLabels = new ArrayList<>();
+
+        int fieldNameRegIndex = 0;
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
-        recordTypeDefs.sort(NAME_HASH_COMPARATOR);
-
-        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, recordTypeDefs, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recordTypeDefs, labels,
-                defaultCaseLabel);
+        recordTypeDefList.sort(NAME_HASH_COMPARATOR);
 
         int i = 0;
-
-        for (BIRTypeDefinition optionalTypeDef : recordTypeDefs) {
+        for (BIRTypeDefinition optionalTypeDef : recordTypeDefList) {
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, CREATE_RECORD_VALUE + methodCount++,
+                        String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
+                        String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                int remainingCases = recordTypeDefList.size() - bTypesCount;
+                if (remainingCases > MAX_TYPES_PER_METHOD) {
+                    remainingCases = MAX_TYPES_PER_METHOD;
+                }
+                List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, recordTypeDefList,
+                        bTypesCount, remainingCases, defaultCaseLabel);
+                targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, recordTypeDefList,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel);
+                i = 0;
+            }
             String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
@@ -719,17 +947,14 @@ public class JvmTypeGen {
             String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, String.format("L%s;", TYPE));
             mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", TYPE), false);
 
             mv.visitInsn(DUP);
             mv.visitTypeInsn(NEW, STRAND_CLASS);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
-            asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName,
-                                                               new ScheduleFunctionInfo(CREATE_RECORD_VALUE));
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, String.format("L%s;", STRAND_METADATA));
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
@@ -742,45 +967,89 @@ public class JvmTypeGen {
 
             mv.visitInsn(ARETURN);
             i += 1;
+            bTypesCount++;
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                if (bTypesCount == recordTypeDefList.size()) {
+                    createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+                    mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_RECORD_VALUE + methodCount,
+                            String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE), false);
+                    mv.visitInsn(ARETURN);
+                }
+                mv.visitMaxs(i + 10, i + 10);
+                mv.visitEnd();
+            }
         }
+        if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
+            mv.visitMaxs(i + 10, i + 10);
+            mv.visitEnd();
+        }
+    }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
-        mv.visitMaxs(recordTypeDefs.size() + 10, recordTypeDefs.size() + 10);
+    private void generateCreateObjectMethods(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefList,
+                                             PackageID moduleId, String moduleInitClass, String typeOwnerClass,
+                                             SymbolTable symbolTable, String metadataVarName) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_OBJECT_VALUE,
+                String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
+                        STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), null, null);
+        mv.visitCode();
+        if (objectTypeDefList.isEmpty()) {
+            createDefaultCase(mv, new Label(), 1, "No such object: ");
+        } else {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ALOAD, 2);
+            mv.visitVarInsn(ALOAD, 3);
+            mv.visitVarInsn(ALOAD, 4);
+            mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_OBJECT_VALUE + 0,
+                    String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
+                            STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), false);
+            mv.visitInsn(ARETURN);
+            generateCreateObjectMethodSplits(cw, objectTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
+                    symbolTable, metadataVarName);
+        }
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
-                                                 PackageID moduleId, String typeOwnerClass,
-                                                 SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE,
-                                          String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER,
-                                                        STRAND_CLASS, MAP, OBJECT,
-                                                        B_OBJECT), null, null);
+    private void generateCreateObjectMethodSplits(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefList,
+                                                  PackageID moduleId, String moduleInitClass, String typeOwnerClass,
+                                                  SymbolTable symbolTable, String metadataVarName) {
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+        List<Label> targetLabels = new ArrayList<>();
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-
-        indexMap.addIfNotExists("self", symbolTable.anyType);
         int var1Index = indexMap.addIfNotExists("var1", symbolTable.stringType);
         int schedulerIndex = indexMap.addIfNotExists("scheduler", symbolTable.anyType);
         int parentIndex = indexMap.addIfNotExists("parent", symbolTable.anyType);
         int propertiesIndex = indexMap.addIfNotExists("properties", symbolTable.anyType);
         int argsIndex = indexMap.addIfNotExists("args", symbolTable.anyType);
-
-        mv.visitCode();
-
         Label defaultCaseLabel = new Label();
-
         // sort the fields before generating switch case
-        objectTypeDefs.sort(NAME_HASH_COMPARATOR);
-
-        List<Label> labels = createLabelsForSwitch(mv, var1Index, objectTypeDefs, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, var1Index, objectTypeDefs, labels,
-                defaultCaseLabel);
-
+        objectTypeDefList.sort(NAME_HASH_COMPARATOR);
         int i = 0;
-
-        for (BIRTypeDefinition optionalTypeDef : objectTypeDefs) {
+        for (BIRTypeDefinition optionalTypeDef : objectTypeDefList) {
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_OBJECT_VALUE + methodCount++,
+                        String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
+                                STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), null, null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                int remainingCases = objectTypeDefList.size() - bTypesCount;
+                if (remainingCases > MAX_TYPES_PER_METHOD) {
+                    remainingCases = MAX_TYPES_PER_METHOD;
+                }
+                List<Label> labels = createLabelsForSwitch(mv, var1Index, objectTypeDefList,
+                        bTypesCount, remainingCases, defaultCaseLabel);
+                targetLabels = createLabelsForEqualCheck(mv, var1Index, objectTypeDefList,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel);
+                i = 0;
+            }
             String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
@@ -788,7 +1057,7 @@ public class JvmTypeGen {
             String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, String.format("L%s;", TYPE));
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
             mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE_IMPL),
                                false);
@@ -805,10 +1074,7 @@ public class JvmTypeGen {
             mv.visitTypeInsn(NEW, STRAND_CLASS);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_OBJECT_VALUE);
-            asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName,
-                                                               new ScheduleFunctionInfo(CREATE_OBJECT_VALUE));
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, String.format("L%s;", STRAND_METADATA));
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);
@@ -846,22 +1112,67 @@ public class JvmTypeGen {
             mv.visitInsn(ARETURN);
 
             i += 1;
+            bTypesCount++;
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                if (bTypesCount == objectTypeDefList.size()) {
+                    createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitVarInsn(ALOAD, 2);
+                    mv.visitVarInsn(ALOAD, 3);
+                    mv.visitVarInsn(ALOAD, 4);
+                    mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_OBJECT_VALUE + methodCount,
+                            String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
+                                    STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), false);
+                    mv.visitInsn(ARETURN);
+                }
+                mv.visitMaxs(i + 10, i + 10);
+                mv.visitEnd();
+            }
         }
 
-        createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
-        mv.visitMaxs(objectTypeDefs.size() + 100, objectTypeDefs.size() + 100);
+        if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
+            mv.visitMaxs(i + 10, i + 10);
+            mv.visitEnd();
+        }
+    }
+
+    private void generateCreateErrorMethods(ClassWriter cw, List<BIRTypeDefinition> errorTypeDefList,
+                                            String moduleInitClass, String typeOwnerClass, SymbolTable symbolTable) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE,
+                String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR,
+                        OBJECT, BERROR), null, null);
+        mv.visitCode();
+        if (errorTypeDefList.isEmpty()) {
+            createDefaultCase(mv, new Label(), 1, "No such error: ");
+        } else {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ALOAD, 2);
+            mv.visitVarInsn(ALOAD, 3);
+            mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_ERROR_VALUE + 0,
+                    String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR,
+                            OBJECT, BERROR), false);
+            mv.visitInsn(ARETURN);
+            generateCreateErrorMethodSplits(cw, errorTypeDefList, moduleInitClass, typeOwnerClass, symbolTable);
+        }
+        mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private void generateErrorValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> errorTypeDefs,
-                                                String typeOwnerClass, SymbolTable symbolTable) {
+    private void generateCreateErrorMethodSplits(ClassWriter cw, List<BIRTypeDefinition> errorTypeDefList,
+                                                 String moduleInitClass, String typeOwnerClass,
+                                                 SymbolTable symbolTable) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_ERROR_VALUE,
-                                          String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR,
-                                                        OBJECT, BERROR), null, null);
-        mv.visitCode();
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+        List<Label> targetLabels = new ArrayList<>();
+
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        indexMap.addIfNotExists("self", symbolTable.anyType);
         int errorNameIndex = indexMap.addIfNotExists("errorTypeName", symbolTable.stringType);
         int messageIndex = indexMap.addIfNotExists("message", symbolTable.stringType);
         int causeIndex = indexMap.addIfNotExists("cause", symbolTable.errorType);
@@ -869,19 +1180,31 @@ public class JvmTypeGen {
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
-        errorTypeDefs.sort(NAME_HASH_COMPARATOR);
-
-        List<Label> labels = createLabelsForSwitch(mv, errorNameIndex, errorTypeDefs, defaultCaseLabel);
-        List<Label> targetLabels = createLabelsForEqualCheck(mv, errorNameIndex, errorTypeDefs, labels,
-                                                             defaultCaseLabel);
+        errorTypeDefList.sort(NAME_HASH_COMPARATOR);
         int i = 0;
-        for (BIRTypeDefinition errorDefinition : errorTypeDefs) {
+        for (BIRTypeDefinition errorDefinition : errorTypeDefList) {
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_ERROR_VALUE + methodCount++,
+                        String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR, OBJECT, BERROR)
+                        , null, null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                int remainingCases = errorTypeDefList.size() - bTypesCount;
+                if (remainingCases > MAX_TYPES_PER_METHOD) {
+                    remainingCases = MAX_TYPES_PER_METHOD;
+                }
+                List<Label> labels = createLabelsForSwitch(mv, errorNameIndex, errorTypeDefList,
+                        bTypesCount, remainingCases, defaultCaseLabel);
+                targetLabels = createLabelsForEqualCheck(mv, errorNameIndex, errorTypeDefList,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel);
+                i = 0;
+            }
             String fieldName = getTypeFieldName(errorDefinition.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitTypeInsn(NEW, ERROR_VALUE);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, String.format("L%s;", TYPE));
             mv.visitVarInsn(ALOAD, messageIndex);
             mv.visitVarInsn(ALOAD, causeIndex);
             mv.visitVarInsn(ALOAD, detailsIndex);
@@ -889,10 +1212,30 @@ public class JvmTypeGen {
                                String.format("(L%s;L%s;L%s;L%s;)V", TYPE, B_STRING_VALUE, BERROR, OBJECT), false);
             mv.visitInsn(ARETURN);
             i += 1;
+            bTypesCount++;
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                if (bTypesCount == errorTypeDefList.size()) {
+                    createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitVarInsn(ALOAD, 1);
+                    mv.visitVarInsn(ALOAD, 2);
+                    mv.visitVarInsn(ALOAD, 3);
+                    mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_ERROR_VALUE + methodCount,
+                            String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR,
+                                    OBJECT, BERROR), false);
+                    mv.visitInsn(ARETURN);
+                }
+                mv.visitMaxs(i + 10, i + 10);
+                mv.visitEnd();
+            }
         }
-        createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
-        mv.visitMaxs(errorTypeDefs.size() + 100, errorTypeDefs.size() + 100);
-        mv.visitEnd();
+        if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
+            mv.visitMaxs(i + 10, i + 10);
+            mv.visitEnd();
+        }
     }
 
     // -------------------------------------------------------
