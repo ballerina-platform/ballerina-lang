@@ -7,6 +7,15 @@ public class PackageResolutionResponse {
     List<Package> resolved;
     List<Package> unresolved;
 
+    private PackageResolutionResponse(List<Package> resolved, List<Package> unresolved) {
+        this.resolved = resolved;
+        this.unresolved = unresolved;
+    }
+
+    public static PackageResolutionResponse from(List<Package> resolved, List<Package> unresolved) {
+        return new PackageResolutionResponse(resolved,unresolved);
+    }
+
     public static class Package {
         private String orgName;
         private String name;
@@ -43,6 +52,14 @@ public class PackageResolutionResponse {
         public void setVersion(String version) {
             this.version = version;
         }
+
+        public List<Package> dependencies() {
+            return dependencies;
+        }
+
+        public void setDependencies(List<Package> dependencies) {
+            this.dependencies = dependencies;
+        }
     }
 
     public List<Package> resolved() {
@@ -52,4 +69,5 @@ public class PackageResolutionResponse {
     public List<Package> unresolved() {
         return unresolved;
     }
+
 }
