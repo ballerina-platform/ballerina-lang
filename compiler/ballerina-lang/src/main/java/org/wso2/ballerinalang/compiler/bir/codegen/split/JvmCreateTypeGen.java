@@ -1540,7 +1540,6 @@ public class JvmCreateTypeGen {
         return i;
     }
 
-
     /**
      * Create a attached function information for objects.
      *
