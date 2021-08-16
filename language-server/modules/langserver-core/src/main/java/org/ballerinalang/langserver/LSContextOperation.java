@@ -49,7 +49,8 @@ public enum LSContextOperation implements LSOperation {
     LS_INIT("langserver/init"),
     SOURCE_PRUNER("sourcePruner"),
     TEST_GEN("testGeneration"),
-    CREATE_PROJECT("createProject");
+    CREATE_PROJECT("createProject"),
+    RELOAD_PROJECT("reloadProject");
 
     private final String name;
 
