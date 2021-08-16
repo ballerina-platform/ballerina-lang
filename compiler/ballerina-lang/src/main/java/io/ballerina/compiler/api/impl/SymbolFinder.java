@@ -1587,16 +1587,15 @@ class SymbolFinder extends BaseVisitor {
     }
 
     private boolean isWithinNodeMetaData(TopLevelNode node) {
-        if (!(node instanceof AnnotatableNode)) {
-            return false;
-        }
+        if (node instanceof  AnnotatableNode) {
 
-        List<AnnotationAttachmentNode> nodes =
-                (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
+            List<AnnotationAttachmentNode> nodes =
+                    (List<AnnotationAttachmentNode>) ((AnnotatableNode) node).getAnnotationAttachments();
 
-        for (AnnotationAttachmentNode annotAttachment : nodes) {
-            if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
-                return true;
+            for (AnnotationAttachmentNode annotAttachment : nodes) {
+                if (PositionUtil.withinBlock(this.cursorPos, annotAttachment.getPosition())) {
+                    return true;
+                }
             }
         }
 
