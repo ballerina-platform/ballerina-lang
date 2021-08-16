@@ -41,9 +41,8 @@ import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPacka
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
-import org.ballerinalang.langserver.task.BackgroundTaskService;
-import org.ballerinalang.langserver.semantictokens.SemanticTokensConstants;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
+import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
@@ -56,7 +55,6 @@ import org.eclipse.lsp4j.InitializedParams;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.RenameOptions;
-import org.eclipse.lsp4j.SemanticTokensCapabilities;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.SignatureHelpOptions;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
@@ -144,9 +142,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
-        // Set LS semantic tokens capabilities
-        registerSemanticTokensCapabilities(params, params.getCapabilities().getTextDocument().getSemanticTokens(),
-                res);
+        // Register LS semantic tokens capabilities if dynamic registration is not available
+        if (!LSClientUtil.isDynamicSemanticTokensRegistrationSupported(params.getCapabilities().getTextDocument()) &&
+                enableBallerinaSemanticTokens(params)) {
+            res.getCapabilities().setSemanticTokensProvider(
+                    SemanticTokensUtils.getSemanticTokensRegistrationOptions());
+        }
 
         // Check and set prepare rename provider
         if (params.getCapabilities().getTextDocument().getRename() != null &&
@@ -170,7 +171,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         if (params.getInitializationOptions() != null) {
             initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
         }
-        
+
         Map experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
@@ -207,6 +208,15 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         if (LSClientUtil.isDynamicCommandRegistrationSupported(serverContext)) {
             List<String> commandsList = LSCommandExecutorProvidersHolder.getInstance(serverContext).getCommandsList();
             LSClientUtil.registerCommands(serverContext, commandsList);
+        }
+
+        // Register LS semantic tokens capabilities if dynamic registration is available
+        LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
+        if (LSClientUtil.isDynamicSemanticTokensRegistrationSupported(capabilities.getTextDocCapabilities())) {
+            registerSemanticTokensConfigListener();
+            if (capabilities.getInitializationOptions().isEnableSemanticTokens()) {
+                SemanticTokensUtils.registerSemanticTokensCapability(serverContext.get(ExtendedLanguageClient.class));
+            }
         }
     }
 
@@ -309,34 +319,14 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return false;
     }
 
-    private void registerSemanticTokensCapabilities(InitializeParams params, SemanticTokensCapabilities capabilities,
-                                                    InitializeResult result) {
-        if (capabilities == null) {
-            return;
+    private boolean enableBallerinaSemanticTokens(InitializeParams params) {
+        if (params.getInitializationOptions() == null) {
+            return true;
         }
-        boolean hasConfig = false;
-        boolean enabledSemanticHighlighting = false;
-        if (params.getInitializationOptions() != null) {
-            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
-            if (initOptions.has(LS_ENABLE_SEMANTIC_HIGHLIGHTING)) {
-                hasConfig = true;
-                if (initOptions.get(LS_ENABLE_SEMANTIC_HIGHLIGHTING).getAsBoolean()) {
-                    enabledSemanticHighlighting = true;
-                }
-            }
+        JsonObject initOptions = (JsonObject) params.getInitializationOptions();
+        if (!initOptions.has(LS_ENABLE_SEMANTIC_HIGHLIGHTING)) {
+            return true;
         }
-
-        if (capabilities.getDynamicRegistration()) {
-            registerSemanticTokensConfigListener();
-            ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
-            if (!hasConfig || enabledSemanticHighlighting) {
-                SemanticTokensUtils.registerSemanticTokensCapability(languageClient);
-            } else {
-                SemanticTokensUtils.unRegisterSemanticTokensCapability(languageClient);
-            }
-        } else if (!hasConfig || enabledSemanticHighlighting) {
-            result.getCapabilities().setSemanticTokensProvider(
-                    SemanticTokensUtils.getSemanticTokensRegistrationOptions());
-        }
+        return initOptions.get(LS_ENABLE_SEMANTIC_HIGHLIGHTING).getAsBoolean();
     }
 }
