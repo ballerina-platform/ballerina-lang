@@ -38,6 +38,7 @@ import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPacka
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
+import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
@@ -64,6 +65,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -153,7 +155,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         }
 
-        HashMap experimentalClientCapabilities = null;
+        Map initializationOptions = null;
+        if (params.getInitializationOptions() != null) {
+            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
+        }
+        
+        Map experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     HashMap.class);
@@ -170,7 +177,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
         LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
                 workspaceClientCapabilities,
-                experimentalClientCapabilities);
+                experimentalClientCapabilities,
+                initializationOptions);
         this.serverContext.put(LSClientCapabilities.class, capabilities);
         this.serverContext.put(ServerCapabilities.class, res.getCapabilities());
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
@@ -196,6 +204,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         for (ExtendedLanguageServerService service : extendedServices) {
             service.shutdown();
         }
+        BackgroundTaskService.getInstance(serverContext).shutdown();
         return CompletableFuture.supplyAsync(Object::new);
     }
 

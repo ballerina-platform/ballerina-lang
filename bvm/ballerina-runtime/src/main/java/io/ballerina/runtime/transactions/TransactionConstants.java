@@ -38,7 +38,7 @@ public class TransactionConstants {
     public static final String TRANSACTION_PACKAGE_NAME = "lang.transaction";
     public static final String TRANSACTION_PACKAGE_FQN = RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX + "." +
             TRANSACTION_PACKAGE_NAME;
-    public static final String TRANSACTION_PACKAGE_VERSION = "0.0.1";
+    public static final String TRANSACTION_PACKAGE_VERSION = "0";
     public static final String TRANSACTION_PACKAGE_PATH =
             BALLERINA_BUILTIN_PKG_PREFIX + ORG_NAME_SEPARATOR + TRANSACTION_PACKAGE_NAME + VERSION_SEPARATOR +
                     TRANSACTION_PACKAGE_VERSION;

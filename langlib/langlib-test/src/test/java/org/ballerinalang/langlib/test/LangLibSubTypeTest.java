@@ -90,6 +90,10 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testCharLangLib");
         BRunUtil.invoke(compileResult, "testList");
         BRunUtil.invoke(compileResult, "testMapping");
+        BRunUtil.invoke(compileResult, "testFromCodePointIntInSurrogateRange");
+        BRunUtil.invoke(compileResult, "testFromCodePointIntsInSurrogateRange");
+        BRunUtil.invoke(compileResult, "testStringAssignabilityToSingleCharVarDef");
+        BRunUtil.invoke(compileResult, "testToCodePointWithChaType");
         BRunUtil.invoke(compileResult, "testFiniteTypeAsStringSubType");
     }
 

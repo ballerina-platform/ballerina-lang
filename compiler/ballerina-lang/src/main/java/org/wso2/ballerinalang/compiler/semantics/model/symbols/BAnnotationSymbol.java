@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.ANNOTATION;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getPackageIDStringWithMajorVersion;
 
 /**
  * @since 0.94
@@ -73,7 +74,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     }
 
     public String bvmAlias() {
-        String pkg = pkgID.toString();
+        String pkg = getPackageIDStringWithMajorVersion(pkgID);
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
     }
 

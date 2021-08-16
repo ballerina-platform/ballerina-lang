@@ -2874,13 +2874,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // todo: Need to add type-checking when fixing #29247 for positional args beyond second arg.
     }
 
-    private BType checkExprSilent(BLangRecordLiteral recordLiteral, BType expType, SymbolEnv env) {
+    private BType checkExprSilent(BLangExpression expr, BType expType, SymbolEnv env) {
         boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
         this.nonErrorLoggingCheck = true;
         int errorCount = this.dlog.errorCount();
         this.dlog.mute();
 
-        BType type = checkExpr(recordLiteral, env, expType);
+        BType type = checkExpr(expr, env, expType);
 
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         dlog.setErrorCount(errorCount);
@@ -5562,7 +5562,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
+    public void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticErrorCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
@@ -6029,7 +6029,16 @@ public class TypeChecker extends BLangNodeVisitor {
             // function call error.
             if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
                 BType expectedType = paramTypes.get(i);
-                types.checkType(arg.pos, arg.getBType(), expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                BType actualType = arg.getBType();
+                if (expectedType == symTable.charStringType) {
+                    arg.cloneAttempt++;
+                    BLangExpression clonedArg = nodeCloner.cloneNode(arg);
+                    BType argType = checkExprSilent(clonedArg, expectedType, env);
+                    if (argType != symTable.semanticError) {
+                        actualType = argType;
+                    }
+                }
+                types.checkType(arg.pos, actualType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.getBType(), expectedType);
             }
 
@@ -6765,7 +6774,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BType type = expr.getBType();
-            if (type.tag >= TypeTags.JSON) {
+            if (type.tag >= TypeTags.JSON &&
+                    !TypeTags.isIntegerTypeTag(type.tag) && !TypeTags.isStringTypeTag(type.tag)) {
                 if (type != symTable.semanticError && !TypeTags.isXMLTypeTag(type.tag)) {
                     dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             BUnionType.create(null, symTable.intType, symTable.floatType,

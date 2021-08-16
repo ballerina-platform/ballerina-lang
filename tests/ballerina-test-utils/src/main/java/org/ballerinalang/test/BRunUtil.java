@@ -139,6 +139,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
 
 /**
@@ -420,7 +421,7 @@ public class BRunUtil {
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                     PredefinedTypes.TYPE_ANY, "test",
-                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
+                    new StrandMetadata(ANON_ORG, DOT, DEFAULT_MAJOR_VERSION.value,
                             functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {

@@ -1,4 +1,4 @@
-public l 
+public l
 
 # Description
 public type NodeCredential record {|

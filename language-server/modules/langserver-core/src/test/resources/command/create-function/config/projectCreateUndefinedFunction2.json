@@ -1,40 +1,40 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 9,
-                "character": 4
-            },
-            "end": {
-                "line": 9,
-                "character": 23
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 17,
-                                        "character": 0
-                                    },
-                                    "end": {
-                                        "line": 17,
-                                        "character": 0
-                                    }
-                                },
-                                "newText": "\n\nfunction addStudent(module1:Student a) {\n    \n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 9,
+        "character": 4
+      },
+      "end": {
+        "line": 9,
+        "character": 23
+      }
     }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 18,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 18,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction addStudent(module1:Student student) {\n    \n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

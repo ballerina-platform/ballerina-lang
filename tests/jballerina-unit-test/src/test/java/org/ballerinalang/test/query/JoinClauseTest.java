@@ -115,7 +115,7 @@ public class JoinClauseTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(groups = {"disableOnOldParser"}, description = "Test negative scenarios for query expr with join clause")
+    @Test(description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 32);
         int i = 0;
