@@ -1458,15 +1458,15 @@ function testEqualityWithNonAnydataType() {
     assert(obj2 != (), true);
 }
 
-type Num float|int;
+type FloatOrInt float|int;
 
-Num n1 = 0.0;
-Num n2 = -0.0;
-Num n3 = 0.0/0.0;
-Num n4 = -0.0/0.0;
-Num n5 = 2.0;
-Num n6 = 2.00;
-Num n7 = 2;
+FloatOrInt n1 = 0.0;
+FloatOrInt n2 = -0.0;
+FloatOrInt n3 = 0.0/0.0;
+FloatOrInt n4 = -0.0/0.0;
+FloatOrInt n5 = 2.0;
+FloatOrInt n6 = 2.00;
+FloatOrInt n7 = 2;
 
 function testEqualityWithFloatUnion() {
     test:assertTrue(n1 == n2);
@@ -1480,6 +1480,90 @@ function testNotEqualityWithFloatUnion() {
     test:assertFalse(n3 != n4);
     test:assertFalse(n5 != n6);
     test:assertTrue(n5 != n7);
+}
+
+function testExactEqualityWithFloatUnion() {
+    test:assertFalse(n1 === n2);
+    test:assertTrue(n3 === n4);
+    test:assertTrue(n5 === n6);
+    test:assertFalse(n5 === n7);
+}
+
+function testNotExactEqualityWithFloatUnion() {
+    test:assertTrue(n1 !== n2);
+    test:assertFalse(n3 !== n4);
+    test:assertFalse(n5 !== n6);
+    test:assertTrue(n5 !== n7);
+}
+
+type DecimalOrInt decimal|int;
+
+DecimalOrInt m1 = 0.0;
+DecimalOrInt m2 = -0.0;
+DecimalOrInt m3 = 2.0;
+DecimalOrInt m4 = 2.00;
+DecimalOrInt m5 = 2;
+
+function testEqualityWithDecimalUnion() {
+    test:assertTrue(m1 == m2);
+    test:assertTrue(m3 == m4);
+    test:assertFalse(m3 == m5);
+}
+
+function testNotEqualityWithDecimalUnion() {
+    test:assertFalse(m1 != m2);
+    test:assertFalse(m3 != m4);
+    test:assertTrue(m3 != m5);
+}
+
+function testExactEqualityWithDecimalUnion() {
+    test:assertTrue(m1 === m2);
+    test:assertFalse(m3 === m4);
+    test:assertFalse(m3 === m5);
+}
+
+function testNotExactEqualityWithDecimalUnion() {
+    test:assertFalse(m1 !== m2);
+    test:assertTrue(m3 !== m4);
+    test:assertTrue(m3 !== m5);
+}
+
+type VALUE_TYPE int|byte|float|boolean|string;
+
+function testEqualityWithUnionType() {
+    VALUE_TYPE a = "abc";
+    VALUE_TYPE b = "abc";
+    VALUE_TYPE c = "bcd";
+    VALUE_TYPE d = true;
+    VALUE_TYPE e = true;
+    VALUE_TYPE f = false;
+
+    VALUE_TYPE g = <byte> 1;
+    VALUE_TYPE h = <byte> 1;
+    VALUE_TYPE i = <byte> 2;
+
+    VALUE_TYPE j = 2;
+    VALUE_TYPE k = 2.0;
+
+    test:assertTrue(a == b);
+    test:assertFalse(b == c);
+    test:assertTrue(a === b);
+    test:assertFalse(b === c);
+
+    test:assertTrue(d == e);
+    test:assertFalse(e == f);
+    test:assertTrue(d === e);
+    test:assertFalse(e === f);
+
+    test:assertTrue(g == h);
+    test:assertFalse(h == i);
+    test:assertTrue(g === h);
+    test:assertFalse(h === i);
+
+    test:assertTrue(j == i);
+    test:assertFalse(i == k);
+    test:assertFalse(j === i);
+    test:assertFalse(i === k);
 }
 
 function assert(anydata actual, anydata expected) {

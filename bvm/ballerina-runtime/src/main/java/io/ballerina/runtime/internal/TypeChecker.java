@@ -467,8 +467,30 @@ public class TypeChecker {
         Type lhsType = getType(lhsValue);
         Type rhsType = getType(rhsValue);
 
-        if (isSimpleBasicType(lhsType) && isSimpleBasicType(rhsType)) {
-            return isEqual(lhsValue, rhsValue);
+        switch(lhsType.getTag()) {
+            case TypeTags.INT_TAG:
+                if (rhsType.getTag() != TypeTags.BYTE_TAG || rhsType.getTag() != TypeTags.INT_TAG) {
+                    return false;
+                }
+                return lhsValue.equals(((Number) rhsValue).longValue());
+            case TypeTags.BYTE_TAG:
+                if (rhsType.getTag() != TypeTags.BYTE_TAG || rhsType.getTag() != TypeTags.INT_TAG) {
+                    return false;
+                }
+                return lhsValue.equals(((Number) rhsValue).byteValue());
+            case TypeTags.FLOAT_TAG:
+                if (rhsType.getTag() != TypeTags.FLOAT_TAG) {
+                    return false;
+                }
+                return lhsValue.equals(((Number) rhsValue).doubleValue());
+            case TypeTags.DECIMAL_TAG:
+                if (rhsType.getTag() != TypeTags.DECIMAL_TAG) {
+                    return false;
+                }
+                return checkDecimalExactEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.STRING_TAG:
+                return lhsValue.equals(rhsValue);
         }
 
         if (TypeTags.isXMLTypeTag(lhsType.getTag()) && TypeTags.isXMLTypeTag(rhsType.getTag())) {
@@ -2708,7 +2730,6 @@ public class TypeChecker {
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
@@ -2729,6 +2750,11 @@ public class TypeChecker {
                     return true;
                 }
                 return ((Number) lhsValue).doubleValue() == ((Number) rhsValue).doubleValue();
+            case TypeTags.DECIMAL_TAG:
+                if (rhsValTypeTag != TypeTags.DECIMAL_TAG) {
+                    return false;
+                }
+                return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
             case TypeTags.XML_TAG:
                 // Instance of xml never
                 if (lhsValue instanceof XmlText) {
