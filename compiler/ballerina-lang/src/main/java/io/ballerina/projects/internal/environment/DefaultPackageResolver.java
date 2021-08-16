@@ -56,15 +56,6 @@ public class DefaultPackageResolver implements PackageResolver {
 
     public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
                                   PackageRepository ballerinaCentralRepo,
-                                  PackageCache packageCache) {
-        this.ballerinaDistRepo = ballerinaDistRepo;
-        this.ballerinaCentralRepo = ballerinaCentralRepo;
-        this.packageCache = (WritablePackageCache) packageCache;
-        this.customRepositories = Collections.emptyMap();
-    }
-
-    public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
-                                  PackageRepository ballerinaCentralRepo,
                                   PackageCache packageCache, Map<String, PackageRepository> customRepositories) {
         this.ballerinaDistRepo = ballerinaDistRepo;
         this.ballerinaCentralRepo = ballerinaCentralRepo;
