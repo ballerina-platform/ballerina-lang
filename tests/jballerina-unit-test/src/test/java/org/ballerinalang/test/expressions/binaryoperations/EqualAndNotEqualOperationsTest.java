@@ -1130,4 +1130,17 @@ public class EqualAndNotEqualOperationsTest {
         BRunUtil.invoke(result, "testTableEquality");
     }
 
+    @Test(dataProvider = "functionsWithFloatUnionEqualityChecks")
+    public void testFunctionsWithFloatUnionEqualityChecks(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsWithFloatUnionEqualityChecks() {
+        return new String[] {
+                "testEqualityWithFloatUnion",
+                "testNotEqualityWithFloatUnion"
+        };
+    }
+
 }

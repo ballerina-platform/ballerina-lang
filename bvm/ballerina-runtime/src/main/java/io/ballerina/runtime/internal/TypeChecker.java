@@ -2708,7 +2708,6 @@ public class TypeChecker {
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-            case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
@@ -2722,6 +2721,14 @@ public class TypeChecker {
                     return false;
                 }
                 return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
+            case TypeTags.FLOAT_TAG:
+                if (rhsValTypeTag != TypeTags.FLOAT_TAG) {
+                    return false;
+                }
+                if (Double.isNaN((Double) lhsValue) && Double.isNaN((Double) rhsValue)) {
+                    return true;
+                }
+                return ((Number) lhsValue).doubleValue() == ((Number) rhsValue).doubleValue();
             case TypeTags.XML_TAG:
                 // Instance of xml never
                 if (lhsValue instanceof XmlText) {

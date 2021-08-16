@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type OpenEmployee record {
     string|json name = "";
     int id = 0;
@@ -1454,6 +1456,30 @@ function testEqualityWithNonAnydataType() {
     MyObj2? obj2 = new;
     assert(obj2 == (), false);
     assert(obj2 != (), true);
+}
+
+type Num float|int;
+
+Num n1 = 0.0;
+Num n2 = -0.0;
+Num n3 = 0.0/0.0;
+Num n4 = -0.0/0.0;
+Num n5 = 2.0;
+Num n6 = 2.00;
+Num n7 = 2;
+
+function testEqualityWithFloatUnion() {
+    test:assertTrue(n1 == n2);
+    test:assertTrue(n3 == n4);
+    test:assertTrue(n5 == n6);
+    test:assertFalse(n5 == n7);
+}
+
+function testNotEqualityWithFloatUnion() {
+    test:assertFalse(n1 != n2);
+    test:assertFalse(n3 != n4);
+    test:assertFalse(n5 != n6);
+    test:assertTrue(n5 != n7);
 }
 
 function assert(anydata actual, anydata expected) {
