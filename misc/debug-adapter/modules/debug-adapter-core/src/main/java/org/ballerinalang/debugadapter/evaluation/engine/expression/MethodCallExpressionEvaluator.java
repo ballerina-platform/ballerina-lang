@@ -170,8 +170,9 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
             isFoundObjectMethod = true;
             GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
-            List<Value> argsList = new SymbolBasedArgProcessor(context, methodName, objectMethod.getJDIMethodRef(),
-                    objectMethodDef.get()).process(argEvaluators);
+            SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, methodName,
+                    objectMethod.getJDIMethodRef(), objectMethodDef.get());
+            List<Value> argsList = argProcessor.process(argEvaluators);
             objectMethod.setArgValues(argsList);
             return objectMethod.invokeSafely();
         } catch (EvaluationException e) {
@@ -235,8 +236,9 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
         argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
         FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
-        List<Value> argsList = new NodeBasedArgProcessor(context, methodName, langLibMethod.getJDIMethodRef(),
-                functionSignature).process(argEvaluators);
+        NodeBasedArgProcessor argProcessor = new NodeBasedArgProcessor(context, methodName, langLibMethod
+                .getJDIMethodRef(), functionSignature);
+        List<Value> argsList = argProcessor.process(argEvaluators);
         langLibMethod.setArgValues(argsList);
         return langLibMethod.invokeSafely();
     }

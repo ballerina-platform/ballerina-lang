@@ -179,7 +179,8 @@ public abstract class InvocationArgProcessor {
             return ((FunctionDefinitionNode) node).functionSignature();
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "failed to " +
-                    "evaluate default value expression of the parameter '" + argName + "'."));
+                    "evaluate the default value expression of the parameter '" + argName + "', due to an internal " +
+                    "error."));
         }
     }
 
@@ -207,6 +208,9 @@ public abstract class InvocationArgProcessor {
         return new ExpressionEvaluator(context).evaluate(expression.toSourceCode());
     }
 
+    /**
+     * Possible types for invocation arguments.
+     */
     protected enum ArgType {
         POSITIONAL,
         NAMED,

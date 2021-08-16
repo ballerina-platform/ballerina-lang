@@ -50,14 +50,14 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
 
     private final RemoteMethodCallActionNode syntaxNode;
     private final String methodName;
-    private final Evaluator objectExpressionEvaluator;
+    private final Evaluator subExpressionEvaluator;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
     public RemoteMethodCallActionEvaluator(SuspendedContext context, RemoteMethodCallActionNode remoteMethodActionNode,
                                            Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context, null, expression, argEvaluators);
         this.syntaxNode = remoteMethodActionNode;
-        this.objectExpressionEvaluator = expression;
+        this.subExpressionEvaluator = expression;
         this.argEvaluators = argEvaluators;
         this.methodName = syntaxNode.methodName().toSourceCode().trim();
     }
@@ -67,11 +67,11 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         try {
             // Calls a remote method of a client object. This works the same as a method call expression, except that
             // it is used for a client object method with the remote qualifier.
-            BExpressionValue result = objectExpressionEvaluator.evaluate();
-            BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
+            BExpressionValue subExprResult = subExpressionEvaluator.evaluate();
+            BVariable resultVar = VariableFactory.getVariable(context, subExprResult.getJdiValue());
 
-            // If the expression result is an object, try invoking as an object method invocation.
-            if (result.getType() != BVariableType.OBJECT) {
+            // If the expression subExprResult is an object, try invoking as an object method invocation.
+            if (subExprResult.getType() != BVariableType.OBJECT) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                         "invalid remote method call: expected a client object, but found 'other'"));
             }
@@ -121,8 +121,9 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         }
 
         GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, objectMethodDef.get());
-        List<Value> orderedArgsList = new SymbolBasedArgProcessor(context, methodName, objectMethod.getJDIMethodRef(),
-                objectMethodDef.get()).process(argEvaluators);
+        SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, methodName, objectMethod
+                .getJDIMethodRef(), objectMethodDef.get());
+        List<Value> orderedArgsList = argProcessor.process(argEvaluators);
         objectMethod.setArgValues(orderedArgsList);
         return objectMethod.invokeSafely();
     }

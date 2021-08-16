@@ -74,8 +74,9 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
             String className = constructQualifiedClassNameFrom(functionDef.get());
             GeneratedStaticMethod jvmMethod = EvaluationUtils.getGeneratedMethod(context, className, functionName);
-            List<Value> argsList = new SymbolBasedArgProcessor(context, functionName, jvmMethod.getJDIMethodRef(),
-                    functionDef.get()).process(argEvaluators);
+            SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, functionName, jvmMethod
+                    .getJDIMethodRef(), functionDef.get());
+            List<Value> argsList = argProcessor.process(argEvaluators);
             jvmMethod.setArgValues(argsList);
             Value result = jvmMethod.invokeSafely();
             return new BExpressionValue(context, result);
