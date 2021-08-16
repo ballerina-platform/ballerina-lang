@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.model.tree.SourceKind.REGULAR_SOURCE;
 import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
 
@@ -383,8 +382,7 @@ class ModuleContext {
 
         // Parse test source files if --skip-tests option is set to false
         CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-        if (!Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))
-                && !moduleContext.testSrcDocumentIds().isEmpty()) {
+        if (!moduleContext.testSrcDocumentIds().isEmpty()) {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }
 

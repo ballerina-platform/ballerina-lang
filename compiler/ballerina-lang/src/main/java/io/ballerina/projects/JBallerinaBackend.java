@@ -71,7 +71,6 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
@@ -312,7 +311,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         // skip generation of the test jar if --skip-tests option is set to true
-        if (Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))) {
+        if (moduleContext.project().buildOptions().skipTests()) {
             return;
         }
 

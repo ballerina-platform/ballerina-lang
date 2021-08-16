@@ -32,8 +32,6 @@ public enum CompilerOptionName {
 
     OFFLINE("offline"),
 
-    SKIP_TESTS("skipTests"),
-
     OBSERVABILITY_INCLUDED("observabilityIncluded"),
 
     COMPILER_PHASE("compilerPhase"),

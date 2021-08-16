@@ -110,6 +110,10 @@ public class NewPackageDependencyGraphBuilder {
             return;
         }
 
+        if (vertices.get(vertex).scope.equals(PackageDependencyScope.TEST_ONLY) &&
+                newPkgDescWithScope.scope.equals(PackageDependencyScope.DEFAULT)) {
+            vertices.put(vertex, newPkgDescWithScope);
+        }
         // TODO   ....
         // TODO handle version conflicts
     }

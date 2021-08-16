@@ -189,11 +189,9 @@ public class PackageResolution {
             allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests());
         }
 
-        if (!compilationOptions.skipTests()) {
-            for (ModuleId moduleId : rootPackageContext.moduleIds()) {
-                ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-                allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests());
-            }
+        for (ModuleId moduleId : rootPackageContext.moduleIds()) {
+            ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
+            allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests());
         }
 
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
