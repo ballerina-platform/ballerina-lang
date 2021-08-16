@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 33);
+        Assert.assertEquals(compileResult.getErrorCount(), 37);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -79,8 +79,16 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "undefined symbol 'k'", 433, 25);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
                         "table constraint type 'record {| User user; |}'", 451, 28);
-        validateError(compileResult, index, "field name 'id' used in key specifier is not found in " +
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
                 "table constraint type 'record {| User user; |}'", 456, 24);
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 469, 28);
+        validateError(compileResult, index++, "field name 'firstName' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 469, 32);
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 474, 24);
+        validateError(compileResult, index, "field name 'firstName' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 474, 28);
     }
 
     @Test
