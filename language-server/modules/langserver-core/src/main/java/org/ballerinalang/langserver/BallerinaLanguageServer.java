@@ -214,7 +214,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientCapabilities capabilities = this.serverContext.get(LSClientCapabilities.class);
         if (LSClientUtil.isDynamicSemanticTokensRegistrationSupported(capabilities.getTextDocCapabilities())) {
             registerSemanticTokensConfigListener();
-            if (capabilities.getInitializationOptions().isEnableSemanticTokens()) {
+            if (capabilities.getWorkspaceCapabilities().getDidChangeConfiguration() == null &&
+                    capabilities.getInitializationOptions().isEnableSemanticTokens()) {
                 SemanticTokensUtils.registerSemanticTokensCapability(serverContext.get(ExtendedLanguageClient.class));
             }
         }
