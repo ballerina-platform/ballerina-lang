@@ -16,11 +16,11 @@
 package org.ballerinalang.langserver;
 
 import org.ballerinalang.langserver.commons.capability.ExperimentalClientCapabilities;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.langserver.Experimental.INTROSPECTION;
@@ -33,12 +33,14 @@ import static org.ballerinalang.langserver.Experimental.SHOW_TEXT_DOCUMENT;
  */
 public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     private final ExperimentalClientCapabilities experimentalCapabilities;
+    private final InitializationOptions initializationOptions;
     private final WorkspaceClientCapabilities workspaceCapabilities;
     private final TextDocumentClientCapabilities textDocCapabilities;
 
     LSClientCapabilitiesImpl(TextDocumentClientCapabilities textDocCapabilities,
                              WorkspaceClientCapabilities workspaceCapabilities,
-                             HashMap experimentalClientCapabilities) {
+                             Map experimentalClientCapabilities, 
+                             Map initializationOptionsMap) {
         this.textDocCapabilities = (textDocCapabilities != null) ?
                 textDocCapabilities : new TextDocumentClientCapabilities();
 
@@ -47,6 +49,9 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         this.experimentalCapabilities = (experimentalClientCapabilities != null) ?
                 parseCapabilities(experimentalClientCapabilities) : new ExperimentalClientCapabilitiesImpl();
+
+        this.initializationOptions = initializationOptionsMap != null ?
+                parseInitializationOptions(initializationOptionsMap) : new InitializationOptionsImpl();
     }
 
     /**
@@ -57,6 +62,11 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     @Override
     public ExperimentalClientCapabilities getExperimentalCapabilities() {
         return experimentalCapabilities;
+    }
+    
+    @Override
+    public InitializationOptions getInitializationOptions() {
+        return initializationOptions;
     }
 
     /**
@@ -94,6 +104,20 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     }
 
     /**
+     * Parse initialization options from the initialization options map received.
+     *
+     * @param initOptions Receied initialization options map
+     * @return Initialization options.
+     */
+    private InitializationOptions parseInitializationOptions(Map<String, Object> initOptions) {
+        Object pullModuleSupport = initOptions.get(InitializationOptions.KEY_PULL_MODULE_SUPPORT);
+        boolean pullModuleSupported = Boolean.parseBoolean(String.valueOf(pullModuleSupport));
+        InitializationOptionsImpl initializationOptions = new InitializationOptionsImpl();
+        initializationOptions.setPullModuleSupported(pullModuleSupported);
+        return initializationOptions;
+    }
+
+    /**
      * Represents Extended LSP capabilities.
      */
     public static class ExperimentalClientCapabilitiesImpl implements ExperimentalClientCapabilities {
@@ -126,6 +150,22 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private void setShowTextDocumentEnabled(boolean showTextDocumentEnabled) {
             this.showTextDocumentEnabled = showTextDocumentEnabled;
+        }
+    }
+
+    /**
+     * Represents the initialization options the LS client will be sending.
+     */
+    public static class InitializationOptionsImpl implements InitializationOptions {
+        private boolean isPullModuleSupported = false;
+        
+        @Override
+        public boolean isPullModuleSupported() {
+            return isPullModuleSupported;
+        }
+
+        public void setPullModuleSupported(boolean pullModuleSupported) {
+            isPullModuleSupported = pullModuleSupported;
         }
     }
 }
