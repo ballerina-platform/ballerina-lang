@@ -137,10 +137,7 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
 
             List<Method> methods = objectRef.methodsByName(methodName);
             for (Method method : methods) {
-                // Since Ballerina codegen phase introduces an additional boolean helper parameter for every
-                // method parameter except for the `strand` parameter, total number of parameters defined in the runtime
-                // method will be 2n + 1.
-                int expectedArgsCountInRuntime = 2 * argsCountInDefinition + 1;
+                int expectedArgsCountInRuntime = argsCountInDefinition + 1;
                 if (method.argumentTypes().size() == expectedArgsCountInRuntime) {
                     return new GeneratedInstanceMethod(context, objectVar.getJvmValue(), methods.get(0));
                 }
