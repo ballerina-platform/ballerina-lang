@@ -130,8 +130,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_XML_QNAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHECK_FLOAT_EXACT_EQUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
@@ -164,6 +165,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_COMPARISON_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_SEQUENCE;
@@ -715,30 +717,44 @@ public class JvmInstructionGen {
 
     private void generateEqualIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        this.generateBinaryRhsAndLhsLoad(binaryIns);
-
         Label label1 = new Label();
         Label label2 = new Label();
+        Label label3 = new Label();
 
         BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
         BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
 
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(LCMP);
             this.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
+            this.mv.visitJumpInsn(IFEQ, label3);
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
+            this.mv.visitJumpInsn(IFEQ, label3);
+            this.mv.visitInsn(ICONST_1);
+            this.mv.visitJumpInsn(GOTO, label2);
+            this.mv.visitLabel(label3);
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(DCMPL);
             this.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalEqual",
                     String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         } else {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
@@ -757,29 +773,43 @@ public class JvmInstructionGen {
 
     private void generateNotEqualIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        this.generateBinaryRhsAndLhsLoad(binaryIns);
-
         Label label1 = new Label();
         Label label2 = new Label();
+        Label label3 = new Label();
 
         // It is assumed that both operands are of same type
         BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
         BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(LCMP);
             this.mv.visitJumpInsn(IFEQ, label1);
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
+            this.mv.visitJumpInsn(IFEQ, label3);
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "isNaN", "(D)Z", false);
+            this.mv.visitJumpInsn(IFEQ, label3);
+            this.mv.visitInsn(ICONST_0);
+            this.mv.visitJumpInsn(GOTO, label2);
+            this.mv.visitLabel(label3);
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(DCMPL);
             this.mv.visitJumpInsn(IFEQ, label1);
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalEqual",
                     String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
             this.mv.visitJumpInsn(IFNE, label1);
         } else {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isEqual",
                     String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.mv.visitJumpInsn(IFNE, label1);
@@ -797,25 +827,40 @@ public class JvmInstructionGen {
 
     private void generateRefEqualIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        this.generateBinaryRhsAndLhsLoad(binaryIns);
-
         Label label1 = new Label();
         Label label2 = new Label();
 
         BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
         BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(LCMP);
             this.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, CHECK_FLOAT_EXACT_EQUAL, "(DD)Z", false);
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                    String.format("(D)L%s;", DOUBLE_VALUE), false);
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                    String.format("(D)L%s;", DOUBLE_VALUE), false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, EQUALS_METHOD,
+                    String.format("(L%s;)Z", OBJECT), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPNE, label1);
+        } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalExactEqual",
+                    String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
         } else {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isReferenceEqual",
                     String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
@@ -834,8 +879,6 @@ public class JvmInstructionGen {
 
     private void generateRefNotEqualIns(BIRNonTerminator.BinaryOp binaryIns) {
 
-        this.generateBinaryRhsAndLhsLoad(binaryIns);
-
         Label label1 = new Label();
         Label label2 = new Label();
 
@@ -843,16 +886,32 @@ public class JvmInstructionGen {
         BType lhsOpType = binaryIns.rhsOp1.variableDcl.type;
         BType rhsOpType = binaryIns.rhsOp2.variableDcl.type;
         if (TypeTags.isIntegerTypeTag(lhsOpType.tag) && TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitInsn(LCMP);
             this.mv.visitJumpInsn(IFEQ, label1);
         } else if (lhsOpType.tag == TypeTags.BYTE && rhsOpType.tag == TypeTags.BYTE) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, CHECK_FLOAT_EXACT_EQUAL, "(DD)Z", false);
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                    String.format("(D)L%s;", DOUBLE_VALUE), false);
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            this.mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                    String.format("(D)L%s;", DOUBLE_VALUE), false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, DOUBLE_VALUE, EQUALS_METHOD,
+                    String.format("(L%s;)Z", OBJECT), false);
             this.mv.visitJumpInsn(IFNE, label1);
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitJumpInsn(IF_ICMPEQ, label1);
+        } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkDecimalExactEqual",
+                    String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            this.mv.visitJumpInsn(IFNE, label1);
         } else {
+            this.generateBinaryRhsAndLhsLoad(binaryIns);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "isReferenceEqual",
                     String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.mv.visitJumpInsn(IFNE, label1);

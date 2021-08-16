@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.codeaction;
+package org.ballerinalang.langserver.toml.ballerinatoml.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
@@ -24,30 +24,26 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test Cases for CodeActions.
+ * Table test.
  *
  * @since 2.0.0
  */
-public class PullModuleTest extends AbstractCodeActionTest {
+public class TableTest extends BallerinaTomlCompletionTest {
+
+    @Test(dataProvider = "completion-data-provider")
     @Override
-    public String getResourceDir() {
-        return "pull-module";
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
     }
 
-    @Override
-    @Test(dataProvider = "codeaction-data-provider", enabled = false)
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
-    }
-
-    @DataProvider(name = "codeaction-data-provider")
+    @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return new Object[][]{
-                {"packagePull1.json", "packagePull.bal"},
-                {"packagePull2.json", "packagePull.bal"},
-                {"packagePull3.json", "packagePull2.bal"},
-                {"packagePull4.json", "packagePull2.bal"},
-        };
+        return getConfigsList();
+    }
+
+    @Override
+    public String getTestResourceDir() {
+        return "table_context";
     }
 }

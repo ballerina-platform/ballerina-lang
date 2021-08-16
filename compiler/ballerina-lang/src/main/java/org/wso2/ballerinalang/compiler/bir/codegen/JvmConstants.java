@@ -296,8 +296,8 @@ public class JvmConstants {
     public static final String ANY_TO_BOOLEAN_METHOD = "anyToBoolean";
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
+    public static final String EQUALS_METHOD = "equals";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
-    public static final String CHECK_FLOAT_EXACT_EQUAL = "checkFloatExactEqual";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";

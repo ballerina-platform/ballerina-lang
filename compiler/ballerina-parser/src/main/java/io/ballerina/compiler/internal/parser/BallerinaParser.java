@@ -5684,8 +5684,8 @@ public class BallerinaParser extends AbstractParser {
         STNode openParen = parseOpenParenthesis();
 
         if (peek().kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-            // Could be nill literal or empty param-list of an implicit-anon-func-expr'
-            return parseNilLiteralOrEmptyAnonFuncParamRhs(openParen);
+            // Could be nil literal or empty param-list of an implicit-anon-func-expr'
+            return STNodeFactory.createNilLiteralNode(openParen, consume());
         }
 
         startContext(ParserRuleContext.BRACED_EXPR_OR_ANON_FUNC_PARAMS);
@@ -5697,19 +5697,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseBracedExprOrAnonFuncParamRhs(openParen, expr, isRhsExpr);
-    }
-
-    private STNode parseNilLiteralOrEmptyAnonFuncParamRhs(STNode openParen) {
-        STNode closeParen = parseCloseParenthesis();
-        STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
-            return STNodeFactory.createNilLiteralNode(openParen, closeParen);
-        } else {
-            STNode params = STNodeFactory.createEmptyNodeList();
-            STNode anonFuncParam =
-                    STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
-            return anonFuncParam;
-        }
     }
 
     private STNode parseBracedExprOrAnonFuncParamRhs(STNode openParen, STNode expr, boolean isRhsExpr) {
@@ -10875,6 +10862,11 @@ public class BallerinaParser extends AbstractParser {
             case BRACED_EXPRESSION:
                 params = getAnonFuncParam((STBracedExpressionNode) params);
                 break;
+            case NIL_LITERAL:
+                STNilLiteralNode nilLiteralNode = (STNilLiteralNode) params;
+                params = STNodeFactory.createImplicitAnonymousFunctionParameters(nilLiteralNode.openParenToken,
+                        STNodeFactory.createNodeList(new ArrayList<>()), nilLiteralNode.closeParenToken);
+                break;
             default:
                 STToken syntheticParam = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
                 syntheticParam = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(syntheticParam, params,
@@ -11223,6 +11215,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseQueryExprRhs(STNode queryConstructType, boolean isRhsExpr) {
+        this.tokenReader.startKeywordMode(KeywordMode.QUERY);
         switchContext(ParserRuleContext.QUERY_EXPRESSION);
         STNode fromClause = parseFromClause(isRhsExpr);
 
@@ -11282,6 +11275,8 @@ public class BallerinaParser extends AbstractParser {
         STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
         STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
         STNode onConflictClause = parseOnConflictClause(isRhsExpr);
+
+        this.tokenReader.endKeywordMode();
         return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause,
                 onConflictClause);
     }
@@ -14927,7 +14922,6 @@ public class BallerinaParser extends AbstractParser {
                 STNode params = STNodeFactory.createEmptyNodeList();
                 STNode anonFuncParam =
                         STNodeFactory.createImplicitAnonymousFunctionParameters(openParen, params, closeParen);
-                endContext();
                 return anonFuncParam;
             default:
                 return STNodeFactory.createNilLiteralNode(openParen, closeParen);
@@ -17207,7 +17201,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        STNode member = parseStatementStartingBracedListFirstMember();
+        STNode member = parseStatementStartingBracedListFirstMember(openBrace.isMissing());
         SyntaxKind nodeType = getBracedListType(member);
         STNode stmt;
         switch (nodeType) {
@@ -17346,7 +17340,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseStatementStartingBracedListFirstMember() {
+    private STNode parseStatementStartingBracedListFirstMember(boolean isOpenBraceMissing) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case READONLY_KEYWORD:
@@ -17378,6 +17372,12 @@ public class BallerinaParser extends AbstractParser {
             case ELLIPSIS_TOKEN:
                 return parseRestBindingPattern();
             default:
+                // If the openBrace is missing we should not rout this as another `BLOCK_STMT`. This is done to prevent
+                // infinite loop
+                if (isOpenBraceMissing) {
+                    readonlyKeyword = STNodeFactory.createEmptyNode();
+                    return parseIdentifierRhsInStmtStartingBrace(readonlyKeyword);
+                }
                 // Then treat parent as a block statement
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 return parseStatements();
