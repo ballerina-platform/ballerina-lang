@@ -187,7 +187,7 @@ public class ManifestBuilder {
         Map<String, PackageManifest.Platform> platforms = getPlatforms(platformNode);
 
         // Process local repo dependencies
-        List<PackageManifest.LocalPackage> localRepoDependencies = getLocalRepoDependencies();
+        List<PackageManifest.Dependency> localRepoDependencies = getLocalRepoDependencies();
 
         // Compiler plugin descriptor
         Optional<CompilerPluginDescriptor> pluginDescriptor;
@@ -323,7 +323,7 @@ public class ManifestBuilder {
         return platforms;
     }
 
-    private List<PackageManifest.LocalPackage> getLocalRepoDependencies() {
+    private List<PackageManifest.Dependency> getLocalRepoDependencies() {
         TomlTableNode rootNode = ballerinaToml.toml().rootNode();
         if (rootNode.entries().isEmpty()) {
             return Collections.emptyList();
@@ -334,7 +334,7 @@ public class ManifestBuilder {
             return Collections.emptyList();
         }
 
-        List<PackageManifest.LocalPackage> dependencies = new ArrayList<>();
+        List<PackageManifest.Dependency> dependencies = new ArrayList<>();
         if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
 
@@ -355,7 +355,7 @@ public class ManifestBuilder {
                     continue;
                 }
 
-                dependencies.add(new PackageManifest.LocalPackage(depName, depOrg, depVersion, repository));
+                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
             }
         }
         return dependencies;
