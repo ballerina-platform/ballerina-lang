@@ -140,8 +140,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 return LangExtensionDelegator.instance()
                         .completion(position, context, this.serverContext, cancelChecker);
-            } catch (CancellationException ignore) {
+            } catch (CancellationException e) {
                 // Ignore the cancellation exception
+                String msg = "Operation 'text/completion' cancelled! [line: "
+                        + position.getPosition().getLine() + ", char: "
+                        + position.getPosition().getCharacter() + "]";
+                this.clientLogger.logTrace(msg);
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/completion' failed!";
