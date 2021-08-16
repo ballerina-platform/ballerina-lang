@@ -122,6 +122,11 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
+        if (this.currentConstSymbol == constSymbol) {
+            dlog.error(varRef.pos, DiagnosticErrorCode.SELF_REFERENCE_CONSTANT, constSymbol.name);
+            return;
+        }
+
         if (!this.unresolvedConstants.containsKey(constSymbol)) {
             dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_RESOLVE_CONST, constSymbol.name.value);
             this.result = null;
