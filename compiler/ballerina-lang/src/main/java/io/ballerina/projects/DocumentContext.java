@@ -137,7 +137,7 @@ class DocumentContext {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
-                    moduleName, scope, DependencyResolutionType.INJECTED);
+                    moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
 

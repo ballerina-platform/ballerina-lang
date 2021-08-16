@@ -34,7 +34,7 @@ public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final Optional<CompilerPluginDescriptor> compilerPluginDesc;
     private final Map<String, Platform> platforms;
-    private final List<LocalPackage> localPackages;
+    private final List<Dependency> dependencies;
     private final DiagnosticResult diagnostics;
     private final List<String> license;
     private final List<String> authors;
@@ -49,13 +49,13 @@ public class PackageManifest {
     private PackageManifest(PackageDescriptor packageDesc,
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
                             Map<String, Platform> platforms,
-                            List<LocalPackage> localPackages,
+                            List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
-        this.localPackages = Collections.unmodifiableList(localPackages);
+        this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
         this.diagnostics = diagnostics;
         this.license = Collections.emptyList();
@@ -68,7 +68,7 @@ public class PackageManifest {
     private PackageManifest(PackageDescriptor packageDesc,
                             Optional<CompilerPluginDescriptor> compilerPluginDesc,
                             Map<String, Platform> platforms,
-                            List<LocalPackage> localPackages,
+                            List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
                             DiagnosticResult diagnostics,
                             List<String> license,
@@ -79,7 +79,7 @@ public class PackageManifest {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
-        this.localPackages = Collections.unmodifiableList(localPackages);
+        this.dependencies = Collections.unmodifiableList(dependencies);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
         this.diagnostics = diagnostics;
         this.license = license;
@@ -97,7 +97,7 @@ public class PackageManifest {
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<LocalPackage> localPackages) {
+                                       List<Dependency> localPackages) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()));
     }
@@ -105,7 +105,7 @@ public class PackageManifest {
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<LocalPackage> localPackages,
+                                       List<Dependency> localPackages,
                                        Map<String, Object> otherEntries,
                                        DiagnosticResult diagnostics,
                                        List<String> license,
@@ -120,7 +120,7 @@ public class PackageManifest {
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        Optional<CompilerPluginDescriptor> compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<LocalPackage> localPackages,
+                                       List<Dependency> localPackages,
                                        List<String> license,
                                        List<String> authors,
                                        List<String> keywords,
@@ -180,8 +180,8 @@ public class PackageManifest {
         return repository;
     }
 
-    public List<LocalPackage> localPackages() {
-        return localPackages;
+    public List<Dependency> dependencies() {
+        return dependencies;
     }
 
     public DiagnosticResult diagnostics() {
@@ -229,24 +229,24 @@ public class PackageManifest {
      *
      * @since 2.0.0
      */
-    public static class LocalPackage {
+    public static class Dependency {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
-        private final PackageVersion semanticVersion;
+        private final PackageVersion version;
         private final String repository;
 
-        public LocalPackage(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
-            this.semanticVersion = semanticVersion;
+            this.version = version;
             this.repository = null;
         }
 
-        public LocalPackage(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
-                            String repository) {
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
+                          String repository) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
-            this.semanticVersion = semanticVersion;
+            this.version = version;
             this.repository = repository;
         }
 
@@ -259,7 +259,7 @@ public class PackageManifest {
         }
 
         public PackageVersion version() {
-            return semanticVersion;
+            return version;
         }
 
         public String repository() {

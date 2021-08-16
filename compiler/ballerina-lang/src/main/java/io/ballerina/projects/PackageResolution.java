@@ -208,14 +208,14 @@ public class PackageResolution {
                 String moduleName = Names.OBSERVE.getValue();
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
-                        PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
             {
                 String moduleName = Names.OBSERVE.getValue();
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
-                        PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
         }
@@ -225,7 +225,7 @@ public class PackageResolution {
             String moduleName = Names.CLOUD.getValue();
             ModuleLoadRequest c2cModuleLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
-                    PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                    PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
 
@@ -246,9 +246,9 @@ public class PackageResolution {
         return null;
     }
 
-    PackageManifest.LocalPackage getVersionFromPackageManifest(PackageOrg requestedPkgOrg,
-                                                               PackageName requestedPkgName) {
-        for (PackageManifest.LocalPackage dependency : rootPackageContext.packageManifest().localPackages()) {
+    PackageManifest.Dependency getVersionFromPackageManifest(PackageOrg requestedPkgOrg,
+                                                             PackageName requestedPkgName) {
+        for (PackageManifest.Dependency dependency : rootPackageContext.packageManifest().dependencies()) {
             if (dependency.org().equals(requestedPkgOrg) && dependency.name().equals(requestedPkgName)) {
                 return dependency;
             }
@@ -785,7 +785,7 @@ public class PackageResolution {
                     PackageVersion packageVersion = null;
                     String repository = null;
                     // Check whether this package is already defined as a local dependency, if so get the version
-                    PackageManifest.LocalPackage localDependency = PackageResolution.this
+                    PackageManifest.Dependency localDependency = PackageResolution.this
                             .getVersionFromPackageManifest(packageOrg, possiblePkgName);
                     if (localDependency != null) {
                         packageVersion = localDependency.version();

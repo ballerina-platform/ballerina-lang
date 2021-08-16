@@ -34,7 +34,6 @@ import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
-import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -383,10 +382,10 @@ public class BalaFiles {
             platforms.put(packageJson.getPlatform(), platform);
         }
 
-        List<PackageManifest.LocalPackage> localPackages = new ArrayList<>();
+        List<PackageManifest.Dependency> localPackages = new ArrayList<>();
         if (packageJson.getLocalDependencies() != null) {
             packageJson.getLocalDependencies().forEach(localDependency -> {
-                PackageManifest.LocalPackage localPackage = new PackageManifest.LocalPackage(
+                PackageManifest.Dependency localPackage = new PackageManifest.Dependency(
                         PackageName.from(localDependency.getName()), PackageOrg.from(localDependency.getOrg()),
                         PackageVersion.from(localDependency.getVersion()), localDependency.getRepository());
                 localPackages.add(localPackage);
@@ -404,17 +403,18 @@ public class BalaFiles {
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
         List<DependencyManifest.Package> packages = new ArrayList<>();
-        for (Dependency dependency : dependencyGraphJson.getPackageDependencyGraph()) {
+        for (io.ballerina.projects.internal.model.Dependency dependency :
+                dependencyGraphJson.getPackageDependencyGraph()) {
             List<DependencyManifest.Dependency> dependencies = new ArrayList<>();
             List<DependencyManifest.Module> modules = new ArrayList<>();
-            for (Dependency transDependency : dependency.getDependencies()) {
+            for (io.ballerina.projects.internal.model.Dependency transDependency : dependency.getDependencies()) {
                 DependencyManifest.Dependency dep = new DependencyManifest.Dependency(
                         PackageName.from(transDependency.getName()), PackageOrg.from(transDependency.getOrg()));
                 dependencies.add(dep);
             }
 
             if (dependency.getModules() != null && !dependency.getModules().isEmpty()) {
-                for (Dependency.Module depModule : dependency.getModules()) {
+                for (io.ballerina.projects.internal.model.Dependency.Module depModule : dependency.getModules()) {
                     DependencyManifest.Module module = new DependencyManifest.Module(depModule.org(),
                                                                                      depModule.packageName(),
                                                                                      depModule.moduleName());
@@ -473,14 +473,14 @@ public class BalaFiles {
     }
 
     private static DependencyGraph<PackageDescriptor> createPackageDependencyGraph(
-            List<Dependency> packageDependencyGraph) {
+            List<io.ballerina.projects.internal.model.Dependency> packageDependencyGraph) {
         DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
 
-        for (Dependency dependency : packageDependencyGraph) {
+        for (io.ballerina.projects.internal.model.Dependency dependency : packageDependencyGraph) {
             PackageDescriptor pkg = PackageDescriptor.from(PackageOrg.from(dependency.getOrg()),
                     PackageName.from(dependency.getName()), PackageVersion.from(dependency.getVersion()));
             Set<PackageDescriptor> dependentPackages = new HashSet<>();
-            for (Dependency dependencyPkg : dependency.getDependencies()) {
+            for (io.ballerina.projects.internal.model.Dependency dependencyPkg : dependency.getDependencies()) {
                 dependentPackages.add(PackageDescriptor.from(PackageOrg.from(dependencyPkg.getOrg()),
                         PackageName.from(dependencyPkg.getName()),
                         PackageVersion.from(dependencyPkg.getVersion())));

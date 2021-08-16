@@ -298,16 +298,16 @@ public class BallerinaTomlTests {
     public void testLocalDependencies() throws IOException {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("local-dependencies.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
-        List<PackageManifest.LocalPackage> localPackages = packageManifest.localPackages();
+        List<PackageManifest.Dependency> localPackages = packageManifest.dependencies();
         Assert.assertEquals(localPackages.size(), 2);
 
-        PackageManifest.LocalPackage firstLocalDep = localPackages.get(0);
+        PackageManifest.Dependency firstLocalDep = localPackages.get(0);
         Assert.assertEquals(firstLocalDep.org().value(), "abc");
         Assert.assertEquals(firstLocalDep.name().value(), "test");
         Assert.assertEquals(firstLocalDep.version().value().toString(), "1.0.0");
         Assert.assertEquals(firstLocalDep.repository(), "local");
 
-        PackageManifest.LocalPackage secLocalDep = localPackages.get(1);
+        PackageManifest.Dependency secLocalDep = localPackages.get(1);
         Assert.assertEquals(secLocalDep.org().value(), "xyz");
         Assert.assertEquals(secLocalDep.name().value(), "sample");
         Assert.assertEquals(secLocalDep.version().value().toString(), "2.0.0");
