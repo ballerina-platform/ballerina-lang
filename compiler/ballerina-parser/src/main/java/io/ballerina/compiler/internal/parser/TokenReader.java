@@ -122,6 +122,24 @@ public class TokenReader extends AbstractTokenReader {
         this.lexer.endMode();
     }
 
+
+    /**
+     * Start the given keyword operation mode in the token reader.
+     *
+     * @param keywordMode mode to add
+     */
+    public void startKeywordMode(KeywordMode keywordMode) {
+        this.lexer.startKeywordMode(keywordMode);
+    }
+
+    /**
+     * End the current keyword mode in the token reader.
+     *
+     */
+    public void endKeywordMode() {
+        this.lexer.endKeywordMode();
+    }
+
     /**
      * Get the current mode of the token reader.
      *

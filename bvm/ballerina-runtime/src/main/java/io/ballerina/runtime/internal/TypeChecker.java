@@ -411,18 +411,6 @@ public class TypeChecker {
     }
 
     /**
-     * Reference equality check for float values.
-     *
-     * @param lhsValue The value on the left-hand side
-     * @param rhsValue The value of the right-hand side
-     * @return True if values are reference equal, else false.
-     */
-
-    public static boolean checkFloatExactEqual(double lhsValue, double rhsValue) {
-        return Double.valueOf(lhsValue).equals(rhsValue);
-    }
-
-    /**
      * Check if two decimal values are equal in value.
      *
      * @param lhsValue The value on the left hand side
@@ -432,6 +420,19 @@ public class TypeChecker {
     public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
         return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
+    }
+
+    /**
+     * Check if two decimal values are exactly equal.
+     *
+     * @param lhsValue The value on the left-hand side
+     * @param rhsValue The value of the right-hand side
+     * @return True if values are exactly equal, else false.
+     */
+
+    public static boolean checkDecimalExactEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue)
+                && lhsValue.decimalValue().equals(rhsValue.decimalValue());
     }
 
     /**
@@ -617,7 +618,8 @@ public class TypeChecker {
         }
 
         if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG &&
-                (targetTypeTag <= TypeTags.NULL_TAG || targetTypeTag == TypeTags.XML_TEXT_TAG)) {
+                (targetTypeTag == TypeTags.FINITE_TYPE_TAG || targetTypeTag <= TypeTags.NULL_TAG ||
+                        targetTypeTag == TypeTags.XML_TEXT_TAG)) {
             return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
         }
 
@@ -3084,7 +3086,7 @@ public class TypeChecker {
             case TypeTags.ANY_TAG:
                 return true;
             case TypeTags.ARRAY_TAG:
-                return checkFillerValue((BArrayType) type);
+                return checkFillerValue((BArrayType) type, unanalyzedTypes);
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFillerValue((BFiniteType) type);
             case TypeTags.OBJECT_TYPE_TAG:
@@ -3092,13 +3094,26 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 return checkFillerValue((BRecordType) type, unanalyzedTypes);
             case TypeTags.TUPLE_TAG:
-                BTupleType tupleType = (BTupleType) type;
-                return tupleType.getTupleTypes().stream().allMatch(TypeChecker::hasFillerValue);
+                return checkFillerValue((BTupleType) type, unanalyzedTypes);
             case TypeTags.UNION_TAG:
                 return checkFillerValue((BUnionType) type, unanalyzedTypes);
             default:
                 return false;
         }
+    }
+
+    private static boolean checkFillerValue(BTupleType tupleType,  List<Type> unAnalyzedTypes) {
+        if (unAnalyzedTypes.contains(tupleType)) {
+            return true;
+        }
+        unAnalyzedTypes.add(tupleType);
+
+        for (Type member : tupleType.getTupleTypes()) {
+            if (!hasFillerValue(member, unAnalyzedTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkFillerValue(BUnionType type,  List<Type> unAnalyzedTypes) {
@@ -3140,8 +3155,8 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkFillerValue(BArrayType type) {
-        return type.getState() == ArrayState.OPEN || hasFillerValue(type.getElementType());
+    private static boolean checkFillerValue(BArrayType type, List<Type> unAnalyzedTypes) {
+        return type.getState() == ArrayState.OPEN || hasFillerValue(type.getElementType(), unAnalyzedTypes);
     }
 
     private static boolean checkFillerValue(BObjectType type) {
