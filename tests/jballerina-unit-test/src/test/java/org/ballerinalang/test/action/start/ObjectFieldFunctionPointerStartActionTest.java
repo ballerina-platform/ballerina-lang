@@ -52,6 +52,11 @@ public class ObjectFieldFunctionPointerStartActionTest {
     }
 
     @Test
+    public void testInvocationOfObjectFieldWithTypeInit() {
+        BRunUtil.invoke(result, "testInvocationOfObjectFieldWithTypeInit");
+    }
+
+    @Test
     public void testMethodCallNegativeCases() {
         CompileResult neg = BCompileUtil.compile(
                 "test-src/action/start/object_field_start_action_method_invocation_negative.bal");

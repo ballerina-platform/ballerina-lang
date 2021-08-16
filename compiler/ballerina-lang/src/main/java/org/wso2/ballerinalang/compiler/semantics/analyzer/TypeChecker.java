@@ -5795,26 +5795,25 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
     }
 
-    // Here, an action invocation can be either of the following two forms:
+    // Here, an action invocation can be either of the following three forms:
     // - foo->bar();
-    // - start foo.bar(); or start foo->bar()
+    // - start foo.bar(); or start foo->bar(); or start (new Foo()).foo();
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
-        BLangValueExpression varRef = (BLangValueExpression) aInv.expr;
 
-        if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
-            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, varRef.getBType());
+        if (aInv.expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
+                (((((BLangSimpleVarRef) aInv.expr).symbol.tag & SymTag.ENDPOINT) !=
+                        SymTag.ENDPOINT) && !aInv.async)) {
+            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, aInv.expr.getBType());
             this.resultType = symTable.semanticError;
             aInv.symbol = symTable.notFoundSymbol;
             return;
         }
 
-        BVarSymbol epSymbol = (BVarSymbol) varRef.symbol;
-
-        Name remoteMethodQName = names
-                .fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
+        Name remoteMethodQName = names.
+                fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
         Name actionName = names.fromIdNode(aInv.name);
-        BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(aInv.pos, epSymbol.type.tsymbol.scope, env, remoteMethodQName, SymTag.FUNCTION);
+        BSymbol remoteFuncSymbol = symResolver.
+                resolveObjectMethod(aInv.pos, env, remoteMethodQName, (BObjectTypeSymbol) expType.tsymbol);
 
         if (remoteFuncSymbol == symTable.notFoundSymbol) {
             BSymbol invocableField = symResolver.resolveInvocableObjectField(
