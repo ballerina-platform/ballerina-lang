@@ -28,14 +28,14 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-public class PullModuleTest extends AbstractCodeActionTest {
+public class PullModuleCodeActionTest extends AbstractCodeActionTest {
     @Override
     public String getResourceDir() {
         return "pull-module";
     }
 
     @Override
-    @Test(dataProvider = "codeaction-data-provider", enabled = false)
+    @Test(dataProvider = "codeaction-data-provider")
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         super.test(config, source);
     }
