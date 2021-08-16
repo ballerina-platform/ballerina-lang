@@ -37,6 +37,8 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.NodeBasedArgProcessor;
+import org.ballerinalang.debugadapter.evaluation.engine.SymbolBasedArgProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -48,8 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateOrderedArgsList;
-import static org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator.modifyName;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_VALUE;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getAssociatedLangLibName;
@@ -169,9 +170,9 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
             isFoundObjectMethod = true;
             GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
-            List<Value> argValueMap = generateOrderedArgsList(context, methodName, objectMethodDef.get()
-                    .typeDescriptor(), objectMethod.getJDIMethodRef(), argEvaluators);
-            objectMethod.setArgValues(argValueMap);
+            List<Value> argsList = new SymbolBasedArgProcessor(context, methodName, objectMethod.getJDIMethodRef(),
+                    objectMethodDef.get()).process(argEvaluators);
+            objectMethod.setArgValues(argsList);
             return objectMethod.invokeSafely();
         } catch (EvaluationException e) {
             // If the object method is not found, we have to ignore the Evaluation Exception and try to find any
@@ -234,9 +235,9 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
         argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
         FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
-        List<Value> argValueMap = generateOrderedArgsList(context, methodName, functionSignature,
-                langLibMethod.getJDIMethodRef(), argEvaluators);
-        langLibMethod.setArgValues(argValueMap);
+        List<Value> argsList = new NodeBasedArgProcessor(context, methodName, langLibMethod.getJDIMethodRef(),
+                functionSignature).process(argEvaluators);
+        langLibMethod.setArgValues(argsList);
         return langLibMethod.invokeSafely();
     }
 

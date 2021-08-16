@@ -23,15 +23,10 @@ import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
-import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 
 /**
  * JDI based java method representation for a given ballerina function.
@@ -42,13 +37,11 @@ public abstract class JvmMethod {
 
     protected final SuspendedContext context;
     protected final Method methodRef;
-    protected List<Map.Entry<String, Evaluator>> argEvaluators;
     protected List<Value> argValues;
 
     JvmMethod(SuspendedContext context, Method methodRef) {
         this.context = context;
         this.methodRef = methodRef;
-        this.argEvaluators = null;
         this.argValues = null;
     }
 
@@ -93,10 +86,6 @@ public abstract class JvmMethod {
 
     public void setArgValues(List<Value> argValues) {
         this.argValues = argValues;
-    }
-
-    public void setArgEvaluators(List<Map.Entry<String, Evaluator>> argEvaluators) {
-        this.argEvaluators = argEvaluators;
     }
 
     /**

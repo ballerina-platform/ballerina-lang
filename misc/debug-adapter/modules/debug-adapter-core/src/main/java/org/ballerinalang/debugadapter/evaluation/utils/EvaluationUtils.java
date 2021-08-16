@@ -29,10 +29,12 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -509,5 +511,14 @@ public class EvaluationUtils {
     private static boolean compare(List<String> list1, List<String> list2) {
         return list1.size() == list2.size() && IntStream.range(0, list1.size()).allMatch(i ->
                 list1.get(i).equals(list2.get(i)));
+    }
+
+    /**
+     * This util is used as a workaround till the ballerina identifier encoding/decoding mechanisms get fixed.
+     * Todo - remove
+     */
+    public static String modifyName(String identifier) {
+        return IdentifierUtils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
+                IdentifierModifier.IdentifierType.OTHER));
     }
 }

@@ -30,6 +30,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.SymbolBasedArgProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -39,8 +40,6 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateOrderedArgsList;
 
 /**
  * Evaluator implementation for remote method call invocation actions.
@@ -122,9 +121,9 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
         }
 
         GeneratedInstanceMethod objectMethod = getRemoteMethodByName(resultVar, objectMethodDef.get());
-        List<Value> argValueMap = generateOrderedArgsList(context, methodName, objectMethodDef.get().typeDescriptor(),
-                objectMethod.getJDIMethodRef(), argEvaluators);
-        objectMethod.setArgValues(argValueMap);
+        List<Value> orderedArgsList = new SymbolBasedArgProcessor(context, methodName, objectMethod.getJDIMethodRef(),
+                objectMethodDef.get()).process(argEvaluators);
+        objectMethod.setArgValues(orderedArgsList);
         return objectMethod.invokeSafely();
     }
 

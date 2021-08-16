@@ -90,26 +90,6 @@ public class PackageUtils {
     }
 
     /**
-     * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
-     * editor instance in the client(plugin) side.
-     *
-     * @param filePath file path of the open/active editor instance in the plugin side.
-     */
-    public static Project loadProject(String filePath) {
-        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
-        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
-        Path projectRoot = projectKindAndProjectRootPair.getValue();
-        BuildOptions options = new BuildOptionsBuilder().offline(true).build();
-        if (projectKind == ProjectKind.BUILD_PROJECT) {
-            return BuildProject.load(projectRoot, options);
-        } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
-            return SingleFileProject.load(projectRoot, options);
-        } else {
-            return ProjectLoader.loadProject(projectRoot, options);
-        }
-    }
-
-    /**
      * Computes the source root and the shape(kind) of the enclosing Ballerina project, using the given file path.
      *
      * @param path file path
