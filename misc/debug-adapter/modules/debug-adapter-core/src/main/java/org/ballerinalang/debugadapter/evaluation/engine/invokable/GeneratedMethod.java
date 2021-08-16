@@ -36,10 +36,6 @@ public abstract class GeneratedMethod extends JvmMethod {
         super(context, methodRef);
     }
 
-    public Method getJDIMethodRef() {
-        return methodRef;
-    }
-
     @Override
     protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
         if (argValues == null) {

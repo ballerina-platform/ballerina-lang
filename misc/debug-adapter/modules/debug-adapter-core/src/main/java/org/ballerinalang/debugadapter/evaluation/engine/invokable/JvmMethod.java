@@ -84,6 +84,10 @@ public abstract class JvmMethod {
      */
     protected abstract List<Value> getMethodArgs(JvmMethod method) throws EvaluationException;
 
+    public Method getJDIMethodRef() {
+        return methodRef;
+    }
+
     public void setArgValues(List<Value> argValues) {
         this.argValues = argValues;
     }
