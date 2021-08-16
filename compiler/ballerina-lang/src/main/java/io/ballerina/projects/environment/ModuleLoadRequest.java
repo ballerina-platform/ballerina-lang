@@ -78,7 +78,7 @@ public class ModuleLoadRequest {
     }
 
     public boolean injected() {
-        return dependencyResolvedType == DependencyResolutionType.INJECTED;
+        return dependencyResolvedType == DependencyResolutionType.PLATFORM_PROVIDED;
     }
 
     public List<Location> locations() {

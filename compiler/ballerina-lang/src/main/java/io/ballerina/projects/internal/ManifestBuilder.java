@@ -158,6 +158,7 @@ public class ManifestBuilder {
         List<String> keywords = Collections.emptyList();
         List<String> exported = Collections.emptyList();
         String repository = "";
+        String ballerinaVersion = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -166,7 +167,8 @@ public class ManifestBuilder {
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
-                repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
+                repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
+                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
             }
         }
 
@@ -196,7 +198,7 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository);
+                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -222,9 +224,9 @@ public class ManifestBuilder {
             return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
         }
 
-        org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
-        name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
-        version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
+        org = getStringValueFromTomlTableNode(pkgNode, "org", defaultOrg.value());
+        name = getStringValueFromTomlTableNode(pkgNode, "name", defaultName.value());
+        version = getStringValueFromTomlTableNode(pkgNode, VERSION, defaultVersion.value().toString());
 
         // check org is valid identifier
         boolean isValidOrg = ProjectUtils.validateOrgName(org);
@@ -430,8 +432,8 @@ public class ManifestBuilder {
         return false;
     }
 
-    private String getStringValueFromPackageNode(TomlTableNode pkgNode, String key, String defaultValue) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+    private String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key, String defaultValue) {
+        TopLevelNode topLevelNode = tomlTableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             // return default value
             return defaultValue;

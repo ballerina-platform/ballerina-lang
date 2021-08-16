@@ -264,7 +264,7 @@ public class BuildProject extends Project {
             }
             if (transDependency.packageInstance() != this.currentPackage()
                     && !transDependency.packageInstance().descriptor().isBuiltInPackage()
-                    && !transDependency.injected()) {
+                    && !transDependency.isPlatformProvided()) {
                 Package aPackage = transDependency.packageInstance();
                 Dependency dependency = new Dependency(aPackage.packageOrg().toString(),
                                                        aPackage.packageName().value(),

@@ -94,27 +94,27 @@ public class DependencyManifest {
     public static class Package {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
-        private final PackageVersion semanticVersion;
+        private final PackageVersion version;
         private final String scope;
         private final boolean transitive;
         private final List<Dependency> dependencies;
         private final List<Module> modules;
 
-        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
-            this.semanticVersion = semanticVersion;
+            this.version = version;
             this.scope = null;
             this.transitive = false;
             this.dependencies = Collections.emptyList();
             this.modules = Collections.emptyList();
         }
 
-        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion, String scope,
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, String scope,
                        boolean transitive, List<Dependency> dependencies, List<Module> modules) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
-            this.semanticVersion = semanticVersion;
+            this.version = version;
             this.scope = scope;
             this.transitive = transitive;
             this.dependencies = dependencies;
@@ -130,7 +130,7 @@ public class DependencyManifest {
         }
 
         public PackageVersion version() {
-            return semanticVersion;
+            return version;
         }
 
         public String scope() {

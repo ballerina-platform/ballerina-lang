@@ -196,14 +196,14 @@ public class PackageResolution {
                 String moduleName = Names.OBSERVE.getValue();
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), moduleName,
-                        PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
             {
                 String moduleName = Names.OBSERVE.getValue();
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
-                        PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
         }
@@ -213,7 +213,7 @@ public class PackageResolution {
             String moduleName = Names.CLOUD.getValue();
             ModuleLoadRequest c2cModuleLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
-                    PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                    PackageDependencyScope.DEFAULT, DependencyResolutionType.COMPILER_PLUGIN);
             allModuleLoadRequests.add(c2cModuleLoadReq);
         }
 
