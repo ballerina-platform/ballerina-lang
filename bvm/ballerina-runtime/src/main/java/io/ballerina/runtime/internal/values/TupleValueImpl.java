@@ -408,6 +408,9 @@ public class TupleValueImpl extends AbstractArrayValue {
                 case TypeTags.XML_TEXT_TAG:
                     sj.add(((BValue) value).informalStringValue(parentNode));
                     break;
+                case TypeTags.NULL_TAG:
+                    sj.add("null");
+                    break;
                 default:
                     sj.add(StringUtils.getStringValue(value, new CycleUtils.Node(this, parentNode)));
                     break;
