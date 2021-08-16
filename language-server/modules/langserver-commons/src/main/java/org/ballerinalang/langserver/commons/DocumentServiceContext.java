@@ -126,4 +126,12 @@ public interface DocumentServiceContext {
      * @return {@link LanguageServerContext}
      */
     LanguageServerContext languageServercontext();
+    
+    default boolean isCancelled() {
+        return false;
+    }
+    
+    default void checkCancelled() {
+        return;
+    }
 }

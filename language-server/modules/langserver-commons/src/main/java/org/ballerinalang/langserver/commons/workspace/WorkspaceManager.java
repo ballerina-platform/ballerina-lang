@@ -28,6 +28,8 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -48,12 +50,30 @@ public interface WorkspaceManager {
     Optional<String> relativePath(Path path);
 
     /**
+     * Get the relative file path of the document in the given path.
+     *
+     * @param path          document path to evaluate
+     * @param cancelChecker Cancel checker for the operation which calls this method
+     * @return {@link String} relative path
+     */
+    Optional<String> relativePath(Path path, CancelChecker cancelChecker);
+
+    /**
      * Returns a project root from the path provided.
      *
      * @param path ballerina project or standalone file path
      * @return project root
      */
     Path projectRoot(Path path);
+
+    /**
+     * Returns a project root from the path provided.
+     *
+     * @param path          ballerina project or standalone file path
+     * @param cancelChecker Cancel checker for the operation which calls this method
+     * @return project root
+     */
+    Path projectRoot(Path path, CancelChecker cancelChecker);
 
     /**
      * Returns project from the path provided.
@@ -72,12 +92,30 @@ public interface WorkspaceManager {
     Optional<Module> module(Path filePath);
 
     /**
+     * Returns module from the path provided.
+     *
+     * @param filePath      file path of the document
+     * @param cancelChecker Cancel checker for the operation which calls this method
+     * @return project of applicable type
+     */
+    Optional<Module> module(Path filePath, CancelChecker cancelChecker);
+
+    /**
      * Returns document of the project of this path.
      *
      * @param filePath file path of the document
      * @return {@link Document}
      */
     Optional<Document> document(Path filePath);
+
+    /**
+     * Returns document of the project of this path.
+     *
+     * @param filePath      file path of the document
+     * @param cancelChecker Cancel checker for the operation which calls this method
+     * @return {@link Document}
+     */
+    Optional<Document> document(Path filePath, CancelChecker cancelChecker);
 
     /**
      * Returns syntax tree from the path provided.
@@ -88,6 +126,15 @@ public interface WorkspaceManager {
     Optional<SyntaxTree> syntaxTree(Path filePath);
 
     /**
+     * Returns syntax tree from the path provided.
+     *
+     * @param filePath      file path of the document
+     * @param cancelChecker Cancel checker for the operation which calls this method
+     * @return {@link io.ballerina.compiler.syntax.tree.SyntaxTree}
+     */
+    Optional<SyntaxTree> syntaxTree(Path filePath, CancelChecker cancelChecker);
+
+    /**
      * Returns semantic model from the path provided.
      *
      * @param filePath file path of the document
@@ -96,12 +143,30 @@ public interface WorkspaceManager {
     Optional<SemanticModel> semanticModel(Path filePath);
 
     /**
+     * Returns semantic model from the path provided.
+     *
+     * @param filePath      file path of the document
+     * @param cancelChecker Cancel checker for the operation which calls this method
+     * @return project of applicable type
+     */
+    Optional<SemanticModel> semanticModel(Path filePath, @NonNull CancelChecker cancelChecker);
+
+    /**
      * Returns module compilation from the file path provided.
      *
      * @param filePath file path of the document
      * @return {@link ModuleCompilation}
      */
     Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath);
+
+    /**
+     * Returns module compilation from the file path provided.
+     *
+     * @param filePath      file path of the document
+     * @param cancelChecker Cancel checker for the operation which calls this method
+     * @return {@link ModuleCompilation}
+     */
+    Optional<PackageCompilation> waitAndGetPackageCompilation(Path filePath, CancelChecker cancelChecker);
 
     /**
      * The document open notification is sent from the client to the server to signal newly opened text documents.

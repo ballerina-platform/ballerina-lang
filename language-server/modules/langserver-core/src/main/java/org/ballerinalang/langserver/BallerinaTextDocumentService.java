@@ -83,6 +83,7 @@ import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.TextDocumentService;
@@ -93,6 +94,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -128,7 +130,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = position.getTextDocument().getUri();
             CompletionContext context = ContextBuilder.buildCompletionContext(fileUri,
                     this.workspaceManager,
@@ -136,7 +138,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.serverContext,
                     position.getPosition());
             try {
-                return LangExtensionDelegator.instance().completion(position, context, this.serverContext);
+                return LangExtensionDelegator.instance()
+                        .completion(position, context, this.serverContext, cancelChecker);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/completion' failed!";

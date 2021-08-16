@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.contexts.BallerinaCompletionContextImpl;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.List;
 
@@ -48,6 +49,17 @@ public class BallerinaCompletionExtension implements CompletionExtension {
                                         LanguageServerContext serverContext)
             throws Throwable {
         BallerinaCompletionContext bcContext = new BallerinaCompletionContextImpl(context, serverContext, inputParams);
+        return CompletionUtil.getCompletionItems(bcContext);
+    }
+
+    @Override
+    public List<CompletionItem> execute(CompletionParams inputParams,
+                                        CompletionContext context,
+                                        LanguageServerContext serverContext,
+                                        CancelChecker cancelChecker)
+            throws Throwable {
+        BallerinaCompletionContext bcContext =
+                new BallerinaCompletionContextImpl(context, serverContext, inputParams, cancelChecker);
         return CompletionUtil.getCompletionItems(bcContext);
     }
 }

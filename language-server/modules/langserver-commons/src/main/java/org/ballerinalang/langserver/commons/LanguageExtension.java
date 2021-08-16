@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
+
 /**
  * Represents the language extension SPI to cater the multi-language support in the language server.
  *
@@ -54,4 +56,21 @@ public interface LanguageExtension<I, O, C extends DocumentServiceContext> {
      *                   executor has to handle the exceptions accordingly.
      */
     O execute(I inputParams, C context, LanguageServerContext serverContext) throws Throwable;
+
+    /**
+     * Execute the operation and output the result.
+     *
+     * @param inputParams input params for the operation
+     * @param context language server operation context
+     * @param serverContext language server context
+     * @return {@link O} output of the operation
+     * @throws Throwable while executing. Here we throw the Throwable rather than a narrower exception since the
+     *                   executor has to handle the exceptions accordingly.
+     */
+    default O execute(I inputParams,
+              C context,
+              LanguageServerContext serverContext,
+              CancelChecker cancelChecker) throws Throwable {
+        return execute(inputParams, context, serverContext);
+    }
 }

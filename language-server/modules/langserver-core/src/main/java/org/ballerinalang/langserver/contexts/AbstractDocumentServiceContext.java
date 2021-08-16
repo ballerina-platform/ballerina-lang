@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -71,6 +72,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     private final LanguageServerContext languageServerContext;
 
+    private CancelChecker cancelChecker;
+
     AbstractDocumentServiceContext(LSOperation operation,
                                    String fileUri,
                                    WorkspaceManager wsManager,
@@ -84,6 +87,15 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
             throw new RuntimeException("Invalid file uri: " + this.fileUri);
         }
         this.filePath = optFilePath.get();
+    }
+
+    AbstractDocumentServiceContext(LSOperation operation,
+                                   String fileUri,
+                                   WorkspaceManager wsManager,
+                                   LanguageServerContext serverContext,
+                                   CancelChecker cancelChecker) {
+        this(operation, fileUri, wsManager, serverContext);
+        this.cancelChecker = cancelChecker;
     }
 
     /**
@@ -113,13 +125,19 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     @Override
     public List<Symbol> visibleSymbols(Position position) {
         if (this.visibleSymbols == null) {
-            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
+            Optional<SemanticModel> semanticModel;
+            if (this.cancelChecker == null) {
+                semanticModel = this.workspaceManager.semanticModel(this.filePath);
+            } else {
+                semanticModel = this.workspaceManager.semanticModel(this.filePath, this.cancelChecker);
+            }
             Optional<Document> srcFile = this.workspaceManager.document(filePath);
 
             if (semanticModel.isEmpty() || srcFile.isEmpty()) {
                 return Collections.emptyList();
             }
 
+            this.checkCancelled();
             visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(),
                     LinePosition.from(position.getLine(),
                             position.getCharacter()));
@@ -174,13 +192,22 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public Optional<Document> currentDocument() {
-        return this.workspace().document(this.filePath());
+        if (this.cancelChecker == null) {
+            return this.workspace().document(this.filePath());
+        }
+
+        return this.workspace().document(this.filePath(), this.cancelChecker);
     }
 
     @Override
     public Optional<Module> currentModule() {
         if (this.currentModule == null) {
-            Optional<Module> module = this.workspaceManager.module(this.filePath);
+            Optional<Module> module;
+            if (this.cancelChecker == null) {
+                module = this.workspaceManager.module(this.filePath);
+            } else {
+                module = this.workspaceManager.module(this.filePath, this.cancelChecker);
+            }
             module.ifPresent(value -> this.currentModule = value);
         }
 
@@ -190,7 +217,12 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     @Override
     public Optional<SemanticModel> currentSemanticModel() {
         if (this.currentSemanticModel == null) {
-            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
+            Optional<SemanticModel> semanticModel;
+            if (this.cancelChecker == null) {
+                semanticModel = this.workspaceManager.semanticModel(this.filePath);
+            } else {
+                semanticModel = this.workspaceManager.semanticModel(this.filePath, this.cancelChecker);
+            }
             semanticModel.ifPresent(value -> this.currentSemanticModel = value);
         }
 
@@ -199,12 +231,28 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
     @Override
     public Optional<SyntaxTree> currentSyntaxTree() {
-        return this.workspaceManager.syntaxTree(this.filePath);
+        if (this.cancelChecker == null) {
+            return this.workspaceManager.syntaxTree(this.filePath);
+        }
+
+        return this.workspaceManager.syntaxTree(this.filePath, this.cancelChecker);
     }
 
     @Override
     public LanguageServerContext languageServercontext() {
         return this.languageServerContext;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelChecker != null && cancelChecker.isCanceled();
+    }
+
+    @Override
+    public void checkCancelled() {
+        if (this.cancelChecker != null) {
+            cancelChecker.checkCanceled();
+        }
     }
 
     /**
