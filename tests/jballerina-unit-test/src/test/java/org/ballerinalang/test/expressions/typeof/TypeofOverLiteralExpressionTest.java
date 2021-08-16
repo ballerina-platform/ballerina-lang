@@ -17,12 +17,6 @@
  */
 package org.ballerinalang.test.expressions.typeof;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -45,24 +39,6 @@ public class TypeofOverLiteralExpressionTest {
         result = BCompileUtil.compile("test-src/expressions/typeof/typeof.bal");
     }
 
-    @Test (dataProvider = "simple-value-provider")
-    public void testTypeDescOperatorOnLiterals(BValue value, String expected) {
-        BRunUtil.invoke(result, "typeDescOfLiterals", new BValue[] {value, new BString(expected)});
-    }
-
-    @DataProvider(name = "simple-value-provider")
-    public Object[][] provideSimpleTypValues() {
-        return new Object[][]{
-                {new BInteger(1L), "1"},
-                {new BDecimal("2.0"), "2.0"},
-                {new BFloat(2.1), "2.1"},
-                {new BString("str-literal"), "str-literal"},
-                {new BBoolean(true), "true"},
-                {new BBoolean(false), "false"},
-                {null, "()"},
-        };
-    }
-
     @Test (dataProvider = "function-provider")
     public void testTypeOfExpression(String functionName) {
         BRunUtil.invoke(result, functionName);
@@ -71,7 +47,7 @@ public class TypeofOverLiteralExpressionTest {
     @DataProvider(name = "function-provider")
     public Object[] provideFunctionNames() {
         return new String[]{"typeDescOfExpressionsOfLiterals", "passTypeofToAFunction", "typeDescOfARecord",
-                "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues",
+                "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues", "typeDescOfLiterals",
                 "typeOfImmutableStructuralValues", "typeOfWithCloneReadOnly"};
     }
 

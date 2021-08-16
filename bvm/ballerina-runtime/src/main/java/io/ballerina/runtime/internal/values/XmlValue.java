@@ -34,6 +34,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:
  * <ul>
@@ -52,7 +54,7 @@ import javax.xml.namespace.QName;
 public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
-    protected TypedescValue typedesc = new TypedescValueImpl(type);
+    protected BTypedesc typedesc = new TypedescValueImpl(type);
 
     public abstract int size();
 
@@ -247,7 +249,7 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     }
 
     protected void setTypedescValue(Type type) {
-        this.typedesc = new TypedescValueImpl(type);
+        this.typedesc = getTypedescValue(type, this);
     }
 
 }

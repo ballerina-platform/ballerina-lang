@@ -40,9 +40,19 @@ function typeDescOrAObject() {
     test:assertEquals((typeof o).toString(), "typedesc Obj0");
 }
 
-function typeDescOfLiterals(any value, string expected) {
-    var a = typeof value;
-    test:assertEquals(a.toString(), "typedesc " + expected);
+function typeDescOfLiterals() {
+    checkTypeDescLiteral(1, "1");
+    checkTypeDescLiteral(2.0d, "2.0");
+    checkTypeDescLiteral(2.1, "2.1");
+    checkTypeDescLiteral("str-literal", "str-literal");
+    checkTypeDescLiteral(true, "true");
+    checkTypeDescLiteral(false, "false");
+    checkTypeDescLiteral((), "()");    
+}
+
+function checkTypeDescLiteral(any value, string expected) {
+    var valueType = typeof value;
+    test:assertEquals(valueType.toString(), "typedesc " + expected);
 }
 
 function typeDescOfExpressionsOfLiterals() {
@@ -90,6 +100,10 @@ function compareTypeOfValues() {
     int i = 34;
     test:assertFalse(typeof i === typeof i);
 
+    // xml Value
+    xml xmlValue = xml`<data>test</data>`;
+    test:assertTrue(typeof xmlValue === typeof xmlValue);
+
     // Structural types - Array, Tuple
     int[] arr = [1, 2, 3];
     test:assertTrue(typeof arr === typeof arr);
@@ -120,6 +134,11 @@ function compareTypeOfValues() {
 
 function typeOfImmutableStructuralValues() {
 
+    // xml Value
+    xml & readonly xmlValue = xml `<data>test</data>`;
+    test:assertTrue(typeof xmlValue === typeof xmlValue);
+    test:assertEquals((typeof xmlValue).toString(), "typedesc <data></data>");
+
     // Structural types - Array, Tuple
     int[] & readonly arr = [1, 2, 3];
     test:assertTrue(typeof arr === typeof arr);
@@ -127,7 +146,7 @@ function typeOfImmutableStructuralValues() {
 
     [string, int] & readonly tuple = ["ballerina", 123];
     test:assertTrue(typeof tuple === typeof tuple);
-    test:assertEquals((typeof tuple).toString(), "typedesc ballerina 123");
+    test:assertEquals((typeof tuple).toString(), "typedesc [\"ballerina\",123]");
 
     // Structural types - Records, Maps
     RecType0 & readonly rec = {name: "test"};
@@ -147,16 +166,23 @@ function typeOfImmutableStructuralValues() {
 
 function typeOfWithCloneReadOnly() {
 
+    // xml Value
+    xml & readonly xmlValue = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    any val = xmlValue.cloneReadOnly();
+    test:assertTrue(typeof val === typeof val);
+    test:assertEquals((typeof val).toString(), "typedesc <?xml-stylesheet href=\"mystyle.css\" " + 
+    "type=\"text/css\"?>");
+
     // Structural types - Array, Tuple
     int[] arr = [1, 2, 3];
-    any val = arr.cloneReadOnly();
+    val = arr.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
     test:assertEquals((typeof val).toString(), "typedesc [1,2,3]");
 
     [string, int] tuple = ["ballerina", 123];
     val = tuple.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
-    test:assertEquals((typeof val).toString(), "typedesc ballerina 123");
+    test:assertEquals((typeof val).toString(), "typedesc [\"ballerina\",123]");
 
     // Structural types - Records, Maps
     RecType0 rec = {name: "test"};

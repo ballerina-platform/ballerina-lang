@@ -41,6 +41,7 @@ import java.util.Objects;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * <p>
@@ -67,6 +68,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
 
     public XmlSequence(List<BXml> children) {
         this.children = children;
+        setTypedescValue(type);
     }
 
     public XmlSequence(BXml child) {
@@ -74,6 +76,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (!child.isEmpty()) {
             this.children.add(child);
         }
+        setTypedescValue(type);
     }
 
     public List<BXml> getChildrenList() {
@@ -586,6 +589,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         for (BXml elem : children) {
             elem.freezeDirect();
         }
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     @Override
