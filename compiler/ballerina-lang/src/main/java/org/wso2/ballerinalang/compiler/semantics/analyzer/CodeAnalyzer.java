@@ -580,7 +580,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
         return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
-                endLinePos.offset() - 1, endLinePos.offset());
+                endLinePos.offset() - 1, endLinePos.offset(),
+                pos.textRange().startOffset() + pos.textRange().length() - 1, 1);
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
