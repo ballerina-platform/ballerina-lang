@@ -96,9 +96,9 @@ public class ResolutionEngine {
             resolutionRequests.add(ResolutionRequest.from(pkgDesc,
                     directDependency.scope(), directDependency.resolutionType(), offline, lockingMode));
         }
+
         List<ResolutionResponseDescriptor> responseDescriptors =
                 packageResolver.resolveDependencyVersions(resolutionRequests);
-
         for (ResolutionResponseDescriptor resolutionResp : responseDescriptors) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics

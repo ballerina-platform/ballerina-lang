@@ -34,6 +34,7 @@ import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
@@ -266,30 +267,38 @@ public class PackageResolution {
         List<ResolutionEngine.PackageDependency> directDeps = new ArrayList<>();
         for (DirectPackageDependency directPkgDependency : directDepsContainer.getAll()) {
             PackageVersion depVersion;
+            String repository;
             PackageDescriptor depPkgDesc = directPkgDependency.pkgDesc();
             if (directPkgDependency.dependencyKind() == DirectPackageDependencyKind.NEW) {
                 // This blendedDep may be resolved from the local repository as well.
-                Optional<BlendedManifest.Dependency> blendedDep = blendedManifest.dependency(
+                Optional<BlendedManifest.Dependency> blendedDepOptional = blendedManifest.dependency(
                         depPkgDesc.org(), depPkgDesc.name());
 
                 // If the package version is not null, use it
                 if (directPkgDependency.pkgDesc.version() != null) {
                     depVersion = directPkgDependency.pkgDesc.version();
-                } else {
-                    depVersion = blendedDep
-                            .map(BlendedManifest.Dependency::version)
+                    repository = blendedDepOptional
+                            .map(BlendedManifest.Dependency::repositoryName)
                             .orElse(null);
+                } else if (blendedDepOptional.isPresent()) {
+                    BlendedManifest.Dependency blendedDep = blendedDepOptional.get();
+                    repository = blendedDep.repositoryName();
+                    depVersion = blendedDep.version();
+                } else {
+                    depVersion = null;
+                    repository = null;
                 }
             } else if (directPkgDependency.dependencyKind() == DirectPackageDependencyKind.EXISTING) {
-                BlendedManifest.Dependency dependency = blendedManifest.dependencyOrThrow(
+                BlendedManifest.Dependency blendedDep = blendedManifest.dependencyOrThrow(
                         depPkgDesc.org(), depPkgDesc.name());
-                depVersion = dependency.version();
+                depVersion = blendedDep.version();
+                repository = blendedDep.repositoryName();
             } else {
                 throw new IllegalStateException("Unsupported direct dependency kind: " +
                         directPkgDependency.dependencyKind());
             }
             directDeps.add(new ResolutionEngine.PackageDependency(
-                    PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion),
+                    PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
                     directPkgDependency.scope(), directPkgDependency.resolutionType()));
         }
 
@@ -528,7 +537,9 @@ public class PackageResolution {
                 if (possiblePkgNames.size() == 1) {
                     // This is not a hierarchical module pkgName,
                     // hence the package pkgName is same as the module pkgName
-                    pkgDesc = PackageDescriptor.from(pkgOrg, PackageName.from(moduleName));
+                    PackageName pkgName = PackageName.from(moduleName);
+                    pkgDesc = createPkgDesc(pkgOrg, pkgName,
+                            blendedManifest.dependency(pkgOrg, pkgName).orElse(null));
                 } else {
                     // This is a hierarchical module pkgName
                     // This method returns a non-null pkgDesc if and only if that package contains the given module.
@@ -559,6 +570,7 @@ public class PackageResolution {
             if (pkgDepOptional.isEmpty()) {
                 DirectPackageDependencyKind dependencyKind;
                 if (dependencyManifest.dependency(pkgDesc.org(), pkgDesc.name()).isEmpty()) {
+                    // If the Dependencies.toml does not contain the package, it is a new one.
                     dependencyKind = DirectPackageDependencyKind.NEW;
                 } else {
                     dependencyKind = DirectPackageDependencyKind.EXISTING;
@@ -600,8 +612,8 @@ public class PackageResolution {
             }
 
             ImportModuleRequest importModuleRequest = new ImportModuleRequest(pkgOrg, moduleLoadRequest);
-            responseMap.put(importModuleRequest, new ImportModuleResponse(
-                    PackageDescriptor.from(pkgOrg, pkgName), importModuleRequest));
+            responseMap.put(importModuleRequest,
+                    new ImportModuleResponse(pkgDesc, importModuleRequest));
         }
 
         private PackageDescriptor findHierarchicalModule(String moduleName,
@@ -662,29 +674,23 @@ public class PackageResolution {
             // Check whether this package is already defined in the package manifest, if so get the version
             Optional<BlendedManifest.Dependency> blendedDep =
                     PackageResolution.this.blendedManifest.dependency(packageOrg, packageName);
-            if (blendedDep.isPresent()) {
-                if (blendedDep.get().moduleNames().contains(moduleName)) {
-                    return PackageDescriptor.from(packageOrg, packageName);
-                }
+            if (blendedDep.isPresent() && blendedDep.get().moduleNames().contains(moduleName)) {
+                return createPkgDesc(packageOrg, packageName, blendedDep.get());
+            } else {
+                return null;
             }
-            return null;
+        }
 
-//
-//            Optional<DependencyManifest.Package> dependencyOptional =
-//                    PackageResolution.this.dependencyManifest.dependency(packageOrg, packageName);
-//            if (dependencyOptional.isEmpty()) {
-//                return null;
-//            }
-//
-//            DependencyManifest.Package dependency = dependencyOptional.get();
-//            Optional<DependencyManifest.Module> foundModule = dependency.modules()
-//                    .stream().filter(module -> module.moduleName().equals(moduleName))
-//                    .findAny();
-//            if (foundModule.isPresent()) {
-//                return PackageDescriptor.from(packageOrg, packageName);
-//            } else {
-//                return null;
-//            }
+        private PackageDescriptor createPkgDesc(PackageOrg packageOrg,
+                                                PackageName packageName,
+                                                BlendedManifest.Dependency blendedDep) {
+            if (blendedDep != null && blendedDep.isFromLocalRepository()) {
+                return PackageDescriptor.from(packageOrg, packageName, blendedDep.version(),
+                        ProjectConstants.LOCAL_REPOSITORY_NAME);
+            } else {
+                return PackageDescriptor.from(packageOrg, packageName,
+                        blendedDep != null ? blendedDep.version() : null);
+            }
         }
     }
 
