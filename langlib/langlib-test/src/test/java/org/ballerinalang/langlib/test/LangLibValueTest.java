@@ -279,7 +279,7 @@ public class LangLibValueTest {
     }
 
     @Test
-    public void testXmlFromBalString() {
+    public void testFromBalString() {
         CompileResult file = BCompileUtil.compile("test-src/valuelib_fromBalString_test.bal");
         BRunUtil.invokeFunction(file, "testIntValueFromBalString");
         BRunUtil.invokeFunction(file, "testStringValueFromBalString");

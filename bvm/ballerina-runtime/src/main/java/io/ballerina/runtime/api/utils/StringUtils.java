@@ -338,9 +338,6 @@ public class StringUtils {
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
         }
-        if (exprValue.indexOf(' ') != -1) {
-            return BalStringUtils.parseTupleExpressionStringValue(exprValue, parent);
-        }
         throw new BallerinaException("invalid expression style string value");
     }
 
@@ -387,7 +384,7 @@ public class StringUtils {
         } catch (IOException e) {
             throw new BallerinaException("Error in converting string value to a json string: " + e.getMessage(), e);
         }
-        return new String(byteOut.toByteArray());
+        return byteOut.toString();
     }
 
     private StringUtils() {
