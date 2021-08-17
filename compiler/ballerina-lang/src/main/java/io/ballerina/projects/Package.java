@@ -92,6 +92,10 @@ public class Package {
         return packageContext.packageManifest();
     }
 
+    public DependencyManifest dependencyManifest() {
+        return packageContext.dependencyManifest();
+    }
+
     public Collection<ModuleId> moduleIds() {
         return this.packageContext.moduleIds();
     }
@@ -245,6 +249,7 @@ public class Package {
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageManifest = oldPackage.manifest();
+            this.dependencyManifest = oldPackage.dependencyManifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
             this.dependencyGraph = oldPackage.getResolution().dependencyGraph();

@@ -19,9 +19,12 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageContainer;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a Dependencies.toml file.
@@ -33,6 +36,7 @@ public class DependencyManifest {
     private final String dependenciesTomlVersion;
     private final List<Package> packages;
     private final DiagnosticResult diagnostics;
+    private final PackageContainer<Package> pkgContainer;
 
     private DependencyManifest(String dependenciesTomlVersion,
                                List<Package> packages,
@@ -40,6 +44,12 @@ public class DependencyManifest {
         this.dependenciesTomlVersion = dependenciesTomlVersion;
         this.packages = Collections.unmodifiableList(packages);
         this.diagnostics = diagnostics;
+
+        // Populate a container for efficient access to packages
+        this.pkgContainer = new PackageContainer<>();
+        for (Package dependency : packages) {
+            this.pkgContainer.add(dependency.org(), dependency.name(), dependency);
+        }
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
@@ -58,8 +68,18 @@ public class DependencyManifest {
         return dependenciesTomlVersion;
     }
 
-    public List<Package> packages() {
+    public Collection<Package> packages() {
         return packages;
+    }
+
+    public Optional<Package> dependency(PackageOrg org, PackageName name) {
+        return pkgContainer.get(org, name);
+    }
+
+    public Package dependencyOrThrow(PackageOrg org, PackageName name) {
+        return pkgContainer.get(org, name)
+                .orElseThrow(() -> new IllegalStateException("Dependency with org `" +
+                        org + "` and name `" + name + "` must exists."));
     }
 
     public DiagnosticResult diagnostics() {
@@ -121,7 +141,7 @@ public class DependencyManifest {
             return transitive;
         }
 
-        public List<Dependency> dependencies() {
+        public Collection<Dependency> dependencies() {
             return dependencies;
         }
 

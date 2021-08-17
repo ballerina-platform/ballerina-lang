@@ -32,7 +32,7 @@ import java.util.Optional;
  */
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
-    private final Optional<CompilerPluginDescriptor> compilerPluginDesc;
+    private final CompilerPluginDescriptor compilerPluginDesc;
     private final Map<String, Platform> platforms;
     private final List<Dependency> dependencies;
     private final DiagnosticResult diagnostics;
@@ -48,7 +48,7 @@ public class PackageManifest {
     private final Map<String, Object> otherEntries;
 
     private PackageManifest(PackageDescriptor packageDesc,
-                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -68,7 +68,7 @@ public class PackageManifest {
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
-                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -94,22 +94,22 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
-        return new PackageManifest(packageDesc, Optional.empty(), Collections.emptyMap(), Collections.emptyList(),
+        return new PackageManifest(packageDesc, null, Collections.emptyMap(), Collections.emptyList(),
                                    Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<Dependency> localPackages) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, Collections.emptyMap(),
+                                       List<Dependency> dependencies) {
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<Dependency> localPackages,
+                                       List<Dependency> dependencies,
                                        Map<String, Object> otherEntries,
                                        DiagnosticResult diagnostics,
                                        List<String> license,
@@ -118,23 +118,23 @@ public class PackageManifest {
                                        List<String> export,
                                        String repository,
                                        String ballerinaVersion) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, otherEntries, diagnostics,
-                                   license, authors, keywords, export, repository, ballerinaVersion);
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
+                license, authors, keywords, export, repository, ballerinaVersion);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<Dependency> localPackages,
+                                       List<Dependency> dependencies,
                                        List<String> license,
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
                                        String repository,
                                        String ballerinaVersion) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, Collections.emptyMap(),
-                                   new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                                   export, repository, ballerinaVersion);
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
+                new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
+                export, repository, ballerinaVersion);
     }
 
     public PackageName name() {
@@ -154,7 +154,7 @@ public class PackageManifest {
     }
 
     public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
-        return compilerPluginDesc;
+        return Optional.ofNullable(compilerPluginDesc);
     }
 
     public Platform platform(String platformCode) {

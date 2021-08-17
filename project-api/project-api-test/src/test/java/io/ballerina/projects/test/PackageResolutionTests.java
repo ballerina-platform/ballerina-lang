@@ -153,7 +153,7 @@ public class PackageResolutionTests extends BaseTest {
     @Test(description = "tests resolution with one transitive dependency",
             expectedExceptions = ProjectException.class,
             expectedExceptionsMessageRegExp = "Transitive dependency cannot be found: " +
-                    "org=samjs, package=package_missing, version=1.0.0")
+                    "org=samjs, package=package_missing, version=1.0.0", enabled = false)
     public void testProjectWithMissingTransitiveDependency() throws IOException {
         // package_missing_transitive_dep --> package_b --> package_c
         // package_missing_transitive_dep --> package_k --> package_z (this is missing)
@@ -327,7 +327,7 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertTrue(diagnosticMsgs.contains("cannot resolve module 'samjs/package_c.mod_c1 as mod_c1'"));
     }
 
-    @Test(description = "tests resolution with invalid bala dependency")
+    @Test(description = "tests resolution with invalid bala dependency", enabled = false)
     public void testProjectWithInvalidBalaDependency() throws IOException {
         // package_x --> package_bash/soap
         Path balaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("invalid")
@@ -362,7 +362,7 @@ public class PackageResolutionTests extends BaseTest {
                             "ERROR [foo.bal:(5:1,5:1)] missing semicolon token");
     }
 
-    @Test(description = "tests resolution with invalid transitive bala dependency")
+    @Test(description = "tests resolution with invalid transitive bala dependency", enabled = false)
     public void testProjectWithInvalidTransitiveBalaDependency() throws IOException {
         // package_hello --> package_zip
         // package_xx    --> package_hello

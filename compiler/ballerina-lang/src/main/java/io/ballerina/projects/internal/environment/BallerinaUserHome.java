@@ -6,7 +6,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.SettingsBuilder;
-import io.ballerina.projects.internal.repositories.FileSystemRepository;
+import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -29,6 +29,7 @@ public final class BallerinaUserHome {
 
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
+    private final LocalPackageRepository localPackageRepository;
     private final Map<String, PackageRepository> customRepositories;
 
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
@@ -47,7 +48,8 @@ public final class BallerinaUserHome {
 
         this.remotePackageRepository = RemotePackageRepository
                 .from(environment, remotePackageRepositoryPath, readSettings());
-        this.customRepositories = Map.of(ProjectConstants.LOCAL_REPOSITORY_NAME, createLocalRepository(environment));
+        this.localPackageRepository = createLocalRepository(environment);
+        this.customRepositories = Map.of(ProjectConstants.LOCAL_REPOSITORY_NAME, localPackageRepository);
     }
 
     public static BallerinaUserHome from(Environment environment, Path ballerinaUserHomeDirPath) {
@@ -71,6 +73,10 @@ public final class BallerinaUserHome {
 
     public Map<String, PackageRepository> customRepositories() {
         return this.customRepositories;
+    }
+
+    public LocalPackageRepository localPackageRepository() {
+        return localPackageRepository;
     }
 
     /**
@@ -115,7 +121,7 @@ public final class BallerinaUserHome {
         }
     }
 
-    private FileSystemRepository createLocalRepository(Environment environment) {
+    private LocalPackageRepository createLocalRepository(Environment environment) {
         Path repositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(ProjectConstants.LOCAL_REPOSITORY_NAME);
         try {
@@ -124,6 +130,6 @@ public final class BallerinaUserHome {
             throw new ProjectException("unable to create repository: " + ProjectConstants.LOCAL_REPOSITORY_NAME);
         }
         String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
-        return new FileSystemRepository(environment, repositoryPath, ballerinaShortVersion);
+        return new LocalPackageRepository(environment, repositoryPath, ballerinaShortVersion);
     }
 }
