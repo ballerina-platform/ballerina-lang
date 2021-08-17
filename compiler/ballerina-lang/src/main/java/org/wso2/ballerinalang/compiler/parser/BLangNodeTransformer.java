@@ -3663,7 +3663,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.setName(this.createIdentifier(onFailClauseNode.failErrorName()));
         var.name.pos = getPosition(onFailClauseNode.failErrorName());
         variableDefinitionNode.setVariable(var);
-        variableDefinitionNode.pos = var.name.pos;
+        variableDefinitionNode.pos = getPosition(onFailClauseNode.typeDescriptor(), onFailClauseNode.failErrorName());
 
 
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
