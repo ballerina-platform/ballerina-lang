@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
@@ -380,8 +379,6 @@ class ModuleContext {
                                                                        REGULAR_SOURCE));
         }
 
-        // Parse test source files if --skip-tests option is set to false
-        CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
         if (!moduleContext.testSrcDocumentIds().isEmpty()) {
             moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
         }

@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCol
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
@@ -95,7 +94,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private final CodeGenerator jvmCodeGenerator;
     private final InteropValidator interopValidator;
     private final JarResolver jarResolver;
-    private final CompilerOptions compilerOptions;
     private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
@@ -126,7 +124,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
-        this.compilerOptions = CompilerOptions.getInstance(compilerContext);
 
         // TODO: Move to a compiler extension once Compiler revamp is complete
         if (packageContext.compilationOptions().observabilityIncluded()) {
