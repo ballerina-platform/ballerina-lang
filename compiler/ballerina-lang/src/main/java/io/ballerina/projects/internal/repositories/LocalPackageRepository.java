@@ -17,11 +17,13 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.internal.BalaFiles;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -45,7 +47,7 @@ public class LocalPackageRepository extends FileSystemRepository {
     }
 
     public Optional<Collection<String>> getModuleNames(PackageOrg org, PackageName name, PackageVersion version) {
-        Path balaPackagePath = bala.resolve(org.value()).resolve(name.value()).resolve(version.toString());
+        Path balaPackagePath = getPackagePath(org.value(), name.value(), version.toString());
         if (!Files.exists(balaPackagePath)) {
             return Optional.empty();
         }
@@ -57,5 +59,18 @@ public class LocalPackageRepository extends FileSystemRepository {
                 .map(moduleDescriptor -> moduleDescriptor.name().toString())
                 .collect(Collectors.toList());
         return Optional.of(moduleNames);
+    }
+
+    // TODO Duplicate. Double check the logic
+    private Path getPackagePath(String org, String name, String version) {
+        //First we will check for a bala that match any platform
+        Path balaPath = this.bala.resolve(
+                ProjectUtils.getRelativeBalaPath(org, name, version, null));
+        if (!Files.exists(balaPath)) {
+            // If bala for any platform not exist check for specific platform
+            balaPath = this.bala.resolve(
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+        }
+        return balaPath;
     }
 }
