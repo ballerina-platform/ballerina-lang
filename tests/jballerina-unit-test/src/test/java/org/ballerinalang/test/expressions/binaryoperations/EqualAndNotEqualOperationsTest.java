@@ -1149,5 +1149,4 @@ public class EqualAndNotEqualOperationsTest {
                 "testEqualityWithUnionType"
         };
     }
-
 }

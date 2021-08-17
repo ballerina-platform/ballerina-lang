@@ -467,17 +467,7 @@ public class TypeChecker {
         Type lhsType = getType(lhsValue);
         Type rhsType = getType(rhsValue);
 
-        switch(lhsType.getTag()) {
-            case TypeTags.INT_TAG:
-                if (rhsType.getTag() != TypeTags.BYTE_TAG && rhsType.getTag() != TypeTags.INT_TAG) {
-                    return false;
-                }
-                return lhsValue.equals(((Number) rhsValue).longValue());
-            case TypeTags.BYTE_TAG:
-                if (rhsType.getTag() != TypeTags.BYTE_TAG && rhsType.getTag() != TypeTags.INT_TAG) {
-                    return false;
-                }
-                return lhsValue.equals(((Number) rhsValue).byteValue());
+        switch (lhsType.getTag()) {
             case TypeTags.FLOAT_TAG:
                 if (rhsType.getTag() != TypeTags.FLOAT_TAG) {
                     return false;
@@ -488,17 +478,25 @@ public class TypeChecker {
                     return false;
                 }
                 return checkDecimalExactEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.STRING_TAG:
-                return lhsValue.equals(rhsValue);
-        }
-
-        if (TypeTags.isXMLTypeTag(lhsType.getTag()) && TypeTags.isXMLTypeTag(rhsType.getTag())) {
-            return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
-        }
-
-        if (isHandleType(lhsType) && isHandleType(rhsType)) {
-            return isHandleValueRefEqual(lhsValue, rhsValue);
+                return isEqual(lhsValue, rhsValue);
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
+                if (!TypeTags.isXMLTypeTag(rhsType.getTag())) {
+                    return false;
+                }
+                return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+            case TypeTags.HANDLE_TAG:
+                if (rhsType.getTag() != TypeTags.HANDLE_TAG) {
+                    return false;
+                }
+                return isHandleValueRefEqual(lhsValue, rhsValue);
         }
 
         return false;
