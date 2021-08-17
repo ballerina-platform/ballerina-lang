@@ -209,7 +209,7 @@ public class AnnotationUtil {
                     for (int i = 0; i < requiredFields.size(); i++) {
                         RecordFieldSymbol field = requiredFields.get(i);
                         String fieldInsertionText = "\t" +
-                                getRecordFieldCompletionInsertText(field, 1, i + 1);
+                                getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1, i + 1);
                         insertTexts.add(fieldInsertionText);
                     }
                     annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
