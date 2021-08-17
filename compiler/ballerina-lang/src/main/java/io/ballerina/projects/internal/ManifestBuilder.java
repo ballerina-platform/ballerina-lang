@@ -379,7 +379,8 @@ public class ManifestBuilder {
 
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
 
-        boolean skipTests = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.SKIP_TESTS.toString());
+        boolean skipTests =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
         boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
         boolean experimental =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());

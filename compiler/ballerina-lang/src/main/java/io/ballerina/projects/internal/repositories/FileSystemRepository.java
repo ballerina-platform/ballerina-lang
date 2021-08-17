@@ -247,9 +247,9 @@ public class FileSystemRepository implements PackageRepository {
 
             PackageVersion latest = getLatest(v1, v2);
             if (v1 == latest) {
-                return 1;
+                return -1;
             }
-            return -1;
+            return 1;
         };
         packageVersions.sort(comparator);
 
