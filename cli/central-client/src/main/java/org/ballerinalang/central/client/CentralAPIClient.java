@@ -69,6 +69,7 @@ public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
+    private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String ERR_CANNOT_FIND_PACKAGE = "error: could not connect to remote repository to find " +
             "package: ";
     private static final String ERR_CANNOT_FIND_VERSIONS = "error: could not connect to remote repository to find " +
@@ -469,14 +470,15 @@ public class CentralAPIClient {
      * Resolve Package Names of modules.
      *
      * @throws CentralClientException   Central Client exception.
+     * @return
      */
-    public PackageResolutionResponse resolvePackageNames(PackageResolutionRequest request, String supportedPlatform,
-                                                         String ballerinaVersion, boolean isBuild)
+    public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request, String supportedPlatform,
+                                                             String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
         boolean enableOutputStream =
                 Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
 
-        String url = this.baseUrl + "/" + RESOLVE_DEPENDENCIES;
+        String url = this.baseUrl + "/" + RESOLVE_MODULES;
 
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -487,15 +489,15 @@ public class CentralAPIClient {
             }
 
             RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
-            Request packageResolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
+            Request resolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .post(requestBody)
                     .url(url)
                     .addHeader(ACCEPT_ENCODING, IDENTITY)
                     .addHeader(ACCEPT, APPLICATION_JSON)
                     .build();
 
-            Call packageResolutionReqCall = client.newCall(packageResolutionReq);
-            Response packageResolutionResponse = packageResolutionReqCall.execute();
+            Call resolutionReqCall = client.newCall(resolutionReq);
+            Response packageResolutionResponse = resolutionReqCall.execute();
 
             body = Optional.ofNullable(packageResolutionResponse.body());
             if (body.isPresent()) {
@@ -503,7 +505,7 @@ public class CentralAPIClient {
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
                     if (packageResolutionResponse.code() == HTTP_OK) {
-                        return new Gson().fromJson(body.get().string(), PackageResolutionResponse.class);
+                        return new Gson().fromJson(body.get().string(), PackageNameResolutionResponse.class);
                     }
 
                     // If search request was sent wrongly
