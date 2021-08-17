@@ -24,6 +24,7 @@ import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -151,6 +152,10 @@ public class BlendedManifest {
 
         public boolean isFromLocalRepository() {
             return repository == Repository.LOCAL;
+        }
+
+        public String repositoryName() {
+            return isFromLocalRepository() ? ProjectConstants.LOCAL_REPOSITORY_NAME : null;
         }
 
         public DependencyRelation relation() {
