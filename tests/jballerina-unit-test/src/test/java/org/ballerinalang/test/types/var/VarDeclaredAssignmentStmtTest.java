@@ -147,16 +147,12 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test object to var assignment.")
     public void testObjectToVarAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectToVarAssignment",
-                new BValue[]{});
-        Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testObjectToVarAssignment");
     }
 
     @Test(description = "Test object to var assignment.")
     public void testObjectToVarAssignment2() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectToVarAssignment2",
-                new BValue[]{});
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        BRunUtil.invoke(result, "testObjectToVarAssignment2");
     }
 
     @Test(description = "Test var in variable def.", groups = { "disableOnOldParser" })

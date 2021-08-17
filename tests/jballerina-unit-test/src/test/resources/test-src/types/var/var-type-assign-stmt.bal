@@ -192,7 +192,7 @@ function testInCompatibleStructForceCasting() returns A|error {
     return a;
 }
 
-function testObjectToVarAssignment() returns boolean {
+function objectToVarAssignment() returns boolean {
     var v = <int|string|object {}> object {
                 function a = function () returns error? {
                     record {|
@@ -206,7 +206,11 @@ function testObjectToVarAssignment() returns boolean {
     return false;
 }
 
-function testObjectToVarAssignment2() returns boolean {
+function testObjectToVarAssignment() {
+    assertEquality(false, objectToVarAssignment());
+}
+
+function objectToVarAssignment2() returns boolean {
     var v = <object {}&readonly> object {
                 function a = function () returns error? {
                     record {|
@@ -218,4 +222,23 @@ function testObjectToVarAssignment2() returns boolean {
         return true;
     }
     return false;
+}
+
+function testObjectToVarAssignment2() {
+    assertEquality(true, objectToVarAssignment2());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any expected, any actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
