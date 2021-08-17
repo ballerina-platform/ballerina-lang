@@ -135,7 +135,7 @@ function testElvisNestedTupleTypeCaseThree() returns [string, int] {
     return rT;
 }
 
-function testElvisAsArgumentPositive() returns string|error {
+function testElvisAsArgumentPositive() {
     string[] filters = [];
     string? mergable1 = ();
     string s1 = mergable1 ?: "";
@@ -158,8 +158,6 @@ function testElvisAsArgumentPositive() returns string|error {
     assertEquals(filters[2], filters[3]);
     assertEquals(a[0], 255);
     assertEquals(a[1], 0);
-
-    return "";
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
