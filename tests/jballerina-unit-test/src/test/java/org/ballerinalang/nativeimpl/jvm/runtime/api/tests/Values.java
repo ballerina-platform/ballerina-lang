@@ -26,6 +26,8 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RemoteMethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -91,8 +93,20 @@ public class Values {
         return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), len, elements);
     }
 
-    public static BString getFunctionString(BFunctionPointer func) {
-        return StringUtils.fromString(func.stringValue(null));
+    public static BString getFunctionString(BObject object, BString methodName) {
+        ObjectType objectType = object.getType();
+        Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
+                .filter(r -> r.getName().equals(methodName.getValue())).findAny();
+        if (funcType.isPresent()) {
+            return StringUtils.fromString(funcType.get().toString());
+        }
+        Optional<ResourceMethodType> resourceMethodType =
+                Arrays.stream(((ServiceType) objectType).getResourceMethods())
+                        .filter(r -> r.getResourcePath()[0].equals(methodName.getValue())).findAny();
+        if (resourceMethodType.isPresent()) {
+            return StringUtils.fromString(resourceMethodType.get().toString());
+        }
+        return StringUtils.fromString("");
     }
 
     public static BString getParamTypesString(BFunctionPointer func) {

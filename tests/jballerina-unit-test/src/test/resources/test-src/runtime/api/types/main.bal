@@ -26,7 +26,12 @@ public function main() {
 }
 
 function testFunctionToString() {
-    test:assertEquals(objects:getFunctionString(obj.testFunction), "function function (int,decimal,string) returns (())");
+    test:assertEquals(objects:getFunctionString(obj, "testFunction"), "function testFunction(int,decimal,string) returns (())");
+    test:assertEquals(objects:getFunctionString(obj, "getRemoteCounter"), "remote function (int,decimal,string) returns (())");
+
+    objects:Service serviceVal = new ();
+    test:assertEquals(objects:getFunctionString(serviceVal, "remoteFunction"), "remote function (int,decimal,string) returns (())");
+    test:assertEquals(objects:getFunctionString(serviceVal, "resourceFunction"), "resource function get resourceFunction(string test) returns (string)");
 }
 
 function testRemoteFunctionParameters() {
