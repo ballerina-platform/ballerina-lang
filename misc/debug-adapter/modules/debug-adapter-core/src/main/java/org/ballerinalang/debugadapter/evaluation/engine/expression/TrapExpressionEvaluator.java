@@ -31,6 +31,7 @@ import java.util.List;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_GET_TRAP_RESULT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_UTILS_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Trap expression evaluator implementation.
@@ -40,13 +41,13 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.ge
 public class TrapExpressionEvaluator extends Evaluator {
 
     private final TrapExpressionNode syntaxNode;
-    private final Evaluator exprEvaluator;
+    private final Evaluator subExprEvaluator;
 
     public TrapExpressionEvaluator(SuspendedContext context, TrapExpressionNode trapExpressionNode,
-                                   Evaluator exprEvaluator) {
+                                   Evaluator subExprEvaluator) {
         super(context);
         this.syntaxNode = trapExpressionNode;
-        this.exprEvaluator = exprEvaluator;
+        this.subExprEvaluator = subExprEvaluator;
     }
 
     @Override
@@ -56,11 +57,11 @@ public class TrapExpressionEvaluator extends Evaluator {
             // Evaluate expression resulting in value v
             // - If evaluation completes abruptly with panic with associated value e, then result of trap-exp is e
             // - Otherwise result of trap-expr is v
-            BExpressionValue result = exprEvaluator.evaluate();
+            BExpressionValue subExprResult = subExprEvaluator.evaluate();
             GeneratedStaticMethod trapResultMethod = getGeneratedMethod(context, B_UTILS_HELPER_CLASS,
                     B_GET_TRAP_RESULT_METHOD);
             List<Value> trapResultArgs = new ArrayList<>();
-            trapResultArgs.add(result.getJdiValue());
+            trapResultArgs.add(getValueAsObject(context, subExprResult.getJdiValue()));
             trapResultMethod.setArgValues(trapResultArgs);
             return new BExpressionValue(context, trapResultMethod.invokeSafely());
         } catch (EvaluationException e) {

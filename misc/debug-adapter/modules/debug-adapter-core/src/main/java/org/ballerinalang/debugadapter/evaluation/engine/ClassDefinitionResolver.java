@@ -25,7 +25,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator.modifyName;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.modifyName;
 
 /**
  * Class resolver implementation for resolving visible Ballerina class definitions(object types) for a given source

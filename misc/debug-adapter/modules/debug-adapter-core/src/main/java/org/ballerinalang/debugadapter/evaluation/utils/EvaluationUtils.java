@@ -29,10 +29,12 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
@@ -156,6 +158,7 @@ public class EvaluationUtils {
     private static final String DOUBLE_VALUE_METHOD = "doubleValue";
 
     // Misc
+    public static final String SELF_VAR_NAME = "self";
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
 
@@ -249,6 +252,19 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_LOADING_FAILED.getString(),
                     methodName));
         }
+    }
+
+    /**
+     * Converts java primitive types into their wrapper implementations, as some of the the JVM runtime util methods
+     * accepts only the sub classes of @{@link java.lang.Object}.
+     */
+    public static List<Value> getAsObjects(SuspendedContext context, List<Value> argValueList)
+            throws EvaluationException {
+        List<Value> boxedValues = new ArrayList<>();
+        for (Value value : argValueList) {
+            boxedValues.add(getValueAsObject(context, value));
+        }
+        return boxedValues;
     }
 
     /**
@@ -495,5 +511,14 @@ public class EvaluationUtils {
     private static boolean compare(List<String> list1, List<String> list2) {
         return list1.size() == list2.size() && IntStream.range(0, list1.size()).allMatch(i ->
                 list1.get(i).equals(list2.get(i)));
+    }
+
+    /**
+     * This util is used as a workaround till the ballerina identifier encoding/decoding mechanisms get fixed.
+     * Todo - remove
+     */
+    public static String modifyName(String identifier) {
+        return IdentifierUtils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
+                IdentifierModifier.IdentifierType.OTHER));
     }
 }

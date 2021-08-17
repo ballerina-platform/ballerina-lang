@@ -25,6 +25,7 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
@@ -94,6 +95,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -110,7 +112,6 @@ import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 
 /**
  * JBallerina debug server implementation.
@@ -218,7 +219,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
             clientConfigHolder = new ClientLaunchConfigHolder(args);
-            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
+            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+            context.setSourceProject(sourceProject);
             String sourceProjectRoot = context.getSourceProjectRoot();
             ProgramLauncher programLauncher = context.getSourceProject() instanceof SingleFileProject ?
                     new SingleFileLauncher((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
@@ -239,7 +241,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
             clientConfigHolder = new ClientAttachConfigHolder(args);
-            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
+            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+            context.setSourceProject(sourceProject);
             ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
 
             String hostName = configHolder.getHostName().orElse("");
