@@ -137,20 +137,35 @@ function testElvisNestedTupleTypeCaseThree() returns [string, int] {
 
 function testElvisAsArgumentPositive() returns string|error {
     string[] filters = [];
-    json j = {};
-    string? mergable = check j.mergeable;
-    string s = mergable ?: "";
-    filters.push(s);
-    filters.push(mergable ?: "");
+    string? mergable1 = ();
+    string s1 = mergable1 ?: "";
+    filters.push(s1);
+    filters.push(mergable1 ?: "");
 
+    string? mergable2 = "str";
+    string s2 = mergable2 ?: "";
+    filters.push(s2);
+    filters.push(mergable2 ?: "");
+
+    byte[] a = [];
+    byte? b = ();
+    a.push(b ?: 255);
+    a.push(b ?: 0);
+
+    assertEquals(filters[0], "");
+    assertEquals(filters[2], "str");
     assertEquals(filters[0], filters[1]);
-    return filters[0];
+    assertEquals(filters[2], filters[3]);
+    assertEquals(a[0], 255);
+    assertEquals(a[1], 0);
+
+    return "";
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
-    if (expected == actual) {
+    if expected == actual {
         return;
     }
 

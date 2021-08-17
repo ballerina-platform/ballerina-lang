@@ -20,8 +20,12 @@ function testElvisValueTypeNotMatchingTypeWithLHS () returns (int) {
     return b;
 }
 
-function testElvisAsArgumentPositive() {
-    int[] filters = [];
-    int? x = 1;
-    filters.push(x ?: "");
+function testElvisAsArgumentNegative() {
+    int[] a = [];
+    int? b = 1;
+    a.push(b ?: "");
+
+    byte[] c = [];
+    byte? d = ();
+    c.push(d ?: 256);
 }

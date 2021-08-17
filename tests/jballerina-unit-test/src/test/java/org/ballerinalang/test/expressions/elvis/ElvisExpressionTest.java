@@ -197,16 +197,16 @@ public class ElvisExpressionTest {
 
     @Test(description = "Test Elvis as an function argument.")
     public void testElvisAsArgumentPositive() {
-        Assert.assertEquals(BRunUtil.invoke(compileResult, "testElvisAsArgumentPositive").length, 1);
+        BRunUtil.invoke(compileResult, "testElvisAsArgumentPositive");
     }
 
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 5);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'int', found 'int?'", 5, 14);
         BAssertUtil.validateError(negativeResult, 1, "incompatible types: expected 'int', found 'string'", 12, 14);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'int', found 'string'", 19, 9);
-        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'int', found '(string|int)'", 26,
-                18);
+        BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'int', found 'string'", 26, 17);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'byte', found 'int'", 30, 17);
     }
 }
