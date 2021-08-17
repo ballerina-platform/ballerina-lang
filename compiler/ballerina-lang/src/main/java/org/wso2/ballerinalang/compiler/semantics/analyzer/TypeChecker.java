@@ -5034,6 +5034,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType) {
         final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
+            validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
             return BUnionType.create(null, tableType, symTable.errorType);
@@ -5041,6 +5042,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return tableType;
     }
 
+    private void validateKeySpecifier(List<IdentifierNode> fieldList, BType constraintType) {
+        for (IdentifierNode identifier : fieldList) {
+            BField field = types.getTableConstraintField(constraintType, identifier.getValue());
+            if (field == null) {
+                dlog.error(identifier.getPosition(), DiagnosticErrorCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER,
+                        identifier.getValue(), constraintType);
+            }
+        }
+    }
 
     private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
