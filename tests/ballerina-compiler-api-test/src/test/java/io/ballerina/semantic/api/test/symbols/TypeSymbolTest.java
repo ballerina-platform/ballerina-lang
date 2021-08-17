@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -47,6 +48,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TABLE;
@@ -107,8 +109,6 @@ public class TypeSymbolTest {
 //                {46, 4, ERROR, "error<ErrorData>"},
                 {47, 4, HANDLE, "handle"},
                 {48, 4, STREAM, "stream<Person, error>"},
-//                {52, 4, SINGLETON, "10"},
-//                {53, 4, SINGLETON, "FOO"},
                 {54, 4, ANY, "any"},
                 {55, 4, NEVER, "never"},
                 {56, 4, READONLY, "readonly"},
@@ -174,6 +174,20 @@ public class TypeSymbolTest {
                 {41, 8, "TEN"},
                 {53, 4, "FOO"},
         };
+    }
+
+    @Test
+    public void testConstAsAType() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(53, 4));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.CONSTANT);
+
+        ConstantSymbol constant = (ConstantSymbol) symbol.get();
+        assertEquals(constant.getName().get(), "FOO");
+        assertEquals(constant.typeKind(), SINGLETON);
+        assertEquals(constant.typeDescriptor().typeKind(), SINGLETON);
+        assertEquals(constant.broaderTypeDescriptor().typeKind(), STRING);
+//        assertEquals(constant.signature(), expName);
     }
 
     // private utils
