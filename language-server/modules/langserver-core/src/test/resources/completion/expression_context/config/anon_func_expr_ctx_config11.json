@@ -607,14 +607,6 @@
       "sortText": "R",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "",
-      "kind": "TypeParameter",
-      "detail": "Function",
-      "sortText": "P",
-      "insertText": "",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

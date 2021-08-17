@@ -436,14 +436,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "",
-      "kind": "TypeParameter",
-      "detail": "Function",
-      "sortText": "N",
-      "insertText": "",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "FuncType1",
       "kind": "TypeParameter",
       "detail": "Function",

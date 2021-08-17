@@ -649,14 +649,6 @@
       "sortText": "D",
       "insertText": "func",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "",
-      "kind": "TypeParameter",
-      "detail": "Function",
-      "sortText": "P",
-      "insertText": "",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

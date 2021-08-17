@@ -727,14 +727,6 @@
       "sortText": "B",
       "insertText": "logic",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "",
-      "kind": "TypeParameter",
-      "detail": "Function",
-      "sortText": "N",
-      "insertText": "",
-      "insertTextFormat": "Snippet"
     }
   ]
 }
