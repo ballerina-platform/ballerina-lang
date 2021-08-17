@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -243,6 +244,17 @@ public class InteropValidator {
         try {
             Field field = clazz.getField(fieldName);
             javaField = new JavaField(method, field);
+            if (!javaField.isStatic()) {
+                if (fieldValidationRequest.bFuncType.paramTypes.get(0).tag != TypeTags.HANDLE) {
+                    throw new JInteropException(DiagnosticErrorCode.FIELD_NOT_FOUND, "No such static field '" +
+                            fieldName + "' found in class '" + className + "'");
+                }
+                if (method == JFieldMethod.MUTATE && fieldValidationRequest.bFuncType.paramTypes.size() < 2) {
+                    throw new JInteropException(DiagnosticErrorCode.MISSING_FIELDSET_PARAMETER,
+                            "No parameter found to set value to the instance field '" + fieldName +
+                                    "' in class '" + className + "'");
+                }
+            }
         } catch (NoSuchFieldException e) {
             throw new JInteropException(DiagnosticErrorCode.FIELD_NOT_FOUND, "No such field '" + fieldName +
                     "' found in class '" + className + "'");
