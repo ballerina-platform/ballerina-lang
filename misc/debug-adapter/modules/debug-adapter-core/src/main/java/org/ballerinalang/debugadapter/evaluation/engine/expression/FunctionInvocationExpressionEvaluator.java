@@ -20,17 +20,15 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.SymbolBasedArgProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
@@ -42,7 +40,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.modifyName;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
@@ -76,9 +74,10 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
             String className = constructQualifiedClassNameFrom(functionDef.get());
             GeneratedStaticMethod jvmMethod = EvaluationUtils.getGeneratedMethod(context, className, functionName);
-            FunctionTypeSymbol functionTypeDesc = functionDef.get().typeDescriptor();
-            Map<String, Value> argValueMap = generateNamedArgs(context, functionName, functionTypeDesc, argEvaluators);
-            jvmMethod.setNamedArgValues(argValueMap);
+            SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, functionName, jvmMethod
+                    .getJDIMethodRef(), functionDef.get());
+            List<Value> argsList = argProcessor.process(argEvaluators);
+            jvmMethod.setArgValues(argsList);
             Value result = jvmMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
@@ -119,14 +118,5 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                 .add(moduleMeta.version().split("\\.")[0])
                 .add(className)
                 .toString();
-    }
-
-    /**
-     * This util is used as a workaround till the ballerina identifier encoding/decoding mechanisms get fixed.
-     * Todo - remove
-     */
-    public static String modifyName(String identifier) {
-        return IdentifierUtils.decodeIdentifier(IdentifierModifier.encodeIdentifier(identifier,
-                IdentifierModifier.IdentifierType.OTHER));
     }
 }

@@ -29,6 +29,7 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.SymbolBasedArgProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
@@ -37,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_OBJECT_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -108,10 +108,6 @@ public class NewExpressionEvaluator extends Evaluator {
                     "too many arguments in call to '" + OBJECT_INIT_METHOD_NAME + "'."));
         }
 
-        // Validates user provided args against the `init` method signature.
-        if (initMethodRef.isPresent()) {
-            generateNamedArgs(context, OBJECT_INIT_METHOD_NAME, initMethodRef.get().typeDescriptor(), argEvaluators);
-        }
         List<String> argTypeNames = new ArrayList<>();
         argTypeNames.add(JAVA_STRING_CLASS);
         argTypeNames.add(JAVA_STRING_CLASS);
@@ -121,20 +117,24 @@ public class NewExpressionEvaluator extends Evaluator {
         RuntimeStaticMethod createObjectMethod = EvaluationUtils.getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
                 CREATE_OBJECT_VALUE_METHOD, argTypeNames);
 
+        // Validates user provided args against the `init` method signature.
+        if (initMethodRef.isEmpty()) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                    "failed to resolve the '" + OBJECT_INIT_METHOD_NAME + "' method definition of '" + className +
+                            "'."));
+        }
+
         List<Value> argValues = new ArrayList<>();
         argValues.add(EvaluationUtils.getAsJString(context, context.getPackageOrg().orElse("")));
         argValues.add(EvaluationUtils.getAsJString(context, context.getPackageName().orElse("")));
         argValues.add(EvaluationUtils.getAsJString(context, context.getPackageMajorVersion().orElse("")));
         argValues.add(EvaluationUtils.getAsJString(context, className));
-        for (Map.Entry<String, Evaluator> evaluator : argEvaluators) {
-            try {
-                Value jdiValue = evaluator.getValue().evaluate().getJdiValue();
-                argValues.add(EvaluationUtils.getValueAsObject(context, jdiValue));
-            } catch (EvaluationException e) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "Failed to resolve object init arguments due to an internal error."));
-            }
-        }
+
+        SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, OBJECT_INIT_METHOD_NAME,
+                createObjectMethod.getJDIMethodRef(), initMethodRef.get());
+        List<Value> userArgs = argProcessor.process(argEvaluators);
+        argValues.addAll(userArgs);
+
         createObjectMethod.setArgValues(argValues);
         return createObjectMethod.invokeSafely();
     }
