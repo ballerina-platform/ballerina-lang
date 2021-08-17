@@ -1543,7 +1543,9 @@ function testEqualityWithUnionType() {
     VALUE_TYPE i = <byte> 2;
 
     VALUE_TYPE j = 2;
-    VALUE_TYPE k = 2.0;
+    VALUE_TYPE k = 2;
+    VALUE_TYPE l = 1;
+    VALUE_TYPE m = 2.0;
 
     test:assertTrue(a == b);
     test:assertFalse(b == c);
@@ -1560,10 +1562,15 @@ function testEqualityWithUnionType() {
     test:assertTrue(g === h);
     test:assertFalse(h === i);
 
-    test:assertTrue(j == i);
-    test:assertFalse(i == k);
-    test:assertFalse(j === i);
-    test:assertFalse(i === k);
+    test:assertTrue(j == k);
+    test:assertFalse(j == l);
+    test:assertTrue(j === k);
+    test:assertFalse(j === l);
+
+    test:assertTrue(i == j);
+    test:assertFalse(i == m);
+    test:assertTrue(j === i);
+    test:assertFalse(i === m);
 }
 
 function assert(anydata actual, anydata expected) {

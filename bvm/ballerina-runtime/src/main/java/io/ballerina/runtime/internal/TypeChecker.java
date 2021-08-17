@@ -469,12 +469,12 @@ public class TypeChecker {
 
         switch(lhsType.getTag()) {
             case TypeTags.INT_TAG:
-                if (rhsType.getTag() != TypeTags.BYTE_TAG || rhsType.getTag() != TypeTags.INT_TAG) {
+                if (rhsType.getTag() != TypeTags.BYTE_TAG && rhsType.getTag() != TypeTags.INT_TAG) {
                     return false;
                 }
                 return lhsValue.equals(((Number) rhsValue).longValue());
             case TypeTags.BYTE_TAG:
-                if (rhsType.getTag() != TypeTags.BYTE_TAG || rhsType.getTag() != TypeTags.INT_TAG) {
+                if (rhsType.getTag() != TypeTags.BYTE_TAG && rhsType.getTag() != TypeTags.INT_TAG) {
                     return false;
                 }
                 return lhsValue.equals(((Number) rhsValue).byteValue());
