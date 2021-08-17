@@ -349,8 +349,10 @@ public class JvmCreateTypeGen {
                             "$init$", "setGeneratedInitializer", symbolTable);
                     addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
                             "setInitializer", symbolTable);
-                    addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
-                    addResourceMethods(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
+                    addObjectAttachedFunctions(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, objectType,
+                            symbolTable);
+                    addResourceMethods(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, objectType,
+                            symbolTable);
                     addImmutableType(mv, objectType);
                     BTypeIdSet objTypeIdSet = ((BObjectType) bType).typeIdSet;
                     if (!objTypeIdSet.isEmpty()) {
@@ -1433,42 +1435,85 @@ public class JvmCreateTypeGen {
      * Add the attached function information to an object type. The object type is assumed
      * to be at the top of the stack.
      *
+     * @param cw                class writer
      * @param mv                method visitor
+     * @param fieldName         object name
      * @param attachedFunctions attached functions to be added
      * @param objType           object type to be used to create attached functions
-     * @param indexMap          jvm index generation map for function generation
      */
-    private void addObjectAttachedFunctions(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
-                                                   BObjectType objType, BIRVarToJVMIndexMap indexMap,
-                                                   SymbolTable symbolTable) {
+    private void addObjectAttachedFunctions(ClassWriter cw, MethodVisitor mv, String fieldName,
+                                            List<BAttachedFunction> attachedFunctions, BObjectType objType,
+                                            SymbolTable symbolTable) {
         // Create the attached function array
         mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, METHOD_TYPE_IMPL);
-        int i = 0;
+        String methodName = String.format("$populate%s$%s", fieldName, "attachedFunctions");
+        int methodCount = splitObjectAttachedFunctions(cw, methodName, attachedFunctions, objType, symbolTable);
+        if (methodCount > 0) {
+            mv.visitVarInsn(ASTORE, 0);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + 0, String.format("([L%s;)V",
+                    METHOD_TYPE_IMPL), false);
+            mv.visitVarInsn(ALOAD, 0);
+        }
+        // Set the fields of the object
+        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMethods",
+                String.format("([L%s;)V", METHOD_TYPE), false);
+    }
+
+    private int splitObjectAttachedFunctions(ClassWriter cw, String methodName,
+                                             List<BAttachedFunction> attachedFunctions,
+                                             BObjectType objType, SymbolTable symbolTable) {
+        int fTypeCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+        List<BAttachedFunction> nonResourceFunctions = new ArrayList<>();
         for (BAttachedFunction attachedFunc : attachedFunctions) {
-            if (attachedFunc == null || attachedFunc instanceof BResourceFunction) {
-                continue;
+            if (attachedFunc != null && !(attachedFunc instanceof BResourceFunction)) {
+                nonResourceFunctions.add(attachedFunc);
+            }
+        }
+        int arrayIndex = indexMap.addIfNotExists("$array", symbolTable.anyType);
+        for (BAttachedFunction attachedFunc : nonResourceFunctions) {
+            if (fTypeCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName + methodCount++,
+                        String.format("([L%s;)V", METHOD_TYPE_IMPL), null, null);
+                mv.visitCode();
+                mv.visitVarInsn(ALOAD, 0);
             }
             // create and load attached function
             createObjectMemberFunction(mv, attachedFunc, objType);
             int attachedFunctionVarIndex = indexMap.addIfNotExists(toNameString(objType) + attachedFunc.funcName.value,
-                                                                   symbolTable.anyType);
+                    symbolTable.anyType);
             mv.visitVarInsn(ASTORE, attachedFunctionVarIndex);
 
             mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
+            mv.visitLdcInsn((long) fTypeCount);
             mv.visitInsn(L2I);
 
             // Add the member to the array
             mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
             mv.visitInsn(AASTORE);
-            i += 1;
+            fTypeCount++;
+            if (fTypeCount % MAX_TYPES_PER_METHOD == 0) {
+                if (fTypeCount != nonResourceFunctions.size()) {
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + methodCount,
+                            String.format("([L%s;)V", METHOD_TYPE_IMPL), false);
+                }
+                mv.visitInsn(RETURN);
+                mv.visitMaxs(fTypeCount + 10, fTypeCount + 10);
+                mv.visitEnd();
+            }
         }
-
-        // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setMethods",
-                           String.format("([L%s;)V", METHOD_TYPE), false);
+        if (methodCount != 0 && fTypeCount % MAX_TYPES_PER_METHOD != 0) {
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(fTypeCount + 10, fTypeCount + 10);
+            mv.visitEnd();
+        }
+        return methodCount;
     }
 
     private void addObjectInitFunction(MethodVisitor mv, BAttachedFunction initFunction,
@@ -1491,9 +1536,9 @@ public class JvmCreateTypeGen {
                            String.format("(L%s;)V", METHOD_TYPE_IMPL), false);
     }
 
-    private void addResourceMethods(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
-                                           BObjectType objType, BIRVarToJVMIndexMap indexMap,
-                                           SymbolTable symbolTable) {
+    private void addResourceMethods(ClassWriter cw, MethodVisitor mv, String fieldName,
+                                    List<BAttachedFunction> attachedFunctions, BObjectType objType,
+                                    SymbolTable symbolTable) {
         if (!Symbols.isService(objType.tsymbol)) {
             return;
         }
@@ -1503,10 +1548,40 @@ public class JvmCreateTypeGen {
         mv.visitLdcInsn(resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, RESOURCE_METHOD_TYPE);
-        int i = 0;
+        String methodName = String.format("$populate%s$%s", fieldName, "resourceFunctions");
+        int methodCount = splitResourceMethods(cw, methodName, attachedFunctions, objType, symbolTable);
+        if (methodCount > 0) {
+            mv.visitVarInsn(ASTORE, 0);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + 0, String.format("([L%s;)V",
+                    RESOURCE_METHOD_TYPE), false);
+            mv.visitVarInsn(ALOAD, 0);
+        }
+
+        // Set the fields of the object
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceMethods",
+                String.format("([L%s;)V", RESOURCE_METHOD_TYPE), false);
+    }
+
+    private int splitResourceMethods(ClassWriter cw, String methodName, List<BAttachedFunction> attachedFunctions,
+                                     BObjectType objType, SymbolTable symbolTable) {
+        int resourcesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+        List<BAttachedFunction> resourceFunctions = new ArrayList<>();
         for (BAttachedFunction attachedFunc : attachedFunctions) {
-            if (!(attachedFunc instanceof BResourceFunction)) {
-                continue;
+            if (attachedFunc instanceof BResourceFunction) {
+                resourceFunctions.add(attachedFunc);
+            }
+        }
+        int arrayIndex = indexMap.addIfNotExists("$array", symbolTable.anyType);
+        for (BAttachedFunction attachedFunc : resourceFunctions) {
+            if (resourcesCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, methodName + methodCount++,
+                        String.format("([L%s;)V", RESOURCE_METHOD_TYPE), null, null);
+                mv.visitCode();
+                mv.visitVarInsn(ALOAD, 0);
             }
             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
             createResourceFunction(mv, resourceFunction, objType);
@@ -1516,18 +1591,30 @@ public class JvmCreateTypeGen {
             mv.visitVarInsn(ASTORE, rFuncVarIndex);
 
             mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
+            mv.visitLdcInsn((long) resourcesCount);
             mv.visitInsn(L2I);
 
             // Add the member to the array
             mv.visitVarInsn(ALOAD, rFuncVarIndex);
             mv.visitInsn(AASTORE);
-            i += 1;
+            resourcesCount++;
+            if (resourcesCount % MAX_TYPES_PER_METHOD == 0) {
+                if (resourcesCount != resourceFunctions.size()) {
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + methodCount,
+                            String.format("([L%s;)V", RESOURCE_METHOD_TYPE), false);
+                }
+                mv.visitInsn(RETURN);
+                mv.visitMaxs(resourcesCount + 10, resourcesCount + 10);
+                mv.visitEnd();
+            }
         }
-
-        // Set the fields of the object
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE_IMPL, "setResourceMethods",
-                String.format("([L%s;)V", RESOURCE_METHOD_TYPE), false);
+        if (methodCount != 0 && resourcesCount % MAX_TYPES_PER_METHOD != 0) {
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(resourcesCount + 10, resourcesCount + 10);
+            mv.visitEnd();
+        }
+        return methodCount;
     }
 
     private static long resourceFunctionCount(List<BAttachedFunction> attachedFunctions) {
