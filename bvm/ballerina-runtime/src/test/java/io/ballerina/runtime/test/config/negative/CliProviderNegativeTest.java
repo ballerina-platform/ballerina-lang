@@ -44,7 +44,7 @@ import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
  */
 public class CliProviderNegativeTest {
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1");
 
     @Test(dataProvider = "different-cli_args-data-provider")
     public void testCLIArgErrors(String[] args,
@@ -53,7 +53,7 @@ public class CliProviderNegativeTest {
                                  String variableName,
                                  Type type,
                                  String[] expectedErrorMessages) {
-        Module module = new Module(orgName, moduleName, "1.0.0");
+        Module module = new Module(orgName, moduleName, "1");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
@@ -130,7 +130,7 @@ public class CliProviderNegativeTest {
 
     @Test
     public void testUnusedCliArgs() {
-        Module module = new Module("myorg", "mod", "1.0.0");
+        Module module = new Module("myorg", "mod", "1");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey x = new VariableKey(module, "x", PredefinedTypes.TYPE_INT, true);
@@ -152,8 +152,8 @@ public class CliProviderNegativeTest {
 
     @Test
     public void testAmbiguityWithModuleImportsCliArgs() {
-        Module importedModule = new Module("a", "b", "1.0.0");
-        Module rootModule = new Module("testOrg", "a.b", "1.0.0");
+        Module importedModule = new Module("a", "b", "1");
+        Module rootModule = new Module("testOrg", "a.b", "1");
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey validKey = new VariableKey(rootModule, "y", PredefinedTypes.TYPE_STRING, true);

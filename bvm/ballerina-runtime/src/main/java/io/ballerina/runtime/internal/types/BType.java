@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
@@ -44,7 +43,7 @@ public abstract class BType implements Type {
     private int hashCode;
 
     protected BType(String typeName, Module pkg, Class<? extends Object> valueClass) {
-        this.typeName = IdentifierUtils.decodeIdentifier(typeName);
+        this.typeName = typeName;
         this.pkg = pkg;
         this.valueClass = valueClass;
         if (pkg != null && typeName != null) {
@@ -114,7 +113,7 @@ public abstract class BType implements Type {
                 return false;
             }
 
-            if (thisModule.getVersion() == null || otherModule.getVersion() == null) {
+            if (thisModule.getMajorVersion() == null || otherModule.getMajorVersion() == null) {
                 return thisModule.getOrg().equals(otherModule.getOrg()) &&
                         thisModule.getName().equals(otherModule.getName());
             }
@@ -184,10 +183,14 @@ public abstract class BType implements Type {
     }
 
     private boolean hasAllNullConstituents(Module module) {
-        return module.getOrg() == null && module.getName() == null && module.getVersion() == null;
+        return module.getOrg() == null && module.getName() == null && module.getMajorVersion() == null;
     }
 
     public Module getPkg() {
         return pkg;
+    }
+
+    public long getFlags() {
+        return 0;
     }
 }

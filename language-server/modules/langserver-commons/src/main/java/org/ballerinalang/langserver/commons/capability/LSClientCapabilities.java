@@ -35,6 +35,13 @@ public interface LSClientCapabilities {
     ExperimentalClientCapabilities getExperimentalCapabilities();
 
     /**
+     * Initialization options sent by the client.
+     *
+     * @return Initialization options
+     */
+    InitializationOptions getInitializationOptions();
+
+    /**
      * Returns Workspace client capabilities.
      *
      * @return {@link WorkspaceClientCapabilities}

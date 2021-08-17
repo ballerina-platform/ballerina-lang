@@ -27,6 +27,8 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlValue;
 
+import java.util.Optional;
+
 /**
  * {@code BXMLType} represents an XML Element.
  *
@@ -39,6 +41,7 @@ public class BXmlType extends BType implements XmlType {
     public Type constraint;
     private final boolean readonly;
     private IntersectionType immutableType;
+    private IntersectionType intersectionType = null;
 
     /**
      * Create a {@code BXMLType} which represents the boolean type.
@@ -122,12 +125,22 @@ public class BXmlType extends BType implements XmlType {
     }
 
     @Override
-    public Type getImmutableType() {
+    public IntersectionType getImmutableType() {
         return this.immutableType;
     }
 
     @Override
     public void setImmutableType(IntersectionType immutableType) {
         this.immutableType = immutableType;
+    }
+
+    @Override
+    public Optional<IntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(IntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

@@ -1,0 +1,15 @@
+
+
+[package]
+org = "myOrg"
+name = "mypackage"
+version = "0.1.0"
+repository="abc"
+authors= ["author1","author1" ]
+
+
+[build-options]
+observabilityIncluded = true
+Offline = true
+skipTests = false
+

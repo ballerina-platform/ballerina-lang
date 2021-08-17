@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser.incremental;
 
 import io.ballerina.compiler.internal.parser.AbstractTokenReader;
+import io.ballerina.compiler.internal.parser.KeywordMode;
 import io.ballerina.compiler.internal.parser.ParserMode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 
@@ -72,6 +73,14 @@ public class HybridTokenReader extends AbstractTokenReader {
 
     @Override
     public void endMode() {
+    }
+
+    @Override
+    public void startKeywordMode(KeywordMode keywordMode) {
+    }
+
+    @Override
+    public void endKeywordMode() {
     }
 
     @Override

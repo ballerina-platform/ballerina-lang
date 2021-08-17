@@ -307,6 +307,32 @@ function testCheckWithMixOfDefaultErrorAndDistinctErrors() {
     assertTrue(result is Err && result.message() == "Err");
 }
 
+float location1 =
+    let var statusSuccess = check openFileSuccess("/home/sameera/foo.txt")
+    in 3.33;
+
+function testCheckInLetExpression() returns error? {
+    float location =
+        let var statusSuccess = check openFileSuccess("/home/sameera/foo.txt")
+        in 5.33;
+    assertEquality(5.33, location);
+    assertEquality(3.33, location1);
+}
+
+function testCheckedExprWithNever() {
+    error? e = checkingFunc();
+    assertTrue(e is error && e.message() == "io error");
+}
+
+function checkingFunc() returns error? {
+    check getErr();
+}
+
+function getErr() returns error {
+    error e = error("io error");
+    return e;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {

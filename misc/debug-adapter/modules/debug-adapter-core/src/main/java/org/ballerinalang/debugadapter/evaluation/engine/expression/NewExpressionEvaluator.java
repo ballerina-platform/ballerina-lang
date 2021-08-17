@@ -124,7 +124,7 @@ public class NewExpressionEvaluator extends Evaluator {
         List<Value> argValues = new ArrayList<>();
         argValues.add(EvaluationUtils.getAsJString(context, context.getPackageOrg().orElse("")));
         argValues.add(EvaluationUtils.getAsJString(context, context.getPackageName().orElse("")));
-        argValues.add(EvaluationUtils.getAsJString(context, context.getPackageVersion().orElse("")));
+        argValues.add(EvaluationUtils.getAsJString(context, context.getPackageMajorVersion().orElse("")));
         argValues.add(EvaluationUtils.getAsJString(context, className));
         for (Map.Entry<String, Evaluator> evaluator : argEvaluators) {
             try {

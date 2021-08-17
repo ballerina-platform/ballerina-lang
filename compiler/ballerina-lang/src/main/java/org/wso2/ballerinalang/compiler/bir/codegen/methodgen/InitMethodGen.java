@@ -66,6 +66,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * Generates Jvm byte code for the init methods.
@@ -169,7 +170,7 @@ public class InitMethodGen {
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.orgName.getValue()));
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(module.packageID.name.getValue()));
-        mv.visitLdcInsn(module.packageID.version.getValue());
+        mv.visitLdcInsn(getMajorVersion(module.packageID.version.getValue()));
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", VALUE_CREATOR), "addValueCreator",
                            String.format("(L%s;L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE,

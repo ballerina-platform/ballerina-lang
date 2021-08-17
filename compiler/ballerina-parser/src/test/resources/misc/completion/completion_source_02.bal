@@ -1,10 +1,10 @@
 public function foo() {
-    match 
+    match
     }
 
 public function bar() {
     match v {
-        a 
+        a
         }
     }
 

@@ -87,7 +87,7 @@ public class LangLibUtils {
             return new StringJoiner(".")
                     .add(LANG_LIB_ORG)
                     .add(encodeModuleName(LANG_LIB_PACKAGE_PREFIX + langLibName))
-                    .add(langLibPackage.packageVersion().toString().replaceAll("\\.", "_"))
+                    .add(String.valueOf(langLibPackage.packageVersion().value().major()))
                     .add(langLibName)
                     .toString();
         } catch (Exception ignored) {

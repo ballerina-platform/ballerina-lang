@@ -109,9 +109,6 @@
                 {
                   "kind": "FUNCTION_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_QUALIFIER_NOT_ALLOWED"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -121,9 +118,14 @@
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "FINAL_KEYWORD"
+                            "kind": "FINAL_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_QUALIFIER_NOT_ALLOWED"
+                            ]
                           }
                         ]
                       }
@@ -376,17 +378,19 @@
                 {
                   "kind": "FUNCTION_KEYWORD",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_QUALIFIER_NOT_ALLOWED"
-                  ],
                   "leadingMinutiae": [
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
                         "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
                         "children": [
                           {
-                            "kind": "FINAL_KEYWORD"
+                            "kind": "FINAL_KEYWORD",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_QUALIFIER_NOT_ALLOWED"
+                            ]
                           }
                         ]
                       }

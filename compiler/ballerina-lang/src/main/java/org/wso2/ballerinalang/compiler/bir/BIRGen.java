@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -214,6 +215,7 @@ public class BIRGen extends BLangNodeVisitor {
     private Names names;
     private final SymbolTable symTable;
     private BIROptimizer birOptimizer;
+    private final Types types;
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
@@ -253,6 +255,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.birOptimizer = BIROptimizer.getInstance(context);
         this.unifier = new Unifier();
+        this.types = Types.getInstance(context);
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
@@ -1217,6 +1220,12 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         exprStmtNode.expr.accept(this);
+        if (this.env.returnBB == null && exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
+            BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
+            returnBB.terminator = new BIRTerminator.Return(exprStmtNode.pos);
+            this.env.returnBB = returnBB;
+        }
     }
 
     @Override

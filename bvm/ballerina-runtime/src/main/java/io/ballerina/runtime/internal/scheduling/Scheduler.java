@@ -113,6 +113,11 @@ public class Scheduler {
         return strand;
     }
 
+    public static Strand getStrandNoException() {
+        // issue #22871 is opened to fix this
+        return strandHolder.get().strand;
+    }
+
     /**
      * Schedules given function by creating a new strand group.
      *
@@ -420,7 +425,7 @@ public class Scheduler {
                 int strandsLeft = totalStrands.decrementAndGet();
                 if (strandsLeft == 0) {
                     // (number of started stands - finished stands) = 0, all the work is done
-                    assert runnableList.size() == 0;
+                    assert runnableList.isEmpty();
 
                     if (!immortal) {
                         poison();

@@ -17,12 +17,14 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
+import org.wso2.ballerinalang.compiler.diagnostic.CompilerBadSadDiagnostic;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
@@ -251,5 +253,10 @@ public class CompilerPhaseRunner {
         return (!isToolingCompilation && nextPhase == CompilerPhase.CODE_ANALYZE) ||
                 nextPhase == CompilerPhase.COMPILER_PLUGIN ||
                 nextPhase == CompilerPhase.DESUGAR;
+    }
+
+    public void addDiagnosticForUnhandledException(BLangPackage pkgNode, Throwable throwable) {
+        pkgNode.addDiagnostic(new CompilerBadSadDiagnostic(pkgNode.pos, throwable));
+        RuntimeUtils.logBadSad(throwable);
     }
 }
