@@ -412,10 +412,10 @@ public class ErrorTest {
     }
 
     @Test
-    public void testErrorStackTrace() {
+    public void testStacktraceWithPanicInsideInitMethod() {
         Exception expectedException = null;
         try {
-            BRunUtil.invoke(errorTestResult, "testErrorStackTrace");
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideInitMethod");
         } catch (Exception e) {
             expectedException = e;
         }
@@ -424,7 +424,23 @@ public class ErrorTest {
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: error\n" +
                 "\tat Person:init(error_test.bal:495)\n" +
-                "\t   error_test:testErrorStackTrace(error_test.bal:500)");
+                "\t   error_test:testStacktraceWithPanicInsideInitMethod(error_test.bal:500)");
+    }
+
+    @Test
+    public void testStacktraceWithPanicInsideAnonymousFunction() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideAnonymousFunction");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error!!!\n" +
+                "\tat error_test:$lambda$_2(error_test.bal:506)\n" +
+                "\t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:509)");
     }
 
     @AfterClass

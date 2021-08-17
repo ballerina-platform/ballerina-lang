@@ -75,7 +75,6 @@ public class ErrorValue extends BError implements RefValue {
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
-    private static final String GENERATE_METHOD_INIT = "$init$";
 
     public ErrorValue(BString message) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
@@ -418,9 +417,9 @@ public class ErrorValue extends BError implements RefValue {
                                                      stackFrame.getLineNumber()));
 
         }
-        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX) || methodName == GENERATE_METHOD_INIT) {
+        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX) || isCompilerAddedName(methodName)) {
             // Remove java sources for bal stacktrace if they are not extern functions or
-            // the stack frames which have compiler added init method name
+            // the stack frames which have compiler added method names
             return Optional.empty();
         }
         return Optional.of(
@@ -429,5 +428,9 @@ public class ErrorValue extends BError implements RefValue {
 
     private String cleanupClassName(String className) {
         return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "");
+    }
+
+    private boolean isCompilerAddedName(String name) {
+        return name != null && name.startsWith("$") && name.endsWith("$");
     }
 }

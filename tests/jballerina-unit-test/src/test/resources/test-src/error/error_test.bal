@@ -496,8 +496,17 @@ class Person {
     }
 }
 
-function testErrorStackTrace() {
+function testStacktraceWithPanicInsideInitMethod() {
     Person person = new("John", 25);
+}
+
+function testStacktraceWithPanicInsideAnonymousFunction() {
+    function () anonFunction =
+                function () {
+                    panic(error("error!!!"));
+                };
+
+    anonFunction();
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
