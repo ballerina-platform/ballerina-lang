@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 12,
-                    "character": 0
+                    "line": 11,
+                    "character": 1
                   },
                   "end": {
-                    "line": 12,
-                    "character": 0
+                    "line": 11,
+                    "character": 1
                   }
                 },
-                "newText": "\n\nfunction createAnotherVal(Foo & readonly a) returns Foo & readonly {\n    return {};\n}\n"
+                "newText": "\n\nfunction createAnotherVal(Foo & readonly r) returns Foo & readonly {\n    return {};\n}\n"
               }
             ]
           }

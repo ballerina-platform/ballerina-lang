@@ -119,15 +119,7 @@ public class XmlPi extends XmlNonElementItem {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj instanceof XmlPi) {
-            XmlPi that = (XmlPi) obj;
-            return data.equals(that.data) && target.equals(that.target);
-        }
-        return false;
+        return this == obj;
     }
 
     @Override

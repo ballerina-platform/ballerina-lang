@@ -502,4 +502,6 @@ public class TypeCreator {
         return new BFiniteType(typeName, values, typeFlags);
     }
 
+    private TypeCreator() {
+    }
 }

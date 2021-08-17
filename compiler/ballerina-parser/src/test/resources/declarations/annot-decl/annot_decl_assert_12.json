@@ -67,10 +67,6 @@
                           "kind": "OBJECT_KEYWORD",
                           "trailingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             }
@@ -260,9 +256,6 @@
                 {
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_INVALID_TOKEN"
-                  ],
                   "children": [
                     {
                       "kind": "LIST",
@@ -280,9 +273,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
                                     "kind": "IDENTIFIER_TOKEN",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_TOKEN"
+                                    ],
                                     "value": "s"
                                   }
                                 ]
@@ -478,9 +476,6 @@
                 {
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_INVALID_TOKEN"
-                  ],
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
@@ -507,9 +502,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
                                     "kind": "IDENTIFIER_TOKEN",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_TOKEN"
+                                    ],
                                     "value": "o"
                                   }
                                 ]
@@ -705,9 +705,6 @@
                 {
                   "kind": "ANNOTATION_ATTACH_POINT",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_INVALID_TOKEN"
-                  ],
                   "children": [
                     {
                       "kind": "SOURCE_KEYWORD",
@@ -743,9 +740,14 @@
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "hasDiagnostics": true,
                                 "children": [
                                   {
                                     "kind": "IDENTIFIER_TOKEN",
+                                    "hasDiagnostics": true,
+                                    "diagnostics": [
+                                      "ERROR_INVALID_TOKEN"
+                                    ],
                                     "value": "f"
                                   }
                                 ]

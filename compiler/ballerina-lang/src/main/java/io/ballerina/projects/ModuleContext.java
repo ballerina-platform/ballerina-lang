@@ -389,13 +389,17 @@ class ModuleContext {
         }
 
         pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);
-        symbolEnter.definePackage(pkgNode);
-        packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
+        try {
+            symbolEnter.definePackage(pkgNode);
+            packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
 
-        if (bootstrapLangLibName != null) {
-            compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
-        } else {
-            compilerPhaseRunner.performTypeCheckPhases(pkgNode);
+            if (bootstrapLangLibName != null) {
+                compilerPhaseRunner.performLangLibTypeCheckPhases(pkgNode);
+            } else {
+                compilerPhaseRunner.performTypeCheckPhases(pkgNode);
+            }
+        } catch (Throwable t) {
+            compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
         moduleContext.bLangPackage = pkgNode;
     }
@@ -409,7 +413,12 @@ class ModuleContext {
         if (bootstrapLangLibName != null) {
             compilerPhaseRunner.performLangLibBirGenPhases(moduleContext.bLangPackage);
         } else {
-            compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
+            try {
+                compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
+            } catch (Throwable t) {
+                compilerPhaseRunner.addDiagnosticForUnhandledException(moduleContext.bLangPackage, t);
+                return;
+            }
         }
 
         // Serialize the BIR  model

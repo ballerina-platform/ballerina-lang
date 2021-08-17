@@ -200,6 +200,10 @@
                   "kind": "CLOSE_BRACE_TOKEN",
                   "leadingMinutiae": [
                     {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    },
+                    {
                       "kind": "COMMENT_MINUTIAE",
                       "value": "// more statements"
                     },
