@@ -378,4 +378,24 @@ public class NegativeValidationTest {
                                   "method_resolve_error.bal", 24, 1);
 
     }
+
+    @Test(description = "Test static field not found error")
+    public void testStaticFieldNotFound() {
+        String path = "test-src/javainterop/negative/static_field_not_found.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}FIELD_NOT_FOUND "
+                + "'No such static field 'isEmpty' found in class " +
+                "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
+    }
+
+    @Test(description = "Test missing FieldSet parameter error")
+    public void testParameterNotFoundForFieldSet() {
+        String path = "test-src/javainterop/negative/parameter_not_found.bal";
+        CompileResult compileResult = BCompileUtil.compile(path);
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0, "{ballerina/jballerina.java}" +
+                "MISSING_FIELDSET_PARAMETER 'No parameter found to set value to the instance field 'isEmpty' in class "
+                + "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 12, 1);
+    }
 }
