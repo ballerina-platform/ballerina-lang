@@ -56,7 +56,8 @@ public class DefaultPackageResolver implements PackageResolver {
 
     public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
                                   PackageRepository ballerinaCentralRepo,
-                                  PackageCache packageCache, Map<String, PackageRepository> customRepositories) {
+                                  PackageCache packageCache,
+                                  Map<String, PackageRepository> customRepositories) {
         this.ballerinaDistRepo = ballerinaDistRepo;
         this.ballerinaCentralRepo = ballerinaCentralRepo;
         this.packageCache = (WritablePackageCache) packageCache;
@@ -105,6 +106,9 @@ public class DefaultPackageResolver implements PackageResolver {
 
     @Override
     public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+        // TODO Update this logic to lookup packages in the local repo..
+
+
         // We will only receive hierarchical imports in importModuleRequests
         List<ImportModuleResponse> responseListInDist = ballerinaDistRepo.resolvePackageNames(importModuleRequests);
         List<ImportModuleResponse> responseListInCentral =
