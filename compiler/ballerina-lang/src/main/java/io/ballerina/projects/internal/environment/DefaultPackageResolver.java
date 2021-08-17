@@ -33,6 +33,7 @@ import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -146,13 +147,26 @@ public class DefaultPackageResolver implements PackageResolver {
 
     @Override
     public List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests) {
+        List<ResolutionRequest> localRepoPkgLoadRequest = new ArrayList<>();
+        for (ResolutionRequest pkgLoadRequest : packageLoadRequests) {
+            Optional<String> repository = pkgLoadRequest.packageDescriptor().repository();
+            if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                localRepoPkgLoadRequest.add(pkgLoadRequest);
+            }
+        }
+
+        final List<ResolutionResponseDescriptor> responseFrmLocalRepo =
+                customRepositories.get(ProjectConstants.LOCAL_REPOSITORY_NAME)
+                        .resolveDependencyVersions(localRepoPkgLoadRequest);
+
         List<ResolutionResponseDescriptor> latestVersionsInDist = ballerinaDistRepo
                 .resolveDependencyVersions(packageLoadRequests);
         List<ResolutionResponseDescriptor> latestVersionsInCentral = ballerinaCentralRepo
                 .resolveDependencyVersions(packageLoadRequests);
 
         List<ResolutionResponseDescriptor> responseDescriptors = new ArrayList<>(
-                Stream.of(latestVersionsInDist, latestVersionsInCentral).flatMap(List::stream).collect(Collectors.toMap(
+                Stream.of(latestVersionsInDist, latestVersionsInCentral, responseFrmLocalRepo)
+                        .flatMap(List::stream).collect(Collectors.toMap(
                         ResolutionResponseDescriptor::packageLoadRequest, Function.identity(),
                         (ResolutionResponseDescriptor x, ResolutionResponseDescriptor y) -> {
                             if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
