@@ -21,16 +21,12 @@ import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
-import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
-import io.ballerina.projects.internal.DependencyVersionKind;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageContainer;
-import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
@@ -62,12 +58,9 @@ public class PackageResolution {
     private final PackageContext rootPackageContext;
     private final DependencyManifest dependencyManifest;
     private final BlendedManifest blendedManifest;
-    private final PackageCache packageCache;
-    private final PackageResolver packageResolver;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
     private final CompilationOptions compilationOptions;
     private final ModuleResolver moduleResolver;
-    private final PackageDependencyGraphBuilder depGraphBuilder;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
 
@@ -81,13 +74,10 @@ public class PackageResolution {
         this.compilationOptions = rootPackageContext.compilationOptions();
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
-        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
-        this.packageCache = projectEnvContext.getService(PackageCache.class);
         this.blendedManifest = BlendedManifest.from(rootPackageContext.packageManifest(),
                 rootPackageContext.dependencyManifest(), projectEnvContext.getService(LocalPackageRepository.class));
 
-        this.depGraphBuilder = new PackageDependencyGraphBuilder(rootPackageContext.descriptor());
-        this.moduleResolver = new ModuleResolver(packageResolver);
+        this.moduleResolver = new ModuleResolver(projectEnvContext.getService(PackageResolver.class));
 
         boolean sticky = rootPackageContext.project().buildOptions().sticky();
         dependencyGraph = buildDependencyGraph(sticky);
@@ -168,8 +158,7 @@ public class PackageResolution {
     private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky) {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
-            // TODO Update the Bala path
-            createDependencyGraphFromBALA();
+            return createDependencyGraphFromBALA();
         } else {
             return createDependencyGraphFromSources(sticky);
         }
@@ -178,8 +167,8 @@ public class PackageResolution {
         // Here we resolve all transitive dependencies
         // TODO Check for cycles
         // TODO Update Bala path
-        return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
-                packageCache, rootPackageContext.project());
+//        return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
+//                packageCache, rootPackageContext.project());
     }
 
     private LinkedHashSet<ModuleLoadRequest> getModuleLoadRequestsOfDirectDependencies() {
@@ -224,33 +213,44 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    private void createDependencyGraphFromBALA() {
+    private DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromBALA() {
         DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALA = rootPackageContext.dependencyGraph();
         Collection<PackageDescriptor> directDependenciesOfBALA =
                 dependencyGraphStoredInBALA.getDirectDependencies(rootPackageContext.descriptor());
 
-        // 1) Create ResolutionRequest instances for each direct dependency of the bala
-        LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
-        for (PackageDescriptor packageDescriptor : directDependenciesOfBALA) {
-            resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT,
-                    rootPackageContext.project().buildOptions().offlineBuild()));
+        List<ResolutionEngine.PackageDependency> directDeps = new ArrayList<>();
+        for (PackageDescriptor pkgDesc : directDependenciesOfBALA) {
+            directDeps.add(new ResolutionEngine.PackageDependency(pkgDesc, PackageDependencyScope.DEFAULT,
+                    DependencyResolutionType.SOURCE));
         }
 
-        // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALAs
-        List<ResolutionResponse> resolutionResponses =
-                packageResolver.resolvePackages(new ArrayList<>(resolutionRequests), rootPackageContext.project());
-        for (ResolutionResponse resolutionResponse : resolutionResponses) {
-            if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
-                PackageDescriptor dependencyPkgDesc = resolutionResponse.packageLoadRequest().packageDescriptor();
-                throw new ProjectException("Dependency cannot be found:" +
-                        " org=" + dependencyPkgDesc.org() +
-                        ", package=" + dependencyPkgDesc.name() +
-                        ", version=" + dependencyPkgDesc.version());
-            }
-        }
+        boolean offline = rootPackageContext.project().buildOptions().offlineBuild();
+        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
+                rootPackageContext.descriptor(), offline, true);
+        return resolutionEngine.resolveDependencies(directDeps);
 
-        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph(), PackageDependencyScope.DEFAULT,
-                DependencyVersionKind.USER_SPECIFIED);
+//        // 1) Create ResolutionRequest instances for each direct dependency of the bala
+//        LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
+//        for (PackageDescriptor packageDescriptor : directDependenciesOfBALA) {
+//            resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT,
+//                    rootPackageContext.project().buildOptions().offlineBuild()));
+//        }
+//
+//        // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALAs
+//        List<ResolutionResponse> resolutionResponses =
+//                packageResolver.resolvePackages(new ArrayList<>(resolutionRequests), rootPackageContext.project());
+//        for (ResolutionResponse resolutionResponse : resolutionResponses) {
+//            if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
+//                PackageDescriptor dependencyPkgDesc = resolutionResponse.packageLoadRequest().packageDescriptor();
+//                throw new ProjectException("Dependency cannot be found:" +
+//                        " org=" + dependencyPkgDesc.org() +
+//                        ", package=" + dependencyPkgDesc.name() +
+//                        ", version=" + dependencyPkgDesc.version());
+//            }
+//        }
+//
+//        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph(), PackageDependencyScope.DEFAULT,
+//                DependencyVersionKind.USER_SPECIFIED);
     }
 
     DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky) {
