@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-class CompilationOptions {
+public class CompilationOptions {
     private Boolean skipTests;
     private Boolean offlineBuild;
     private Boolean experimental;
@@ -53,7 +53,7 @@ class CompilationOptions {
         return toBooleanDefaultIfNull(skipTests);
     }
 
-    boolean offlineBuild() {
+    public boolean offlineBuild() {
         return toBooleanDefaultIfNull(offlineBuild);
     }
 

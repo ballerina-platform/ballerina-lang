@@ -24,7 +24,7 @@ package io.ballerina.projects;
  *
  * @since 2.0.0
  */
-class CompilationOptionsBuilder {
+public class CompilationOptionsBuilder {
     private Boolean skipTests;
     private Boolean buildOffline;
     private Boolean experimental;

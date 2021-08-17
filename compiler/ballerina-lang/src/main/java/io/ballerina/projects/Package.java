@@ -136,6 +136,10 @@ public class Package {
         return this.packageContext.getPackageCompilation();
     }
 
+    public PackageCompilation getCompilation(CompilationOptions compilationOptions) {
+        return this.packageContext.getPackageCompilation(compilationOptions);
+    }
+
     public PackageResolution getResolution() {
         return this.packageContext.getResolution();
     }

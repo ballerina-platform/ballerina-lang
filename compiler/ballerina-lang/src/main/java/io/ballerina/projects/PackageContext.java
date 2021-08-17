@@ -216,6 +216,11 @@ class PackageContext {
         return packageCompilation;
     }
 
+    PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
+        this.compilationOptions.acceptTheirs(compilationOptions);
+        return PackageCompilation.from(this, compilationOptions);
+    }
+
     PackageResolution getResolution() {
         if (packageResolution == null) {
             packageResolution = PackageResolution.from(this);
