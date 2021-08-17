@@ -4116,7 +4116,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = symTable.semanticError;
             }
         } else {
-            resultType = types.mergeTypes(rhsReturnType, lhsReturnType);
+            resultType = expType;
         }
     }
 
@@ -6175,6 +6175,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
                 return true;
+            case ELVIS_EXPR:
+            case TERNARY_EXPR:
             case NUMERIC_LITERAL:
                 return inferTypeForNumericLiteral;
             default:
