@@ -167,10 +167,8 @@ public class SymbolEnv {
         return symbolEnv;
     }
 
-    public static SymbolEnv createDummyEnv(BLangNode node, Scope scope, SymbolEnv env) {
-        SymbolEnv dummyEnv = createPkgLevelSymbolEnv(node, scope, env);
-        dummyEnv.envCount = env.envCount + 1;
-        return dummyEnv;
+    public static SymbolEnv createLoopEnv(BLangNode node, SymbolEnv env) {
+        return createEnv(node, env);
     }
 
     public static SymbolEnv createAnnotationEnv(BLangAnnotation node, Scope scope, SymbolEnv env) {
