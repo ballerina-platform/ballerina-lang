@@ -19,20 +19,25 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.Parameter;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RemoteMethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.ServiceType;
 import io.ballerina.runtime.api.types.TupleType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.types.BFunctionType;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -68,7 +73,7 @@ public class Values {
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
-                PredefinedTypes.TYPE_BOOLEAN));
+                PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_STRING));
         if (funcType.isEmpty()) {
             return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0), 0);
         }
@@ -79,10 +84,37 @@ public class Values {
         for (int i = 0; i < len; i++) {
             BListInitialValueEntry[] initialTupleValues =
                     {ValueCreator.createListInitialValueEntry(StringUtils.fromString(parameters[i].name)),
-                            ValueCreator.createListInitialValueEntry(parameters[i].isDefault)};
+                            ValueCreator.createListInitialValueEntry(parameters[i].isDefault),
+                            ValueCreator.createListInitialValueEntry(
+                                    (StringUtils.fromString(parameters[i].type.toString())))};
             elements[i] = ValueCreator
-                    .createListInitialValueEntry(ValueCreator.createTupleValue(tupleType, 2, initialTupleValues));
+                    .createListInitialValueEntry(ValueCreator.createTupleValue(tupleType, 3, initialTupleValues));
         }
         return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), len, elements);
+    }
+
+    public static BString getFunctionString(BObject object, BString methodName) {
+        ObjectType objectType = object.getType();
+        Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
+                .filter(r -> r.getName().equals(methodName.getValue())).findAny();
+        if (funcType.isPresent()) {
+            return StringUtils.fromString(funcType.get().toString());
+        }
+        Optional<ResourceMethodType> resourceMethodType =
+                Arrays.stream(((ServiceType) objectType).getResourceMethods())
+                        .filter(r -> r.getResourcePath()[0].equals(methodName.getValue())).findAny();
+        if (resourceMethodType.isPresent()) {
+            return StringUtils.fromString(resourceMethodType.get().toString());
+        }
+        return StringUtils.fromString("");
+    }
+
+    public static BString getParamTypesString(BFunctionPointer func) {
+        BFunctionType funcType = (BFunctionType) func.getType();
+        StringBuilder sb = new StringBuilder();
+        for (Type type : funcType.getParameterTypes()) {
+            sb.append(type.toString()).append(" ");
+        }
+        return StringUtils.fromString(sb.toString());
     }
 }

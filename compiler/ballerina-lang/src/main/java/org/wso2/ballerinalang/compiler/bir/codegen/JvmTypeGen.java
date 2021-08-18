@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisito
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -1350,16 +1351,23 @@ public class JvmTypeGen {
 
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
-
-        loadFunctionParameters(mv, attachedFunc.symbol.params);
-
         mv.visitMethodInsn(INVOKESPECIAL, REMOTE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;J[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
-                        FUNCTION_PARAMETER), false);
+                String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL), false);
 
     }
 
-    private void loadFunctionParameters(MethodVisitor mv, List<BVarSymbol> params) {
+    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
+
+        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+        List<BVarSymbol> params =  new ArrayList<>();
+        if (invokableSymbol == null) {
+            if (!invokableType.paramTypes.isEmpty()) {
+                loadFunctionPointerParameters(mv, invokableType);
+                return;
+            }
+        } else {
+            params = invokableSymbol.params;
+        }
         mv.visitLdcInsn((long) params.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
@@ -1374,8 +1382,31 @@ public class JvmTypeGen {
             mv.visitLdcInsn(paramSymbol.isDefaultable);
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
                     false);
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;)V",
-                    STRING_VALUE, BOOLEAN_VALUE), false);
+            loadType(mv, paramSymbol.type);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
+                    STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
+            mv.visitInsn(AASTORE);
+        }
+    }
+
+    private void loadFunctionPointerParameters(MethodVisitor mv, BInvokableType invokableType) {
+        List<BType> paramTypes = invokableType.paramTypes;
+        mv.visitLdcInsn((long) paramTypes.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
+        for (int i = 0; i < paramTypes.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn("");
+            mv.visitLdcInsn(false);
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
+                    false);
+            loadType(mv, paramTypes.get(i));
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
+                    STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
             mv.visitInsn(AASTORE);
         }
     }
@@ -1418,12 +1449,9 @@ public class JvmTypeGen {
 
             mv.visitInsn(AASTORE);
         }
-
-        loadFunctionParameters(mv, resourceFunction.symbol.params);
-
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
-                        STRING_VALUE, STRING_VALUE, FUNCTION_PARAMETER), false);
+                String.format("(L%s;L%s;L%s;JL%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
+                        STRING_VALUE, STRING_VALUE), false);
     }
 
     // -------------------------------------------------------
@@ -2132,23 +2160,7 @@ public class JvmTypeGen {
             return;
         }
 
-        // Create param types array
-        mv.visitLdcInsn((long) bType.paramTypes.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, TYPE);
-        int i = 0;
-        for (BType paramType : bType.paramTypes) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-
-            // load param type
-            loadType(mv, paramType);
-
-            // Add the member to the array
-            mv.visitInsn(AASTORE);
-            i += 1;
-        }
+        loadFunctionParameters(mv, bType);
 
         BType restType = bType.restType;
         if (restType == null) {
@@ -2164,7 +2176,7 @@ public class JvmTypeGen {
 
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("([L%s;L%s;L%s;J)V", TYPE, TYPE, TYPE), false);
+                           String.format("([L%s;L%s;L%s;J)V", FUNCTION_PARAMETER, TYPE, TYPE), false);
     }
 
     private void loadParameterizedType(MethodVisitor mv, BParameterizedType bType) {
