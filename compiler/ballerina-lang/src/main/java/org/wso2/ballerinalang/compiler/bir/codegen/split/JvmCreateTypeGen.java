@@ -250,16 +250,16 @@ public class JvmCreateTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             String name = optionalTypeDef.internalName.value;
             BType bType = optionalTypeDef.type;
-            if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.ERROR ||
-                    bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
+            if (bType.tag != TypeTags.RECORD && bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.ERROR &&
+                    bType.tag != TypeTags.UNION && bType.tag != TypeTags.TUPLE) {
+                        // do not generate anything for other types (e.g.: finite type, etc.)
+                        continue;
+                    } else {
                 if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                     mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD + methodCount++, "()V",
                             null, null);
                     mv.visitCode();
                 }
-            } else {
-                // do not generate anything for other types (e.g.: finite type, etc.)
-                continue;
             }
             switch (bType.tag) {
                 case TypeTags.RECORD:
@@ -307,6 +307,7 @@ public class JvmCreateTypeGen {
 
         return methodCount;
     }
+
     private List<String> populateTypes(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass,
                                               SymbolTable symbolTable) {
 
@@ -330,76 +331,20 @@ public class JvmCreateTypeGen {
             BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
             switch (bType.tag) {
                 case TypeTags.RECORD:
-                    BRecordType recordType = (BRecordType) bType;
-                    mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
-                    mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
-                    addRecordFields(mv, recordType.fields);
-                    addRecordRestField(mv, recordType.restFieldType);
-                    addImmutableType(mv, recordType);
+                    populateRecord(mv, (BRecordType) bType);
                     break;
                 case TypeTags.OBJECT:
-                    BObjectType objectType = (BObjectType) bType;
-                    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
-                    mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
-                    addObjectFields(mv, objectType.fields);
-                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-                    addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
-                            "$init$", "setGeneratedInitializer", symbolTable);
-                    addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
-                            "setInitializer", symbolTable);
-                    addObjectAttachedFunctions(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, objectType,
-                            symbolTable);
-                    addResourceMethods(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, objectType,
-                            symbolTable);
-                    addImmutableType(mv, objectType);
-                    BTypeIdSet objTypeIdSet = ((BObjectType) bType).typeIdSet;
-                    if (!objTypeIdSet.isEmpty()) {
-                        mv.visitInsn(DUP);
-                        loadTypeIdSet(mv, objTypeIdSet);
-                        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, SET_TYPEID_SET_METHOD,
-                                           String.format("(L%s;)V", TYPE_ID_SET), false);
-                    }
+                    populateObject(cw, mv, symbolTable, fieldName, (BObjectType) bType, indexMap);
                     break;
                 case TypeTags.ERROR:
                     // populate detail field
-                    mv.visitTypeInsn(CHECKCAST, ERROR_TYPE_IMPL);
-                    mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
-                    jvmTypeGen.loadType(mv, ((BErrorType) bType).detailType);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD,
-                                       String.format("(L%s;)V", TYPE), false);
-                    BTypeIdSet typeIdSet = ((BErrorType) bType).typeIdSet;
-                    if (!typeIdSet.isEmpty()) {
-                        mv.visitInsn(DUP);
-                        loadTypeIdSet(mv, typeIdSet);
-                        mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_TYPEID_SET_METHOD,
-                                           String.format("(L%s;)V", TYPE_ID_SET), false);
-                    }
+                    populateError(mv, (BErrorType) bType);
                     break;
                 case TypeTags.UNION:
-                    BUnionType unionType = (BUnionType) bType;
-                    mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
-                    mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
-
-                    addCyclicFlag(mv, unionType);
-                    // populate member fields
-                    addUnionMembers(mv, unionType);
-                    addImmutableType(mv, unionType);
+                    populateUnion(mv, (BUnionType) bType);
                     break;
                 case TypeTags.TUPLE:
-                    BTupleType tupleType = (BTupleType) bType;
-                    mv.visitTypeInsn(CHECKCAST, TUPLE_TYPE_IMPL);
-                    mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
-                    mv.visitInsn(DUP);
-
-                    addCyclicFlag(mv, tupleType);
-                    addTupleMembers(mv, tupleType);
-                    addImmutableType(mv, tupleType);
+                    populateTuple(mv, (BTupleType) bType);
                     break;
             }
 
@@ -409,6 +354,79 @@ public class JvmCreateTypeGen {
         }
 
         return funcNames;
+    }
+
+    private void populateTuple(MethodVisitor mv, BTupleType bType) {
+        mv.visitTypeInsn(CHECKCAST, TUPLE_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+
+        addCyclicFlag(mv, bType);
+        addTupleMembers(mv, bType);
+        addImmutableType(mv, bType);
+    }
+
+    private void populateUnion(MethodVisitor mv, BUnionType bType) {
+        mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+
+        addCyclicFlag(mv, bType);
+        // populate member fields
+        addUnionMembers(mv, bType);
+        addImmutableType(mv, bType);
+    }
+
+    private void populateError(MethodVisitor mv, BErrorType bType) {
+        mv.visitTypeInsn(CHECKCAST, ERROR_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        jvmTypeGen.loadType(mv, bType.detailType);
+        mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD,
+                           String.format("(L%s;)V", TYPE), false);
+        BTypeIdSet typeIdSet = bType.typeIdSet;
+        if (!typeIdSet.isEmpty()) {
+            mv.visitInsn(DUP);
+            loadTypeIdSet(mv, typeIdSet);
+            mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_TYPEID_SET_METHOD,
+                               String.format("(L%s;)V", TYPE_ID_SET), false);
+        }
+    }
+
+    private void populateObject(ClassWriter cw, MethodVisitor mv, SymbolTable symbolTable, String fieldName,
+                                BObjectType bType, BIRVarToJVMIndexMap indexMap) {
+        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        addObjectFields(mv, bType.fields);
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
+        addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, bType, indexMap,
+                              "$init$", "setGeneratedInitializer", symbolTable);
+        addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, bType, indexMap, "init",
+                              "setInitializer", symbolTable);
+        addObjectAttachedFunctions(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, bType,
+                                   symbolTable);
+        addResourceMethods(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, bType,
+                           symbolTable);
+        addImmutableType(mv, bType);
+        BTypeIdSet objTypeIdSet = bType.typeIdSet;
+        if (!objTypeIdSet.isEmpty()) {
+            mv.visitInsn(DUP);
+            loadTypeIdSet(mv, objTypeIdSet);
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, SET_TYPEID_SET_METHOD,
+                               String.format("(L%s;)V", TYPE_ID_SET), false);
+        }
+    }
+
+    private void populateRecord(MethodVisitor mv, BRecordType bType) {
+        mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        addRecordFields(mv, bType.fields);
+        addRecordRestField(mv, bType.restFieldType);
+        addImmutableType(mv, bType);
     }
 
     private void addImmutableType(MethodVisitor mv, BType type) {
