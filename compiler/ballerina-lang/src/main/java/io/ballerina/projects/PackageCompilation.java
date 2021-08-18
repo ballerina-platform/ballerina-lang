@@ -61,7 +61,7 @@ public class PackageCompilation {
     private volatile boolean compiled;
     private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext) {
+    private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = rootPackageContext.getResolution();
 
@@ -69,7 +69,7 @@ public class PackageCompilation {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
         // Set compilation options retrieved from the build options
-        setCompilerOptions(rootPackageContext.compilationOptions());
+        setCompilerOptions(compilationOptions);
 
         // We have only the jvm backend for now.
         this.compilerBackends = new HashMap<>(1);
@@ -86,9 +86,18 @@ public class PackageCompilation {
         options.put(CLOUD, compilationOptions.getCloud());
     }
 
-    static PackageCompilation from(PackageContext rootPackageContext) {
-        PackageCompilation compilation = new PackageCompilation(rootPackageContext);
+    static PackageCompilation from(PackageContext rootPkgContext) {
+        PackageCompilation compilation = new PackageCompilation(rootPkgContext, rootPkgContext.compilationOptions());
+        return compile(compilation);
 
+    }
+
+    static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+        PackageCompilation compilation = new PackageCompilation(rootPackageContext, compilationOptions);
+        return compile(compilation);
+    }
+
+    private static PackageCompilation compile(PackageCompilation compilation) {
         // Compile modules in the dependency graph
         compilation.compileModules();
 

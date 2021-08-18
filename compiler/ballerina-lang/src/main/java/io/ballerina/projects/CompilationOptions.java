@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-class CompilationOptions {
+public class CompilationOptions {
     private Boolean offlineBuild;
     private Boolean experimental;
     private Boolean observabilityIncluded;
@@ -47,7 +47,7 @@ class CompilationOptions {
         this.sticky = sticky;
     }
 
-    boolean offlineBuild() {
+    public boolean offlineBuild() {
         return toBooleanDefaultIfNull(offlineBuild);
     }
 

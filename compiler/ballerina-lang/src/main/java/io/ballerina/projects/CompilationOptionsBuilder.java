@@ -24,7 +24,7 @@ package io.ballerina.projects;
  *
  * @since 2.0.0
  */
-class CompilationOptionsBuilder {
+public class CompilationOptionsBuilder {
     private Boolean buildOffline;
     private Boolean experimental;
     private Boolean observabilityIncluded;
@@ -42,32 +42,32 @@ class CompilationOptionsBuilder {
         return this;
     }
 
-    public CompilationOptionsBuilder experimental(Boolean value) {
+    CompilationOptionsBuilder experimental(Boolean value) {
         experimental = value;
         return this;
     }
 
-    public CompilationOptionsBuilder observabilityIncluded(Boolean value) {
+    CompilationOptionsBuilder observabilityIncluded(Boolean value) {
         observabilityIncluded = value;
         return this;
     }
 
-    public CompilationOptionsBuilder dumpBir(Boolean value) {
+    CompilationOptionsBuilder dumpBir(Boolean value) {
         dumpBir = value;
         return this;
     }
 
-    public CompilationOptionsBuilder cloud(String value) {
+    CompilationOptionsBuilder cloud(String value) {
         cloud = value;
         return this;
     }
 
-    public CompilationOptionsBuilder dumpBirFile(String value) {
+    CompilationOptionsBuilder dumpBirFile(String value) {
         dumpBirFile = value;
         return this;
     }
 
-    public CompilationOptionsBuilder listConflictedClasses(Boolean value) {
+    CompilationOptionsBuilder listConflictedClasses(Boolean value) {
         listConflictedClasses = value;
         return this;
     }
@@ -77,7 +77,7 @@ class CompilationOptionsBuilder {
                 dumpBirFile, cloud, listConflictedClasses, sticky);
     }
 
-    public void sticky(Boolean value) {
+    void sticky(Boolean value) {
         sticky = value;
     }
 }
