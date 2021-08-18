@@ -198,7 +198,7 @@ public class PackageDependencyGraphBuilder {
         List<PackageDescriptor> packageDescriptors = new ArrayList<>();
         vertices.forEach((key, value) -> packageDescriptors.add(value.pkgDesc()));
         List<ResolutionResponse> resolutionResponses =
-                packageResolver.newResolvePackages(packageDescriptors, offline, rootProject);
+                packageResolver.resolvePackages(packageDescriptors, offline, rootProject);
         DependencyGraph.DependencyGraphBuilder<ResolvedPackageDependency> depGraphBuilder =
                 DependencyGraph.DependencyGraphBuilder.getBuilder();
 

@@ -28,7 +28,7 @@ import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
-import io.ballerina.projects.environment.ResolutionResponseDescriptor;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,9 +88,9 @@ public class ResolutionEngine {
                     directDependency.scope(), directDependency.resolutionType(), offline, lockingMode));
         }
 
-        List<ResolutionResponseDescriptor> responseDescriptors =
-                packageResolver.resolveDependencyVersions(resolutionRequests);
-        for (ResolutionResponseDescriptor resolutionResp : responseDescriptors) {
+        List<PackageMetadataResponse> responseDescriptors =
+                packageResolver.resolvePackageMetadata(resolutionRequests);
+        for (PackageMetadataResponse resolutionResp : responseDescriptors) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
                 continue;

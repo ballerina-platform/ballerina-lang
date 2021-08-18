@@ -33,7 +33,7 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.ResolutionResponseDescriptor;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
@@ -170,9 +170,9 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     @Override
-    public List<ResolutionResponseDescriptor> resolveDependencyVersions(
+    public List<PackageMetadataResponse> resolveDependencyVersions(
             List<ResolutionRequest> packageLoadRequests) {
-        List<ResolutionResponseDescriptor> descriptorSet = new ArrayList<>();
+        List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
         for (ResolutionRequest resolutionRequest : packageLoadRequests) {
             List<PackageVersion> versions = getCompatiblePackageVersions(
                     resolutionRequest.packageDescriptor(), resolutionRequest.packageLockingMode());
@@ -187,12 +187,12 @@ public class FileSystemRepository implements PackageRepository {
                         BalaFiles.createPackageDependencyGraph(balaPath);
                 DependencyGraph<PackageDescriptor> dependencyGraph =
                         packageDependencyGraph.packageDependencyGraph();
-                ResolutionResponseDescriptor responseDescriptor = ResolutionResponseDescriptor
+                PackageMetadataResponse responseDescriptor = PackageMetadataResponse
                         .from(resolutionRequest, resolvedDescriptor, dependencyGraph);
                 descriptorSet.add(responseDescriptor);
                 continue;
             }
-            descriptorSet.add(ResolutionResponseDescriptor.createUnresolvedResponse(resolutionRequest));
+            descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
         }
         return descriptorSet;
     }

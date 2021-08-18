@@ -186,7 +186,7 @@ public class Bootstrap {
     }
 
     private void loadLangLibFromBala(PackageDescriptor packageDescriptor) {
-        List<ResolutionResponse> resolutionResponses = packageResolver.newResolvePackages(
+        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
                 Collections.singletonList(packageDescriptor), true);
         resolutionResponses.forEach(pkgLoadResp -> {
             Package pkg = pkgLoadResp.resolvedPackage();

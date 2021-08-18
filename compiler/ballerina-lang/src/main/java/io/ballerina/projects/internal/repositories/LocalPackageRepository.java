@@ -26,7 +26,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.ResolutionResponseDescriptor;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.util.ProjectUtils;
 
@@ -54,8 +54,8 @@ public class LocalPackageRepository extends FileSystemRepository {
     }
 
     @Override
-    public List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests) {
-        List<ResolutionResponseDescriptor> descriptorSet = new ArrayList<>();
+    public List<PackageMetadataResponse> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests) {
+        List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
         for (ResolutionRequest resolutionRequest : packageLoadRequests) {
             if (resolutionRequest.version().isEmpty()) {
                 // TODO proper diagnostic
@@ -66,13 +66,13 @@ public class LocalPackageRepository extends FileSystemRepository {
                     resolutionRequest.packageName().toString(), resolutionRequest.version().get().toString());
 
             if (!Files.exists(balaPath)) {
-                descriptorSet.add(ResolutionResponseDescriptor.createUnresolvedResponse(resolutionRequest));
+                descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
                 continue;
             }
 
             BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles.createPackageDependencyGraph(balaPath);
             DependencyGraph<PackageDescriptor> dependencyGraph = packageDependencyGraph.packageDependencyGraph();
-            ResolutionResponseDescriptor responseDescriptor = ResolutionResponseDescriptor
+            PackageMetadataResponse responseDescriptor = PackageMetadataResponse
                     .from(resolutionRequest, resolutionRequest.packageDescriptor(), dependencyGraph);
             descriptorSet.add(responseDescriptor);
         }

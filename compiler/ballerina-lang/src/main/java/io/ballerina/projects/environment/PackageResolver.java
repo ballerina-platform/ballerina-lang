@@ -34,15 +34,11 @@ public interface PackageResolver {
 
     List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 
-    List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests);
+    List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests);
 
-//    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
+    List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors,
+                                             boolean offline,
+                                             Project project);
 
-//    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
-
-    List<ResolutionResponse> newResolvePackages(List<PackageDescriptor> packageDescriptors,
-                                                boolean offline,
-                                                Project project);
-
-    List<ResolutionResponse> newResolvePackages(List<PackageDescriptor> packageDescriptors, boolean offline);
+    List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors, boolean offline);
 }
