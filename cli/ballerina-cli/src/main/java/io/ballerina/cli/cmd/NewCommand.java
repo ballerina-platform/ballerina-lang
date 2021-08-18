@@ -33,7 +33,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static io.ballerina.cli.cmd.CommandUtil.*;
+import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplate;
+import static io.ballerina.cli.cmd.CommandUtil.applyBalaTemplateForCentralPackages;
+import static io.ballerina.cli.cmd.CommandUtil.findBalaTemplate;
+import static io.ballerina.cli.cmd.CommandUtil.pullPackageFromCentral;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -57,8 +60,8 @@ public class NewCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
-            "default: main")
-    private String template = "main";
+            "default: default")
+    private String template = "default";
 
     public NewCommand() {
         this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -151,21 +154,15 @@ public class NewCommand implements BLauncherCmd {
                     // Pull from central
                     homeCache = RepoUtils.createAndGetHomeReposPath();
                     Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
-                            .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME);
+                            .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                            .resolve(ProjectConstants.BALA_DIR_NAME);
                     pullPackageFromCentral(balaCache, template);
                     applyBalaTemplateForCentralPackages(path, balaCache, template);
                 } else {
                     // fetch from local cache
                     applyBalaTemplate(path, template);
                 }
-//            CommandUtil.printError(errStream,
-//                    "template not found, use `bal new --help` to view available templates.",
-//                    null,
-//                    false);
-//            CommandUtil.exitError(this.exitWhenFinish);
-//            return;
             } else {
-//            try {
                 CommandUtil.initPackageByTemplate(path, packageName, template);
             }
         } catch (AccessDeniedException e) {

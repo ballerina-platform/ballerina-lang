@@ -46,13 +46,20 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
-import static io.ballerina.projects.util.ProjectUtils.*;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
+import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
+import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
@@ -114,7 +121,7 @@ public class CommandUtil {
             stream.println("For more information try --help");
         }
     }
-    
+
     /**
      * Exit with error code 1.
      *
@@ -142,68 +149,28 @@ public class CommandUtil {
         // - main.bal
         // - .gitignore       <- git ignore file
 
-//        if (CommandUtil.getTemplates().contains(template)) {
-            applyTemplate(path, template);
-            if (template.equalsIgnoreCase("lib")) {
-                initLibPackage(path, packageName);
-                Path source = path.resolve("lib.bal");
-                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
-                        StandardCopyOption.REPLACE_EXISTING);
+        applyTemplate(path, template);
+        if (template.equalsIgnoreCase("lib")) {
+            initLibPackage(path, packageName);
+            Path source = path.resolve("lib.bal");
+            Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
+                    StandardCopyOption.REPLACE_EXISTING);
 
-                String packageMd = FileUtils.readFileAsString(
-                        NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
+            String packageMd = FileUtils.readFileAsString(
+                    NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
 
-                write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
-                        packageMd.getBytes(StandardCharsets.UTF_8));
-            } else {
-                initPackage(path);
-            }
-            Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
-            if (Files.notExists(gitignore)) {
-                Files.createFile(gitignore);
-            }
-            String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
-            write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
-//        } else if (findBalaTemplate(template) == null) {
-//            pullPackageFromCentral();
-//            applyBalaTemplate(path, template);
-//        }
+            write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
+                    packageMd.getBytes(StandardCharsets.UTF_8));
+        } else {
+            initPackage(path);
+        }
+        Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
+        if (Files.notExists(gitignore)) {
+            Files.createFile(gitignore);
+        }
+        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
+        write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
     }
-
-//    public static void initPackageByTemplate(Path path, Path balaCache, String packageName, String template) throws IOException,
-//            URISyntaxException {
-//        // We will be creating following in the project directory
-//        // - Ballerina.toml
-//        // - main.bal
-//        // - .gitignore       <- git ignore file
-//
-//        if (CommandUtil.getTemplates().contains(template)) {
-//            applyTemplate(path, template);
-//            if (template.equalsIgnoreCase("lib")) {
-//                initLibPackage(path, packageName);
-//                Path source = path.resolve("lib.bal");
-//                Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
-//                        StandardCopyOption.REPLACE_EXISTING);
-//
-//                String packageMd = FileUtils.readFileAsString(
-//                        NEW_CMD_DEFAULTS + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME);
-//
-//                write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME),
-//                        packageMd.getBytes(StandardCharsets.UTF_8));
-//            } else {
-//                initPackage(path);
-//            }
-//            Path gitignore = path.resolve(ProjectConstants.GITIGNORE_FILE_NAME);
-//            if (Files.notExists(gitignore)) {
-//                Files.createFile(gitignore);
-//            }
-//            String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
-//            write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
-//        } else {
-//            pullPackageFromCentral(balaCache, template);
-////            applyBalaTemplate(path, balaCache, template);
-//        }
-//    }
 
     /**
      * Get the list of templates.
@@ -300,6 +267,14 @@ public class CommandUtil {
                     Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
                 }
 
+                // Copy platform library
+                Path platformLibPath = balaTemplate.resolve("platform").resolve("java11");
+                Path projectPlatform = modulePath.resolve("Platform");
+                if (Files.exists(platformLibPath)) {
+                    Files.createDirectories(projectPlatform);
+                    Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, projectPlatform));
+                }
+
                 // Copy Package.json to Ballerina.toml
                 Gson gson = new Gson();
                 Path packageJsonPath = balaTemplate.resolve("package.json");
@@ -308,20 +283,8 @@ public class CommandUtil {
                     if (Files.exists(packageJsonPath)) {
                         Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
                         Files.createFile(balaToml);
-                        writeBallerinaToml(balaToml, packageJson, template);
+                        writeBallerinaToml(balaToml, packageJson, template, projectPlatform);
                     }
-                    // Copy Dependency-graph.json to Dependencies.toml
-//                    Path dependencyGraphJsonPath = balaTemplate.resolve("dependency-graph.json");
-//                    FileReader dependencyReader = new FileReader(String.valueOf(dependencyGraphJsonPath));
-//                    DependencyGraphJson dependencyGraphJson = gson.fromJson(dependencyReader,
-//                            DependencyGraphJson.class);
-//                    if (Files.exists(packageJsonPath)) {
-//                        Path dependenciesToml = modulePath.resolve(ProjectConstants.DEPENDENCIES_TOML);
-//                        Files.createFile(dependenciesToml);
-//                        writeDependenciesToml(dependenciesToml, dependencyGraphJson, packageName);
-//                    }
-//                    packageReader.close();
-//                    dependencyReader.close();
                 }
             } catch (IOException e) {
                 CommandUtil.printError(errStream,
@@ -360,8 +323,6 @@ public class CommandUtil {
         String balaGlob = "glob:**/" + orgName + "/" + packageName + "/" + version + "/" + platform;
         PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
 
-
-
         try (Stream<Path> walk = Files.walk(balaCache)) {
 
             List<Path> balaList = walk
@@ -384,8 +345,6 @@ public class CommandUtil {
         }
 
         //First we will check for a bala that match any platform
-//        Path balaPath = balaCache.resolve(
-//                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
         if (!Files.exists(balaPath)) {
             //If bala for any platform not exist check for specific platform
             balaPath = balaCache.resolve(
@@ -444,7 +403,8 @@ public class CommandUtil {
         }
     }
 
-    public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, String template) throws IOException {
+    public static void writeBallerinaToml(Path balTomlPath, PackageJson packageJson, String template,
+                                          Path projectPlatform) throws IOException {
 
         Files.writeString(balTomlPath, "[package]", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\norg = \"" + packageJson.getOrganization() + "\"",
@@ -485,8 +445,7 @@ public class CommandUtil {
             JsonArray platformLibraries = packageJson.getPlatformDependencies();
             for (Object dependencies : platformLibraries) {
                 JsonObject dependeciesObj = (JsonObject) dependencies;
-                String path = dependeciesObj.get("path").getAsString();
-                Files.writeString(balTomlPath, "\npath = \"" + path + "\"", StandardOpenOption.APPEND);
+                Files.writeString(balTomlPath, "\npath = \"" + projectPlatform + "\"", StandardOpenOption.APPEND);
 
                 String artifactId = dependeciesObj.get("artifactId").getAsString();
                 Files.writeString(balTomlPath, "\nartifactId = \"" + artifactId + "\"", StandardOpenOption.APPEND);
@@ -495,28 +454,12 @@ public class CommandUtil {
                 Files.writeString(balTomlPath, "\ngroupId = \"" + groupId + "\"", StandardOpenOption.APPEND);
 
                 String dependencyVersion = dependeciesObj.get("version").getAsString();
-                Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n", StandardOpenOption.APPEND);
+                Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
+                        StandardOpenOption.APPEND);
 
             }
         }
     }
-
-//    public static void writeDependenciesToml(Path dependenciesToml, DependencyGraphJson dependencyGraphJson,
-//                                             String packageName) throws IOException {
-//
-//        List<Dependency> pkgDependency = dependencyGraphJson.getPackageDependencyGraph();
-//        Files.writeString(dependenciesToml, "[[dependencies]]" , StandardOpenOption.APPEND);
-//        for (int i = 0; i < pkgDependency.size(); i++) {
-//            if (!pkgDependency.get(i).getName().equals(packageName)) {
-//                Files.writeString(dependenciesToml, "\norg = \"" + pkgDependency.get(i).getOrg() + "\"",
-//                        StandardOpenOption.APPEND);
-//                Files.writeString(dependenciesToml, "\nname = \"" + pkgDependency.get(i).getName() + "\"",
-//                        StandardOpenOption.APPEND);
-//                Files.writeString(dependenciesToml, "\nversion = \"" + pkgDependency.get(i).getVersion() + "\"\n",
-//                        StandardOpenOption.APPEND);
-//            }
-//        }
-//    }
 
     public static String findPkgName(String template) {
         // Split the template in to parts
@@ -553,11 +496,9 @@ public class CommandUtil {
      */
     public static void applyBalaTemplateForCentralPackages(Path modulePath, Path balaCache, String template) {
         // find all balas matching org and package name.
-//        Path balaTemplate = (Path) findBalaTemplate(template);
         String packageName = findPkgName(template);
         String orgName = findOrg(template);
         String version = findPkgVersion(template);
-        Path balaTemplate = balaCache.resolve(orgName).resolve(packageName).resolve(version);
 
         //First we will check for a bala that match any platform
         Path balaPath = balaCache.resolve(
@@ -572,50 +513,45 @@ public class CommandUtil {
             }
         }
 
-            try {
-                // Copy docs
-                Path packageMDFilePath = balaPath.resolve("docs").resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
-                if (Files.exists(packageMDFilePath)) {
-                    Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
+        try {
+            // Copy docs
+            Path packageMDFilePath = balaPath.resolve("docs").resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+            Path toPackageMdPath = modulePath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME);
+            if (Files.exists(packageMDFilePath)) {
+                Files.copy(packageMDFilePath, toPackageMdPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            Path moduleMd = balaPath.resolve("docs").resolve("modules").resolve(packageName)
+                    .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+            Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
+            if (Files.exists(moduleMd)) {
+                Files.copy(moduleMd, toModuleMd);
+            }
+
+            // Copy modules
+            Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
+            if (Files.exists(sourceModulesDir)) {
+                Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
+            }
+
+            // Copy platform library
+            Path platformLibPath = balaPath.resolve("platform").resolve("java11");
+            Path projectPlatform = modulePath.resolve("Platform");
+            if (Files.exists(platformLibPath)) {
+                Files.createDirectories(projectPlatform);
+                Files.copy(platformLibPath, projectPlatform);
+            }
+
+            // Copy Package.json to Ballerina.toml
+            Gson gson = new Gson();
+            Path packageJsonPath = balaPath.resolve("package.json");
+            try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
+                PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
+                if (Files.exists(packageJsonPath)) {
+                    Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
+                    Files.createFile(balaToml);
+                    writeBallerinaToml(balaToml, packageJson, template, projectPlatform);
                 }
-
-                Path moduleMd = balaPath.resolve("docs").resolve("modules").resolve(packageName)
-                        .resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                Path toModuleMd = modulePath.resolve(ProjectConstants.MODULE_MD_FILE_NAME);
-                if (Files.exists(moduleMd)) {
-                    Files.copy(moduleMd, toModuleMd);
-                }
-
-                // Copy modules
-                Path sourceModulesDir = balaPath.resolve("modules").resolve(packageName);
-                if (Files.exists(sourceModulesDir)) {
-                    Files.walkFileTree(sourceModulesDir, new FileUtils.Copy(sourceModulesDir, modulePath));
-                }
-
-                // Copy Package.json to Ballerina.toml
-                Gson gson = new Gson();
-                Path packageJsonPath = balaPath.resolve("package.json");
-                try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
-                    PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
-                    if (Files.exists(packageJsonPath)) {
-                        Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
-                        Files.createFile(balaToml);
-                        writeBallerinaToml(balaToml, packageJson, template);
-                    }
-                    // Copy Dependency-graph.json to Dependencies.toml
-//                    Path dependencyGraphJsonPath = balaTemplate.resolve("dependency-graph.json");
-//                    FileReader dependencyReader = new FileReader(String.valueOf(dependencyGraphJsonPath));
-//                    DependencyGraphJson dependencyGraphJson = gson.fromJson(dependencyReader,
-//                            DependencyGraphJson.class);
-//                    if (Files.exists(packageJsonPath)) {
-//                        Path dependenciesToml = modulePath.resolve(ProjectConstants.DEPENDENCIES_TOML);
-//                        Files.createFile(dependenciesToml);
-//                        writeDependenciesToml(dependenciesToml, dependencyGraphJson, packageName);
-//                    }
-//                    packageReader.close();
-//                    dependencyReader.close();
-
             } catch (IOException e) {
                 CommandUtil.printError(errStream,
                         "Error while applying template : " + e.getMessage(),
