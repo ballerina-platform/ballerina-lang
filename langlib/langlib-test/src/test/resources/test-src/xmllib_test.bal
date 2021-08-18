@@ -16,6 +16,7 @@
 
 import ballerina/lang.'xml;
 import ballerina/lang.'int as langint;
+import ballerina/lang.test;
 
 'xml:Element catalog = xml `<CATALOG>
                        <CD>
@@ -880,4 +881,24 @@ function fromStringTest() {
     if !(d[3] is xml:Comment) {
         panic error("Assertion error: not a comment");
     }
+}
+
+function testXmlIteratorNextValue() {
+    'xml:Text x1 = xml `foo`;
+
+    xml<'xml:Element|'xml:Text> x2 = <xml<'xml:Element|'xml:Text>> x1.concat(xml `<bar/>`);
+
+    var iterator = x2.iterator();
+    record {| 'xml:Element|'xml:Text value; |}? next = iterator.next();
+
+    test:assertTrue(next is record {| 'xml:Element|'xml:Text value; |});
+    test:assertFalse(next is record {| 'xml:Element value; |});
+    test:assertFalse(next is record {| 'xml:Text value; |});
+
+    record {| 'xml:Element|'xml:Text value; |}? nextNext = iterator.next();
+
+    test:assertTrue(nextNext is record {| 'xml:Element|'xml:Text value; |});
+    test:assertFalse(nextNext is record {| 'xml:Element value; |});
+    test:assertFalse(nextNext is record {| 'xml:Text value; |});
+
 }
