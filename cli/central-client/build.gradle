@@ -40,11 +40,8 @@ dependencies {
 
     testCompile 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'
-    testCompile "org.mockito:mockito-testng"
-    testCompile "org.mockito:mockito-core:2.1.0"
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
-    testImplementation 'org.mockito:mockito-core:2.1.0'
 }
 
 task createTestDistributionCache(type: Copy) {

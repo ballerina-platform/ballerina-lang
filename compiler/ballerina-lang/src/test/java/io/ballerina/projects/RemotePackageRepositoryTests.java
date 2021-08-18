@@ -3,11 +3,15 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponseDescriptor;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
+import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
+import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionResponse.Package;
@@ -66,7 +70,6 @@ public class RemotePackageRepositoryTests {
             .from(resCovid156, covid159, DependencyGraph.emptyGraph());
     ResolutionResponseDescriptor fileSmtp130 = ResolutionResponseDescriptor.from(resSmtp130);
 
-
     @BeforeSuite
     public void setup() {
         remotePackageRepository = new RemotePackageRepository(fileSystemRepository, centralAPIClient);
@@ -94,12 +97,12 @@ public class RemotePackageRepositoryTests {
 
         // If the remote repository version is higher than filesystem it should return remote version
         ResolutionResponseDescriptor httpResult =  resolutionResponseDescriptors.get(0);
-        Assert.assertEquals(httpResult.resolvedDescriptor().get().version().toString(), "1.2.2");
+        Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.2");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // If the remote repository version is lower than filesystem it should return filesystem version
         ResolutionResponseDescriptor covidResult =  resolutionResponseDescriptors.get(1);
-        Assert.assertEquals(covidResult.resolvedDescriptor().get().version().toString(), "1.5.9");
+        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.9");
         Assert.assertEquals(covidResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // Check if dependencies are populated for two sub levels
@@ -128,12 +131,12 @@ public class RemotePackageRepositoryTests {
 
         // if local is unresolved it should return remote
         ResolutionResponseDescriptor httpResult =  resolutionResponseDescriptors.get(0);
-        Assert.assertEquals(httpResult.resolvedDescriptor().get().version().toString(), "1.2.2");
+        Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.2");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // If remote is unresolved it should return local
         ResolutionResponseDescriptor covidResult =  resolutionResponseDescriptors.get(1);
-        Assert.assertEquals(covidResult.resolvedDescriptor().get().version().toString(), "1.5.9");
+        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.9");
         Assert.assertEquals(covidResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // If both do not have a resolution it should return as unresolved
@@ -166,12 +169,12 @@ public class RemotePackageRepositoryTests {
 
         // If the remote repository version is higher than filesystem it should return remote version
         ResolutionResponseDescriptor httpResult =  resolutionResponseDescriptors.get(0);
-        Assert.assertEquals(httpResult.resolvedDescriptor().get().version().toString(), "1.2.1");
+        Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.1");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // If the remote repository version is lower than filesystem it should return filesystem version
         ResolutionResponseDescriptor covidResult =  resolutionResponseDescriptors.get(1);
-        Assert.assertEquals(covidResult.resolvedDescriptor().get().version().toString(), "1.5.9");
+        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.9");
         Assert.assertEquals(covidResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
     }
 
@@ -196,12 +199,56 @@ public class RemotePackageRepositoryTests {
 
         // If the remote repository version is higher than filesystem it should return remote version
         ResolutionResponseDescriptor httpResult =  resolutionResponseDescriptors.get(0);
-        Assert.assertEquals(httpResult.resolvedDescriptor().get().version().toString(), "1.2.1");
+        Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.1");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // If the remote repository version is lower than filesystem it should return filesystem version
         ResolutionResponseDescriptor covidResult =  resolutionResponseDescriptors.get(1);
-        Assert.assertEquals(covidResult.resolvedDescriptor().get().version().toString(), "1.5.9");
+        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.9");
         Assert.assertEquals(covidResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
+    }
+
+    //Package name resolution data
+    ImportModuleRequest javaArrayReq = new ImportModuleRequest(PackageOrg.from("ballerina"), "java.array");
+    ImportModuleRequest covidReq = new ImportModuleRequest(PackageOrg.from("ballerina"), "covid.client");
+    ImportModuleRequest unknownReq = new ImportModuleRequest(PackageOrg.from("ballerina"), "unknown");
+
+    PackageDescriptor descJavaArray = PackageDescriptor
+            .from(PackageOrg.from("ballerina"), PackageName.from("java.array"));
+
+    ImportModuleResponse fileJavaArray = new ImportModuleResponse(descJavaArray, javaArrayReq);
+    ImportModuleResponse fileCovid = new ImportModuleResponse(covidReq);
+    ImportModuleResponse fileUnresolved = new ImportModuleResponse(unknownReq);
+
+    @Test(description = "Test package name resolution")
+    public void testPackageNameResolution() throws CentralClientException {
+        // Mock central name resolution
+        PackageNameResolutionResponse centralResponse = new PackageNameResolutionResponse(Arrays.asList(
+                new PackageNameResolutionResponse
+                        .Module("ballerina", "covid.client", "1.2.3", "covid", null)),
+                Arrays.asList(
+                new PackageNameResolutionResponse
+                        .Module("ballerina", "unknown", "1.4.5", null, "module not found"))
+        );
+        when(centralAPIClient.resolvePackageNames(any(PackageNameResolutionRequest.class),
+                anyString(), anyString(), anyBoolean())).thenReturn(centralResponse);
+
+        // Mock response from file system
+        when(fileSystemRepository.resolvePackageNames(anyList()))
+                .thenReturn(Arrays.asList(fileJavaArray, fileCovid, fileUnresolved));
+
+
+        List<ImportModuleResponse> response = this.remotePackageRepository
+                .resolvePackageNames(Arrays.asList(javaArrayReq, covidReq, unknownReq));
+
+        Assert.assertEquals(response.size(), 3);
+        ImportModuleResponse javaArray = response.get(0);
+        Assert.assertEquals(javaArray.packageDescriptor().name().value(), "java.array");
+
+        ImportModuleResponse covid = response.get(1);
+        Assert.assertEquals(covid.packageDescriptor().name().value(), "covid");
+
+        ImportModuleResponse unknown = response.get(2);
+        Assert.assertEquals(unknown.resolutionStatus(), ResolutionResponse.ResolutionStatus.UNRESOLVED);
     }
 }

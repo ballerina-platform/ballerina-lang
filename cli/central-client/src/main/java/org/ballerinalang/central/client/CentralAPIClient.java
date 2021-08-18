@@ -31,9 +31,13 @@ import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
-import org.ballerinalang.central.client.model.*;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
+import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
+import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
+import org.ballerinalang.central.client.model.PackageResolutionRequest;
+import org.ballerinalang.central.client.model.PackageResolutionResponse;
+import org.ballerinalang.central.client.model.PackageSearchResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -53,7 +57,16 @@ import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
-import static org.ballerinalang.central.client.CentralClientConstants.*;
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
+import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
+import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
+import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
+import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
@@ -442,7 +455,8 @@ public class CentralAPIClient {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg =
-                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature + "' from" +
+                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
+                                                           "' from" +
                                                            " the remote repository '" + url +
                                                            "'. reason: " + error.getMessage());
                             throw new CentralClientException(errorMsg);
@@ -472,22 +486,16 @@ public class CentralAPIClient {
      * @throws CentralClientException   Central Client exception.
      * @return
      */
-    public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request, String supportedPlatform,
-                                                             String ballerinaVersion, boolean isBuild)
+    public PackageNameResolutionResponse resolvePackageNames(PackageNameResolutionRequest request,
+                                                             String supportedPlatform, String ballerinaVersion,
+                                                             boolean isBuild)
             throws CentralClientException {
-        boolean enableOutputStream =
-                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
 
         String url = this.baseUrl + "/" + RESOLVE_MODULES;
 
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
-            LogFormatter logFormatter = new LogFormatter();
-            if (isBuild) {
-                logFormatter = new BuildLogFormatter();
-            }
-
             RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
             Request resolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .post(requestBody)
@@ -548,19 +556,12 @@ public class CentralAPIClient {
     public PackageResolutionResponse resolveDependencies(PackageResolutionRequest request, String supportedPlatform,
                                                          String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
-        boolean enableOutputStream =
-                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
 
         String url = this.baseUrl + "/" + RESOLVE_DEPENDENCIES;
 
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
-            LogFormatter logFormatter = new LogFormatter();
-            if (isBuild) {
-                logFormatter = new BuildLogFormatter();
-            }
-
             RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
             Request packageResolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .post(requestBody)

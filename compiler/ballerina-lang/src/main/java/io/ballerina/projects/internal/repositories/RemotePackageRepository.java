@@ -29,7 +29,13 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
@@ -157,8 +163,8 @@ public class RemotePackageRepository implements PackageRepository {
         try {
             if (unresolved.size() > 0) {
                 PackageNameResolutionRequest resolutionRequest = toPackageNameResolutionRequest(unresolved);
-                PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest, JvmTarget.JAVA_11.code(),
-                        RepoUtils.getBallerinaVersion(), true);
+                PackageNameResolutionResponse response = this.client.resolvePackageNames(resolutionRequest,
+                        JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion(), true);
                 List<ImportModuleResponse> remote = toImportModuleResponses(unresolved, response);
                 return mergeNameResolution(filesystem, remote);
             }
@@ -171,7 +177,8 @@ public class RemotePackageRepository implements PackageRepository {
         return filesystem;
     }
 
-    private List<ImportModuleResponse> mergeNameResolution(List<ImportModuleResponse> filesystem, List<ImportModuleResponse> remote) {
+    private List<ImportModuleResponse> mergeNameResolution(List<ImportModuleResponse> filesystem,
+                                                           List<ImportModuleResponse> remote) {
         List<ImportModuleResponse> all = new ArrayList<>();
         // We assume file system responses will have all module requests
         for (ImportModuleResponse fileResponse: filesystem) {
@@ -189,18 +196,23 @@ public class RemotePackageRepository implements PackageRepository {
         return all;
     }
 
-    private List<ImportModuleResponse> toImportModuleResponses(List<ImportModuleResponse> requests, PackageNameResolutionResponse response) {
-        List<ImportModuleResponse> result = Arrays.asList();
+    private List<ImportModuleResponse> toImportModuleResponses(List<ImportModuleResponse> requests,
+                                                               PackageNameResolutionResponse response) {
+        List<ImportModuleResponse> result = new ArrayList<>();
         for (ImportModuleResponse module: requests) {
             PackageOrg packageOrg = module.importModuleRequest().packageOrg();
             String moduleName = module.importModuleRequest().moduleName();
-            Optional<PackageNameResolutionResponse.Module> resolvedModule = response.modules().stream()
+            Optional<PackageNameResolutionResponse.Module> resolvedModule = response.resolvedModules().stream()
                     .filter(m -> m.getModuleName().equals(moduleName)
                             && m.getOrganization().equals(packageOrg.value())).findFirst();
             if (resolvedModule.isPresent()) {
-                ImportModuleResponse importModuleResponse = new ImportModuleResponse(packageOrg,
-                        PackageName.from(resolvedModule.get().getPackageName()), module.importModuleRequest());
+                PackageDescriptor packageDescriptor = PackageDescriptor.from(packageOrg,
+                        PackageName.from(resolvedModule.get().getPackageName()));
+                ImportModuleResponse importModuleResponse = new ImportModuleResponse(packageDescriptor,
+                        module.importModuleRequest());
                 result.add(importModuleResponse);
+            } else {
+                result.add(new ImportModuleResponse(module.importModuleRequest()));
             }
         }
         return result;
@@ -253,7 +265,7 @@ public class RemotePackageRepository implements PackageRepository {
     private List<ResolutionResponseDescriptor> mergeResolution(
             List<ResolutionResponseDescriptor> remoteResolution,
             List<ResolutionResponseDescriptor> filesystem) {
-        // accumilate the result to a new list
+        // accumulate the result to a new list
         List<ResolutionResponseDescriptor> mergedResults = new ArrayList<>();
         // Iterate resolutions in original list
         for (ResolutionResponseDescriptor remote : remoteResolution) {
@@ -279,8 +291,8 @@ public class RemotePackageRepository implements PackageRepository {
             }
             // pick the latest of both
             SemanticVersion.VersionCompatibilityResult versionCompatibilityResult =
-                    remote.resolvedDescriptor().get().version().compareTo(
-                            localDescriptor.resolvedDescriptor().get().version());
+                    remote.resolvedDescriptor().version().compareTo(
+                            localDescriptor.resolvedDescriptor().version());
 
             if (versionCompatibilityResult.equals(SemanticVersion.VersionCompatibilityResult.GREATER_THAN)) {
                 mergedResults.add(remote);
