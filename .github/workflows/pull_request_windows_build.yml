@@ -9,7 +9,6 @@ on:
       - stage
       - ballerina-[0-9]+.[0-9]+.x
       - stage-slbeta2
-      - project_api
 
 jobs:
   windows_build:
