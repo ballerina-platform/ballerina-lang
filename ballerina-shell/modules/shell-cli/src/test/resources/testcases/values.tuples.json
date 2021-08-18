@@ -2,7 +2,7 @@
   {
     "description": "Defines the type of `a` as a pair.",
     "code": "[int, string] a = [10, \"John\"]; a",
-    "expr": "10 \"John\""
+    "expr": "[10,\"John\"]"
   },
   {
     "description": "This function returns a tuple of two integers.",
@@ -20,7 +20,7 @@
   {
     "description": "Invokes a function that returns a tuple.",
     "code": "[int, int] returnValue = divideBy10(9); returnValue",
-    "expr": "0 9"
+    "expr": "[0,9]"
   },
   {
     "description": "To ignore a value in a tuple, use `_`.",

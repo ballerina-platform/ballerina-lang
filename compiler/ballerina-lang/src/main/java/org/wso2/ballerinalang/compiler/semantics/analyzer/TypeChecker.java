@@ -388,6 +388,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return resultType;
     }
 
+    private void analyzeObjectConstructor(BLangNode node, SymbolEnv env) {
+        if (!nonErrorLoggingCheck) {
+            semanticAnalyzer.analyzeNode(node, env);
+        }
+    }
+
     private void validateAndSetExprExpectedType(BLangExpression expr) {
         if (resultType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
@@ -3285,7 +3291,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
                                                           true);
                     } else {
-                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                        analyzeObjectConstructor(classDefForConstructor, pkgEnv);
                     }
 
                     markConstructedObjectIsolatedness(actualObjectType);
@@ -5034,6 +5040,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType) {
         final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
+            validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
             return BUnionType.create(null, tableType, symTable.errorType);
@@ -5041,6 +5048,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return tableType;
     }
 
+    private void validateKeySpecifier(List<IdentifierNode> fieldList, BType constraintType) {
+        for (IdentifierNode identifier : fieldList) {
+            BField field = types.getTableConstraintField(constraintType, identifier.getValue());
+            if (field == null) {
+                dlog.error(identifier.getPosition(), DiagnosticErrorCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER,
+                        identifier.getValue(), constraintType);
+            }
+        }
+    }
 
     private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
@@ -8246,7 +8262,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
             if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
-                semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+                analyzeObjectConstructor(classDefForConstructor, env);
                 hasNeverReadOnlyField = true;
 
                 if (!logErrors) {
@@ -8270,7 +8286,7 @@ public class TypeChecker extends BLangNodeVisitor {
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
                                                   anonymousModelHelper, symTable, names, cIExpr.pos);
 
-        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+        analyzeObjectConstructor(classDefForConstructor, env);
     }
 
     private void markConstructedObjectIsolatedness(BObjectType actualObjectType) {

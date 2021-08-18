@@ -22,9 +22,9 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class ExecuteCommandContextImpl extends AbstractWorkspaceServiceContext i
     }
 
     @Override
-    public LanguageClient getLanguageClient() {
+    public ExtendedLanguageClient getLanguageClient() {
         return this.languageServer.getClient();
     }
 

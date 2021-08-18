@@ -411,18 +411,6 @@ public class TypeChecker {
     }
 
     /**
-     * Reference equality check for float values.
-     *
-     * @param lhsValue The value on the left-hand side
-     * @param rhsValue The value of the right-hand side
-     * @return True if values are reference equal, else false.
-     */
-
-    public static boolean checkFloatExactEqual(double lhsValue, double rhsValue) {
-        return Double.valueOf(lhsValue).equals(rhsValue);
-    }
-
-    /**
      * Check if two decimal values are equal in value.
      *
      * @param lhsValue The value on the left hand side
@@ -432,6 +420,19 @@ public class TypeChecker {
     public static boolean checkDecimalEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
         return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0;
+    }
+
+    /**
+     * Check if two decimal values are exactly equal.
+     *
+     * @param lhsValue The value on the left-hand side
+     * @param rhsValue The value of the right-hand side
+     * @return True if values are exactly equal, else false.
+     */
+
+    public static boolean checkDecimalExactEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
+        return isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue)
+                && lhsValue.decimalValue().equals(rhsValue.decimalValue());
     }
 
     /**
@@ -617,7 +618,8 @@ public class TypeChecker {
         }
 
         if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG &&
-                (targetTypeTag <= TypeTags.NULL_TAG || targetTypeTag == TypeTags.XML_TEXT_TAG)) {
+                (targetTypeTag == TypeTags.FINITE_TYPE_TAG || targetTypeTag <= TypeTags.NULL_TAG ||
+                        targetTypeTag == TypeTags.XML_TEXT_TAG)) {
             return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
         }
 
@@ -1755,12 +1757,12 @@ public class TypeChecker {
             return false;
         }
 
-        if (source.getParameterTypes().length != target.getParameterTypes().length) {
+        if (source.getParameters().length != target.getParameters().length) {
             return false;
         }
 
-        for (int i = 0; i < source.getParameterTypes().length; i++) {
-            if (!checkIsType(target.getParameterTypes()[i], source.getParameterTypes()[i], unresolvedTypes)) {
+        for (int i = 0; i < source.getParameters().length; i++) {
+            if (!checkIsType(target.getParameters()[i].type, source.getParameters()[i].type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -1788,12 +1790,12 @@ public class TypeChecker {
             return true;
         }
 
-        if (source.paramTypes.length != targetType.paramTypes.length) {
+        if (source.parameters.length != targetType.parameters.length) {
             return false;
         }
 
-        for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!checkIsType(targetType.paramTypes[i], source.paramTypes[i], new ArrayList<>())) {
+        for (int i = 0; i < source.parameters.length; i++) {
+            if (!checkIsType(targetType.parameters[i].type, source.parameters[i].type, new ArrayList<>())) {
                 return false;
             }
         }
@@ -3168,7 +3170,7 @@ public class TypeChecker {
             }
             FunctionType initFuncType = generatedInitializer.getType();
             // Todo: check defaultable params of the init func as well
-            boolean noParams = initFuncType.getParameterTypes().length == 0;
+            boolean noParams = initFuncType.getParameters().length == 0;
             boolean nilReturn = initFuncType.getReturnType().getTag() == TypeTags.NULL_TAG;
             return noParams && nilReturn;
         }

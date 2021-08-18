@@ -17,6 +17,7 @@
 */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -25,6 +26,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -390,20 +392,40 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public String stringValue(BLink parent) {
-        StringJoiner sj = new StringJoiner(" ");
+        StringJoiner sj = new StringJoiner(",");
         for (int i = 0; i < this.size; i++) {
-            sj.add(StringUtils.getStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
+            Object value = this.refValues[i];
+            Type type = TypeChecker.getType(value);
+            CycleUtils.Node parentNode = new CycleUtils.Node(this, parent);
+            switch (type.getTag()) {
+                case TypeTags.STRING_TAG:
+                case TypeTags.XML_TAG:
+                case TypeTags.XML_ELEMENT_TAG:
+                case TypeTags.XML_ATTRIBUTES_TAG:
+                case TypeTags.XML_COMMENT_TAG:
+                case TypeTags.XML_PI_TAG:
+                case TypeTags.XMLNS_TAG:
+                case TypeTags.XML_TEXT_TAG:
+                    sj.add(((BValue) value).informalStringValue(parentNode));
+                    break;
+                case TypeTags.NULL_TAG:
+                    sj.add("null");
+                    break;
+                default:
+                    sj.add(StringUtils.getStringValue(value, new CycleUtils.Node(this, parentNode)));
+                    break;
+            }
         }
-        return sj.toString();
+        return "[" + sj + "]";
     }
 
     @Override
     public String expressionStringValue(BLink parent) {
-        StringJoiner sj = new StringJoiner(" ");
+        StringJoiner sj = new StringJoiner(",");
         for (int i = 0; i < this.size; i++) {
             sj.add(StringUtils.getExpressionStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
         }
-        return sj.toString();
+        return "[" + sj + "]";
     }
 
     @Override
