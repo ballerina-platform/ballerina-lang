@@ -948,32 +948,34 @@ public class TypedescriptorTest {
 
             SymbolInfo that = (SymbolInfo) obj;
 
-            if (line != that.line) {
-                return false;
-            }
-            if (column != that.column) {
-                return false;
-            }
-            if (!srcFile.equals(that.srcFile)) {
-                return false;
-            }
-            if (symbolKind != that.symbolKind) {
-                return false;
-            }
-            if (!name.equals(that.name)) {
-                return false;
-            }
-            return moduleOwner.equals(that.moduleOwner);
+            return line == that.line &&
+                   column == that.column &&
+                   srcFile.equals(that.srcFile) &&
+                   symbolKind == that.symbolKind &&
+                   name.equals(that.name) &&
+                   moduleOwner.equals(that.moduleOwner);
         }
 
         @Override
         public int hashCode() {
             return Objects.hash(this.line,
                                 this.column,
-                                this.srcFile.hashCode(),
-                                this.symbolKind.hashCode(),
+                                this.srcFile,
+                                this.symbolKind,
                                 this.name,
                                 this.moduleOwner);
+        }
+
+        @Override
+        public String toString() {
+            return "SymbolInfo{" +
+                    "location=" + srcFile +
+                    " (" + line +
+                    "," + column +
+                    "), symbolKind=" + symbolKind +
+                    ", name='" + name + '\'' +
+                    ", moduleOwner='" + moduleOwner + '\'' +
+                    '}';
         }
     }
 
