@@ -56,7 +56,7 @@ public class JvmObjectGen {
 
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
-    private static final int MAX_CALLS_PER_CLIENT_METHOD = 3;
+    private static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
 
     public void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
                                   JvmCastGen jvmCastGen) {

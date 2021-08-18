@@ -175,7 +175,7 @@ public class JvmCreateTypeGen {
     private final JvmTypeGen jvmTypeGen;
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     private final TypeHashVisitor typeHashVisitor;
-    private static final int MAX_TYPES_PER_METHOD = 2;
+    private static final int MAX_TYPES_PER_METHOD = 100;
     private final String typesClass;
     private final String anonTypesClass;
     private final String recordsClass;
