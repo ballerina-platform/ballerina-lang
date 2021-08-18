@@ -25,7 +25,6 @@ import java.util.Objects;
  * @since 2.0.0
  */
 class CompilationOptions {
-    private Boolean skipTests;
     private Boolean offlineBuild;
     private Boolean experimental;
     private Boolean observabilityIncluded;
@@ -35,10 +34,9 @@ class CompilationOptions {
     private Boolean listConflictedClasses;
     private Boolean sticky;
 
-    public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
+    public CompilationOptions(Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
                               String cloud, Boolean listConflictedClasses, Boolean sticky) {
-        this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -47,10 +45,6 @@ class CompilationOptions {
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
         this.sticky = sticky;
-    }
-
-    boolean skipTests() {
-        return toBooleanDefaultIfNull(skipTests);
     }
 
     boolean offlineBuild() {
@@ -92,9 +86,6 @@ class CompilationOptions {
      * @return a new {@code CompilationOptions} instance that contains our options and their options
      */
     CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
-
-        this.skipTests = Objects.requireNonNullElseGet(
-                theirOptions.skipTests, () -> toBooleanDefaultIfNull(this.skipTests));
         this.offlineBuild = Objects.requireNonNullElseGet(
                 theirOptions.offlineBuild, () -> toBooleanDefaultIfNull(this.offlineBuild));
         this.experimental = Objects.requireNonNullElseGet(

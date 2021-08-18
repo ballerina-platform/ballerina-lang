@@ -25,7 +25,6 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 class CompilationOptionsBuilder {
-    private Boolean skipTests;
     private Boolean buildOffline;
     private Boolean experimental;
     private Boolean observabilityIncluded;
@@ -36,11 +35,6 @@ class CompilationOptionsBuilder {
     private Boolean sticky;
 
     public CompilationOptionsBuilder() {
-    }
-
-    public CompilationOptionsBuilder skipTests(Boolean value) {
-        skipTests = value;
-        return this;
     }
 
     public CompilationOptionsBuilder buildOffline(Boolean value) {
@@ -79,7 +73,7 @@ class CompilationOptionsBuilder {
     }
 
     public CompilationOptions build() {
-        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
+        return new CompilationOptions(buildOffline, experimental, observabilityIncluded, dumpBir,
                 dumpBirFile, cloud, listConflictedClasses, sticky);
     }
 
