@@ -339,8 +339,8 @@ public class TernaryExpressionTest {
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'int'", 6, 29);
         BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'boolean', found 'int'", 7, 13);
         BAssertUtil.validateError(compileResult, 2, "incompatible types: expected 'string', found 'boolean'", 13, 30);
-        BAssertUtil.validateError(compileResult, 3, "incompatible types: expected 'int', found 'string'", 21, 23);
-        BAssertUtil.validateError(compileResult, 4, "incompatible types: expected 'byte', found 'int'", 24, 24);
+        BAssertUtil.validateError(compileResult, 3, "incompatible types: expected 'int', found 'string'", 21, 26);
+        BAssertUtil.validateError(compileResult, 4, "incompatible types: expected 'byte', found 'int'", 24, 27);
     }
 
     @Test

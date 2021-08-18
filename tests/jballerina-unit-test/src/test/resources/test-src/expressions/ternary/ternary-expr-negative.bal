@@ -15,11 +15,11 @@ function test1 (int value) {
 
 function test2() {
     int[] a = [];
-    boolean True = true;
-    boolean False = false;
+    boolean trueVal = true;
+    boolean falseVal = false;
 
-    a.push(True ? 1 : "");
+    a.push(trueVal ? 1 : "");
 
     byte[] b = [];
-    b.push(False ? 0 : 256);
+    b.push(falseVal ? 0 : 256);
 }
