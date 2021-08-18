@@ -691,7 +691,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
 
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_ELEMENT);
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(this.type);
         }
 
         return iteratorNextReturnType;

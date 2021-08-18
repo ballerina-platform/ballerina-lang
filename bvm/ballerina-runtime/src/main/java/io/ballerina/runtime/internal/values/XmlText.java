@@ -129,7 +129,7 @@ public class XmlText extends XmlNonElementItem {
 
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_TEXT);
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(this.type);
         }
 
         return iteratorNextReturnType;

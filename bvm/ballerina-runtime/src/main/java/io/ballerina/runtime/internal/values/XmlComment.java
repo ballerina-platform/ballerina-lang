@@ -129,7 +129,7 @@ public class XmlComment extends XmlNonElementItem {
 
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_COMMENT);
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(this.type);
         }
 
         return iteratorNextReturnType;
