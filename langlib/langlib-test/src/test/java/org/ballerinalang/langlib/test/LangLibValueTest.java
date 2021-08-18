@@ -454,7 +454,8 @@ public class LangLibValueTest {
                 { "testToJsonWithMapInt" },
                 { "testToJsonWithStringArray" },
                 { "testToJsonWithIntArray" },
-                { "testToJsonWithTable" }
+                { "testToJsonWithTable" },
+                { "testToJsonWithCyclicParameter" }
         };
     }
 

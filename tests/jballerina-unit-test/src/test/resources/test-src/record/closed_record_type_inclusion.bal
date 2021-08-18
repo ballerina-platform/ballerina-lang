@@ -275,6 +275,22 @@ function testRestTypeOverriding() {
      assertEquality(4, barRecord.body.id);
  }
 
+type UnaryExprOp "-"|"~"|"!";
+
+type UnaryExpr record {|
+    UnaryExprOp op;
+|};
+
+type SimpleConstNegateExpr record {|
+    *UnaryExpr;
+    "-" op = "-";
+|};
+
+function testTypeInclusionWithFiniteField() {
+    SimpleConstNegateExpr expr = {};
+    assertEquality(true, expr is UnaryExpr);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

@@ -89,7 +89,6 @@ public class PackageUtils {
         return Optional.empty();
     }
 
-
     /**
      * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
      * editor instance in the client(plugin) side.
@@ -181,7 +180,7 @@ public class PackageUtils {
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(context.getPackageOrg().get())
                 .add(context.getModuleName().get())
-                .add(context.getPackageVersion().get().replace(".", "_"))
+                .add(context.getPackageMajorVersion().get())
                 .add(className);
         return classNameJoiner.toString();
     }
@@ -208,10 +207,13 @@ public class PackageUtils {
         Module module = project.currentPackage().module(documentId.moduleId());
         Document document = module.document(documentId);
 
+        // Need to use only the major version of the packages/modules, as qualified class names of the generated
+        // ballerina classes includes only the major version.
+        int packageMajorVersion = document.module().packageInstance().packageVersion().value().major();
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(document.module().packageInstance().packageOrg().value())
                 .add(encodeModuleName(document.module().moduleName().toString()))
-                .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
+                .add(String.valueOf(packageMajorVersion))
                 .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
 
         return classNameJoiner.toString();

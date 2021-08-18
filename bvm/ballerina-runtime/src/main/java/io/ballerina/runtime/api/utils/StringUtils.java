@@ -203,7 +203,7 @@ public class StringUtils {
             BObject objectValue = (BObject) value;
             ObjectType objectType = objectValue.getType();
             for (MethodType func : objectType.getMethods()) {
-                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
@@ -274,7 +274,7 @@ public class StringUtils {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             ObjectType objectType = objectValue.getType();
             for (MethodType func : objectType.getMethods()) {
-                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }

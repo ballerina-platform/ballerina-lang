@@ -141,7 +141,7 @@ public abstract class BalaWriter {
                                                   this.packageContext.packageName().toString(),
                                                   this.packageContext.packageVersion().toString());
 
-        PackageManifest packageManifest = this.packageContext.manifest();
+        PackageManifest packageManifest = this.packageContext.packageManifest();
         packageJson.setLicenses(packageManifest.license());
         packageJson.setAuthors(packageManifest.authors());
         packageJson.setSourceRepository(packageManifest.repository());

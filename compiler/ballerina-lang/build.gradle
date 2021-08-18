@@ -60,6 +60,7 @@ processResources {
     include 'ballerina-toml-schema.json'
     include 'compiler.properties'
     include 'dependencies-toml-schema.json'
+    include 'old-dependencies-toml-schema.json'
     include 'settings-toml-schema.json'
     filter { String line -> line.replace('${project.version}', "${project.version}")}
     filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}

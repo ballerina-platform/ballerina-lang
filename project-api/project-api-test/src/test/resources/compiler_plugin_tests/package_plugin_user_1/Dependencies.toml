@@ -1,4 +1,4 @@
-[[dependency]]
+[[package]]
 org = "samjs"
 name = "package_comp_plugin_1"
 version = "0.1.0"

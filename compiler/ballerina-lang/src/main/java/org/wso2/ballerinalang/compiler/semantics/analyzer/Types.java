@@ -3624,8 +3624,7 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-
-        if (!isPureType(lhsType) || !isPureType(rhsType)) {
+        if (!isAnydata(lhsType) && !isAnydata(rhsType)) {
             return false;
         }
 

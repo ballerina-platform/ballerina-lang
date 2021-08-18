@@ -6,8 +6,8 @@ function foo () {
         var , [^] => {}
         () => {}
         var {a:b, c d e f g} => {}
-        var qqweghfkd {a:b, c d e f g}  => {}
-        var qqweghfkd {v:b, c d e f g}   {}
+        var {a:b, c d e f g}  => {}
+        var {v:b, c d e f g}   {}
         "east" => {}
         "west"  if getX() | getY() => {}
     }

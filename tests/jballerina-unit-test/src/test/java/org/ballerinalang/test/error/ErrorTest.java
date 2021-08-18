@@ -335,7 +335,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:128)\n\t" +
+                "at ballerina.lang.array.1:slice(array.bal:128)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:339)");
     }
 
@@ -405,14 +405,10 @@ public class ErrorTest {
                 "cause: error2\n" +
                 "\tat error_test:baz(error_test.bal:479)\n" +
                 "\t   error_test:x(error_test.bal:475)\n" +
-                "\t   error_test:foo(error_test.bal:470)\n" +
-                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "\t   ... 2 more\n" +
                 "cause: error3\n" +
                 "\tat error_test:foobar(error_test.bal:484)\n" +
-                "\t   error_test:baz(error_test.bal:479)\n" +
-                "\t   error_test:x(error_test.bal:475)\n" +
-                "\t   error_test:foo(error_test.bal:470)\n" +
-                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)");
+                "\t   ... 4 more");
     }
 
     @AfterClass

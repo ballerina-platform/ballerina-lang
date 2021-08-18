@@ -1,4 +1,4 @@
-function testFunction1(int testParam1, int testParam2 = ) 
+function testFunction1(int testParam1, int testParam2 = )
 
 function testFunction() {
 }

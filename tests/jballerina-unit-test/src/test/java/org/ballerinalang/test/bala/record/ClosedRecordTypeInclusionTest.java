@@ -185,7 +185,7 @@ public class ClosedRecordTypeInclusionTest {
     }
 
     @Test(dataProvider = "FunctionList")
-    public void testSimpleSyncSendFunctions(String funcName) {
+    public void testSimpleFunctions(String funcName) {
         BRunUtil.invoke(compileResult, funcName);
     }
 
@@ -194,6 +194,7 @@ public class ClosedRecordTypeInclusionTest {
         return new Object[]{
                 "testRestTypeOverriding",
                 "testOutOfOrderFieldOverridingFieldFromTypeInclusion",
+                "testTypeInclusionWithFiniteField",
         };
     }
 

@@ -1,13 +1,13 @@
 public isolated service class testClass {
-    public 
+    public
 }
 
 var a = object {
-    public 
+    public
 };
 
 type obj object {
-    public 
+    public
 };
 
 function foo() returns int {

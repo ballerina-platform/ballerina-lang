@@ -248,6 +248,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -3628,6 +3629,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorType) {
+        BLangType detailType = errorType.detailType;
+        if (detailType != null && detailType.getKind() == NodeKind.CONSTRAINED_TYPE) {
+            BLangType constraint = ((BLangConstrainedType) detailType).constraint;
+            if (constraint.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                BLangUserDefinedType userDefinedType = (BLangUserDefinedType) constraint;
+                if (userDefinedType.typeName.value.equals(TypeDefBuilderHelper.INTERSECTED_ERROR_DETAIL)) {
+                    // skip this as this is special case added to support error intersection where detail
+                    // type is a map.
+                    return;
+                }
+            }
+        }
+
         analyzeTypeNode(errorType.detailType, env);
     }
 
