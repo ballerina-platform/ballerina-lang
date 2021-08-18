@@ -23,6 +23,7 @@ import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
+import io.ballerina.projects.CompilationOptionsBuilder;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
@@ -845,7 +846,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(ballerinaToml.entries().size(), 1);
 
         TomlTableNode dependenciesToml = currentPackage.dependenciesToml().get().tomlAstNode();
-        Assert.assertEquals(dependenciesToml.entries().size(), 1);
+        Assert.assertEquals(dependenciesToml.entries().size(), 2);
 
         TomlTableNode cloudToml = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(cloudToml.entries().size(), 1);
@@ -887,8 +888,8 @@ public class TestBuildProject extends BaseTest {
         Package newPackage = newBallerinaToml.packageInstance();
 
         PackageCompilation newPackageCompilation = newPackage.getCompilation();
-        // the 3 test diagnostics should be removed since test sources are not expected to compile
-        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 0);
+        // the 3 test diagnostics should be included since test sources are still compiled
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 2);
 
         // 2) Check editing file - change package metadata
         newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
@@ -910,7 +911,7 @@ public class TestBuildProject extends BaseTest {
         newPackageCompilation = newPackage.getCompilation();
         // imports within the package should not be resolved since the package name has changed
         // the original 3 test diagnostics should also be present
-        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 9);
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 11);
     }
 
     @Test(description = "test editing Ballerina.toml")
@@ -918,7 +919,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = BuildProject.load(projectPath, new BuildOptionsBuilder().sticky(true).build());
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -933,12 +934,14 @@ public class TestBuildProject extends BaseTest {
 
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
-                        "[[dependency]]\n" +
+                        "[ballerina]\n" +
+                        "dependencies-toml-version = \"2\"\n\n" +
+                        "[[package]]\n" +
                         "org = \"foo\"\n" +
                         "name = \"package_dep\"\n" +
                         "version = \"0.1.1\"\n").apply();
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
-        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 1);
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("package")).children().size(), 1);
 
         PackageCompilation newCompilation = project.currentPackage().getCompilation();
         ResolvedPackageDependency packageDepNew =
@@ -951,7 +954,9 @@ public class TestBuildProject extends BaseTest {
         // Set the old version again
         project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
-                "[[dependency]]\n" +
+                "[ballerina]\n" +
+                "dependencies-toml-version = \"2\"\n\n" +
+                "[[package]]\n" +
                 "org = \"foo\"\n" +
                 "name = \"package_dep\"\n" +
                 "version = \"0.1.0\"\n").apply();
@@ -973,16 +978,16 @@ public class TestBuildProject extends BaseTest {
         // 2) Check editing files
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
-                "[[dependency]]\n" +
+                "[[package]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_k\"\n" +
                 "version = \"1.1.0-alpha\"\n" +
-                "[[dependency]]\n" +
+                "[[package]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_p\"\n" +
                 "version = \"1.1.0-alpha\"").apply();
         TomlTableNode dependenciesToml = newDependenciesToml.tomlAstNode();
-        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("dependency")).children().size(), 2);
+        Assert.assertEquals(((TomlTableArrayNode) dependenciesToml.entries().get("package")).children().size(), 2);
 
         CloudToml newCloudToml = project.currentPackage().cloudToml().get().modify().withContent("" +
                 "[test]\n" +
@@ -1055,11 +1060,11 @@ public class TestBuildProject extends BaseTest {
 
         DocumentConfig dependenciesToml = DocumentConfig.from(
                 DocumentId.create(ProjectConstants.DEPENDENCIES_TOML, null),
-                        "[[dependency]]\n" +
+                        "[[package]]\n" +
                         "org = \"samjs\"\n" +
                         "name = \"package_k\"\n" +
                         "version = \"1.1.0-alpha\"\n" +
-                        "[[dependency]]\n" +
+                        "[[package]]\n" +
                         "org = \"samjs\"\n" +
                         "name = \"package_p\"\n" +
                         "version = \"1.1.0-alpha\"",
@@ -1069,7 +1074,7 @@ public class TestBuildProject extends BaseTest {
         currentPackage = currentPackage.modify().addDependenciesToml(dependenciesToml).apply();
         TomlTableNode dependenciesTomlTable = currentPackage.dependenciesToml().get().tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
-                .get("dependency")).children().size(), 2);
+                .get("package")).children().size(), 2);
 
         DocumentConfig cloudToml = DocumentConfig.from(
                 DocumentId.create(ProjectConstants.CLOUD_TOML, null),
@@ -1083,7 +1088,7 @@ public class TestBuildProject extends BaseTest {
         currentPackage = currentPackage.modify().addCloudToml(cloudToml).apply();
         TomlTableNode cloudTomlTable = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
-                .get("dependency")).children().size(), 2);
+                .get("package")).children().size(), 2);
 
         DocumentConfig compilerPluginToml = DocumentConfig.from(
                 DocumentId.create(ProjectConstants.COMPILER_PLUGIN_TOML, null),
@@ -1341,6 +1346,49 @@ public class TestBuildProject extends BaseTest {
         Project buildProject = ProjectLoader.loadProject(filePath);
         buildProject.documentId(filePath); // get the document ID
     }
+
+    @Test(description = "test passing compilation options to package compilation")
+    public void testPassCompilationOptionsToPackageCompilation() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            BuildOptions options = new BuildOptionsBuilder().experimental(true).build();
+            project = BuildProject.load(projectPath, options);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
+        }
+        project.currentPackage().getCompilation();
+        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
+
+        // 2) Pass compilations option 'offline' to the package compilation
+        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
+        compilationOptionsBuilder.buildOffline(true);
+        project.currentPackage().getCompilation(compilationOptionsBuilder.build());
+        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
+
+        // 3) Get compilation again and check compilation options
+        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get()
+                .modify().withContent("" +
+                                       "[package]\n" +
+                                       "org = \"sameera\"\n" +
+                                       "name = \"yourproject\"\n" +
+                                       "version = \"0.2.0\"\n").apply();
+        Package newPackage = newBallerinaToml.packageInstance();
+        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
+
+        project.currentPackage().getCompilation();
+        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
+
+        newPackage.getCompilation();
+        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
+    }
+
 
     @AfterClass (alwaysRun = true)
     public void reset() {
