@@ -20,7 +20,7 @@ function valueTypeWichAlwaysTrue() returns string {
         return "int";
     }
 
-    error:unreachable();
+    return "n/a";
 }
 
 function valueTypeWichAlwaysFalse() returns string {
@@ -38,7 +38,7 @@ function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
         return "float|int";
     }
 
-    error:unreachable();
+    return "n/a";
 }
 
 function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -56,7 +56,7 @@ function unionTypeAgainstUnionTypeWhichAlwaysTrue_1() returns string {
         return "int|string";
     }
 
-    error:unreachable();
+    return "n/a";
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
@@ -65,7 +65,7 @@ function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
         return "int|string|float";
     }
 
-    error:unreachable();
+    return "n/a";
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -98,7 +98,7 @@ function testSimpleRecordTypes() returns string {
     // if (a is C) {
     //
     // }
-    error:unreachable();
+    return "n/a";
 }
 
 type X record {
@@ -121,7 +121,7 @@ function testNestedRecordTypes() returns string {
         return "x is A";
     }
 
-    error:unreachable();
+    return "n/a";
 }
 
 function testArrays() {
@@ -178,7 +178,7 @@ function testSealedRecordTypes() returns string {
         return "a is A3";
     }
 
-    error:unreachable();
+    return "n/a";
 }
 
 function testRecordArrays() returns [boolean, boolean] {
