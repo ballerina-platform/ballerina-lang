@@ -34,8 +34,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunct
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JVMObjectGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -148,14 +148,14 @@ public class JvmValueGen {
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
     private final BType booleanType;
-    private final JVMObjectGen jvmObjectGen;
+    private final JvmObjectGen jvmObjectGen;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
-        this.jvmObjectGen = new JVMObjectGen();
+        this.jvmObjectGen = new JvmObjectGen();
     }
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,

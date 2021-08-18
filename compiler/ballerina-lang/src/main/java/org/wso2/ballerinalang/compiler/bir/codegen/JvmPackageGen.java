@@ -411,7 +411,7 @@ public class JvmPackageGen {
     }
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
-                                       String moduleInitClass, String moduleTypeClass,
+                                       String moduleInitClass, String typesClass,
                                        JvmBStringConstantsGen stringConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
@@ -453,7 +453,7 @@ public class JvmPackageGen {
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports, jvmCastGen);
 
                 generateLockForVariable(cw);
-                initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, moduleTypeClass);
+                initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
                 ModuleStopMethodGen moduleStopMethodGen = new ModuleStopMethodGen(symbolTable, jvmTypeGen);
                 moduleStopMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
                                                                 asyncDataCollector);
@@ -777,7 +777,7 @@ public class JvmPackageGen {
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
-        String moduleTypeClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
+        String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
 
         if (!isEntry || dlog.errorCount() > 0) {
@@ -817,7 +817,7 @@ public class JvmPackageGen {
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, moduleTypeClass, stringConstantsGen,
+        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, stringConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
         jvmCreateTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
         jvmCreateTypeGen.generateValueCreatorClasses(this, module, moduleInitClass, jarEntries, symbolTable);

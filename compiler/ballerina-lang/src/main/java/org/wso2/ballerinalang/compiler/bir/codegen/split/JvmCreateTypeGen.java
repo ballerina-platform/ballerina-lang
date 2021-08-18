@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -176,32 +176,32 @@ public class JvmCreateTypeGen {
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     private final TypeHashVisitor typeHashVisitor;
     private static final int MAX_TYPES_PER_METHOD = 2;
-    private final String moduleTypesClass;
-    private final String moduleAnonTypesClass;
-    private final String moduleRecordsClass;
-    private final String moduleObjectsClass;
-    private final String moduleErrorsClass;
+    private final String typesClass;
+    private final String anonTypesClass;
+    private final String recordsClass;
+    private final String objectsClass;
+    private final String errorsClass;
 
 
     public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, PackageID packageID) {
         this.jvmTypeGen = jvmTypeGen;
         typeHashVisitor = new TypeHashVisitor();
-        this.moduleTypesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
-        this.moduleAnonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
-        this.moduleRecordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
-        this.moduleObjectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
-        this.moduleErrorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CLASS_NAME);
+        this.typesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
+        this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
+        this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
+        this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
+        this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CLASS_NAME);
     }
 
     public void generateTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
                                   Map<String, byte[]> jarEntries,
                                   String moduleInitClass, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleTypesClass, null, OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, typesClass, null, OBJECT, null);
         generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(moduleTypesClass + ".class", bytes);
+        jarEntries.put(typesClass + ".class", bytes);
     }
 
     void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
@@ -214,11 +214,11 @@ public class JvmCreateTypeGen {
         mv.visitCode();
 
         // Invoke create-type-instances method
-        mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, CREATE_TYPE_INSTANCES_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD, "()V", false);
 
         // Invoke the populate-type functions
         for (String funcName : populateTypeFuncNames) {
-            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, funcName, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, typesClass, funcName, "()V", false);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -230,7 +230,7 @@ public class JvmCreateTypeGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD, "()V", null, null);
         mv.visitCode();
         for (int i = 0; i < instanceSplits; i++) {
-            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, CREATE_TYPE_INSTANCES_METHOD + i, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, typesClass, CREATE_TYPE_INSTANCES_METHOD + i, "()V", false);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -511,11 +511,11 @@ public class JvmCreateTypeGen {
     public void generateAnonTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
                                       String moduleInitClass, Map<String, byte[]> jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleAnonTypesClass, null, OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, anonTypesClass, null, OBJECT, null);
         generateGetAnonTypeMainMethod(cw, module.typeDefs, moduleInitClass);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(moduleAnonTypesClass + ".class", bytes);
+        jarEntries.put(anonTypesClass + ".class", bytes);
     }
 
     private void generateGetAnonTypeMainMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefinitions,
@@ -538,8 +538,8 @@ public class JvmCreateTypeGen {
         } else {
             mv.visitVarInsn(ILOAD, 0);
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitMethodInsn(INVOKESTATIC, moduleAnonTypesClass, GET_ANON_TYPE + 0,
-                    String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
+            mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE + 0,
+                               String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
             mv.visitInsn(ARETURN);
             generateGetAnonTypeSplitMethods(cw, anonTypeHashSwitch, moduleInitClass);
         }
@@ -590,8 +590,8 @@ public class JvmCreateTypeGen {
                     mv.visitLabel(defaultCaseLabel);
                     mv.visitVarInsn(ILOAD, hashParamRegIndex);
                     mv.visitVarInsn(ALOAD, shapeParamRegIndex);
-                    mv.visitMethodInsn(INVOKESTATIC, moduleAnonTypesClass, GET_ANON_TYPE + methodCount,
-                            String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
+                    mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE + methodCount,
+                                       String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
                     mv.visitInsn(ARETURN);
                 }
                 mv.visitMaxs(i + 10, i + 10);
@@ -681,14 +681,14 @@ public class JvmCreateTypeGen {
                                      String moduleInitClass, Map<String, byte[]> jarEntries,
                                      List<BIRTypeDefinition> recordTypeDefList) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleRecordsClass, null, OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, recordsClass, null, OBJECT, null);
         String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
-        generateStaticInitializer(module, cw, moduleRecordsClass, CREATE_RECORD_VALUE, metadataVarName);
-        generateCreateRecordMethods(cw, recordTypeDefList, module.packageID, moduleInitClass, moduleRecordsClass,
-                metadataVarName);
+        generateStaticInitializer(module, cw, recordsClass, CREATE_RECORD_VALUE, metadataVarName);
+        generateCreateRecordMethods(cw, recordTypeDefList, module.packageID, moduleInitClass, recordsClass,
+                                    metadataVarName);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(moduleRecordsClass + ".class", bytes);
+        jarEntries.put(recordsClass + ".class", bytes);
     }
 
     public void generateObjectsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
@@ -696,26 +696,26 @@ public class JvmCreateTypeGen {
                                      List<BIRTypeDefinition> objectTypeDefList,
                                      SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleObjectsClass, null, OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, objectsClass, null, OBJECT, null);
         String metadataVarName = JvmCodeGenUtil.getStrandMetadataVarName(CREATE_RECORD_VALUE);
-        generateStaticInitializer(module, cw, moduleObjectsClass, CREATE_OBJECT_VALUE, metadataVarName);
-        generateCreateObjectMethods(cw, objectTypeDefList, module.packageID, moduleInitClass, moduleObjectsClass,
-                symbolTable, metadataVarName);
+        generateStaticInitializer(module, cw, objectsClass, CREATE_OBJECT_VALUE, metadataVarName);
+        generateCreateObjectMethods(cw, objectTypeDefList, module.packageID, moduleInitClass, objectsClass,
+                                    symbolTable, metadataVarName);
 
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(moduleObjectsClass + ".class", bytes);
+        jarEntries.put(objectsClass + ".class", bytes);
     }
 
     public void generateErrorsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
                                     String moduleInitClass, Map<String, byte[]> jarEntries,
                                     List<BIRTypeDefinition> errorTypeDefList, SymbolTable symbolTable) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleErrorsClass, null, OBJECT, null);
-        generateCreateErrorMethods(cw, errorTypeDefList, moduleInitClass, moduleErrorsClass, symbolTable);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, errorsClass, null, OBJECT, null);
+        generateCreateErrorMethods(cw, errorTypeDefList, moduleInitClass, errorsClass, symbolTable);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(moduleErrorsClass + ".class", bytes);
+        jarEntries.put(errorsClass + ".class", bytes);
     }
 
     private void generateStaticInitializer(BIRNode.BIRPackage module, ClassWriter cw,
@@ -1453,8 +1453,8 @@ public class JvmCreateTypeGen {
         if (methodCount > 0) {
             mv.visitVarInsn(ASTORE, 0);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + 0, String.format("([L%s;)V",
-                    METHOD_TYPE_IMPL), false);
+            mv.visitMethodInsn(INVOKESTATIC, typesClass, methodName + 0, String.format("([L%s;)V",
+                                                                                       METHOD_TYPE_IMPL), false);
             mv.visitVarInsn(ALOAD, 0);
         }
         // Set the fields of the object
@@ -1500,8 +1500,8 @@ public class JvmCreateTypeGen {
             if (fTypeCount % MAX_TYPES_PER_METHOD == 0) {
                 if (fTypeCount != nonResourceFunctions.size()) {
                     mv.visitVarInsn(ALOAD, 0);
-                    mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + methodCount,
-                            String.format("([L%s;)V", METHOD_TYPE_IMPL), false);
+                    mv.visitMethodInsn(INVOKESTATIC, typesClass, methodName + methodCount,
+                                       String.format("([L%s;)V", METHOD_TYPE_IMPL), false);
                 }
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(fTypeCount + 10, fTypeCount + 10);
@@ -1553,8 +1553,8 @@ public class JvmCreateTypeGen {
         if (methodCount > 0) {
             mv.visitVarInsn(ASTORE, 0);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + 0, String.format("([L%s;)V",
-                    RESOURCE_METHOD_TYPE), false);
+            mv.visitMethodInsn(INVOKESTATIC, typesClass, methodName + 0, String.format("([L%s;)V",
+                                                                                       RESOURCE_METHOD_TYPE), false);
             mv.visitVarInsn(ALOAD, 0);
         }
 
@@ -1601,8 +1601,8 @@ public class JvmCreateTypeGen {
             if (resourcesCount % MAX_TYPES_PER_METHOD == 0) {
                 if (resourcesCount != resourceFunctions.size()) {
                     mv.visitVarInsn(ALOAD, 0);
-                    mv.visitMethodInsn(INVOKESTATIC, moduleTypesClass, methodName + methodCount,
-                            String.format("([L%s;)V", RESOURCE_METHOD_TYPE), false);
+                    mv.visitMethodInsn(INVOKESTATIC, typesClass, methodName + methodCount,
+                                       String.format("([L%s;)V", RESOURCE_METHOD_TYPE), false);
                 }
                 mv.visitInsn(RETURN);
                 mv.visitMaxs(resourcesCount + 10, resourcesCount + 10);

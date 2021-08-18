@@ -52,7 +52,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  *
  * @since 1.2.0
  */
-public class JVMObjectGen {
+public class JvmObjectGen {
 
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 

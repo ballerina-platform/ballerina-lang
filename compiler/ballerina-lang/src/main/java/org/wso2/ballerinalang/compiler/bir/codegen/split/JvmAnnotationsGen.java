@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -59,14 +59,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
  */
 public class JvmAnnotationsGen {
 
-    private final String moduleAnnotationsClass;
+    private final String annotationsClass;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
     private static final int MAX_ANNOTATIONS_PER_METHOD = 100;
     private final BIRNode.BIRPackage module;
 
     public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen) {
-        this.moduleAnnotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
+        this.annotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
         this.jvmPackageGen = jvmPackageGen;
         this.jvmTypeGen = jvmTypeGen;
         this.module = module;
@@ -74,11 +74,11 @@ public class JvmAnnotationsGen {
 
     public void generateAnnotationsClass(Map<String, byte[]> jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleAnnotationsClass, null, OBJECT, null);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, annotationsClass, null, OBJECT, null);
         generateProcessAnnotationsMethod(cw, module.typeDefs, module.packageID);
         cw.visitEnd();
         byte[] bytes = jvmPackageGen.getBytes(cw, module);
-        jarEntries.put(moduleAnnotationsClass + ".class", bytes);
+        jarEntries.put(annotationsClass + ".class", bytes);
     }
 
     private void generateProcessAnnotationsMethod(ClassWriter cw, List<BIRNode.BIRTypeDefinition> typeDefs,
@@ -87,7 +87,7 @@ public class JvmAnnotationsGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, ANNOTATIONS_METHOD_PREFIX, "()V", null, null);
         mv.visitCode();
         for (int i = 0; i < annotationsCount; i++) {
-            mv.visitMethodInsn(INVOKESTATIC, moduleAnnotationsClass, ANNOTATIONS_METHOD_PREFIX + i, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, annotationsClass, ANNOTATIONS_METHOD_PREFIX + i, "()V", false);
         }
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);

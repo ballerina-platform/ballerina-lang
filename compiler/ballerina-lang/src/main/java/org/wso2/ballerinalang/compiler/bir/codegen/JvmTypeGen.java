@@ -166,10 +166,10 @@ public class JvmTypeGen {
     private final JvmBStringConstantsGen stringConstantsGen;
     private final TypeHashVisitor typeHashVisitor;
     private final PackageID packageID;
-    private final String moduleAnonTypesClass;
-    private final String moduleRecordsClass;
-    private final String moduleObjectsClass;
-    private final String moduleErrorsClass;
+    private final String anonTypesClass;
+    private final String recordsClass;
+    private final String objectsClass;
+    private final String errorsClass;
 
     public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen, PackageID packageID) {
         this.stringConstantsGen = stringConstantsGen;
@@ -177,10 +177,10 @@ public class JvmTypeGen {
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         typeHashVisitor = new TypeHashVisitor();
-        this.moduleAnonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
-        this.moduleRecordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
-        this.moduleObjectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
-        this.moduleErrorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CLASS_NAME);
+        this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
+        this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
+        this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
+        this.errorsClass = getModuleLevelClassName(packageID, MODULE_ERRORS_CLASS_NAME);
     }
 
     /**
@@ -227,8 +227,8 @@ public class JvmTypeGen {
         mv.visitCode();
         mv.visitVarInsn(ILOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
-        mv.visitMethodInsn(INVOKESTATIC, moduleAnonTypesClass, GET_ANON_TYPE, String.format("(IL%s;)L%s;",
-                STRING_VALUE, TYPE), false);
+        mv.visitMethodInsn(INVOKESTATIC, anonTypesClass, GET_ANON_TYPE, String.format("(IL%s;)L%s;",
+                                                                                      STRING_VALUE, TYPE), false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -250,8 +250,8 @@ public class JvmTypeGen {
                 String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESTATIC, moduleRecordsClass, CREATE_RECORD_VALUE,
-                String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE), false);
+        mv.visitMethodInsn(INVOKESTATIC, recordsClass, CREATE_RECORD_VALUE,
+                           String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE), false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -267,8 +267,8 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 3);
         mv.visitVarInsn(ALOAD, 4);
         mv.visitVarInsn(ALOAD, 5);
-        mv.visitMethodInsn(INVOKESTATIC, moduleObjectsClass, CREATE_OBJECT_VALUE,
-                String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
+        mv.visitMethodInsn(INVOKESTATIC, objectsClass, CREATE_OBJECT_VALUE,
+                           String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;",
                         STRING_VALUE, SCHEDULER, STRAND_CLASS, MAP, OBJECT, B_OBJECT), false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
@@ -284,8 +284,9 @@ public class JvmTypeGen {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitVarInsn(ALOAD, 3);
         mv.visitVarInsn(ALOAD, 4);
-        mv.visitMethodInsn(INVOKESTATIC, moduleErrorsClass, CREATE_ERROR_VALUE,
-                String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR, OBJECT, BERROR), false);
+        mv.visitMethodInsn(INVOKESTATIC, errorsClass, CREATE_ERROR_VALUE,
+                           String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR,
+                                         OBJECT, BERROR), false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
