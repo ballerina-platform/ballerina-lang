@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.RenameContext;
+import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -266,6 +267,23 @@ public class ContextBuilder {
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCursorPosition(position)
+                .build();
+    }
+
+    /**
+     * Build the semantic tokens context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
+     * @param serverContext    language server context
+     * @return {@link SemanticTokensContext} generated semantic tokens context
+     */
+    public static SemanticTokensContext buildSemanticTokensContext(String uri,
+                                                                   WorkspaceManager workspaceManager,
+                                                                   LanguageServerContext serverContext) {
+        return new SemanticTokensContextImpl.SemanticTokensContextBuilder(serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
                 .build();
     }
 }

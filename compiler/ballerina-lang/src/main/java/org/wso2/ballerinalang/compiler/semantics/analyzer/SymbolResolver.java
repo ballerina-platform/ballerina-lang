@@ -1289,8 +1289,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                typeSymbol.name, typeSymbol.originalName, env.enclPkg.symbol.pkgID, tableType,
-                env.scope.owner, tableTypeNode.pos, SOURCE);
+                                                     typeSymbol.name, typeSymbol.originalName, typeSymbol.pkgID,
+                                                     tableType, env.scope.owner, tableTypeNode.pos, SOURCE);
         tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = tableTypeNode.constraint.pos;
         tableType.isTypeInlineDefined = tableTypeNode.isTypeInlineDefined;
@@ -1755,7 +1755,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             default:
                 return symTable.notFoundSymbol;
         }
-
 
         if (validEqualityIntersectionExists) {
             if ((!types.isValueType(lhsType) && !types.isValueType(rhsType)) ||

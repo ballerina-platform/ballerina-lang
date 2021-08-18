@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
@@ -36,6 +37,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisito
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -207,6 +209,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -466,7 +469,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(typeId.packageID.orgName.value);
         mv.visitLdcInsn(typeId.packageID.name.value);
-        mv.visitLdcInsn(typeId.packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(typeId.packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -845,7 +848,7 @@ public class JvmTypeGen {
 
         // Load type name
         String name = getFullName(recordType);
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package path
         // TODO: get it from the type
@@ -856,7 +859,7 @@ public class JvmTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -994,7 +997,7 @@ public class JvmTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1025,7 +1028,7 @@ public class JvmTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1059,7 +1062,7 @@ public class JvmTypeGen {
         PackageID packageID = tupleType.tsymbol.pkgID;
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1116,13 +1119,10 @@ public class JvmTypeGen {
      */
     private void addCyclicFlag(MethodVisitor mv, BType userDefinedType) {
         loadCyclicFlag(mv, userDefinedType);
-        switch (userDefinedType.tag) {
-            case TypeTags.TUPLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-                break;
-            case TypeTags.UNION:
-                mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-                break;
+        if (userDefinedType.tag == TypeTags.TUPLE) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
+        } else if (userDefinedType.tag == TypeTags.UNION) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
         }
     }
 
@@ -1198,7 +1198,7 @@ public class JvmTypeGen {
                                                    BObjectType objType, BIRVarToJVMIndexMap indexMap,
                                                    SymbolTable symbolTable) {
         // Create the attached function array
-        mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
+        mv.visitLdcInsn(attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, METHOD_TYPE_IMPL);
         int i = 0;
@@ -1351,16 +1351,23 @@ public class JvmTypeGen {
 
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
-
-        loadFunctionParameters(mv, attachedFunc.symbol.params);
-
         mv.visitMethodInsn(INVOKESPECIAL, REMOTE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;J[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
-                        FUNCTION_PARAMETER), false);
+                String.format("(L%s;L%s;L%s;J)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL), false);
 
     }
 
-    private void loadFunctionParameters(MethodVisitor mv, List<BVarSymbol> params) {
+    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
+
+        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+        List<BVarSymbol> params =  new ArrayList<>();
+        if (invokableSymbol == null) {
+            if (!invokableType.paramTypes.isEmpty()) {
+                loadFunctionPointerParameters(mv, invokableType);
+                return;
+            }
+        } else {
+            params = invokableSymbol.params;
+        }
         mv.visitLdcInsn((long) params.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
@@ -1375,8 +1382,31 @@ public class JvmTypeGen {
             mv.visitLdcInsn(paramSymbol.isDefaultable);
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
                     false);
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;)V",
-                    STRING_VALUE, BOOLEAN_VALUE), false);
+            loadType(mv, paramSymbol.type);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
+                    STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
+            mv.visitInsn(AASTORE);
+        }
+    }
+
+    private void loadFunctionPointerParameters(MethodVisitor mv, BInvokableType invokableType) {
+        List<BType> paramTypes = invokableType.paramTypes;
+        mv.visitLdcInsn((long) paramTypes.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
+        for (int i = 0; i < paramTypes.size(); i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn("");
+            mv.visitLdcInsn(false);
+            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
+                    false);
+            loadType(mv, paramTypes.get(i));
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
+                    STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
             mv.visitInsn(AASTORE);
         }
     }
@@ -1419,12 +1449,9 @@ public class JvmTypeGen {
 
             mv.visitInsn(AASTORE);
         }
-
-        loadFunctionParameters(mv, resourceFunction.symbol.params);
-
         mv.visitMethodInsn(INVOKESPECIAL, RESOURCE_METHOD_TYPE_IMPL, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;JL%s;[L%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
-                        STRING_VALUE, STRING_VALUE, FUNCTION_PARAMETER), false);
+                String.format("(L%s;L%s;L%s;JL%s;[L%s;)V", STRING_VALUE, OBJECT_TYPE_IMPL, FUNCTION_TYPE_IMPL,
+                        STRING_VALUE, STRING_VALUE), false);
     }
 
     // -------------------------------------------------------
@@ -1444,7 +1471,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load error type name
-        mv.visitLdcInsn(name);
+        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package
         mv.visitTypeInsn(NEW, MODULE);
@@ -1452,7 +1479,7 @@ public class JvmTypeGen {
         PackageID packageID = errorType.tsymbol.pkgID;
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -1883,7 +1910,7 @@ public class JvmTypeGen {
 
                 mv.visitLdcInsn(packageID.orgName.value);
                 mv.visitLdcInsn(packageID.name.value);
-                mv.visitLdcInsn(packageID.version.value);
+                mv.visitLdcInsn(getMajorVersion(packageID.version.value));
                 mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                         String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
             }
@@ -1907,9 +1934,9 @@ public class JvmTypeGen {
 
     private boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {
         if ((unionType.tsymbol != null) && (unionType.tsymbol.name != null)) {
-            mv.visitLdcInsn(unionType.tsymbol.name.getValue());
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.tsymbol.name.getValue()));
         } else if (unionType.name != null) {
-            mv.visitLdcInsn(unionType.name.getValue());
+            mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.name.getValue()));
         } else {
             return false;
         }
@@ -1917,13 +1944,10 @@ public class JvmTypeGen {
     }
 
     private void loadCyclicFlag(MethodVisitor mv, BType valueType) {
-        switch (valueType.tag) {
-            case TypeTags.UNION:
-                mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
-            case TypeTags.TUPLE:
-                mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
+        if (valueType.tag == TypeTags.UNION) {
+            mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+        } else if (valueType.tag == TypeTags.TUPLE) {
+            mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
         }
     }
 
@@ -1977,7 +2001,7 @@ public class JvmTypeGen {
 
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(packageID.version.value);
+        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
         mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
@@ -2136,23 +2160,7 @@ public class JvmTypeGen {
             return;
         }
 
-        // Create param types array
-        mv.visitLdcInsn((long) bType.paramTypes.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, TYPE);
-        int i = 0;
-        for (BType paramType : bType.paramTypes) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-
-            // load param type
-            loadType(mv, paramType);
-
-            // Add the member to the array
-            mv.visitInsn(AASTORE);
-            i += 1;
-        }
+        loadFunctionParameters(mv, bType);
 
         BType restType = bType.restType;
         if (restType == null) {
@@ -2168,7 +2176,7 @@ public class JvmTypeGen {
 
         // initialize the function type using the param types array and the return type
         mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("([L%s;L%s;L%s;J)V", TYPE, TYPE, TYPE), false);
+                           String.format("([L%s;L%s;L%s;J)V", FUNCTION_PARAMETER, TYPE, TYPE), false);
     }
 
     private void loadParameterizedType(MethodVisitor mv, BParameterizedType bType) {
@@ -2244,7 +2252,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        String name = toNameString(finiteType);
+        String name = IdentifierUtils.decodeIdentifier(toNameString(finiteType));
         mv.visitLdcInsn(name);
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
