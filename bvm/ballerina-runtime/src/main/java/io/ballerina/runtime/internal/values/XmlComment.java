@@ -18,8 +18,10 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.internal.IteratorUtils;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMCommentImpl;
 
@@ -123,5 +125,13 @@ public class XmlComment extends XmlNonElementItem {
     @Override
     public boolean equals(Object obj) {
         return this == obj;
+    }
+
+    public Type getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_COMMENT);
+        }
+
+        return iteratorNextReturnType;
     }
 }

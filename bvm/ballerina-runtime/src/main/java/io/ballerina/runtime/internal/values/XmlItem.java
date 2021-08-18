@@ -18,6 +18,7 @@ package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
@@ -27,6 +28,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
+import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.XmlValidator;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
@@ -685,5 +687,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             item.setAttributeOnInitialization(XMLConstants.XMLNS_ATTRIBUTE, null, null, defaultNsUri);
         }
         return item;
+    }
+
+    public Type getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_ELEMENT);
+        }
+
+        return iteratorNextReturnType;
     }
 }

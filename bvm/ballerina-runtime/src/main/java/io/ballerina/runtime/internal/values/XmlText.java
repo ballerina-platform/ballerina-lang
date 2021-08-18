@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.IteratorUtils;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
 
@@ -124,5 +125,13 @@ public class XmlText extends XmlNonElementItem {
     @Override
     public Type getType() {
         return this.type;
+    }
+
+    public Type getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_TEXT);
+        }
+
+        return iteratorNextReturnType;
     }
 }
