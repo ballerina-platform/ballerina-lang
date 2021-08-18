@@ -23,7 +23,6 @@ import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
-import io.ballerina.projects.CompilationOptions;
 import io.ballerina.projects.CompilationOptionsBuilder;
 import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
