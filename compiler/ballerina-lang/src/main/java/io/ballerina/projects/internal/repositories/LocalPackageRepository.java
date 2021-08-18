@@ -17,17 +17,24 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -45,6 +52,33 @@ public class LocalPackageRepository extends FileSystemRepository {
     public LocalPackageRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
         super(environment, cacheDirectory, distributionVersion);
     }
+
+    @Override
+    public List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests) {
+        List<ResolutionResponseDescriptor> descriptorSet = new ArrayList<>();
+        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
+            if (resolutionRequest.version().isEmpty()) {
+                // TODO proper diagnostic
+                throw new ProjectException("The version must be specified for packages in the local repository. " +
+                        "org: `" + resolutionRequest.orgName() + "` name: `" + resolutionRequest.packageName() + "`");
+            }
+            Path balaPath = getPackagePath(resolutionRequest.orgName().toString(),
+                    resolutionRequest.packageName().toString(), resolutionRequest.version().get().toString());
+
+            if (!Files.exists(balaPath)) {
+                descriptorSet.add(ResolutionResponseDescriptor.createUnresolvedResponse(resolutionRequest));
+                continue;
+            }
+
+            BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles.createPackageDependencyGraph(balaPath);
+            DependencyGraph<PackageDescriptor> dependencyGraph = packageDependencyGraph.packageDependencyGraph();
+            ResolutionResponseDescriptor responseDescriptor = ResolutionResponseDescriptor
+                    .from(resolutionRequest, resolutionRequest.packageDescriptor(), dependencyGraph);
+            descriptorSet.add(responseDescriptor);
+        }
+        return descriptorSet;
+    }
+
 
     public Optional<Collection<String>> getModuleNames(PackageOrg org, PackageName name, PackageVersion version) {
         Path balaPackagePath = getPackagePath(org.value(), name.value(), version.toString());
