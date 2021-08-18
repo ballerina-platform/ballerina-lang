@@ -25,7 +25,6 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,9 +52,6 @@ public class InitCommand implements BLauncherCmd {
 
     @CommandLine.Parameters
     private List<String> argList;
-
-    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib]")
-    private String template = "";
 
     public InitCommand() {
         this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -114,16 +110,6 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
-        // Check if the template exists
-        if (!template.equals("") && !CommandUtil.getTemplates().contains(template)) {
-            CommandUtil.printError(errStream,
-                    "template not found, use `bal init --help` to view available templates.",
-                    null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         String packageName = Optional.of(this.userDir.getFileName()).get().toString();
         if (argList != null && argList.size() > 0) {
             packageName = argList.get(0);
@@ -146,11 +132,7 @@ public class InitCommand implements BLauncherCmd {
         }
 
         try {
-            if (template.equals("")) {
-                CommandUtil.initPackage(userDir);
-            } else {
-                CommandUtil.initPackageByTemplate(userDir, packageName, template);
-            }
+            CommandUtil.initPackage(userDir);
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,
                     "error occurred while initializing project : " + " Access Denied : " + e.getMessage(),
@@ -158,7 +140,7 @@ public class InitCommand implements BLauncherCmd {
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             CommandUtil.printError(errStream,
                     "error occurred while initializing project : " + e.getMessage(),
                     null,
