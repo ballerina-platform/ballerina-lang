@@ -146,12 +146,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
         PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
-        ResolutionRequest resolutionRequest = ResolutionRequest
-                .from(packageDescriptor, PackageDependencyScope.DEFAULT, false);
 
         PackageResolver packageResolver = environment.getService(PackageResolver.class);
-        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-            Collections.singletonList(resolutionRequest));
+        List<ResolutionResponse> resolutionResponses = packageResolver.newResolvePackages(
+            Collections.singletonList(packageDescriptor), false);
         ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
 
         if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {

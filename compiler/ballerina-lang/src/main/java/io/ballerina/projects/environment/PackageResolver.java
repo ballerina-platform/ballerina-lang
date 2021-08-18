@@ -36,10 +36,13 @@ public interface PackageResolver {
 
     List<ResolutionResponseDescriptor> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests);
 
-    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
+//    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
 
-    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
+//    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
 
-    List<ResolutionResponse> newResolvePackages(
-            List<PackageDescriptor> responseDescriptors, boolean offline, Project project);
+    List<ResolutionResponse> newResolvePackages(List<PackageDescriptor> packageDescriptors,
+                                                boolean offline,
+                                                Project project);
+
+    List<ResolutionResponse> newResolvePackages(List<PackageDescriptor> packageDescriptors, boolean offline);
 }
