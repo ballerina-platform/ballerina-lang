@@ -291,18 +291,44 @@ public class ErrorValue extends BError implements RefValue {
         String errorMsg = getPrintableError();
         StringBuilder sb = new StringBuilder();
         sb.append(errorMsg);
-        // Append function/action/resource name with package path (if any)
-        StackTraceElement[] stackTrace = this.getStackTrace();
-        if (stackTrace.length == 0) {
-            return sb.toString();
+        addPrintableStackTrace(sb, this, new StackTraceElement[0]);
+        BError cause = this.getCause();
+        StackTraceElement[] enclosingTrace = this.getStackTrace();
+        while (cause != null) {
+            sb.append("\ncause: ")
+                    .append(cause.getMessage());
+            addPrintableStackTrace(sb, cause, enclosingTrace);
+            enclosingTrace = cause.getStackTrace();
+            cause = cause.getCause();
         }
+        return sb.toString();
+    }
+
+    private void addPrintableStackTrace(StringBuilder sb, BError error, StackTraceElement[] enclosingTrace) {
+        // Append function/action/resource name with package path (if any)
+        StackTraceElement[] stackTrace = error.getStackTrace();
+        if (stackTrace.length == 0) {
+            return;
+        }
+        int index = stackTrace.length - 1;
+        for (int n = enclosingTrace.length - 1; index >= 0 && n >= 0 &&
+                stackTrace[index].equals(enclosingTrace[n]); --n) {
+            --index;
+        }
+
         sb.append("\n\tat ");
         // print first element
         printStackElement(sb, stackTrace[0], "");
-        for (int i = 1; i < stackTrace.length; i++) {
+        for (int i = 1; i <= index; i++) {
             printStackElement(sb, stackTrace[i], "\n\t   ");
         }
-        return sb.toString();
+
+        int framesInCommon = stackTrace.length - 1 - index;
+        if (framesInCommon != 0) {
+            sb.append("\n\t   ... ")
+                    .append(framesInCommon)
+                    .append(" more");
+        }
     }
 
     @Override
@@ -347,9 +373,6 @@ public class ErrorValue extends BError implements RefValue {
         StringJoiner joiner = new StringJoiner(" ");
 
         joiner.add(this.message.getValue());
-        if (this.cause != null) {
-            joiner.add("cause: " + this.cause.getMessage());
-        }
         if (!isEmptyDetail()) {
             joiner.add(this.details.toString());
         }

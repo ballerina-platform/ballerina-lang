@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 /**
  * Test parsing map and future types.
  */
-
 public class ParameterizedTypeTest extends AbstractTypesTest {
 
     // Valid source test

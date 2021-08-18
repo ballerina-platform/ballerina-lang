@@ -251,6 +251,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -557,14 +558,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(funcNode.body, invokableEnv);
             this.defaultValueState = prevDefaultValueState;
 
-            boolean isNeverOrNilableReturn = funcNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
-                    funcNode.symbol.type.getReturnType().isNullable();
+            boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
+                    (funcNode.symbol.type.getReturnType());
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
-            if (!isNeverOrNilableReturn && !this.statementReturns) {
+            if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn && !this.statementReturns) {
                 Location closeBracePos = getEndCharPos(funcNode.pos);
                 this.dlog.error(closeBracePos, DiagnosticErrorCode.INVOKABLE_MUST_RETURN,
                         funcNode.getKind().toString().toLowerCase());
+            } else if (isNeverReturn && !this.statementReturns) {
+                this.dlog.error(funcNode.pos, DiagnosticErrorCode.THIS_FUNCTION_SHOULD_PANIC);
             }
         }
         this.returnTypes.pop();
@@ -2780,8 +2783,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangExpressionStmt exprStmtNode) {
         this.checkStatementExecutionValidity(exprStmtNode);
-        analyzeExpr(exprStmtNode.expr);
+        BLangExpression expr = exprStmtNode.expr;
+        analyzeExpr(expr);
         validateExprStatementExpression(exprStmtNode);
+        if (expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
+            this.statementReturns = true;
+        }
     }
 
     private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
@@ -3774,6 +3782,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorType) {
+        BLangType detailType = errorType.detailType;
+        if (detailType != null && detailType.getKind() == NodeKind.CONSTRAINED_TYPE) {
+            BLangType constraint = ((BLangConstrainedType) detailType).constraint;
+            if (constraint.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                BLangUserDefinedType userDefinedType = (BLangUserDefinedType) constraint;
+                if (userDefinedType.typeName.value.equals(TypeDefBuilderHelper.INTERSECTED_ERROR_DETAIL)) {
+                    // skip this as this is special case added to support error intersection where detail
+                    // type is a map.
+                    return;
+                }
+            }
+        }
+
         analyzeTypeNode(errorType.detailType, env);
     }
 
@@ -3879,8 +3900,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         BType exprType = enclInvokable.getReturnTypeNode().getBType();
+        BType checkedExprType = checkedExpr.expr.getBType();
 
-        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExpr.expr.getBType()), exprType)) {
+        if (!this.failureHandled && !types.isAssignable(getErrorTypes(checkedExprType), exprType) &&
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(checkedExprType)) {
             dlog.error(checkedExpr.pos, DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
         }
         if (!this.errorTypes.empty()) {
@@ -4090,6 +4113,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.accept(this);
         parent = myParent;
         checkAccess(node);
+        checkExpressionValidity(node);
     }
 
     private <E extends BLangExpression> void analyzeExpr(E node, SymbolEnv env) {
@@ -4104,7 +4128,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.accept(this);
         parent = myParent;
         checkAccess(node);
+        checkExpressionValidity(node);
         this.env = prevEnv;
+    }
+
+    private  <E extends BLangExpression> void checkExpressionValidity(E exprNode) {
+        if (exprNode.getKind() == NodeKind.GROUP_EXPR ||
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprNode.getBType())) {
+            return;
+        }
+        if (!checkExpressionInValidParent(exprNode.parent)) {
+            dlog.error(exprNode.pos, DiagnosticErrorCode.EXPRESSION_OF_NEVER_TYPE_NOT_ALLOWED);
+        }
+    }
+
+    private boolean checkExpressionInValidParent(BLangNode currentParent) {
+        if (currentParent == null) {
+            return false;
+        }
+        if (currentParent.getKind() == NodeKind.GROUP_EXPR) {
+            return checkExpressionInValidParent(currentParent.parent);
+        }
+        return  currentParent.getKind() == NodeKind.EXPRESSION_STATEMENT ||
+                (currentParent.getKind() == NodeKind.VARIABLE &&
+                        ((BLangSimpleVariable) parent).typeNode.getBType().tag == TypeTags.FUTURE)
+                || currentParent.getKind() == NodeKind.TRAP_EXPR;
     }
 
     @Override

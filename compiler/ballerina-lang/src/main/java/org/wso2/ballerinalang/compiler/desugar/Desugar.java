@@ -325,6 +325,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createLiter
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
+import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -889,7 +890,7 @@ public class Desugar extends BLangNodeVisitor {
         String moduleName = env.enclPkg.packageID.name.getValue();
         BLangLiteral moduleNameLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, moduleName);
-        String versionNumber = env.enclPkg.packageID.version.getValue();
+        String versionNumber = getMajorVersion(env.enclPkg.packageID.version.getValue());
         BLangLiteral versionLiteral =
                 ASTBuilderUtil.createLiteral(configurableVar.pos, symTable.stringType, versionNumber);
         String configVarName = configurableVar.name.getValue();
@@ -1241,12 +1242,10 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangErrorType errorType) {
         errorType.detailType = rewrite(errorType.detailType, env);
 
-        boolean isDistinctError = errorType.flagSet.contains(Flag.DISTINCT);
         boolean hasTypeParam = errorType.getDetailsTypeNode() != null;
-        // Distinct errors already have type-def.
         // Error without type param is either a user-defined-type or a default error, they don't need a type-def.
         // We need to create type-defs for local anonymous types with type param.
-        if (!isDistinctError && errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
+        if (errorType.isLocal && errorType.isAnonymous && hasTypeParam) {
             BLangUserDefinedType userDefinedType = desugarLocalAnonRecordTypeNode(errorType);
             TypeDefBuilderHelper.addTypeDefinition(errorType.getBType(), errorType.getBType().tsymbol, errorType, env);
             errorType.desugared = true;
@@ -1405,6 +1404,9 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetExpression letExpression) {
         SymbolEnv prevEnv = this.env;
+        // Set the enclInvokable of let expression since, when in module level the enclInvokable will be initFunction
+        // and the initFunction is created in desugar phase.
+        letExpression.env.enclInvokable = this.env.enclInvokable;
         this.env = letExpression.env;
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
@@ -7758,8 +7760,8 @@ public class Desugar extends BLangNodeVisitor {
                 getSafeAssignSuccessPattern(checkedExprVar.pos, checkedExprVar.symbol.type, true,
                                             checkedExprVar.symbol, null);
         BLangMatchTypedBindingPatternClause patternErrorCase =
-                getSafeAssignErrorPattern(checkedExpr.pos, this.env.scope.owner, checkedExpr.equivalentErrorTypeList,
-                                          isCheckPanic);
+                getSafeAssignErrorPattern(checkedExpr.pos, this.env.enclInvokable.symbol,
+                        checkedExpr.equivalentErrorTypeList, isCheckPanic);
 
         // Create the match statement
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(checkedExpr.pos, checkedExpr.expr,
@@ -8250,9 +8252,8 @@ public class Desugar extends BLangNodeVisitor {
         //This will only check whether last statement is a return and just add a return statement.
         //This won't analyse if else blocks etc to see whether return statements are present
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) invokableNode.body;
-        boolean isNeverOrNilableReturn = invokableNode.symbol.type.getReturnType().tag == TypeTags.NEVER ||
-                invokableNode.symbol.type.getReturnType().isNullable();
-        if (invokableNode.workers.size() == 0 && isNeverOrNilableReturn && (funcBody.stmts.size() < 1 ||
+        if (invokableNode.workers.size() == 0 && invokableNode.symbol.type.getReturnType().isNullable()
+                && (funcBody.stmts.size() < 1 ||
                 funcBody.stmts.get(funcBody.stmts.size() - 1).getKind() != NodeKind.RETURN)) {
             Location invPos = invokableNode.pos;
             Location returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),

@@ -7,9 +7,10 @@ SYNOPSIS
        bal openapi [-i | --input] <openapi-contract-file-path> [-o | --output] <output-location> 
        bal openapi [-i | --input] <ballerina-service-file-path> [-o | --output] <output-location> 
        bal openapi [-i | --input] <openapi-contract-file-path> [--mode <mode-type>] 
-                   [--tags <tag-names>] [--operations <operation-names>]
-       bal openapi [-i | --input] <ballerina-service-file-path> 
-                   [-s | --service] <current-service-name>           
+                   [--tags <tag-names>] [--operations <operation-names>] [-n | --nullable]
+                   [--license] <license-file-path>
+       bal openapi [-i | --input] <ballerina-service-file-path> [--json]
+                   [-s | --service] <current-service-name>
 
 DESCRIPTION
        Generate a Ballerina source (either a mock
@@ -40,18 +41,28 @@ OPTIONS
             Mode type is optional and can be service or client. The Ballerina service and client 
             will be generated according to the mode. 
 
+        (-n| --nullable)
+            Optional. JSON schema properties that are not marked as `nullable:true` may return as null in
+            some responses. It will result in JSON schema to Ballerina record data binding error. This is a
+            safe option to generate all data types in the record with Ballerina nil support.
+
+        (--license) <license-file-path>
+            Optional. The `.bal` files will generate with the given copyright or license header.
+
         (-s| --service ) <current-service-name>
             This service name is used to identify the service that need to documented as openApi 
             specification. This option uses with the command of Ballerina to OpenAPI specification 
             generation.
+
+        (--json)
+            Optional. Ballerina service to OpenAPI output as JSON. The default is YAML.
 
         (--tags) <tag-names>
             This tags use to filter the operations tag need to generate services. This option uses 
             with command of OpenAPI to Ballerina file generation.
 
         (--operations) <operation-names>
-            These operations are used to filter the operations that are needed to generate services.
-            This option is used with the commandof the OpenAPI to Ballerina file generation.
+            Optional. List of operations to generate the Ballerina service or client.
 
 DEFAULT BEHAVIOR
        If no options are provided, the help text for the OpenAPI Tool is shown.
@@ -73,5 +84,15 @@ EXAMPLES
        Generate services for the operations given in the `hello.yaml` OpenAPI contract.
           $ bal openapi -i hello.yaml --mode service --operations operation_ID
 
+       Generate all the record fields that are not specifically mentioned as `nullable:false` in
+       the OpenAPI schema property as nullable.
+          $ bal openapi -i hello.yaml --nullable
+
+       Generate both the Ballerina client and service files including the given license or copyright header.
+          $ bal openapi -i hello.yaml --license license.txt
+
        Export an OpenAPI definition for the `/hello` service of the `hello_service.bal` file.
-          $ bal openapi -i hello_service.bal --service-name /hello 
+          $ bal openapi -i hello_service.bal --service-name /hello
+
+       Generate an OpenAPI specification in the JSON format.
+          $ bal openapi -i hello_service.bal --json

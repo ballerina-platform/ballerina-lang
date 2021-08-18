@@ -22,7 +22,7 @@ package io.ballerina.runtime.api.types;
  *
  * @since 2.0.0
  */
-public interface ObjectType extends StructureType {
+public interface ObjectType extends StructureType, SelectivelyImmutableReferenceType {
 
     void setMethods(MethodType[] methodTypes);
 

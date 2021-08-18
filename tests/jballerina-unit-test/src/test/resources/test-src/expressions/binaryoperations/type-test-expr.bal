@@ -536,6 +536,58 @@ function testObjectIsCheckWithCycles() {
     assertFalse(a3 is object { Quuz f; });
 }
 
+service class ServiceClassA {
+    remote function x() {
+    }
+}
+
+service class ServiceClassB {
+}
+
+service class ServiceClassC {
+    resource function get hello(string name) returns string {
+        return "Hello, " + name;
+    }
+}
+
+service class ServiceClassD {
+    remote function x() {
+        int a = 0;
+        float b = 0.0;
+    }
+
+    resource function get weight() returns float {
+        return 123.4;
+    }
+}
+
+function testServiceObjects() {
+    any a = new ServiceClassA();
+    any b = new ServiceClassB();
+    any c = new ServiceClassC();
+    any d = new ServiceClassD();
+
+    assertTrue(a is ServiceClassA);
+    assertTrue(a is ServiceClassB);
+    assertTrue(a is ServiceClassC);
+    assertTrue(a is ServiceClassD);
+
+    assertFalse(b is ServiceClassA);
+    assertTrue(b is ServiceClassB);
+    assertTrue(b is ServiceClassC);
+    assertFalse(b is ServiceClassD);
+
+    assertFalse(c is ServiceClassA);
+    assertTrue(c is ServiceClassB);
+    assertTrue(c is ServiceClassC);
+    assertFalse(c is ServiceClassD);
+
+    assertTrue(d is ServiceClassA);
+    assertTrue(d is ServiceClassB);
+    assertTrue(d is ServiceClassC);
+    assertTrue(d is ServiceClassD);
+}
+
 // ========================== Arrays ==========================
 
 function testSimpleArrays() returns [boolean, boolean, boolean, boolean, boolean] {

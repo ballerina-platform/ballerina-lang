@@ -63,10 +63,10 @@ public class StartActionTest {
                 , 90, 22);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 90, 27);
         BAssertUtil.validateError(result, indx++, "missing close parenthesis token", 97, 1);
-        BAssertUtil.validateError(result, indx++, "missing identifier", 97, 1);
+        BAssertUtil.validateError(result, indx++, "missing expression", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing open parenthesis token", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing semicolon token", 97, 1);
-        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 100, 5);
+        BAssertUtil.validateError(result, indx++, "invalid expression in start action", 100, 11);
         Assert.assertEquals(result.getErrorCount(), indx);
     }
 

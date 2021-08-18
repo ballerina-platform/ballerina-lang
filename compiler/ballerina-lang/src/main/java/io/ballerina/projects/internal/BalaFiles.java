@@ -382,23 +382,24 @@ public class BalaFiles {
             platforms.put(packageJson.getPlatform(), platform);
         }
 
-        List<PackageManifest.Dependency> localPackages = new ArrayList<>();
+        List<PackageManifest.Dependency> dependencies = new ArrayList<>();
         if (packageJson.getLocalDependencies() != null) {
             packageJson.getLocalDependencies().forEach(localDependency -> {
-                PackageManifest.Dependency localPackage = new PackageManifest.Dependency(
+                PackageManifest.Dependency dependency = new PackageManifest.Dependency(
                         PackageName.from(localDependency.getName()), PackageOrg.from(localDependency.getOrg()),
                         PackageVersion.from(localDependency.getVersion()), localDependency.getRepository());
-                localPackages.add(localPackage);
+                dependencies.add(dependency);
             });
         }
 
         return compilerPluginJson.map(pluginJson -> PackageManifest
-                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), platforms, localPackages,
-                      packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                      packageJson.getExport(), packageJson.getSourceRepository())).orElseGet(() -> PackageManifest
-                .from(pkgDesc, Optional.empty(), platforms, localPackages, packageJson.getLicenses(),
-                      packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                      packageJson.getSourceRepository()));
+                .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
+                        packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                        packageJson.getExport(), packageJson.getSourceRepository(), packageJson.getBallerinaVersion()))
+                .orElseGet(() -> PackageManifest
+                        .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
+                                packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
+                                packageJson.getSourceRepository(), packageJson.getBallerinaVersion()));
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {

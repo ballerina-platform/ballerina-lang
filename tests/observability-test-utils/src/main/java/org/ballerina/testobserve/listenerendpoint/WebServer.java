@@ -245,7 +245,7 @@ public class WebServer {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
 
             StrandMetadata strandMetadata = new StrandMetadata(TEST_OBSERVE_PACKAGE.getOrg(),
-                    TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getVersion(),
+                    TEST_OBSERVE_PACKAGE.getName(), TEST_OBSERVE_PACKAGE.getMajorVersion(),
                     resourceFunctionName);
             Utils.logInfo("Dispatching resource " + resourcePath);
             runtime.invokeMethodAsync(serviceObject, resourceFunctionName, null, strandMetadata,

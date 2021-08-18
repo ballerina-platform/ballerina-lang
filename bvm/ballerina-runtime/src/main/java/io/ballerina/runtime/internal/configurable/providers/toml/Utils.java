@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
@@ -78,7 +79,8 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 public class Utils {
 
     private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
-            new BIntersectionType(null, new Type[]{ TYPE_READONLY_ANYDATA}, TYPE_READONLY_ANYDATA, 0, true);
+            new BIntersectionType(null, new Type[]{TYPE_READONLY_ANYDATA},
+                                  (IntersectableReferenceType) TYPE_READONLY_ANYDATA, 0, true);
 
     private Utils() {
     }

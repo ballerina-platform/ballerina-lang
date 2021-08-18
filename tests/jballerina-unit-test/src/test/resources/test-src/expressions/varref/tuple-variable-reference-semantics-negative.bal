@@ -175,3 +175,10 @@ function testIncompatibleTypesWithRest() {
     var [...c] = a1;
     [int, string, string] y = c;
 }
+
+function testSelfReferencingVariables() {
+    [int, int] [a, b] = [a, b];
+    [[string, int], float] [[c, d], e] = [[c, d], 6.7];
+    [any[], float] [f, g] = [[f, 4], 6.7];
+    [[string, [int, [boolean, string], float[]], int[]], float] [[h, [i, [j, k], l], m], n] = [["A", [i, [j, "B"], l], m], n];
+}

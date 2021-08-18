@@ -42,6 +42,7 @@ import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -104,6 +105,9 @@ public class ParameterSymbolTest {
                 {53, 30, "p", TYPE_REFERENCE, REQUIRED, "Person p"},
                 {53, 44, "misc", ARRAY, REST, "anydata... misc"},
                 {62, 55, "myStr", STRING, REQUIRED, "string myStr"},
+                {67, 42, "abc", FUNCTION, REQUIRED, "function (int) returns () abc"},
+                {67, 66, "pqr", FUNCTION, DEFAULTABLE, "function (boolean) returns () pqr"},
+                {67, 102, "xyz", ARRAY, REST, "function (string) returns ()... xyz"},
         };
     }
 
@@ -122,6 +126,20 @@ public class ParameterSymbolTest {
         assertParam((ParameterSymbol) params.get("f"), "f", DEFAULTABLE, FLOAT);
         assertParam((ParameterSymbol) params.get("grades"), "grades", INCLUDED_RECORD, TYPE_REFERENCE);
         assertParam((ParameterSymbol) params.get("rest"), "rest", REST, ARRAY);
+    }
+
+    @Test
+    public void testVisibleSymbolsInFuncWithFuncParams() {
+        BallerinaModuleID moduleID =
+                new BallerinaModuleID(project.currentPackage().getCompilation().defaultModuleBLangPackage().packageID);
+        Map<String, Symbol> symbols = SemanticAPITestUtils.getSymbolsInFile(model, srcFile, 68, 4,
+                moduleID);
+        Map<String, Symbol> params = symbols.entrySet().stream()
+                .filter(entry -> entry.getValue().kind() == SymbolKind.PARAMETER)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        assertParam((ParameterSymbol) params.get("abc"), "abc", REQUIRED, FUNCTION);
+        assertParam((ParameterSymbol) params.get("pqr"), "pqr", DEFAULTABLE, FUNCTION);
+        assertParam((ParameterSymbol) params.get("xyz"), "xyz", REST, ARRAY);
     }
 
     private Symbol getSymbol(int line, int col) {

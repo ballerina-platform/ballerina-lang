@@ -179,7 +179,8 @@ public class FileSystemRepository implements PackageRepository {
             PackageVersion latest = findLatest(versions);
             if (latest != null) {
                 PackageDescriptor resolvedDescriptor = PackageDescriptor
-                        .from(resolutionRequest.orgName(), resolutionRequest.packageName(), latest);
+                        .from(resolutionRequest.orgName(), resolutionRequest.packageName(), latest,
+                                resolutionRequest.repositoryName().orElse(null));
                 Path balaPath = getPackagePath(resolutionRequest.orgName().toString(),
                         resolutionRequest.packageName().toString(), latest.toString());
                 BalaFiles.DependencyGraphResult packageDependencyGraph =
@@ -246,9 +247,9 @@ public class FileSystemRepository implements PackageRepository {
 
             PackageVersion latest = getLatest(v1, v2);
             if (v1 == latest) {
-                return 1;
+                return -1;
             }
-            return -1;
+            return 1;
         };
         packageVersions.sort(comparator);
 

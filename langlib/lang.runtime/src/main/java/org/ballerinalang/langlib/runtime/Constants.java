@@ -28,7 +28,7 @@ public class Constants {
     private static final String PACKAGE_NAME = "lang.runtime";
     public static final String CALL_STACK_ELEMENT = "CallStackElement";
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
-    private static final String PACKAGE_VERSION = "0.0.1";
+    private static final String PACKAGE_VERSION = "0";
     public static final Module BALLERINA_RUNTIME_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
             PACKAGE_NAME, PACKAGE_VERSION);
 

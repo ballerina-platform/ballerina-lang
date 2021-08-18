@@ -32,7 +32,7 @@ import java.util.Optional;
  */
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
-    private final Optional<CompilerPluginDescriptor> compilerPluginDesc;
+    private final CompilerPluginDescriptor compilerPluginDesc;
     private final Map<String, Platform> platforms;
     private final List<Dependency> dependencies;
     private final DiagnosticResult diagnostics;
@@ -41,13 +41,14 @@ public class PackageManifest {
     private final List<String> keywords;
     private final String repository;
     private final List<String> exportedModules;
+    private final String ballerinaVersion;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
     private final Map<String, Object> otherEntries;
 
     private PackageManifest(PackageDescriptor packageDesc,
-                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -63,10 +64,11 @@ public class PackageManifest {
         this.keywords = Collections.emptyList();
         this.exportedModules = Collections.emptyList();
         this.repository = "";
+        this.ballerinaVersion = "";
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
-                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                            CompilerPluginDescriptor compilerPluginDesc,
                             Map<String, Platform> platforms,
                             List<Dependency> dependencies,
                             Map<String, Object> otherEntries,
@@ -75,7 +77,8 @@ public class PackageManifest {
                             List<String> authors,
                             List<String> keywords,
                             List<String> exportedModules,
-                            String repository) {
+                            String repository,
+                            String ballerinaVersion) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
         this.platforms = Collections.unmodifiableMap(platforms);
@@ -87,48 +90,51 @@ public class PackageManifest {
         this.keywords = keywords;
         this.exportedModules = getExport(packageDesc, exportedModules);
         this.repository = repository;
+        this.ballerinaVersion = ballerinaVersion;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
-        return new PackageManifest(packageDesc, Optional.empty(), Collections.emptyMap(), Collections.emptyList(),
+        return new PackageManifest(packageDesc, null, Collections.emptyMap(), Collections.emptyList(),
                                    Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<Dependency> localPackages) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, Collections.emptyMap(),
+                                       List<Dependency> dependencies) {
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<Dependency> localPackages,
+                                       List<Dependency> dependencies,
                                        Map<String, Object> otherEntries,
                                        DiagnosticResult diagnostics,
                                        List<String> license,
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
-                                       String repository) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, otherEntries, diagnostics,
-                                   license, authors, keywords, export, repository);
+                                       String repository,
+                                       String ballerinaVersion) {
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
+                license, authors, keywords, export, repository, ballerinaVersion);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
-                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
+                                       CompilerPluginDescriptor compilerPluginDesc,
                                        Map<String, Platform> platforms,
-                                       List<Dependency> localPackages,
+                                       List<Dependency> dependencies,
                                        List<String> license,
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
-                                       String repository) {
-        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, localPackages, Collections.emptyMap(),
-                                   new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                                   export, repository);
+                                       String repository,
+                                       String ballerinaVersion) {
+        return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
+                new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
+                export, repository, ballerinaVersion);
     }
 
     public PackageName name() {
@@ -148,7 +154,7 @@ public class PackageManifest {
     }
 
     public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
-        return compilerPluginDesc;
+        return Optional.ofNullable(compilerPluginDesc);
     }
 
     public Platform platform(String platformCode) {
@@ -182,6 +188,10 @@ public class PackageManifest {
 
     public List<Dependency> dependencies() {
         return dependencies;
+    }
+
+    public String ballerinaVersion() {
+        return ballerinaVersion;
     }
 
     public DiagnosticResult diagnostics() {

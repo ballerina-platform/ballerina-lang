@@ -88,6 +88,7 @@ public function barTwo(int i, string s = "hello", string... t) returns [int, str
 // ------------------- Test function signature with 'never' return type ----------------
 public function sigma() returns never {
     int age = 1;
+    panic error("Error");
 }
 
 // ------------------- Test function signature for attached functions ------------------

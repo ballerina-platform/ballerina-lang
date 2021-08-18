@@ -19,6 +19,7 @@ package org.ballerinalang.test.types.string;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -50,6 +51,15 @@ public class StringUtilsTest {
             }
         }
         return StringUtils.fromString(content.toString());
+    }
+
+    @Test
+    public void testStringValue() {
+        BRunUtil.invoke(result, "testStringValue");
+    }
+
+    public static BString invokeStringValue(BValue value) {
+        return StringUtils.fromString(value.stringValue(null));
     }
 
     @AfterClass

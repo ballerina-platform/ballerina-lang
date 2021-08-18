@@ -44,6 +44,7 @@ public class VariableUtils {
     private static final String LAMBDA_PARAM_MAP_PATTERN = "\\$.*[Mm][Aa][Pp].*\\$.*";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
+    static final String INTERNAL_VALUE_PREFIX = "io.ballerina.runtime.internal.values.";
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
@@ -79,8 +80,8 @@ public class VariableUtils {
                 return UNKNOWN_VALUE;
             }
             ObjectReference stringRef = (ObjectReference) stringValue;
-            if (!stringRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
-                    && !stringRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
+            if (!stringRef.referenceType().name().equals(JVMValueType.BMP_STRING.getString())
+                    && !stringRef.referenceType().name().equals(JVMValueType.NON_BMP_STRING.getString())) {
                 // Additional filtering is required, as some ballerina variable type names may contain redundant
                 // double quotes.
                 return removeRedundantQuotes(stringRef.toString());

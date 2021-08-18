@@ -75,7 +75,7 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 public class ManifestBuilder {
 
     private TomlDocument ballerinaToml;
-    private Optional<TomlDocument> compilerPluginToml;
+    private TomlDocument compilerPluginToml;
     private DiagnosticResult diagnostics;
     private List<Diagnostic> diagnosticList;
     private PackageManifest packageManifest;
@@ -89,15 +89,15 @@ public class ManifestBuilder {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
-    private static final String SCOPE = "scope";
     private static final String PLATFORM = "platform";
+    private static final String SCOPE = "scope";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
                             Path projectPath) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
-        this.compilerPluginToml = Optional.ofNullable(compilerPluginToml);
+        this.compilerPluginToml = compilerPluginToml;
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
@@ -158,6 +158,7 @@ public class ManifestBuilder {
         List<String> keywords = Collections.emptyList();
         List<String> exported = Collections.emptyList();
         String repository = "";
+        String ballerinaVersion = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -166,7 +167,8 @@ public class ManifestBuilder {
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
-                repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
+                repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
+                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
             }
         }
 
@@ -190,15 +192,13 @@ public class ManifestBuilder {
         List<PackageManifest.Dependency> localRepoDependencies = getLocalRepoDependencies();
 
         // Compiler plugin descriptor
-        Optional<CompilerPluginDescriptor> pluginDescriptor;
-        if (this.compilerPluginToml.isPresent()) {
-            pluginDescriptor = Optional.of(CompilerPluginDescriptor.from(this.compilerPluginToml.get()));
-        } else {
-            pluginDescriptor = Optional.empty();
+        CompilerPluginDescriptor pluginDescriptor = null;
+        if (this.compilerPluginToml != null) {
+            pluginDescriptor = CompilerPluginDescriptor.from(this.compilerPluginToml);
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                                    diagnostics(), license, authors, keywords, exported, repository);
+                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -224,9 +224,9 @@ public class ManifestBuilder {
             return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
         }
 
-        org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
-        name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
-        version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
+        org = getStringValueFromTomlTableNode(pkgNode, "org", defaultOrg.value());
+        name = getStringValueFromTomlTableNode(pkgNode, "name", defaultName.value());
+        version = getStringValueFromTomlTableNode(pkgNode, VERSION, defaultVersion.value().toString());
 
         // check org is valid identifier
         boolean isValidOrg = ProjectUtils.validateOrgName(org);
@@ -379,7 +379,8 @@ public class ManifestBuilder {
 
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
 
-        boolean skipTests = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.SKIP_TESTS.toString());
+        boolean skipTests =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
         boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
         boolean experimental =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
@@ -432,8 +433,8 @@ public class ManifestBuilder {
         return false;
     }
 
-    private String getStringValueFromPackageNode(TomlTableNode pkgNode, String key, String defaultValue) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+    private String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key, String defaultValue) {
+        TopLevelNode topLevelNode = tomlTableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             // return default value
             return defaultValue;

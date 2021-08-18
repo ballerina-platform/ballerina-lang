@@ -194,6 +194,10 @@ public class RuntimeUtils {
         crashLogger.log(Level.SEVERE, throwable.getMessage(), throwable);
     }
 
+    public static String getMajorVersion(String version) {
+        return version.split("\\.")[0];
+    }
+
     private RuntimeUtils() {
     }
 }

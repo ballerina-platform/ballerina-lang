@@ -110,6 +110,7 @@ public class BuildOptions {
      * Enum to represent build options.
      */
     public enum OptionName {
+        SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime")

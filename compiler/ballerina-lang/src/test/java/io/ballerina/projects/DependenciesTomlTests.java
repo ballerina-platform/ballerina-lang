@@ -28,6 +28,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,9 +50,8 @@ public class DependenciesTomlTests {
         depsManifest.diagnostics().errors().forEach(OUT::println);
         Assert.assertFalse(depsManifest.diagnostics().hasErrors());
 
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
         Assert.assertEquals(depsManifest.dependenciesTomlVersion(), "2");
-
-        List<DependencyManifest.Package> dependencies = depsManifest.packages();
         Assert.assertEquals(dependencies.size(), 2);
 
         DependencyManifest.Package twitter = dependencies.get(0);
@@ -59,7 +59,7 @@ public class DependenciesTomlTests {
         Assert.assertEquals(twitter.name().value(), "twitter");
         Assert.assertEquals(twitter.version().toString(), "2.3.4");
         Assert.assertFalse(twitter.isTransitive());
-        List<DependencyManifest.Dependency> twitterTransDependencies = twitter.dependencies();
+        List<DependencyManifest.Dependency> twitterTransDependencies = new ArrayList<>(twitter.dependencies());
         Assert.assertEquals(twitterTransDependencies.size(), 5);
 
         DependencyManifest.Dependency twitterFirstTransDependency = twitterTransDependencies.get(0);
@@ -164,7 +164,7 @@ public class DependenciesTomlTests {
         Assert.assertFalse(depsManifest.diagnostics().hasErrors());
         // No warnings should be added
         Assert.assertEquals(depsManifest.diagnostics().diagnostics().size(), 0);
-        List<DependencyManifest.Package> dependencies = depsManifest.packages();
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
         Assert.assertEquals(dependencies.size(), 0);
     }
 
@@ -176,7 +176,7 @@ public class DependenciesTomlTests {
         Assert.assertFalse(depsManifest.diagnostics().hasErrors());
         // No warnings should be added
         Assert.assertEquals(depsManifest.diagnostics().diagnostics().size(), 0);
-        List<DependencyManifest.Package> dependencies = depsManifest.packages();
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
         Assert.assertEquals(dependencies.size(), 0);
     }
 

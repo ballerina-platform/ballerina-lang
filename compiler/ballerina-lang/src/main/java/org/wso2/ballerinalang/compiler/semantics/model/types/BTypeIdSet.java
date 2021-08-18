@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Represent type id set of distinct types.
@@ -178,6 +179,15 @@ public class BTypeIdSet {
 
     public boolean isEmpty() {
         return getAll().isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner joiner = new StringJoiner(", ", "[", "]");
+        for (BTypeId id : getAll()) {
+            joiner.add(id.toString());
+        }
+        return joiner.toString();
     }
 
     /**

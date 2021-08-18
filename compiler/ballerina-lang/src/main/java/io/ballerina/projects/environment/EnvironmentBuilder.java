@@ -22,6 +22,7 @@ import io.ballerina.projects.internal.environment.BallerinaUserHome;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.environment.EnvironmentPackageCache;
+import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -62,11 +63,6 @@ public class EnvironmentBuilder {
         return this;
     }
 
-    public EnvironmentBuilder setBallerinaCentralRepository(PackageRepository ballerinaCentralRepo) {
-        this.ballerinaCentralRepo = ballerinaCentralRepo;
-        return this;
-    }
-
     public Environment build() {
         DefaultEnvironment environment = new DefaultEnvironment();
 
@@ -83,12 +79,11 @@ public class EnvironmentBuilder {
         PackageCache packageCache = new EnvironmentPackageCache();
         environment.addService(PackageCache.class, packageCache);
 
-        if (ballerinaCentralRepo == null) {
-            // Creating a Ballerina user home instance
-            BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
-            ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
-            customRepositories = ballerinaUserHome.customRepositories();
-        }
+        // Creating a Ballerina user home instance
+        BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
+        ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
+        customRepositories = ballerinaUserHome.customRepositories();
+        environment.addService(LocalPackageRepository.class, ballerinaUserHome.localPackageRepository());
 
         PackageResolver packageResolver = new DefaultPackageResolver(distributionRepository,
                 ballerinaCentralRepo, packageCache, customRepositories);

@@ -20,12 +20,12 @@
               {
                 "range": {
                   "start": {
-                    "line": 34,
-                    "character": 0
+                    "line": 33,
+                    "character": 1
                   },
                   "end": {
-                    "line": 34,
-                    "character": 0
+                    "line": 33,
+                    "character": 1
                   }
                 },
                 "newText": "\n\nfunction addAndPrintTwoIntegers(int a, int b) returns [int, string[][]] {\n    return [0, [[]]];\n}\n"
