@@ -217,8 +217,18 @@ class PackageContext {
     }
 
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
-        this.compilationOptions.acceptTheirs(compilationOptions);
-        return PackageCompilation.from(this, compilationOptions);
+        CompilationOptions options = new CompilationOptionsBuilder()
+                .skipTests(this.compilationOptions.skipTests())
+                .buildOffline(this.compilationOptions.offlineBuild())
+                .experimental(this.compilationOptions.experimental())
+                .observabilityIncluded(this.compilationOptions.observabilityIncluded())
+                .dumpBir(this.compilationOptions.dumpBir())
+                .cloud(this.compilationOptions.getCloud())
+                .dumpBirFile(this.compilationOptions.getBirDumpFile())
+                .listConflictedClasses(this.compilationOptions.listConflictedClasses())
+                .build();
+        options.acceptTheirs(compilationOptions);
+        return PackageCompilation.from(this, options);
     }
 
     PackageResolution getResolution() {

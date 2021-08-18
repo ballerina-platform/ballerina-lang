@@ -78,7 +78,7 @@ public class CompilationOptionsBuilder {
         return this;
     }
 
-    CompilationOptions build() {
+    public CompilationOptions build() {
         return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
                 dumpBirFile, cloud, listConflictedClasses, sticky);
     }

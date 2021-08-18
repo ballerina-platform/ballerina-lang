@@ -1354,7 +1354,8 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            BuildOptions options = new BuildOptionsBuilder().experimental(true).build();
+            project = BuildProject.load(projectPath, options);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1369,7 +1370,7 @@ public class TestBuildProject extends BaseTest {
         CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
         compilationOptionsBuilder.buildOffline(true);
         project.currentPackage().getCompilation(compilationOptionsBuilder.build());
-        Assert.assertTrue(project.currentPackage().compilationOptions().offlineBuild());
+        Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
 
         // 3) Get compilation again and check compilation options
         BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get()
