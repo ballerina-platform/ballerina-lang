@@ -118,17 +118,20 @@ function testPredeclPrefixInTernary() returns int {
 
 function testTernaryAsArgument() {
     string[] filters = [];
-    string s1 = true? "str": "";
-    filters.push(s1);
-    filters.push(true? "str": "");
+    boolean True = true;
+    boolean False = false;
 
-    string s2 = false? "str": "";
+    string s1 = True ? "str" : "";
+    filters.push(s1);
+    filters.push(True ? "str" : "");
+
+    string s2 = False ? "str" : "";
     filters.push(s2);
-    filters.push(false? "str": "");
+    filters.push(False ? "str" : "");
 
     byte[] a = [];
-    a.push(true? 0: 255);
-    a.push(false? 0: 255);
+    a.push(True ? 0 : 255);
+    a.push(False ? 0 : 255);
 
     assertEquals(filters[0], "str");
     assertEquals(filters[2], "");
