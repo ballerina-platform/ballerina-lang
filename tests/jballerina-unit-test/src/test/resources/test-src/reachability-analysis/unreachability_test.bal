@@ -342,6 +342,77 @@ function testUnreachableCodeWithForeach() returns string {
     return str;
 }
 
+function testConstTrueConditionWihLogicalAndInIfElse() {
+    if true && true {
+        return;
+    } else { // unreachable code
+        int a = 10;
+    }
+}
+
+function testConstTrueConditionWihLogicalAndInIf() {
+    if true && true {
+        return;
+    }
+    int a = 10; // unreachable code
+}
+
+function testConstTrueConditionWihLogicalAndInIfElse2() {
+    if true && true {
+        int a = 10;
+    } else { // unreachable code
+        int b = 10;
+    }
+    int c = 10;
+}
+
+function testConstTrueConditionWihLogicalAndInIfElse3() {
+    if true {
+        int a = 10;
+    } else if true && true { // unreachable code
+        int b = 10;
+    }
+    int c = 10;
+}
+
+function testConstFalseConditionWihLogicalAndInIfElse1() {
+    if false && false { // unreachable code
+        int a = 10;
+    } else {
+        int b = 10;
+    }
+    int c = 10;
+}
+
+function testConstTrueConditionWihLogicalAndInWhile1() {
+    while true && true {
+        if true && true {
+            int a = 12;
+        } else if true { // unreachable code
+            int a = 10;
+        }
+    }
+    int b = 10;
+}
+
+function testConstFalseConditionWihTypeTestInIfElse1() {
+    int a = 10;
+    if a !is int { // unreachable code
+        int b = 10;
+    } else {
+        int c = 10;
+    }
+    int d = 10;
+}
+
+function testConstFalseConditionWihTypeTestInWhile1() {
+    int a = 10;
+    while a !is int { // unreachable code
+        int b = 10;
+    }
+    int c = 10;
+}
+
 function impossible() returns never {
     panic error("Something impossible happened.");
 }

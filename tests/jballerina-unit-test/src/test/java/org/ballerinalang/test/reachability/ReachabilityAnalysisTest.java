@@ -134,8 +134,18 @@ public class ReachabilityAnalysisTest {
         validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 313, 12);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 317, 9);
         validateError(result, i++, ERROR_INVALID_ERROR_UNREACHABLE_INVOCATION, 339, 9);
-        Assert.assertEquals(result.getErrorCount(), i - 10);
-        Assert.assertEquals(result.getHintCount(), 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 348, 12);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 357, 5);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 363, 12);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 372, 28);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 379, 23);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 391, 24);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 400, 8);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 400, 18);
+        validateHint(result, i++, HINT_UNNECESSARY_CONDITION, 410, 11);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 410, 21);
+        Assert.assertEquals(result.getErrorCount(), i - 12);
+        Assert.assertEquals(result.getHintCount(), 11);
         Assert.assertEquals(result.getWarnCount(), 1);
     }
 }
