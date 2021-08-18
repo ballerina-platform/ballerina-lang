@@ -26,18 +26,23 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
@@ -636,5 +641,25 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
                 // Since 'xml:Text is same as xml<'xml:Text>
                 return PredefinedTypes.TYPE_TEXT;
         }
+    }
+
+    private void initializeIteratorNextReturnType() {
+        Type childType;
+        LinkedHashSet<Type> types = children.stream().map(BValue::getType).
+                collect(Collectors.toCollection(LinkedHashSet::new));
+        if (types.size() == 1) {
+            childType = types.iterator().next();
+        } else {
+            childType = new BUnionType(new ArrayList<>(types));
+        }
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(childType);
+    }
+
+    public Type getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initializeIteratorNextReturnType();
+        }
+
+        return iteratorNextReturnType;
     }
 }

@@ -56,6 +56,8 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     Type type = PredefinedTypes.TYPE_XML;
     protected BTypedesc typedesc = new TypedescValueImpl(type);
 
+    protected Type iteratorNextReturnType;
+
     public abstract int size();
 
     /**
