@@ -162,13 +162,6 @@ public class PackageResolution {
         } else {
             return createDependencyGraphFromSources(sticky);
         }
-
-        // Once we reach this section, all the direct dependencies have been resolved
-        // Here we resolve all transitive dependencies
-        // TODO Check for cycles
-        // TODO Update Bala path
-//        return depGraphBuilder.buildPackageDependencyGraph(rootPackageContext.descriptor(), packageResolver,
-//                packageCache, rootPackageContext.project());
     }
 
     private LinkedHashSet<ModuleLoadRequest> getModuleLoadRequestsOfDirectDependencies() {
@@ -228,29 +221,6 @@ public class PackageResolution {
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
                 rootPackageContext.descriptor(), offline, true);
         return resolutionEngine.resolveDependencies(directDeps);
-
-//        // 1) Create ResolutionRequest instances for each direct dependency of the bala
-//        LinkedHashSet<ResolutionRequest> resolutionRequests = new LinkedHashSet<>();
-//        for (PackageDescriptor packageDescriptor : directDependenciesOfBALA) {
-//            resolutionRequests.add(ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT,
-//                    rootPackageContext.project().buildOptions().offlineBuild()));
-//        }
-//
-//        // 2) Resolve direct dependencies. My assumption is that, all these dependencies comes from BALAs
-//        List<ResolutionResponse> resolutionResponses =
-//                packageResolver.resolvePackages(new ArrayList<>(resolutionRequests), rootPackageContext.project());
-//        for (ResolutionResponse resolutionResponse : resolutionResponses) {
-//            if (resolutionResponse.resolutionStatus() == ResolutionStatus.UNRESOLVED) {
-//                PackageDescriptor dependencyPkgDesc = resolutionResponse.packageLoadRequest().packageDescriptor();
-//                throw new ProjectException("Dependency cannot be found:" +
-//                        " org=" + dependencyPkgDesc.org() +
-//                        ", package=" + dependencyPkgDesc.name() +
-//                        ", version=" + dependencyPkgDesc.version());
-//            }
-//        }
-//
-//        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph(), PackageDependencyScope.DEFAULT,
-//                DependencyVersionKind.USER_SPECIFIED);
     }
 
     DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky) {
