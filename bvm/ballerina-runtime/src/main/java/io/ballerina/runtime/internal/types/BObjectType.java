@@ -25,15 +25,12 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
-import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 
 import java.lang.reflect.Array;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
-
-import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 
 /**
  * {@code BObjectType} represents a user defined object type in Ballerina.
@@ -94,26 +91,6 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public boolean isIsolated() {
         return SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
-    }
-    @Override
-    public boolean isIsolated(String methodName) {
-        if (!isIsolated()) {
-            return false;
-        }
-        for (MethodType method : getMethods()) {
-            if (method.getName().equals(methodName)) {
-                return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
-            }
-        }
-        if (getTag() == SERVICE_TAG) {
-            for (ResourceMethodType method : ((BServiceType) this).getResourceMethods()) {
-                if (method.getName().equals(methodName)) {
-                    return SymbolFlags.isFlagOn(method.getFlags(), SymbolFlags.ISOLATED);
-                }
-            }
-        }
-        assert false : "object type does not contain method : " + methodName;
-        return false;
     }
 
     public void setMethods(MethodType[] methodTypes) {
