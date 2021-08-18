@@ -26,13 +26,15 @@ public class BuildOptions {
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
+    private Boolean skipTests;
     private CompilationOptions compilationOptions;
 
-    BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime,
+    BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
+        this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
     }
 
@@ -49,7 +51,7 @@ public class BuildOptions {
     }
 
     public boolean skipTests() {
-        return this.compilationOptions.skipTests();
+        return toBooleanDefaultIfNull(skipTests);
     }
 
     public boolean offlineBuild() {
@@ -87,7 +89,8 @@ public class BuildOptions {
      * @return a new {@code BuildOptions} instance that contains our options and their options
      */
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
-
+        this.skipTests = Objects.requireNonNullElseGet(
+                theirOptions.skipTests, () -> toBooleanDefaultIfNull(this.skipTests));
         this.codeCoverage = Objects.requireNonNullElseGet(
                 theirOptions.codeCoverage, () -> toBooleanDefaultIfNull(this.codeCoverage));
         this.testReport = Objects.requireNonNullElseGet(

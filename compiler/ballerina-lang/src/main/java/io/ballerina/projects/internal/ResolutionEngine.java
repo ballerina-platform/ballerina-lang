@@ -65,9 +65,6 @@ public class ResolutionEngine {
         ProjectEnvironment projectEnvContext = rootProject.projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.graphBuilder = new NewPackageDependencyGraphBuilder(rootPkgDesc);
-
-        // Add previous compilation's dependency graph to the new graph.
-//        addPreviousCompilationDependencies(dependencyManifest.packages());
     }
 
     public DependencyGraph<ResolvedPackageDependency> resolveDependencies(
@@ -82,7 +79,6 @@ public class ResolutionEngine {
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
         for (PackageDependency directDependency : directDependencies) {
             PackageDescriptor pkgDesc = directDependency.pkgDesc();
-
             Optional<DependencyManifest.Package> dependency = dependencyManifest.dependency(
                     pkgDesc.org(), pkgDesc.name());
             if (dependency.isPresent() && dependency.get().isTransitive()) {

@@ -52,7 +52,7 @@ public class ResolutionResponseDescriptor {
                 packageLoadRequest, resolvedDescriptor, dependencyGraph, ResolutionResponse.ResolutionStatus.RESOLVED);
     }
 
-    public static ResolutionResponseDescriptor from(ResolutionRequest packageLoadRequest) {
+    public static ResolutionResponseDescriptor createUnresolvedResponse(ResolutionRequest packageLoadRequest) {
         return new ResolutionResponseDescriptor(
                 packageLoadRequest, null, null, ResolutionResponse.ResolutionStatus.UNRESOLVED);
     }

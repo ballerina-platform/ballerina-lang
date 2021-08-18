@@ -192,7 +192,7 @@ public class FileSystemRepository implements PackageRepository {
                 descriptorSet.add(responseDescriptor);
                 continue;
             }
-            descriptorSet.add(ResolutionResponseDescriptor.from(resolutionRequest));
+            descriptorSet.add(ResolutionResponseDescriptor.createUnresolvedResponse(resolutionRequest));
         }
         return descriptorSet;
     }
