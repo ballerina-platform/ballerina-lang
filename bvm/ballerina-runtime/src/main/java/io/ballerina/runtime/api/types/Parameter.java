@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.api.types;
 
 /**
  * {@code {@link Parameter } represents the parameter of a function in ballerina.
@@ -26,9 +26,11 @@ package io.ballerina.runtime.api;
 public class Parameter {
     public final String name;
     public final boolean isDefault;
+    public Type type;
 
-    public Parameter(String name, Boolean isDefault) {
+    public Parameter(String name, Boolean isDefault, Type type) {
         this.name = name;
         this.isDefault = isDefault;
+        this.type = type;
     }
 }
