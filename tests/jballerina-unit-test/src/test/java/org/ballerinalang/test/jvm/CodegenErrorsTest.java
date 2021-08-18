@@ -64,7 +64,7 @@ public class CodegenErrorsTest {
 
     @Test
     public void testTooLargeProject() {
-        CompileResult result = BCompileUtil.compile("test-src/jvm/largeProject");
+        CompileResult result = BCompileUtil.compile("test-src/jvm/largePackage");
         BRunUtil.invoke(result, "main");
     }
 }
