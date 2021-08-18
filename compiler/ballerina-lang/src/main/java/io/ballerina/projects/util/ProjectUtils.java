@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
@@ -32,6 +34,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
@@ -46,6 +49,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -86,6 +90,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME_BRE;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
@@ -766,5 +771,23 @@ public class ProjectUtils {
             }
         }
         return directory.delete();
+    }
+
+    /**
+     * Read build file from given path.
+     *
+     * @param buildJsonPath build file path
+     * @return build json object
+     */
+    public static BuildJson readBuildJson(Path buildJsonPath) {
+        BuildJson buildJson;
+        try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
+            buildJson = new Gson().fromJson(bufferedReader, BuildJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid '" + BUILD_FILE + "' file format");
+        } catch (IOException e) {
+            throw new ProjectException("Failed to read the '" + BUILD_FILE + "' file");
+        }
+        return buildJson;
     }
 }

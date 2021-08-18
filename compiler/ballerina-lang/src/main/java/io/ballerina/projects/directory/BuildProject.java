@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.directory;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
@@ -36,6 +38,7 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -43,6 +46,7 @@ import io.ballerina.projects.util.ProjectPaths;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,8 +55,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -193,7 +200,29 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        writeDependencies();
+        boolean shouldUpdate = this.currentPackage().getResolution().shouldUpdate();
+        Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        // if build file does not exists
+        if (!buildFilePath.toFile().exists()) {
+            // set both last build time and lat updated time as current timestamp
+            createBuildFile(buildFilePath);
+            writeBuildFile(buildFilePath);
+            writeDependencies();
+        } else {
+            // build file exists
+            BuildJson buildJson = readBuildJson(buildFilePath);
+            // check whether last updated time is expired
+            if (shouldUpdate) {
+                // need to update Dependencies toml
+                writeDependencies();
+                // update build json file
+                writeBuildFile(buildFilePath);
+            } else {
+                // only update build time
+                buildJson.setLastBuildTime(new Timestamp(System.currentTimeMillis()));
+                writeBuildFile(buildFilePath, buildJson);
+            }
+        }
     }
 
     private void writeDependencies() {
@@ -318,6 +347,28 @@ public class BuildProject extends Project {
         } catch (IOException e) {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
         }
+    }
 
+    private static void createBuildFile(Path buildFilePath) {
+        try {
+            Files.createFile(buildFilePath);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to create '" + BUILD_FILE + "' file");
+        }
+    }
+
+    private static void writeBuildFile(Path buildFilePath) {
+        BuildJson buildJson = new BuildJson(new Timestamp(System.currentTimeMillis()),
+                                            new Timestamp(System.currentTimeMillis()));
+        writeBuildFile(buildFilePath, buildJson);
+    }
+
+    private static void writeBuildFile(Path buildFilePath, BuildJson buildJson) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            Files.write(buildFilePath, Collections.singleton(gson.toJson(buildJson)));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write to the '" + BUILD_FILE + "' file");
+        }
     }
 }

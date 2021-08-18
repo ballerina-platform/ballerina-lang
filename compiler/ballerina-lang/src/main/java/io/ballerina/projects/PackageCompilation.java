@@ -89,7 +89,6 @@ public class PackageCompilation {
     static PackageCompilation from(PackageContext rootPkgContext) {
         PackageCompilation compilation = new PackageCompilation(rootPkgContext, rootPkgContext.compilationOptions());
         return compile(compilation);
-
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
