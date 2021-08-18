@@ -19,15 +19,23 @@ package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.util.Map;
 import java.util.function.Function;
+
+import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 
 /**
  * External API to be used by the interop users to control Ballerina runtime behavior.
@@ -63,21 +71,23 @@ public class Runtime {
      *                   optional and can be null.
      * @param metadata   Meta data of new strand.
      * @param callback   Callback which will get notify once method execution done.
-     * @param isIsolated Ensures method can be called preserving isolation with no data race is possible for the
-     *                   mutable state freely reachable from the arguments that it passes to the function.
+     * @param callConcurrently Ensures method can be invoked concurrently.
      * @param properties Set of properties for strand
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
      * @return           {@link FutureValue} containing return value of executing this method.
      */
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                     boolean isIsolated, Callback callback, Map<String, Object> properties,
+                                     boolean callConcurrently, Callback callback, Map<String, Object> properties,
                                      Type returnType, Object... args) {
         if (object == null) {
-            throw new NullPointerException();
+            throw ErrorCreator.createError(StringUtils.fromString("object cannot be null"));
+        }
+        if (methodName == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("method name cannot be null"));
         }
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        if (isIsolated) {
+        if (callConcurrently) {
             return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
                     metadata);
         } else {
@@ -102,13 +112,8 @@ public class Runtime {
       */
      public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Object... args) {
-         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-         if (object.getType().isIsolated(methodName)) {
-             return scheduler.schedule(new Object[1], func, null, callback, strandName, metadata).result;
-         } else {
-             return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, null,
-                                                    PredefinedTypes.TYPE_NULL, strandName, metadata).result;
-         }
+         return invokeMethodAsync(object, methodName, strandName, metadata, callback, null,
+                                  PredefinedTypes.TYPE_NULL, args);
      }
 
     /**
@@ -131,16 +136,38 @@ public class Runtime {
                                      Callback callback, Map<String, Object> properties,
                                      Type returnType, Object... args) {
         if (object == null) {
-            throw new NullPointerException();
+            throw ErrorCreator.createError(StringUtils.fromString("object cannot be null"));
+        }
+        if (methodName == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("method name cannot be null"));
         }
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        if (object.getType().isIsolated(methodName)) {
+        if (isIsolated(object.getType(), methodName)) {
             return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
                                       metadata);
         } else {
             return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
                                                    returnType, strandName, metadata);
         }
+    }
+
+    private boolean isIsolated(ObjectType objectType, String methodName) {
+        if (!objectType.isIsolated()) {
+            return false;
+        }
+        for (MethodType method : objectType.getMethods()) {
+            if (method.getName().equals(methodName)) {
+                return method.isIsolated();
+            }
+        }
+        if (objectType.getTag() == SERVICE_TAG) {
+            for (ResourceMethodType method : ((BServiceType) objectType).getResourceMethods()) {
+                if (method.getName().equals(methodName)) {
+                    return method.isIsolated();
+                }
+            }
+        }
+        throw ErrorCreator.createError(StringUtils.fromString("object type does not contain method : " + methodName));
     }
 
     public void registerListener(BObject listener) {

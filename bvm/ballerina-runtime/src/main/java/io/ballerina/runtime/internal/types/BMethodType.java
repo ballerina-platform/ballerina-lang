@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -75,5 +76,10 @@ public class BMethodType extends BFunctionType implements MethodType {
 
     public <T extends MethodType> MethodType duplicate() {
         return new BMethodType(funcName, parentObjectType, type, flags);
+    }
+
+    @Override
+    public boolean isIsolated() {
+        return SymbolFlags.isFlagOn(flags, SymbolFlags.ISOLATED);
     }
 }
