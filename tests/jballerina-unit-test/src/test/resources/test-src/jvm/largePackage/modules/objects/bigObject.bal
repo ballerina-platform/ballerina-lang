@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import largeProject.records as r;
+import largePackage.records as r;
 
 class bigObject {
 

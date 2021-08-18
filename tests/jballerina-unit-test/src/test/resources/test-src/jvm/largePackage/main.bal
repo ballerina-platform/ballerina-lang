@@ -15,13 +15,13 @@
 // under the License.
 
 import ballerina/test;
-import largeProject.clients as c;
-import largeProject.services as s;
-import largeProject.records as r;
-import largeProject.objects as o;
-import largeProject.errors as e;
-import largeProject.enums as en;
-import largeProject.unions as u;
+import largePackage.clients as c;
+import largePackage.services as s;
+import largePackage.records as r;
+import largePackage.objects as o;
+import largePackage.errors as e;
+import largePackage.enums as en;
+import largePackage.unions as u;
 
 
 public function main() {
