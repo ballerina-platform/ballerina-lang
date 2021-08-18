@@ -49,6 +49,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -433,7 +434,8 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
         return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
-                endLinePos.offset() - 1, endLinePos.offset());
+                endLinePos.offset() - 1, endLinePos.offset(),
+                pos.textRange().startOffset() + pos.textRange().length() - 1, 1);
     }
 
     @Override
@@ -586,9 +588,15 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                 BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) condition;
                 boolean isAssignable = types.isAssignable(typeTestExpr.expr.getBType(),
                         typeTestExpr.typeNode.getBType());
-                this.booleanConstCondition = isAssignable ? BooleanConst.TRUE :
-                        typeTestExpr.expr.getBType() == symTable.semanticError ? BooleanConst.FALSE :
-                                BooleanConst.NOT_CONST_BOOLEAN;
+                if (typeTestExpr.isNegation) {
+                    this.booleanConstCondition = isAssignable ? BooleanConst.FALSE :
+                            typeTestExpr.expr.getBType() == symTable.semanticError ? BooleanConst.TRUE :
+                                    BooleanConst.NOT_CONST_BOOLEAN;
+                } else {
+                    this.booleanConstCondition = isAssignable ? BooleanConst.TRUE :
+                            typeTestExpr.expr.getBType() == symTable.semanticError ? BooleanConst.FALSE :
+                                    BooleanConst.NOT_CONST_BOOLEAN;
+                }
                 break;
             case BINARY_EXPR:
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) condition;
@@ -611,6 +619,19 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
                 } else {
                     this.booleanConstCondition = lhsConst == booleanConstCondition && lhsConst == BooleanConst.TRUE ?
                         BooleanConst.TRUE : BooleanConst.FALSE;
+                }
+                break;
+            case UNARY_EXPR:
+                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) condition;
+                if (unaryExpr.operator != OperatorKind.NOT) {
+                    this.booleanConstCondition = BooleanConst.NOT_CONST_BOOLEAN;
+                    break;
+                }
+                setConstCondition(unaryExpr.expr, isElseIfStmt);
+                if (this.booleanConstCondition == BooleanConst.TRUE) {
+                    this.booleanConstCondition = BooleanConst.FALSE;
+                } else if (this.booleanConstCondition == BooleanConst.FALSE) {
+                    this.booleanConstCondition = BooleanConst.TRUE;
                 }
                 break;
             default:
