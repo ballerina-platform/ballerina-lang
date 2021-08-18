@@ -56,16 +56,18 @@ public class BlendedManifest {
         }
 
         for (PackageManifest.Dependency depInPkgManifest : packageManifest.dependencies()) {
-            Optional<Dependency> depOptional = depContainer.get(depInPkgManifest.org(), depInPkgManifest.name());
-            if (depOptional.isEmpty()) {
+            Optional<Dependency> existingDepOptional = depContainer.get(
+                    depInPkgManifest.org(), depInPkgManifest.name());
+            if (existingDepOptional.isEmpty()) {
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
                         new Dependency(depInPkgManifest.org(),
                                 depInPkgManifest.name(), depInPkgManifest.version(), DependencyRelation.UNKNOWN,
                                 Repository.LOCAL, moduleNames(depInPkgManifest, localPackageRepository)));
 
             } else {
-                Dependency dep = depOptional.get();
-                VersionCompatibilityResult compatibilityResult = dep.version().compareTo(depInPkgManifest.version());
+                Dependency existingDep = existingDepOptional.get();
+                VersionCompatibilityResult compatibilityResult =
+                        depInPkgManifest.version().compareTo(existingDep.version());
                 if (compatibilityResult == VersionCompatibilityResult.EQUAL ||
                         compatibilityResult == VersionCompatibilityResult.GREATER_THAN) {
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),

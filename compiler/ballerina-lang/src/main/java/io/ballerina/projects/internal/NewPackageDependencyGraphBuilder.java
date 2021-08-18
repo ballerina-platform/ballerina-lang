@@ -24,12 +24,15 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +51,9 @@ public class NewPackageDependencyGraphBuilder {
     // TODO how about a multi-level map here Map<PackageOrg, Map<PackageName, StaticPackageDependency>>
     private final Map<Vertex, StaticPackageDependency> vertices = new HashMap<>();
     private final Map<Vertex, Set<Vertex>> depGraph = new HashMap<>();
+
+    public NewPackageDependencyGraphBuilder() {
+    }
 
     public NewPackageDependencyGraphBuilder(PackageDescriptor rootNode) {
         this.addNode(rootNode, PackageDependencyScope.DEFAULT);
@@ -103,24 +109,78 @@ public class NewPackageDependencyGraphBuilder {
         }
     }
 
-    private void addNewVertex(Vertex vertex, StaticPackageDependency newPkgDescWithScope) {
+    private void addNewVertex(Vertex vertex, StaticPackageDependency newStaticPkgDep) {
         if (!vertices.containsKey(vertex)) {
-            vertices.put(vertex, newPkgDescWithScope);
+            vertices.put(vertex, newStaticPkgDep);
             depGraph.put(vertex, new HashSet<>());
             return;
         }
 
-        if (vertices.get(vertex).scope.equals(PackageDependencyScope.TEST_ONLY) &&
-                newPkgDescWithScope.scope.equals(PackageDependencyScope.DEFAULT)) {
-            vertices.put(vertex, newPkgDescWithScope);
+        // There exists another version in the graph.
+        StaticPackageDependency existingStaticPkgDep = vertices.get(vertex);
+        PackageDescriptor resolvedPkgDesc = handleDependencyConflict(newStaticPkgDep, existingStaticPkgDep);
+
+        // If the existing dependency scope is DEFAULT, use it. Otherwise use the new dependency scope.
+        PackageDependencyScope depScope = existingStaticPkgDep.scope() == PackageDependencyScope.DEFAULT ?
+                PackageDependencyScope.DEFAULT : newStaticPkgDep.scope();
+
+        vertices.put(vertex, new StaticPackageDependency(resolvedPkgDesc, depScope));
+    }
+
+    private PackageDescriptor handleDependencyConflict(StaticPackageDependency newStaticPkgDep,
+                                                       StaticPackageDependency existingStaticPkgDep) {
+        PackageDescriptor newPkgDesc = newStaticPkgDep.pkgDesc();
+        PackageDescriptor existingPkgDesc = existingStaticPkgDep.pkgDesc();
+        PackageOrg packageOrg = newPkgDesc.org();
+        PackageName packageName = newPkgDesc.name();
+
+        VersionCompatibilityResult compatibilityResult = newPkgDesc.version().compareTo(existingPkgDesc.version());
+        switch (compatibilityResult) {
+            case EQUAL:
+            case LESS_THAN:
+                return PackageDescriptor.from(packageOrg, packageName, existingPkgDesc.version(),
+                        existingPkgDesc.repository().orElse(null));
+            case GREATER_THAN:
+                return PackageDescriptor.from(packageOrg, packageName, newPkgDesc.version(),
+                        newPkgDesc.repository().orElse(null));
+            case INCOMPATIBLE:
+                // Incompatible versions exist in the graph.
+                // TODO can we report this issue with more information. dependency graph etc.
+                // Convert this to a diagnostic
+                throw new ProjectException("Two incompatible versions exist in the dependency graph: " +
+                        existingPkgDesc.org() + "/" + existingPkgDesc.name() +
+                        " versions: " + existingPkgDesc.version() + ", " + newPkgDesc.version());
+            default:
+                throw new IllegalStateException("Unsupported VersionCompatibilityResult: " + compatibilityResult);
         }
-        // TODO   ....
-        // TODO handle version conflicts
+    }
+
+    public DependencyGraph<PackageDescriptor> build() {
+        DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder =
+                DependencyGraph.DependencyGraphBuilder.getBuilder();
+        for (Map.Entry<Vertex, Set<Vertex>> dependencyMapEntry : depGraph.entrySet()) {
+            Vertex graphNodeKey = dependencyMapEntry.getKey();
+            Set<Vertex> graphNodeValues = dependencyMapEntry.getValue();
+
+            PackageDescriptor pkgDescKey = vertices.get(graphNodeKey).pkgDesc;
+            Set<PackageDescriptor> pkgDescValues;
+            if (graphNodeValues.isEmpty()) {
+                pkgDescValues = Collections.emptySet();
+            } else {
+                pkgDescValues = new HashSet<>(graphNodeValues.size());
+                for (Vertex vertex : graphNodeValues) {
+                    pkgDescValues.add(vertices.get(vertex).pkgDesc);
+                }
+            }
+
+            graphBuilder.addDependencies(pkgDescKey, pkgDescValues);
+        }
+        return graphBuilder.build();
     }
 
     public DependencyGraph<ResolvedPackageDependency> buildPackageDependencyGraph(PackageResolver packageResolver,
-                                                                                   Project rootProject,
-                                                                                   boolean offline) {
+                                                                                  Project rootProject,
+                                                                                  boolean offline) {
         List<PackageDescriptor> packageDescriptors = new ArrayList<>();
         vertices.forEach((key, value) -> packageDescriptors.add(value.pkgDesc));
         List<ResolutionResponse> resolutionResponses =
@@ -232,12 +292,6 @@ public class NewPackageDependencyGraphBuilder {
             this.pkgDesc = pkgDesc;
             this.scope = scope;
             this.dirty = false;
-        }
-
-        public StaticPackageDependency(PackageDescriptor pkgDesc, PackageDependencyScope scope, boolean dirty) {
-            this.pkgDesc = pkgDesc;
-            this.scope = scope;
-            this.dirty = dirty;
         }
 
         public PackageDescriptor pkgDesc() {

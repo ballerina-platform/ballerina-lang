@@ -52,6 +52,7 @@ import java.util.stream.Stream;
 public class DefaultPackageResolver implements PackageResolver {
     private final PackageRepository ballerinaDistRepo;
     private final PackageRepository ballerinaCentralRepo;
+    private final PackageRepository localRepository;
     private final WritablePackageCache packageCache;
     private final Map<String, PackageRepository> customRepositories;
 
@@ -63,6 +64,7 @@ public class DefaultPackageResolver implements PackageResolver {
         this.ballerinaCentralRepo = ballerinaCentralRepo;
         this.packageCache = (WritablePackageCache) packageCache;
         this.customRepositories = customRepositories;
+        this.localRepository = customRepositories.get(ProjectConstants.LOCAL_REPOSITORY_NAME);
     }
 
     @Override
@@ -103,7 +105,6 @@ public class DefaultPackageResolver implements PackageResolver {
 
         return resolutionResponses;
     }
-
 
     @Override
     public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
@@ -155,15 +156,19 @@ public class DefaultPackageResolver implements PackageResolver {
             }
         }
 
-        final List<ResolutionResponseDescriptor> responseFrmLocalRepo =
-                customRepositories.get(ProjectConstants.LOCAL_REPOSITORY_NAME)
-                        .resolveDependencyVersions(localRepoPkgLoadRequest);
+        List<ResolutionResponseDescriptor> responseFrmLocalRepo;
+        if (!localRepoPkgLoadRequest.isEmpty()) {
+            responseFrmLocalRepo = localRepository.resolveDependencyVersions(localRepoPkgLoadRequest);
+        } else {
+            responseFrmLocalRepo = Collections.emptyList();
+        }
 
         List<ResolutionResponseDescriptor> latestVersionsInDist = ballerinaDistRepo
                 .resolveDependencyVersions(packageLoadRequests);
         List<ResolutionResponseDescriptor> latestVersionsInCentral = ballerinaCentralRepo
                 .resolveDependencyVersions(packageLoadRequests);
 
+        // TODO Local package should get priority over the same version in central or dist repo
         List<ResolutionResponseDescriptor> responseDescriptors = new ArrayList<>(
                 Stream.of(latestVersionsInDist, latestVersionsInCentral, responseFrmLocalRepo)
                         .flatMap(List::stream).collect(Collectors.toMap(
