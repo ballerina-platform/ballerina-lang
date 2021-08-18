@@ -54,8 +54,8 @@ public class NewCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
-            "default: main")
-    private String template = "main";
+            "default: default")
+    private String template = "default";
 
     public NewCommand() {
         this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
