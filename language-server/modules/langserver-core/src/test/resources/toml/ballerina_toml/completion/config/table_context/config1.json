@@ -42,6 +42,13 @@
       "detail": "Table Array",
       "sortText": "C",
       "insertText": "[[dependency]]"
+    },
+    {
+      "label": "distribution",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "distribution=\"${1:}\""
     }
   ]
 }
