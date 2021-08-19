@@ -34,7 +34,6 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class FromHexString {
 
     public static Object fromHexString(BString s) {
-        // TODO: 6/20/19 Implement this
         try {
             return Double.parseDouble(s.getValue());
         } catch (NumberFormatException e) {
