@@ -65,6 +65,7 @@ public class EnvironmentPackageCache implements WritablePackageCache {
     @Override
     public List<Package> getPackages(PackageOrg packageOrg, PackageName packageName) {
         // Do we have a need to improve this logic?
+        // TODO Optimize this logic
         List<Package> foundList = new ArrayList<>();
         for (Project project : projects.values()) {
             PackageManifest pkgDesc = project.currentPackage().manifest();

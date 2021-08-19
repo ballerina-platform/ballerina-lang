@@ -791,10 +791,10 @@ function testSort4() {
         return [<float>val[1], 5.2];
     });
 
-    assertValueEquality(sortedArr[0].toString(), "C 2");
-    assertValueEquality(sortedArr[1].toString(), "A+ 2");
-    assertValueEquality(sortedArr[2].toString(), "A- 3");
-    assertValueEquality(sortedArr[3].toString(), "B 3");
+    assertValueEquality(sortedArr[0].toString(), "[\"C\",2]");
+    assertValueEquality(sortedArr[1].toString(), "[\"A+\",2]");
+    assertValueEquality(sortedArr[2].toString(), "[\"A-\",3]");
+    assertValueEquality(sortedArr[3].toString(), "[\"B\",3]");
     assertValueEquality(grades, sortedArr);
 }
 

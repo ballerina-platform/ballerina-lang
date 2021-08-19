@@ -1,12 +1,4 @@
-[[dependency]]
-org = "a_b"
-name = "foo"
-version = "0.1.0"
-repository = "local"
-
-[[dependency]]
+[[package]]
 org = "ballerina"
 name = "test"
 version = "0.8.0"
-
-

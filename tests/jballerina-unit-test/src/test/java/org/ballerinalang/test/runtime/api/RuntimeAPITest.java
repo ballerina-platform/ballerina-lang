@@ -42,7 +42,7 @@ public class RuntimeAPITest {
     }
 
     @Test
-    public void remoteMethodTypeTest() {
+    public void methodTypeTest() {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/types");
         BRunUtil.invoke(result, "main");
     }

@@ -47,7 +47,7 @@ import java.util.List;
 /**
  * Completion Test Interface.
  *
- * @2.0.0
+ * @since 2.0.0
  */
 public abstract class BallerinaTomlCompletionTest {
 

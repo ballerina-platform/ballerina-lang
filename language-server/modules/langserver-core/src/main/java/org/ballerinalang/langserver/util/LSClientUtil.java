@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.Unregistration;
 import org.eclipse.lsp4j.UnregistrationParams;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -114,6 +115,17 @@ public class LSClientUtil {
     public static boolean isDynamicCommandRegistrationSupported(ClientCapabilities clientCapabilities) {
         return clientCapabilities.getWorkspace().getExecuteCommand() != null &&
                 Boolean.TRUE.equals(clientCapabilities.getWorkspace().getExecuteCommand().getDynamicRegistration());
+    }
+
+    /**
+     * Check if the LS client supports semanticTokens' dynamic registration.
+     *
+     * @param capabilities LS text document client capabilities
+     * @return True if dynamic registration is supported, otherwise false
+     */
+    public static boolean isDynamicSemanticTokensRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities.getSemanticTokens() != null &&
+                Boolean.TRUE.equals(capabilities.getSemanticTokens().getDynamicRegistration());
     }
 
     /**
