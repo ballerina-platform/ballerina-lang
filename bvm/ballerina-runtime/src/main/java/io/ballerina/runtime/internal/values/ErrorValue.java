@@ -70,7 +70,7 @@ public class ErrorValue extends BError implements RefValue {
     private final BError cause;
     private final Object details;
 
-    private static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    private static final String GENERATE_OBJECT_CLASS_PREFIX = "$value$";
     private static final String GENERATE_PKG_INIT = "___init_";
     private static final String GENERATE_PKG_START = "___start_";
     private static final String GENERATE_PKG_STOP = "___stop_";
@@ -425,8 +425,9 @@ public class ErrorValue extends BError implements RefValue {
                                                      stackFrame.getLineNumber()));
 
         }
-        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
-            // Remove java sources for bal stacktrace if they are not extern functions.
+        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX) || isCompilerAddedName(methodName)) {
+            // Remove java sources for bal stacktrace if they are not extern functions or
+            // the stack frames which have compiler added method names
             return Optional.empty();
         }
         return Optional.of(
@@ -434,6 +435,10 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String cleanupClassName(String className) {
-        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
+        return className.replace(GENERATE_OBJECT_CLASS_PREFIX, "");
+    }
+
+    private boolean isCompilerAddedName(String name) {
+        return name != null && name.startsWith("$") && name.endsWith("$");
     }
 }
