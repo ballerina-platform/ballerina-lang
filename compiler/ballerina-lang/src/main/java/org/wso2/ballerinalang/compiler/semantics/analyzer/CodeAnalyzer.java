@@ -4083,7 +4083,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType expressionType = expression.getBType();
 
         BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext(),
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(),
                 expressionType, testType, env);
 
         if (intersectionType != symTable.semanticError) {

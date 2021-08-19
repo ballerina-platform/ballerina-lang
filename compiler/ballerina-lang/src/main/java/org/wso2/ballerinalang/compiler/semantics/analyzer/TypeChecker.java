@@ -388,6 +388,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return resultType;
     }
 
+    private void analyzeObjectConstructor(BLangNode node, SymbolEnv env) {
+        if (!nonErrorLoggingCheck) {
+            semanticAnalyzer.analyzeNode(node, env);
+        }
+    }
+
     private void validateAndSetExprExpectedType(BLangExpression expr) {
         if (resultType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
@@ -3285,7 +3291,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
                                                           true);
                     } else {
-                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                        analyzeObjectConstructor(classDefForConstructor, pkgEnv);
                     }
 
                     markConstructedObjectIsolatedness(actualObjectType);
@@ -6372,6 +6378,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
                 return true;
+            case ELVIS_EXPR:
+            case TERNARY_EXPR:
             case NUMERIC_LITERAL:
                 return inferTypeForNumericLiteral;
             default:
@@ -8256,7 +8264,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
             if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
-                semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+                analyzeObjectConstructor(classDefForConstructor, env);
                 hasNeverReadOnlyField = true;
 
                 if (!logErrors) {
@@ -8280,7 +8288,7 @@ public class TypeChecker extends BLangNodeVisitor {
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
                                                   anonymousModelHelper, symTable, names, cIExpr.pos);
 
-        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+        analyzeObjectConstructor(classDefForConstructor, env);
     }
 
     private void markConstructedObjectIsolatedness(BObjectType actualObjectType) {
