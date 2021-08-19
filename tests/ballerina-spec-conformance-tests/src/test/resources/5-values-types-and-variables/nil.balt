@@ -14,4 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Code should go here
+Test-case: succeed
+Label: nil
+Author: SandaruJayawardana
+
+public function main() {
+    () x = ();
+    io:println(x); // @output
+
+    () y = null;
+    io:println(y); // @output
+
+    x = null;
+    io:println(x); // @output
+}
