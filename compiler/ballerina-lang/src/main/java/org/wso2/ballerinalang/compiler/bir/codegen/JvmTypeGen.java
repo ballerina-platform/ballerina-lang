@@ -31,10 +31,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -1013,8 +1010,8 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
                                false);
             loadType(mv, paramSymbol.type);
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
-                                                                                                 STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD,
+                               String.format("(L%s;L%s;L%s;)V", STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
             mv.visitInsn(AASTORE);
         }
     }
@@ -1035,8 +1032,8 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD, String.format("(Z)L%s;", BOOLEAN_VALUE),
                                false);
             loadType(mv, paramTypes.get(i));
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
-                                                                                                 STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD,
+                               String.format("(L%s;L%s;L%s;)V", STRING_VALUE, BOOLEAN_VALUE, TYPE), false);
             mv.visitInsn(AASTORE);
         }
     }
