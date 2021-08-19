@@ -41,6 +41,7 @@
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
             <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
 
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsWithinTargetDocumentTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindModulePrefixRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsAcrossFilesTest" />
