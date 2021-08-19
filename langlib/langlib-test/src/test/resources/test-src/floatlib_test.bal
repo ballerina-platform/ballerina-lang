@@ -72,3 +72,13 @@ function testFloatNotExactEquality() {
     test:assertFalse(float:NaN !== float:NaN);
     test:assertTrue(-0.0 !== 0.0);
 }
+
+function testFromHexString() {
+    float|error v1 = float:fromHexString("0xa.bp1");
+    test:assertValueEqual(checkpanic v1, 21.375);
+
+    float|error v2 = float:fromHexString("0x1a");
+    error err = <error> v2;
+    test:assertValueEqual(err.message(), "{ballerina/lang.float}NumberParsingError");
+    test:assertValueEqual(<string> checkpanic err.detail()["message"], "For input string: \"0x1a\"");
+}
