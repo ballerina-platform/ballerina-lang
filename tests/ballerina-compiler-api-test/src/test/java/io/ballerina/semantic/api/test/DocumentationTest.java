@@ -29,8 +29,11 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -42,6 +45,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -159,6 +163,49 @@ public class DocumentationTest {
         Optional<Symbol> symbol = model.symbol(srcFile, from(89, 22));
         Optional<Documentation> documentation = ((Documentable) symbol.get()).documentation();
         assertDescriptionOnly(documentation.get(), "This is a listener declaration");
+    }
+
+    @Test(dataProvider = "PositionProvider")
+    public void testDocSymbolPositions(int sLine, int sCol, String expSymbolName, int defSLine, int defSCol,
+                                       int defELine, int defECol) {
+
+        Project project = BCompileUtil.loadProject("test-src/documentation_symbol_position_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(sLine, sCol));
+
+        if (symbol.isEmpty()) {
+            assertNull(expSymbolName);
+        }
+
+        assertTrue(symbol.isPresent());
+        assertTrue(symbol.get().getName().isPresent());
+        assertEquals(symbol.get().getName().get(), expSymbolName);
+
+        assertTrue(symbol.get().getLocation().isPresent());
+
+        Location pos = symbol.get().getLocation().get();
+        assertEquals(pos.lineRange().filePath(), "documentation_symbol_position_test.bal");
+        assertEquals(pos.lineRange().startLine().line(), defSLine);
+        assertEquals(pos.lineRange().startLine().offset(), defSCol);
+        assertEquals(pos.lineRange().endLine().line(), defELine);
+        assertEquals(pos.lineRange().endLine().offset(), defECol);
+    }
+
+    @DataProvider(name = "PositionProvider")
+    public Object[][] getTypeDefPositions() {
+        return new Object[][] {
+                {18, 4, "abc", 20, 17, 20, 20},
+                {28, 4, "name", 30, 11, 30, 15},
+                {39, 4, "name", 44, 18, 44, 22},
+                {40, 4, "age", 45, 15, 45, 18},
+                {41, 4, "address", 46, 18, 46, 25},
+                {72, 4, "x", 75, 18, 75, 19},
+                {73, 4, "y", 75, 25, 75, 26},
+                {84, 4, "a", 87, 35, 87, 36},
+                {85, 4, "b", 87, 44, 87, 45},
+        };
     }
 
     // util methods
