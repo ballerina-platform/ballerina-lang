@@ -198,6 +198,7 @@ function objectToVarAssignment() returns boolean {
                     record {|
                         any x = 1;
                     |} r = {};
+                    return;
                 };
     };
     if (v is readonly) {
@@ -216,12 +217,12 @@ function objectToVarAssignment2() returns boolean {
                     record {|
                         any x = 1;
                     |} r = {};
+                    return;
                 };
     }; 
     if (v is readonly) {
         return true;
     }
-    return false;
 }
 
 function testObjectToVarAssignment2() {
