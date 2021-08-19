@@ -68,7 +68,7 @@ public class RemotePackageRepositoryTests {
             .from(resHttp120, http121, DependencyGraph.emptyGraph());
     ResolutionResponseDescriptor fileCovid159 = ResolutionResponseDescriptor
             .from(resCovid156, covid159, DependencyGraph.emptyGraph());
-    ResolutionResponseDescriptor fileSmtp130 = ResolutionResponseDescriptor.from(resSmtp130);
+    ResolutionResponseDescriptor fileSmtp130 = ResolutionResponseDescriptor.createUnresolvedResponse(resSmtp130);
 
     @BeforeSuite
     public void setup() {
@@ -120,7 +120,8 @@ public class RemotePackageRepositoryTests {
                 anyString(), anyString(), anyBoolean())).thenReturn(response);
         // Mock response from file system
         when(fileSystemRepository.resolveDependencyVersions(anyList()))
-                .thenReturn(Arrays.asList(ResolutionResponseDescriptor.from(resHttp120), fileCovid159, fileSmtp130));
+                .thenReturn(Arrays.asList(ResolutionResponseDescriptor.createUnresolvedResponse(resHttp120),
+                        fileCovid159, fileSmtp130));
 
         // Test call to remote repository
         List<ResolutionResponseDescriptor> resolutionResponseDescriptors =

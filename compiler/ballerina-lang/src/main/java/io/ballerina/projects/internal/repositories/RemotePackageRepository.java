@@ -326,7 +326,7 @@ public class RemotePackageRepository implements PackageRepository {
                 response.add(responseDescriptor);
             } else {
                 // If the package is not in resolved we assume the package is unresolved
-                response.add(ResolutionResponseDescriptor.from(resolutionRequest));
+                response.add(ResolutionResponseDescriptor.createUnresolvedResponse(resolutionRequest));
             }
         }
         return response;
