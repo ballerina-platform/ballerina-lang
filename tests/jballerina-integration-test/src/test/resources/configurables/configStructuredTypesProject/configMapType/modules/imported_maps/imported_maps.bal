@@ -78,6 +78,7 @@ configurable table<map<configLib:Manager & readonly>> & readonly readonlyManager
 public function testMaps() {
     testDirectMaps();
     testArrayOfMaps();
+    testArrayIteration();
     testTableOfMaps();
     testMapIteration();
     testTableIteration();    
@@ -123,6 +124,12 @@ function testArrayOfMaps() {
     test:assertEquals(doctorMapArr.toString(), "[{\"p1\":{\"name\":\"Jack\",\"id\":55}," + 
     "\"p2\":{\"name\":\"Jill\",\"id\":88}},{\"p1\":{\"name\":\"John\",\"id\":66}," + 
     "\"p2\":{\"name\":\"Jim\",\"id\":77}}]");
+}
+
+function testArrayIteration() {
+    util:testArrayIterator(intMapArr, 2);
+    util:testArrayIterator(stringMapArr, 2);
+    util:testArrayIterator(doctorMapArr, 2);
 }
 
 function testTableOfMaps() {

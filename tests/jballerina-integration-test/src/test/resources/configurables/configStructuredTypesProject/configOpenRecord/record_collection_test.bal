@@ -66,7 +66,16 @@ function testRecordCollection() {
     "\"stringVal\":\"val\",\"floatVal\":9.12,\"mapVal\":{\"c\":\"ccc\",\"d\":43}," + 
     "\"mapArr\":[{\"i\":\"iii\",\"j\":21}]},{\"id\":130,\"arrVal\":[10,20],\"intVal\":40,\"stringVal\":\"str\"," + 
     "\"floatVal\":13.57,\"mapVal\":{\"m\":\"mmm\",\"n\":68},\"mapArr\":[{\"y\":\"yyy\",\"x\":24}]}]");
+}
 
+function testArrayIteration() {
+    util:testArrayIterator(ownerArr, 2);
+    util:testArrayIterator(memberArr, 2);
+    util:testArrayIterator(productArr, 2);
+    util:testArrayIterator(anonRecordArr, 2);
+}
+
+function testTableIteration() {
     util:testTableIterator(ownerTable);
     util:testTableIterator(memberTable);
     util:testTableIterator(anonRecordTable);
