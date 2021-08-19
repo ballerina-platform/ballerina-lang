@@ -367,9 +367,10 @@ public class RemotePackageRepository implements PackageRepository {
                     mode = PackageResolutionRequest.Mode.SOFT;
                     break;
             }
+            String version = resolutionRequest.version().map(v -> v.value().toString()).orElse("");
             packageResolutionRequest.addPackage(resolutionRequest.orgName().value(),
                     resolutionRequest.packageName().value(),
-                    resolutionRequest.version().get().value().toString(),
+                    version,
                     mode);
         }
         return packageResolutionRequest;
