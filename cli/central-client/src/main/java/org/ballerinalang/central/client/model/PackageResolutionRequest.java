@@ -18,6 +18,16 @@
 
 package org.ballerinalang.central.client.model;
 
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.annotations.SerializedName;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +47,8 @@ public class PackageResolutionRequest {
     static class Package {
         private String orgName;
         private String name;
+
+        @JsonAdapter(EmptyStringTypeAdapter.class)
         private String version;
         Mode mode;
 
@@ -85,8 +97,13 @@ public class PackageResolutionRequest {
      *
      */
     public static enum Mode {
+        @SerializedName("soft")
         SOFT("soft"),
+
+        @SerializedName("medium")
         MEDIUM("medium"),
+
+        @SerializedName("hard")
         HARD("hard");
 
         private final String text;
@@ -114,4 +131,40 @@ public class PackageResolutionRequest {
     public void addPackage(String orgName, String name, String version, Mode mode) {
         packages.add(new Package(orgName, name, version, mode));
     }
+
+    final class EmptyStringTypeAdapter
+            extends TypeAdapter<String> {
+
+        private EmptyStringTypeAdapter() {
+        }
+
+        @Override
+        @SuppressWarnings("resource")
+        public void write(final JsonWriter jsonWriter, @Nullable final String s)
+                throws IOException {
+            if ( s == null || s.isEmpty() ) {
+                jsonWriter.nullValue();
+            } else {
+                jsonWriter.value(s);
+            }
+        }
+
+        @Override
+        @Nonnull
+        @SuppressWarnings("EnumSwitchStatementWhichMissesCases")
+        public String read(final JsonReader jsonReader)
+                throws IOException {
+            final JsonToken token = jsonReader.peek();
+            switch ( token ) {
+                case NULL:
+                    return "";
+                case STRING:
+                    return jsonReader.nextString();
+                default:
+                    throw new IllegalStateException("Unexpected token: " + token);
+            }
+        }
+
+    }
+
 }
