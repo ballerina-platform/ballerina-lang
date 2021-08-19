@@ -50,6 +50,7 @@ public type BeforeGroupsConfig record {
 
 public type AfterGroupsConfig record {
     string[] value = [];
+    boolean alwaysRun = false;
 };
 
 public annotation TestConfig Config on function;

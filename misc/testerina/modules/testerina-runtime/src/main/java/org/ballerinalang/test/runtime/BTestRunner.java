@@ -679,30 +679,28 @@ public class BTestRunner {
     private void executeAfterGroupFunctions(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                             AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                             AtomicBoolean shouldSkipAfterGroups)  {
-        if (!shouldSkipAfterGroups.get() && !shouldSkip.get() && !shouldSkipTest.get()) {
-            for (String groupName : test.getGroups()) {
-                if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
-                        && suite.getGroups().get(groupName).isLastTestExecuted()) {
-                    // run before tests
-                    String errorMsg;
-                    for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
+        for (String groupName : test.getGroups()) {
+            if (!suite.getGroups().get(groupName).getAfterGroupsFunctions().isEmpty()
+                    && suite.getGroups().get(groupName).isLastTestExecuted()) {
+                // run before tests
+                suite.getGroups().get(groupName).getAfterGroupsFunctions().forEach((afterGroupFunc, alwaysRun) -> {
+                    if (!(shouldSkipAfterGroups.get() || shouldSkip.get()) || alwaysRun.get()) {
                         try {
                             Object value = invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
-                            if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                            if (value instanceof BError || value instanceof Exception || value instanceof Error) {
                                 throw (Throwable) value;
                             }
                         } catch (Throwable e) {
                             shouldSkip.set(true);
                             shouldSkipTest.set(true);
                             shouldSkipAfterGroups.set(true);
-                            errorMsg = String.format("\t[fail] " + afterGroupFunc +
+                            String errorMsg = String.format("\t[fail] " + afterGroupFunc +
                                             " [after test group function for the test %s] :\n\t    %s", test,
                                     formatErrorMessage(e));
                             errStream.println(errorMsg);
                         }
                     }
-
-                }
+                });
             }
         }
     }
