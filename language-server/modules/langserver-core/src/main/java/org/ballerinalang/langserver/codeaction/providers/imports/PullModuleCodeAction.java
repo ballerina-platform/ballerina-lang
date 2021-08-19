@@ -19,10 +19,9 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.command.executors.PullModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -45,15 +44,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Pull Module";
 
-    /** Command used at the LS client side to trigger pull module code command. */
-    private static final String PULL_MODULE_COMMAND = "ballerina.packages.pull";
     private static final int MISSING_MODULE_NAME_INDEX = 0;
-
-    @Override
-    public boolean isEnabled(LanguageServerContext serverContext) {
-        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        return clientCapabilities != null && clientCapabilities.getInitializationOptions().isPullModuleSupported();
-    }
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
@@ -78,7 +69,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
         String commandTitle = CommandConstants.PULL_MOD_TITLE;
         CodeAction action = new CodeAction(commandTitle);
         action.setKind(CodeActionKind.QuickFix);
-        action.setCommand(new Command(commandTitle, PULL_MODULE_COMMAND, args));
+        action.setCommand(new Command(commandTitle, PullModuleExecutor.COMMAND, args));
         action.setDiagnostics(CodeActionUtil.toDiagnostics(diagnostics));
         return Collections.singletonList(action);
     }
