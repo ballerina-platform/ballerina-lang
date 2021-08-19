@@ -18,7 +18,7 @@
 
 package io.ballerina.projects.internal.model;
 
-import java.sql.Timestamp;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * {@code PackageJson} Model for build file.
@@ -27,34 +27,39 @@ import java.sql.Timestamp;
  */
 public class BuildJson {
 
-    private Timestamp last_build_time;
-    private Timestamp last_update_time;
+    public static final String SERIALIZED_NAME_LAST_BUILD_TIME = "last_build_time";
+    @SerializedName(SERIALIZED_NAME_LAST_BUILD_TIME)
+    private long lastBuildTime;
+
+    public static final String SERIALIZED_NAME_LAST_UPDATE_TIME = "last_update_time";
+    @SerializedName(SERIALIZED_NAME_LAST_UPDATE_TIME)
+    private long lastUpdateTime;
 
     private static final long ONE_DAY = 24 * 60 * 60 * 1000;
 
-    public BuildJson(Timestamp last_build_time, Timestamp last_update_time) {
-        this.last_build_time = last_build_time;
-        this.last_update_time = last_update_time;
+    public BuildJson(long lastBuildTime, long lastUpdateTime) {
+        this.lastBuildTime = lastBuildTime;
+        this.lastUpdateTime = lastUpdateTime;
     }
 
-    public Timestamp lastBuildTime() {
-        return last_build_time;
+    public long lastBuildTime() {
+        return lastBuildTime;
     }
 
-    public void setLastBuildTime(Timestamp last_build_time) {
-        this.last_build_time = last_build_time;
+    public void setLastBuildTime(long lastBuildTime) {
+        this.lastBuildTime = lastBuildTime;
     }
 
-    public Timestamp lastUpdateTime() {
-        return last_update_time;
+    public long lastUpdateTime() {
+        return lastUpdateTime;
     }
 
-    public void setLastUpdateTime(Timestamp last_update_time) {
-        this.last_update_time = last_update_time;
+    public void setLastUpdateTime(long lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
     }
 
     public boolean isExpiredLastUpdateTime() {
         long oneDayAgo = System.currentTimeMillis() - ONE_DAY;
-        return lastBuildTime().getTime() < oneDayAgo;
+        return lastUpdateTime() < oneDayAgo;
     }
 }

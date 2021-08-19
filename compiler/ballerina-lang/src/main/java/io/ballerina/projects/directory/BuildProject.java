@@ -42,11 +42,11 @@ import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -200,7 +200,7 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        boolean shouldUpdate = this.currentPackage().getResolution().shouldUpdate();
+        boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
         // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
@@ -219,8 +219,8 @@ public class BuildProject extends Project {
                 writeBuildFile(buildFilePath);
             } else {
                 // only update build time
-                buildJson.setLastBuildTime(new Timestamp(System.currentTimeMillis()));
-                writeBuildFile(buildFilePath, buildJson);
+                buildJson.setLastBuildTime(System.currentTimeMillis());
+                ProjectUtils.writeBuildFile(buildFilePath, buildJson);
             }
         }
     }
@@ -358,17 +358,7 @@ public class BuildProject extends Project {
     }
 
     private static void writeBuildFile(Path buildFilePath) {
-        BuildJson buildJson = new BuildJson(new Timestamp(System.currentTimeMillis()),
-                                            new Timestamp(System.currentTimeMillis()));
-        writeBuildFile(buildFilePath, buildJson);
-    }
-
-    private static void writeBuildFile(Path buildFilePath, BuildJson buildJson) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try {
-            Files.write(buildFilePath, Collections.singleton(gson.toJson(buildJson)));
-        } catch (IOException e) {
-            throw new ProjectException("Failed to write to the '" + BUILD_FILE + "' file");
-        }
+        BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis());
+        ProjectUtils.writeBuildFile(buildFilePath, buildJson);
     }
 }

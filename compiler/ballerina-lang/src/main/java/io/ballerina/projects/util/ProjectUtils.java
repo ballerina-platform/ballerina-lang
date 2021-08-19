@@ -18,6 +18,7 @@
 package io.ballerina.projects.util;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
@@ -789,5 +790,20 @@ public class ProjectUtils {
             throw new ProjectException("Failed to read the '" + BUILD_FILE + "' file");
         }
         return buildJson;
+    }
+
+    /**
+     * Write build file from given object.
+     *
+     * @param buildFilePath build file path
+     * @param buildJson     BuildJson object
+     */
+    public static void writeBuildFile(Path buildFilePath, BuildJson buildJson) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            Files.write(buildFilePath, Collections.singleton(gson.toJson(buildJson)));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write to the '" + BUILD_FILE + "' file");
+        }
     }
 }

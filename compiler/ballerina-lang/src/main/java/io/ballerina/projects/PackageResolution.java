@@ -69,7 +69,7 @@ public class PackageResolution {
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
-    private boolean shouldUpdate;
+    private boolean autoUpdate;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
@@ -86,7 +86,7 @@ public class PackageResolution {
 
         this.moduleResolver = new ModuleResolver(projectEnvContext.getService(PackageResolver.class));
 
-        dependencyGraph = buildDependencyGraph(setStickyAndShouldUpdate(rootPackageContext));
+        dependencyGraph = buildDependencyGraph(getSticky(rootPackageContext));
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -147,28 +147,28 @@ public class PackageResolution {
         this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
 
-    public boolean shouldUpdate() {
-        return shouldUpdate;
+    public boolean autoUpdate() {
+        return autoUpdate;
     }
 
-    private boolean setStickyAndShouldUpdate(PackageContext rootPackageContext) {
-        boolean sticky = rootPackageContext.project().buildOptions().sticky();
-        if (!sticky) {
+    private boolean getSticky(PackageContext rootPackageContext) {
+        if (!rootPackageContext.project().buildOptions().sticky()) {
             // set sticky if `build` file exists and `last_update_time` not passed 24 hours
             Path buildFilePath = this.rootPackageContext.project().sourceRoot().resolve(TARGET_DIR_NAME)
                     .resolve(BUILD_FILE);
             if (buildFilePath.toFile().exists()) {
                 BuildJson buildJson = readBuildJson(buildFilePath);
                 if (!buildJson.isExpiredLastUpdateTime()) {
-                    sticky = true;
-                    this.shouldUpdate = false;
+                    this.autoUpdate = false;
+                    return true;
                 }
             }
-            this.shouldUpdate = true;
+            this.autoUpdate = true;
+            return false;
         } else {
-            this.shouldUpdate = false;
+            this.autoUpdate = false;
+            return true;
         }
-        return sticky;
     }
 
     /**
