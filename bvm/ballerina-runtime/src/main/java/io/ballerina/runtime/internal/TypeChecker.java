@@ -1757,12 +1757,12 @@ public class TypeChecker {
             return false;
         }
 
-        if (source.getParameterTypes().length != target.getParameterTypes().length) {
+        if (source.getParameters().length != target.getParameters().length) {
             return false;
         }
 
-        for (int i = 0; i < source.getParameterTypes().length; i++) {
-            if (!checkIsType(target.getParameterTypes()[i], source.getParameterTypes()[i], unresolvedTypes)) {
+        for (int i = 0; i < source.getParameters().length; i++) {
+            if (!checkIsType(target.getParameters()[i].type, source.getParameters()[i].type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -1790,12 +1790,12 @@ public class TypeChecker {
             return true;
         }
 
-        if (source.paramTypes.length != targetType.paramTypes.length) {
+        if (source.parameters.length != targetType.parameters.length) {
             return false;
         }
 
-        for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!checkIsType(targetType.paramTypes[i], source.paramTypes[i], new ArrayList<>())) {
+        for (int i = 0; i < source.parameters.length; i++) {
+            if (!checkIsType(targetType.parameters[i].type, source.parameters[i].type, new ArrayList<>())) {
                 return false;
             }
         }
@@ -3170,7 +3170,7 @@ public class TypeChecker {
             }
             FunctionType initFuncType = generatedInitializer.getType();
             // Todo: check defaultable params of the init func as well
-            boolean noParams = initFuncType.getParameterTypes().length == 0;
+            boolean noParams = initFuncType.getParameters().length == 0;
             boolean nilReturn = initFuncType.getReturnType().getTag() == TypeTags.NULL_TAG;
             return noParams && nilReturn;
         }

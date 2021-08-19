@@ -580,7 +580,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
         return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
-                endLinePos.offset() - 1, endLinePos.offset());
+                endLinePos.offset() - 1, endLinePos.offset(),
+                pos.textRange().startOffset() + pos.textRange().length() - 1, 1);
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -4082,7 +4083,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType expressionType = expression.getBType();
 
         BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext(),
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(),
                 expressionType, testType, env);
 
         if (intersectionType != symTable.semanticError) {

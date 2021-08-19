@@ -145,6 +145,16 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test object to var assignment.")
+    public void testObjectToVarAssignment() {
+        BRunUtil.invoke(result, "testObjectToVarAssignment");
+    }
+
+    @Test(description = "Test object to var assignment.")
+    public void testObjectToVarAssignment2() {
+        BRunUtil.invoke(result, "testObjectToVarAssignment2");
+    }
+
     @Test(description = "Test var in variable def.", groups = { "disableOnOldParser" })
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements

@@ -106,7 +106,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
     /**
      * Parse initialization options from the initialization options map received.
      *
-     * @param initOptions Receied initialization options map
+     * @param initOptions Received initialization options map
      * @return Initialization options.
      */
     private InitializationOptions parseInitializationOptions(Map<String, Object> initOptions) {
@@ -114,6 +114,12 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
         boolean pullModuleSupported = Boolean.parseBoolean(String.valueOf(pullModuleSupport));
         InitializationOptionsImpl initializationOptions = new InitializationOptionsImpl();
         initializationOptions.setPullModuleSupported(pullModuleSupported);
+
+        Object semanticTokensSupport = initOptions.get(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS);
+        boolean enableSemanticTokens = semanticTokensSupport == null ||
+                Boolean.parseBoolean(String.valueOf(semanticTokensSupport));
+        initializationOptions.setEnableSemanticTokens(enableSemanticTokens);
+
         return initializationOptions;
     }
 
@@ -158,6 +164,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      */
     public static class InitializationOptionsImpl implements InitializationOptions {
         private boolean isPullModuleSupported = false;
+        private boolean enableSemanticTokens = false;
         
         @Override
         public boolean isPullModuleSupported() {
@@ -166,6 +173,14 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         public void setPullModuleSupported(boolean pullModuleSupported) {
             isPullModuleSupported = pullModuleSupported;
+        }
+
+        public boolean isEnableSemanticTokens() {
+            return enableSemanticTokens;
+        }
+
+        public void setEnableSemanticTokens(boolean enableSemanticTokens) {
+            this.enableSemanticTokens = enableSemanticTokens;
         }
     }
 }

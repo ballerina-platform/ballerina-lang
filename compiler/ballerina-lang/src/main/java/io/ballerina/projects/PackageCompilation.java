@@ -43,7 +43,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -62,7 +61,7 @@ public class PackageCompilation {
     private volatile boolean compiled;
     private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext) {
+    private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = rootPackageContext.getResolution();
 
@@ -70,7 +69,7 @@ public class PackageCompilation {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
         // Set compilation options retrieved from the build options
-        setCompilerOptions(rootPackageContext.compilationOptions());
+        setCompilerOptions(compilationOptions);
 
         // We have only the jvm backend for now.
         this.compilerBackends = new HashMap<>(1);
@@ -80,7 +79,6 @@ public class PackageCompilation {
     private void setCompilerOptions(CompilationOptions compilationOptions) {
         CompilerOptions options = CompilerOptions.getInstance(compilerContext);
         options.put(OFFLINE, Boolean.toString(compilationOptions.offlineBuild()));
-        options.put(SKIP_TESTS, Boolean.toString(compilationOptions.skipTests()));
         options.put(EXPERIMENTAL, Boolean.toString(compilationOptions.experimental()));
         options.put(OBSERVABILITY_INCLUDED, Boolean.toString(compilationOptions.observabilityIncluded()));
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
@@ -88,9 +86,18 @@ public class PackageCompilation {
         options.put(CLOUD, compilationOptions.getCloud());
     }
 
-    static PackageCompilation from(PackageContext rootPackageContext) {
-        PackageCompilation compilation = new PackageCompilation(rootPackageContext);
+    static PackageCompilation from(PackageContext rootPkgContext) {
+        PackageCompilation compilation = new PackageCompilation(rootPkgContext, rootPkgContext.compilationOptions());
+        return compile(compilation);
 
+    }
+
+    static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+        PackageCompilation compilation = new PackageCompilation(rootPackageContext, compilationOptions);
+        return compile(compilation);
+    }
+
+    private static PackageCompilation compile(PackageCompilation compilation) {
         // Compile modules in the dependency graph
         compilation.compileModules();
 
@@ -177,7 +184,7 @@ public class PackageCompilation {
         // add resolution diagnostics
         diagnostics.addAll(packageResolution.diagnosticResult().allDiagnostics);
         // add manifest diagnostics
-        diagnostics.addAll(packageContext().manifest().diagnostics().allDiagnostics);
+        diagnostics.addAll(packageContext().packageManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
