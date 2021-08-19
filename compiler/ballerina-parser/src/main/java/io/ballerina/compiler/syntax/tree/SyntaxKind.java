@@ -195,6 +195,8 @@ public enum SyntaxKind {
     SLASH_ASTERISK_TOKEN(588, "/*"),
     DOUBLE_GT_TOKEN(589, ">>"),
     TRIPPLE_GT_TOKEN(590, ">>>"),
+    XML_CDATA_START_TOKEN(591, "<![CDATA["),
+    XML_CDATA_END_TOKEN(592, "]]>"),
 
     // Documentation reference types
     TYPE_DOC_REFERENCE_TOKEN(900, "type"),
