@@ -208,7 +208,7 @@ function testTypeDefWithIntersectionTypeDescAsTypedesc() {
     typedesc<anydata> a = ImmutableIntArray;
     (int|string)[] arr = [1, 2, 3];
     anydata|error b = arr.cloneWithType(a);
-    assertEquality("typedesc int[] & readonly", (typeof b).toString());
+    assertEquality("typedesc [1,2,3]", (typeof b).toString());
     assertEquality(true, b is int[]);
     assertEquality(true, (<int[]> checkpanic b).isReadOnly());
     assertEquality(<int[]> [1, 2, 3], b);

@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Collections;
@@ -111,9 +112,11 @@ public class StackTrace {
         BArray callStack;
 
         private ObjectType type;
+        private BTypedesc typedesc;
 
         public CallStack(ObjectType type) {
             this.type = type;
+            this.typedesc = ValueCreator.createTypedescValue(type);
         }
 
         @Override
@@ -213,5 +216,11 @@ public class StackTrace {
         public Object frozenCopy(Map<Object, Object> refs) {
             return null;
         }
+
+        @Override
+        public BTypedesc getTypedesc() {
+            return typedesc;
+        }
+
     }
 }

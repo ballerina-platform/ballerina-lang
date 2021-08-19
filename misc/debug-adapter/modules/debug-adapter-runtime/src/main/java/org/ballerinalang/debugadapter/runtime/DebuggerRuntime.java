@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ErrorType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
@@ -240,8 +241,8 @@ public class DebuggerRuntime {
      */
     public static Object getAnnotationValue(Object typedescValue, String annotationName) {
         if (!(typedescValue instanceof TypedescValue)) {
-            return ErrorCreator.createError(StringUtils.fromString("Incompatible types: expected 'typedesc`, found '"
-                    + typedescValue.toString() + "'."));
+            return ErrorCreator.createError(StringUtils.fromString("Incompatible types: expected 'typedesc`, " +
+                    "found '" + typedescValue.toString() + "'."));
         }
         Type type = ((TypedescValue) typedescValue).getDescribingType();
         if (type instanceof BAnnotatableType) {
@@ -252,8 +253,9 @@ public class DebuggerRuntime {
                     .map(Map.Entry::getValue)
                     .orElse(null);
         }
-        return ErrorCreator.createError(StringUtils.fromString("type: '" + type.toString() + "' does not support " +
-                "annotation access."));
+
+        return ErrorCreator.createError(StringUtils.fromString("type: '" + TypeUtils.getType(type.getEmptyValue())
+                + "' does not support annotation access."));
     }
 
     private static Method getMethod(String functionName, Class<?> funcClass) throws NoSuchMethodException {
