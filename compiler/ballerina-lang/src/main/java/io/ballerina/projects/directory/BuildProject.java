@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects.directory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
