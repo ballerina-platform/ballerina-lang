@@ -282,7 +282,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             updateBalDocument(filePath, params.getContentChanges().get(0).getText(), projectPair, false);
         }
     }
-    
+
     /**
      * The file change notification is sent from the client to the server to signal changes to watched files.
      *
@@ -861,7 +861,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
             Project project;
-            BuildOptions options = new BuildOptionsBuilder().offline(CommonUtil.COMPILE_OFFLINE).build();
+            BuildOptions options = new BuildOptionsBuilder().offline(CommonUtil.COMPILE_OFFLINE).sticky(true).build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
