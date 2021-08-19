@@ -491,7 +491,7 @@ public class CentralAPIClient {
                                                              boolean isBuild)
             throws CentralClientException {
 
-        String url = this.baseUrl + "/" + RESOLVE_MODULES;
+        String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_MODULES;
 
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
@@ -557,7 +557,7 @@ public class CentralAPIClient {
                                                          String ballerinaVersion, boolean isBuild)
             throws CentralClientException {
 
-        String url = this.baseUrl + "/" + RESOLVE_DEPENDENCIES;
+        String url = this.baseUrl + "/" + PACKAGES + "/" + RESOLVE_DEPENDENCIES;
 
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
