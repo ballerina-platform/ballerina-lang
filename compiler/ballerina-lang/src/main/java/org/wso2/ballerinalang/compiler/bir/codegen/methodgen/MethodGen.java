@@ -499,7 +499,9 @@ public class MethodGen {
 
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
                                    BIRTerminator terminator) {
-        JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
+        if (terminator.kind != InstructionKind.RETURN) {
+            JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
+        }
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
                 terminator instanceof Return) {
             String moduleAnnotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
