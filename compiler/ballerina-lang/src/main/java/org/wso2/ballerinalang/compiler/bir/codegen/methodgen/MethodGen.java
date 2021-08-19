@@ -501,7 +501,9 @@ public class MethodGen {
 
     private void processTerminator(MethodVisitor mv, BIRFunction func, BIRPackage module, String funcName,
                                    BIRTerminator terminator, JvmTypeGen jvmTypeGen, int localVarOffset) {
-        JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
+        if (terminator.kind != InstructionKind.RETURN) {
+            JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
+        }
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
                 terminator instanceof Return) {
             generateAnnotLoad(mv, module.typeDefs, JvmCodeGenUtil.getPackageName(module.packageID),

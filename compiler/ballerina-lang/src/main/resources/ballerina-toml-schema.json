@@ -107,6 +107,48 @@
         "required": "cannot find '${property}' under 'platform'"
       }
     },
+    "dependency": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "org": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_]*$",
+            "message": {
+              "pattern": "invalid 'org' under [[package]]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_.]*$",
+            "message": {
+              "pattern": "invalid 'name' under [[package]]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+            }
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+            "message": {
+              "pattern": "invalid 'version' under [[package]]: 'version' should be compatible with semver"
+            }
+          },
+          "repository": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "org",
+          "name",
+          "version",
+          "repository"
+        ],
+        "message": {
+          "required": "'${property}' under [[dependency]] is missing"
+        }
+      }
+    },
     "build-options": {
       "type": "object",
       "additionalProperties": true,

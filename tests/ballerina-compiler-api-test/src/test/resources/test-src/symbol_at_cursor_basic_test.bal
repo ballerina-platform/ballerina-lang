@@ -134,3 +134,21 @@ enum Keyword {
 }
 
 type Atype Keyword;
+
+public type Path int[];
+
+public type ParseDetail record {
+    Path path;
+};
+
+public type ParseError error<ParseDetail>;
+
+function testOnFail() returns boolean {
+    do {
+        boolean ok = true;
+        return ok;
+    }
+    on fail ParseError err {
+        return false;
+    }
+}

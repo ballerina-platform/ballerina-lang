@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,26 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.commons.semantichighlighter;
+
+package io.ballerina.runtime.api.types;
+
 /**
- * Represents the data model for Semantic Highlighting Information.
+ * {@code {@link Parameter } represents the parameter of a function in ballerina.
  *
- * @since 1.2.0
+ * @since 2.0
  */
-public class SemanticHighlightingInformation {
-    private final int line;
-    private final String token;
+public class Parameter {
+    public final String name;
+    public final boolean isDefault;
+    public Type type;
 
-    public SemanticHighlightingInformation(int line, String token) {
-        this.line = line;
-        this.token = token;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public int getLine() {
-        return line;
+    public Parameter(String name, Boolean isDefault, Type type) {
+        this.name = name;
+        this.isDefault = isDefault;
+        this.type = type;
     }
 }

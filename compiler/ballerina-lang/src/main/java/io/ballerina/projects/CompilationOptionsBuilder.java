@@ -24,8 +24,7 @@ package io.ballerina.projects;
  *
  * @since 2.0.0
  */
-class CompilationOptionsBuilder {
-    private Boolean skipTests;
+public class CompilationOptionsBuilder {
     private Boolean buildOffline;
     private Boolean experimental;
     private Boolean observabilityIncluded;
@@ -33,13 +32,9 @@ class CompilationOptionsBuilder {
     private String dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
+    private Boolean sticky;
 
     public CompilationOptionsBuilder() {
-    }
-
-    public CompilationOptionsBuilder skipTests(Boolean value) {
-        skipTests = value;
-        return this;
     }
 
     public CompilationOptionsBuilder buildOffline(Boolean value) {
@@ -47,38 +42,42 @@ class CompilationOptionsBuilder {
         return this;
     }
 
-    public CompilationOptionsBuilder experimental(Boolean value) {
+    CompilationOptionsBuilder experimental(Boolean value) {
         experimental = value;
         return this;
     }
 
-    public CompilationOptionsBuilder observabilityIncluded(Boolean value) {
+    CompilationOptionsBuilder observabilityIncluded(Boolean value) {
         observabilityIncluded = value;
         return this;
     }
 
-    public CompilationOptionsBuilder dumpBir(Boolean value) {
+    CompilationOptionsBuilder dumpBir(Boolean value) {
         dumpBir = value;
         return this;
     }
 
-    public CompilationOptionsBuilder cloud(String value) {
+    CompilationOptionsBuilder cloud(String value) {
         cloud = value;
         return this;
     }
 
-    public CompilationOptionsBuilder dumpBirFile(String value) {
+    CompilationOptionsBuilder dumpBirFile(String value) {
         dumpBirFile = value;
         return this;
     }
 
-    public CompilationOptionsBuilder listConflictedClasses(Boolean value) {
+    CompilationOptionsBuilder listConflictedClasses(Boolean value) {
         listConflictedClasses = value;
         return this;
     }
 
     public CompilationOptions build() {
-        return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, listConflictedClasses);
+        return new CompilationOptions(buildOffline, experimental, observabilityIncluded, dumpBir,
+                dumpBirFile, cloud, listConflictedClasses, sticky);
+    }
+
+    void sticky(Boolean value) {
+        sticky = value;
     }
 }
