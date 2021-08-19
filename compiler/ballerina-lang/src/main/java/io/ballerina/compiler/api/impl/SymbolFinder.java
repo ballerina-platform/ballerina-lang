@@ -1157,7 +1157,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(streamType.error);
 
         if (symbolAtCursor == null) {
-            this.symbolAtCursor = streamType.type.getBType().tsymbol;
+            this.symbolAtCursor = streamType.getBType().tsymbol;
         }
     }
 
@@ -1168,7 +1168,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeyTypeConstraint);
 
         if (this.symbolAtCursor == null) {
-            this.symbolAtCursor = tableType.type.getBType().tsymbol;
+            this.symbolAtCursor = tableType.tableType.tsymbol;
         }
     }
 
