@@ -349,6 +349,10 @@ public class BuildProject extends Project {
 
     private static void createBuildFile(Path buildFilePath) {
         try {
+            if (!buildFilePath.getParent().toFile().exists()) {
+                // create target directory if not exists
+                Files.createDirectory(buildFilePath.getParent());
+            }
             Files.createFile(buildFilePath);
         } catch (IOException e) {
             throw new ProjectException("Failed to create '" + BUILD_FILE + "' file");
