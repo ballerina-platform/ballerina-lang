@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-//import ballerina/jballerina.java;
+import ballerina/jballerina.java;
 
-public function main() {
-    //print(f > 5.0 ? i + 5 : 5 - i);
+public function main(int i, float f) {
+    print(f > 5.0 ? i + 5 : 5 - i);
 }
 
-//public function print(any|error... values) = @java:Method {
-//    'class: "org.ballerinalang.test.utils.interop.Utils"
-//} external;
+public function print(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

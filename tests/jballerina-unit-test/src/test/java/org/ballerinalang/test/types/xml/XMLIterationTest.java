@@ -52,9 +52,9 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                                   "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
                                   13, 17);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
-                "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
-                " found 'function ([int,xml,string]) returns ()'", 18, 19);
+        BAssertUtil.validateError(negative, index++, "incompatible types: " +
+                "expected 'function (ballerina/lang.xml:0.8.0:ItemType) returns ()', " +
+                "found 'function ([int,xml,string]) returns ()'", 18, 19);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found 'xml:Element'",
                 29, 13);
