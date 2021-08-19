@@ -686,7 +686,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (constraint.tag == TypeTags.MAP) {
-            typeChecker.validateMapConstraintTable(null, tableTypeNode.tableType);
+            typeChecker.validateMapConstraintTable(tableTypeNode.tableType);
             return;
         }
 

@@ -910,7 +910,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BTableType expectedTableType = (BTableType) applicableExpType;
             if (expectedTableType.constraint.tag == TypeTags.MAP && expectedTableType.isTypeInlineDefined) {
-                validateMapConstraintTable(tableConstructorExpr, applicableExpType);
+                validateMapConstraintTable(applicableExpType);
                 return;
             }
 
@@ -1304,7 +1304,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    public void validateMapConstraintTable(BLangTableConstructorExpr tableConstructorExpr, BType expType) {
+    public void validateMapConstraintTable(BType expType) {
         if (expType != null && (((BTableType) expType).fieldNameList != null ||
                 ((BTableType) expType).keyTypeConstraint != null) &&
                 !expType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
@@ -1313,14 +1313,6 @@ public class TypeChecker extends BLangNodeVisitor {
             resultType = symTable.semanticError;
             return;
         }
-
-        if (tableConstructorExpr != null && tableConstructorExpr.tableKeySpecifier != null) {
-            dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
-                    DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
-            resultType = symTable.semanticError;
-            return;
-        }
-
         resultType = expType;
     }
 
