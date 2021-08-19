@@ -15,11 +15,10 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.CompilationOptionsBuilder;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.directory.ProjectLoader;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -92,7 +91,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     "A pull modules operation is already running for this project");
         }
         taskService.submit(project.currentPackage().packageId(),
-                new PullModuleTask(fileUri, project.sourceRoot(), context));
+                new PullModuleTask(fileUri, project, context));
 
         return new Object();
     }
@@ -121,19 +120,19 @@ public class PullModuleExecutor implements LSCommandExecutor {
         static final String NAME = "PullModule";
 
         private final String fileUri;
-        private final Path sourceRoot;
+        private final Project project;
         private final ExecuteCommandContext context;
 
-        public PullModuleTask(String fileUri, Path sourceRoot, ExecuteCommandContext context) {
+        public PullModuleTask(String fileUri, Project project, ExecuteCommandContext context) {
             this.fileUri = fileUri;
-            this.sourceRoot = sourceRoot;
+            this.project = project;
             this.context = context;
         }
 
         @Override
         public void onStart() {
             LSClientLogger.getInstance(context.languageServercontext())
-                    .logTrace("Started pulling modules for project: " + sourceRoot.toString());
+                    .logTrace("Started pulling modules for project: " + project.sourceRoot().toString());
 
             // Initialize progress notification
             WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
@@ -152,15 +151,13 @@ public class PullModuleExecutor implements LSCommandExecutor {
 
         @Override
         public void execute() throws Exception {
-            // Build the project in online mode
-            BuildOptions options = new BuildOptionsBuilder().offline(false).build();
-            Project project = ProjectLoader.loadProject(sourceRoot, options);
-            // Pull modules and compile
-            project.currentPackage().getCompilation();
+            Package currentPackage = project.currentPackage();
+            // Compile in online mode so missing modules are pulled
+            currentPackage.getCompilation(new CompilationOptionsBuilder().buildOffline(false).build());
 
             Path filePath = CommonUtil.getPathFromURI(fileUri)
                     .orElseThrow(() -> new ProjectException("Couldn't determine the project path"));
-            // Reload project
+            // Refresh project
             ((BallerinaWorkspaceManager) context.workspace()).refreshProject(filePath);
 
             DocumentServiceContext documentServiceContext = ContextBuilder.buildBaseContext(fileUri,
@@ -181,7 +178,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     "Module(s) pulled successfully!");
 
             LSClientLogger.getInstance(context.languageServercontext())
-                    .logTrace("Finished pulling modules for project: " + sourceRoot.toString());
+                    .logTrace("Finished pulling modules for project: " + project.sourceRoot().toString());
         }
 
         @Override
@@ -192,7 +189,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     Either.forLeft(endNotification)));
 
             LSClientLogger.getInstance(context.languageServercontext()).logError(LSContextOperation.WS_EXEC_CMD,
-                    "Pull modules failed for project: " + sourceRoot.toString(),
+                    "Pull modules failed for project: " + project.sourceRoot().toString(),
                     t, null, (Position) null);
 
             if (isCancellation(t)) {

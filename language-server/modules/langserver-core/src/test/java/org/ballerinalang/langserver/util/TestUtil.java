@@ -643,7 +643,7 @@ public class TestUtil {
         capabilities.setWorkspace(workspaceCapabilities);
 
         Map<String, Object> initializationOptions = new HashMap<>();
-        initializationOptions.put(InitializationOptions.KEY_PULL_MODULE_SUPPORT, true);
+        initializationOptions.put(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS, true);
 
         params.setCapabilities(capabilities);
         params.setInitializationOptions(GSON.toJsonTree(initializationOptions));
