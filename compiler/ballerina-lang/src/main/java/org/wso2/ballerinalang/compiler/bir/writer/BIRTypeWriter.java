@@ -224,7 +224,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BTypeReferenceType typeReferenceType) {
-        BTypeDefinitionSymbol tsymbol = (BTypeDefinitionSymbol) typeReferenceType.tsymbol;
+        BTypeSymbol tsymbol = typeReferenceType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
         writePackageIndex(tsymbol);

@@ -353,8 +353,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
         BInvokableSymbol initFnSym = recordTypeNode.initFunction.symbol;
         BRecordTypeSymbol recordTypeSymbol;
-        if(typeDef.symbol.kind == SymbolKind.TYPE_DEF) {
-            recordTypeSymbol = (BRecordTypeSymbol) ((BTypeDefinitionSymbol)typeDef.symbol).type.tsymbol;
+        if (typeDef.symbol.kind == SymbolKind.TYPE_DEF) {
+            recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol.type.tsymbol;
         } else {
             recordTypeSymbol = (BRecordTypeSymbol) typeDef.symbol;
         }

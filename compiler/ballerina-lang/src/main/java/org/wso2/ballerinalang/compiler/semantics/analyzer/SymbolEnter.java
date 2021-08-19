@@ -1499,10 +1499,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                     typeDefinition.pos, SOURCE);
 //            typeDefSymbol.kind = definedType.tsymbol.kind;
             if(definedType.tsymbol.name == Names.EMPTY) {
-
                 label = false;
                 definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
                 definedType.tsymbol.flags |= typeDefSymbol.flags;
+                definedType.tsymbol.pos = typeDefSymbol.pos;
             }
 //        } else {
 //            typeDefSymbol = definedType.tsymbol;
