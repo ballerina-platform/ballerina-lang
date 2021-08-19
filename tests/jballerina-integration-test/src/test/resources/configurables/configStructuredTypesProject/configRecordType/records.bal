@@ -16,6 +16,7 @@
 
 import configRecordType.type_defs;
 import testOrg/configLib.mod1 as configLib;
+import testOrg/configLib.util;
 import ballerina/test;
 
 configurable Engineer & readonly 'engineer = ?;
@@ -73,6 +74,18 @@ public function testRecords() {
     test:assertEquals(person3.address.country.name, "SL");
 }
 
+public function testRecordIteration() {
+    util:testRecordIterator(engineer, 2);
+    util:testRecordIterator(student, 2);
+    util:testRecordIterator(officer, 2);
+    util:testRecordIterator(manager, 2);
+    util:testRecordIterator(teacher, 2);
+    util:testRecordIterator(farmer, 2);
+    util:testRecordIterator(person, 3);
+    util:testRecordIterator(person2, 3);
+    util:testRecordIterator(person3, 3);
+}
+
 public function testComplexRecords() {
     test:assertEquals(lecturer.toString(), "{\"name\":\"hinduja\",\"department1\":{\"name\":\"IT\"}," + 
     "\"department2\":{\"name\":\"Finance\"},\"department3\":{\"name\":\"HR\"}}");
@@ -83,3 +96,10 @@ public function testComplexRecords() {
     test:assertEquals(lawyer2.toString(), "{\"name\":\"riyafa\",\"place1\":{\"city\":\"Colombo\"}," + 
     "\"place2\":{\"city\":\"Kandy\"},\"place3\":{\"city\":\"Galle\"}}");
  }
+
+public function testComplexRecordIteration() {
+    util:testRecordIterator(lecturer, 4);
+    util:testRecordIterator(lecturer2, 4);
+    util:testRecordIterator(lawyer, 4);
+    util:testRecordIterator(lawyer2, 4);
+}

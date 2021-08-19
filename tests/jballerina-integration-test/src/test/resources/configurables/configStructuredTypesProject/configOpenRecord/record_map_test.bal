@@ -57,8 +57,6 @@ function testMaps() {
     test:assertEquals(anonRecordMapTable.toString(), "{\"entry1\":[{\"id\":126,\"arrVal\":[100,200],\"intVal\":100," +
     "\"stringVal\":\"string\",\"floatVal\":103.507,\"mapVal\":{\"m\":\"value\",\"n\":608}," +
     "\"mapArr\":[{\"y\":\"test\",\"x\":204}]}]}");
-
-    testMapIteration();
 }
 
 function testMapIteration() {
