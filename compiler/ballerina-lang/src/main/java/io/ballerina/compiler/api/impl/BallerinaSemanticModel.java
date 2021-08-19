@@ -187,6 +187,22 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     @Override
+    public List<Location> references(Symbol symbol, Document targetDocument, boolean withDefinition) {
+        Optional<Location> symbolLocation = symbol.getLocation();
+
+        // Assumption is that the location will be null for regular type symbols
+        if (symbolLocation.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        BLangNode node = new NodeFinder(false)
+                .lookup(getCompilationUnit(targetDocument), symbolLocation.get().lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder(withDefinition);
+        return refFinder.findReferences(node, getInternalSymbol(symbol));
+    }
+
+    @Override
     public List<Location> references(Symbol symbol, boolean withDefinition) {
         Optional<Location> symbolLocation = symbol.getLocation();
 
@@ -200,6 +216,27 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         ReferenceFinder refFinder = new ReferenceFinder(withDefinition);
         return refFinder.findReferences(node, getInternalSymbol(symbol));
+    }
+
+    @Override
+    public List<Location> references(Document sourceDocument,
+                                     Document targetDocument,
+                                     LinePosition position,
+                                     boolean withDefinition) {
+        BLangCompilationUnit sourceCompilationUnit = getCompilationUnit(sourceDocument);
+        SymbolFinder symbolFinder = new SymbolFinder();
+        BSymbol symbolAtCursor = symbolFinder.lookup(sourceCompilationUnit, position);
+
+        if (symbolAtCursor == null) {
+            return Collections.emptyList();
+        }
+
+        BLangCompilationUnit targetCompilationUnit = getCompilationUnit(targetDocument);
+        BLangNode node = new NodeFinder(false)
+                .lookup(targetCompilationUnit, symbolAtCursor.pos.lineRange());
+
+        ReferenceFinder refFinder = new ReferenceFinder(withDefinition);
+        return refFinder.findReferences(node, symbolAtCursor);
     }
 
     @Override
