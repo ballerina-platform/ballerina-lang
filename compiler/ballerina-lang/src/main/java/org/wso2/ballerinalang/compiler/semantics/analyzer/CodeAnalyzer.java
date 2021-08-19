@@ -332,7 +332,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private LoopState loopState = LoopState.OUTSIDE_LOOP;
     private final Stack<SymbolEnv> loopEnvs = new Stack<>();
-    private Stack<List<Location>> potentiallyInvalidAssignmentInLoops = new Stack<>();
+    private final Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new Stack<>();
+    private final Stack<BranchBreakInfo> branchBreakInfo = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -366,6 +367,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void resetLastStatement() {
         this.breakAsLastStatement = false;
         this.continueAsLastStatement = false;
+    }
+
+    private void resetLastStatement(BLangBlockStmt statement) {
+        if (this.breakAsLastStatement && !this.branchBreakInfo.empty()) {
+            BranchBreakInfo branchInfo = this.branchBreakInfo.peek();
+            if (branchInfo.statement == statement) {
+                branchInfo.breakAsLastStatement = true;
+            }
+        }
+
+        resetLastStatement();
     }
 
     private void resetErrorThrown() {
@@ -789,7 +801,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(stmt.pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             this.resetErrorThrown();
         }
-        if (breakAsLastStatement || continueAsLastStatement) {
+        if (this.breakAsLastStatement || this.continueAsLastStatement) {
             this.dlog.error(stmt.pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             this.resetLastStatement();
         }
@@ -814,7 +826,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.commitCountWithinBlock = prevCommitCount;
         this.rollbackCountWithinBlock = prevRollbackCount;
-        this.resetLastStatement();
+        this.resetLastStatement(blockNode);
     }
 
     @Override
@@ -837,7 +849,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         int prevCommitCount = commitCount;
         int prevRollbackCount = rollbackCount;
         this.checkStatementExecutionValidity(ifStmt);
-        if (withinTransactionScope && ifStmt.elseStmt != null && ifStmt.elseStmt.getKind() != NodeKind.IF) {
+        BLangStatement elseStmt = ifStmt.elseStmt;
+        if (withinTransactionScope && elseStmt != null && elseStmt.getKind() != NodeKind.IF) {
                 independentBlocks = true;
                 commitRollbackAllowed = true;
         }
@@ -847,7 +860,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 ifStmt.expr.getKind()) == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
-        analyzeNode(ifStmt.body, env);
+        BLangBlockStmt body = ifStmt.body;
+        this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                                                                                              env.enclInvokable));
+        this.branchBreakInfo.add(new BranchBreakInfo(body));
+        analyzeNode(body, env);
+        boolean allBranchesBreak = this.branchBreakInfo.pop().breakAsLastStatement;
+        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesBreak);
+
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = prevTxMode;
         }
@@ -855,18 +875,29 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean currentErrorThrown = this.errorThrown;
         this.resetStatementReturns();
         this.resetErrorThrown();
-        if (ifStmt.elseStmt != null) {
+        if (elseStmt != null) {
             if (independentBlocks) {
                 commitRollbackAllowed = true;
                 withinTransactionScope = true;
             }
-            analyzeNode(ifStmt.elseStmt, env);
+            this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                                                                                                  env.enclInvokable));
+            this.branchBreakInfo.add(new BranchBreakInfo(elseStmt));
+            analyzeNode(elseStmt, env);
+            boolean breakAsLastStatementInBranch = this.branchBreakInfo.pop().breakAsLastStatement;
+            allBranchesBreak &= breakAsLastStatementInBranch;
+            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(breakAsLastStatementInBranch);
             if ((prevCommitCount != commitCount) || prevRollbackCount != rollbackCount) {
                 commitRollbackAllowed = false;
             }
             this.statementReturns = ifStmtReturns && this.statementReturns;
             this.errorThrown = currentErrorThrown && this.errorThrown;
         }
+
+        if (allBranchesBreak) {
+            handleAllBranchesBreak(ifStmt);
+        }
+
         analyzeExpr(ifStmt.expr);
     }
 
@@ -883,6 +914,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.hasLastPatternInStatement = false;
         boolean allClausesReturns = true;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
+        boolean allBranchesBreak = true;
         for (int i = 0; i < matchClauses.size(); i++) {
             BLangMatchClause matchClause = matchClauses.get(i);
             for (int j = i; j > 0; j--) {
@@ -895,10 +927,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 checkSimilarMatchPatternsBetweenClauses(matchClauses.get(j - 1), matchClause);
             }
             this.resetErrorThrown();
+            this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                                                                                                  env.enclInvokable));
+            this.branchBreakInfo.add(new BranchBreakInfo(matchClause.blockStmt));
             analyzeNode(matchClause, env);
+            boolean breakAsLastStatementInBranch = this.branchBreakInfo.pop().breakAsLastStatement;
+            allBranchesBreak &= breakAsLastStatementInBranch;
+            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(breakAsLastStatementInBranch);
             allClausesReturns = allClausesReturns && this.statementReturns;
             resetStatementReturns();
         }
+
+        if (allBranchesBreak) {
+            handleAllBranchesBreak(matchStatement);
+        }
+
         this.statementReturns = allClausesReturns && this.hasLastPatternInStatement;
         this.errorThrown = currentErrorThrown;
         analyzeOnFailClause(matchStatement.onFailClause);
@@ -2312,7 +2355,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         LoopState prevLoopState = this.loopState;
         this.loopState = LoopState.IN_FOR_LOOP;
         this.loopEnvs.add(foreachEnv);
-        this.potentiallyInvalidAssignmentInLoops.add(new ArrayList<>());
+        this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                                                                                              env.enclInvokable));
 
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
@@ -2335,7 +2379,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeOnFailClause(foreach.onFailClause);
         this.errorTypes.pop();
 
-        handleInvalidAssignmentToTypeNarrowedVariableInLoop(this.potentiallyInvalidAssignmentInLoops.pop());
+        handleInvalidAssignmentToTypeNarrowedVariableInLoop(
+                this.potentiallyInvalidAssignmentInLoopsInfo.pop().locations);
         this.loopState = prevLoopState;
         this.loopEnvs.pop();
     }
@@ -2346,7 +2391,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         LoopState prevLoopState = this.loopState;
         this.loopState = LoopState.IN_WHILE_LOOP;
         this.loopEnvs.add(whileEnv);
-        this.potentiallyInvalidAssignmentInLoops.add(new ArrayList<>());
+        this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
+                                                                                              env.enclInvokable));
 
         this.loopWithinTransactionCheckStack.push(true);
         this.errorTypes.push(new LinkedHashSet<>());
@@ -2367,7 +2413,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
 
-        handleInvalidAssignmentToTypeNarrowedVariableInLoop(this.potentiallyInvalidAssignmentInLoops.pop());
+        handleInvalidAssignmentToTypeNarrowedVariableInLoop(
+                this.potentiallyInvalidAssignmentInLoopsInfo.pop().locations);
         this.loopState = prevLoopState;
         this.loopEnvs.pop();
     }
@@ -4794,12 +4841,53 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        this.potentiallyInvalidAssignmentInLoops.peek().add(location);
+        this.potentiallyInvalidAssignmentInLoopsInfo.peek().locations.add(location);
     }
 
     private void handleInvalidAssignmentToTypeNarrowedVariableInLoop(List<Location> locations) {
         for (Location location : locations) {
             dlog.error(location, DiagnosticErrorCode.INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_LOOP);
+        }
+    }
+
+    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean breakAsLastStatement) {
+        PotentiallyInvalidAssignmentInfo currentBranchInfo = this.potentiallyInvalidAssignmentInLoopsInfo.pop();
+
+        if (breakAsLastStatement) {
+            return;
+        }
+
+
+        List<Location> currentBranchLocations = currentBranchInfo.locations;
+        if (currentBranchLocations.isEmpty() || this.potentiallyInvalidAssignmentInLoopsInfo.empty()) {
+            return;
+        }
+
+        PotentiallyInvalidAssignmentInfo prevInfo = this.potentiallyInvalidAssignmentInLoopsInfo.peek();
+
+        if (prevInfo.enclInvokable != currentBranchInfo.enclInvokable) {
+            return;
+        }
+
+        prevInfo.locations.addAll(currentBranchLocations);
+    }
+
+    private void handleAllBranchesBreak(BLangStatement statement) {
+        if (this.loopState != LoopState.OUTSIDE_LOOP) {
+            PotentiallyInvalidAssignmentInfo prevInfo = this.potentiallyInvalidAssignmentInLoopsInfo.peek();
+
+            if (prevInfo.enclInvokable != env.enclInvokable) {
+                prevInfo.locations.clear();
+            }
+        }
+
+        if (this.branchBreakInfo.empty()) {
+            return;
+        }
+
+        BranchBreakInfo prevBranchInfo = this.branchBreakInfo.peek();
+        if (prevBranchInfo.statement == statement) {
+            prevBranchInfo.breakAsLastStatement = true;
         }
     }
 
@@ -4834,9 +4922,29 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         FUNCTION_IN_DEFAULT_VALUE
     }
 
+    // TODO: 2021-08-19 Check if we can do with just loopCount
     private enum LoopState {
         OUTSIDE_LOOP,
         IN_WHILE_LOOP,
         IN_FOR_LOOP
+    }
+
+    private static class PotentiallyInvalidAssignmentInfo {
+        List<Location> locations;
+        BLangInvokableNode enclInvokable;
+
+        private PotentiallyInvalidAssignmentInfo(List<Location> locations, BLangInvokableNode enclInvokable) {
+            this.locations = locations;
+            this.enclInvokable = enclInvokable;
+        }
+    }
+
+    private static class BranchBreakInfo {
+        BLangStatement statement;
+        boolean breakAsLastStatement = false;
+
+        private BranchBreakInfo(BLangStatement statement) {
+            this.statement = statement;
+        }
     }
 }
