@@ -116,15 +116,27 @@ service class NonIsolatedServiceClass {
 
 }
 
-public function callAsyncWithoutObject() returns int|error = @java:Method {
+public function callAsyncNullObject() returns int|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
 } external;
 
-public function callAsyncWithoutObjectMethod(IsolatedClass s) returns int|error = @java:Method {
+public function callAsyncNullObjectMethod(IsolatedClass s) returns int|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
 } external;
 
 public function callAsyncInvalidObjectMethod(IsolatedClass s) returns int|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+} external;
+
+public function callAsyncNullObjectWithoutConcurrent() returns int|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+} external;
+
+public function callAsyncNullObjectMethodWithoutConcurrent(IsolatedClass s) returns int|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+} external;
+
+public function callAsyncInvalidObjectMethodWithoutConcurrent(IsolatedClass s) returns int|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
 } external;
 
@@ -149,12 +161,12 @@ public function main() {
     test:assertFalse(nonIsolatedServiceClass.isIsolated());
     test:assertFalse(nonIsolatedServiceClass.isIsolatedFunction());
 
-    error|int r1 = trap callAsyncWithoutObject();
+    error|int r1 = trap callAsyncNullObject();
     test:assertTrue(r1 is error);
     error e1 = <error> r1;
     test:assertEquals(e1.message(), "object cannot be null");
 
-    error|int r2 = trap callAsyncWithoutObjectMethod(isolatedClass);
+    error|int r2 = trap callAsyncNullObjectMethod(isolatedClass);
     test:assertTrue(r2 is error);
     error e2 = <error> r2;
     test:assertEquals(e2.message(), "method name cannot be null");
@@ -163,4 +175,20 @@ public function main() {
     test:assertTrue(r3 is error);
     error e3 = <error> r3;
     test:assertEquals(e3.message(), "No such method: foo");
+
+    error|int r4 = trap callAsyncNullObjectWithoutConcurrent();
+    test:assertTrue(r4 is error);
+    error e4 = <error> r4;
+    test:assertEquals(e4.message(), "object cannot be null");
+
+    error|int r5 = trap callAsyncNullObjectMethodWithoutConcurrent(isolatedClass);
+    test:assertTrue(r5 is error);
+    error e5 = <error> r5;
+    test:assertEquals(e5.message(), "method name cannot be null");
+
+    error|int r6 = trap callAsyncInvalidObjectMethodWithoutConcurrent(isolatedClass);
+    test:assertTrue(r6 is error);
+    error e6 = <error> r6;
+    test:assertEquals(e6.message(), "No such method: foo");
+
 }

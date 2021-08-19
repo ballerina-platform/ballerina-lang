@@ -37,18 +37,7 @@ import io.ballerina.runtime.internal.types.BServiceType;
 public class Async {
 
     public static long isolatedGetA(Environment env, BObject obj) {
-        Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsync(obj, "getA", null, null, true, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        }, null, PredefinedTypes.TYPE_INT);
+        invokeAsync(env, obj, "getA", true);
         return 0;
     }
 
@@ -57,28 +46,11 @@ public class Async {
     }
 
     public static boolean isolatedClassIsIsolatedFunction(BObject obj) {
-        MethodType[] methods = obj.getType().getMethods();
-        for (MethodType method : methods) {
-            if (method.getName().equals("getA")) {
-                return method.isIsolated();
-            }
-        }
-        throw ErrorCreator.createError(StringUtils.fromString("getA not found"));
+        return isRemoteMethodIsolated(obj);
     }
 
     public static long nonIsolatedGetA(Environment env, BObject obj) {
-        Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsync(obj, "getA", null, null, false, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        }, null, PredefinedTypes.TYPE_INT);
+        invokeAsync(env, obj, "getA", true);
         return 0;
     }
 
@@ -87,28 +59,11 @@ public class Async {
     }
 
     public static boolean nonIsolatedClassIsIsolatedFunction(BObject obj) {
-        MethodType[] methods = obj.getType().getMethods();
-        for (MethodType method : methods) {
-            if (method.getName().equals("getA")) {
-                return method.isIsolated();
-            }
-        }
-        throw ErrorCreator.createError(StringUtils.fromString("getA not found"));
+        return isRemoteMethodIsolated(obj);
     }
 
     public static long isolatedServiceGetA(Environment env, BObject obj) {
-        Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsync(obj, "$gen$$getA$$0046", null, null, true, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        }, null, PredefinedTypes.TYPE_INT);
+        invokeAsync(env, obj, "$gen$$getA$$0046", true);
         return 0;
     }
 
@@ -117,28 +72,11 @@ public class Async {
     }
 
     public static boolean isolatedServiceIsIsolatedFunction(BObject obj) {
-        MethodType[] methods = ((BServiceType) obj.getType()).getResourceMethods();
-        for (MethodType method : methods) {
-            if (method.getName().equals("$gen$$getA$$0046")) {
-                return method.isIsolated();
-            }
-        }
-        throw ErrorCreator.createError(StringUtils.fromString("getA not found"));
+        return isResourceMethodIsolated(obj);
     }
 
     public static long nonIsolatedServiceGetA(Environment env, BObject obj) {
-        Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsync(obj, "$gen$$getA$$0046", null, null, true, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        }, null, PredefinedTypes.TYPE_INT);
+        invokeAsync(env, obj, "$gen$$getA$$0046", true);
         return 0;
     }
 
@@ -147,6 +85,78 @@ public class Async {
     }
 
     public static boolean nonIsolatedServiceIsIsolatedFunction(BObject obj) {
+        return isResourceMethodIsolated(obj);
+    }
+
+    public static Object callAsyncNullObject(Environment env) {
+        invokeAsync(env, null, "getA", true);
+        return 0;
+    }
+
+    public static Object callAsyncNullObjectMethod(Environment env, BObject obj) {
+        invokeAsync(env, obj, null, true);
+        return 0;
+    }
+
+    public static Object callAsyncInvalidObjectMethod(Environment env, BObject obj) {
+        invokeAsync(env, obj, "foo", true);
+        return 0;
+    }
+
+    public static Object callAsyncNullObjectWithoutConcurrent(Environment env) {
+        invokeAsync(env, null, "getA", true);
+        return 0;
+    }
+
+    public static Object callAsyncNullObjectMethodWithoutConcurrent(Environment env, BObject obj) {
+        invokeAsync(env, obj, null, true);
+        return 0;
+    }
+
+    public static Object callAsyncInvalidObjectMethodWithoutConcurrent(Environment env, BObject obj) {
+        invokeAsync(env, obj, "foo", true);
+        return 0;
+    }
+
+    private static void invokeAsync(Environment env, BObject obj, String methodName, boolean callConcurrently) {
+        Future future = env.markAsync();
+        try {
+            env.getRuntime().invokeMethodAsync(obj, methodName, null, null, callConcurrently, new Callback() {
+                @Override
+                public void notifySuccess(Object result) {
+                    future.complete(result);
+                }
+
+                @Override
+                public void notifyFailure(BError error) {
+                    future.complete(error);
+                }
+            }, null, PredefinedTypes.TYPE_INT);
+        } catch (BError e) {
+            future.complete(e);
+        }
+    }
+
+    private static void invokeAsync(Environment env, BObject obj, String methodName) {
+        Future future = env.markAsync();
+        try {
+            env.getRuntime().invokeMethodAsync(obj, methodName, null, null, new Callback() {
+                @Override
+                public void notifySuccess(Object result) {
+                    future.complete(result);
+                }
+
+                @Override
+                public void notifyFailure(BError error) {
+                    future.complete(error);
+                }
+            });
+        } catch (BError e) {
+            future.complete(e);
+        }
+    }
+
+    private static boolean isResourceMethodIsolated(BObject obj) {
         MethodType[] methods = ((BServiceType) obj.getType()).getResourceMethods();
         for (MethodType method : methods) {
             if (method.getName().equals("$gen$$getA$$0046")) {
@@ -156,59 +166,13 @@ public class Async {
         throw ErrorCreator.createError(StringUtils.fromString("getA not found"));
     }
 
-    public static Object callAsyncWithoutObject(Environment env) {
-        Future future = env.markAsync();
-        try {
-            env.getRuntime().invokeMethodAsync(null, "getA", null, null, true, new Callback() {
-                @Override
-                public void notifySuccess(Object result) {
-                    future.complete(result);
-                }
-
-                @Override
-                public void notifyFailure(BError error) {
-                    future.complete(error);
-                }
-            }, null, PredefinedTypes.TYPE_INT);
-        } catch (BError e) {
-            future.complete(e);
-        }
-        return 0;
-    }
-
-    public static Object callAsyncWithoutObjectMethod(Environment env, BObject obj) {
-        Future future = env.markAsync();
-        try {
-            env.getRuntime().invokeMethodAsync(obj, null, null, null, true, new Callback() {
-                @Override
-                public void notifySuccess(Object result) {
-                    future.complete(result);
-                }
-
-                @Override
-                public void notifyFailure(BError error) {
-                    future.complete(error);
-                }
-            }, null, PredefinedTypes.TYPE_INT);
-        } catch (BError e) {
-            future.complete(e);
-        }
-        return 0;
-    }
-
-    public static Object callAsyncInvalidObjectMethod(Environment env, BObject obj) {
-        Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsync(obj, "foo", null, null, true, new Callback() {
-            @Override
-            public void notifySuccess(Object result) {
-                future.complete(result);
+    private static boolean isRemoteMethodIsolated(BObject obj) {
+        MethodType[] methods = obj.getType().getMethods();
+        for (MethodType method : methods) {
+            if (method.getName().equals("getA")) {
+                return method.isIsolated();
             }
-
-            @Override
-            public void notifyFailure(BError error) {
-                future.complete(error);
-            }
-        }, null, PredefinedTypes.TYPE_INT);
-        return 0;
+        }
+        throw ErrorCreator.createError(StringUtils.fromString("getA not found"));
     }
 }
