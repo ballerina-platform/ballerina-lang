@@ -407,6 +407,20 @@ public class BUnionType extends BType implements UnionType {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
+//    public List<BType> getAllTypes(BType type) {
+//        if (type.tag != TypeTags.UNION) {
+//            if (type.tag == TypeTags.TYPEREFDESC) {
+//                return getAllTypes(((BTypeReferenceType) type).constraint);
+//            } else {
+//                return Lists.of(type);
+//            }
+//        }
+//
+//        List<BType> memberTypes = new ArrayList<>();
+//        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
+//        return memberTypes;
+//    }
+
     private static boolean isTypeParamAvailable(BType type) {
         if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.TYPE_PARAM)) {
             return true;

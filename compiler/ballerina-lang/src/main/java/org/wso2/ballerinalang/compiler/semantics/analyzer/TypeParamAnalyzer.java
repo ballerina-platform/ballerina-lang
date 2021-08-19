@@ -540,6 +540,7 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, expType.eType, tupleElementType, env, resolvedTypes, result);
     }
 
+    //todo @chiran
     private void findTypeParamInUnion(Location loc, BType expType, BUnionType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
@@ -676,7 +677,7 @@ public class TypeParamAnalyzer {
                 if (typeParamEntry.typeParam.tag == TypeTags.TYPEREFDESC && expType.tag != TypeTags.TYPEREFDESC) {
                     typeParamEntry.typeParam = types.getConstraintFromReferenceType(typeParamEntry.typeParam);
                 }
-                if (typeParamEntry.typeParam == expType) {
+                if (typeParamEntry.typeParam == expType || typeParamEntry.typeParam == types.getConstraintFromReferenceType(expType)) {
                     return typeParamEntry.boundType;
                 }
             }

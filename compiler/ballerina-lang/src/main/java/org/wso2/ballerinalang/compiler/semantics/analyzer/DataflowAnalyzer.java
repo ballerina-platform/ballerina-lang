@@ -1682,6 +1682,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         types.getTypeWithEffectiveIntersectionTypes(((BMapType) providerType).getConstraint()),
                         unresolvedTypes);
                 break;
+            case TypeTags.TYPEREFDESC:
+                addTypeDependency(dependentTypeSymbol, types.getConstraintFromReferenceType(providerType), unresolvedTypes);
+                break;
             default:
                 addDependency(dependentTypeSymbol, providerType.tsymbol);
         }

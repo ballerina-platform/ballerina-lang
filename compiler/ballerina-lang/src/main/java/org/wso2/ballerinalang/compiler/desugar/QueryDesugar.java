@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -1164,7 +1165,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return reference to the defined frame.
      */
     private BLangSimpleVarRef defineFrameVariable(BLangBlockStmt blockStmt, Location pos) {
-        BRecordTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
+        BTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
         String frameName = getNewVarName();
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(frameName),
@@ -1274,7 +1275,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return a _Frame type node.
      */
     private BLangRecordTypeNode getFrameTypeNode() {
-        BRecordTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
+        BTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
 
         BLangUnionTypeNode restFieldType = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
@@ -1295,8 +1296,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @return _Frame type symbol.
      */
-    private BRecordTypeSymbol getFrameTypeSymbol() {
-        return (BRecordTypeSymbol) symTable.langQueryModuleSymbol
+    private BTypeSymbol getFrameTypeSymbol() {
+        return (BTypeSymbol) symTable.langQueryModuleSymbol
                 .scope.lookup(names.fromString("_Frame")).symbol;
     }
 

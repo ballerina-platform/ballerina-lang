@@ -342,6 +342,7 @@ public class JvmInstructionGen {
             case TypeTags.UNSIGNED32_INT:
                 mv.visitInsn(L2I);
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, TO_UNSIGNED_LONG, "(I)J", false);
+                return;
             case TypeTags.TYPEREFDESC:
                 generateIntToUnsignedIntConversion(mv, ((BTypeReferenceType)targetType).constraint);
         }

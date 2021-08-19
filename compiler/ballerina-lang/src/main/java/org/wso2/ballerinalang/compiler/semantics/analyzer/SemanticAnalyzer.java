@@ -2135,7 +2135,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BErrorType rhsErrorType = (BErrorType) types.getConstraintFromReferenceType(rhsType);
 
         // Wrong error detail type in error type def, error already emitted  to dlog.
-        if (!(rhsErrorType.detailType.tag == TypeTags.RECORD || rhsErrorType.detailType.tag == TypeTags.MAP)) {
+        if (!(types.getConstraintFromReferenceType(rhsErrorType.detailType).tag == TypeTags.RECORD
+                || types.getConstraintFromReferenceType(rhsErrorType.detailType).tag == TypeTags.MAP)) {
             return;
         }
         BRecordType rhsDetailType = this.symbolEnter.getDetailAsARecordType(rhsErrorType);
@@ -2528,7 +2529,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         assignTypesToMemberPatterns(mappingMatchPattern, mappingMatchPattern.getBType());
     }
 
-    private void assignTypesToMemberPatterns(BLangMatchPattern matchPattern, BType patternType) {
+    private void assignTypesToMemberPatterns(BLangMatchPattern matchPattern, BType bType) {
+        BType patternType = this.types.getConstraintFromReferenceType(bType);
         NodeKind matchPatternKind = matchPattern.getKind();
         switch (matchPatternKind) {
             case WILDCARD_MATCH_PATTERN:
@@ -3112,8 +3114,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void assignTypesToMemberPatterns(BLangBindingPattern bindingPattern, BType bindingPatternType) {
+    private void assignTypesToMemberPatterns(BLangBindingPattern bindingPattern, BType patternType) {
         NodeKind patternKind = bindingPattern.getKind();
+        BType bindingPatternType = this.types.getConstraintFromReferenceType(patternType);
         switch (patternKind) {
             case WILDCARD_BINDING_PATTERN:
                 return;
@@ -4405,7 +4408,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
-                                                                (SelectivelyImmutableReferenceType) fieldType, env,
+                                                                (SelectivelyImmutableReferenceType) types.getConstraintFromReferenceType(fieldType), env,
                                                                 symTable, anonModelHelper, names, new HashSet<>());
     }
 

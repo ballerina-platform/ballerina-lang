@@ -1182,7 +1182,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
             BType bType = symResolver.resolveTypeNode(type, env);
-            if (bType.tag == TypeTags.ERROR) {
+            if (types.getConstraintFromReferenceType(bType).tag == TypeTags.ERROR) {
                 errorTypes.add(bType);
             }
         }
@@ -1586,7 +1586,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
 
             } else if (referenceConstraintType.getKind() == TypeKind.OBJECT) {
-                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) definedType,
+                BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) referenceConstraintType,
                                                                  typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
@@ -1660,9 +1660,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         int numberOfDistinctConstituentTypes = 0;
 
         for (BLangType constituentType : typeNode.constituentTypeNodes) {
-            BType type = symResolver.resolveTypeNode(constituentType, env);
+            BType resolvedTypeNode = symResolver.resolveTypeNode(constituentType, env);
+            BType type = types.getConstraintFromReferenceType(resolvedTypeNode);
 
-            if (type.getKind() == TypeKind.ERROR) {
+            if (types.getConstraintFromReferenceType(type).getKind() == TypeKind.ERROR) {
                 if (constituentType.flagSet.contains(Flag.DISTINCT)) {
                     numberOfDistinctConstituentTypes++;
                     typeIdSet.addSecondarySet(((BErrorType) type).typeIdSet.getAll());
@@ -3888,12 +3889,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 boolean hasNonReadOnlyElement = false;
                 for (BType constituentType : intersectionType.getConstituentTypes()) {
-                    if (constituentType == symTable.readonlyType) {
+                    if (types.getConstraintFromReferenceType(constituentType) == symTable.readonlyType) {
                         continue;
                     }
                     // If constituent type is error, we have already validated error intersections.
                     if (!types.isSelectivelyImmutableType(constituentType, true)
-                            && constituentType.tag != TypeTags.ERROR) {
+                            && types.getConstraintFromReferenceType(constituentType).tag != TypeTags.ERROR) {
 
                         hasNonReadOnlyElement = true;
                         break;
@@ -4182,9 +4183,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
-                if (varNode.getBType().getKind() == TypeKind.RECORD) {
+                BType varNodeType = types.getConstraintFromReferenceType(varNode.getBType());
+                if (varNodeType.getKind() == TypeKind.RECORD) {
                     symbol.flags |= Flags.INCLUDED;
-                    LinkedHashMap<String, BField> fields = ((BRecordType) varNode.getBType()).fields;
+                    LinkedHashMap<String, BField> fields = ((BRecordType) varNodeType).fields;
                     for (String fieldName : fields.keySet()) {
                         BField field = fields.get(fieldName);
                         if (field.symbol.type.tag != TypeTags.NEVER) {

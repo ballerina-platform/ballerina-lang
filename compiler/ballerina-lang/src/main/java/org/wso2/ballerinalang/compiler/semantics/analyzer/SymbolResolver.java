@@ -528,6 +528,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isDistinctAllowedOnType(BType type) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            return isDistinctAllowedOnType(types.getConstraintFromReferenceType(type));
+        }
         if (type.tag == TypeTags.INTERSECTION) {
             for (BType constituentType : ((BIntersectionType) type).getConstituentTypes()) {
                 if (!isDistinctAllowedOnType(constituentType)) {
