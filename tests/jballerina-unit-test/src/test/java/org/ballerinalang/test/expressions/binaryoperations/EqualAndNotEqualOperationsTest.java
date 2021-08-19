@@ -1146,7 +1146,8 @@ public class EqualAndNotEqualOperationsTest {
                 "testNotEqualityWithDecimalUnion",
                 "testExactEqualityWithDecimalUnion",
                 "testNotExactEqualityWithDecimalUnion",
-                "testEqualityWithUnionType"
+                "testEqualityWithUnionOfSimpleTypes",
+                "testExactEqualityWithUnionOfNonSimpleTypes"
         };
     }
 }

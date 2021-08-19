@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
 import ballerina/test;
 
 type OpenEmployee record {
@@ -1530,7 +1531,7 @@ function testNotExactEqualityWithDecimalUnion() {
 
 type VALUE_TYPE int|byte|float|boolean|string;
 
-function testEqualityWithUnionType() {
+function testEqualityWithUnionOfSimpleTypes() {
     VALUE_TYPE a = "abc";
     VALUE_TYPE b = "abc";
     VALUE_TYPE c = "bcd";
@@ -1571,6 +1572,22 @@ function testEqualityWithUnionType() {
     test:assertFalse(i == m);
     test:assertTrue(j === i);
     test:assertFalse(i === m);
+}
+
+type T xml|handle|string;
+
+function testExactEqualityWithUnionOfNonSimpleTypes() {
+    T h1 = java:fromString("abc");
+    T h2 = java:fromString("abc");
+    T h3 = java:fromString("bcd");
+    T x1 = xml `<book>Book One</book>`;
+    T x2 = xml`abc`;
+
+    test:assertTrue(h1 === h2);
+    test:assertFalse(h1 === h3);
+    test:assertFalse(h1 === x1);
+    test:assertFalse(x1 === x2);
+    test:assertFalse(x2 === h1);
 }
 
 function assert(anydata actual, anydata expected) {
