@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -64,6 +65,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final PrintStream outStream = System.err;
 
     private final Type type;
+    private final BTypedesc typedesc;
     private final BString message;
     private final BError cause;
     private final Object details;
@@ -92,6 +94,7 @@ public class ErrorValue extends BError implements RefValue {
         this.message = message;
         this.cause = cause;
         this.details = details;
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public ErrorValue(Type type, BString message, BError cause, Object details,
@@ -104,6 +107,7 @@ public class ErrorValue extends BError implements RefValue {
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
         ((BErrorType) type).setTypeIdSet(typeIdSet);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -215,6 +219,10 @@ public class ErrorValue extends BError implements RefValue {
     public Object frozenCopy(Map<Object, Object> refs) {
         // Error values are immutable and frozen, copy give same value.
         return this;
+    }
+
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     /**
