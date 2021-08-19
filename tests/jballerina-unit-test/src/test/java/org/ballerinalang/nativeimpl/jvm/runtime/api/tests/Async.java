@@ -132,8 +132,8 @@ public class Async {
                     future.complete(error);
                 }
             }, null, PredefinedTypes.TYPE_INT);
-        } catch (BError e) {
-            future.complete(e);
+        } catch (IllegalArgumentException e) {
+            future.complete(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
         }
     }
 
@@ -151,8 +151,8 @@ public class Async {
                     future.complete(error);
                 }
             });
-        } catch (BError e) {
-            future.complete(e);
+        } catch (IllegalArgumentException e) {
+            future.complete(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
         }
     }
 

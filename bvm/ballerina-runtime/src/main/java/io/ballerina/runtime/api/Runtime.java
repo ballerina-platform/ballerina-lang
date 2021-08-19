@@ -76,15 +76,16 @@ public class Runtime {
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
      * @return           {@link FutureValue} containing return value of executing this method.
+     * @throws IllegalArgumentException if object or method name is null.
      */
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      boolean callConcurrently, Callback callback, Map<String, Object> properties,
-                                     Type returnType, Object... args) {
+                                     Type returnType, Object... args) throws IllegalArgumentException {
         if (object == null) {
-            throw ErrorCreator.createError(StringUtils.fromString("object cannot be null"));
+            throw new IllegalArgumentException("object cannot be null");
         }
         if (methodName == null) {
-            throw ErrorCreator.createError(StringUtils.fromString("method name cannot be null"));
+            throw new IllegalArgumentException("method name cannot be null");
         }
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         if (callConcurrently) {
@@ -129,17 +130,18 @@ public class Runtime {
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
      * @return           {@link FutureValue} containing return value of executing this method.
+     * @throws IllegalArgumentException if object or method name is null.
      * @deprecated       Use {@link #invokeMethodAsync(BObject, String, String, StrandMetadata, boolean,
      *                   Callback, Map, Type, Object...)} providing isolation of method call.
      */
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Map<String, Object> properties,
-                                     Type returnType, Object... args) {
+                                     Type returnType, Object... args) throws IllegalArgumentException {
         if (object == null) {
-            throw ErrorCreator.createError(StringUtils.fromString("object cannot be null"));
+            throw new IllegalArgumentException("object cannot be null");
         }
         if (methodName == null) {
-            throw ErrorCreator.createError(StringUtils.fromString("method name cannot be null"));
+            throw new IllegalArgumentException("method name cannot be null");
         }
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         if (isIsolated(object.getType(), methodName)) {
