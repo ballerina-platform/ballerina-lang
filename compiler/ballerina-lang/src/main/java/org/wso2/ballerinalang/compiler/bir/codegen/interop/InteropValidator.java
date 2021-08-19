@@ -245,14 +245,26 @@ public class InteropValidator {
             Field field = clazz.getField(fieldName);
             javaField = new JavaField(method, field);
             if (!javaField.isStatic()) {
-                if (fieldValidationRequest.bFuncType.paramTypes.get(0).tag != TypeTags.HANDLE) {
-                    throw new JInteropException(DiagnosticErrorCode.FIELD_NOT_FOUND, "No such static field '" +
-                            fieldName + "' found in class '" + className + "'");
-                }
-                if (method == JFieldMethod.MUTATE && fieldValidationRequest.bFuncType.paramTypes.size() < 2) {
-                    throw new JInteropException(DiagnosticErrorCode.MISSING_FIELDSET_PARAMETER,
-                            "No parameter found to set value to the instance field '" + fieldName +
-                                    "' in class '" + className + "'");
+                if (method == JFieldMethod.MUTATE) {
+                    if (fieldValidationRequest.bFuncType.paramTypes.size() != 2) {
+                        throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
+                                "Two parameters needed to set value to the instance field '" + fieldName +
+                                        "' in class '" + className + "'");
+                    } else if (fieldValidationRequest.bFuncType.paramTypes.get(0).tag != TypeTags.HANDLE) {
+                        throw new JInteropException(DiagnosticErrorCode.INVALID_PARAMETER_TYPE, "First parameter need "
+                                + "to be of handle type to set value to the instance field '" + fieldName +
+                                "' in class '" + className + "'");
+                    }
+                } else {
+                    if (fieldValidationRequest.bFuncType.paramTypes.size() != 1) {
+                        throw new JInteropException(DiagnosticErrorCode.INVALID_NUMBER_OF_PARAMETERS,
+                                "One parameter needed to get value of the instance field '" + fieldName +
+                                        "' in class '" + className + "'");
+                    } else if (fieldValidationRequest.bFuncType.paramTypes.get(0).tag != TypeTags.HANDLE) {
+                        throw new JInteropException(DiagnosticErrorCode.INVALID_PARAMETER_TYPE, "Parameter need "
+                                + "to be of handle type to get value of the instance field '" + fieldName +
+                                "' in class '" + className + "'");
+                    }
                 }
             }
         } catch (NoSuchFieldException e) {
