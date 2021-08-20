@@ -396,10 +396,31 @@ function testTypeNarrowingInMatchStmt2(Expr expr) {
     }
 }
 
+function testTypeNarrowingInMatchStmt3(Expr expr) {
+    Expr x = {oprd : "sample"};
+    match x {
+        {oprd: "sample"} => {
+            TypeCastExpr c = x;
+            assertEquals("sample", c.oprd);
+        }
+    }
+}
+
+function testTypeNarrowingInMatchStmt4(Expr expr) {
+    match expr {
+        {oprd: var o} => {
+            TypeCastExpr c = expr;
+            assertEquals("sample", c.oprd);
+        }
+    }
+}
+
 public function testTypeNarrowingInMatchStmt() {
     Expr expr = {oprd : "sample"};
     testTypeNarrowingInMatchStmt1(expr);
     testTypeNarrowingInMatchStmt2(expr);
+    testTypeNarrowingInMatchStmt3(expr);
+    testTypeNarrowingInMatchStmt4(expr);
 }
 
 function assertEquals(anydata expected, anydata actual) {
