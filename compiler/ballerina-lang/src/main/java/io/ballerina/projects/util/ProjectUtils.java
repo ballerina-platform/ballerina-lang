@@ -800,6 +800,13 @@ public class ProjectUtils {
      */
     public static void writeBuildFile(Path buildFilePath, BuildJson buildJson) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        // Check write permissions
+        if (!buildFilePath.toFile().canWrite()) {
+            throw new ProjectException("'" + buildFilePath.normalize() + "' does not have write permissions");
+        }
+
+        // write build file
         try {
             Files.write(buildFilePath, Collections.singleton(gson.toJson(buildJson)));
         } catch (IOException e) {
