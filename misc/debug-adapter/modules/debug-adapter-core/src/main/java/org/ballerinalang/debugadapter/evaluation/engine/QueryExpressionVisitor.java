@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
@@ -6,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
 import io.ballerina.compiler.syntax.tree.LetClauseNode;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
@@ -17,6 +32,11 @@ import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Syntax tree visitor implementation to capture all the variable references within query expressions.
+ *
+ * @since 2.0.0
+ */
 public class QueryExpressionVisitor extends NodeVisitor {
 
     private boolean isWithinLetClause = false;
@@ -29,6 +49,9 @@ public class QueryExpressionVisitor extends NodeVisitor {
         this.queryExpressionNode = node;
     }
 
+    /**
+     * @return Captures and returns all the variable references within the given query expression.
+     */
     public List<String> getCapturedVariables() {
         queryExpressionNode.accept(this);
         return capturedVariables;
@@ -58,6 +81,8 @@ public class QueryExpressionVisitor extends NodeVisitor {
             letVariables.addAll(extractVariablesFromBindingPattern(bindingPattern));
         });
 
+        // variables defined inside the let clause should be escaped when capturing external (local + global) variable
+        // references
         isWithinLetClause = true;
         letClauseNode.letVarDeclarations().forEach(declarationNode -> declarationNode.expression().accept(this));
         isWithinLetClause = false;
@@ -87,11 +112,6 @@ public class QueryExpressionVisitor extends NodeVisitor {
         } else if (!internalVariables.contains(variableRef)) {
             capturedVariables.add(variableRef);
         }
-    }
-
-    @Override
-    protected void visitSyntaxNode(Node node) {
-        super.visitSyntaxNode(node);
     }
 
     private List<String> extractVariablesFromBindingPattern(BindingPatternNode bindingPattern) {

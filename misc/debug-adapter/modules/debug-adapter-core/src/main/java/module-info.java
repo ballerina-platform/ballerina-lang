@@ -7,6 +7,7 @@ module ballerina.debug.adapter.core {
     requires io.ballerina.parser;
     requires io.ballerina.runtime;
     requires org.eclipse.lsp4j.jsonrpc;
+    requires org.apache.commons.io;
 
     exports org.ballerinalang.debugadapter;
 }

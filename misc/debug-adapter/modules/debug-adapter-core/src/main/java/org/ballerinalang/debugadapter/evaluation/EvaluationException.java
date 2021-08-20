@@ -30,4 +30,12 @@ public class EvaluationException extends Exception {
     public EvaluationException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public static EvaluationException createEvaluationException(String reason) {
+        return createEvaluationException(EvaluationExceptionKind.CUSTOM_ERROR, reason);
+    }
+
+    public static EvaluationException createEvaluationException(EvaluationExceptionKind exceptionKind, String... details) {
+        return new EvaluationException(String.format(exceptionKind.getString(), (Object[]) details));
+    }
 }

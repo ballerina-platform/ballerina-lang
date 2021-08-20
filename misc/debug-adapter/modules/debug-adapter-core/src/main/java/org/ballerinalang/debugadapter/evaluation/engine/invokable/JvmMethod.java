@@ -105,7 +105,7 @@ public abstract class JvmMethod {
      *
      * @return JDI value of the strand instance that is being used
      */
-    protected Value getCurrentStrand() throws EvaluationException {
+    public Value getCurrentStrand() throws EvaluationException {
         try {
             Value strand = context.getFrame().getValue(context.getFrame().visibleVariableByName(STRAND_VAR_NAME));
             if (strand == null) {
