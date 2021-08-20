@@ -67,11 +67,11 @@ public class PackageResolution {
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
-    private PackageResolution(PackageContext rootPackageContext) {
+    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.dependencyManifest = rootPackageContext.dependencyManifest();
         this.diagnosticList = new ArrayList<>();
-        this.compilationOptions = rootPackageContext.compilationOptions();
+        this.compilationOptions = compilationOptions;
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.blendedManifest = BlendedManifest.from(rootPackageContext.packageManifest(),
@@ -80,14 +80,14 @@ public class PackageResolution {
         this.moduleResolver = new ModuleResolver(projectEnvContext.getService(PackageResolver.class));
 
         boolean sticky = rootPackageContext.project().buildOptions().sticky();
-        dependencyGraph = buildDependencyGraph(sticky);
+        dependencyGraph = buildDependencyGraph(sticky, compilationOptions.offlineBuild());
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
     }
 
-    static PackageResolution from(PackageContext rootPackageContext) {
-        return new PackageResolution(rootPackageContext);
+    static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+        return new PackageResolution(rootPackageContext, compilationOptions);
     }
 
     /**
@@ -155,12 +155,12 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky) {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky, boolean offline) {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
-            return createDependencyGraphFromBALA();
+            return createDependencyGraphFromBALA(offline);
         } else {
-            return createDependencyGraphFromSources(sticky);
+            return createDependencyGraphFromSources(sticky, offline);
         }
     }
 
@@ -206,7 +206,7 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    private DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromBALA() {
+    private DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromBALA(boolean offline) {
         DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALA = rootPackageContext.dependencyGraph();
         Collection<PackageDescriptor> directDependenciesOfBALA =
                 dependencyGraphStoredInBALA.getDirectDependencies(rootPackageContext.descriptor());
@@ -217,13 +217,12 @@ public class PackageResolution {
                     DependencyResolutionType.SOURCE));
         }
 
-        boolean offline = rootPackageContext.project().buildOptions().offlineBuild();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
                 rootPackageContext.descriptor(), offline, true);
         return resolutionEngine.resolveDependencies(directDeps);
     }
 
-    DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky) {
+    DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky, boolean offline) {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
@@ -270,7 +269,6 @@ public class PackageResolution {
                     directPkgDependency.scope(), directPkgDependency.resolutionType()));
         }
 
-        boolean offline = rootPackageContext.project().buildOptions().offlineBuild();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
                 rootPackageContext.descriptor(), offline, sticky);
         return resolutionEngine.resolveDependencies(directDeps);

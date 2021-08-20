@@ -341,10 +341,4 @@
         <Class name="io.ballerina.projects.CodeActionManager"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
-
-    <!--TODO remove this before master merge-->
-    <Match>
-        <Class name="io.ballerina.projects.internal.ResolutionEngine"/>
-        <Bug pattern="URF_UNREAD_FIELD"/>
-    </Match>
 </FindBugsFilter>

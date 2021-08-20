@@ -232,9 +232,13 @@ class PackageContext {
 
     PackageResolution getResolution() {
         if (packageResolution == null) {
-            packageResolution = PackageResolution.from(this);
+            packageResolution = PackageResolution.from(this, this.compilationOptions);
         }
         return packageResolution;
+    }
+
+    PackageResolution getResolution(CompilationOptions compilationOptions) {
+        return PackageResolution.from(this, compilationOptions);
     }
 
     Collection<PackageDependency> packageDependencies() {
