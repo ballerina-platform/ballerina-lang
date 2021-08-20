@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
@@ -43,6 +44,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringJoiner;
 
@@ -215,5 +217,34 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
             return new BallerinaServiceDeclarationSymbol(this.name, this.typeDescriptor, this.attachPoint,
                                                          this.qualifiers, this.annots, this.bSymbol, this.context);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getInternalSymbol().getName().getValue(),
+                this.getLocation().map(Location::lineRange).orElse(null));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof ServiceDeclarationSymbol)) {
+            return false;
+        }
+
+        ServiceDeclarationSymbol symbol = (ServiceDeclarationSymbol) obj;
+        return nameEquals(symbol.getName().orElse(null))
+                && isSameLocation(this.getLocation(), symbol.getLocation());
+    }
+
+    private boolean isSameLocation(Optional<Location> loc1, Optional<Location> loc2) {
+        if (loc1.isEmpty() || loc2.isEmpty()) {
+            return false;
+        }
+
+        return loc1.get().lineRange().equals(loc2.get().lineRange());
     }
 }
