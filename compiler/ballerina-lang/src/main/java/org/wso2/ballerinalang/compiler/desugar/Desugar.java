@@ -6858,16 +6858,15 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nilLiftType = exprBType.getMemberTypes().iterator().next();
         BType nullableType = BUnionType.create(null, nilLiftType, symTable.nilType);
-        ((BUnionType) nullableType).setNullable(true);
 
         BLangSimpleVariableDef tempOne;
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
             tempExpr = rewriteExpr(binaryExpr.lhsExpr);
-            tempOne = createVarDef(String.format("$temp_1"), nullableType, tempExpr, binaryExpr.pos);
+            tempOne = createVarDef("$temp_1", nullableType, tempExpr, binaryExpr.pos);
         } else {
             tempExpr = binaryExpr.lhsExpr;
-            tempOne = createVarDef(String.format("$temp_1"), tempExpr.getBType(), tempExpr, binaryExpr.pos);
+            tempOne = createVarDef("$temp_1", tempExpr.getBType(), tempExpr, binaryExpr.pos);
         }
 
         BLangSimpleVarRef tempOneRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempOne.var.symbol);
@@ -6877,32 +6876,30 @@ public class Desugar extends BLangNodeVisitor {
             ((BUnionType) tempOne.getBType()).setNullable(false);
         }
 
-        BLangSimpleVariableDef tempVarDef = createVarDef(String.format("result"),
-                binaryExpr.getBType(), createNilLiteral(), binaryExpr.pos);
+        BLangSimpleVariableDef tempVarDef = createVarDef("result",
+                binaryExpr.getBType(), null, binaryExpr.pos);
         BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempVarDef.var.symbol);
         blockStmt.addStatement(tempVarDef);
 
         BLangSimpleVariableDef tempTwo;
         if (binaryExpr.rhsExpr.getBType().isNullable()) {
-            tempTwo = createVarDef(String.format("$temp_2"),
+            tempTwo = createVarDef("$temp_2",
                     nullableType, binaryExpr.rhsExpr, binaryExpr.pos);
         } else {
-            tempTwo = createVarDef(String.format("$temp_2"),
+            tempTwo = createVarDef("$temp_2",
                     binaryExpr.rhsExpr.getBType(), binaryExpr.rhsExpr, binaryExpr.pos);
         }
 
         BLangSimpleVarRef tempTwoRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempTwo.var.symbol);
         blockStmt.addStatement(tempTwo);
 
-        BLangTypeTestExpr typeTestExprOne = ASTBuilderUtil.createTypeTestExpr(binaryExpr.pos, tempOneRef,
-                new BLangValueType(TypeKind.NIL));
+        BLangTypeTestExpr typeTestExprOne = createTypeCheckExpr(binaryExpr.pos, tempOneRef,
+                getNillTypeNode());
         typeTestExprOne.setBType(symTable.booleanType);
-        typeTestExprOne.typeNode.setBType(symTable.nilType);
 
-        BLangTypeTestExpr typeTestExprTwo = ASTBuilderUtil.createTypeTestExpr(binaryExpr.pos,
-                tempTwoRef, new BLangValueType(TypeKind.NIL));
+        BLangTypeTestExpr typeTestExprTwo = createTypeCheckExpr(binaryExpr.pos,
+                tempTwoRef, getNillTypeNode());
         typeTestExprTwo.setBType(symTable.booleanType);
-        typeTestExprTwo.typeNode.setBType(symTable.nilType);
 
         BLangBinaryExpr ifBlockCondition = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, typeTestExprOne,
                 typeTestExprTwo, symTable.booleanType, OperatorKind.OR, binaryExpr.opSymbol);
@@ -6937,10 +6934,8 @@ public class Desugar extends BLangNodeVisitor {
 
     private boolean isNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
         if ((binaryExpr.lhsExpr.getBType() != null && binaryExpr.rhsExpr.getBType() != null) &&
-                ((binaryExpr.rhsExpr.getBType().isNullable() &&
-                        binaryExpr.rhsExpr.getBType().getKind() == TypeKind.UNION) ||
-                        (binaryExpr.lhsExpr.getBType().isNullable() &&
-                                binaryExpr.lhsExpr.getBType().getKind() == TypeKind.UNION))) {
+                (binaryExpr.rhsExpr.getBType().isNullable() ||
+                        binaryExpr.lhsExpr.getBType().isNullable())) {
             switch (binaryExpr.getOperatorKind()) {
                 case ADD:
                 case SUB:
@@ -7172,10 +7167,9 @@ public class Desugar extends BLangNodeVisitor {
         BUnionType exprBType = (BUnionType) unaryExpr.getBType();
         BType nilLiftType = exprBType.getMemberTypes().iterator().next();
         BType nullableType = BUnionType.create(null, nilLiftType, symTable.nilType);
-        ((BUnionType) nullableType).setNullable(true);
 
         tempExpr = rewriteExpr(unaryExpr.expr);
-        BLangSimpleVariableDef tempOne = createVarDef(String.format("$temp_1"), nullableType, tempExpr, unaryExpr.pos);
+        BLangSimpleVariableDef tempOne = createVarDef("$temp_1", nullableType, tempExpr, unaryExpr.pos);
 
         BLangSimpleVarRef tempOneRef = ASTBuilderUtil.createVariableRef(unaryExpr.pos, tempOne.var.symbol);
         blockStmt.addStatement(tempOne);
@@ -7184,16 +7178,15 @@ public class Desugar extends BLangNodeVisitor {
             ((BUnionType) tempOne.getBType()).setNullable(false);
         }
 
-        BLangSimpleVariableDef tempVarDef = createVarDef(String.format("$result"),
+        BLangSimpleVariableDef tempVarDef = createVarDef("$result",
                 unaryExpr.getBType(), createNilLiteral(), unaryExpr.pos);
         BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(unaryExpr.pos, tempVarDef.var.symbol);
 
         blockStmt.addStatement(tempVarDef);
 
-        BLangTypeTestExpr typeTestExpr = ASTBuilderUtil.createTypeTestExpr(unaryExpr.pos, tempOneRef,
-                new BLangValueType(TypeKind.NIL));
+        BLangTypeTestExpr typeTestExpr = createTypeCheckExpr(unaryExpr.pos, tempOneRef,
+                getNillTypeNode());
         typeTestExpr.setBType(symTable.booleanType);
-        typeTestExpr.typeNode.setBType(symTable.nilType);
 
         BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
         BLangAssignment bLangAssignmentIf = ASTBuilderUtil.createAssignmentStmt(unaryExpr.pos, ifBody);
@@ -7221,8 +7214,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean isNullableUnaryExpr(BLangUnaryExpr unaryExpr) {
-        if (unaryExpr.getBType() != null && unaryExpr.getBType().isNullable() &&
-                unaryExpr.getBType().getKind() == TypeKind.UNION) {
+        if (unaryExpr.getBType() != null && unaryExpr.getBType().isNullable()) {
             switch (unaryExpr.operator) {
                 case ADD:
                 case SUB:
