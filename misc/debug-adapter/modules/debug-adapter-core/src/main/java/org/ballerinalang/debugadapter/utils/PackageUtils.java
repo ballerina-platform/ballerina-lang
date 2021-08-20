@@ -287,6 +287,19 @@ public class PackageUtils {
         return moduleParts;
     }
 
+    /**
+     * Deletes the file in the given path, if exists
+     *
+     * @param filePath file path
+     */
+    public static void deleteFile(Path filePath) {
+        try {
+            Files.deleteIfExists(filePath);
+        } catch (Exception e) {
+            // Todo - add warning when the client logger is implemented
+        }
+    }
+
     private static String replaceSeparators(String path) {
         if (path.contains("/")) {
             return path.replaceAll("/", ".");

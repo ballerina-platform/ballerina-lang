@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -65,6 +66,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessE
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.NewExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.QueryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.RangeExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.StringTemplateEvaluator;
@@ -418,6 +420,12 @@ public class EvaluatorBuilder extends NodeVisitor {
         result = new NewExpressionEvaluator(context, implicitNewExpressionNode, null);
     }
 
+    @Override
+    public void visit(QueryExpressionNode queryExpressionNode) {
+        visitSyntaxNode(queryExpressionNode);
+        result = new QueryExpressionEvaluator(context, queryExpressionNode);
+    }
+
     public void visit(RemoteMethodCallActionNode methodCallActionNode) {
         visitSyntaxNode(methodCallActionNode);
         try {
@@ -670,7 +678,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addQueryExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.QUERY_EXPRESSION);
     }
 
     private void addXmlNavigationExpressionSyntax() {

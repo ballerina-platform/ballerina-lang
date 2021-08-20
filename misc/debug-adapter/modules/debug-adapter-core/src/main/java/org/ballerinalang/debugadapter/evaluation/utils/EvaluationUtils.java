@@ -64,10 +64,10 @@ public class EvaluationUtils {
     public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
     public static final String B_RANGE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "range_operations";
     public static final String B_UTILS_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "utils";
+    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
-    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
     public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
@@ -85,6 +85,8 @@ public class EvaluationUtils {
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
+    public static final String B_SCHEDULER_CLASS = "io.ballerina.runtime.internal.scheduling.Scheduler";
+    public static final String B_STRAND_CLASS = "io.ballerina.runtime.internal.scheduling.Strand";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
 
@@ -142,6 +144,7 @@ public class EvaluationUtils {
     public static final String STRING_TO_XML_METHOD = "stringToXml";
     public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
     public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
+    public static final String CLASSLOAD_AND_INVOKE_METHOD = "classloadAndInvokeFunction";
     public static final String CREATE_INT_RANGE_METHOD = "createIntRange";
     public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
     public static final String GET_XML_FILTER_RESULT_METHOD = "getXMLFilterResult";
