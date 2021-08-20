@@ -1,9 +1,8 @@
-Test-case: succeed
+Test-case: output
 Description: Test valid string values
 Label: string
-Author: rdulmina
 
-public function main() {
+public function main() returns () {
     string a = "Ballerina";
     io:println(a); // @output Ballerina
 
@@ -33,21 +32,28 @@ public function main() {
 Test-case: error
 Description: Test invalid string values
 Label: string
-Author: rdulmina
 
 public function main() {
-    string a = "\u{D800}"; // @error <invalid unicode '\u{D800}'>
+    string a = "\u{D800}"; // @error
 
-    string c = "\u{AG}"; // @error <invalid string numeric escape sequence>
-                         // @error <invalid unicode '\u{AG}'>
+    string b = "\u{AG}"; // @error
+
+    string c = true; // @error
+
+    string d = null; // @error
+
+    int f = "Qwerty"; // @error
+
+    string f = "\"; // intentionally wrote @error in the next line
+                    // @error
+                    // @error
 }
 
 Test-Case: error
 Description: Invalid string escape sequence gives incorrect error message
 Fail-Issue: ballerina-lang#32230
 Label: string
-Author: rdulmina
 
 public function main() {
-    string b = "\Ballerina"; // @error <invalid escape sequence '\B'>
+    string b = "\Ballerina"; // @error
 }
