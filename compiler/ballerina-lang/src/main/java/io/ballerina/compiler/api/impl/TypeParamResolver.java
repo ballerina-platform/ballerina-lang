@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -95,7 +96,12 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BMapType typeInSymbol, BType boundType) {
-        return typeInSymbol;
+        if (isTypeParam(typeInSymbol)) {
+            return boundType;
+        }
+
+        BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
+        return new BMapType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
     @Override
@@ -170,7 +176,13 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return boundType;
         }
 
-        return typeInSymbol;
+        LinkedHashSet<BType> newMembers = new LinkedHashSet<>();
+        for (BType memberType : typeInSymbol.getOriginalMemberTypes()) {
+            BType newType = resolve(memberType, boundType);
+            newMembers.add(newType);
+        }
+
+        return BUnionType.create(typeInSymbol.tsymbol, newMembers);
     }
 
     @Override
