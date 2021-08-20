@@ -1295,8 +1295,8 @@ function getRandomNumber(int i) returns int {
 
 function testToStreamOnImmutableArray() {
     (byte[])[] & readonly arr = [[1,2]];
-    stream<byte[] & readonly, ()> strm = arr.toStream();
+    var strm = arr.toStream();
 
-    stream<byte[] & readonly, ()> castedstrm = <stream<byte[] & readonly, ()>> strm;
+    stream<byte[] & readonly> castedstrm = <stream<byte[] & readonly>> strm;
     assertValueEquality([1, 2], castedstrm.next()?.value);
 }
