@@ -803,7 +803,7 @@ public class ProjectUtils {
 
         // Check write permissions
         if (!buildFilePath.toFile().canWrite()) {
-            throw new ProjectException("'" + buildFilePath.normalize() + "' does not have write permissions");
+            throw new ProjectException("'build' file does not have write permissions");
         }
 
         // write build file
