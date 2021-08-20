@@ -576,4 +576,11 @@ public class LangLibArrayTest {
                 "testToStreamOnImmutableArray"
         };
     }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: Retrieving element type.*")
+    public void testTupleToStreamIllegal() {
+        BRunUtil.invoke(compileResult, "testTupleToStreamIllegal");
+        Assert.fail();
+    }
 }

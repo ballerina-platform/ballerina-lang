@@ -1300,3 +1300,11 @@ function testToStreamOnImmutableArray() {
     stream<byte[] & readonly> castedstrm = <stream<byte[] & readonly>> strm;
     assertValueEquality([1, 2], castedstrm.next()?.value);
 }
+
+type Fooo [[1, 2]]|[2];
+
+function testTupleToStreamIllegal() {
+    Fooo foo = [2];
+    stream<[1, 2]|2> streamResult = foo.toStream();
+    var castedStream = <stream<[1, 2]|2>> streamResult;
+}
