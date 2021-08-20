@@ -164,11 +164,9 @@ public class DefaultPackageResolver implements PackageResolver {
             responseFrmLocalRepo = Collections.emptyList();
         }
 
-        //Send ballerina* org names to dist repo
-        List<ResolutionRequest> distLoadRequests = packageLoadRequests.stream()
-                .filter(r -> r.orgName().value().matches("ballerina.?")).collect(Collectors.toList());
+        // TODO Send ballerina* org names to dist repo
         List<ResolutionResponseDescriptor> latestVersionsInDist = ballerinaDistRepo
-                .resolveDependencyVersions(distLoadRequests);
+                .resolveDependencyVersions(packageLoadRequests);
 
 
         // Send non built in packages to central
