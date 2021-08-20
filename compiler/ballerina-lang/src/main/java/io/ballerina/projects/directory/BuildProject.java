@@ -208,12 +208,17 @@ public class BuildProject extends Project {
 
             List<Dependency> pkgDependencies = getPackageDependencies();
             pkgDependencies.sort(comparator);
-            String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
 
-            if (!dependenciesContent.isEmpty()) {
+            Path dependenciesTomlFile = currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML);
+            if (!pkgDependencies.isEmpty()) {
+                String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
                 // write content to Dependencies.toml file
-                createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
-                                          dependenciesContent);
+                createIfNotExistsAndWrite(dependenciesTomlFile, dependenciesContent);
+            } else {
+                // when there are no package dependencies to write
+                // if Dependencies.toml does not exists ---> Dependencies.toml will not be created
+                // if Dependencies.toml exists          ---> existing Dependencies.toml will be deleted
+                deleteIfExists(dependenciesTomlFile);
             }
         }
     }
@@ -318,6 +323,15 @@ public class BuildProject extends Project {
         } catch (IOException e) {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
         }
+    }
 
+    private static void deleteIfExists(Path filePath) {
+        if (filePath.toFile().exists()) {
+            try {
+                Files.delete(filePath);
+            } catch (IOException e) {
+                throw new ProjectException("Failed to delete 'Dependencies.toml' file");
+            }
+        }
     }
 }
