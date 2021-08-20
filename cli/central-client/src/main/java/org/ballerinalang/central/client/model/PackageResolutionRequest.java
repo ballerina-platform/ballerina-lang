@@ -25,11 +25,13 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Package resolution request model used by package resolver in central client.
@@ -42,7 +44,6 @@ public class PackageResolutionRequest {
 
     /**
      * Package resolution request package model.
-     *
      */
     static class Package {
         private String orgName;
@@ -94,7 +95,6 @@ public class PackageResolutionRequest {
 
     /**
      * Package resolution response mode.
-     *
      */
     public static enum Mode {
         @SerializedName("soft")
@@ -132,7 +132,7 @@ public class PackageResolutionRequest {
         packages.add(new Package(orgName, name, version, mode));
     }
 
-    final class EmptyStringTypeAdapter
+    static class EmptyStringTypeAdapter
             extends TypeAdapter<String> {
 
         private EmptyStringTypeAdapter() {
@@ -142,7 +142,7 @@ public class PackageResolutionRequest {
         @SuppressWarnings("resource")
         public void write(final JsonWriter jsonWriter, @Nullable final String s)
                 throws IOException {
-            if ( s == null || s.isEmpty() ) {
+            if (s == null || s.isEmpty()) {
                 jsonWriter.nullValue();
             } else {
                 jsonWriter.value(s);
@@ -155,7 +155,7 @@ public class PackageResolutionRequest {
         public String read(final JsonReader jsonReader)
                 throws IOException {
             final JsonToken token = jsonReader.peek();
-            switch ( token ) {
+            switch (token) {
                 case NULL:
                     return "";
                 case STRING:

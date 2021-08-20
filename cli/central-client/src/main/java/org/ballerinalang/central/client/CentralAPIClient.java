@@ -496,7 +496,7 @@ public class CentralAPIClient {
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
-            RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request).toString());
+            RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
             Request resolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .post(requestBody)
                     .url(url)
@@ -562,7 +562,7 @@ public class CentralAPIClient {
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
-            RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request).toString());
+            RequestBody requestBody = RequestBody.create(JSON, new Gson().toJson(request));
             Request packageResolutionReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .post(requestBody)
                     .url(url)
