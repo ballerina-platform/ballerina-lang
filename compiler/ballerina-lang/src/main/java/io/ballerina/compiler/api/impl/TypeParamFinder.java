@@ -210,7 +210,7 @@ public class TypeParamFinder implements TypeVisitor {
     @Override
     public void visit(BTableType bTableType) {
         setContainsTypeParam(bTableType);
-        find(bTableType.keyTypeConstraint);
+//        find(bTableType.keyTypeConstraint); TODO: ignoring key constraint type for now
         find(bTableType.constraint);
     }
 
