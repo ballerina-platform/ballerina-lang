@@ -18,7 +18,6 @@
 
 package io.ballerina.compiler.api.impl;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -41,14 +40,20 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     private final Map<BType, BType> boundTypes = new HashMap<>();
+    private BType typeParam;
+
+    public TypeParamResolver(BType typeParam) {
+        this.typeParam = typeParam;
+    }
 
     public BType resolve(BType typeParam, BType boundType) {
         if (boundTypes.containsKey(typeParam)) {
@@ -109,7 +114,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return boundType;
         }
 
-        BType boundElemType = resolve(typeInSymbol.eType, ((BArrayType) boundType).eType);
+        BType boundElemType = resolve(typeInSymbol.eType, boundType);
         return new BArrayType(boundElemType, typeInSymbol.tsymbol, typeInSymbol.size, typeInSymbol.state,
                               typeInSymbol.flags);
     }
@@ -126,7 +131,22 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType typeInSymbol, BType boundType) {
-        return typeInSymbol;
+        if (isTypeParam(typeInSymbol)) {
+            return boundType;
+        }
+
+        List<BType> newTupleTypes = new ArrayList<>();
+
+        List<BType> tupleTypes = typeInSymbol.tupleTypes;
+        for (int i = 0; i < tupleTypes.size(); i++) {
+            BType type = tupleTypes.get(i);
+            BType newType = resolve(type, boundType);
+            newTupleTypes.add(newType);
+        }
+
+        BType newRestType = typeInSymbol.restType != null ? resolve(typeInSymbol.restType, boundType) : null;
+        return new BTupleType(typeInSymbol.tsymbol, newTupleTypes, newRestType, typeInSymbol.flags,
+                              typeInSymbol.isCyclic);
     }
 
     @Override
@@ -184,6 +204,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
     }
 
     private boolean isTypeParam(BType type) {
-        return Symbols.isFlagOn(type.tsymbol.flags, Flags.TYPE_PARAM);
+        return type == this.typeParam;
     }
 }

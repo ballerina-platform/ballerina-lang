@@ -36,18 +36,18 @@ import java.util.List;
 public class LangLibMethodBinder {
 
     public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType boundType) {
-        if (original.params.size() == 0) {
+        if (boundType == null || original.params.size() == 0) {
             return original;
         }
 
-        TypeParamResolver resolver = new TypeParamResolver();
         BVarSymbol firstParam = original.params.get(0);
-        BType resolvedType = resolver.resolve(firstParam.getType(), boundType);
+        BType typeParam = new TypeParamFinder().find(firstParam.getType());
 
-        if (resolvedType == firstParam.getType()) {
+        if (typeParam == null) {
             return original;
         }
 
+        TypeParamResolver resolver = new TypeParamResolver(typeParam);
         BInvokableSymbol duplicate = duplicateSymbol(original);
 
         for (BVarSymbol param : original.params) {

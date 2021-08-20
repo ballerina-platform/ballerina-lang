@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -95,7 +96,8 @@ public class LangLibrary {
      */
     public List<FunctionSymbol> getMethods(BType type) {
         String langLibName = getAssociatedLangLibName(type.getKind());
-        return getMethods(langLibName, type);
+        BType boundType = getTypeParamBoundType(type);
+        return getMethods(langLibName, boundType);
     }
 
     // Private Methods
@@ -191,6 +193,22 @@ public class LangLibrary {
         }
 
         langLibMethods.put(LANG_VALUE, methods);
+    }
+
+    private BType getTypeParamBoundType(BType type) {
+        switch (type.getKind()) {
+            case MAP:
+                return ((BMapType) type).constraint;
+            case ARRAY:
+                return ((BArrayType) type).eType;
+            // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
+            case STREAM:
+            case ERROR:
+            case XML:
+            case TABLE:
+            default:
+                return null;
+        }
     }
 
     private static boolean isLangLibModule(PackageID moduleID) {
