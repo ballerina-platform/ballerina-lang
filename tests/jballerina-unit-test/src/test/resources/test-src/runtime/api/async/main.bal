@@ -31,6 +31,11 @@ public isolated class IsolatedClass {
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
+    public function callGetAWithoutConcurrent() returns int = @java:Method {
+        name: "isolatedGetAWithoutConcurrent",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
     public function isIsolated() returns boolean = @java:Method {
         name: "isolatedClassIsIsolated",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
@@ -53,6 +58,11 @@ class NonIsolatedClass {
 
     public function callGetA() returns int = @java:Method {
         name: "nonIsolatedGetA",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetAWithoutConcurrent() returns int = @java:Method {
+        name: "nonIsolatedGetAWithoutConcurrent",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
@@ -79,6 +89,11 @@ isolated service class IsolatedServiceClass {
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
+    public function callGetAWithoutConcurrent() returns int = @java:Method {
+        name: "isolatedServiceGetAWithoutConcurrent",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
     public function isIsolated() returns boolean = @java:Method {
         name: "isolatedServiceIsIsolated",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
@@ -101,6 +116,11 @@ service class NonIsolatedServiceClass {
 
     public function callGetA() returns int = @java:Method {
         name: "nonIsolatedServiceGetA",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetAWithoutConcurrent() returns int = @java:Method {
+        name: "nonIsolatedServiceGetAWithoutConcurrent",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
@@ -143,24 +163,29 @@ public function callAsyncInvalidObjectMethodWithoutConcurrent(IsolatedClass s) r
 public function main() {
     IsolatedClass isolatedClass = new ();
     test:assertEquals(isolatedClass.callGetA(), 1);
+    test:assertEquals(isolatedClass.callGetAWithoutConcurrent(), 1);
     test:assertTrue(isolatedClass.isIsolated());
     test:assertTrue(isolatedClass.isIsolatedFunction());
 
     NonIsolatedClass nonIsolatedClass = new ();
     test:assertEquals(nonIsolatedClass.callGetA(), 2);
+    test:assertEquals(nonIsolatedClass.callGetAWithoutConcurrent(), 2);
     test:assertFalse(nonIsolatedClass.isIsolated());
     test:assertFalse(nonIsolatedClass.isIsolatedFunction());
 
     IsolatedServiceClass isolatedServiceClass = new ();
     test:assertEquals(isolatedServiceClass.callGetA(), 3);
+    test:assertEquals(isolatedServiceClass.callGetAWithoutConcurrent(), 3);
     test:assertTrue(isolatedServiceClass.isIsolated());
     test:assertTrue(isolatedServiceClass.isIsolatedFunction());
 
     NonIsolatedServiceClass nonIsolatedServiceClass = new ();
     test:assertEquals(nonIsolatedServiceClass.callGetA(), 4);
+    test:assertEquals(nonIsolatedServiceClass.callGetAWithoutConcurrent(), 4);
     test:assertFalse(nonIsolatedServiceClass.isIsolated());
     test:assertFalse(nonIsolatedServiceClass.isIsolatedFunction());
 
+    // invokeAsync api calls negative test cases
     error|int r1 = trap callAsyncNullObject();
     test:assertTrue(r1 is error);
     error e1 = <error> r1;
@@ -176,6 +201,7 @@ public function main() {
     error e3 = <error> r3;
     test:assertEquals(e3.message(), "No such method: foo");
 
+    // invokeAsync api calls deprecated method negative test cases
     error|int r4 = trap callAsyncNullObjectWithoutConcurrent();
     test:assertTrue(r4 is error);
     error e4 = <error> r4;
