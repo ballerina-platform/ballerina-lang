@@ -40,7 +40,7 @@ public interface PackageRepository {
 
     Map<String, List<String>> getPackages();
 
-    List<PackageMetadataResponse> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests);
+    List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests);
 
     List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 }

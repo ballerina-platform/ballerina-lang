@@ -17,27 +17,20 @@
  */
 package io.ballerina.projects.internal.repositories;
 
-import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.internal.BalaFiles;
-import io.ballerina.projects.util.ProjectUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 /**
  * This class represents the local package repository.
@@ -53,37 +46,26 @@ public class LocalPackageRepository extends FileSystemRepository {
         super(environment, cacheDirectory, distributionVersion);
     }
 
-    @Override
-    public List<PackageMetadataResponse> resolveDependencyVersions(List<ResolutionRequest> packageLoadRequests) {
-        List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
-        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
-            if (resolutionRequest.version().isEmpty()) {
-                // TODO proper diagnostic
-                throw new ProjectException("The version must be specified for packages in the local repository. " +
-                        "org: `" + resolutionRequest.orgName() + "` name: `" + resolutionRequest.packageName() + "`");
-            }
-            Path balaPath = getPackagePath(resolutionRequest.orgName().toString(),
-                    resolutionRequest.packageName().toString(), resolutionRequest.version().get().toString());
-
-            if (!Files.exists(balaPath)) {
-                descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
-                continue;
-            }
-
-            BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles.createPackageDependencyGraph(balaPath);
-            DependencyGraph<PackageDescriptor> dependencyGraph = packageDependencyGraph.packageDependencyGraph();
-            PackageMetadataResponse responseDescriptor = PackageMetadataResponse
-                    .from(resolutionRequest, resolutionRequest.packageDescriptor(), dependencyGraph);
-            descriptorSet.add(responseDescriptor);
+    protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
+        if (version == null) {
+            return Collections.emptyList();
         }
-        return descriptorSet;
-    }
 
+        Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
+        if (Files.exists(balaPath)) {
+            return Collections.singletonList(version);
+        } else {
+            // TODO Do we need a diagnostic HERE
+            return Collections.emptyList();
+        }
+    }
 
     public Optional<Collection<String>> getModuleNames(PackageOrg org, PackageName name, PackageVersion version) {
         Path balaPackagePath = getPackagePath(org.value(), name.value(), version.toString());
         if (!Files.exists(balaPackagePath)) {
-            return Optional.empty();
+            // TODO proper diagnostics
+            throw new ProjectException("Cannot find the given package in your local repository. " +
+                    "org:`" + org + "`, name:`" + name + "`, version:`" + version + "`");
         }
 
         BalaFiles.DependencyGraphResult dependencyGraphResult =
@@ -93,18 +75,5 @@ public class LocalPackageRepository extends FileSystemRepository {
                 .map(moduleDescriptor -> moduleDescriptor.name().toString())
                 .collect(Collectors.toList());
         return Optional.of(moduleNames);
-    }
-
-    // TODO Duplicate. Double check the logic
-    private Path getPackagePath(String org, String name, String version) {
-        //First we will check for a bala that match any platform
-        Path balaPath = this.bala.resolve(
-                ProjectUtils.getRelativeBalaPath(org, name, version, null));
-        if (!Files.exists(balaPath)) {
-            // If bala for any platform not exist check for specific platform
-            balaPath = this.bala.resolve(
-                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
-        }
-        return balaPath;
     }
 }

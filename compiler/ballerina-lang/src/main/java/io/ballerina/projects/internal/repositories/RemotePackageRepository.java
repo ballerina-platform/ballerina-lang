@@ -6,9 +6,9 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
-import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import org.ballerinalang.central.client.CentralAPIClient;
@@ -38,8 +38,8 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 public class RemotePackageRepository implements PackageRepository {
 
-    private FileSystemRepository fileSystemRepo;
-    private CentralAPIClient client;
+    private final FileSystemRepository fileSystemRepo;
+    private final CentralAPIClient client;
 
     private RemotePackageRepository(FileSystemRepository fileSystemRepo, CentralAPIClient client) {
         this.fileSystemRepo = fileSystemRepo;
@@ -142,9 +142,9 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     @Override
-    public List<PackageMetadataResponse> resolveDependencyVersions(
-            List<ResolutionRequest> packageLoadRequests) {
-        return fileSystemRepo.resolveDependencyVersions(packageLoadRequests);
+    public List<PackageMetadataResponse> resolvePackageMetadata(
+            List<ResolutionRequest> resolutionRequests) {
+        return fileSystemRepo.resolvePackageMetadata(resolutionRequests);
     }
 
     @Override

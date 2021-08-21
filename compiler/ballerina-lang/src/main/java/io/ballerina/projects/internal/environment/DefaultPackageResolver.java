@@ -25,12 +25,12 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
-import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.util.ProjectConstants;
@@ -115,15 +115,15 @@ public class DefaultPackageResolver implements PackageResolver {
 
         List<PackageMetadataResponse> responseFrmLocalRepo;
         if (!localRepoPkgLoadRequest.isEmpty()) {
-            responseFrmLocalRepo = localRepo.resolveDependencyVersions(localRepoPkgLoadRequest);
+            responseFrmLocalRepo = localRepo.resolvePackageMetadata(localRepoPkgLoadRequest);
         } else {
             responseFrmLocalRepo = Collections.emptyList();
         }
 
         List<PackageMetadataResponse> latestVersionsInDist = distributionRepo
-                .resolveDependencyVersions(resolutionRequests);
+                .resolvePackageMetadata(resolutionRequests);
         List<PackageMetadataResponse> latestVersionsInCentral = centralRepo
-                .resolveDependencyVersions(resolutionRequests);
+                .resolvePackageMetadata(resolutionRequests);
 
         // TODO Local package should get priority over the same version in central or dist repo
         List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
