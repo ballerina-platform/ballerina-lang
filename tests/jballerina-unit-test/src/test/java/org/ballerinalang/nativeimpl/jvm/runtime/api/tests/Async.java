@@ -50,7 +50,7 @@ public class Async {
     }
 
     public static long nonIsolatedGetA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "getA", true);
+        invokeAsync(env, obj, "getA", false);
         return 0;
     }
 
@@ -76,7 +76,7 @@ public class Async {
     }
 
     public static long nonIsolatedServiceGetA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "$gen$$getA$$0046", true);
+        invokeAsync(env, obj, "$gen$$getA$$0046", false);
         return 0;
     }
 
@@ -104,56 +104,48 @@ public class Async {
     }
 
     public static Object callAsyncNullObjectWithoutConcurrent(Environment env) {
-        invokeAsync(env, null, "getA", true);
+        invokeAsync(env, null, "getA");
         return 0;
     }
 
     public static Object callAsyncNullObjectMethodWithoutConcurrent(Environment env, BObject obj) {
-        invokeAsync(env, obj, null, true);
+        invokeAsync(env, obj, null);
         return 0;
     }
 
     public static Object callAsyncInvalidObjectMethodWithoutConcurrent(Environment env, BObject obj) {
-        invokeAsync(env, obj, "foo", true);
+        invokeAsync(env, obj, "foo");
         return 0;
     }
 
     private static void invokeAsync(Environment env, BObject obj, String methodName, boolean callConcurrently) {
         Future future = env.markAsync();
-        try {
-            env.getRuntime().invokeMethodAsync(obj, methodName, null, null, callConcurrently, new Callback() {
-                @Override
-                public void notifySuccess(Object result) {
-                    future.complete(result);
-                }
+        env.getRuntime().invokeMethodAsync(obj, methodName, null, null, callConcurrently, new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                future.complete(result);
+            }
 
-                @Override
-                public void notifyFailure(BError error) {
-                    future.complete(error);
-                }
-            }, null, PredefinedTypes.TYPE_INT);
-        } catch (IllegalArgumentException e) {
-            future.complete(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
-        }
+            @Override
+            public void notifyFailure(BError error) {
+                future.complete(error);
+            }
+        }, null, PredefinedTypes.TYPE_INT);
     }
 
     private static void invokeAsync(Environment env, BObject obj, String methodName) {
         Future future = env.markAsync();
-        try {
-            env.getRuntime().invokeMethodAsync(obj, methodName, null, null, new Callback() {
-                @Override
-                public void notifySuccess(Object result) {
-                    future.complete(result);
-                }
+        env.getRuntime().invokeMethodAsync(obj, methodName, null, null, new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                future.complete(result);
+            }
 
-                @Override
-                public void notifyFailure(BError error) {
-                    future.complete(error);
-                }
-            });
-        } catch (IllegalArgumentException e) {
-            future.complete(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
-        }
+            @Override
+            public void notifyFailure(BError error) {
+                future.complete(error);
+            }
+        });
     }
 
     private static boolean isResourceMethodIsolated(BObject obj) {

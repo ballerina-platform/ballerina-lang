@@ -190,5 +190,4 @@ public function main() {
     test:assertTrue(r6 is error);
     error e6 = <error> r6;
     test:assertEquals(e6.message(), "No such method: foo");
-
 }

@@ -53,8 +53,8 @@ public class Runtime {
     /**
      * Gets the instance of ballerina runtime.
      *
-     * @deprecated use {@link Environment#getRuntime()} instead.
      * @return Ballerina runtime instance.
+     * @deprecated use {@link Environment#getRuntime()} instead.
      */
     @Deprecated
     public static Runtime getCurrentRuntime() {
@@ -65,57 +65,61 @@ public class Runtime {
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
      *
-     * @param object     Object Value.
-     * @param methodName Name of the method.
-     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param callback   Callback which will get notify once method execution done.
+     * @param object           Object Value.
+     * @param methodName       Name of the method.
+     * @param strandName       Name for newly creating strand which is used to execute the function pointer. This is
+     *                         optional and can be null.
+     * @param metadata         Meta data of new strand.
+     * @param callback         Callback which will get notify once method execution done.
      * @param callConcurrently Ensures method can be invoked concurrently.
-     * @param properties Set of properties for strand
-     * @param returnType Expected return type of this method
-     * @param args       Ballerina function arguments.
-     * @return           {@link FutureValue} containing return value of executing this method.
-     * @throws IllegalArgumentException if object or method name is null.
+     * @param properties       Set of properties for strand
+     * @param returnType       Expected return type of this method
+     * @param args             Ballerina function arguments.
+     * @return {@link FutureValue} containing return value of executing this method.
      */
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      boolean callConcurrently, Callback callback, Map<String, Object> properties,
-                                     Type returnType, Object... args) throws IllegalArgumentException {
-        if (object == null) {
-            throw new IllegalArgumentException("object cannot be null");
+                                     Type returnType, Object... args) {
+        try {
+            if (object == null) {
+                throw new IllegalArgumentException("object cannot be null");
+            }
+            if (methodName == null) {
+                throw new IllegalArgumentException("method name cannot be null");
+            }
+            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+            if (callConcurrently) {
+                return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                                          metadata);
+            } else {
+                return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
+                                                       returnType, strandName, metadata);
+            }
+        } catch (Throwable e) {
+            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
         }
-        if (methodName == null) {
-            throw new IllegalArgumentException("method name cannot be null");
-        }
-        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        if (callConcurrently) {
-            return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
-                    metadata);
-        } else {
-            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
-                    returnType, strandName, metadata);
-        }
+        return null;
     }
 
-     /**
-      * Invoke Object method asynchronously. This will schedule the function and block the strand.
-      *
-      * @param object     Object Value.
-      * @param methodName Name of the method.
-      * @param strandName Name for newly creating strand which is used to execute the function pointer. This is optional
-      *                   and can be null.
-      * @param metadata   Meta data of new strand.
-      * @param callback   Callback which will get notify once method execution done.
-      * @param args       Ballerina function arguments.
-      * @return           the result of the function invocation
-      * @deprecated       Use {@link #invokeMethodAsync(BObject, String, String, StrandMetadata, boolean,
-      *                   Callback, Map, Type, Object...)} providing isolation of method call.
-      */
-     public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                                     Callback callback, Object... args) {
-         return invokeMethodAsync(object, methodName, strandName, metadata, callback, null,
-                                  PredefinedTypes.TYPE_NULL, args);
-     }
+    /**
+     * Invoke Object method asynchronously. This will schedule the function and block the strand.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is optional
+     *                   and can be null.
+     * @param metadata   Meta data of new strand.
+     * @param callback   Callback which will get notify once method execution done.
+     * @param args       Ballerina function arguments.
+     * @return the result of the function invocation
+     * @deprecated Use {@link #invokeMethodAsync(BObject, String, String, StrandMetadata, boolean,
+     * Callback, Map, Type, Object...)} providing isolation of method call.
+     */
+    public Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
+                                    Callback callback, Object... args) {
+        return invokeMethodAsync(object, methodName, strandName, metadata, callback, null,
+                                 PredefinedTypes.TYPE_NULL, args);
+    }
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
@@ -129,28 +133,33 @@ public class Runtime {
      * @param properties Set of properties for strand
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
-     * @return           {@link FutureValue} containing return value of executing this method.
-     * @throws IllegalArgumentException if object or method name is null.
-     * @deprecated       Use {@link #invokeMethodAsync(BObject, String, String, StrandMetadata, boolean,
-     *                   Callback, Map, Type, Object...)} providing isolation of method call.
+     * @return {@link FutureValue} containing return value of executing this method.
+     * @deprecated Use {@link #invokeMethodAsync(BObject, String, String, StrandMetadata, boolean,
+     * Callback, Map, Type, Object...)} providing isolation of method call.
      */
     public BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
                                      Callback callback, Map<String, Object> properties,
-                                     Type returnType, Object... args) throws IllegalArgumentException {
-        if (object == null) {
-            throw new IllegalArgumentException("object cannot be null");
+                                     Type returnType, Object... args) {
+        try {
+            if (object == null) {
+                throw new IllegalArgumentException("object cannot be null");
+            }
+            if (methodName == null) {
+                throw new IllegalArgumentException("method name cannot be null");
+            }
+            boolean isIsolated = isIsolated(object.getType(), methodName);
+            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+            if (isIsolated) {
+                return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
+                                          metadata);
+            } else {
+                return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
+                                                       returnType, strandName, metadata);
+            }
+        } catch (Throwable e) {
+            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
         }
-        if (methodName == null) {
-            throw new IllegalArgumentException("method name cannot be null");
-        }
-        Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-        if (isIsolated(object.getType(), methodName)) {
-            return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
-                                      metadata);
-        } else {
-            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
-                                                   returnType, strandName, metadata);
-        }
+        return null;
     }
 
     private boolean isIsolated(ObjectType objectType, String methodName) {
@@ -169,7 +178,7 @@ public class Runtime {
                 }
             }
         }
-        throw ErrorCreator.createError(StringUtils.fromString("object type does not contain method : " + methodName));
+        throw new IllegalArgumentException("No such method: " + methodName);
     }
 
     public void registerListener(BObject listener) {
