@@ -148,7 +148,7 @@ public class MatchStructuredErrorPatternsTest {
 
         BInteger[] args1 = { new BInteger(1) };
         BValue[] returns1 = BRunUtil.invoke(result, "testErrorRestParamMatch", args1);
-        Assert.assertEquals(returns1[0].stringValue(), "x 1");
+        Assert.assertEquals(returns1[0].stringValue(), "[\"x\",1]");
 
         BInteger[] args2 = { new BInteger(2) };
         BValue[] returns2 = BRunUtil.invoke(result, "testErrorRestParamMatch", args2);

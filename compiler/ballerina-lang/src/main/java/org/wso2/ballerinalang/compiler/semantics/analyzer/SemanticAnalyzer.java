@@ -1838,7 +1838,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        resetTypeNarrowing(compoundAssignment.varRef, compoundAssignment.expr.getBType());
+        resetTypeNarrowing(compoundAssignment.varRef);
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -1858,7 +1858,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateWorkerAnnAttachments(assignNode.expr);
 
-        resetTypeNarrowing(varRef, assignNode.expr.getBType());
+        resetTypeNarrowing(varRef);
     }
 
     @Override
@@ -2028,7 +2028,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                resetTypeNarrowing(variableReference, rhsField.type);
+                resetTypeNarrowing(variableReference);
                 types.checkType(variableReference.pos, rhsField.type,
                                 variableReference.getBType(), DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             } else {
@@ -2091,7 +2091,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                resetTypeNarrowing(simpleVarRef, souceElementType);
+                resetTypeNarrowing(simpleVarRef);
 
                 BType targetType = simpleVarRef.getBType();
                 if (!types.isAssignable(souceElementType, targetType)) {
@@ -2158,7 +2158,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 BType targetType;
-                resetTypeNarrowing(simpleVarRef, sourceType);
+                resetTypeNarrowing(simpleVarRef);
                 // Check if this is the rest param and get the type of rest param.
                 if ((target.expressions.size() > i)) {
                     targetType = varRefExpr.getBType();
@@ -2221,7 +2221,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType);
-            resetTypeNarrowing(detailItem.expr, matchedType);
+            resetTypeNarrowing(detailItem.expr);
             if (!types.isAssignable(matchedType, detailItem.expr.getBType())) {
                 dlog.error(detailItem.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                            detailItem.expr.getBType(), matchedType);
@@ -2237,7 +2237,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                            expRestType);
                 return;
             }
-            resetTypeNarrowing(lhsRef.restVar, expRestType);
+            resetTypeNarrowing(lhsRef.restVar);
             typeChecker.checkExpr(lhsRef.restVar, env);
         }
     }
@@ -4343,7 +4343,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return (((BLangSimpleVarRef) expr).symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
     }
 
-    private void resetTypeNarrowing(BLangExpression lhsExpr, BType rhsType) {
+    private void resetTypeNarrowing(BLangExpression lhsExpr) {
         if (!isSimpleVarRef(lhsExpr)) {
             return;
         }
@@ -4353,20 +4353,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // If the rhs's type is not assignable to the variable's narrowed type,
-        // then the type narrowing will no longer hold. Thus define the original
-        // symbol in all the scopes that are affected by this assignment.
-        if (!types.isAssignable(rhsType, varSymbol.type)) {
-            if (this.narrowedTypeInfo != null) {
-                // Record the vars for which type narrowing was unset, to define relevant shadowed symbols in branches.
-                BType currentType = ((BLangSimpleVarRef) lhsExpr).symbol.type;
-                this.narrowedTypeInfo.put(typeNarrower.getOriginalVarSymbol(varSymbol),
-                                          new BType.NarrowedTypes(currentType, currentType));
-            }
-
-            defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), env);
-            env = prevEnvs.pop();
+        if (this.narrowedTypeInfo != null) {
+            // Record the vars for which type narrowing was unset, to define relevant shadowed symbols in branches.
+            BType currentType = ((BLangSimpleVarRef) lhsExpr).symbol.type;
+            this.narrowedTypeInfo.put(typeNarrower.getOriginalVarSymbol(varSymbol),
+                                      new BType.NarrowedTypes(currentType, currentType));
         }
+
+        defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), env);
+        env = prevEnvs.pop();
     }
 
     private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {
