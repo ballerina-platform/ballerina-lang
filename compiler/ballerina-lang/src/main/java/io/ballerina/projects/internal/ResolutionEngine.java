@@ -25,10 +25,10 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
-import io.ballerina.projects.environment.PackageMetadataResponse;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -112,7 +112,7 @@ public class ResolutionEngine {
 
 
         // TODO we need to return the dependency graph and the diagnostics....
-        return null;
+        return graphBuilder.buildGraph();
     }
 
     public DependencyGraph<ResolvedPackageDependency> getPackageDependencyGraph(Project currentProject) {
@@ -168,6 +168,11 @@ public class ResolutionEngine {
         @Override
         public int hashCode() {
             return Objects.hash(pkgDesc, scope, resolutionType);
+        }
+
+        @Override
+        public String toString() {
+            return pkgDesc.toString();
         }
     }
 }
