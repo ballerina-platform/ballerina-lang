@@ -17,6 +17,8 @@
 package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
@@ -76,7 +78,10 @@ public class QueryExpressionProcessor {
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
     public static final String QUERY_FUNCTION_NAME = "getQueryResult";
-    private static final String QUERY_FUNCTION_TEMPLATE = "%s public function %s(%s) returns any|error { return %s; }";
+
+    // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
+    // return non-public types.
+    private static final String QUERY_FUNCTION_TEMPLATE = "%s function %s(%s) returns any|error { return %s; }";
 
     public QueryExpressionProcessor(SuspendedContext context, QueryExpressionNode syntaxNode) {
         this.context = context;
@@ -176,8 +181,7 @@ public class QueryExpressionProcessor {
         Path fileName = filePath.getFileName();
         if (fileName != null) {
             int index = indexOfExtension(fileName.toString());
-            return index == -1 ? fileName.toString() :
-                    fileName.toString().substring(0, index);
+            return index == -1 ? fileName.toString() : fileName.toString().substring(0, index);
         } else {
             return null;
         }
@@ -190,7 +194,7 @@ public class QueryExpressionProcessor {
      * @param isOffline Whether to use offline flag for build options.
      * @return Created ballerina project.
      */
-    protected Project getProject(File mainBal, boolean isOffline) {
+    private Project getProject(File mainBal, boolean isOffline) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(isOffline).build();
         // Todo - create a build project instead
         return SingleFileProject.load(mainBal.toPath(), buildOptions);
@@ -203,7 +207,7 @@ public class QueryExpressionProcessor {
      * @return The created temp file.
      * @throws IOException If writing was unsuccessful.
      */
-    protected File writeToFile(String source) throws IOException {
+    private File writeToFile(String source) throws IOException {
         File createdFile = getBufferFile();
         try (FileWriter fileWriter = new FileWriter(createdFile, Charset.defaultCharset())) {
             fileWriter.write(source);
@@ -226,7 +230,13 @@ public class QueryExpressionProcessor {
     }
 
     private String generateQuerySnippet() throws EvaluationException {
-        String topLevelDeclarations = ""; // Todo
+        // Generates top level declarations snippet
+        ModuleLevelDefinitionFinder moduleLevelDefinitionFinder = new ModuleLevelDefinitionFinder(context);
+        List<ModuleMemberDeclarationNode> declarationList = moduleLevelDefinitionFinder.getModuleLevelDeclarations();
+        String topLevelDeclarations = declarationList.stream()
+                .map(Node::toSourceCode)
+                .reduce((s, s2) -> s + System.lineSeparator() + s2)
+                .orElse("");
 
         // Generates function signature (parameter definitions) for the snippet.
         processSnippetFunctionParameters();
@@ -279,7 +289,7 @@ public class QueryExpressionProcessor {
 
     private void processSnippetFunctionParameters() throws EvaluationException {
         // Retrieves all the external (local + global) variables which are being used in the query expression.
-        List<String> capturedVarNames = new QueryExpressionVisitor(syntaxNode).getCapturedVariables();
+        List<String> capturedVarNames = new ArrayList<>(new QueryReferenceFinder(syntaxNode).getCapturedVariables());
         List<String> capturedTypes = new ArrayList<>();
         for (String name : capturedVarNames) {
             Value jdiValue = VariableUtils.getVariableValue(context, name);
