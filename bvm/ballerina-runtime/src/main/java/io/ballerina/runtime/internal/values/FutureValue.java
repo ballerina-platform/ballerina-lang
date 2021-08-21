@@ -15,29 +15,32 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
-package io.ballerina.runtime.internal.values;
+ package io.ballerina.runtime.internal.values;
 
  import io.ballerina.runtime.api.async.Callback;
  import io.ballerina.runtime.api.types.Type;
  import io.ballerina.runtime.api.values.BFuture;
  import io.ballerina.runtime.api.values.BLink;
+ import io.ballerina.runtime.api.values.BTypedesc;
  import io.ballerina.runtime.internal.scheduling.Strand;
  import io.ballerina.runtime.internal.types.BFutureType;
 
  import java.util.Map;
  import java.util.StringJoiner;
 
-/**
- * <p>
- * Represent a Ballerina future in Java.
- * </p>
- * <p>
- * <i>Note: This is an internal API and may change in future versions.</i>
- * </p>
- * 
- * @since 0.995.0
- */
+ /**
+  * <p>
+  * Represent a Ballerina future in Java.
+  * </p>
+  * <p>
+  * <i>Note: This is an internal API and may change in future versions.</i>
+  * </p>
+  *
+  * @since 0.995.0
+  */
  public class FutureValue implements BFuture, RefValue {
+
+     private final BTypedesc typedesc;
 
      public Strand strand;
 
@@ -58,6 +61,7 @@ package io.ballerina.runtime.internal.values;
          this.strand = strand;
          this.callback = callback;
          this.type = new BFutureType(constraint);
+         this.typedesc = new TypedescValueImpl(this.type);
      }
 
      @Override
@@ -73,12 +77,12 @@ package io.ballerina.runtime.internal.values;
          return "future " + sj;
      }
 
-    @Override
-    public String expressionStringValue(BLink parent) {
-        return stringValue(parent);
-    }
+     @Override
+     public String expressionStringValue(BLink parent) {
+         return stringValue(parent);
+     }
 
-    @Override
+     @Override
      public Type getType() {
          return this.type;
      }
@@ -93,60 +97,65 @@ package io.ballerina.runtime.internal.values;
          throw new UnsupportedOperationException();
      }
 
+     @Override
+     public BTypedesc getTypedesc() {
+         return typedesc;
+     }
+
      public void cancel() {
          this.strand.cancel = true;
      }
 
-    /**
-     * Returns the strand that the future is attached to.
-     * @return {@code Strand}
-     */
-    public Strand getStrand() {
-        return this.strand;
-    }
+     /**
+      * Returns the strand that the future is attached to.
+      * @return {@code Strand}
+      */
+     public Strand getStrand() {
+         return this.strand;
+     }
 
-    /**
-     * Returns the result value of the future.
-     * @return result value
-     */
-    public Object getResult() {
-       return this.result;
-    }
+     /**
+      * Returns the result value of the future.
+      * @return result value
+      */
+     public Object getResult() {
+         return this.result;
+     }
 
-    /**
-     * Returns completion status of the {@code Strand} that the future is attached.
-     * @return true if future is completed
-     */
-    public boolean isDone() {
-        return this.isDone;
-    }
+     /**
+      * Returns completion status of the {@code Strand} that the future is attached.
+      * @return true if future is completed
+      */
+     public boolean isDone() {
+         return this.isDone;
+     }
 
-    /**
-     * Returns {@code Throwable} if the attached strand panic.
-     * @return panic error or null if not panic occurred
-     */
-    public Throwable getPanic() {
-        return this.panic;
-    }
+     /**
+      * Returns {@code Throwable} if the attached strand panic.
+      * @return panic error or null if not panic occurred
+      */
+     public Throwable getPanic() {
+         return this.panic;
+     }
 
-    /**
-     * {@code CallableUnitCallback} listening on the completion of this future.
-     * @return registered {@code CallableUnitCallback}
-     */
-    public Callback getCallback() {
-        return this.callback;
-    }
+     /**
+      * {@code CallableUnitCallback} listening on the completion of this future.
+      * @return registered {@code CallableUnitCallback}
+      */
+     public Callback getCallback() {
+         return this.callback;
+     }
 
-    @Override
-    public String toString() {
-        return stringValue(null);
-    }
+     @Override
+     public String toString() {
+         return stringValue(null);
+     }
 
-    public boolean hasWaited() {
-        return waited;
-    }
+     public boolean hasWaited() {
+         return waited;
+     }
 
-    public void setWaited(boolean waited) {
-        this.waited = waited;
-    }
-}
+     public void setWaited(boolean waited) {
+         this.waited = waited;
+     }
+ }

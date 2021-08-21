@@ -31,6 +31,8 @@ dependencies {
     implementation 'commons-io:commons-io'
     implementation 'com.github.zafarkhaja:java-semver'
     testCompile 'org.testng:testng'
+    testCompile "org.mockito:mockito-core:2.1.0"
+    testImplementation 'org.mockito:mockito-core:2.1.0'
 }
 
 description = 'Ballerina - Lang'

@@ -76,6 +76,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.authors(), Arrays.asList("jo", "pramodya"));
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
+        Assert.assertEquals(packageManifest.ballerinaVersion(), "slbeta2");
 
 //        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
 //        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());

@@ -34,6 +34,7 @@ import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,12 +121,20 @@ public class DefaultPackageResolver implements PackageResolver {
             responseFrmLocalRepo = Collections.emptyList();
         }
 
+        // TODO Send ballerina* org names to dist repo
         List<PackageMetadataResponse> latestVersionsInDist = distributionRepo
                 .resolvePackageMetadata(resolutionRequests);
+
+
+        // Send non built in packages to central
+        List<ResolutionRequest> centralLoadRequests = resolutionRequests.stream()
+                .filter(r -> !ProjectUtils.isBuiltInPackage(r.orgName(), r.packageName().value()))
+                .collect(Collectors.toList());
         List<PackageMetadataResponse> latestVersionsInCentral = centralRepo
-                .resolvePackageMetadata(resolutionRequests);
+                .resolvePackageMetadata(centralLoadRequests);
 
         // TODO Local package should get priority over the same version in central or dist repo
+        // TODO Unit test following merge
         List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
                 Stream.of(latestVersionsInDist, latestVersionsInCentral, responseFrmLocalRepo)
                         .flatMap(List::stream).collect(Collectors.toMap(
@@ -143,7 +152,7 @@ public class DefaultPackageResolver implements PackageResolver {
                                 return y;
                             }
                             return x;
-                })).values());
+                        })).values());
 
         return responseDescriptors;
     }
