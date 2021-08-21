@@ -30,29 +30,31 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Syntax tree visitor implementation to capture all the variable references within query expressions.
  *
  * @since 2.0.0
  */
-public class QueryExpressionVisitor extends NodeVisitor {
+public class QueryReferenceFinder extends NodeVisitor {
 
     private boolean isWithinLetClause = false;
     private final QueryExpressionNode queryExpressionNode;
-    private final List<String> internalVariables = new ArrayList<>();
+    private final Set<String> internalVariables = new HashSet<>();
     private final List<String> letVariables = new ArrayList<>();
-    private final List<String> capturedVariables = new ArrayList<>();
+    private final Set<String> capturedVariables = new HashSet<>();
 
-    public QueryExpressionVisitor(QueryExpressionNode node) {
+    public QueryReferenceFinder(QueryExpressionNode node) {
         this.queryExpressionNode = node;
     }
 
     /**
      * @return Captures and returns all the variable references within the given query expression.
      */
-    public List<String> getCapturedVariables() {
+    public Set<String> getCapturedVariables() {
         queryExpressionNode.accept(this);
         return capturedVariables;
     }

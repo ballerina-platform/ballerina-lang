@@ -85,8 +85,8 @@ public class EvaluationUtils {
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
-    public static final String B_SCHEDULER_CLASS = "io.ballerina.runtime.internal.scheduling.Scheduler";
-    public static final String B_STRAND_CLASS = "io.ballerina.runtime.internal.scheduling.Strand";
+    public static final String B_SCHEDULER_CLASS = RUNTIME_HELPER_PREFIX + "internal.scheduling.Scheduler";
+    public static final String B_STRAND_CLASS = RUNTIME_HELPER_PREFIX + "internal.scheduling.Strand";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
 
@@ -282,16 +282,16 @@ public class EvaluationUtils {
             String typeName = value.type().name();
             List<Method> method;
             switch (typeName) {
-                case EvaluationUtils.JAVA_INT_CLASS:
+                case JAVA_INT_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(INT_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_LONG_CLASS:
+                case JAVA_LONG_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(LONG_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_FLOAT_CLASS:
+                case JAVA_FLOAT_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(FLOAT_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_DOUBLE_CLASS:
+                case JAVA_DOUBLE_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(DOUBLE_VALUE_METHOD);
                     break;
                 default:
