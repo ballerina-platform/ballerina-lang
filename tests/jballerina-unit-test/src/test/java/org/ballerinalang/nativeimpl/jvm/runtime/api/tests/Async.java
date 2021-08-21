@@ -41,6 +41,11 @@ public class Async {
         return 0;
     }
 
+    public static long isolatedGetAWithoutConcurrent(Environment env, BObject obj) {
+        invokeAsync(env, obj, "getA");
+        return 0;
+    }
+
     public static boolean isolatedClassIsIsolated(BObject obj) {
         return obj.getType().isIsolated();
     }
@@ -51,6 +56,11 @@ public class Async {
 
     public static long nonIsolatedGetA(Environment env, BObject obj) {
         invokeAsync(env, obj, "getA", false);
+        return 0;
+    }
+
+    public static long nonIsolatedGetAWithoutConcurrent(Environment env, BObject obj) {
+        invokeAsync(env, obj, "getA");
         return 0;
     }
 
@@ -67,6 +77,11 @@ public class Async {
         return 0;
     }
 
+    public static long isolatedServiceGetAWithoutConcurrent(Environment env, BObject obj) {
+        invokeAsync(env, obj, "$gen$$getA$$0046");
+        return 0;
+    }
+
     public static boolean isolatedServiceIsIsolated(BObject obj) {
         return obj.getType().isIsolated();
     }
@@ -77,6 +92,11 @@ public class Async {
 
     public static long nonIsolatedServiceGetA(Environment env, BObject obj) {
         invokeAsync(env, obj, "$gen$$getA$$0046", false);
+        return 0;
+    }
+
+    public static long nonIsolatedServiceGetAWithoutConcurrent(Environment env, BObject obj) {
+        invokeAsync(env, obj, "$gen$$getA$$0046");
         return 0;
     }
 
