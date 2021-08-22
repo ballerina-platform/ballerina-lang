@@ -1,0 +1,80 @@
+Test-case: output
+Description: Test valid array types and values
+Label: array
+
+const LENGTH = 2;
+
+public function main() returns () {
+    int[5] a = [1, 2, 3, 4, 5];
+    io:println(a); // @output [1,2,3,4,5]
+
+    byte[LENGTH] b = [1, 255];
+    io:println(b); // @output [1,255]
+
+    string[*] c = ["Cat", "Dog"];
+    io:println(c); // @output ["Cat","Dog"]
+
+    float[] d = [1.25, 2.5];
+    io:println(d); // @output [1.25,2.5]
+
+    d = [1.5];
+    io:println(d); // @output [1.5]
+
+    record {|string name;|}[2] e = [{name: "John"}, {name: "Mike"}];
+    map<string>[2] f = e;
+    io:println(f); // @output [{"name":"John"},{"name":"Mike"}]
+
+    any[6] g = [2, 2.3, "String", true, [], {}];
+    io:println(g); // @output [2,2.3,"String",true,[],{}]
+
+    ()[*] h = [null, ()];
+    io:println(h); // @output [(),()]
+
+    xml[LENGTH] i = [xml ``, xml `<body>v</body>`];
+    io:println(i); // @output [xml``,xml`<body>v</body>`]
+
+    int[4] j = [55555, 5343434, 999999, 4];
+    j[3] = 888888888;
+    io:println(j); // @output [55555,5343434,999999,888888888]
+
+    object {int id;}[] k = [object {int id = 3;}];
+    io:println(k[0].id); // @output 3
+
+}
+
+Test-case: error
+Description: Test invalid array types and values
+Label: string
+
+public function main() {
+    int length = 3;
+    int[length] a = [1, 2, 3]; // @error
+
+    function[2] b = [function(int a) => (), true]; // @error
+
+    boolean[LENGTH2] bool; // no error create issue
+
+    xml[*] xmlArray; // @error
+
+    float[3] c = [1.23, 1.4, 5.5, 7.6]; // @error
+
+    byte[2] d = [1, 33];
+    d[4] = 5; // @error
+
+    readonly & string[2] e = ["Ballerina"];
+    d[1] = "Programming"; // @error
+
+    readonly & record {|string name;|}[1] f = [{name:"Wick"}];
+    f[0].name = "fd"; // @error
+}
+
+Test-case: error
+Description: Array with negative array length const-expr does not give any error
+Fail-Issue: ballerina-lang#32269
+Label: array
+
+const LENGTH2 = -1;
+
+public function main() {
+    boolean[LENGTH2] bool; // @error
+}
