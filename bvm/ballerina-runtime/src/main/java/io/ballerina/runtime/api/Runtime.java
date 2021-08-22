@@ -81,12 +81,7 @@ public class Runtime {
                                      boolean callConcurrently, Callback callback, Map<String, Object> properties,
                                      Type returnType, Object... args) {
         try {
-            if (object == null) {
-                throw new IllegalArgumentException("object cannot be null");
-            }
-            if (methodName == null) {
-                throw new IllegalArgumentException("method name cannot be null");
-            }
+            validateArgs(object, methodName);
             Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
             if (callConcurrently) {
                 return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
@@ -141,12 +136,7 @@ public class Runtime {
                                      Callback callback, Map<String, Object> properties,
                                      Type returnType, Object... args) {
         try {
-            if (object == null) {
-                throw new IllegalArgumentException("object cannot be null");
-            }
-            if (methodName == null) {
-                throw new IllegalArgumentException("method name cannot be null");
-            }
+            validateArgs(object, methodName);
             boolean isIsolated = isIsolated(object.getType(), methodName);
             Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
             if (isIsolated) {
@@ -160,6 +150,15 @@ public class Runtime {
             callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
         }
         return null;
+    }
+
+    private void validateArgs(BObject object, String methodName) {
+        if (object == null) {
+            throw new IllegalArgumentException("object cannot be null");
+        }
+        if (methodName == null) {
+            throw new IllegalArgumentException("method name cannot be null");
+        }
     }
 
     private boolean isIsolated(ObjectType objectType, String methodName) {
