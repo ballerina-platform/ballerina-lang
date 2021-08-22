@@ -138,8 +138,7 @@ public class XmlPi extends XmlNonElementItem {
 
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.
-                    createIteratorNextReturnType(this.type);
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(this.type);
         }
 
         return iteratorNextReturnType;
