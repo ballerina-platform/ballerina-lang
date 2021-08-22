@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BServiceType;
 
 /**
- * This class contains a set of utility methods required for runtime api @{@link Runtime} testing.
+ * This class contains a set of utility methods required for runtime invoke async api testing.
  *
  * @since 2.0.0
  */
