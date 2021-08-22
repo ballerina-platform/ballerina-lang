@@ -323,7 +323,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testXmlIteratorNextValue() {
-        BRunUtil.invoke(compileResult, "testData");
+        BRunUtil.invoke(compileResult, "testXmlIteratorNextInvocations");
     }
 
     @Test
