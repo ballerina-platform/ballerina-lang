@@ -4,8 +4,13 @@ package org.ballerina.semtypes;
  * Contains core functions for implementing semantic typing.
  *
  */
-public class Core {
-
+class SemtypePlaceholder {
+    SemType s1;
+    SemType s2;
+    public SemtypePlaceholder() {
+        s1 = new ComplexSemType();
+        s2 = new UniformTypeBitSet(0x00);
+    }
 }
 
 /**
