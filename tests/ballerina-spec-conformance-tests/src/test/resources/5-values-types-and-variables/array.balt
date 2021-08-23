@@ -40,11 +40,30 @@ public function main() returns () {
     object {int id;}[] k = [object {int id = 3;}];
     io:println(k[0].id); // @output 3
 
+    table<record {|int id;|}>[] l = [table [{id: 1001}, {id:1002}]];
+    io:println(l); // @output [table key() [{"id":1001},{"id":1002}]]
+
+    (int[])[2] m = [[45], [444, 55, 545]];
+    io:println(m); // @output [[45],[444,55,545]]
+
+    int[2] n = [1, 2];
+    int[] o = n;
+    o[1] = 433;
+    io:println(n); // @output [1,433]
+}
+
+Test-case: output
+Description: Initialization of array of array gives compilation error
+Fail-Issue: ballerina-lang#32282
+Label: array
+
+public function main() returns (){
+     int[][2] a = [[45], [444, 55, 545]]; // output [[45], [444, 55, 545]]
 }
 
 Test-case: error
 Description: Test invalid array types and values
-Label: string
+Label: array
 
 public function main() {
     int length = 3;

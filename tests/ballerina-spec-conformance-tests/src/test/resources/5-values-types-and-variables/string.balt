@@ -4,29 +4,34 @@ Label: string
 
 public function main() returns () {
     string a = "Ballerina";
-    io:println(a); // @output Ballerina
+    io:println(a); // @output "Ballerina"
 
-    io:println(""); // @output
+    io:println(""); // @output ""
 
-    io:println("+_)(*&^%$#@!"); // @output +_)(*&^%$#@!
+    io:println("+_)(*&^%$#@!"); // @output "+_)(*&^%$#@!""
 
-    io:println("Hello \t world"); // @output Hello    world
+    io:println("Hello \t world"); // @output "Hello    world"
 
-    io:println("Hello \nworld!"); // @output Hello
-                                  // @output world
+    io:println("Hello \nworld!"); // @output "Hello
+                                  // @output world!"
 
-    io:println("12345 world \rHello"); // @output Hello world
+    io:println("12345 world \rHello"); // @output Hello" world
 
-    io:println("\"2\" \\ two"); // @output "2" \ two
+    io:println("\"2\" \\ two"); // @output ""2" \ two"
 
     string b = "a\u{62}c";
-    io:println(b); // @output abc
+    io:println(b); // @output "abc"
 
     string c = "smile\u{1F642}";
-    io:println(c); // @output smile🙂
+    io:println(c); // @output "smile🙂"
 
     string d = "\u{FFFF}";
-    io:println(d); // @output ￿
+    io:println(d); // @output "￿"
+
+    string e = "string e";
+    string f = e;
+    f = "string f";
+    io:println(e); // @output "string e"
 }
 
 Test-case: error
