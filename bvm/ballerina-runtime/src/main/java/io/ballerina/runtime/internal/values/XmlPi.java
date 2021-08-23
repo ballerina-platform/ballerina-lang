@@ -18,10 +18,8 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.internal.IteratorUtils;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
 
@@ -134,13 +132,5 @@ public class XmlPi extends XmlNonElementItem {
     @Override
     public String stringValue(BLink parent) {
         return "<?" + target + " " + data + "?>";
-    }
-
-    public Type getIteratorNextReturnType() {
-        if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(this.type);
-        }
-
-        return iteratorNextReturnType;
     }
 }
