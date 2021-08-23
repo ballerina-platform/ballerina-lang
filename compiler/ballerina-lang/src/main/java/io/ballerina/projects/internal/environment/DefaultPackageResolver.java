@@ -34,6 +34,7 @@ import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -163,12 +164,20 @@ public class DefaultPackageResolver implements PackageResolver {
             responseFrmLocalRepo = Collections.emptyList();
         }
 
+        // TODO Send ballerina* org names to dist repo
         List<ResolutionResponseDescriptor> latestVersionsInDist = ballerinaDistRepo
                 .resolveDependencyVersions(packageLoadRequests);
+
+
+        // Send non built in packages to central
+        List<ResolutionRequest> centralLoadRequests = packageLoadRequests.stream()
+                .filter(r -> !ProjectUtils.isBuiltInPackage(r.orgName(), r.packageName().value()))
+                .collect(Collectors.toList());
         List<ResolutionResponseDescriptor> latestVersionsInCentral = ballerinaCentralRepo
-                .resolveDependencyVersions(packageLoadRequests);
+                .resolveDependencyVersions(centralLoadRequests);
 
         // TODO Local package should get priority over the same version in central or dist repo
+        // TODO Unit test following merge
         List<ResolutionResponseDescriptor> responseDescriptors = new ArrayList<>(
                 Stream.of(latestVersionsInDist, latestVersionsInCentral, responseFrmLocalRepo)
                         .flatMap(List::stream).collect(Collectors.toMap(
@@ -186,7 +195,7 @@ public class DefaultPackageResolver implements PackageResolver {
                                 return y;
                             }
                             return x;
-                })).values());
+                        })).values());
 
         return responseDescriptors;
     }
@@ -271,8 +280,8 @@ public class DefaultPackageResolver implements PackageResolver {
 
 
     /*
-    * ------------------------------- Old code ----------------------------
-    */
+     * ------------------------------- Old code ----------------------------
+     */
 
     private Package loadFromCache(ResolutionRequest resolutionRequest) {
         if (resolutionRequest.version().isEmpty()) {

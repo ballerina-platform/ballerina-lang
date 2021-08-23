@@ -923,7 +923,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Path projectRoot = projectKindAndProjectRootPair.getRight();
         try {
             Project project;
-            BuildOptions options = new BuildOptionsBuilder().offline(CommonUtil.COMPILE_OFFLINE).build();
+            BuildOptions options = new BuildOptionsBuilder().offline(CommonUtil.COMPILE_OFFLINE).sticky(true).build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
             } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {

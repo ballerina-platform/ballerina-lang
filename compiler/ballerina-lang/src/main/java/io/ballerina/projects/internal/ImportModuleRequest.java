@@ -33,6 +33,7 @@ public class ImportModuleRequest {
     private final PackageOrg packageOrg;
     private final String moduleName;
     private final List<PackageDescriptor> possiblePackages;
+    // TODO need to have an offline flag
 
     private ModuleLoadRequest moduleLoadRequest;
 
