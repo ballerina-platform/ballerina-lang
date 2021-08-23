@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -207,9 +208,10 @@ public class LangLibrary {
                 return ((BTableType) type).constraint;
             case STREAM:
                 return ((BStreamType) type).constraint;
+            case XML:
+                return ((BXMLType) type).constraint;
             // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
             case ERROR:
-            case XML:
             default:
                 return null;
         }

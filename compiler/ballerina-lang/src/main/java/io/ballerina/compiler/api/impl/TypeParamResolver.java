@@ -106,7 +106,12 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BXMLType typeInSymbol, BType boundType) {
-        return typeInSymbol;
+        if (isTypeParam(typeInSymbol)) {
+            return boundType;
+        }
+
+        BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
+        return new BXMLType(boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
     @Override
