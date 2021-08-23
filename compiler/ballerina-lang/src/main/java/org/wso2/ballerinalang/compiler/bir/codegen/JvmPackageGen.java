@@ -41,9 +41,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmAnnotationsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.ConstantVariables;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmMethodsSplitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -100,6 +99,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE;
@@ -246,13 +246,12 @@ public class JvmPackageGen {
     private static void generateStaticInitializer(ClassWriter cw, String className, BIRPackage birPackage,
                                                   boolean isInitClass, boolean serviceEPAvailable,
                                                   AsyncDataCollector asyncDataCollector,
-                                                  JvmBStringConstantsGen stringConstantsGen) {
+                                                 ConstantVariables constantVariables) {
         if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
         if (isInitClass) {
-            setConstantFields(mv, birPackage, className, stringConstantsGen);
             setLockStoreField(mv, className);
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
@@ -262,25 +261,6 @@ public class JvmPackageGen {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-    }
-
-    private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage, String className,
-                                          JvmBStringConstantsGen stringConstantsGen) {
-        for (BIRNode.BIRConstant constant : birPackage.constants) {
-            if (constant != null) {
-                setConstantField(mv, constant, className, stringConstantsGen);
-            }
-        }
-    }
-
-    private static void setConstantField(MethodVisitor mv, BIRNode.BIRConstant constant, String className,
-                                         JvmBStringConstantsGen stringConstantsGen) {
-        BIRNode.ConstValue constValue = constant.constValue;
-        if (JvmCodeGenUtil.isSimpleBasicType(constValue.type)) {
-            String descriptor = JvmCodeGenUtil.getFieldTypeSignature(constValue.type);
-            JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, stringConstantsGen);
-            mv.visitFieldInsn(PUTSTATIC, className, constant.name.value, descriptor);
-        }
     }
 
     private static void setLockStoreField(MethodVisitor mv, String className) {
@@ -412,7 +392,7 @@ public class JvmPackageGen {
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
                                        String moduleInitClass, String typesClass,
-                                       JvmBStringConstantsGen stringConstantsGen,
+                                       ConstantVariables constantVariables,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
         jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
@@ -421,7 +401,7 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
-            JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+            JvmTypeGen jvmTypeGen = new JvmTypeGen(constantVariables, module.packageID);
             JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
@@ -465,7 +445,7 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : javaClass.functions) {
                 methodGen.generateMethod(func, cw, module, null, moduleClass, jvmTypeGen, jvmCastGen,
-                                         stringConstantsGen, asyncDataCollector);
+                                         constantVariables, asyncDataCollector);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> lambda : asyncDataCollector.getLambdas().entrySet()) {
@@ -475,7 +455,7 @@ public class JvmPackageGen {
             }
             JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
-                    asyncDataCollector, stringConstantsGen);
+                    asyncDataCollector, constantVariables);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
@@ -796,8 +776,8 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module);
-        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
+        ConstantVariables constantVariables = new ConstantVariables(module, moduleInitClass);
+        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, constantVariables,
                                              jarEntries);
 
         // generate the shutdown listener class.
@@ -808,22 +788,18 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
-        JvmCreateTypeGen jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, module.packageID);
-        JvmAnnotationsGen jvmAnnotationsGen = new JvmAnnotationsGen(module, this, jvmTypeGen);
-        valueGen.generateValueClasses(jarEntries, stringConstantsGen);
+        valueGen.generateValueClasses(jarEntries, constantVariables);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, stringConstantsGen,
+        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, constantVariables,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
-        jvmCreateTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
-        jvmCreateTypeGen.generateValueCreatorClasses(this, module, moduleInitClass, jarEntries, symbolTable);
-        jvmCreateTypeGen.generateAnonTypeClass(this, module, moduleInitClass, jarEntries);
-        jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
-        stringConstantsGen.generateConstantInit(jarEntries);
+        JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, constantVariables, module,
+                                                                       moduleInitClass);
+        jvmMethodsSplitter.generateMethods(jarEntries);
+        constantVariables.generateConstants(jarEntries);
 
         // clear class name mappings
         clearPackageGenInfo();

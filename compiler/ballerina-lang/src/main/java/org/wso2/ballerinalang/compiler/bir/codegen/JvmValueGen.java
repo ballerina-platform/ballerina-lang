@@ -34,7 +34,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunct
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.ConstantVariables;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -104,6 +104,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
@@ -274,14 +275,14 @@ public class JvmValueGen {
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
                                      BObjectType currentObjectType, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                     JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector) {
+                                     ConstantVariables constantVariables, AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
             methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
-                                     jvmTypeGen, jvmCastGen, stringConstantsGen, asyncDataCollector);
+                                     jvmTypeGen, jvmCastGen, constantVariables, asyncDataCollector);
         }
     }
 
@@ -560,7 +561,7 @@ public class JvmValueGen {
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          JvmBStringConstantsGen stringConstantsGen,
+                                          ConstantVariables constantVariables,
                                           AsyncDataCollector asyncDataCollector) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -569,7 +570,7 @@ public class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(constantVariables, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
@@ -578,7 +579,7 @@ public class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs, className, jvmTypeGen, jvmCastGen, stringConstantsGen,
+            this.createRecordMethods(cw, attachedFuncs, className, jvmTypeGen, jvmCastGen, constantVariables,
                                      asyncDataCollector);
         }
 
@@ -608,14 +609,14 @@ public class JvmValueGen {
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
                                      JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                     JvmBStringConstantsGen stringConstantsGen, AsyncDataCollector asyncDataCollector) {
+                                     ConstantVariables constantVariables, AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
             methodGen.generateMethod(func, cw, this.module, null, moduleClassName, jvmTypeGen, jvmCastGen,
-                                     stringConstantsGen, asyncDataCollector);
+                                    constantVariables, asyncDataCollector);
         }
     }
 
@@ -663,7 +664,7 @@ public class JvmValueGen {
         if (asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
         JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -1253,7 +1254,7 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, JvmBStringConstantsGen stringConstantsGen) {
+    void generateValueClasses(Map<String, byte[]> jarEntries, ConstantVariables constantVariables) {
 
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
@@ -1262,12 +1263,12 @@ public class JvmValueGen {
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
-                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, stringConstantsGen
+                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, constantVariables
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, stringConstantsGen
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, constantVariables
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
@@ -1278,13 +1279,13 @@ public class JvmValueGen {
     }
 
     private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          JvmBStringConstantsGen stringConstantsGen,
+                                          ConstantVariables constantVariables,
                                           AsyncDataCollector asyncDataCollector) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(constantVariables, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen =  new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
@@ -1295,7 +1296,7 @@ public class JvmValueGen {
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
             this.createObjectMethods(cw, attachedFuncs, className, objectType, jvmTypeGen, jvmCastGen,
-                                     stringConstantsGen, asyncDataCollector);
+                                    constantVariables, asyncDataCollector);
         }
 
         this.createObjectInit(cw, fields, className);
