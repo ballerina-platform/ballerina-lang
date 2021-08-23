@@ -243,7 +243,7 @@ public class PackageDependencyGraphBuilder {
             if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED)) {
                 continue;
             }
-            if (resolutionResponse.resolvedPackage().descriptor().equals(pkgDesc)) {
+            if (resolutionResponse.responseDescriptor().equals(pkgDesc)) {
                 return resolutionResponse;
             }
         }

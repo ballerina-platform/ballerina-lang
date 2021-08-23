@@ -132,9 +132,9 @@ public class ResolutionEngine {
         public DependencyNode(PackageDescriptor pkgDesc,
                               PackageDependencyScope scope,
                               DependencyResolutionType resolutionType) {
-            this.pkgDesc = pkgDesc;
-            this.scope = scope;
-            this.resolutionType = resolutionType;
+            this.pkgDesc = Objects.requireNonNull(pkgDesc);
+            this.scope = Objects.requireNonNull(scope);
+            this.resolutionType = Objects.requireNonNull(resolutionType);
         }
 
         public PackageDescriptor pkgDesc() {
@@ -172,7 +172,9 @@ public class ResolutionEngine {
 
         @Override
         public String toString() {
-            return pkgDesc.toString();
+            String attr = " [scope=" + scope + ",kind=" + resolutionType +
+                    ",repo=" + pkgDesc.repository().orElse(null) + "]";
+            return pkgDesc.toString() + attr;
         }
     }
 }
