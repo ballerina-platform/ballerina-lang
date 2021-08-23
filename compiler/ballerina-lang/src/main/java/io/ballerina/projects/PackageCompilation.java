@@ -53,18 +53,27 @@ public class PackageCompilation {
 
     private final PackageContext rootPackageContext;
     private final PackageResolution packageResolution;
-    private final CompilerContext compilerContext;
-    private final Map<TargetPlatform, CompilerBackend> compilerBackends;
-    private final List<Diagnostic> pluginDiagnostics;
+    private CompilerContext compilerContext;
+    private Map<TargetPlatform, CompilerBackend> compilerBackends;
+    private List<Diagnostic> pluginDiagnostics;
 
     private DiagnosticResult diagnosticResult;
     private volatile boolean compiled;
     private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+    private PackageCompilation(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
         this.packageResolution = rootPackageContext.getResolution();
+        setupCompilation(rootPackageContext.compilationOptions());
+    }
 
+    private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+        this.rootPackageContext = rootPackageContext;
+        this.packageResolution = rootPackageContext.getResolution(compilationOptions);
+        setupCompilation(compilationOptions);
+    }
+
+    private void setupCompilation(CompilationOptions compilationOptions) {
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
 
@@ -87,7 +96,7 @@ public class PackageCompilation {
     }
 
     static PackageCompilation from(PackageContext rootPkgContext) {
-        PackageCompilation compilation = new PackageCompilation(rootPkgContext, rootPkgContext.compilationOptions());
+        PackageCompilation compilation = new PackageCompilation(rootPkgContext);
         return compile(compilation);
     }
 

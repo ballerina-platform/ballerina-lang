@@ -23,37 +23,35 @@ import io.ballerina.projects.PackageDescriptor;
 import java.util.Optional;
 
 /**
- * {@code ResolutionResponseDescriptor} is used to return a response descriptor to a given {@code ResolutionRequest}.
+ * {@code PackageMetadataResponse} is used to return a response descriptor to a given {@code ResolutionRequest}.
  *
  * @since 2.0.0
  */
-public class ResolutionResponseDescriptor {
+public class PackageMetadataResponse {
     private final ResolutionRequest packageLoadRequest;
     private final PackageDescriptor packageDescriptor;
     private final DependencyGraph<PackageDescriptor> dependencyGraph;
     private final ResolutionResponse.ResolutionStatus resolutionStatus;
 
-    // TODO Shall we add a diagnostic here.
-
-    private ResolutionResponseDescriptor(ResolutionRequest packageLoadRequest,
-                                         PackageDescriptor resolvedDescriptor,
-                                         DependencyGraph<PackageDescriptor> dependencyGraph,
-                                         ResolutionResponse.ResolutionStatus resolutionStatus) {
+    private PackageMetadataResponse(ResolutionRequest packageLoadRequest,
+                                    PackageDescriptor resolvedDescriptor,
+                                    DependencyGraph<PackageDescriptor> dependencyGraph,
+                                    ResolutionResponse.ResolutionStatus resolutionStatus) {
         this.packageLoadRequest = packageLoadRequest;
         this.packageDescriptor = resolvedDescriptor;
         this.dependencyGraph = dependencyGraph;
         this.resolutionStatus = resolutionStatus;
     }
 
-    public static ResolutionResponseDescriptor from(ResolutionRequest packageLoadRequest,
-                                                    PackageDescriptor resolvedDescriptor,
-                                                    DependencyGraph<PackageDescriptor> dependencyGraph) {
-        return new ResolutionResponseDescriptor(
+    public static PackageMetadataResponse from(ResolutionRequest packageLoadRequest,
+                                               PackageDescriptor resolvedDescriptor,
+                                               DependencyGraph<PackageDescriptor> dependencyGraph) {
+        return new PackageMetadataResponse(
                 packageLoadRequest, resolvedDescriptor, dependencyGraph, ResolutionResponse.ResolutionStatus.RESOLVED);
     }
 
-    public static ResolutionResponseDescriptor createUnresolvedResponse(ResolutionRequest packageLoadRequest) {
-        return new ResolutionResponseDescriptor(
+    public static PackageMetadataResponse createUnresolvedResponse(ResolutionRequest packageLoadRequest) {
+        return new PackageMetadataResponse(
                 packageLoadRequest, null, null, ResolutionResponse.ResolutionStatus.UNRESOLVED);
     }
 

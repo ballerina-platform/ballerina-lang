@@ -42,7 +42,6 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -53,7 +52,6 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -146,12 +144,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
         PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
-        ResolutionRequest resolutionRequest = ResolutionRequest
-                .from(packageDescriptor, PackageDependencyScope.DEFAULT, false);
 
         PackageResolver packageResolver = environment.getService(PackageResolver.class);
         List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-            Collections.singletonList(resolutionRequest));
+            Collections.singletonList(packageDescriptor), false);
         ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
 
         if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
