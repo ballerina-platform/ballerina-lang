@@ -111,7 +111,11 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) ValueCreator.createRecordValue(this.pkg, this.typeName);
+        String typeName = this.typeName;
+        if (intersectionType != null) {
+            typeName = ((BIntersectionType) intersectionType).getConstituentTypes().get(0).getName();
+        }
+        return (V) ValueCreator.createRecordValue(this.pkg, typeName);
     }
 
     @SuppressWarnings("unchecked")

@@ -177,9 +177,8 @@ function testMapIteration() {
     util:testMapIterator(libIntMap, 3);
     util:testMapIterator(managerMap, 2);
     util:testMapIterator(readonlyManagerMap, 2);
-// These lines should be enabled after fixing #30566
-// util:testMapIterator(studentMap, 3);
-// util:testMapIterator(readonlyStudentMap, 3); 
+    util:testMapIterator(studentMap, 3);
+    util:testMapIterator(readonlyStudentMap, 3);
 }
 
 function testTableIteration() {

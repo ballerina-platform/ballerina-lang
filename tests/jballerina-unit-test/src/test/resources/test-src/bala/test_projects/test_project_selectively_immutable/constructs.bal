@@ -241,3 +241,7 @@ public type Versioning record {|
     boolean allow = true;
     boolean matchMajor = false;
 |};
+
+public type EmployeeMap map<Employee>;
+
+public type EmployeeTable table<Employee>;

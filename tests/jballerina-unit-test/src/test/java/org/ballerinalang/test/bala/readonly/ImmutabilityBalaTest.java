@@ -22,6 +22,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -47,9 +48,14 @@ public class ImmutabilityBalaTest {
                 "test-src/bala/test_bala/readonly/test_intersection_with_inherently_immutable_type.bal");
     }
 
-    @Test
-    public void testSelectivelyImmutableTypes() {
-        BRunUtil.invoke(result, "testImmutableTypes");
+    @Test(dataProvider = "immutableTypesTestFunctions")
+    public void testSelectivelyImmutableTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "immutableTypesTestFunctions")
+    public Object[] immutableTypesTestFunctions() {
+        return new String[]{"testImmutableTypes", "testIterationWithImportedImmutableType"};
     }
 
     @Test
