@@ -946,6 +946,12 @@ function testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
                    <string> checkpanic e.detail()["message"]);
 }
 
+function testFiniteTypeArrayNegative() {
+    (1|2.0|3.0d)[] a = [];
+    any c = a;
+    int d = <int> c;
+}
+
 // Util functions
 
 const ASSERTION_ERROR_REASON = "AssertionError";

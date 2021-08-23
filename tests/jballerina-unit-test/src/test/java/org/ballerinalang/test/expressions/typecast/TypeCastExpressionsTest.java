@@ -397,6 +397,13 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, "testCastOfFiniteTypeWithIntersectingBuiltInSubType");
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(1\\|2.0f\\|3.0d\\)\\[]' cannot be cast to " +
+                    "'int'.*")
+    public void testFiniteTypeArrayNegative() {
+        BRunUtil.invoke(result, "testFiniteTypeArrayNegative");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
