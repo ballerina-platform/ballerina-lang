@@ -2368,20 +2368,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.failureHandled = foreach.onFailClause != null;
         }
         this.loopCount++;
-        analyzeNode(foreach.body, foreachEnv);
+        BLangBlockStmt body = foreach.body;
+        this.branchBreakInfo.add(new BranchBreakInfo(body));
+        analyzeNode(body, foreachEnv);
+        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+                this.branchBreakInfo.pop().breakAsLastStatement, true);
         this.loopCount--;
         this.statementReturns = statementReturns;
         this.failureHandled = failureHandled;
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
-        foreach.body.failureBreakMode = foreach.onFailClause != null ?
+        body.failureBreakMode = foreach.onFailClause != null ?
                 BLangBlockStmt.FailureBreakMode.BREAK_TO_OUTER_BLOCK : BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE;
         analyzeOnFailClause(foreach.onFailClause);
         this.errorTypes.pop();
 
-        handleInvalidAssignmentToTypeNarrowedVariableInLoop(
-                this.potentiallyInvalidAssignmentInLoopsInfo.pop().locations);
         this.loopState = prevLoopState;
         this.loopEnvs.pop();
     }
@@ -2404,7 +2406,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.failureHandled = whileNode.onFailClause != null;
         }
         this.loopCount++;
-        analyzeNode(whileNode.body, whileEnv);
+        BLangBlockStmt body = whileNode.body;
+        this.branchBreakInfo.add(new BranchBreakInfo(body));
+        analyzeNode(body, whileEnv);
+        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+                this.branchBreakInfo.pop().breakAsLastStatement, true);
         this.loopCount--;
         this.statementReturns = statementReturns;
         this.failureHandled = failureHandled;
@@ -2414,8 +2420,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
 
-        handleInvalidAssignmentToTypeNarrowedVariableInLoop(
-                this.potentiallyInvalidAssignmentInLoopsInfo.pop().locations);
         this.loopState = prevLoopState;
         this.loopEnvs.pop();
     }
@@ -4856,14 +4860,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean breakAsLastStatement) {
+        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(breakAsLastStatement, false);
+    }
+
+    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean breakAsLastStatement,
+                                                                                     boolean isLoop) {
         PotentiallyInvalidAssignmentInfo currentBranchInfo = this.potentiallyInvalidAssignmentInLoopsInfo.pop();
 
         if (breakAsLastStatement) {
             return;
         }
 
-
         List<Location> currentBranchLocations = currentBranchInfo.locations;
+        if (isLoop) {
+            handleInvalidAssignmentToTypeNarrowedVariableInLoop(currentBranchLocations);
+            return;
+        }
+
         if (currentBranchLocations.isEmpty() || this.potentiallyInvalidAssignmentInLoopsInfo.empty()) {
             return;
         }
