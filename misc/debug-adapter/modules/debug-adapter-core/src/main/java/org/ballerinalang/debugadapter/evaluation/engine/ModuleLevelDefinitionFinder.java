@@ -27,14 +27,11 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.model.tree.NodeKind;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAIN_FUNCTION_NAME;
 
@@ -47,8 +44,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MAIN_FUNCTION_
 public class ModuleLevelDefinitionFinder extends NodeVisitor {
 
     private final SuspendedContext context;
-    private static final Set<SyntaxKind> filters = new HashSet<>();
-    private List<ModuleMemberDeclarationNode> result = new ArrayList<>();
+    private final Set<SyntaxKind> filters = new HashSet<>();
+    private final List<ModuleMemberDeclarationNode> result = new ArrayList<>();
 
     public ModuleLevelDefinitionFinder(SuspendedContext context) {
         this.context = context;
@@ -70,8 +67,8 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
      *
      * @return any function definitions with the specified name, if present.
      */
-    public List<ModuleMemberDeclarationNode> getModuleLevelDeclarations() {
-        return getModuleLevelDeclarations(context.getModule());
+    public List<ModuleMemberDeclarationNode> getModuleDeclarations() {
+        return getModuleDeclarations(context.getModule());
     }
 
     /**
@@ -80,7 +77,7 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
      * @param module Ballerina module
      * @return any function definitions with the specified name, if present.
      */
-    public List<ModuleMemberDeclarationNode> getModuleLevelDeclarations(Module module) {
+    public List<ModuleMemberDeclarationNode> getModuleDeclarations(Module module) {
         for (DocumentId documentId : module.documentIds()) {
             searchInFile(module.document(documentId));
         }
@@ -93,9 +90,11 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
 
     @Override
     protected void visitSyntaxNode(Node node) {
-
         if (node instanceof ModuleMemberDeclarationNode) {
-            // Need to exclude the 'main' function when generating the snippet.
+            if (!filters.contains(node.kind())) {
+                return;
+            }
+            // Need to ignore the entry points ('main' function and services), when capturing top level definitions.
             if (!(node instanceof FunctionDefinitionNode) ||
                     !((FunctionDefinitionNode) node).functionName().toSourceCode().equals(MAIN_FUNCTION_NAME)) {
                 result.add((ModuleMemberDeclarationNode) node);
@@ -104,7 +103,6 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
             node.accept(this);
         } else {
             NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-
             for (Node child : nonTerminalNode.children()) {
                 child.accept(this);
             }

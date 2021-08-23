@@ -126,13 +126,13 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Annotation access expression
  * <li> XML navigation expression
  * <li> Checking expression
+ * <li> Query expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
  * <li> Anonymous function expression
  * <li> Let expression
- * <li> Query expression
  * </ul>
  *
  * @since 2.0.0
