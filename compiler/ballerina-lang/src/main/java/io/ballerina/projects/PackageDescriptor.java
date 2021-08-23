@@ -105,7 +105,7 @@ public class PackageDescriptor {
 
     @Override
     public String toString() {
-        String pkgStr = packageOrg + ":" + packageName;
+        String pkgStr = packageOrg + "/" + packageName;
         if (packageVersion == null) {
             return pkgStr;
         }

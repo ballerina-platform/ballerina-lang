@@ -25,15 +25,15 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
-import io.ballerina.projects.environment.ResolutionResponseDescriptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -42,33 +42,28 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class ResolutionEngine {
-    private final Project rootProject;
     private final PackageDescriptor rootPkgDesc;
     private final DependencyManifest dependencyManifest;
     private final boolean offline;
     private final boolean sticky;
 
-    private final NewPackageDependencyGraphBuilder graphBuilder;
+    private final PackageDependencyGraphBuilder graphBuilder;
     private final PackageResolver packageResolver;
 
-    public ResolutionEngine(Project rootProject,
+    public ResolutionEngine(PackageDescriptor rootPkgDesc,
                             DependencyManifest dependencyManifest,
-                            PackageDescriptor rootPkgDesc,
+                            PackageResolver packageResolver,
                             boolean offline, // TODO Can we combine these two options into buildOptions
                             boolean sticky) {
-        this.rootProject = rootProject;
         this.dependencyManifest = dependencyManifest;
         this.rootPkgDesc = rootPkgDesc;
+        this.packageResolver = packageResolver;
         this.offline = offline;
         this.sticky = sticky;
-
-        ProjectEnvironment projectEnvContext = rootProject.projectEnvironmentContext();
-        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
-        this.graphBuilder = new NewPackageDependencyGraphBuilder(rootPkgDesc);
+        this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
     }
 
-    public DependencyGraph<ResolvedPackageDependency> resolveDependencies(
-            Collection<PackageDependency> directDependencies) {
+    public DependencyGraph<DependencyNode> resolveDependencies(Collection<DependencyNode> directDependencies) {
         // 2. Add direct dependencies(resolved from imports) and their graphs.
         // 3. Keep track new dependencies and modified existing dependencies ()
 
@@ -77,7 +72,7 @@ public class ResolutionEngine {
         // Set the default locking mode based on the sticky build option.
         PackageLockingMode lockingMode = sticky ? PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
-        for (PackageDependency directDependency : directDependencies) {
+        for (DependencyNode directDependency : directDependencies) {
             PackageDescriptor pkgDesc = directDependency.pkgDesc();
             Optional<DependencyManifest.Package> dependency = dependencyManifest.dependency(
                     pkgDesc.org(), pkgDesc.name());
@@ -93,9 +88,9 @@ public class ResolutionEngine {
                     directDependency.scope(), directDependency.resolutionType(), offline, lockingMode));
         }
 
-        List<ResolutionResponseDescriptor> responseDescriptors =
-                packageResolver.resolveDependencyVersions(resolutionRequests);
-        for (ResolutionResponseDescriptor resolutionResp : responseDescriptors) {
+        List<PackageMetadataResponse> responseDescriptors =
+                packageResolver.resolvePackageMetadata(resolutionRequests);
+        for (PackageMetadataResponse resolutionResp : responseDescriptors) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
                 continue;
@@ -107,17 +102,21 @@ public class ResolutionEngine {
                     resolutionReq.dependencyResolutionType());
             graphBuilder.mergeGraph(resolutionResp.dependencyGraph().orElseThrow(
                     () -> new IllegalStateException("Graph cannot be null in a resolved dependency")),
-                    resolutionReq.scope());
+                    resolutionReq.scope(), resolutionReq.dependencyResolutionType());
         }
 
         // TODO Resolve transitive dependencies.
 
+        // TODO Automatic update transitive dependencies
+        // TODO test cases with json
+
+
         // TODO we need to return the dependency graph and the diagnostics....
-        return graphBuilder.buildPackageDependencyGraph(packageResolver, rootProject, offline);
+        return graphBuilder.buildGraph();
     }
 
-    public void addTransitiveDependencies(DependencyGraph<PackageDescriptor> dependencyGraph) {
-        graphBuilder.mergeGraph(dependencyGraph, PackageDependencyScope.DEFAULT);
+    public DependencyGraph<ResolvedPackageDependency> getPackageDependencyGraph(Project currentProject) {
+        return graphBuilder.buildPackageDependencyGraph(packageResolver, currentProject, offline);
     }
 
     /**
@@ -125,14 +124,14 @@ public class ResolutionEngine {
      *
      * @since 2.0.0
      */
-    public static class PackageDependency {
+    public static class DependencyNode {
         private final PackageDescriptor pkgDesc;
         private final PackageDependencyScope scope;
         private final DependencyResolutionType resolutionType;
 
-        public PackageDependency(PackageDescriptor pkgDesc,
-                                 PackageDependencyScope scope,
-                                 DependencyResolutionType resolutionType) {
+        public DependencyNode(PackageDescriptor pkgDesc,
+                              PackageDependencyScope scope,
+                              DependencyResolutionType resolutionType) {
             this.pkgDesc = pkgDesc;
             this.scope = scope;
             this.resolutionType = resolutionType;
@@ -148,6 +147,32 @@ public class ResolutionEngine {
 
         public DependencyResolutionType resolutionType() {
             return resolutionType;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            DependencyNode that = (DependencyNode) o;
+            return Objects.equals(pkgDesc, that.pkgDesc) &&
+                    scope == that.scope &&
+                    resolutionType == that.resolutionType;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(pkgDesc, scope, resolutionType);
+        }
+
+        @Override
+        public String toString() {
+            return pkgDesc.toString();
         }
     }
 }
