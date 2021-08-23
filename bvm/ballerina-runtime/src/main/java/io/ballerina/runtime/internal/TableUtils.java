@@ -94,10 +94,10 @@ public class TableUtils {
                 }
                 return result;
             } else {
-                return (long) obj.hashCode();
+                return (long) obj.toString().hashCode();
             }
         } else {
-            return (long) obj.hashCode();
+            return (long) obj.toString().hashCode();
         }
     }
 

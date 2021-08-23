@@ -282,8 +282,16 @@ function removeIfHasKey() returns boolean {
     return removedPerson1 == () && removedPerson2?.name == "Chiran";
 }
 
-function testHasKey() returns boolean {
-    return tab.hasKey("Mohan");
+function testHasKey() {
+    table<record { readonly int? k; }> key(k) tbl = table[];
+    tbl.add({k: 0});
+    tbl.add({k: 5});
+    tbl.add({k: -31});
+    assertFalse(tbl.hasKey(()));
+    assertFalse(tbl.hasKey(30));
+    assertTrue(tbl.hasKey(0));
+    assertTrue(tbl.hasKey(-31));
+    assertTrue(tbl.hasKey(5));
 }
 
 function testGetKeyList() returns any[] {
