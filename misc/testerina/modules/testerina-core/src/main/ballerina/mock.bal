@@ -375,7 +375,7 @@ isolated function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Me
 # + mockFunction - The `mockFunction` object
 # + args - Function arguments
 # + return - Function return value or an error if the case registration fails
-isolated function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|Error = @java:Method {
+isolated function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|error = @java:Method {
     name: "mockHandler",
     'class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;

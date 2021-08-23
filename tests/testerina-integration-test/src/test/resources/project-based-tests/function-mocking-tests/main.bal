@@ -72,3 +72,7 @@ public function foo(any a) returns string {
 public function intAdd6(int a, int b, int c) returns (int) {
     return a + b + c;
 }
+
+public function helloFunc() returns string|error {
+    return "hello";
+}
