@@ -496,7 +496,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
             LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
@@ -519,7 +519,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
+            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
             LSClientUtil.chekAndRegisterCommands(context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
