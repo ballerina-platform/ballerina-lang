@@ -1,10 +1,10 @@
-package org.ballerina.semtypes;
+﻿package org.ballerina.semtypes;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Tests if placeholder is created
+ * Tests if placeholder is created.
  *
  */
 public class SemtypeTests {
