@@ -60,6 +60,7 @@ public class PackageResolution {
     private final BlendedManifest blendedManifest;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
     private final CompilationOptions compilationOptions;
+    private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
@@ -74,6 +75,7 @@ public class PackageResolution {
         this.compilationOptions = compilationOptions;
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
+        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.blendedManifest = BlendedManifest.from(rootPackageContext.packageManifest(),
                 rootPackageContext.dependencyManifest(), projectEnvContext.getService(LocalPackageRepository.class));
 
@@ -211,15 +213,16 @@ public class PackageResolution {
         Collection<PackageDescriptor> directDependenciesOfBALA =
                 dependencyGraphStoredInBALA.getDirectDependencies(rootPackageContext.descriptor());
 
-        List<ResolutionEngine.PackageDependency> directDeps = new ArrayList<>();
+        List<ResolutionEngine.DependencyNode> directDeps = new ArrayList<>();
         for (PackageDescriptor pkgDesc : directDependenciesOfBALA) {
-            directDeps.add(new ResolutionEngine.PackageDependency(pkgDesc, PackageDependencyScope.DEFAULT,
+            directDeps.add(new ResolutionEngine.DependencyNode(pkgDesc, PackageDependencyScope.DEFAULT,
                     DependencyResolutionType.SOURCE));
         }
 
-        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
-                rootPackageContext.descriptor(), offline, true);
-        return resolutionEngine.resolveDependencies(directDeps);
+        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(), dependencyManifest,
+                packageResolver, offline, true);
+        resolutionEngine.resolveDependencies(directDeps);
+        return resolutionEngine.getPackageDependencyGraph(rootPackageContext.project());
     }
 
     DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky, boolean offline) {
@@ -231,7 +234,7 @@ public class PackageResolution {
         PackageContainer<DirectPackageDependency> directDepsContainer =
                 moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
 
-        List<ResolutionEngine.PackageDependency> directDeps = new ArrayList<>();
+        List<ResolutionEngine.DependencyNode> directDeps = new ArrayList<>();
         for (DirectPackageDependency directPkgDependency : directDepsContainer.getAll()) {
             PackageVersion depVersion;
             String repository;
@@ -264,14 +267,15 @@ public class PackageResolution {
                 throw new IllegalStateException("Unsupported direct dependency kind: " +
                         directPkgDependency.dependencyKind());
             }
-            directDeps.add(new ResolutionEngine.PackageDependency(
+            directDeps.add(new ResolutionEngine.DependencyNode(
                     PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
                     directPkgDependency.scope(), directPkgDependency.resolutionType()));
         }
 
-        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
-                rootPackageContext.descriptor(), offline, sticky);
-        return resolutionEngine.resolveDependencies(directDeps);
+        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(), dependencyManifest,
+                packageResolver, offline, sticky);
+        resolutionEngine.resolveDependencies(directDeps);
+        return resolutionEngine.getPackageDependencyGraph(rootPackageContext.project());
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
