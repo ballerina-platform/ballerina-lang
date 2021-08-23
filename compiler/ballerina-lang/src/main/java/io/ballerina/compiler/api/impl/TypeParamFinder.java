@@ -56,11 +56,22 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A util class for finding the type param component in a given type.
+ *
+ * @since 2.0.0
+ */
 public class TypeParamFinder implements TypeVisitor {
 
     private final Set<BType> visited = new HashSet<>();
     private BType typeParam;
 
+    /**
+     * Given a type, this method will lookup and return the first type param it encounters within the given type.
+     *
+     * @param type The type to look for the type param in
+     * @return Returns the type param if there is one, else returns null
+     */
     public BType find(BType type) {
         if (type == null || this.visited.contains(type)) {
             return null;

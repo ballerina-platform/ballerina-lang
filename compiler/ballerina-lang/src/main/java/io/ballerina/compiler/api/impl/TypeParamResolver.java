@@ -47,15 +47,33 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class provides an API which given a type containing a type param component, returns a new type with the type
+ * param component bound to the specified bound type.
+ *
+ * @since 2.0.0
+ */
+// TODO: This currently doesn't create a new type symbol. To support more complex types such as objects, may need to
+//  consider creating new instances for the type symbols as well.
 public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     private final Map<BType, BType> boundTypes = new HashMap<>();
-    private BType typeParam;
+    private final BType typeParam;
 
     public TypeParamResolver(BType typeParam) {
         this.typeParam = typeParam;
     }
 
+    /**
+     * Given a type containing a type param component, this method will return a new type of the same kind with the type
+     * param components bound to the specified bound type. This only works for a single type param, specified when
+     * creating the TypeParamResolver instance. If the type doesn't contain any type param components, it'll return the
+     * same type instance.
+     *
+     * @param typeParam The type containing the type param component
+     * @param boundType The type to bind the type param to
+     * @return The type param resolved type instance
+     */
     public BType resolve(BType typeParam, BType boundType) {
         if (boundTypes.containsKey(typeParam)) {
             return boundTypes.get(typeParam);

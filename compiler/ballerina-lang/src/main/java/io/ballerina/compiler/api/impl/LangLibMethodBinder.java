@@ -35,6 +35,16 @@ import java.util.List;
  */
 public class LangLibMethodBinder {
 
+    /**
+     * Given a lang lib function symbol, this method will create a new instance of the symbol if it's a, function that
+     * can be called using a method call expr. i.e., first param's type kind is the same as the lang library the
+     * function belongs to and contains a type param component in it. This will resolve all occurrences of the type
+     * param component in the first param.
+     *
+     * @param original  The lang lib function symbol
+     * @param boundType The type to bind the type param to
+     * @return The type param resolved lang lib function symbol
+     */
     public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType boundType) {
         if (boundType == null || original.params.size() == 0) {
             return original;
