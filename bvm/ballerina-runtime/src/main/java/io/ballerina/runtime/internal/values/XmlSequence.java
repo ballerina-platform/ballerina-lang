@@ -36,11 +36,12 @@ import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
@@ -643,13 +644,13 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
 
     private void initializeIteratorNextReturnType() {
         Type childrenType;
-        LinkedHashSet<Type> types = new LinkedHashSet<>();
-        for (int i = 0; i < children.size(); i++) {
-            types.add(children.get(i).getType());
-        }
-        if (types.size() == 1) {
-            childrenType = types.iterator().next();
+        if (children.size() == 1) {
+            childrenType = children.get(0).getType();
         } else {
+            Set<Type> types = new HashSet<>();
+            for (int i = 0; i < children.size(); i++) {
+                types.add(children.get(i).getType());
+            }
             childrenType = new BUnionType(new ArrayList<>(types));
         }
         iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(childrenType);
