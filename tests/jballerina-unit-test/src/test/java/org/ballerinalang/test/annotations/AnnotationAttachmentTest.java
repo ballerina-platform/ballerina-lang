@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -44,7 +45,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -169,7 +174,7 @@ public class AnnotationAttachmentTest {
                 .findFirst();
         Assert.assertTrue(serviceDeclarationOpt.isPresent());
         ServiceNode serviceDeclaration = serviceDeclarationOpt.get();
-        String serviceName = "service$" + serviceDeclaration.getName().getValue();
+        String serviceName = ((BLangService) serviceDeclaration).symbol.getOriginalName().getValue();
         Location position = serviceDeclaration.getPosition();
         String serviceId = String.format("%d", Objects.hash(serviceName, position.lineRange()));
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
