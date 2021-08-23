@@ -16,8 +16,10 @@
  */
 package org.ballerinalang.test.annotations;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -42,9 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -145,8 +145,6 @@ public class AnnotationAttachmentTest {
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v9", "val", "v91");
     }
 
-    //compileResult.getAST().getServices().get(0).getName().getValue()
-    //compileResult.getAST().getServices().get(0).getPosition()
     @Test
     public void testAnnotOnServiceOne() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
@@ -160,6 +158,25 @@ public class AnnotationAttachmentTest {
                         .collect(Collectors.toList());
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v8");
+    }
+
+    @Test
+    public void testIntrospectionInfoAnnot() {
+        Optional<ServiceNode> serviceDeclarationOpt = (Optional<ServiceNode>) compileResult.getAST()
+                .getServices().stream()
+                .filter(serviceNode ->
+                        serviceNode.getAbsolutePath().stream().anyMatch(p -> p.getValue().contains("introspection")))
+                .findFirst();
+        Assert.assertTrue(serviceDeclarationOpt.isPresent());
+        ServiceNode serviceDeclaration = serviceDeclarationOpt.get();
+        String serviceName = "service$" + serviceDeclaration.getName().getValue();
+        Location position = serviceDeclaration.getPosition();
+        String serviceId = String.format("%d", Objects.hash(serviceName, position.lineRange()));
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                serviceDeclaration.getServiceClass().getAnnotationAttachments();
+        Assert.assertEquals(attachments.size(), 1);
+        assertAnnotationNameAndKeyValuePair(attachments.get(0),
+                "IntrospectionDocConfig", "name", serviceId);
     }
 
     private boolean isServiceIntropAnnot(BLangAnnotationAttachment annot) {

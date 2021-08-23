@@ -127,6 +127,12 @@ service /ser on lis {
     }
 }
 
+service /introspection on lis {
+    resource function get res(@v6 { val: "v64" } int intVal) returns @v7 error? {
+        return;
+    }
+}
+
 service object {} serTwo = @v8 {
                  val: "v82"
               } service object {
