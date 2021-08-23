@@ -20,6 +20,7 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
@@ -77,7 +78,7 @@ public class QueryExpressionProcessor {
 
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
-    public static final String QUERY_FUNCTION_NAME = "getQueryResult";
+    public static final String QUERY_FUNCTION_NAME = "__getQueryResult";
 
     // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
     // return non-public types.
@@ -231,12 +232,7 @@ public class QueryExpressionProcessor {
 
     private String generateQuerySnippet() throws EvaluationException {
         // Generates top level declarations snippet
-        ModuleLevelDefinitionFinder moduleLevelDefinitionFinder = new ModuleLevelDefinitionFinder(context);
-        List<ModuleMemberDeclarationNode> declarationList = moduleLevelDefinitionFinder.getModuleDeclarations();
-        String topLevelDeclarations = declarationList.stream()
-                .map(Node::toSourceCode)
-                .reduce((s, s2) -> s + System.lineSeparator() + s2)
-                .orElse("");
+        String topLevelDeclarations = generateModuleLevelDeclarations();
 
         // Generates function signature (parameter definitions) for the snippet.
         processSnippetFunctionParameters();
@@ -248,6 +244,27 @@ public class QueryExpressionProcessor {
                 QUERY_FUNCTION_NAME,
                 parameters,
                 syntaxNode.toSourceCode());
+    }
+
+    private String generateModuleLevelDeclarations() {
+
+        ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.LISTENER_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CONST_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ANNOTATION_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.ENUM_DECLARATION);
+        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.CLASS_DEFINITION);
+
+        List<ModuleMemberDeclarationNode> declarationList = moduleDefinitionFinder.getModuleDeclarations();
+        return declarationList.stream()
+                .map(Node::toSourceCode)
+                .reduce((s, s2) -> s + System.lineSeparator() + s2)
+                .orElse("");
     }
 
     private String getTypeString(BVariable bVar) {

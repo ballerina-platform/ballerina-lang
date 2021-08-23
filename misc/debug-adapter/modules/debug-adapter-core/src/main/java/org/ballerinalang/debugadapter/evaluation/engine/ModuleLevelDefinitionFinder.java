@@ -37,7 +37,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MAIN_FUNCTION_
 
 /**
  * A {@link NodeVisitor} implementation which can be used to search for all the module level definitions
- * (e.g. function,class,type) in a given ballerina module.
+ * (e.g. function,class,type) within a given ballerina module.
  *
  * @since 2.0.0
  */
@@ -49,17 +49,10 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
 
     public ModuleLevelDefinitionFinder(SuspendedContext context) {
         this.context = context;
+    }
 
-        filters.add(SyntaxKind.IMPORT_DECLARATION);
-        filters.add(SyntaxKind.FUNCTION_DEFINITION);
-        filters.add(SyntaxKind.TYPE_DEFINITION);
-        filters.add(SyntaxKind.MODULE_VAR_DECL);
-        filters.add(SyntaxKind.LISTENER_DECLARATION);
-        filters.add(SyntaxKind.CONST_DECLARATION);
-        filters.add(SyntaxKind.ANNOTATION_DECLARATION);
-        filters.add(SyntaxKind.MODULE_XML_NAMESPACE_DECLARATION);
-        filters.add(SyntaxKind.ENUM_DECLARATION);
-        filters.add(SyntaxKind.CLASS_DEFINITION);
+    public void addInclusiveFilter(SyntaxKind topLevelNodeKind) {
+        filters.add(topLevelNodeKind);
     }
 
     /**
