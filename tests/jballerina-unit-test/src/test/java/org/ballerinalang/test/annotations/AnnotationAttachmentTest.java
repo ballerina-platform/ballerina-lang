@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Class to test annotation attachments.
@@ -143,6 +145,8 @@ public class AnnotationAttachmentTest {
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v9", "val", "v91");
     }
 
+    //compileResult.getAST().getServices().get(0).getName().getValue()
+    //compileResult.getAST().getServices().get(0).getPosition()
     @Test
     public void testAnnotOnServiceOne() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
@@ -150,9 +154,16 @@ public class AnnotationAttachmentTest {
                         .filter(serviceNode ->
                                 serviceNode.getAbsolutePath().stream().anyMatch(p -> p.getValue().contains("ser")))
                         .findFirst()
-                        .get().getServiceClass().getAnnotationAttachments();
+                        .get().getServiceClass().getAnnotationAttachments()
+                        .stream()
+                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                        .collect(Collectors.toList());
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v8");
+    }
+
+    private boolean isServiceIntropAnnot(BLangAnnotationAttachment annot) {
+        return AnnotationDesugar.SERVICE_INTROSPECTION_INFO_ANN.equals(annot.annotationName.value);
     }
 
     @Test
@@ -180,7 +191,10 @@ public class AnnotationAttachmentTest {
                 compileResult.getAST().getClassDefinitions().stream()
                         .filter(classNode -> classNode.getName().getValue().equals("$anonType$_3"))
                         .findFirst()
-                        .get().getAnnotationAttachments();
+                        .get().getAnnotationAttachments()
+                        .stream()
+                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                        .collect(Collectors.toList());
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v8", "val", "v82");
     }
@@ -412,7 +426,10 @@ public class AnnotationAttachmentTest {
                 compileResult.getAST().getClassDefinitions().stream()
                         .filter(classNode -> classNode.getName().getValue().equals("$anonType$_7"))
                         .findFirst()
-                        .get().getAnnotationAttachments();
+                        .get().getAnnotationAttachments()
+                        .stream()
+                        .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                        .collect(Collectors.toList());
         validateEmptyMapConstructorExprInAnnot(attachments, "v20", "A");
     }
 

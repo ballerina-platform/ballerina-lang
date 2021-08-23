@@ -53,12 +53,12 @@ annotation ArgsData DefaultableArgs on function;
 # Contains the configurations related to service introspection. This is used by HTTP module.
 #
 # + name - The generated Open API spec document name
-public type ServiceIntrospectionDocConfig record {|
+type ServiceIntrospectionDocConfig record {|
     string name;
 |};
 
 # The annotation which is used to configure a HTTP service.
-public annotation ServiceIntrospectionDocConfig IntrospectionDocConfig on service;
+annotation ServiceIntrospectionDocConfig IntrospectionDocConfig on service;
 
 # An annotation that marks a program element as deprecated.
 #
