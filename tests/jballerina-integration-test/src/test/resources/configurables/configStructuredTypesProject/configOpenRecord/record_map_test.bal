@@ -67,7 +67,5 @@ function testMapIteration() {
     util:testMapIterator(memberMapTable, 1);
     util:testMapIterator(anonRecordMap, 2);
     util:testMapIterator(anonRecordMapTable, 1);
-
-// These lines should be enabled after fixing #30566
-// util:testMapIterator(productMap, 2);
+    util:testMapIterator(productMap, 2);
 }

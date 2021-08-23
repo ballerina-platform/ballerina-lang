@@ -79,7 +79,5 @@ function testTableIteration() {
     util:testTableIterator(ownerTable);
     util:testTableIterator(memberTable);
     util:testTableIterator(anonRecordTable);
-
-// These lines should be enabled after fixing #30566
-// util:testTableIterator(productTable);
+    util:testTableIterator(productTable);
 }
