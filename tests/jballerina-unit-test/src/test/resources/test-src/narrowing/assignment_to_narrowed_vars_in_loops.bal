@@ -302,9 +302,259 @@ function f9() {
     }
 }
 
-function f10() {
+function f11() {
+    int|string x = 1;
+
+    if x is int {
+        int i = 0;
+        while i < 2 {
+            int j = x;
+            x = "hello";
+            i += 1;
+            panic error("error!");
+        }
+    }
+
+    if x is int {
+        int i = 0;
+        while i < 2 {
+            int j = x;
+            if i < 0 {
+                x = 1;
+                return;
+            }
+            i += 1;
+        }
+    }
+
+    if x is int {
+        int i = 0;
+        while i < 2 {
+            int j = x;
+            x = 1;
+            i += 1;
+            return;
+        }
+    }
+}
+
+function f12() {
+    int|string x = 1;
+    int|string y = 1;
+
+    if x is int && y is int {
+        int i = 0;
+        while i < 2 {
+            if i == 0 {
+                x = "hello";
+                y = 2;
+                i += 1;
+                panic error("error!");
+            }
+            int j = <int> x + <int> y;
+        }
+    }
+
+    if x is int {
+        int i = 0;
+        while i < 2 {
+            if i == 0 {
+                x = "hello";
+                i += 1;
+                return;
+            }
+            int j = <int> x;
+        }
+    }
+}
+
+function f13() {
     int|string a = 1;
     int|string b = 1;
+
+    while a is int {
+        if a < 10 {
+            while b is int {
+                int c = a;
+                a = "hello";
+                panic error("error!");
+            }
+        }
+    }
+
+    if a is int {
+        if a < 10 {
+            while b is int {
+                int c = a;
+                if b == 0 {
+                    a = "hello";
+                    return;
+                }
+            }
+        }
+    }
+}
+
+function f14() {
+    int|string a = 1;
+    int|string b = 1;
+
+    while a is int {
+        if a < 10 {
+            while b is int {
+                if b < 10 {
+                    int c = a;
+                    a = "hello";
+                    panic error("error!");
+                }
+            }
+        }
+    }
+
+    if a is int {
+        if a < 10 {
+            while b is int {
+                if b == 1 {
+                    b += 1;
+                    panic error("error!");
+                } else {
+                    int c = a;
+                    a = "hello";
+                    return;
+                }
+            }
+        }
+    }
+}
+
+function f15() {
+    int|string x = 1;
+
+    if x is int {
+        int i = 0;
+        foreach int m in i ..< 2 {
+            int j = x;
+            x = "hello";
+            return;
+        }
+    }
+
+    if x is int {
+        int i = 0;
+        foreach int m in i ..< 2 {
+            int j = x;
+            if m == 1 {
+                x = 1;
+                panic error("error!");
+            }
+        }
+    }
+
+    if x is int {
+        int i = 0;
+        foreach int m in i ..< 2 {
+            int j = x;
+            x = "hello";
+            panic error("error!");
+        }
+    }
+
+    if x is int {
+        int i = 0;
+        foreach int m in i ..< 2 {
+            int j = x;
+
+            if m > 0 {
+                x = 1;
+                panic error("error!");
+            }
+        }
+    }
+}
+
+function f16() {
+    int|string x = 1;
+
+    if x is int {
+        int i = 0;
+        foreach int m in i ..< 2 {
+            if i == 0 {
+                x = "hello";
+                return;
+            }
+            int j = <int> x;
+        }
+    }
+
+    if x is int {
+        int i = 0;
+        foreach int m in i ..< 2 {
+            if i == 0 {
+                x = "hello";
+                panic error("error!");
+            }
+            int j = <int> x;
+        }
+    }
+}
+
+function f17() {
+    int|string a = 1;
+    int|string b = 1;
+
+    while a is int {
+        if a < 10 {
+            foreach int m in 0 ..< 2 {
+                int c = a;
+                a = "hello";
+                panic error("error!");
+            }
+        }
+    }
+
+    if a is int {
+        if a < 10 {
+            foreach int m in 0 ..< 2 {
+                int c = a;
+                if m == 0 {
+                    a = "hello";
+                    return;
+                }
+            }
+        }
+    }
+}
+
+function f18() {
+    int|string a = 1;
+    int|string b = 1;
+
+    while a is int {
+        if a < 10 {
+            foreach int m in a ..< 2 {
+                if m < 10 {
+                    int c = a;
+                    a = "hello";
+                    panic error("error!");
+                }
+            }
+        }
+    }
+
+    if a is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                if b == 1 {
+                    b += 1;
+                    continue;
+                } else {
+                    int c = a;
+                    a = "hello";
+                    panic error("error!");
+                }
+            }
+        }
+    }
 
     if a is int {
         if a < 10 {
@@ -312,10 +562,140 @@ function f10() {
                 if b == 1 {
                     int c = a;
                     a = "hello";
-                    break;
+                    panic error("error!");
                 } else {
                     a = "hello";
-                    break;
+                    return;
+                }
+            }
+        }
+    }
+}
+
+function f19() {
+    int|string a = 1;
+    int|string b = 1;
+
+    if a is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                match b {
+                    1 => {
+                        b = 2;
+                        continue;
+                    }
+
+                    _ => {
+                        int c = a;
+                        a = "hello";
+                        panic error("error!");
+                    }
+                }
+            }
+        }
+    }
+
+    if a is int {
+        if a < 10 {
+            int m = 0;
+
+            while m < 2 {
+                match b {
+                    1 => {
+                        int c = a;
+                        a = "hello";
+                        panic error("error!");
+                    }
+                    _ => {
+                        a = "hello";
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function f20() {
+    int|string a = 1;
+    int|string b = 1;
+
+    if a is int && b is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                int v = b;
+                b = "str";
+                match b {
+                    1 => {
+                        b = 2;
+                        panic error("error!");
+                    }
+
+                    _ => {
+                        int c = a;
+                        a = "hello";
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    if a is int && b is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                int v = b;
+                b = "str";
+
+                if b == 1 {
+                    b = 2;
+                    return;
+                } else {
+                    int c = a;
+                    a = "hello";
+                    panic error("error!");
+                }
+            }
+        }
+    }
+
+    if a is int && b is int {
+        if a < 10 {
+            int m = 0;
+
+            while m < 2 {
+                int v = b;
+                b = "str";
+                match b {
+                    1 => {
+                        int c = a;
+                        a = "hello";
+                        panic error("error!");
+                    }
+                    _ => {
+                        a = "world";
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    if a is int && b is int {
+        if a < 10 {
+            int m = 0;
+
+            while m < 2 {
+                int v = b;
+                b = "str";
+
+                if b == 1 {
+                    int c = a;
+                    a = "hello";
+                    panic error("error!");
+                } else {
+                    a = "world";
+                    return;
                 }
             }
         }

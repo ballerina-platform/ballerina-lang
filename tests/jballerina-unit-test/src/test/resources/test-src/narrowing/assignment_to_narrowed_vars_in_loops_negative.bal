@@ -271,3 +271,162 @@ function f8() {
         }
     }
 }
+
+function f9() {
+    int|string a = 1;
+    int|string b = 1;
+
+    if a is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                if b == 1 {
+                    int c = a;
+                    a = "hello";
+                } else {
+                    a = "hello";
+                    return;
+                }
+            }
+        }
+    }
+
+    if a is int {
+        if a < 10 {
+            int m = 0;
+            while m < 2 {
+                if b == 1 {
+                    int c = a;
+                    a = "hello";
+                    panic error("error!");
+                } else {
+                    a = "hello";
+                }
+                m += 1;
+            }
+        }
+    }
+}
+
+function f10() {
+    int|string a = 1;
+    int|string b = 1;
+
+    if a is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                match b {
+                    1 => {
+                        b = 2;
+                        continue;
+                    }
+
+                    _ => {
+                        int c = a;
+                        a = "hello";
+                    }
+                }
+            }
+        }
+    }
+
+    if a is int {
+        if a < 10 {
+            int m = 0;
+
+            while m < 2 {
+                match b {
+                    1 => {
+                        int c = a;
+                        a = "hello";
+                    }
+                    _ => {
+                        a = "world";
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+function f11() {
+    int|string a = 1;
+    int|string b = 1;
+
+    if a is int && b is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                int v = b;
+                b = "str";
+                match b {
+                    1 => {
+                        b = 2;
+                        continue;
+                    }
+
+                    _ => {
+                        int c = a;
+                        a = "hello";
+                    }
+                }
+            }
+        }
+    }
+
+    if a is int && b is int {
+        if a < 10 {
+            foreach int m in 1 ..< 2 {
+                int v = b;
+                b = "str";
+
+                if b == 1 {
+                    b = 2;
+                    continue;
+                } else {
+                    int c = a;
+                    a = "hello";
+                }
+            }
+        }
+    }
+
+    if a is int && b is int {
+        if a < 10 {
+            int m = 0;
+
+            while m < 2 {
+                int v = b;
+                b = "str";
+                match b {
+                    1 => {
+                        int c = a;
+                        a = "hello";
+                    }
+                    _ => {
+                        a = "world";
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    if a is int && b is int {
+        if a < 10 {
+            int m = 0;
+
+            while m < 2 {
+                int v = b;
+                b = "str";
+
+                if b == 1 {
+                    int c = a;
+                    a = "hello";
+                } else {
+                    a = "world";
+                    return;
+                }
+            }
+        }
+    }
+}
