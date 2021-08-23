@@ -4,7 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Tests if placeholder is creted
+ * Tests if placeholder is created
  *
  */
 public class SemtypeTests {
