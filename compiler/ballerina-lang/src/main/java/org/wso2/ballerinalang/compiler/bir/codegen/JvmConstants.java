@@ -273,7 +273,7 @@ public class JvmConstants {
     public static final String MODULE_ERRORS_CLASS_NAME = "types/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
-    public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$bunion_type_init";
+    public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
@@ -366,6 +366,8 @@ public class JvmConstants {
 
 
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
+
+    public static final int MAX_MEMBERS_PER_METHOD = 100;
 
     private JvmConstants() {
     }

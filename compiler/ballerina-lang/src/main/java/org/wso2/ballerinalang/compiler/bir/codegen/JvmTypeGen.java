@@ -67,6 +67,7 @@ import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
@@ -79,6 +80,7 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
+import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
@@ -473,23 +475,16 @@ public class JvmTypeGen {
                 case TypeTags.NEVER:
                     return NEVER_TYPE;
                 case TypeTags.INT:
-                    return INTEGER_TYPE;
-                case TypeTags.SIGNED32_INT:
-                    return INTEGER_TYPE;
-                case TypeTags.SIGNED16_INT:
-                    return INTEGER_TYPE;
-                case TypeTags.SIGNED8_INT:
-                    return INTEGER_TYPE;
-                case TypeTags.UNSIGNED32_INT:
-                    return INTEGER_TYPE;
-                case TypeTags.UNSIGNED16_INT:
-                    return INTEGER_TYPE;
                 case TypeTags.UNSIGNED8_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED32_INT:
                     return INTEGER_TYPE;
                 case TypeTags.FLOAT:
                     return FLOAT_TYPE;
                 case TypeTags.STRING:
-                    return STRING_TYPE;
                 case TypeTags.CHAR_STRING:
                     return STRING_TYPE;
                 case TypeTags.DECIMAL:
@@ -505,15 +500,12 @@ public class JvmTypeGen {
                 case TypeTags.JSON:
                     return JSON_TYPE;
                 case TypeTags.XML:
-                    return XML_TYPE;
-                case TypeTags.XML_ELEMENT:
-                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? TYPE : XML_TYPE;
-                case TypeTags.XML_PI:
-                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? TYPE : XML_TYPE;
-                case TypeTags.XML_COMMENT:
-                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? TYPE : XML_TYPE;
                 case TypeTags.XML_TEXT:
                     return XML_TYPE;
+                case TypeTags.XML_ELEMENT:
+                case TypeTags.XML_PI:
+                case TypeTags.XML_COMMENT:
+                    return Symbols.isFlagOn(bType.flags, Flags.READONLY) ? TYPE : XML_TYPE;
                 case TypeTags.OBJECT:
                     return Symbols.isService(bType.tsymbol) ? SERVICE_TYPE : OBJECT_TYPE;
                 case TypeTags.HANDLE:
@@ -689,14 +681,14 @@ public class JvmTypeGen {
      */
     private void loadErrorType(MethodVisitor mv, BErrorType errorType) {
 
-        PackageID packageID = errorType.tsymbol.pkgID;
+        PackageID pkgID = errorType.tsymbol.pkgID;
         // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
-        if (JvmCodeGenUtil.isBuiltInPackage(packageID)) {
+        if (JvmCodeGenUtil.isBuiltInPackage(pkgID)) {
             mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, TYPES_ERROR, String.format("L%s;", ERROR_TYPE));
             return;
         }
         String typeOwner =
-                JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
+                JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(errorType));
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPE));
     }
@@ -763,24 +755,61 @@ public class JvmTypeGen {
     }
 
     public void loadCyclicFlag(MethodVisitor mv, BType valueType) {
-        switch (valueType.tag) {
-            case TypeTags.UNION:
-                mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
-            case TypeTags.TUPLE:
-                mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
-                break;
+        if (valueType.tag == TypeTags.UNION) {
+            mv.visitInsn(((BUnionType) valueType).isCyclic ? ICONST_1 : ICONST_0);
+        } else if (valueType.tag == TypeTags.TUPLE) {
+            mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
         }
     }
 
+    public void createUnionMembersArray(ClassWriter cw, MethodVisitor methodVisitor, Set<BType> members,
+                                        String className, String name) {
+        generateCreateNewArray(methodVisitor, members);
+        int arrayIndex = 1;
+        methodVisitor.visitVarInsn(ASTORE, arrayIndex);
+        int i = 0;
+        MethodVisitor mv = null;
+        int methodCount = 0;
+        String curMethodName = "";
+        for (BType memberType : members) {
+            if (i % JvmConstants.MAX_MEMBERS_PER_METHOD == 0) {
+                curMethodName = "createMembers$" + name + methodCount++;
+                mv = cw.visitMethod(ACC_STATIC, curMethodName, String.format("([L%s;)V", TYPE), null, null);
+            }
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitLdcInsn((long) i++);
+            mv.visitInsn(L2I);
+            // Load the member type
+            loadType(mv, memberType);
+
+            // Add the member to the array
+            mv.visitInsn(AASTORE);
+            if (i % JvmConstants.MAX_MEMBERS_PER_METHOD == 0) {
+                generateMethodReturnAndInvoke(methodVisitor, className, arrayIndex, mv, curMethodName);
+            }
+        }
+        if (i % JvmConstants.MAX_MEMBERS_PER_METHOD != 0) {
+            generateMethodReturnAndInvoke(methodVisitor, className, arrayIndex, mv, curMethodName);
+        }
+        methodVisitor.visitVarInsn(ALOAD, arrayIndex);
+    }
+
+    private void generateMethodReturnAndInvoke(MethodVisitor methodVisitor, String className, int arrayIndex,
+                                               MethodVisitor mv, String curMethodName) {
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+        methodVisitor.visitVarInsn(ALOAD, arrayIndex);
+        methodVisitor.visitMethodInsn(INVOKESTATIC, className, curMethodName, String.format("([L%s;)V", TYPE),
+                                      false);
+    }
+
     public void createUnionMembersArray(MethodVisitor mv, Set<BType> members) {
-        mv.visitLdcInsn((long) members.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, TYPE);
+        generateCreateNewArray(mv, members);
         int i = 0;
         for (BType memberType : members) {
             mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
+            mv.visitLdcInsn((long) i++);
             mv.visitInsn(L2I);
 
             // Load the member type
@@ -788,7 +817,6 @@ public class JvmTypeGen {
 
             // Add the member to the array
             mv.visitInsn(AASTORE);
-            i += 1;
         }
     }
 
@@ -816,9 +844,7 @@ public class JvmTypeGen {
 
         // Create the constituent types array.
         Set<BType> constituentTypes = bType.getConstituentTypes();
-        mv.visitLdcInsn((long) constituentTypes.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, TYPE);
+        generateCreateNewArray(mv, constituentTypes);
         int i = 0;
         for (BType memberType : constituentTypes) {
             mv.visitInsn(DUP);
@@ -848,6 +874,12 @@ public class JvmTypeGen {
         }
         mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD,
                            String.format("(L%s;[L%s;L%s;IZ)V", MODULE, TYPE, effectiveTypeClass), false);
+    }
+
+    private void generateCreateNewArray(MethodVisitor methodVisitor, Set<BType> members) {
+        methodVisitor.visitLdcInsn((long) members.size());
+        methodVisitor.visitInsn(L2I);
+        methodVisitor.visitTypeInsn(ANEWARRAY, TYPE);
     }
 
     /**

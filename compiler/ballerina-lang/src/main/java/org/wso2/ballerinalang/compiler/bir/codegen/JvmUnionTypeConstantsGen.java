@@ -64,15 +64,13 @@ public class JvmUnionTypeConstantsGen {
      */
     private final Deque<BUnionType> stack;
 
-    private static final int MAX_MEMBERS_PER_METHOD = 50;
-
     public JvmUnionTypeConstantsGen(PackageID packageID) {
         unionTypeVarMap = new ConcurrentSkipListMap<>(this::checkUnionEqualityInInts);
         unionVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(
                 packageID, JvmConstants.BUNION_TYPE_CONSTANT_CLASS_NAME);
         stack = new LinkedList<>();
-        generateClassInit();
-        visitMethod();
+        generateUnionTypeConstantsClassInit();
+        visitUnionTypeInitMethod();
     }
 
     private int checkUnionEqualityInInts(BUnionType o1, BUnionType o2) {
@@ -86,10 +84,6 @@ public class JvmUnionTypeConstantsGen {
         if (o1 == o2) {
             return true;
         }
-        if (o1.isCyclic || o2.isCyclic) {
-            // Not checking for equality at compile time if it is cyclic
-            return false;
-        }
         if (o1.getMemberTypes().size() != o2.getMemberTypes().size() || !o1.toString().equals(o2.toString())) {
             return false;
         }
@@ -98,7 +92,6 @@ public class JvmUnionTypeConstantsGen {
                 return false;
             }
         }
-
         return o1.flags == o2.flags;
     }
 
@@ -109,7 +102,7 @@ public class JvmUnionTypeConstantsGen {
     public synchronized String add(BUnionType type) {
         stack.push(type);
         if (canCreateMethod()) {
-            visitMethod();
+            visitUnionTypeInitMethod();
             memberCountInMethod = 0;
         }
         String varName = unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type));
@@ -121,10 +114,10 @@ public class JvmUnionTypeConstantsGen {
     }
 
     private boolean canCreateMethod() {
-        return stack.size() == 1 && (memberCountInMethod >= MAX_MEMBERS_PER_METHOD);
+        return stack.size() == 1 && (memberCountInMethod >= JvmConstants.MAX_MEMBERS_PER_METHOD);
     }
 
-    private void generateClassInit() {
+    private void generateUnionTypeConstantsClassInit() {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, unionVarConstantsClass, null, JvmConstants.OBJECT, null);
 
@@ -135,7 +128,7 @@ public class JvmUnionTypeConstantsGen {
         genMethodReturn();
     }
 
-    private void visitMethod() {
+    private void visitUnionTypeInitMethod() {
         mv = cw.visitMethod(ACC_STATIC, JvmConstants.B_UNION_TYPE_INIT_METHOD_PREFIX + methodCount++,
                             "()V", null, null);
     }
@@ -162,6 +155,20 @@ public class JvmUnionTypeConstantsGen {
         fv.visitEnd();
     }
 
+    public void generateGetBUnionType(MethodVisitor mv, String varName) {
+        mv.visitFieldInsn(GETSTATIC, unionVarConstantsClass, varName,
+                          String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
+    }
+
+    public synchronized void generateClass(Map<String, byte[]> jarEntries) {
+        if (memberCountInMethod < JvmConstants.MAX_MEMBERS_PER_METHOD) {
+            genMethodReturn();
+        }
+        generateStaticInitializer(cw);
+        cw.visitEnd();
+        jarEntries.put(unionVarConstantsClass + ".class", cw.toByteArray());
+    }
+
     private void generateStaticInitializer(ClassWriter cw) {
         mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
         for (int i = 0; i < methodCount; i++) {
@@ -169,20 +176,6 @@ public class JvmUnionTypeConstantsGen {
                                "()V", false);
         }
         genMethodReturn();
-    }
-
-    public void generateGetBUnionType(MethodVisitor mv, String varName) {
-        mv.visitFieldInsn(GETSTATIC, unionVarConstantsClass, varName,
-                          String.format("L%s;", JvmConstants.UNION_TYPE_IMPL));
-    }
-
-    public synchronized void generateClass(Map<String, byte[]> jarEntries) {
-        if (memberCountInMethod < MAX_MEMBERS_PER_METHOD) {
-            genMethodReturn();
-        }
-        generateStaticInitializer(cw);
-        cw.visitEnd();
-        jarEntries.put(unionVarConstantsClass + ".class", cw.toByteArray());
     }
 
     private void genMethodReturn() {
