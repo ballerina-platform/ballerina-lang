@@ -58,8 +58,8 @@ import java.util.Set;
 
 public class TypeParamFinder implements TypeVisitor {
 
+    private final Set<BType> visited = new HashSet<>();
     private BType typeParam;
-    private Set<BType> visited = new HashSet<>();
 
     public BType find(BType type) {
         if (type == null || this.visited.contains(type)) {
@@ -139,7 +139,7 @@ public class TypeParamFinder implements TypeVisitor {
     public void visit(BStreamType bStreamType) {
         setContainsTypeParam(bStreamType);
         find(bStreamType.constraint);
-        find(bStreamType.completionType);
+//        find(bStreamType.completionType); TODO: Ignoring completion type for now
     }
 
     @Override

@@ -157,7 +157,13 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BStreamType typeInSymbol, BType boundType) {
-        return typeInSymbol;
+        if (isTypeParam(typeInSymbol)) {
+            return boundType;
+        }
+
+        BType newConstraintType = resolve(typeInSymbol.constraint, boundType);
+        // TODO: The completion type igonred for now
+        return new BStreamType(typeInSymbol.tag, newConstraintType, typeInSymbol.completionType, typeInSymbol.tsymbol);
     }
 
     @Override
