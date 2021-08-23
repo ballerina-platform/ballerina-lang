@@ -22,6 +22,7 @@ import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
+import io.opentracing.tag.Tag;
 
 import java.util.Collections;
 import java.util.Map;
@@ -37,12 +38,12 @@ public class NoOpScopeManager implements ScopeManager {
     static final NoOpScopeManager INSTANCE = new NoOpScopeManager();
 
     @Override
-    public Scope activate(Span span, boolean finishSpanOnClose) {
+    public Scope activate(Span span) {
         return NoOpScope.INSTANCE;
     }
 
     @Override
-    public Scope active() {
+    public Span activeSpan() {
         return null;
     }
 
@@ -56,11 +57,6 @@ public class NoOpScopeManager implements ScopeManager {
         @Override
         public void close() {
 
-        }
-
-        @Override
-        public Span span() {
-            return NoOpSpan.INSTANCE;
         }
     }
 
@@ -86,6 +82,11 @@ public class NoOpScopeManager implements ScopeManager {
 
         @Override
         public NoOpSpan setTag(String key, String value) {
+            return this;
+        }
+
+        @Override
+        public <T> Span setTag(Tag<T> tag, T value) {
             return this;
         }
 
@@ -150,6 +151,16 @@ public class NoOpScopeManager implements ScopeManager {
         @Override
         public Iterable<Map.Entry<String, String>> baggageItems() {
             return Collections.emptyList();
+        }
+
+        @Override
+        public String toSpanId() {
+            return null;
+        }
+
+        @Override
+        public String toTraceId() {
+            return null;
         }
     }
 }

@@ -22,8 +22,7 @@ import io.opentracing.Span;
 import io.opentracing.SpanContext;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMapExtractAdapter;
-import io.opentracing.propagation.TextMapInjectAdapter;
+import io.opentracing.propagation.TextMapAdapter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,7 +78,7 @@ public class TraceManager {
         Map<String, String> carrierMap = new HashMap<>();
         Tracer tracer = tracerStore.getTracer(serviceName);
         if (tracer != null && span != null) {
-            TextMapInjectAdapter requestInjector = new TextMapInjectAdapter(carrierMap);
+            TextMapAdapter requestInjector = new TextMapAdapter(carrierMap);
             tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, requestInjector);
         }
         return carrierMap;
@@ -108,7 +107,7 @@ public class TraceManager {
         SpanContext spanContext = null;
         Tracer tracer = tracerStore.getTracer(serviceName);
         if (tracer != null) {
-            spanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapExtractAdapter(traceContext));
+            spanContext = tracer.extract(Format.Builtin.HTTP_HEADERS, new TextMapAdapter(traceContext));
         }
         return spanContext;
     }

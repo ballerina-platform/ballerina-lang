@@ -87,8 +87,8 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
-    dist 'io.opentracing:opentracing-api:0.31.0'
-    dist 'io.opentracing:opentracing-util:0.31.0'
+    dist 'io.opentracing:opentracing-api:0.33.0'
+    dist 'io.opentracing:opentracing-util:0.33.0'
     dist 'org.awaitility:awaitility:3.1.6'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'com.h2database:h2:1.4.199'
@@ -100,8 +100,8 @@ dependencies {
     dist project(':metrics-extensions:ballerina-prometheus-extension')
     //// tracing
     dist project(':tracing-extensions:ballerina-jaeger-extension')
-    dist 'io.jaegertracing:jaeger-core:0.31.0'
-    dist 'io.jaegertracing:jaeger-thrift:0.31.0'
+    dist 'io.jaegertracing:jaeger-core:1.6.0'
+    dist 'io.jaegertracing:jaeger-thrift:1.6.0'
     dist 'org.apache.thrift:libthrift:0.14.1'
     dist 'com.squareup.okhttp3:okhttp:3.14.0'
     dist 'com.squareup.okio:okio:2.2.2'
