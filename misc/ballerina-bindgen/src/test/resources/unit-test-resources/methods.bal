@@ -485,6 +485,14 @@ distinct class MethodsTestResource {
         return java:toString(org_ballerinalang_bindgen_MethodsTestResource_returnString(self.jObj, java:fromString(arg0)));
     }
 
+    # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
+    #
+    # + return - The `string[]` value returning from the Java mapping.
+    function returnStringArray() returns string[]|error {
+        handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray(self.jObj);
+        return <string[]>check jarrays:fromHandle(externalObj, "string");
+    }
+
     # The function that maps to the `returnStringArray1` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `string[]` value required to map with the Java method parameter.
@@ -1083,6 +1091,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnString(handle recei
     name: "returnString",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["java.lang.String"]
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_returnStringArray(handle receiver) returns handle = @java:Method {
+    name: "returnStringArray",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: []
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(handle receiver, handle arg0, handle arg1, int arg2) returns handle = @java:Method {
