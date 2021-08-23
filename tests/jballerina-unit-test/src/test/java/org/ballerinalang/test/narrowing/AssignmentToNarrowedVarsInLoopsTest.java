@@ -33,6 +33,12 @@ public class AssignmentToNarrowedVarsInLoopsTest {
             "invalid attempt to assign a value to a variable narrowed outside the loop";
 
     @Test
+    public void testAssignmentToNarrowedVarsInLoops() {
+        CompileResult result = BCompileUtil.compile("test-src/narrowing/assignment_to_narrowed_vars_in_loops.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
+    }
+
+    @Test
     public void testAssignmentToNarrowedVarsInLoopsNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/narrowing/assignment_to_narrowed_vars_in_loops_negative.bal");
