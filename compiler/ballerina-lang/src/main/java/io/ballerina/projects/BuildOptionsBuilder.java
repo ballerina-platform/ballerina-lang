@@ -28,6 +28,7 @@ public class BuildOptionsBuilder {
     private Boolean testReport;
     private Boolean codeCoverage;
     private Boolean dumpBuildTime;
+    private Boolean skipTests;
     private final CompilationOptionsBuilder compilationOptionsBuilder;
 
     public BuildOptionsBuilder() {
@@ -49,13 +50,18 @@ public class BuildOptionsBuilder {
         return this;
     }
 
-    public BuildOptionsBuilder listConflictedClasses(Boolean value) {
-        compilationOptionsBuilder.listConflictedClasses(value);
+    public BuildOptionsBuilder skipTests(Boolean value) {
+        skipTests = value;
         return this;
     }
 
-    public BuildOptionsBuilder skipTests(Boolean value) {
-        compilationOptionsBuilder.skipTests(value);
+    public BuildOptionsBuilder sticky(Boolean value) {
+        compilationOptionsBuilder.sticky(value);
+        return this;
+    }
+
+    public BuildOptionsBuilder listConflictedClasses(Boolean value) {
+        compilationOptionsBuilder.listConflictedClasses(value);
         return this;
     }
 
@@ -91,6 +97,6 @@ public class BuildOptionsBuilder {
 
     public BuildOptions build() {
         CompilationOptions compilationOptions = compilationOptionsBuilder.build();
-        return new BuildOptions(testReport, codeCoverage, dumpBuildTime, compilationOptions);
+        return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions);
     }
 }

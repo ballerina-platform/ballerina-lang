@@ -127,7 +127,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // tuple variable test
         debugTestRunner.assertExpression(context, TUPLE_VAR, "tuple[int,string] (size = 2)", "tuple");
         // map variable test
-        debugTestRunner.assertExpression(context, MAP_VAR, "map<string> (size = 4)", "map");
+        debugTestRunner.assertExpression(context, MAP_VAR, "map (size = 4)", "map");
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~π_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
@@ -161,7 +161,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // never variable test
         debugTestRunner.assertExpression(context, NEVER_VAR, "XMLSequence (size = 0)", "xml");
         // json variable test
-        debugTestRunner.assertExpression(context, JSON_VAR, "map<json> (size = 3)", "json");
+        debugTestRunner.assertExpression(context, JSON_VAR, "json (size = 3)", "json");
         // anonymous object variable test (AnonPerson object)
         debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // service object variable test
@@ -170,7 +170,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
         // debugTestRunner.assertExpression(context, "gv02_nameWithType", "Ballerina", "string");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map<string> (size = 1)", "map");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "map (size = 1)", "map");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_04, "()", "nil");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_05, "()", "nil");
         // global variables
@@ -178,7 +178,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, GLOBAL_VAR_07, "100.0", "decimal");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_08, "2", "int");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_09, "2.0", "float");
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "map<json> (size = 3)", "json");
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_10, "json (size = 3)", "json");
         debugTestRunner.assertExpression(context, GLOBAL_VAR_11, "\"IL with global var\"", "string");
 
         // Todo - add test for qualified name references, after adding support
@@ -216,7 +216,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void annotationAccessEvaluationTest() throws BallerinaTestException {
-        debugTestRunner.assertExpression(context, "(typeof a).@v1", "variable_tests:Annot (size = 2)", "map");
+        debugTestRunner.assertExpression(context, "(typeof a).@v1", "map (size = 2)", "map");
         debugTestRunner.assertExpression(context, "(typeof a).@v2", "()", "nil");
         debugTestRunner.assertExpression(context, "(typeof a).@v1[\"foo\"]", "\"v1 value\"", "string");
         debugTestRunner.assertExpression(context, "(typeof a).@v1[\"bar\"]", "1", "int");
@@ -226,7 +226,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
         // strings
-        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"\"", "string");
+        debugTestRunner.assertExpression(context, STRING_VAR + "[0]", "\"f\"", "string");
         // lists
         debugTestRunner.assertExpression(context, ARRAY_VAR + "[0]", "1", "int");
         // maps
@@ -407,12 +407,12 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void typeOfExpressionEvaluationTest() throws BallerinaTestException {
         // primitive types
-        debugTestRunner.assertExpression(context, String.format("typeof %s", BOOLEAN_VAR), "boolean", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s", INT_VAR), "int", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s", FLOAT_VAR), "float", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", BOOLEAN_VAR), "true", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", INT_VAR), "20", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s", FLOAT_VAR), "-10.0", "typedesc");
         // reference types
         debugTestRunner.assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "string", "typedesc");
+        debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "f", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc",
                 "typedesc");
     }

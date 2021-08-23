@@ -79,7 +79,7 @@ function testAssertDifferentTuples() {
     error? err = trap test:assertEquals(a, b);
     error result = <error>err;
     test:assertEquals(result.message().toString(), 
-    "Assertion Failed!\n \nexpected: <[string,string]> '10 John'\nactual\t: <[int,string]> '10 John'");
+    "Assertion Failed!\n \nexpected: <[string,string]> '[\"10\",\"John\"]'\nactual\t: <[int,string]> '[10,\"John\"]'");
 }
 
 @test:Config {}

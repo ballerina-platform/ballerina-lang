@@ -12,3 +12,14 @@ public function main(string... args){
 function test1 (int value) {
     string s1 = value > 40 ? true : false ? "morethan40" : "lessthan20";
 }
+
+function test2() {
+    int[] a = [];
+    boolean trueVal = true;
+    boolean falseVal = false;
+
+    a.push(trueVal ? 1 : "");
+
+    byte[] b = [];
+    b.push(falseVal ? 0 : 256);
+}

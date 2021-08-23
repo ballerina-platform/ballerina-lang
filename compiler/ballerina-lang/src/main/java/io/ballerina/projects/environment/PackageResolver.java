@@ -17,7 +17,10 @@
  */
 package io.ballerina.projects.environment;
 
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 
 import java.util.List;
 
@@ -29,7 +32,13 @@ import java.util.List;
  */
 public interface PackageResolver {
 
-    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests);
+    List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 
-    List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests, Project project);
+    List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests);
+
+    List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors,
+                                             boolean offline,
+                                             Project project);
+
+    List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors, boolean offline);
 }

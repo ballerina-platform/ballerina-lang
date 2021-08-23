@@ -26,6 +26,7 @@ public class LSClientConfig {
     private final boolean traceLog;
     private final boolean enableFileWatcher;
     private final boolean enableTelemetry;
+    private final boolean enableSemanticHighlighting;
 
     protected LSClientConfig() {
         this.home = "";
@@ -43,6 +44,7 @@ public class LSClientConfig {
         this.codeLens = new CodeLensConfig();
         this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
         this.enableTelemetry = balTelemetry == null || Boolean.parseBoolean(balTelemetry);
+        this.enableSemanticHighlighting = true;
     }
 
     /**
@@ -115,5 +117,14 @@ public class LSClientConfig {
      */
     public boolean isEnableTelemetry() {
         return enableTelemetry;
+    }
+
+    /**
+     * Returns True if ballerina semantic highlighting is enabled, False otherwise.
+     *
+     * @return True if enabled, False otherwise
+     */
+    public boolean isEnableSemanticHighlighting() {
+        return enableSemanticHighlighting;
     }
 }
