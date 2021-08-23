@@ -1,0 +1,11 @@
+apply from: "$rootDir/gradle/javaProject.gradle"
+
+dependencies {
+    testImplementation 'org.testng:testng'
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+}
