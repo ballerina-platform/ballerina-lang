@@ -333,7 +333,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private LoopState loopState = LoopState.OUTSIDE_LOOP;
     private final Stack<SymbolEnv> loopEnvs = new Stack<>();
     private final Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new Stack<>();
-    private final Stack<BranchBreakInfo> branchBreakInfo = new Stack<>();
+    private final Stack<BranchTerminationInfo> branchTerminationInfo = new Stack<>();
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -370,10 +370,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void resetLastStatement(BLangBlockStmt statement) {
-        if (this.breakAsLastStatement && !this.branchBreakInfo.empty()) {
-            BranchBreakInfo branchInfo = this.branchBreakInfo.peek();
+        if (this.breakAsLastStatement && !this.branchTerminationInfo.empty()) {
+            BranchTerminationInfo branchInfo = this.branchTerminationInfo.peek();
             if (branchInfo.statement == statement) {
-                branchInfo.breakAsLastStatement = true;
+                branchInfo.terminates = true;
             }
         }
 
@@ -864,10 +864,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BLangBlockStmt body = ifStmt.body;
         this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                                                                                               env.enclInvokable));
-        this.branchBreakInfo.add(new BranchBreakInfo(body));
+        this.branchTerminationInfo.add(new BranchTerminationInfo(body));
         analyzeNode(body, env);
-        boolean allBranchesBreak = this.branchBreakInfo.pop().breakAsLastStatement;
-        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesBreak);
+        boolean allBranchesTerminate = this.branchTerminationInfo.pop().terminates || this.statementReturns;
+        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate);
 
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = prevTxMode;
@@ -883,11 +883,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                                                                                                   env.enclInvokable));
-            this.branchBreakInfo.add(new BranchBreakInfo(elseStmt));
+            this.branchTerminationInfo.add(new BranchTerminationInfo(elseStmt));
             analyzeNode(elseStmt, env);
-            boolean breakAsLastStatementInBranch = this.branchBreakInfo.pop().breakAsLastStatement;
-            allBranchesBreak &= breakAsLastStatementInBranch;
-            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(breakAsLastStatementInBranch);
+            boolean branchTerminates = this.branchTerminationInfo.pop().terminates || this.statementReturns;
+            allBranchesTerminate &= branchTerminates;
+            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(branchTerminates);
             if ((prevCommitCount != commitCount) || prevRollbackCount != rollbackCount) {
                 commitRollbackAllowed = false;
             }
@@ -895,8 +895,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.errorThrown = currentErrorThrown && this.errorThrown;
         }
 
-        if (allBranchesBreak) {
-            handleAllBranchesBreak(ifStmt);
+        if (allBranchesTerminate) {
+            handleAllBranchesTerminate(ifStmt);
         }
 
         analyzeExpr(ifStmt.expr);
@@ -915,7 +915,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.hasLastPatternInStatement = false;
         boolean allClausesReturns = true;
         List<BLangMatchClause> matchClauses = matchStatement.matchClauses;
-        boolean allBranchesBreak = true;
+        boolean allBranchesTerminate = true;
         for (int i = 0; i < matchClauses.size(); i++) {
             BLangMatchClause matchClause = matchClauses.get(i);
             for (int j = i; j > 0; j--) {
@@ -930,17 +930,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.resetErrorThrown();
             this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                                                                                                   env.enclInvokable));
-            this.branchBreakInfo.add(new BranchBreakInfo(matchClause.blockStmt));
+            this.branchTerminationInfo.add(new BranchTerminationInfo(matchClause.blockStmt));
             analyzeNode(matchClause, env);
-            boolean breakAsLastStatementInBranch = this.branchBreakInfo.pop().breakAsLastStatement;
-            allBranchesBreak &= breakAsLastStatementInBranch;
-            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(breakAsLastStatementInBranch);
+            boolean branchTerminates = this.branchTerminationInfo.pop().terminates || this.statementReturns;
+            allBranchesTerminate &= branchTerminates;
+            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(branchTerminates);
             allClausesReturns = allClausesReturns && this.statementReturns;
             resetStatementReturns();
         }
 
-        if (allBranchesBreak) {
-            handleAllBranchesBreak(matchStatement);
+        if (allBranchesTerminate) {
+            handleAllBranchesTerminate(matchStatement);
         }
 
         this.statementReturns = allClausesReturns && this.hasLastPatternInStatement;
@@ -2369,10 +2369,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.loopCount++;
         BLangBlockStmt body = foreach.body;
-        this.branchBreakInfo.add(new BranchBreakInfo(body));
+        this.branchTerminationInfo.add(new BranchTerminationInfo(body));
         analyzeNode(body, foreachEnv);
         propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                this.branchBreakInfo.pop().breakAsLastStatement, true);
+                this.branchTerminationInfo.pop().terminates || this.statementReturns, true);
         this.loopCount--;
         this.statementReturns = statementReturns;
         this.failureHandled = failureHandled;
@@ -2407,10 +2407,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
         this.loopCount++;
         BLangBlockStmt body = whileNode.body;
-        this.branchBreakInfo.add(new BranchBreakInfo(body));
+        this.branchTerminationInfo.add(new BranchTerminationInfo(body));
         analyzeNode(body, whileEnv);
         propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
-                this.branchBreakInfo.pop().breakAsLastStatement, true);
+                this.branchTerminationInfo.pop().terminates || this.statementReturns, true);
         this.loopCount--;
         this.statementReturns = statementReturns;
         this.failureHandled = failureHandled;
@@ -4859,15 +4859,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean breakAsLastStatement) {
-        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(breakAsLastStatement, false);
+    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates) {
+        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(branchTerminates, false);
     }
 
-    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean breakAsLastStatement,
+    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates,
                                                                                      boolean isLoop) {
         PotentiallyInvalidAssignmentInfo currentBranchInfo = this.potentiallyInvalidAssignmentInLoopsInfo.pop();
 
-        if (breakAsLastStatement) {
+        if (branchTerminates) {
             return;
         }
 
@@ -4890,7 +4890,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         prevInfo.locations.addAll(currentBranchLocations);
     }
 
-    private void handleAllBranchesBreak(BLangStatement statement) {
+    private void handleAllBranchesTerminate(BLangStatement statement) {
         if (this.loopState != LoopState.OUTSIDE_LOOP) {
             PotentiallyInvalidAssignmentInfo prevInfo = this.potentiallyInvalidAssignmentInLoopsInfo.peek();
 
@@ -4899,13 +4899,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (this.branchBreakInfo.empty()) {
+        if (this.branchTerminationInfo.empty()) {
             return;
         }
 
-        BranchBreakInfo prevBranchInfo = this.branchBreakInfo.peek();
+        BranchTerminationInfo prevBranchInfo = this.branchTerminationInfo.peek();
         if (prevBranchInfo.statement == statement) {
-            prevBranchInfo.breakAsLastStatement = true;
+            prevBranchInfo.terminates = true;
         }
     }
 
@@ -4957,11 +4957,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private static class BranchBreakInfo {
+    private static class BranchTerminationInfo {
         BLangStatement statement;
-        boolean breakAsLastStatement = false;
+        boolean terminates = false;
 
-        private BranchBreakInfo(BLangStatement statement) {
+        private BranchTerminationInfo(BLangStatement statement) {
             this.statement = statement;
         }
     }
