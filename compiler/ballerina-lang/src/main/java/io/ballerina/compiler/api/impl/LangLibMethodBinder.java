@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl;
 
 import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -35,6 +36,12 @@ import java.util.List;
  */
 public class LangLibMethodBinder {
 
+    private Types types;
+
+    public LangLibMethodBinder(Types types) {
+        this.types = types;
+    }
+
     /**
      * Given a lang lib function symbol, this method will create a new instance of the symbol if it's a, function that
      * can be called using a method call expr. i.e., first param's type kind is the same as the lang library the
@@ -45,7 +52,7 @@ public class LangLibMethodBinder {
      * @param boundType The type to bind the type param to
      * @return The type param resolved lang lib function symbol
      */
-    public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType boundType) {
+    public BInvokableSymbol cloneAndBind(BInvokableSymbol original, BType type, BType boundType) {
         if (boundType == null || original.params.size() == 0) {
             return original;
         }
@@ -53,7 +60,7 @@ public class LangLibMethodBinder {
         BVarSymbol firstParam = original.params.get(0);
         BType typeParam = new TypeParamFinder().find(firstParam.getType());
 
-        if (typeParam == null) {
+        if (typeParam == null || !types.isAssignable(type, firstParam.getType())) {
             return original;
         }
 

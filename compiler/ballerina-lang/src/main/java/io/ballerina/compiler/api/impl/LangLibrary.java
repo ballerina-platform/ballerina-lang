@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -65,7 +66,7 @@ public class LangLibrary {
 
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.langLibMethods = new HashMap<>();
-        this.methodBinder = new LangLibMethodBinder();
+        this.methodBinder = new LangLibMethodBinder(Types.getInstance(context));
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
@@ -99,30 +100,31 @@ public class LangLibrary {
      */
     public List<FunctionSymbol> getMethods(BType type) {
         String langLibName = getAssociatedLangLibName(type.getKind());
-        BType boundType = getTypeParamBoundType(type);
-        return getMethods(langLibName, boundType);
+        return getMethods(langLibName, type);
     }
 
     // Private Methods
 
     private List<FunctionSymbol> getMethods(String langLibName, BType type) {
         Map<String, BInvokableSymbol> methods = langLibMethods.get(langLibName);
-
+        BType boundType = getTypeParamBoundType(type);
         List<FunctionSymbol> wrappedMethods = new ArrayList<>();
-        populateMethodList(wrappedMethods, methods, type);
+
+        populateMethodList(wrappedMethods, methods, type, boundType);
 
         // Add the common functions in lang.value to types which have an associated lang library.
         if (!LANG_VALUE.equals(langLibName)) {
-            populateMethodList(wrappedMethods, langLibMethods.get(LANG_VALUE), type);
+            populateMethodList(wrappedMethods, langLibMethods.get(LANG_VALUE), type, null);
         }
 
         return wrappedMethods;
     }
 
-    private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib, BType type) {
+    private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib, BType type,
+                                    BType boundTypeParam) {
         for (BInvokableSymbol symbol : langLib.values()) {
             String name = symbol.getOriginalName().getValue();
-            BInvokableSymbol duplicate = methodBinder.cloneAndBind(symbol, type);
+            BInvokableSymbol duplicate = methodBinder.cloneAndBind(symbol, type, boundTypeParam);
             FunctionSymbol method = symbolFactory.createFunctionSymbol(duplicate, name);
             list.add(method);
         }
