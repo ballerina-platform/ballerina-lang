@@ -16,18 +16,42 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
 import io.ballerina.compiler.syntax.tree.LetClauseNode;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.WhereClauseNode;
+import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,7 +65,6 @@ import java.util.Set;
  */
 public class QueryReferenceFinder extends NodeVisitor {
 
-    private boolean isWithinLetClause = false;
     private final QueryExpressionNode queryExpressionNode;
     private final Set<String> internalVariables = new HashSet<>();
     private final List<String> letVariables = new ArrayList<>();
@@ -58,6 +81,8 @@ public class QueryReferenceFinder extends NodeVisitor {
         queryExpressionNode.accept(this);
         return capturedVariables;
     }
+
+    // ################################## Query Expression Clause Nodes ################################## //
 
     @Override
     public void visit(FromClauseNode fromClauseNode) {
@@ -83,11 +108,7 @@ public class QueryReferenceFinder extends NodeVisitor {
             letVariables.addAll(extractVariablesFromBindingPattern(bindingPattern));
         });
 
-        // variables defined inside the let clause should be escaped when capturing external (local + global) variable
-        // references
-        isWithinLetClause = true;
         letClauseNode.letVarDeclarations().forEach(declarationNode -> declarationNode.expression().accept(this));
-        isWithinLetClause = false;
     }
 
     @Override
@@ -104,20 +125,154 @@ public class QueryReferenceFinder extends NodeVisitor {
         selectClauseNode.expression().accept(this);
     }
 
+    // ################################## Expression Nodes ################################## //
+
+    @Override
+    public void visit(BracedExpressionNode bracedExpressionNode) {
+        bracedExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(BinaryExpressionNode binaryExpressionNode) {
+        binaryExpressionNode.lhsExpr().accept(this);
+        binaryExpressionNode.rhsExpr().accept(this);
+    }
+
+    @Override
+    public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+        functionCallExpressionNode.arguments().forEach(this::visitSyntaxNode);
+    }
+
+    @Override
+    public void visit(MethodCallExpressionNode methodCallExpressionNode) {
+        methodCallExpressionNode.expression().accept(this);
+        methodCallExpressionNode.arguments().forEach(this::visitSyntaxNode);
+    }
+
+    @Override
+    public void visit(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        errorConstructorExpressionNode.arguments().forEach(this::visitSyntaxNode);
+    }
+
+    @Override
+    public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
+        fieldAccessExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
+        optionalFieldAccessExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        conditionalExpressionNode.lhsExpression().accept(this);
+        conditionalExpressionNode.middleExpression().accept(this);
+        conditionalExpressionNode.endExpression().accept(this);
+    }
+
+    @Override
+    public void visit(TypeofExpressionNode typeofExpressionNode) {
+        typeofExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(IndexedExpressionNode indexedExpressionNode) {
+        indexedExpressionNode.containerExpression().accept(this);
+        indexedExpressionNode.keyExpression().forEach(this::visitSyntaxNode);
+    }
+
+    @Override
+    public void visit(TypeTestExpressionNode typeTestExpressionNode) {
+        typeTestExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(TypeCastExpressionNode typeCastExpressionNode) {
+        typeCastExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(AnnotAccessExpressionNode annotAccessExpressionNode) {
+        annotAccessExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(TemplateExpressionNode templateExpressionNode) {
+        visitSyntaxNode(templateExpressionNode);
+    }
+
+    @Override
+    public void visit(InterpolationNode interpolationNode) {
+        interpolationNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(XMLStepExpressionNode xmlStepExpressionNode) {
+        xmlStepExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(XMLFilterExpressionNode xmlFilterExpressionNode) {
+        xmlFilterExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(TrapExpressionNode trapExpressionNode) {
+        trapExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(UnaryExpressionNode unaryExpressionNode) {
+        unaryExpressionNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        explicitNewExpressionNode.parenthesizedArgList().arguments().forEach(this::visitSyntaxNode);
+    }
+
+    @Override
+    public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
+        implicitNewExpressionNode.parenthesizedArgList().ifPresent(parenthesizedArgList ->
+                parenthesizedArgList.arguments().forEach(this::visitSyntaxNode));
+    }
+
+    @Override
+    public void visit(QueryExpressionNode queryExpressionNode) {
+        visitSyntaxNode(queryExpressionNode);
+    }
+
+    // ################################## Function Argument Nodes ################################## //
+
+    @Override
+    public void visit(PositionalArgumentNode positionalArgumentNode) {
+        positionalArgumentNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(NamedArgumentNode namedArgumentNode) {
+        namedArgumentNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(RestArgumentNode restArgumentNode) {
+        restArgumentNode.expression().accept(this);
+    }
+
+    // ################################## Other Nodes ################################## //
+
     @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         String variableRef = simpleNameReferenceNode.name().text().trim();
-        if (isWithinLetClause && !internalVariables.contains(variableRef) && !letVariables.contains(variableRef)) {
-            if (!internalVariables.contains(variableRef) && !letVariables.contains(variableRef)) {
-                capturedVariables.add(variableRef);
-            }
-        } else if (!internalVariables.contains(variableRef)) {
+        if (!internalVariables.contains(variableRef) && !letVariables.contains(variableRef)) {
             capturedVariables.add(variableRef);
         }
     }
 
     private List<String> extractVariablesFromBindingPattern(BindingPatternNode bindingPattern) {
         List<String> capturedVariableNames = new ArrayList<>();
+        // Todo - check other binding pattern types
         if (bindingPattern instanceof CaptureBindingPatternNode) {
             capturedVariableNames.add(((CaptureBindingPatternNode) bindingPattern).variableName().text().trim());
         }

@@ -24,7 +24,6 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.QueryExpressionProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
-import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

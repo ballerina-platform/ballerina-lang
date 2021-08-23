@@ -232,7 +232,7 @@ public class QueryExpressionProcessor {
     private String generateQuerySnippet() throws EvaluationException {
         // Generates top level declarations snippet
         ModuleLevelDefinitionFinder moduleLevelDefinitionFinder = new ModuleLevelDefinitionFinder(context);
-        List<ModuleMemberDeclarationNode> declarationList = moduleLevelDefinitionFinder.getModuleLevelDeclarations();
+        List<ModuleMemberDeclarationNode> declarationList = moduleLevelDefinitionFinder.getModuleDeclarations();
         String topLevelDeclarations = declarationList.stream()
                 .map(Node::toSourceCode)
                 .reduce((s, s2) -> s + System.lineSeparator() + s2)
