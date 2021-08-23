@@ -50,7 +50,6 @@ public function main() {
     util:print("Tests passed");
 }
 
-
 function testRecordIteration() {
     util:testRecordIterator(product, 6);
     util:testRecordIterator(owner, 7);

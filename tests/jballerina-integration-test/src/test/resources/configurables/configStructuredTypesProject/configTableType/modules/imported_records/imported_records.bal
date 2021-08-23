@@ -54,7 +54,7 @@ public function testTables() {
 
 public function testTableIteration() {
     util:testTableIterator(doctorTable);
-    // util:testTableIterator(studentTable);
+    util:testTableIterator(studentTable);
     util:testTableIterator(employeeTable);
     util:testTableIterator(employeeTable1);
     util:testTableIterator(officerTable);
