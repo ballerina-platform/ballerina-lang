@@ -347,7 +347,10 @@ public class AnnotationAttachmentTest {
     public void testAnnotsWithConstLists() {
         CompileResult result = BCompileUtil.compile("test-src/annotations/annots_with_list_consts.bal");
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>) result.getAST()
-                .getClassDefinitions().get(0).getAnnotationAttachments();
+                .getClassDefinitions().get(0).getAnnotationAttachments()
+                .stream()
+                .filter(ann -> !isServiceIntropAnnot((BLangAnnotationAttachment) ann))
+                .collect(Collectors.toList());
         Assert.assertEquals(attachments.size(), 1);
         BLangAnnotationAttachment attachment = attachments.get(0);
         BLangRecordLiteral recordLiteral = getMappingConstructor(attachment, "v1");
