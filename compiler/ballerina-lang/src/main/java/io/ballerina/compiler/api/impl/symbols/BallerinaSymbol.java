@@ -198,7 +198,7 @@ public class BallerinaSymbol implements Symbol {
         return loc1.get().lineRange().equals(loc2.get().lineRange());
     }
 
-    private String unescapedUnicode(String value) {
+    protected String unescapedUnicode(String value) {
         if (value.startsWith("'")) {
             return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
         }

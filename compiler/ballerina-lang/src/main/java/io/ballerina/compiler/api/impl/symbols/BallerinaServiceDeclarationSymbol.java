@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -248,13 +247,6 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
             return true;
         }
         return unescapedUnicode(name).equals(unescapedUnicode(symbolName));
-    }
-
-    private String unescapedUnicode(String value) {
-        if (value.startsWith("'")) {
-            return IdentifierUtils.unescapeUnicodeCodepoints(value.substring(1));
-        }
-        return IdentifierUtils.unescapeUnicodeCodepoints(value);
     }
 
     private boolean isSameLocation(Optional<Location> loc1, Optional<Location> loc2) {
