@@ -330,7 +330,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
 
-    private LoopState loopState = LoopState.OUTSIDE_LOOP;
     private final Stack<SymbolEnv> loopEnvs = new Stack<>();
     private final Stack<PotentiallyInvalidAssignmentInfo> potentiallyInvalidAssignmentInLoopsInfo = new Stack<>();
     private final Stack<BranchTerminationInfo> branchTerminationInfo = new Stack<>();
@@ -2353,8 +2352,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangForeach foreach) {
         SymbolEnv foreachEnv = SymbolEnv.createLoopEnv(foreach, env);
-        LoopState prevLoopState = this.loopState;
-        this.loopState = LoopState.IN_FOR_LOOP;
         this.loopEnvs.add(foreachEnv);
         this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                                                                                               env.enclInvokable));
@@ -2384,15 +2381,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeOnFailClause(foreach.onFailClause);
         this.errorTypes.pop();
 
-        this.loopState = prevLoopState;
         this.loopEnvs.pop();
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
         SymbolEnv whileEnv = SymbolEnv.createLoopEnv(whileNode, env);
-        LoopState prevLoopState = this.loopState;
-        this.loopState = LoopState.IN_WHILE_LOOP;
         this.loopEnvs.add(whileEnv);
         this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                                                                                               env.enclInvokable));
@@ -2420,7 +2414,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeOnFailClause(whileNode.onFailClause);
         this.errorTypes.pop();
 
-        this.loopState = prevLoopState;
         this.loopEnvs.pop();
     }
 
@@ -4828,7 +4821,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (this.loopState == LoopState.OUTSIDE_LOOP) {
+        if (this.loopCount == 0) {
             return;
         }
 
@@ -4891,7 +4884,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void handleAllBranchesTerminate(BLangStatement statement) {
-        if (this.loopState != LoopState.OUTSIDE_LOOP) {
+        if (this.loopCount != 0) {
             PotentiallyInvalidAssignmentInfo prevInfo = this.potentiallyInvalidAssignmentInLoopsInfo.peek();
 
             if (prevInfo.enclInvokable != env.enclInvokable) {
@@ -4938,13 +4931,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         RECORD_FIELD_DEFAULT,
         OBJECT_FIELD_INITIALIZER,
         FUNCTION_IN_DEFAULT_VALUE
-    }
-
-    // TODO: 2021-08-19 Check if we can do with just loopCount
-    private enum LoopState {
-        OUTSIDE_LOOP,
-        IN_WHILE_LOOP,
-        IN_FOR_LOOP
     }
 
     private static class PotentiallyInvalidAssignmentInfo {
