@@ -176,14 +176,14 @@ public class JClass {
             if (addField) {
                 JField jFieldGetter = new JField(field, BFunction.BFunctionKind.FIELD_GET, env, this);
                 fieldList.add(jFieldGetter);
+                if (modulesFlag) {
+                    importedPackages.add(field.getType().getPackageName());
+                }
                 if (jFieldGetter.requireJavaArrays()) {
                     importJavaArraysModule = true;
                 }
                 if (!isFinalField(field) && isPublicField(field)) {
                     fieldList.add(new JField(field, BFunction.BFunctionKind.FIELD_SET, env, this));
-                    if (modulesFlag) {
-                        importedPackages.add(field.getDeclaringClass().getPackageName());
-                    }
                 }
             }
         }
