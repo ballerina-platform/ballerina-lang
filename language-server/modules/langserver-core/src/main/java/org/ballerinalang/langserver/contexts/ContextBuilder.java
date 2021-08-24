@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.List;
 
@@ -62,9 +63,9 @@ public class ContextBuilder {
      * @param serverContext    language server context
      * @return {@link DocumentServiceContext} base context generated
      */
-    public static DocumentServiceContext buildBaseContext(String uri, WorkspaceManager workspaceManager,
-                                                          LSContextOperation operation,
-                                                          LanguageServerContext serverContext) {
+    public static DocumentServiceContext buildDocumentServiceContext(String uri, WorkspaceManager workspaceManager,
+                                                                     LSContextOperation operation,
+                                                                     LanguageServerContext serverContext) {
         return new BaseContextImpl.BaseContextBuilder(operation, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
@@ -187,10 +188,12 @@ public class ContextBuilder {
     public static CodeActionContext buildCodeActionContext(String uri,
                                                            WorkspaceManager workspaceManager,
                                                            LanguageServerContext serverContext,
-                                                           CodeActionParams params) {
+                                                           CodeActionParams params,
+                                                           CancelChecker cancelChecker) {
         return new CodeActionContextImpl.CodeActionContextBuilder(params, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 

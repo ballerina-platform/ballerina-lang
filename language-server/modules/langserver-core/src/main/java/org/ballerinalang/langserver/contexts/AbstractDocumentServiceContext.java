@@ -255,6 +255,11 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         }
     }
 
+    @Override
+    public Optional<CancelChecker> getCancelChecker() {
+        return Optional.ofNullable(this.cancelChecker);
+    }
+
     /**
      * Represents Language server context Builder.
      *
@@ -266,6 +271,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         protected final LanguageServerContext serverContext;
         protected String fileUri;
         protected WorkspaceManager wsManager;
+        protected CancelChecker cancelChecker;
 
         /**
          * Context Builder constructor.
@@ -285,6 +291,11 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
         public T withWorkspaceManager(WorkspaceManager workspaceManager) {
             this.wsManager = workspaceManager;
+            return self();
+        }
+
+        public T withCancelChecker(CancelChecker cancelChecker) {
+            this.cancelChecker = cancelChecker;
             return self();
         }
 

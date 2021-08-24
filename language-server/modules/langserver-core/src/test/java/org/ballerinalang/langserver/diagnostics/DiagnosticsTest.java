@@ -104,7 +104,7 @@ public class DiagnosticsTest {
 
     String getResponse(JsonObject configJsonObject) throws IOException, WorkspaceDocumentException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        DocumentServiceContext serviceContext = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
+        DocumentServiceContext serviceContext = ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
                                                                                 this.workspaceManager,
                                                                                 LSContextOperation.TXT_DID_OPEN,
                                                                                 this.serverContext);

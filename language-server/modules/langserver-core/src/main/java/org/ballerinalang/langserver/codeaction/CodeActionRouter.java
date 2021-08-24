@@ -60,10 +60,10 @@ public class CodeActionRouter {
                 = CodeActionProvidersHolder.getInstance(ctx.languageServercontext());
 
         // Get available node-type based code-actions
-        SyntaxTree syntaxTree = ctx.workspace().syntaxTree(ctx.filePath()).orElseThrow();
+        SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
         Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(ctx.cursorPosition(), syntaxTree);
         CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(topLevelNode.orElse(null));
-        SemanticModel semanticModel = ctx.workspace().semanticModel(ctx.filePath()).orElseThrow();
+        SemanticModel semanticModel = ctx.currentSemanticModel().orElseThrow();
         if (topLevelNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
             Range range = CommonUtil.toRange(topLevelNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(topLevelNode.get(), range);
@@ -75,6 +75,10 @@ public class CodeActionRouter {
                                                                                     matchedTypeSymbol);
             codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType, ctx).forEach(provider -> {
                 try {
+                    // Check whether the code action request has been cancelled
+                    // in order to avoid unnecessary calculations
+                    ctx.checkCancelled();
+                    
                     List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx, posDetails);
                     if (codeActionsOut != null) {
                         codeActionsOut.forEach(codeAction -> 
@@ -96,6 +100,10 @@ public class CodeActionRouter {
                     DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
                     codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx).forEach(provider -> {
                         try {
+                            // Check whether the code action request has been cancelled
+                            // in order to avoid unnecessary calculations
+                            ctx.checkCancelled();
+                            
                             List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
                                                                                                positionDetails, ctx);
                             if (codeActionsOut != null) {

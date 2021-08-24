@@ -294,11 +294,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<Either<Command, CodeAction>>> codeAction(CodeActionParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
             try {
                 CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri, workspaceManager,
-                        this.serverContext, params);
+                        this.serverContext, params, cancelChecker);
                 return LangExtensionDelegator.instance().codeActions(params, context, this.serverContext).stream()
                         .map((Function<CodeAction, Either<Command, CodeAction>>) Either::forRight)
                         .collect(Collectors.toList());
@@ -333,7 +333,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return new ArrayList<>();
             }
 
-            DocumentServiceContext codeLensContext = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext codeLensContext = ContextBuilder.buildDocumentServiceContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_CODE_LENS, this.serverContext);
 
@@ -490,7 +490,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didOpen(DidOpenTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri, this.workspaceManager,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri, this.workspaceManager,
                     LSContextOperation.TXT_DID_OPEN, this.serverContext);
             this.workspaceManager.didOpen(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
@@ -510,7 +510,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         try {
             // Update content
-            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CHANGE,
                     this.serverContext);
@@ -532,7 +532,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public void didClose(DidCloseTextDocumentParams params) {
         String fileUri = params.getTextDocument().getUri();
         try {
-            DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
                     this.workspaceManager,
                     LSContextOperation.TXT_DID_CLOSE,
                     this.serverContext);
