@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public type Error distinct error;
+
 public client class HttpClient {
 
     public string url;
@@ -30,4 +32,37 @@ public client class HttpClient {
         return "Not an error";
     }
 
+    remote function get_stream(string path) returns stream<AttributeDAO, Error?> {
+        stream<AttributeDAO, Error?> attributeDAOStream = new (new DAOStreamImplementor());
+        return attributeDAOStream;
+    }
 }
+
+class DAOStreamImplementor {
+    private int index = 0;
+
+    private AttributeDAO[] currentEntries = [{
+        id: "xxx-yyy-zzz",
+        name: "org name",
+        description: "Org name attribute",
+        created_at: 1627639797660
+    }];
+
+    isolated function init() {
+    }
+
+    public isolated function next() returns record {|AttributeDAO value;|}|Error? {
+        if (self.index < self.currentEntries.length()) {
+            record {|AttributeDAO value;|} attributeDAO = {value: self.currentEntries[self.index]};
+            self.index += 1;
+            return attributeDAO;
+        }
+    }
+}
+
+public type AttributeDAO record {|
+    string id?;
+    string name;
+    string description;
+    int created_at?;
+|};
