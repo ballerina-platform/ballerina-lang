@@ -15,7 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.typeops;
 
-public interface SemType {
+// todo: use this to place common things between Ro and RW
+// if there are non; delete this.
+public abstract class MappingCommonOps extends CommonOps {
+
 }

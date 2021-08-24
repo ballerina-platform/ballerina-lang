@@ -17,5 +17,23 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Env {
+    private final HashMap<AtomicType, Atom> atomTable;
+    private final ArrayList<ListAtomicType> recListAtoms;
+    private final ArrayList<MappingAtomicType> recMappingAtoms;
+    private final ArrayList<FunctionAtomicType> recFunctionAtoms;
+
+    public Env() {
+        this.atomTable = new HashMap<>();
+        this.recListAtoms = new ArrayList<>();
+
+        this.recMappingAtoms = new ArrayList<>();
+
+        this.recFunctionAtoms = new ArrayList<>();
+    }
+
+
 }

@@ -17,5 +17,16 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+import java.util.ArrayList;
+
+public class ListAtomicType implements AtomicType {
+    final ArrayList<SemType> members;
+    final SemType rest;
+
+    public static final ListAtomicType LIST_SUBTYPE_RO = new ListAtomicType(new ArrayList<>(), PredefinedType.READONLY);
+
+    public ListAtomicType(ArrayList<SemType> members, SemType rest) {
+        this.members = members;
+        this.rest = rest;
+    }
 }

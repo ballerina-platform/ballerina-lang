@@ -17,5 +17,6 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+public interface Definition {
+    SemType getSemType(Env env);
 }

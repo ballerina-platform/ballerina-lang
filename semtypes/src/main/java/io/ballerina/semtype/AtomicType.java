@@ -17,5 +17,5 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+public interface AtomicType {
 }

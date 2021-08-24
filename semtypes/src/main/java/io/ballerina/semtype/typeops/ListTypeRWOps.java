@@ -15,7 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.typeops;
 
-public interface SemType {
+import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.TypeCheckContext;
+
+public class ListTypeRWOps extends CommonOps {
+    @Override
+    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+        throw new AssertionError();
+    }
 }

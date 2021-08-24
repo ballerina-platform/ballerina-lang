@@ -17,5 +17,12 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+public class BddMemo {
+    Bdd bddNode;
+    MemoStatus isEmpty;
+
+
+    enum MemoStatus {
+        NOT_SET, TRUE, FALSE;
+    }
 }

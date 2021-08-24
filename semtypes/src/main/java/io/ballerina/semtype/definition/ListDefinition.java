@@ -15,7 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.definition;
 
-public interface SemType {
+import io.ballerina.semtype.Definition;
+import io.ballerina.semtype.Env;
+import io.ballerina.semtype.SemType;
+
+public class ListDefinition implements Definition {
+    @Override
+    public SemType getSemType(Env env) {
+        throw new AssertionError();
+    }
 }

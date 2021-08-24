@@ -15,7 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.subtypedata;
 
-public interface SemType {
+import io.ballerina.semtype.SubtypeData;
+
+public class AllOrNothingSubtype implements SubtypeData {
+    private final boolean isAll;
+
+    private AllOrNothingSubtype(boolean isAll) {
+        this.isAll = isAll;
+    }
+
+    public static AllOrNothingSubtype createAll() {
+        return new AllOrNothingSubtype(true);
+    }
+
+    public static AllOrNothingSubtype createNothing() {
+        return new AllOrNothingSubtype(false);
+    }
+
+    public boolean isAllSubtype() {
+        return this.isAll;
+    }
+
+    public boolean isNothingSubtype() {
+        return !this.isAll;
+    }
 }

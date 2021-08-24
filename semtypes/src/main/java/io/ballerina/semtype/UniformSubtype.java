@@ -17,5 +17,12 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+public class UniformSubtype {
+    public final long uniformTypeCode;
+    public final SubtypeData subtypeData;
+
+    public UniformSubtype(long uniformTypeCode, SubtypeData subtypeData) {
+        this.uniformTypeCode = uniformTypeCode;
+        this.subtypeData = subtypeData;
+    }
 }

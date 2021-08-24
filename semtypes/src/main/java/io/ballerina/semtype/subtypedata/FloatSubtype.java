@@ -15,7 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.subtypedata;
 
-public interface SemType {
+import io.ballerina.semtype.ProperSubtypeData;
+
+public class FloatSubtype implements ProperSubtypeData {
+
 }

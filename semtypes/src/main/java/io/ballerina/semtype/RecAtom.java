@@ -17,5 +17,14 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+public class RecAtom implements Atom {
+    long index;
+
+    public RecAtom(int index) {
+        this.index = index;
+    }
+
+    public static RecAtom createRecAtom(int index) {
+        return new RecAtom(index);
+    }
 }

@@ -17,5 +17,33 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+/**
+ * SemType Interface.
+ */
+public interface SemTypeMock {
+
+}
+
+/**
+ * Complex SemType implementation.
+ */
+class ComplexSemTypeMock implements SemTypeMock {
+    UniformTypeBitSet all;
+    UniformTypeBitSet some;
+
+}
+
+/**
+ * UniformTypeBitSet SemType implementation.
+ */
+class UniformTypeBitSetMock implements SemTypeMock {
+    int value;
+
+    public UniformTypeBitSetMock(int value) {
+        this.value = value;
+    }
+
+    public int getValue() {
+        return value;
+    }
 }

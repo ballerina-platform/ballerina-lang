@@ -17,5 +17,7 @@
  */
 package io.ballerina.semtype;
 
-public interface SemType {
+public class FunctionAtomicType {
+    SemType paramType;
+    SemType retType;
 }

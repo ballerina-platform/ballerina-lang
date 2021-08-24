@@ -30,9 +30,9 @@ public class SemTypeTest {
 
     @Test
     public void testSemType() {
-        SemType s1 = new UniformTypeBitSet(0x00);
-        SemType s2 = new ComplexSemType();
-        Assert.assertTrue(s1 instanceof UniformTypeBitSet);
-        Assert.assertTrue(s2 instanceof ComplexSemType);
+        SemTypeMock s1 = new UniformTypeBitSetMock(0x00);
+        SemTypeMock s2 = new ComplexSemTypeMock();
+        Assert.assertTrue(s1 instanceof UniformTypeBitSetMock);
+        Assert.assertTrue(s2 instanceof ComplexSemTypeMock);
     }
 }
