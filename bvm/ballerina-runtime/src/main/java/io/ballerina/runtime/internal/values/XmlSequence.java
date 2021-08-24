@@ -661,7 +661,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (iteratorNextReturnType == null) {
             initializeIteratorNextReturnType();
         }
-
         return iteratorNextReturnType;
     }
 }
