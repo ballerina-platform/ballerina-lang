@@ -146,16 +146,15 @@ public class BFiniteType extends BType implements FiniteType {
         }
         StringJoiner joiner = new StringJoiner("|");
         for (Object value : this.valueSpace) {
-            String valueString = value.toString();
             switch (getType(value).getTag()) {
                 case TypeTags.FLOAT_TAG:
-                    joiner.add(valueString + "f");
+                    joiner.add(value + "f");
                     break;
                 case TypeTags.DECIMAL_TAG:
-                    joiner.add(valueString + "d");
+                    joiner.add(value + "d");
                     break;
                 default:
-                    joiner.add(valueString);
+                    joiner.add(value.toString());
             }
         }
         return valueSpace.size() == 1 ? joiner.toString() : "(" + joiner + ")";
