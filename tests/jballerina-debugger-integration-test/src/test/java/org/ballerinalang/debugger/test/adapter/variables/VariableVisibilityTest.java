@@ -169,13 +169,13 @@ public class VariableVisibilityTest extends BaseTestCase {
         globalVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
 
         // global variable visibility test outside main() method.
-        Assert.assertEquals(globalVariables.size(), 16);
+        Assert.assertEquals(globalVariables.size(), 14);
 
         // global variable visibility at the last line of the main() method.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         globalVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
-        Assert.assertEquals(globalVariables.size(), 16);
+        Assert.assertEquals(globalVariables.size(), 14);
 
         // global constants
         debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "\"Ballerina\"", "string");

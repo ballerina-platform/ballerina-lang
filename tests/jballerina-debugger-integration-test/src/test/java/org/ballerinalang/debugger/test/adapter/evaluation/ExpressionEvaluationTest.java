@@ -722,7 +722,39 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void queryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // Query expression evaluation
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "        where student.score >= 2.0" +
+                        "        let string degreeName = \"Bachelor of Medicine\", " +
+                        "        int expectedGradYear = calGraduationYear(student.intakeYear)" +
+                        "        order by student.firstName descending" +
+                        "        limit 2" +
+                        "        select {" +
+                        "            name: student.firstName + \" \" + student.lastName," +
+                        "            degree: degreeName," +
+                        "            expectedGradYear: expectedGradYear" +
+                        "        };",
+                "map[2]", "array");
+
+        // Query stream evaluation
+        debugTestRunner.assertExpression(context, "stream from var student in studentList" +
+                        "        where student.score >= 2.0" +
+                        "        let string degreeName = \"Bachelor of Medicine\", " +
+                        "        int graduationYear = calGraduationYear(student.intakeYear)" +
+                        "        order by student.firstName descending" +
+                        "        limit 2" +
+                        "        select {" +
+                        "            name: student.firstName + \" \" + student.lastName," +
+                        "                    degree: degreeName," +
+                        "                    graduationYear: graduationYear" +
+                        "        };",
+                "stream<map>", "stream");
+
+        // String from query evaluation
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "        where student.score >= 2.0" +
+                        "        select student.firstName + \" \" + student.lastName",
+                "string[2]", "array");
     }
 
     @Override

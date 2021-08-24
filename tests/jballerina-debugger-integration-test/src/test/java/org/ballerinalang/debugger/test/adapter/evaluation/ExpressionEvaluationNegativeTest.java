@@ -368,7 +368,32 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void queryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // undefined variable
+        debugTestRunner.assertEvaluationError(context, "from var student in undefinedList" +
+                "        where student.score >= 2.0" +
+                "        let string degreeName = \"Bachelor of Medicine\", " +
+                "        int expectedGradYear = calGraduationYear(student.intakeYear)" +
+                "        order by student.firstName descending" +
+                "        limit 2" +
+                "        select {" +
+                "            name: student.firstName + \" \" + student.lastName," +
+                "            degree: degreeName," +
+                "            expectedGradYear: expectedGradYear" +
+                "        };", String.format(EvaluationExceptionKind
+                .VARIABLE_NOT_FOUND.getString(), "undefinedList"));
+
+        debugTestRunner.assertEvaluationError(context, "from var student in undefinedList" +
+                "        where student.score >= 2.0" +
+                "        let string degreeName = \"Bachelor of Medicine\", " +
+                "        int expectedGradYear = calGraduationYear(student.intakeYear)" +
+                "        order by student.firstName descending" +
+                "        limit 2" +
+                "        select {" +
+                "            name: student.firstName + \" \" + student.lastName," +
+                "            degree: degreeName," +
+                "            expectedGradYear: expectedGradYear" +
+                "        };", String.format(EvaluationExceptionKind
+                .VARIABLE_NOT_FOUND.getString(), "undefinedList"));
     }
 
     @Override
@@ -435,7 +460,7 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     public void remoteCallActionEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertEvaluationError(context, String.format("%s->undefinedFunction()", CLIENT_OBJECT_VAR),
                 String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(), "undefinedFunction",
-                        "Student"));
+                        "Child"));
     }
 
     @AfterClass(alwaysRun = true)

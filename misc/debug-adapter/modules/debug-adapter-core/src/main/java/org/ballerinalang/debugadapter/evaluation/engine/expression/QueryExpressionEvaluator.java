@@ -88,6 +88,8 @@ public class QueryExpressionEvaluator extends Evaluator {
             // evaluation.
             queryProcessor.dispose();
             return new BExpressionValue(context, queryResult);
+        } catch (EvaluationException e) {
+            throw e;
         } catch (Exception e) {
             throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
