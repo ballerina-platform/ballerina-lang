@@ -268,6 +268,8 @@ public class IfElseStmtTest {
                 "incompatible types: expected 'boolean', found '[int,string]'", 41, 8);
         BAssertUtil.validateError(semanticsNegativeResult, i++, "operator '+' not defined for '(int|string)' and 'int'",
                 52, 17);
+        BAssertUtil.validateError(semanticsNegativeResult, i++,
+                                  "incompatible types: expected 'int', found '(int|string)'", 57, 17);
         BAssertUtil.validateError(semanticsNegativeResult, i++, "incompatible types: expected 'string', " +
                         "found '(int|string)'", 59, 20);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), i);

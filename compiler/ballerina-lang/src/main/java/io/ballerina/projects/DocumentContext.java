@@ -40,8 +40,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
-
 /**
  * Maintains the internal state of a {@code Document} instance.
  * <p>
@@ -136,11 +134,10 @@ class DocumentContext {
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
                !currentModuleId.moduleName().equals(Names.TRANSACTION.value)) {
-            PackageName packageName = PackageName.from(Names.TRANSACTION.value);
-            ModuleLoadRequest ballerinaiLoadReq =
-                    new ModuleLoadRequest(PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
-                                          packageName, ModuleName.from(packageName), null, scope,
-                                          DependencyResolutionType.INJECTED);
+            String moduleName = Names.TRANSACTION.value;
+            ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
+                    PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
+                    moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
 
@@ -154,38 +151,17 @@ class DocumentContext {
                 .map(orgNameNode -> PackageOrg.from(orgNameNode.orgName().text()))
                 .orElse(null);
 
-        // Compute package name
-        PackageName packageName;
-        // Index in identifierTokenList from which the moduleNamePart starts
-        int moduleNamePartStartIndex;
-        SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
-        String firstModuleNamePart = handleQuotedIdentifier(identifierTokenList.get(0).text());
-
-        // Check for langLib packages
-        String langLibModulePrefix = PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + MODULE_NAME_SEPARATOR;
-        if (PackageOrg.BALLERINA_ORG.equals(orgName) && langLibModulePrefix.equals(firstModuleNamePart)) {
-            // This a request to load a lang lib package
-            // Lang lib package names take the form lang.{identifier}
-            //  e.g, lang.int, lang.boolean lang.stream
-            String secondModuleNamePart = handleQuotedIdentifier(identifierTokenList.get(1).text());
-            packageName = PackageName.from(firstModuleNamePart + "." + secondModuleNamePart);
-            moduleNamePartStartIndex = 2;
-        } else {
-            packageName = PackageName.from(firstModuleNamePart);
-            moduleNamePartStartIndex = 1;
-        }
-
         // Compute the module name
+        SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
         StringJoiner stringJoiner = new StringJoiner(".");
-        for (int i = moduleNamePartStartIndex; i < identifierTokenList.size(); i++) {
+        for (int i = 0; i < identifierTokenList.size(); i++) {
             stringJoiner.add(handleQuotedIdentifier(identifierTokenList.get(i).text()));
         }
-        String moduleNamePart = stringJoiner.toString();
-        ModuleName moduleName = ModuleName.from(packageName, moduleNamePart.isEmpty() ? null : moduleNamePart);
+        String moduleName = stringJoiner.toString();
 
         // Create the module load request
-        return new ModuleLoadRequest(orgName, packageName, moduleName, null, scope, DependencyResolutionType.SOURCE,
-                                     importDcl.location());
+        return new ModuleLoadRequest(orgName, moduleName, scope, DependencyResolutionType.SOURCE,
+                importDcl.location());
     }
 
     private String handleQuotedIdentifier(String identifier) {

@@ -581,7 +581,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
         return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
-                endLinePos.offset() - 1, endLinePos.offset());
+                endLinePos.offset() - 1, endLinePos.offset(),
+                pos.textRange().startOffset() + pos.textRange().length() - 1, 1);
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -4060,6 +4061,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // Check whether the condition is always true. If the variable type is assignable to target type,
         // then type check will always evaluate to true.
         if (types.isAssignable(typeTestExpr.expr.getBType(), typeTestExpr.typeNode.getBType())) {
+            if (typeTestExpr.isNegation) {
+                dlog.hint(typeTestExpr.pos, DiagnosticHintCode.EXPRESSION_ALWAYS_FALSE);
+                return;
+            }
             dlog.hint(typeTestExpr.pos, DiagnosticHintCode.UNNECESSARY_CONDITION);
             return;
         }
@@ -4087,7 +4092,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         BType expressionType = expression.getBType();
 
         BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext(),
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(),
                 expressionType, testType, env);
 
         if (intersectionType != symTable.semanticError) {

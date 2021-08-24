@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 /**
  * Test parsing optional type.
  */
-
 public class OptionalTypeTest extends AbstractTypesTest {
 
     //Valid source test

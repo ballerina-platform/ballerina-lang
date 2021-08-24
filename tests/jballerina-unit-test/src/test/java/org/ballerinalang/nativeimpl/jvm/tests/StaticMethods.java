@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -531,13 +532,13 @@ public class StaticMethods {
     public static BString getCurrentModule(Environment env, long b) {
         Module callerModule = env.getCurrentModule();
         return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
-                                              callerModule.getVersion() + "#" + b);
+                                              callerModule.getMajorVersion() + "#" + b);
     }
 
     public static BString getCurrentModuleForObject(Environment env, ObjectValue a, long b) {
         Module callerModule = env.getCurrentModule();
         return StringUtils.fromString(callerModule.getOrg() + "#" + callerModule.getName() + "#" +
-                                              callerModule.getVersion() + "#" +
+                                              callerModule.getMajorVersion() + "#" +
                                               a.get(StringUtils.fromString("age")) + "#" + b);
     }
 
@@ -691,5 +692,18 @@ public class StaticMethods {
         }
     }
 
+    public static void errorStacktraceTest() {
+        foo();
+    }
 
+    static void foo() {
+        bar();
+    }
+
+    static void bar() {
+        List<Integer> integers = Arrays.asList(0);
+        integers.forEach(i -> {
+            throw ErrorCreator.createError(StringUtils.fromString("error!!!"));
+        });
+    }
 }

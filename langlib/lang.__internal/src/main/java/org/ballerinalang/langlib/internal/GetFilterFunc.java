@@ -35,8 +35,8 @@ public class GetFilterFunc {
     public static BFunctionPointer getFilterFunc(Object obj) {
         BFunctionPointer bFunctionPointer = (BFunctionPointer) obj;
         FunctionType functionType = (FunctionType) bFunctionPointer.getType();
-        functionType.getParameterTypes()[0] = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_ANY,
-                                                                                  PredefinedTypes.TYPE_ERROR), 0);
+        functionType.getParameters()[0].type = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_ANY,
+                PredefinedTypes.TYPE_ERROR), 0);
         return bFunctionPointer;
     }
 }
