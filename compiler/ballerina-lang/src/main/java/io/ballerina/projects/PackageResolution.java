@@ -154,8 +154,13 @@ public class PackageResolution {
     }
 
     private boolean getSticky(PackageContext rootPackageContext) {
-        if (!rootPackageContext.project().buildOptions().sticky()) {
-            // set sticky if `build` file exists and `last_update_time` not passed 24 hours
+        boolean sticky = rootPackageContext.project().buildOptions().sticky();
+        if (sticky) {
+            this.autoUpdate = false;
+            return true;
+        }
+        // set sticky if `build` file exists and `last_update_time` not passed 24 hours
+        if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
             Path buildFilePath = this.rootPackageContext.project().sourceRoot().resolve(TARGET_DIR_NAME)
                     .resolve(BUILD_FILE);
             if (buildFilePath.toFile().exists()) {
@@ -167,10 +172,9 @@ public class PackageResolution {
             }
             this.autoUpdate = true;
             return false;
-        } else {
-            this.autoUpdate = false;
-            return true;
         }
+        this.autoUpdate = true;
+        return false;
     }
 
     /**
