@@ -65,24 +65,8 @@ public class SyntaxTree {
                 newTextDocument, oldTree.filePath(), false);
     }
 
-    public static SyntaxTree asTopLevel(TextDocument textDocument) {
-        return from(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
-    }
-
-    public static SyntaxTree asStatement(TextDocument textDocument) {
-        return from(ParserRuleContext.STATEMENT, textDocument);
-    }
-
-    public static SyntaxTree asStatements(TextDocument textDocument) {
-        return from(ParserRuleContext.STATEMENTS, textDocument);
-    }
-
-    public static SyntaxTree asExpression(TextDocument textDocument) {
-        return from(ParserRuleContext.EXPRESSION, textDocument);
-    }
-
-    private static SyntaxTree from(ParserRuleContext context, TextDocument textDocument) {
-        // TODO: Remove other APIs such as asStatement(), once ParserRuleContext is exposed to outside.
+    // TODO: add doc
+    public static SyntaxTree from(ParserRuleContext context, TextDocument textDocument) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
         return new SyntaxTree(parser.parse(context).createUnlinkedFacade(),
                 textDocument, null, false);

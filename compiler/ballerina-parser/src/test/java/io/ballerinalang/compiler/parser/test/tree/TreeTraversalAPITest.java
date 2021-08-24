@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
@@ -268,7 +269,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     }
 
     @Test
-    public void testAsTopLevelAPI() {
+    public void testAsTopLevelAPI() { // TODO: fix test names
         String text =
                 "type Student record {\n" +
                 "    string name;\n" +
@@ -276,7 +277,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
                 "};";
 
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.asTopLevel(textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
         Node rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.TYPE_DEFINITION);
@@ -290,7 +291,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
                 "}";
 
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.asStatement(textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENT, textDocument);
         Node rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.WHILE_STATEMENT);
@@ -306,7 +307,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
                 "a = 20;";
 
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.asStatements(textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
         NonTerminalNode rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.LIST);
@@ -322,7 +323,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     public void testAsExpressionAPI() {
         String text = "3 is int";
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.asExpression(textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSION, textDocument);
         Node rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.TYPE_TEST_EXPRESSION);
