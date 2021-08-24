@@ -221,7 +221,8 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getInternalSymbol().getName().getValue(), this.getModule().orElse(null),
+        return Objects.hash(this.getInternalSymbol().getName().getValue(),
+                this.getModule().orElse(null),
                 this.getLocation().map(Location::lineRange).orElse(null));
     }
 
