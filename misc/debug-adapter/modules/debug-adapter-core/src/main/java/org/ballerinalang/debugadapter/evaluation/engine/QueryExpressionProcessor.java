@@ -31,6 +31,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -145,7 +146,14 @@ public class QueryExpressionProcessor {
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             if (pkgCompilation.diagnosticResult().hasErrors()) {
-                throw createEvaluationException("compilation failed while creating executables for query evaluation");
+                StringJoiner errors = new StringJoiner(System.lineSeparator());
+                errors.add("compilation failed while creating executables for the query evaluation: ");
+                pkgCompilation.diagnosticResult().errors().forEach(error -> {
+                    if (error.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                        errors.add(error.message());
+                    }
+                });
+                throw createEvaluationException(errors.toString());
             }
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);

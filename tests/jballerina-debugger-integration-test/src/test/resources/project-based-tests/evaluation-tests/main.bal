@@ -16,6 +16,20 @@
 
 import ballerina/lang.'int;
 
+type Customer record {|
+    readonly int id;
+    readonly string name;
+    int noOfItems;
+|};
+
+type CustomerTable table<Customer> key(id, name);
+
+type CustomerKeyLessTable table<Customer>;
+
+type CustomerValue record {|
+    Customer value;
+|};
+
 type Student record {
     string firstName;
     string lastName;
@@ -270,6 +284,13 @@ public function main() {
     Student s3 = {firstName: "Michelle", lastName: "Guthrie", intakeYear: 2002, score: 3.7};
     Student s4 = {firstName: "George", lastName: "Fernando", intakeYear: 2005, score: 4.0};
     Student[] studentList = [s1, s2, s3];
+
+    error onConflictError = error("Key Conflict", message = "cannot insert.");
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    Customer[] customerList = [c1, c2, c3];
+    Customer[] conflictedCustomerList = [c1, c2, c1];
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
