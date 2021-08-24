@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.semType;
+package org.ballerina.semtype;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

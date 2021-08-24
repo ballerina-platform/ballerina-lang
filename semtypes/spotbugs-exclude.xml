@@ -18,6 +18,6 @@
 
 <FindBugsFilter>
     <Match>
-        <Package name="org.ballerina.semType"/>
+        <Package name="org.ballerina.semtype"/>
     </Match>
 </FindBugsFilter>
