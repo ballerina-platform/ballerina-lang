@@ -134,3 +134,42 @@ function testElvisNestedTupleTypeCaseThree() returns [string, int] {
     var rT = xT ?: (x2T ?: dT);
     return rT;
 }
+
+function testElvisAsArgumentPositive() {
+    string[] filters = [];
+    string? mergable1 = ();
+    string s1 = mergable1 ?: "";
+    filters.push(s1);
+    filters.push(mergable1 ?: "");
+
+    string? mergable2 = "str";
+    string s2 = mergable2 ?: "";
+    filters.push(s2);
+    filters.push(mergable2 ?: "");
+
+    byte[] a = [];
+    byte? b = ();
+    a.push(b ?: 255);
+    a.push(b ?: 0);
+
+    assertEquals(filters[0], "");
+    assertEquals(filters[2], "str");
+    assertEquals(filters[0], filters[1]);
+    assertEquals(filters[2], filters[3]);
+    assertEquals(a[0], 255);
+    assertEquals(a[1], 0);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}

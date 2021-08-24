@@ -93,7 +93,7 @@ public class BindgenUnitTest {
     }
 
     @Test(description = "Test the bindings generated for a module level mapping.")
-    public void moduleLevelMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+    public void moduleLevelMapping1() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         BindgenEnv moduleBindgenEnv = new BindgenEnv();
         moduleBindgenEnv.setDirectJavaClass(true);
         moduleBindgenEnv.setModulesFlag(true);
@@ -101,10 +101,27 @@ public class BindgenUnitTest {
         moduleBindgenEnv.setPublicFlag(true);
         BindgenFileGenerator moduleBindingsGenerator = new BindgenFileGenerator(moduleBindgenEnv);
 
-        Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping.bal");
+        Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping1.bal");
         String moduleMappingValue = Files.readString(resourceDirectory.resolve(moduleMappingPath));
         SyntaxTree moduleSyntaxTree = moduleBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
                 .loadClass("java.io.FileInputStream"), moduleBindgenEnv));
+        Assert.assertEquals(Formatter.format(moduleSyntaxTree.toSourceCode()), Formatter.format(moduleMappingValue));
+        Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
+    }
+
+    @Test(description = "Test the bindings generated for a module level mapping.")
+    public void moduleLevelMapping2() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+        BindgenEnv moduleBindgenEnv = new BindgenEnv();
+        moduleBindgenEnv.setDirectJavaClass(true);
+        moduleBindgenEnv.setModulesFlag(true);
+        moduleBindgenEnv.setPackageName("test");
+        moduleBindgenEnv.setPublicFlag(true);
+        BindgenFileGenerator moduleBindingsGenerator = new BindgenFileGenerator(moduleBindgenEnv);
+
+        Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping2.bal");
+        String moduleMappingValue = Files.readString(resourceDirectory.resolve(moduleMappingPath));
+        SyntaxTree moduleSyntaxTree = moduleBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                  .loadClass("org.ballerinalang.bindgen.ModuleMappingTest"), moduleBindgenEnv));
         Assert.assertEquals(Formatter.format(moduleSyntaxTree.toSourceCode()), Formatter.format(moduleMappingValue));
         Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
     }

@@ -35,6 +35,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.methodgen" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
     </Match>
     <Match>
@@ -310,6 +313,11 @@
     <Match>
         <Class name="io.ballerina.projects.internal.BalaFiles"/>
         <Method name="readPackageJson"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.BalaFiles"/>
+        <Method name="createDependencyManifestFromBalaFile"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>

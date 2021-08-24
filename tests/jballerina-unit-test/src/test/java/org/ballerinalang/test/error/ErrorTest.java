@@ -405,14 +405,42 @@ public class ErrorTest {
                 "cause: error2\n" +
                 "\tat error_test:baz(error_test.bal:479)\n" +
                 "\t   error_test:x(error_test.bal:475)\n" +
-                "\t   error_test:foo(error_test.bal:470)\n" +
-                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "\t   ... 2 more\n" +
                 "cause: error3\n" +
                 "\tat error_test:foobar(error_test.bal:484)\n" +
-                "\t   error_test:baz(error_test.bal:479)\n" +
-                "\t   error_test:x(error_test.bal:475)\n" +
-                "\t   error_test:foo(error_test.bal:470)\n" +
-                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)");
+                "\t   ... 4 more");
+    }
+
+    @Test
+    public void testStacktraceWithPanicInsideInitMethod() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideInitMethod");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error\n" +
+                "\tat Person:init(error_test.bal:495)\n" +
+                "\t   error_test:testStacktraceWithPanicInsideInitMethod(error_test.bal:500)");
+    }
+
+    @Test
+    public void testStacktraceWithPanicInsideAnonymousFunction() {
+        Exception expectedException = null;
+        try {
+            BRunUtil.invoke(errorTestResult, "testStacktraceWithPanicInsideAnonymousFunction");
+        } catch (Exception e) {
+            expectedException = e;
+        }
+
+        Assert.assertNotNull(expectedException);
+        String message = expectedException.getMessage();
+        Assert.assertEquals(message, "error: error!!!\n" +
+                "\tat error_test:$lambda$_2(error_test.bal:506)\n" +
+                "\t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:509)");
     }
 
     @AfterClass

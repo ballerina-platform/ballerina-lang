@@ -432,3 +432,46 @@ function testMapBindingPatternsAnyType() {
     var x = from var {k} in keyValsMap
                  select k;
 }
+
+type User record {
+    readonly int id;
+    readonly string firstName;
+    string lastName;
+    int age;
+};
+
+function testInvalidTypeInSelectWithQueryConstructingTable() {
+    User u1 = {id: 1, firstName: "John", lastName: "Doe", age: 25};
+    User u2 = {id: 2, firstName: "Anne", lastName: "Frank", age: 30};
+
+    table<User> key(id) users = table [];
+    users.add(u1);
+    users.add(u2);
+
+    var result = table key(id) from var user in users
+                 where user.age > 21 && user.age < 60
+                 select {user};
+
+    User[] userList = [u1, u2];
+    result = table key(id) from var user in userList
+             where user.age > 21 && user.age < 60
+             select {user};
+}
+
+function testInvalidTypeInSelectWithQueryConstructingTable2() {
+    User u1 = {id: 1, firstName: "John", lastName: "Doe", age: 25};
+    User u2 = {id: 2, firstName: "Anne", lastName: "Frank", age: 30};
+
+    table<User> key(id) users = table [];
+    users.add(u1);
+    users.add(u2);
+
+    var result = table key(id, firstName) from var user in users
+                 where user.age > 21 && user.age < 60
+                 select {user};
+
+    User[] userList = [u1, u2];
+    result = table key(id, firstName) from var user in userList
+             where user.age > 21 && user.age < 60
+             select {user};
+}
