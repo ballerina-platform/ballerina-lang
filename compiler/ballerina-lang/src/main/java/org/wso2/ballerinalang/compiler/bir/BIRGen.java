@@ -220,7 +220,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     // Required variables to generate code for assignment statements
     private boolean varAssignment = false;
-    private Map<BTypeSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
+    private Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BlockNode currentBlock;
     private Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
     // This is a global variable cache
@@ -426,7 +426,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRTypeDefinition typeDef = new BIRTypeDefinition(astTypeDefinition.pos,
                                                           astTypeDefinition.symbol.name,
                                                           astTypeDefinition.symbol.flags,
-                                                          astTypeDefinition.symbol.isLabel,
+                                                          false,
                                                           astTypeDefinition.isBuiltinTypeDef,
                                                           type,
                                                           new ArrayList<>(),
@@ -453,7 +453,7 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
 
-        BTypeSymbol typeSymbol = astTypeDefinition.symbol.tag == SymTag.TYPE_DEF
+        BSymbol typeSymbol = astTypeDefinition.symbol.tag == SymTag.TYPE_DEF
                 ? astTypeDefinition.symbol.type.tsymbol : astTypeDefinition.symbol;
         // Write referenced functions, if this is an abstract-object
         if (typeSymbol.tag != SymTag.OBJECT ||

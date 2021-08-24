@@ -1165,7 +1165,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return reference to the defined frame.
      */
     private BLangSimpleVarRef defineFrameVariable(BLangBlockStmt blockStmt, Location pos) {
-        BTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
+        BSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
         String frameName = getNewVarName();
         BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(frameName),
@@ -1275,7 +1275,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return a _Frame type node.
      */
     private BLangRecordTypeNode getFrameTypeNode() {
-        BTypeSymbol frameTypeSymbol = getFrameTypeSymbol();
+        BSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
 
         BLangUnionTypeNode restFieldType = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
@@ -1296,8 +1296,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @return _Frame type symbol.
      */
-    private BTypeSymbol getFrameTypeSymbol() {
-        return (BTypeSymbol) symTable.langQueryModuleSymbol
+    private BSymbol getFrameTypeSymbol() {
+        return symTable.langQueryModuleSymbol
                 .scope.lookup(names.fromString("_Frame")).symbol;
     }
 

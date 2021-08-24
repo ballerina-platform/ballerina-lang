@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -197,6 +198,11 @@ public class SymbolFactory {
 
             // create the typeDefs
             return createTypeDefinition((BTypeSymbol) symbol, name);
+        }
+
+        if (symbol instanceof BTypeDefinitionSymbol) {
+            // create the typeDefs
+            return createTypeDefinition(symbol, name);
         }
 
         if (symbol.kind == SymbolKind.SERVICE) {
@@ -394,7 +400,7 @@ public class SymbolFactory {
      * @param name       symbol name
      * @return {@link}
      */
-    public BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
+    public BallerinaTypeDefinitionSymbol createTypeDefinition(BSymbol typeSymbol, String name) {
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
                 new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol,
                                                                        this.context);

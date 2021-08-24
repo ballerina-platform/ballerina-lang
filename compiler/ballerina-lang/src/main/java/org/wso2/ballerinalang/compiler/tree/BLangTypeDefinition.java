@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -47,7 +48,7 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     public boolean isBuiltinTypeDef;
     public boolean hasCyclicReference = false;
 
-    public BTypeSymbol symbol;
+    public BSymbol symbol;
 
     public BLangTypeDefinition() {
         this.annAttachments = new ArrayList<>();

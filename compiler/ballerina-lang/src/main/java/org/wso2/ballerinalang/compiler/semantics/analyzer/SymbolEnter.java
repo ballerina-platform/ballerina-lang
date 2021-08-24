@@ -1487,7 +1487,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         typeDefinition.setPrecedence(this.typePrecedence++);
-        BTypeSymbol typeDefSymbol;
+        BSymbol typeDefSymbol;
 
         boolean label = true;
 //        if (definedType.tsymbol.name != Names.EMPTY) {
@@ -1501,6 +1501,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if(definedType.tsymbol.name == Names.EMPTY) {
                 label = false;
                 definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
+                definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
                 definedType.tsymbol.flags |= typeDefSymbol.flags;
                 definedType.tsymbol.pos = typeDefSymbol.pos;
             }
@@ -1536,7 +1537,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (isDistinctFlagPresent(typeDefinition)) {
             if (referenceConstraintType.getKind() == TypeKind.ERROR) {
-                BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) referenceConstraintType, typeDefSymbol);
+                BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) referenceConstraintType,
+                        typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
             } else if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
@@ -1587,7 +1589,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             } else if (referenceConstraintType.getKind() == TypeKind.OBJECT) {
                 BObjectType distinctType = getDistinctObjectType(typeDefinition, (BObjectType) referenceConstraintType,
-                                                                 typeDefSymbol);
+                        referenceConstraintType.tsymbol);
                 typeDefinition.typeNode.setBType(distinctType);
                 definedType = distinctType;
             }
@@ -1614,7 +1616,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
                 if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
-                    typeDefSymbol.isLabel = false;
+                    definedType.tsymbol.isLabel = false;
                 }
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
@@ -1632,7 +1634,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefinition.symbol = typeDefSymbol;
         if (typeDefinition.hasCyclicReference) {
             // Workaround for https://github.com/ballerina-platform/ballerina-lang/issues/29742
-            typeDefinition.getBType().tsymbol = typeDefSymbol;
+            typeDefinition.getBType().tsymbol = definedType.tsymbol;
         } else {
             boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
             if (isLanglibModule) {
@@ -1866,13 +1868,15 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private BErrorType getDistinctErrorType(BLangTypeDefinition typeDefinition, BErrorType definedType,
-                                            BTypeSymbol typeDefSymbol) {
+                                            BSymbol typeDefSymbol) {
         BErrorType definedErrorType = definedType;
         // Create a new type for distinct type definition such as `type FooErr distinct BarErr;`
         // `typeDefSymbol` is different to `definedErrorType.tsymbol` in a type definition statement that use
         // already defined type as the base type.
         if (definedErrorType.tsymbol != typeDefSymbol) {
-            BErrorType bErrorType = new BErrorType(typeDefSymbol);
+            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID,
+                    typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
+            BErrorType bErrorType = new BErrorType(typeSymbol);
             bErrorType.detailType = definedErrorType.detailType;
             typeDefSymbol.type = bErrorType;
             definedErrorType = bErrorType;
@@ -1904,7 +1908,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // As per spec 2020R3 built-in types are limited only within lang.* modules.
         for (BLangAnnotationAttachment attachment : typeDefinition.annAttachments) {
             if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
-                BTypeSymbol typeDefSymbol = typeDefinition.symbol;
+                BSymbol typeDefSymbol = typeDefinition.symbol;
                 typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
                 break;
@@ -3638,7 +3642,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (detailType == symTable.noType) {
                     BType resolvedType = symResolver.resolveTypeNode(typeNode, typeDefEnv);
                     BErrorType type = (BErrorType) types.getConstraintFromReferenceType(resolvedType);
-                    ((BErrorType) typeDef.symbol.type).detailType = type.detailType;
+                    ((BErrorType) types.getConstraintFromReferenceType(typeDef.symbol.type)).detailType = type.detailType;
                 }
             }
         }
@@ -3851,7 +3855,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (typeRef.getBType().tsymbol == null) {
                     continue;
                 }
-                BSymbol objectSymbol = typeRef.getBType().tsymbol.tag == SymTag.TYPE_DEF ?
+                BTypeSymbol objectSymbol = typeRef.getBType().tsymbol.tag == SymTag.TYPE_DEF ?
                         typeRef.getBType().tsymbol.type.tsymbol : typeRef.getBType().tsymbol;
                 if (objectSymbol.kind != SymbolKind.OBJECT) {
                     continue;
@@ -4005,7 +4009,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            BTypeSymbol symbol = typeDef.symbol;
+            BSymbol symbol = typeDef.symbol;
             BStructureType structureType = (BStructureType) symbol.type;
 
             if (Symbols.isFlagOn(structureType.flags, Flags.READONLY)) {
@@ -4686,7 +4690,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
                                           BLangType typeRef, BAttachedFunction referencedFunc,
-                                          Set<String> includedFunctionNames, BTypeSymbol typeDefSymbol,
+                                          Set<String> includedFunctionNames, BSymbol typeDefSymbol,
                                           List<BLangFunction> declaredFunctions, boolean isInternal) {
         typeDefSymbol = typeDefSymbol.tag == SymTag.TYPE_DEF ? typeDefSymbol.type.tsymbol : typeDefSymbol;
         String referencedFuncName = referencedFunc.funcName.value;

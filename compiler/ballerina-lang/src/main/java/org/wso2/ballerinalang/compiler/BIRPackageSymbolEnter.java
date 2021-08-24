@@ -481,7 +481,7 @@ public class BIRPackageSymbolEnter {
         // Temp solution to add client flag if available TODO find a better approach
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
-        BTypeSymbol symbol;
+        BSymbol symbol;
 
 //        if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
 ////            symbol = type.tsymbol;
@@ -497,9 +497,13 @@ public class BIRPackageSymbolEnter {
                     names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
                     pos, SOURCE);
             symbol.originalName = names.fromString(typeDefOrigName);
-            if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
-                type.tsymbol = symbol;
-            }
+        if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
+            type.tsymbol.name = symbol.name;
+            type.tsymbol.originalName = symbol.originalName;
+        }
+//            if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
+//                type.tsymbol = symbol;
+//            }
 //        }
 
         defineMarkDownDocAttachment(symbol, docBytes);
@@ -1168,10 +1172,14 @@ public class BIRPackageSymbolEnter {
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
+                    BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
+                            Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                            names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
+                            symTable.builtinPos, COMPILED_SOURCE);
                     typeSymbol.flags |= flags;
                     typeSymbol.scope = new Scope(typeSymbol);
                     BTypeReferenceType typeReferenceType = new BTypeReferenceType(null,
-                            typeSymbol, typeSymbol.flags);
+                            tsymbol, typeSymbol.flags);
                     typeReferenceType.flags |= flags;
                     typeSymbol.referenceType = typeReferenceType;
                     addShapeCP(typeReferenceType, cpI);

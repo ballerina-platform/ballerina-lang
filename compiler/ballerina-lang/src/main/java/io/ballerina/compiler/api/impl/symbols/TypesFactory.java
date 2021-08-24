@@ -30,6 +30,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -55,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -62,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
@@ -151,11 +155,11 @@ public class TypesFactory {
      * @param rawTypeOnly Whether to convert the type descriptor to type reference or keep the raw type
      * @return {@link TypeSymbol} generated
      */
-    public TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
+    public TypeSymbol getTypeDescriptor(BType bType, BSymbol tSymbol, boolean rawTypeOnly) {
         return getTypeDescriptor(bType, tSymbol, rawTypeOnly, true, false);
     }
 
-    TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
+    TypeSymbol getTypeDescriptor(BType bType, BSymbol tSymbol, boolean rawTypeOnly, boolean getOriginalType,
                                  boolean typeRefFromIntersectType) {
         if (bType == null || bType.tag == NONE) {
             return null;
@@ -171,12 +175,19 @@ public class TypesFactory {
 
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
-        if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
-                    typeRefFromIntersectType);
+//        if (bType.tag == TypeTags.TYPEREFDESC) {
+//        if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
+//            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType,  bType.tsymbol,
+//                    typeRefFromIntersectType);
+//        }
+
+        TypeSymbol typeSymbol;
+        if(tSymbol instanceof BTypeDefinitionSymbol) {
+            typeSymbol = createTypeDescriptor(bType, tSymbol.type.tsymbol, moduleID);
+        } else {
+            typeSymbol = createTypeDescriptor(bType, (BTypeSymbol) tSymbol, moduleID);
         }
 
-        TypeSymbol typeSymbol = createTypeDescriptor(bType, tSymbol, moduleID);
         return typeSymbol;
     }
 
@@ -268,6 +279,8 @@ public class TypesFactory {
                 return new BallerinaNoneTypeSymbol(this.context, moduleID, (BNoType) bType);
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
+            case TYPEREFDESC:
+                return createTypeDescriptor(((BTypeReferenceType)bType).constraint, tSymbol, moduleID);
             default:
                 if (bType.tag == SEMANTIC_ERROR) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);
@@ -315,27 +328,27 @@ public class TypesFactory {
         throw new IllegalStateException("Invalid XML subtype type tag: " + internalType.tag);
     }
 
-    private boolean isTypeReference(BType bType, BTypeSymbol tSymbol, boolean rawTypeOnly) {
-        // Not considering type params as type refs for now because having it in the typedesc form will make more
-        // sense for end users of the API consumers (e.g., VS Code plugin users). This probably can be removed once
-        // https://github.com/ballerina-platform/ballerina-lang/issues/18150 is fixed.
-        if (rawTypeOnly || tSymbol == null || Symbols.isFlagOn(tSymbol.flags, Flags.TYPE_PARAM)) {
-            return false;
-        }
-
-        if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
-            return false;
-        }
-
-        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
-            return true;
-        }
-
-        final TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || kind == PARAMETERIZED || tSymbol.isLabel
-                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
-                || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
-    }
+//    private boolean isTypeReference(BType bType, BSymbol tSymbol, boolean rawTypeOnly) {
+//        // Not considering type params as type refs for now because having it in the typedesc form will make more
+//        // sense for end users of the API consumers (e.g., VS Code plugin users). This probably can be removed once
+//        // https://github.com/ballerina-platform/ballerina-lang/issues/18150 is fixed.
+//        if (rawTypeOnly || tSymbol == null || Symbols.isFlagOn(tSymbol.flags, Flags.TYPE_PARAM)) {
+//            return false;
+//        }
+//
+//        if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
+//            return false;
+//        }
+//
+//        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
+//            return true;
+//        }
+//
+//        final TypeKind kind = bType.getKind();
+//        return kind == RECORD || kind == OBJECT || kind == PARAMETERIZED || tSymbol.isLabel
+//                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
+//                || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
+//    }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
         switch (bTypeKind) {

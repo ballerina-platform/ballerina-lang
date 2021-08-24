@@ -22,11 +22,13 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -238,7 +240,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
             super(pos);
             this.setBType(structType);
-            BTypeSymbol typeSymbol = structType.tsymbol.kind == SymbolKind.TYPE_DEF ? structType.tsymbol.type.tsymbol : structType.tsymbol;
+            BTypeSymbol typeSymbol = structType.getKind() == TypeKind.TYPEREFDESC ? ((BTypeReferenceType)structType).constraint.tsymbol : structType.tsymbol;
+//            BTypeSymbol typeSymbol = structType.tsymbol;
             this.initializer = ((BRecordTypeSymbol) typeSymbol).initializerFunc;
             this.fields = fields;
         }

@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * @since 0.94
  */
-public class BTypeDefinitionSymbol extends BTypeSymbol {
+public class BTypeDefinitionSymbol extends BSymbol {
 
     public boolean isLabel;
     public BTypeReferenceType referenceType = null;
@@ -61,11 +61,11 @@ public class BTypeDefinitionSymbol extends BTypeSymbol {
         return this.pkgID.toString() + ":" + this.name;
     }
 
-    @Override
-    public BTypeDefinitionSymbol createLabelSymbol() {
-        BTypeDefinitionSymbol typeSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY,
-                pkgID, type, owner, pos, origin);
-        typeSymbol.isLabel = true;
-        return typeSymbol;
-    }
+//    @Override
+//    public BTypeDefinitionSymbol createLabelSymbol() {
+//        BTypeDefinitionSymbol typeSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY,
+//                pkgID, type, owner, pos, origin);
+//        typeSymbol.isLabel = true;
+//        return typeSymbol;
+//    }
 }
