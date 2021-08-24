@@ -26,4 +26,8 @@ public client class HttpClient {
         return self.url + path;
     }
 
+    remote function getError(string path) returns string|error {
+        return "Not an error";
+    }
+
 }

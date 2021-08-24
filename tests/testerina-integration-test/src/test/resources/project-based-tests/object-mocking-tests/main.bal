@@ -44,6 +44,10 @@ function getPerson(string id, typedesc<int|string> td) returns int|string {
     return pObj.getValue(id, td);
 }
 
+function getTheError() returns string|error {
+    return clientEndpoint->getError("/path1");
+}
+
 public class PersonObj {
     string fname;
     string lname;
