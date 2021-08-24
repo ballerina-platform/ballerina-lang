@@ -19,14 +19,7 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
-import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
-import io.ballerina.compiler.api.symbols.Documentation;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
-import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.*;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -221,7 +214,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getInternalSymbol().getName().getValue(),
+        return Objects.hash(this.getInternalSymbol().getName().getValue(), this.getModule().orElse(null),
                 this.getLocation().map(Location::lineRange).orElse(null));
     }
 
@@ -236,24 +229,16 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
         }
 
         BallerinaServiceDeclarationSymbol symbol = (BallerinaServiceDeclarationSymbol) obj;
-        return nameEquals(symbol.getInternalSymbol().getName().getValue())
+        return isInternalSymbolNameEquals(symbol.getInternalSymbol().getName().getValue())
+                && isSameModule(this.getModule(), symbol.getModule())
                 && isSameLocation(this.getLocation(), symbol.getLocation());
     }
 
-    @Override
-    public boolean nameEquals(String name) {
+    private boolean isInternalSymbolNameEquals(String name) {
         String symbolName = this.getInternalSymbol().getName().getValue();
         if (name.equals(symbolName)) {
             return true;
         }
         return unescapedUnicode(name).equals(unescapedUnicode(symbolName));
-    }
-
-    private boolean isSameLocation(Optional<Location> loc1, Optional<Location> loc2) {
-        if (loc1.isEmpty() || loc2.isEmpty()) {
-            return false;
-        }
-
-        return loc1.get().lineRange().equals(loc2.get().lineRange());
     }
 }

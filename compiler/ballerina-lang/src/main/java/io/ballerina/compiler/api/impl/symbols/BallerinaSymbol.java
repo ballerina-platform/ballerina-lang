@@ -182,7 +182,7 @@ public class BallerinaSymbol implements Symbol {
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
     }
 
-    private boolean isSameModule(Optional<ModuleSymbol> mod1, Optional<ModuleSymbol> mod2) {
+    protected boolean isSameModule(Optional<ModuleSymbol> mod1, Optional<ModuleSymbol> mod2) {
         if (mod1.isEmpty() || mod2.isEmpty()) {
             return false;
         }
@@ -190,7 +190,7 @@ public class BallerinaSymbol implements Symbol {
         return mod1.get().id().equals(mod2.get().id());
     }
 
-    private boolean isSameLocation(Optional<Location> loc1, Optional<Location> loc2) {
+    protected boolean isSameLocation(Optional<Location> loc1, Optional<Location> loc2) {
         if (loc1.isEmpty() || loc2.isEmpty()) {
             return false;
         }
