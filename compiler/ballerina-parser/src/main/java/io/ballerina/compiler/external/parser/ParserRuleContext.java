@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.internal.parser;
+package io.ballerina.compiler.external.parser;
 
 /**
  * Parser rule contexts that represent each point in the grammar.
@@ -553,6 +553,7 @@ public enum ParserRuleContext {
 
     // Expressions
     EXPRESSION("expression"),
+    EXPRESSIONS("expressions"),
     TERMINAL_EXPRESSION("terminal-expression"),
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),

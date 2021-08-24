@@ -19,7 +19,7 @@ package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
-import io.ballerina.compiler.internal.parser.ParserRuleContext;
+import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
