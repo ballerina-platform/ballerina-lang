@@ -15,8 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.semtype;
+package io.ballerina.semtype;
 
+import io.ballerina.semtype.ComplexSemType;
+import io.ballerina.semtype.UniformTypeBitSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

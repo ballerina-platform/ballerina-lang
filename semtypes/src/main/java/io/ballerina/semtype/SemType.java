@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.semtype;
+package io.ballerina.semtype;
 
 /**
  * SemType Interface.
