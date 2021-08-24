@@ -21,22 +21,21 @@ import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
-import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
@@ -50,20 +49,19 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static org.apache.commons.io.FilenameUtils.indexOfExtension;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_TOML_FILE_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
  * Ballerina query expression processor implementation.
  *
  * @since 2.0.0
- * <p>
- * Todo - try compiling as a ballerina module (to avoid namespace conflicts when using single file)
  */
 public class QueryExpressionProcessor {
 
@@ -72,12 +70,13 @@ public class QueryExpressionProcessor {
     private final List<String> externalVariableNames = new ArrayList<>();
     private final List<Value> externalVariableValues = new ArrayList<>();
 
-    private Path currentDir;
-    private Path executablePath;
-    private File bufferFile;
+    private Path tempProjectDir;
 
-    private static final String TEMP_FILE_PREFIX = "main-";
-    private static final String TEMP_FILE_SUFFIX = ".bal";
+    private static final String TEMP_DIR_PREFIX = "query-executable-dir-";
+    private static final String MAIN_FILE_PREFIX = "main-";
+    private static final String TEMP_PACKAGE_ORG = "jballerina_debugger";
+    private static final String TEMP_PACKAGE_NAME = "query_executor";
+    private static final String TEMP_PACKAGE_VERSION = "1.0.0";
     public static final String QUERY_FUNCTION_NAME = "__getQueryResult";
 
     // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
@@ -102,11 +101,9 @@ public class QueryExpressionProcessor {
     public Map.Entry<Path, String> generateExecutables() throws EvaluationException {
         try {
             String querySnippet = generateQuerySnippet();
-            File mainBal = writeToFile(querySnippet);
-            Project project = getProject(mainBal, true);
-
+            BuildProject project = createProject(querySnippet);
             Path executablePath = createExecutables(project);
-            String mainClassName = getFileNameWithoutExtension(mainBal.toPath());
+            String mainClassName = constructMainClassName(project);
             return new AbstractMap.SimpleEntry<>(executablePath, mainClassName);
         } catch (EvaluationException e) {
             throw e;
@@ -116,22 +113,26 @@ public class QueryExpressionProcessor {
         }
     }
 
-    private Path createExecutables(Project project) throws EvaluationException {
-        // Todo - should we reuse `CreateExecutableTask` instead?
+    private String constructMainClassName(BuildProject project) {
+        Optional<DocumentId> docId = project.currentPackage().getDefaultModule().documentIds().stream().findFirst();
+        Document document = project.currentPackage().getDefaultModule().document(docId.get());
+
+        StringJoiner classNameJoiner = new StringJoiner(".");
+        classNameJoiner.add(TEMP_PACKAGE_ORG);
+        classNameJoiner.add(TEMP_PACKAGE_NAME);
+        // Generated class name will only contain the major version.
+        classNameJoiner.add(TEMP_PACKAGE_VERSION.split("\\.")[0]);
+        classNameJoiner.add(getFileNameWithoutExtension(document.name()));
+
+        return classNameJoiner.toString();
+    }
+
+    private Path createExecutables(BuildProject project) throws EvaluationException {
         Target target;
         try {
-            this.currentDir = Files.createTempDirectory("query-executable-dir");
-            if (project.kind().equals(ProjectKind.BUILD_PROJECT)) {
-                target = new Target(project.sourceRoot());
-            } else {
-                target = new Target(Files.createTempDirectory("ballerina-cache" + System.nanoTime()));
-                target.setOutputPath(getExecutablePath(project));
-            }
-        } catch (IOException e) {
+            target = new Target(project.sourceRoot());
+        } catch (IOException | ProjectException e) {
             throw createEvaluationException("failed to resolve target path while evaluating query expression: "
-                    + e.getMessage());
-        } catch (ProjectException e) {
-            throw createEvaluationException("failed to create executable while evaluating query expression: "
                     + e.getMessage());
         }
 
@@ -161,46 +162,59 @@ public class QueryExpressionProcessor {
             throw createEvaluationException("failed to create executable while evaluating query expression: "
                     + e.getMessage());
         }
-
-        notifyPlugins(project, target);
-        return executablePath;
-    }
-
-    private Path getExecutablePath(Project project) {
-        if (executablePath == null) {
-            Path fileName = project.sourceRoot().getFileName();
-            executablePath = currentDir.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
-        }
         return executablePath;
     }
 
     /**
-     * Get the name of the without the extension.
+     * Returns the file name without extension.
      *
-     * @param filePath Path of the file.
-     * @return File name without extension.
+     * @param fileName file name
+     * @return File name without extension
      */
-    private static String getFileNameWithoutExtension(Path filePath) {
-        Path fileName = filePath.getFileName();
-        if (fileName != null) {
-            int index = indexOfExtension(fileName.toString());
-            return index == -1 ? fileName.toString() : fileName.toString().substring(0, index);
-        } else {
-            return null;
-        }
+    private static String getFileNameWithoutExtension(String fileName) {
+        int index = indexOfExtension(fileName);
+        return index == -1 ? fileName : fileName.substring(0, index);
     }
 
     /**
-     * Get the project with the context data.
+     * Creates and returns a 'BuildProject' instance which contains the given source snippet in the main file.
      *
-     * @param mainBal   Source file to use for generating project.
-     * @param isOffline Whether to use offline flag for build options.
-     * @return Created ballerina project.
+     * @param mainBalContent Source file content to be used for generating the project
+     * @return Created Ballerina project
      */
-    private Project getProject(File mainBal, boolean isOffline) {
-        BuildOptions buildOptions = new BuildOptionsBuilder().offline(isOffline).build();
-        // Todo - create a build project instead
-        return SingleFileProject.load(mainBal.toPath(), buildOptions);
+    private BuildProject createProject(String mainBalContent) throws Exception {
+        try {
+            // Creates a new directory in the default temporary file directory.
+            this.tempProjectDir = Files.createTempDirectory(TEMP_DIR_PREFIX + System.currentTimeMillis());
+            this.tempProjectDir.toFile().deleteOnExit();
+
+            // Creates an empty Ballerina.toml file
+            Path ballerinaTomlPath = tempProjectDir.resolve(BAL_TOML_FILE_NAME);
+            Path balToml = Files.createFile(ballerinaTomlPath);
+            balToml.toFile().deleteOnExit();
+
+            // Creates a main file and writes the generated code snippet.
+            File mainBal = createBalMainFile(mainBalContent);
+            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildProject buildProject = BuildProject.load(this.tempProjectDir, buildOptions);
+
+            // Updates the 'Ballerina.toml' content
+            StringJoiner balTomlContent = new StringJoiner(System.lineSeparator());
+            balTomlContent.add("[package]");
+            balTomlContent.add(String.format("org = \"%s\"", TEMP_PACKAGE_ORG));
+            balTomlContent.add(String.format("name = \"%s\"", TEMP_PACKAGE_NAME));
+            balTomlContent.add(String.format("version = \"%s\"", TEMP_PACKAGE_VERSION));
+            BallerinaToml newBallerinaToml = buildProject.currentPackage().ballerinaToml().get()
+                    .modify()
+                    .withContent(balTomlContent.toString())
+                    .apply();
+
+            buildProject = (BuildProject) newBallerinaToml.packageInstance().project();
+            return buildProject;
+        } catch (Exception e) {
+            throw createEvaluationException("Error occurred while creating a temporary evaluation project at: " +
+                    this.tempProjectDir + ", due to: " + e.getMessage());
+        }
     }
 
     /**
@@ -210,26 +224,14 @@ public class QueryExpressionProcessor {
      * @return The created temp file.
      * @throws IOException If writing was unsuccessful.
      */
-    private File writeToFile(String source) throws IOException {
-        File createdFile = getBufferFile();
-        try (FileWriter fileWriter = new FileWriter(createdFile, Charset.defaultCharset())) {
+    private File createBalMainFile(String source) throws Exception {
+        File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
+        mainBalFile.deleteOnExit();
+
+        try (FileWriter fileWriter = new FileWriter(mainBalFile, Charset.defaultCharset())) {
             fileWriter.write(source);
         }
-        return createdFile;
-    }
-
-    /**
-     * Get the file that would be used as the buffer for loading project.
-     *
-     * @return File to use.
-     * @throws IOException If file open failed.
-     */
-    private File getBufferFile() throws IOException {
-        if (this.bufferFile == null) {
-            this.bufferFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
-            this.bufferFile.deleteOnExit();
-        }
-        return this.bufferFile;
+        return mainBalFile;
     }
 
     private String generateQuerySnippet() throws EvaluationException {
@@ -322,15 +324,29 @@ public class QueryExpressionProcessor {
         }
     }
 
-    private void notifyPlugins(Project project, Target target) {
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        for (CompilerPlugin plugin : processorServiceLoader) {
-            plugin.codeGenerated(project, target);
-        }
-    }
-
     public void dispose() {
         // Todo - anything else to be disposed?
-        PackageUtils.deleteFile(this.executablePath);
+        deleteDirectory(this.tempProjectDir);
+    }
+
+    /**
+     * Delete the given directory along with all files and sub directories.
+     *
+     * @param directoryPath Directory to delete.
+     */
+    private boolean deleteDirectory(Path directoryPath) {
+        File directory = new File(String.valueOf(directoryPath));
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    boolean success = deleteDirectory(f.toPath());
+                    if (!success) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return directory.delete();
     }
 }
