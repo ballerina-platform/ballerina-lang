@@ -701,3 +701,78 @@ function f20() {
         }
     }
 }
+
+function f21() {
+    int|string a = "str";
+    int|string b = 1;
+    int|string c = 1;
+    int|string d = 1;
+    any[] w = [];
+    map<any> x = {};
+
+    if a is string && b is int && c is int && d is int && w is int[] {
+        while b < 5 {
+            [string, int, int, int] [e, f, g, h] = [a, b, c, d];
+            if b == 1 {
+                [a, b, f, c, d, ...w] = [1, 2, 3, 4, 5];
+                return;
+            } else if b == 2 {
+                [...w] = [];
+                break;
+            }
+            w[1] = 1; // OK
+        }
+    }
+
+    if a is string && b is int && c is int && d is int && x is map<int|string> {
+        foreach int i in 0 ... 2 {
+            [string, int, int, int] [e, f, g, h] = [a, b, c, d];
+            record {
+                string a;
+                int b;
+                string c;
+                int d;
+            } rec = {a: "", b: 0, c: "", d: 1};
+
+            if f == 0 {
+                {a: e, b: f, d} = rec;
+                break;
+            } else {
+                {a, b, ...x} = rec;
+                break;
+            }
+        }
+    }
+
+    if a is string && b is int && c is int && d is int && x is map<anydata> {
+        foreach int i in 0 ... 2 {
+            [string, int, int, int] [e, f, g, h] = [a, b, c, d];
+            error<record { int b; string c; int d; }> err = error("error!", b = 1, c = "err!", d = 2);
+            match f {
+                12 => {
+                    error(a, b = b, c = c, d = d) = err;
+                    return;
+                }
+                _ => {
+                    error(b = f, ...x) = err;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function f22() {
+    int|string a = 1;
+    int|string b = "foo";
+
+    if a is int && b is string {
+        while a < 3 {
+            function () fn = function () {
+                int x = <int> a;
+                a = "hello";
+            };
+            fn();
+        }
+    }
+}
