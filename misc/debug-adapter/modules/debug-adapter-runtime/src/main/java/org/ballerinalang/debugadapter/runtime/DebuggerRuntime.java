@@ -378,13 +378,13 @@ public class DebuggerRuntime {
      * Invoke the function and return the result by classloading a given Ballerina executable jar.
      *
      * @param executablePath path of the jar to be classloaded
-     * @param mainClassName  main class name
+     * @param mainClass      main class name
      * @param functionName   name of the function to be executed
      * @param strand         parent strand instance
      * @param argValues      argument values
      * @return result of the function invocation
      */
-    public static Object classloadAndInvokeFunction(String executablePath, String mainClassName, String functionName,
+    public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName,
                                                     Strand strand, Object... argValues) {
         try {
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
@@ -401,18 +401,27 @@ public class DebuggerRuntime {
                 generatedArgs.add(true);
             }
 
+            // Derives the namespace of the generated classes.
+            String[] mainClassNameParts = mainClass.split("\\.");
+            String packageOrg = mainClassNameParts[0];
+            String packageName = mainClassNameParts[1];
+            String packageVersion = mainClassNameParts[2];
+            String packageNameSpace = String.join(".", packageOrg, packageName, packageVersion);
+
             // Initialize a new scheduler
             Scheduler scheduler = new Scheduler(1, false);
             // Initialize configurations
-            invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
-                            new Path[]{}, null});
+            invokeMethodDirectly(classLoader, String.join(".", packageNameSpace, CONFIGURE_INIT_CLASS_NAME),
+                    CONFIGURE_INIT_METHOD_NAME, new Class[]{String[].class, Path[].class, String.class},
+                    new Object[]{new String[]{}, new Path[]{}, null});
             // Initialize the module
-            invokeFunction(classLoader, scheduler, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME, new Object[1]);
+            invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
+                    MODULE_INIT_METHOD_NAME, new Object[1]);
             // Start the module
-            invokeFunction(classLoader, scheduler, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME, new Object[1]);
+            invokeFunction(classLoader, scheduler, String.join(".", packageNameSpace, MODULE_INIT_CLASS_NAME),
+                    MODULE_START_METHOD_NAME, new Object[1]);
             // Run the actual method
-            return invokeFunction(classLoader, scheduler, mainClassName, functionName, generatedArgs.toArray());
+            return invokeFunction(classLoader, scheduler, mainClass, functionName, generatedArgs.toArray());
         } catch (Exception e) {
             return e.getMessage();
         }

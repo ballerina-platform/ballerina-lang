@@ -55,6 +55,7 @@ import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encod
 public class PackageUtils {
 
     public static final String BAL_FILE_EXT = ".bal";
+    public static final String BAL_TOML_FILE_NAME = "Ballerina.toml";
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
@@ -285,19 +286,6 @@ public class PackageUtils {
             moduleParts = new String[]{path};
         }
         return moduleParts;
-    }
-
-    /**
-     * Deletes the file in the given path, if exists
-     *
-     * @param filePath file path
-     */
-    public static void deleteFile(Path filePath) {
-        try {
-            Files.deleteIfExists(filePath);
-        } catch (Exception e) {
-            // Todo - add warning when the client logger is implemented
-        }
     }
 
     private static String replaceSeparators(String path) {
