@@ -91,6 +91,7 @@ public class ManifestBuilder {
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
     private static final String PLATFORM = "platform";
+    private static final String TEMPLATE = "template";
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
             Path projectPath) {
@@ -158,6 +159,7 @@ public class ManifestBuilder {
         List<String> keywords = Collections.emptyList();
         List<String> exported = Collections.emptyList();
         String repository = "";
+        boolean template = false;
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -167,6 +169,7 @@ public class ManifestBuilder {
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
                 repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
+                template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
             }
         }
 
@@ -199,7 +202,7 @@ public class ManifestBuilder {
 
         return PackageManifest
                 .from(packageDescriptor, pluginDescriptor, dependencies, platforms, otherEntries, diagnostics(),
-                      license, authors, keywords, exported, repository);
+                      license, authors, keywords, exported, repository, template);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -438,6 +441,23 @@ public class ManifestBuilder {
     }
 
     private boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+        TopLevelNode topLevelNode = tableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            return false;
+        }
+
+        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
+            TomlValueNode value = keyValueNode.value();
+            if (value.kind() == TomlType.BOOLEAN) {
+                TomlBooleanValueNode tomlBooleanValueNode = (TomlBooleanValueNode) value;
+                return tomlBooleanValueNode.getValue();
+            }
+        }
+        return false;
+    }
+
+    private boolean getBooleanFromTemplateNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             return false;

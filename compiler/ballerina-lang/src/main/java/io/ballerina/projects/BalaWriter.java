@@ -153,6 +153,9 @@ public abstract class BalaWriter {
         packageJson.setLanguageSpecVersion(BALLERINA_SPEC_VERSION);
         packageJson.setImplementationVendor(IMPLEMENTATION_VENDOR);
 
+        // add template boolean to package.json
+        packageJson.setTemplate(packageManifest.template());
+
         if (!platformLibs.isEmpty()) {
             packageJson.setPlatformDependencies(platformLibs.get());
         }

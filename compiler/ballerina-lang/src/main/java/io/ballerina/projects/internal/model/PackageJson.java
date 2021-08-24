@@ -170,7 +170,7 @@ public class PackageJson {
         this.platformDependencies = platformDependencies;
     }
 
-    public boolean isTemplate() {
+    public boolean getTemplate() {
         return template;
     }
 

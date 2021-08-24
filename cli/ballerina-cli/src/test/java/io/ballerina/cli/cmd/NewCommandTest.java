@@ -195,7 +195,35 @@ public class NewCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test new command with central template in the local cache")
-    public void testNewCommandWithCentralTemplate() throws IOException {
+    public void testNewCommandWithTemplateInLocalCache() throws IOException {
+        // Test if no arguments was passed in
+        String templateArg = "ballerina/io:0.6.0-beta.2";
+        String[] args = {"myproject", "-t", templateArg};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Path packageDir = tmpDir.resolve("myproject");
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String[] templateSplit = templateArg.split("/");
+        String expectedTomlContent = "[package]\n" +
+                "org = \"" + templateSplit[0] + "\"\n" +
+                "name = \"" + templateSplit[1].split(":")[0] + "\"\n" +
+                "version = \"" +  templateSplit[1].split(":")[1] + "\"\n";
+        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
+    }
+
+    @Test(description = "Test new command with central template in the local cache")
+    public void testNewCommandWithCentralTemplatePull() throws IOException {
         // Test if no arguments was passed in
         String templateArg = "ballerina/io:0.6.0-beta.2";
         String[] args = {"myproject", "-t", templateArg};
