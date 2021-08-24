@@ -722,7 +722,14 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void queryExpressionEvaluationTest() throws BallerinaTestException {
-        // Query expression evaluation
+
+        // String from query evaluation
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "        where student.score >= 2.0" +
+                        "        select student.firstName + \" \" + student.lastName",
+                "string[2]", "array");
+
+        // Query expression evaluation with multiple clauses
         debugTestRunner.assertExpression(context, "from var student in studentList" +
                         "        where student.score >= 2.0" +
                         "        let string degreeName = \"Bachelor of Medicine\", " +
@@ -750,11 +757,25 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                         "        };",
                 "stream<map>", "stream");
 
-        // String from query evaluation
-        debugTestRunner.assertExpression(context, "from var student in studentList" +
-                        "        where student.score >= 2.0" +
-                        "        select student.firstName + \" \" + student.lastName",
-                "string[2]", "array");
+        // Query table evaluation
+        debugTestRunner.assertExpression(context, "table key(id, name) from var customer in customerList" +
+                        "         select {" +
+                        "             id: customer.id," +
+                        "             name: customer.name," +
+                        "             noOfItems: customer.noOfItems" +
+                        "         }" +
+                        "         on conflict onConflictError;",
+                "table<map> (entries = 3)", "table");
+
+        // Query table evaluation with on conflict clause
+        debugTestRunner.assertExpression(context, "table key(id, name) from var customer in conflictedCustomerList" +
+                        "         select {" +
+                        "             id: customer.id," +
+                        "             name: customer.name," +
+                        "             noOfItems: customer.noOfItems" +
+                        "         }" +
+                        "         on conflict onConflictError;",
+                "Key Conflict", "error");
     }
 
     @Override

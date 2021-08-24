@@ -77,7 +77,7 @@ public class ModuleLevelDefinitionFinder extends NodeVisitor {
         return result;
     }
 
-    public void searchInFile(Document document) {
+    private void searchInFile(Document document) {
         document.syntaxTree().rootNode().accept(this);
     }
 

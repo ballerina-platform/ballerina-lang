@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.LimitClauseNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
@@ -82,7 +83,7 @@ public class QueryReferenceFinder extends NodeVisitor {
         return capturedVariables;
     }
 
-    // ################################## Query Expression Clause Nodes ################################## //
+    // ############################### Query Expression Clause Nodes ############################### //
 
     @Override
     public void visit(FromClauseNode fromClauseNode) {
@@ -123,6 +124,11 @@ public class QueryReferenceFinder extends NodeVisitor {
     @Override
     public void visit(SelectClauseNode selectClauseNode) {
         selectClauseNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(OnConflictClauseNode onConflictClauseNode) {
+        onConflictClauseNode.expression().accept(this);
     }
 
     // ################################## Expression Nodes ################################## //
@@ -243,7 +249,7 @@ public class QueryReferenceFinder extends NodeVisitor {
         visitSyntaxNode(queryExpressionNode);
     }
 
-    // ################################## Function Argument Nodes ################################## //
+    // ############################### Function Argument Nodes ############################### //
 
     @Override
     public void visit(PositionalArgumentNode positionalArgumentNode) {
