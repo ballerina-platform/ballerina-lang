@@ -61,6 +61,8 @@ import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -73,6 +75,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -1389,6 +1392,43 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
     }
 
+    @Test(description = "test build package without dependencies")
+    public void testPackageWithoutDependencies() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_wo_deps");
+        // Delete Dependencies.toml if already exists
+        if (projectPath.resolve(DEPENDENCIES_TOML).toFile().exists()) {
+            Files.delete(projectPath.resolve(DEPENDENCIES_TOML));
+        }
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+            project.save();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "project_wo_deps");
+        // Dependencies.toml should not be created when there is no package dependencies
+        Path dependenciesTomlPath = project.sourceRoot().resolve(DEPENDENCIES_TOML);
+        Assert.assertFalse(dependenciesTomlPath.toFile().exists());
+
+        // 2) Add an Dependencies.toml to the project load and save project again
+        Files.createFile(dependenciesTomlPath);
+        try {
+            project = BuildProject.load(projectPath);
+            project.save();
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // Existing Dependencies.toml should not be deleted when there is no package dependencies
+        Assert.assertTrue(dependenciesTomlPath.toFile().exists());
+        // It should consist of the dependency toml version
+        String expected = "[ballerina]\n"
+                + "dependencies-toml-version = \"2\"";
+        String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
+        Assert.assertTrue(actual.contains(expected));
+    }
 
     @AfterClass (alwaysRun = true)
     public void reset() {
