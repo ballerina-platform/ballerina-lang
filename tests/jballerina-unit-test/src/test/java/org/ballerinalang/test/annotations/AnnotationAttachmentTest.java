@@ -18,6 +18,7 @@ package org.ballerinalang.test.annotations;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -27,6 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -174,9 +176,11 @@ public class AnnotationAttachmentTest {
                 .findFirst();
         Assert.assertTrue(serviceDeclarationOpt.isPresent());
         ServiceNode serviceDeclaration = serviceDeclarationOpt.get();
-        String serviceName = ((BLangService) serviceDeclaration).symbol.getOriginalName().getValue();
+        BSymbol symbol = ((BLangService) serviceDeclaration).symbol;
+        String serviceName = symbol.getOriginalName().getValue();
+        PackageID moduleId = symbol.pkgID;
         Location position = serviceDeclaration.getPosition();
-        String serviceId = String.format("%d", Objects.hash(serviceName, position.lineRange()));
+        String serviceId = String.format("%d", Objects.hash(serviceName, moduleId, position.lineRange()));
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 serviceDeclaration.getServiceClass().getAnnotationAttachments();
         Assert.assertEquals(attachments.size(), 1);
