@@ -273,12 +273,9 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
 }
 
 isolated function getFormattedString(string str) returns string {
-
     string formattedString = "";
-
     // Number of iterations in the loop
     int itr = (str.length() / maxArgLength) + 1;
-
     foreach int i in 0 ..< itr {
         // If the calculated substring index is less than string length
         if ((i + 1) * maxArgLength < str.length()) {
@@ -293,7 +290,6 @@ isolated function getFormattedString(string str) returns string {
             formattedString += subString;
         }
     }
-
     return formattedString;
 }
 
