@@ -63,7 +63,6 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  * @since 2.0.0
  * <p>
  * Todo - try compiling as a ballerina module (to avoid namespace conflicts when using single file)
- * Todo - add a separate visitor to capture and include all the function/class/type definitions in the query snippet
  */
 public class QueryExpressionProcessor {
 
@@ -108,6 +107,8 @@ public class QueryExpressionProcessor {
             Path executablePath = createExecutables(project);
             String mainClassName = getFileNameWithoutExtension(mainBal.toPath());
             return new AbstractMap.SimpleEntry<>(executablePath, mainClassName);
+        } catch (EvaluationException e) {
+            throw e;
         } catch (Exception e) {
             throw createEvaluationException("error occurred while generating executables to invoke the query " +
                     "expression");
@@ -163,13 +164,6 @@ public class QueryExpressionProcessor {
             executablePath = currentDir.resolve(getFileNameWithoutExtension(fileName) + BLANG_COMPILED_JAR_EXT);
         }
         return executablePath;
-    }
-
-    private void notifyPlugins(Project project, Target target) {
-        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
-        for (CompilerPlugin plugin : processorServiceLoader) {
-            plugin.codeGenerated(project, target);
-        }
     }
 
     /**
@@ -317,6 +311,13 @@ public class QueryExpressionProcessor {
 
         for (int index = 0; index < capturedVarNames.size(); index++) {
             externalVariableNames.add(capturedTypes.get(index) + " " + capturedVarNames.get(index));
+        }
+    }
+
+    private void notifyPlugins(Project project, Target target) {
+        ServiceLoader<CompilerPlugin> processorServiceLoader = ServiceLoader.load(CompilerPlugin.class);
+        for (CompilerPlugin plugin : processorServiceLoader) {
+            plugin.codeGenerated(project, target);
         }
     }
 
