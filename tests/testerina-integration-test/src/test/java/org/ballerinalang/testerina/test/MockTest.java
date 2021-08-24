@@ -60,7 +60,7 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testObjectMocking() throws BallerinaTestException {
-        String msg1 = "7 passing";
+        String msg1 = "8 passing";
         String msg2 = "6 failing";
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
