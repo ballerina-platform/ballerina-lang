@@ -20,7 +20,7 @@ package org.ballerina.semtype;
 /**
  * SemType Interface.
  */
-interface SemType {
+public interface SemType {
 
 }
 
