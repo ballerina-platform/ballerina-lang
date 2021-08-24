@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 public class SemTypeTest {
 
     @Test
-    public void testPlaceholder() {
+    public void testSemType() {
         SemType s1 = new UniformTypeBitSet(0x00);
         SemType s2 = new ComplexSemType();
         Assert.assertTrue(s1 instanceof UniformTypeBitSet);
