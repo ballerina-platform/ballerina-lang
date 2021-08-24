@@ -260,7 +260,6 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
         if (iteratorNextReturnType == null) {
             iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(this.type);
         }
-
         return iteratorNextReturnType;
     }
 
