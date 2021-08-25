@@ -339,6 +339,45 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(children.get(1).kind(), SyntaxKind.WHILE_STATEMENT);
         Assert.assertEquals(children.get(2).kind(), SyntaxKind.ASSIGNMENT_STATEMENT);
         Assert.assertEquals(children.get(3).kind(), SyntaxKind.EOF_TOKEN);
+
+        // Test with syntax errors
+        text = "int a = 0;\n" +
+                "}\n" +
+                "a = 20;";
+
+        textDocument = TextDocuments.from(text);
+        syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
+        rootNode = syntaxTree.rootNode();
+        Assert.assertTrue(rootNode.hasDiagnostics());
+
+        children = rootNode.children();
+        Assert.assertEquals(children.size(), 2);
+        Assert.assertEquals(children.get(0).kind(), SyntaxKind.LOCAL_VAR_DECL);
+        Assert.assertEquals(children.get(1).kind(), SyntaxKind.EOF_TOKEN);
+
+        // Test with syntax errors
+        text = "const c = 10;";
+
+        textDocument = TextDocuments.from(text);
+        syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
+        rootNode = syntaxTree.rootNode();
+        Assert.assertTrue(rootNode.hasDiagnostics());
+
+        children = rootNode.children();
+        Assert.assertEquals(children.size(), 1);
+        Assert.assertEquals(children.get(0).kind(), SyntaxKind.EOF_TOKEN);
+
+        // Test with syntax errors
+        text = "worker w { }";
+
+        textDocument = TextDocuments.from(text);
+        syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENTS, textDocument);
+        rootNode = syntaxTree.rootNode();
+        Assert.assertTrue(rootNode.hasDiagnostics());
+
+        children = rootNode.children();
+        Assert.assertEquals(children.size(), 1);
+        Assert.assertEquals(children.get(0).kind(), SyntaxKind.EOF_TOKEN);
     }
 
     @Test
@@ -361,7 +400,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(children.get(0).kind(), SyntaxKind.TYPE_TEST_EXPRESSION);
         Assert.assertEquals(children.get(1).kind(), SyntaxKind.EOF_TOKEN);
 
-        // Negative scenario test
+        // Test with syntax errors
         text = "int x = 10;";
 
         textDocument = TextDocuments.from(text);
