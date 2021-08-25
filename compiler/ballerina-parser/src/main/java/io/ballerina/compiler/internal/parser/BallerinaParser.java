@@ -116,7 +116,14 @@ public class BallerinaParser extends AbstractParser {
     public STNode parse(ParserRuleContext context) {
         switch (context) {
             case COMP_UNIT:
+                // no source pruning
                 return parseCompUnit();
+            case STATEMENTS:
+                // no source pruning
+                return parseAsStatements();
+            case EXPRESSIONS:
+                // no source pruning
+                return parseAsExpression();
             case TOP_LEVEL_NODE:
                 startContext(ParserRuleContext.COMP_UNIT);
                 return parseTopLevelNode();
@@ -128,12 +135,6 @@ public class BallerinaParser extends AbstractParser {
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.VAR_DECL_STMT);
                 return parseExpression();
-            case STATEMENTS:
-                // no source pruning
-                return parseAsStatements();
-            case EXPRESSIONS:
-                // no source pruning
-                return parseAsExpressions();
             default:
                 throw new UnsupportedOperationException("Cannot start parsing from: " + context);
         }
@@ -143,10 +144,14 @@ public class BallerinaParser extends AbstractParser {
      * Private methods.
      */
 
+    /**
+     * Parse a given input as a statement list. Starts parsing from the statement context.
+     *
+     * @return Parsed node
+     */
     private STNode parseAsStatements() {
         ArrayList<STNode> stmts = new ArrayList<>();
-        STToken token = peek();
-        while (token.kind != SyntaxKind.EOF_TOKEN) {
+        while (peek().kind != SyntaxKind.EOF_TOKEN) {
 
             startContext(ParserRuleContext.COMP_UNIT);
             startContext(ParserRuleContext.FUNC_BODY_BLOCK);
@@ -168,24 +173,38 @@ public class BallerinaParser extends AbstractParser {
 
             stmts.add(stmt);
         }
-        // TODO: fix invalid tokens attached to eof token
-        return STNodeFactory.createNodeList(stmts);
+
+        STNode eofToken = invalidateAndParseEofToken();
+        return STNodeFactory.createBalPartNode(STNodeFactory.createNodeList(stmts), eofToken);
     }
 
-    private STNode parseAsExpressions() {
+    /**
+     * Parse a given input as an expression. Starts parsing from the expression context.
+     *
+     * @return Parsed node
+     */
+    private STNode parseAsExpression() {
         ArrayList<STNode> exprs = new ArrayList<>();
-        STToken token = peek();
-        while (token.kind != SyntaxKind.EOF_TOKEN) {
 
-            startContext(ParserRuleContext.COMP_UNIT);
-            startContext(ParserRuleContext.VAR_DECL_STMT);
-            STNode expr = parseExpression();
-            this.errorHandler.getContextStack().clear();
+        // We only parse one expr here, since expr followed by expr is not a valid grammar.
+        // e.g. `foo bar` is not valid
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode expr = parseExpression();
+        exprs.add(expr);
 
-            exprs.add(expr);
+        STNode eofToken = invalidateAndParseEofToken();
+        return STNodeFactory.createBalPartNode(STNodeFactory.createNodeList(exprs), eofToken);
+    }
+
+    private STNode invalidateAndParseEofToken() {
+        // invalidate all remaining tokens
+        while (peek().kind != SyntaxKind.EOF_TOKEN) {
+            STToken invalidToken = consume();
+            addInvalidNodeToNextToken(invalidToken, DiagnosticErrorCode.ERROR_INVALID_TOKEN);
         }
-        // TODO: fix invalid tokens attached to eof token
-        return STNodeFactory.createNodeList(exprs);
+
+        return consume();
     }
 
     /**

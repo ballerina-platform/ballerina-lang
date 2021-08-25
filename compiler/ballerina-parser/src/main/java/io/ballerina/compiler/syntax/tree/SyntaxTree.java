@@ -65,11 +65,35 @@ public class SyntaxTree {
                 newTextDocument, oldTree.filePath(), false);
     }
 
-    // TODO: add doc
+    /**
+     * Obtain the syntax tree from a given context.
+     *
+     * @param context      context to start parsing from. Only following contexts are allowed.
+     *                     <br/>&nbsp;{@link ParserRuleContext.COMP_UNIT},
+     *                     <br/>&nbsp;{@link ParserRuleContext.STATEMENTS},
+     *                     <br/>&nbsp;{@link ParserRuleContext.EXPRESSIONS}
+     * @param textDocument text document of which the syntax tree is required
+     * @return obtained syntaxTree
+     */
     public static SyntaxTree from(ParserRuleContext context, TextDocument textDocument) {
+        return from(context, textDocument, null);
+    }
+
+    /**
+     * Obtain the syntax tree from a given context.
+     *
+     * @param context      context to start parsing from. Only following contexts are allowed.
+     *                     <br/>&nbsp;{@link ParserRuleContext.COMP_UNIT},
+     *                     <br/>&nbsp;{@link ParserRuleContext.STATEMENTS},
+     *                     <br/>&nbsp;{@link ParserRuleContext.EXPRESSIONS}
+     * @param textDocument text document of which the syntax tree is required
+     * @param filePath     file path of the document
+     * @return obtained syntaxTree
+     */
+    public static SyntaxTree from(ParserRuleContext context, TextDocument textDocument, String filePath) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
         return new SyntaxTree(parser.parse(context).createUnlinkedFacade(),
-                textDocument, null, false);
+                textDocument, filePath, false);
     }
 
     public TextDocument textDocument() {
