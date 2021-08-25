@@ -73,3 +73,12 @@ function testDefaultInvalidMemberReturnValue() {
     TestHttpClient:HttpClient mockHttpClient = test:mock(TestHttpClient:HttpClient);
     test:prepare(mockHttpClient).getMember("url").thenReturn(());
 }
+
+@test:Config {
+}
+function testMockInvalidStream() {
+    clientEndpoint = test:mock(TestHttpClient:HttpClient);  
+    test:prepare(clientEndpoint).when("get_stream").thenReturn(returnDAOStreamWithGenericError());
+    TestHttpClient:AttributeDAO|error result = getAttribute();
+    test:assertEquals(result, mockAttributeDAO);
+}

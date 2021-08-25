@@ -41,6 +41,7 @@ public class ProjectConstants {
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
+    public static final String BUILD_FILE = "build";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";

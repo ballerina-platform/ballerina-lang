@@ -40,8 +40,24 @@ function getClientUrl() returns string {
     return clientEndpoint.url;
 }
 
+public function getAttribute() returns TestHttpClient:AttributeDAO|error {
+    stream<record {}, error?> attributeResult = clientEndpoint->get_stream("path");
+    stream<TestHttpClient:AttributeDAO, error> attributeStream = <stream<TestHttpClient:AttributeDAO, error>>attributeResult;
+    record {|TestHttpClient:AttributeDAO value;|}|error attribute = attributeStream.next();
+    error? closeErr = attributeStream.close();
+    if (attribute is record {|TestHttpClient:AttributeDAO value;|}) {
+        return <TestHttpClient:AttributeDAO>attribute.value;
+    } else {
+        return attribute;
+    }
+}
+
 function getPerson(string id, typedesc<int|string> td) returns int|string {
     return pObj.getValue(id, td);
+}
+
+function getTheError() returns string|error {
+    return clientEndpoint->getError("/path1");
 }
 
 public class PersonObj {
