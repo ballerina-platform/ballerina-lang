@@ -156,6 +156,7 @@ public class JvmConstants {
     public static final String MODULE = "io/ballerina/runtime/api/Module";
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
+    public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
@@ -264,6 +265,7 @@ public class JvmConstants {
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "$_string_constants";
+    public static final String BUNION_TYPE_CONSTANT_CLASS_NAME = "$_bunion_type_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
     public static final String MODULE_RECORDS_CLASS_NAME = "types/$_records";
@@ -271,6 +273,7 @@ public class JvmConstants {
     public static final String MODULE_ERRORS_CLASS_NAME = "types/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
+    public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
@@ -363,6 +366,8 @@ public class JvmConstants {
 
 
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
+
+    public static final int MAX_MEMBERS_PER_METHOD = 100;
 
     private JvmConstants() {
     }

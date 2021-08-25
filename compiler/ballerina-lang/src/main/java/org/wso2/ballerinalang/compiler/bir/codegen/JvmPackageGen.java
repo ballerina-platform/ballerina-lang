@@ -412,6 +412,7 @@ public class JvmPackageGen {
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
                                        String moduleInitClass, String typesClass,
+                                       JvmUnionTypeConstantsGen unionTypeConstantsGen,
                                        JvmBStringConstantsGen stringConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
@@ -421,7 +422,7 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
-            JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+            JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, unionTypeConstantsGen, module.packageID);
             JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
@@ -796,9 +797,10 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module);
+        JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
+        JvmUnionTypeConstantsGen unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
-                                             jarEntries);
+                                             unionTypeConstantsGen, jarEntries);
 
         // generate the shutdown listener class.
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
@@ -808,22 +810,24 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, module.packageID);
+        valueGen.generateValueClasses(jarEntries, stringConstantsGen, unionTypeConstantsGen);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, unionTypeConstantsGen, module.packageID);
         JvmCreateTypeGen jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, module.packageID);
         JvmAnnotationsGen jvmAnnotationsGen = new JvmAnnotationsGen(module, this, jvmTypeGen);
-        valueGen.generateValueClasses(jarEntries, stringConstantsGen);
+        valueGen.generateValueClasses(jarEntries, stringConstantsGen, unionTypeConstantsGen);
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, stringConstantsGen,
-                jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
+        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, unionTypeConstantsGen,
+                              stringConstantsGen, jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
         jvmCreateTypeGen.generateTypeClass(this, module, jarEntries, moduleInitClass, symbolTable);
         jvmCreateTypeGen.generateValueCreatorClasses(this, module, moduleInitClass, jarEntries, symbolTable);
         jvmCreateTypeGen.generateAnonTypeClass(this, module, moduleInitClass, jarEntries);
         jvmAnnotationsGen.generateAnnotationsClass(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
+        unionTypeConstantsGen.generateClass(jarEntries);
 
         // clear class name mappings
         clearPackageGenInfo();
