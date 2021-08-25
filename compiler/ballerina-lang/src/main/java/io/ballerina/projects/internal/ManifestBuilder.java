@@ -379,27 +379,27 @@ public class ManifestBuilder {
 
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
 
-        boolean skipTests =
+        Boolean skipTests =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
-        boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
-        boolean experimental =
+        Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
+        Boolean experimental =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
-        boolean observabilityIncluded =
+        Boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
-        boolean testReport =
+        Boolean testReport =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TEST_REPORT.toString());
-        boolean codeCoverage =
+        Boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
         final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
-        boolean dumpBuildTime =
+        Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
-        boolean sticky =
-                getTrueFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
+        Boolean sticky =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
         }
-        boolean listConflictedClasses =
+        Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
         return buildOptionsBuilder
@@ -416,10 +416,10 @@ public class ManifestBuilder {
                 .build();
     }
 
-    private boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+    private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            return false;
+            return null;
         }
 
         if (topLevelNode.kind() == TomlType.KEY_VALUE) {
@@ -430,7 +430,7 @@ public class ManifestBuilder {
                 return tomlBooleanValueNode.getValue();
             }
         }
-        return false;
+        return null;
     }
 
     private boolean getTrueFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
