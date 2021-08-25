@@ -152,7 +152,7 @@ public class QueryExpressionProcessor {
             balToml.toFile().deleteOnExit();
 
             // Creates a main file and writes the generated code snippet.
-            File mainBal = createBalMainFile(mainBalContent);
+            createMainBalFile(mainBalContent);
             BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
             BuildProject buildProject = BuildProject.load(this.tempProjectDir, buildOptions);
 
@@ -247,18 +247,16 @@ public class QueryExpressionProcessor {
     /**
      * Helper method to write a string source to a file.
      *
-     * @param source Content to write to the file.
-     * @return The created temp file.
+     * @param content Content to write to the file.
      * @throws IOException If writing was unsuccessful.
      */
-    private File createBalMainFile(String source) throws Exception {
+    private void createMainBalFile(String content) throws Exception {
         File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
         mainBalFile.deleteOnExit();
 
         try (FileWriter fileWriter = new FileWriter(mainBalFile, Charset.defaultCharset())) {
-            fileWriter.write(source);
+            fileWriter.write(content);
         }
-        return mainBalFile;
     }
 
     private String generateModuleLevelDeclarations() {

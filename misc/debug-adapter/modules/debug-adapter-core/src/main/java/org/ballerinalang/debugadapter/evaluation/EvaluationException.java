@@ -35,7 +35,7 @@ public class EvaluationException extends Exception {
         return createEvaluationException(EvaluationExceptionKind.CUSTOM_ERROR, reason);
     }
 
-    public static EvaluationException createEvaluationException(EvaluationExceptionKind exceptionKind, String... details) {
-        return new EvaluationException(String.format(exceptionKind.getString(), (Object[]) details));
+    public static EvaluationException createEvaluationException(EvaluationExceptionKind kind, String... details) {
+        return new EvaluationException(String.format(kind.getString(), (Object[]) details));
     }
 }
