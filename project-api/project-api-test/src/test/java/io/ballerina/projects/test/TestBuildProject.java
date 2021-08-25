@@ -464,6 +464,22 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
+    @Test(description = "tests overriding build options when editing Toml")
+    public void testOverrideBuildOptionsOnTomlEdit() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        try {
+            project = BuildProject.load(projectPath, buildOptions);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().apply();
+        Package newPackage = newBallerinaToml.packageInstance();
+        Assert.assertTrue(newPackage.project().buildOptions().offlineBuild());
+    }
+
     @Test
     public void testUpdateDocument() {
         // Inputs from langserver
