@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.Optional;
 
@@ -45,8 +46,9 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
                          WorkspaceManager wsManager,
                          SignatureHelpCapabilities capabilities,
                          Position cursorPos,
-                         LanguageServerContext serverContext) {
-        super(operation, fileUri, wsManager, serverContext);
+                         LanguageServerContext serverContext,
+                         CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
         this.capabilities = capabilities;
         this.cursorPos = cursorPos;
     }
@@ -127,7 +129,8 @@ public class SignatureContextImpl extends AbstractDocumentServiceContext impleme
                     this.wsManager,
                     this.capabilities,
                     this.position,
-                    this.serverContext);
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         @Override

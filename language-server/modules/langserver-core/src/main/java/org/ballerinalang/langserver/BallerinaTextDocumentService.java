@@ -186,7 +186,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<SignatureHelp> signatureHelp(SignatureHelpParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String uri = params.getTextDocument().getUri();
             Optional<Path> sigFilePath = CommonUtil.getPathFromURI(uri);
 
@@ -199,19 +199,22 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.workspaceManager,
                     this.clientCapabilities.getTextDocCapabilities().getSignatureHelp(),
                     this.serverContext,
-                    params.getPosition());
+                    params.getPosition(),
+                    cancelChecker);
             try {
                 // Find token at cursor position
                 return SignatureHelpUtil.getSignatureHelp(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Signature Help", e);
-                return new SignatureHelp();
+            } catch (CancellationException ignore) {
+                // ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/signature' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_SIGNATURE, msg, e, params.getTextDocument(),
                         params.getPosition());
-                return new SignatureHelp();
             }
+            
+            return new SignatureHelp();
         });
     }
 

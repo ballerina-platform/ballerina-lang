@@ -62,6 +62,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Tuple;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,8 +71,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -94,6 +93,8 @@ public class SignatureHelpUtil {
     public static SignatureHelp getSignatureHelp(SignatureContext context) {
         fillTokenInfoAtCursor(context);
         Optional<NonTerminalNode> sNode = context.getNodeAtCursor();
+        // Check for the cancellation after time consuming operation 
+        context.checkCancelled();
 
         if (sNode.isEmpty()) {
             return null; //empty signatureHelp;
