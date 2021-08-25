@@ -32,6 +32,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
+    implementation project(':docerina')
 
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.code.gson:gson'
@@ -61,4 +62,10 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+}
+
+configurations {
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
