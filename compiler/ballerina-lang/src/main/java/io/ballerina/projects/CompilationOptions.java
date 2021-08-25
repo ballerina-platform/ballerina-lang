@@ -50,7 +50,7 @@ public class CompilationOptions {
     }
 
     boolean sticky() {
-        return toBooleanDefaultIfNull(this.sticky);
+        return toBooleanTrueIfNull(this.sticky);
     }
 
     boolean experimental() {
