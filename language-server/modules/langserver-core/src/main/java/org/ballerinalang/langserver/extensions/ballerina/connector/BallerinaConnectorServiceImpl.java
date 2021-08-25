@@ -29,12 +29,10 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.projects.JvmTarget;
@@ -59,6 +57,8 @@ import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
+import org.ballerinalang.diagramutil.connector.generator.ConnectorGenerator;
+import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -170,72 +170,28 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     public CompletableFuture<BallerinaConnectorResponse> connector(BallerinaConnectorRequest request) {
 
         String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
-        LSConnectorCache connectorCache = LSConnectorCache.getInstance(connectorExtContext);
-        JsonElement st = connectorCache
-                .getConnectorConfig(request.getOrg(), request.getModule(), request.getVersion(), request.getName());
         String error = "";
-        if (st == null) {
-            try {
-                Path balaPath = resolveBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+        Connector connector = null;
 
-                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
-                ModuleId moduleId = balaProject.currentPackage().moduleIds().stream()
-                        .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
-                Module module = balaProject.currentPackage().module(moduleId);
+        try {
+            Path balaPath = resolveBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+            ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+            defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
 
-                PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
-                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+            Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
 
-                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
-                module.documentIds().forEach(documentId -> {
-                    module.document(documentId).syntaxTree().rootNode().accept(connectorNodeVisitor);
-                });
-
-                Map<String, TypeDefinitionNode> jsonRecords = new HashMap<>();
-                Map<String, ClassDefinitionNode> objectTypes = new HashMap<>();
-                connectorNodeVisitor.getRecords().forEach(jsonRecords::put);
-                connectorNodeVisitor.getObjectTypes().forEach(objectTypes::put);
-
-                Gson gson = new Gson();
-                List<ClassDefinitionNode> connectorNodes = connectorNodeVisitor.getConnectors();
-
-                connectorNodes.forEach(connector -> {
-                    // todo : preserve the existing logic add the information to the typeData element of
-                    //  the syntax tree JSON and send to front end
-                    Map<String, JsonElement> connectorRecords = new HashMap<>();
-
-                    for (Node child : connector.members()) {
-                        if (child.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                            FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) child;
-                            functionDefinitionNode.functionSignature().parameters().forEach(parameterNode -> {
-                                populateConnectorFunctionParamRecords(parameterNode, semanticModel, jsonRecords,
-                                        objectTypes, connectorRecords);
-                            });
-                        }
-                    }
-
-                    JsonElement jsonST = DiagramUtil.getClassDefinitionSyntaxJson(connector, semanticModel);
-                    if (jsonST instanceof JsonObject && ((JsonObject) jsonST).has("typeData")) {
-                        JsonElement recordsJson = gson.toJsonTree(connectorRecords);
-                        ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
-                    }
-                    connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
-                            request.getVersion(), connector.className().text(), jsonST);
-
-                });
-                st = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
-                        request.getVersion(), request.getName());
-            } catch (Exception e) {
-                String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
-                        request.getName() + " failed!";
-                error = e.getMessage();
-                this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
+            List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
+            if (connectors.size() > 0) {
+                connector = connectors.get(0);
             }
+
+        } catch (Exception e) {
+            String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
+                    request.getName() + " failed!";
+            error = e.getMessage();
+            this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
         }
-        BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getDisplayName(), st, error, request.getBeta());
+        BallerinaConnectorResponse response = new BallerinaConnectorResponse(connector, error);
         return CompletableFuture.supplyAsync(() -> response);
     }
 
