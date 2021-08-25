@@ -58,13 +58,13 @@
       ]
     },
     {
-      "label": "add(map<any|error> val)",
+      "label": "add(Employee val)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nAdds a member to a table.\n\nIt will be added as the last member.\nIt panics if parameter `val` has the same key as an existing member of parameter `t`,\nor if parameter `val` is inconsistent with the inherent type of `t`.\n  \n**Params**  \n- `map<any|error>` val: the member"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nAdds a member to a table.\n\nIt will be added as the last member.\nIt panics if parameter `val` has the same key as an existing member of parameter `t`,\nor if parameter `val` is inconsistent with the inherent type of `t`.\n  \n**Params**  \n- `Employee` val: the member"
         }
       },
       "sortText": "E",
@@ -130,13 +130,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "put(map<any|error> val)",
+      "label": "put(Employee val)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nAdds a member to a table value, replacing any member with the same key value.\n\nIf parameter `val` replaces an existing member, it will have the same position\nin the order of the members as the existing member;\notherwise, it will be added as the last member.\nIt panics if parameter `val` is inconsistent with the inherent type of parameter `t`.\n  \n**Params**  \n- `map<any|error>` val: the member"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nAdds a member to a table value, replacing any member with the same key value.\n\nIf parameter `val` replaces an existing member, it will have the same position\nin the order of the members as the existing member;\notherwise, it will be added as the last member.\nIt panics if parameter `val` is inconsistent with the inherent type of parameter `t`.\n  \n**Params**  \n- `Employee` val: the member"
         }
       },
       "sortText": "E",
@@ -181,11 +181,11 @@
     {
       "label": "toArray()",
       "kind": "Function",
-      "detail": "map<any|error>[]",
+      "detail": "Employee[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns a list of all the members of a table.\n  \n  \n  \n**Return** `map<any|error>[]`   \n- an array whose members are the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns a list of all the members of a table.\n  \n  \n  \n**Return** `Employee[]`   \n- an array whose members are the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "E",
@@ -339,11 +339,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "table<any|error> key<never>",
+      "detail": "table<any|error>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<any|error> key<never>`   \n- new table containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<any|error>`   \n- new table containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "E",
