@@ -95,7 +95,8 @@ public class PackageDescriptor {
         PackageDescriptor that = (PackageDescriptor) other;
         return packageName.equals(that.packageName) &&
                 packageOrg.equals(that.packageOrg) &&
-                Objects.equals(packageVersion, that.packageVersion);
+                Objects.equals(packageVersion, that.packageVersion) &&
+                Objects.equals(repository, that.repository);
     }
 
     @Override
@@ -105,7 +106,7 @@ public class PackageDescriptor {
 
     @Override
     public String toString() {
-        String pkgStr = packageOrg + ":" + packageName;
+        String pkgStr = packageOrg + "/" + packageName;
         if (packageVersion == null) {
             return pkgStr;
         }
