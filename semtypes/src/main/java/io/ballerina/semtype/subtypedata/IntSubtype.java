@@ -23,6 +23,7 @@ import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.UniformTypeCode;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -35,19 +36,19 @@ public class IntSubtype implements ProperSubtypeData {
     private final Range[] ranges;
 
     public IntSubtype(Range[] ranges) {
-        this.ranges = ranges;
+        this.ranges = Arrays.copyOf(ranges, ranges.length);
     }
 
     public static IntSubtype createIntSubtype(Range... ranges) {
         return new IntSubtype(ranges);
     }
 
-    public static IntSubtype createRange(long min, long max) {
-        return new IntSubtype(new Range[]{new Range(min, (1L << max) - 1L)});
+    public static IntSubtype createSingleRangeSubtype(long min, long max) {
+        return new IntSubtype(new Range[]{new Range(min, max)});
     }
 
     public static SemType intConst(long value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, createRange(value, value));
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, createSingleRangeSubtype(value, value));
     }
 
     static void validIntWidth(boolean signed, long bits) {
@@ -82,13 +83,13 @@ public class IntSubtype implements ProperSubtypeData {
         if (bits == 64) {
             return PredefinedType.INT;
         }
-        IntSubtype t = createRange(-(1L << (bits - 1L)), (1L << (bits - 1L)) - 1L);
+        IntSubtype t = createSingleRangeSubtype(-(1L << (bits - 1L)), (1L << (bits - 1L)) - 1L);
         return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, t);
     }
 
     public static SemType intWidthUnsigned(int bits) {
         validIntWidth(false, bits);
-        IntSubtype t = createRange(0L, (1L << bits) - 1L);
+        IntSubtype t = createSingleRangeSubtype(0L, (1L << bits) - 1L);
         return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, t);
     }
 
@@ -107,7 +108,7 @@ public class IntSubtype implements ProperSubtypeData {
         int i = 8;
         while (i <= 32) {
             if (r.max < (1L << i)) {
-                IntSubtype w = createRange(0L, i);
+                IntSubtype w = createSingleRangeSubtype(0L, i);
                 return w;
             }
             i = i * 2;
@@ -135,7 +136,7 @@ public class IntSubtype implements ProperSubtypeData {
     /**
      * Int Range node.
      */
-    public static class Range {
+    static class Range {
         final long min;
         final long max;
 

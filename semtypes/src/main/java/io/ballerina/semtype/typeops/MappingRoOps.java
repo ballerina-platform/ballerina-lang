@@ -19,14 +19,13 @@ package io.ballerina.semtype.typeops;
 
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
-import io.ballerina.semtype.UniformTypeOps;
 
 /**
  * Mapping readonly specific methods operate on SubtypeData.
  *
  * @since 2.0.0
  */
-public class MappingRoOps extends MappingCommonOps implements UniformTypeOps {
+public class MappingRoOps extends MappingCommonOps {
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
         throw new AssertionError();
