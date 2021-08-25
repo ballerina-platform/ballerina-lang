@@ -66,6 +66,7 @@ public class PackageResolution {
     private final BlendedManifest blendedManifest;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
     private final CompilationOptions compilationOptions;
+    private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
@@ -74,26 +75,27 @@ public class PackageResolution {
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
 
-    private PackageResolution(PackageContext rootPackageContext) {
+    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
         this.dependencyManifest = rootPackageContext.dependencyManifest();
         this.diagnosticList = new ArrayList<>();
-        this.compilationOptions = rootPackageContext.compilationOptions();
+        this.compilationOptions = compilationOptions;
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
+        this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.blendedManifest = BlendedManifest.from(rootPackageContext.packageManifest(),
                 rootPackageContext.dependencyManifest(), projectEnvContext.getService(LocalPackageRepository.class));
 
         this.moduleResolver = new ModuleResolver(projectEnvContext.getService(PackageResolver.class));
 
-        dependencyGraph = buildDependencyGraph(getSticky(rootPackageContext));
+        dependencyGraph = buildDependencyGraph(getSticky(rootPackageContext), compilationOptions.offlineBuild());
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
     }
 
-    static PackageResolution from(PackageContext rootPackageContext) {
-        return new PackageResolution(rootPackageContext);
+    static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+        return new PackageResolution(rootPackageContext, compilationOptions);
     }
 
     /**
@@ -189,12 +191,12 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky) {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky, boolean offline) {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
-            return createDependencyGraphFromBALA();
+            return createDependencyGraphFromBALA(offline);
         } else {
-            return createDependencyGraphFromSources(sticky);
+            return createDependencyGraphFromSources(sticky, offline);
         }
     }
 
@@ -240,24 +242,24 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    private DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromBALA() {
+    private DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromBALA(boolean offline) {
         DependencyGraph<PackageDescriptor> dependencyGraphStoredInBALA = rootPackageContext.dependencyGraph();
         Collection<PackageDescriptor> directDependenciesOfBALA =
                 dependencyGraphStoredInBALA.getDirectDependencies(rootPackageContext.descriptor());
 
-        List<ResolutionEngine.PackageDependency> directDeps = new ArrayList<>();
+        List<ResolutionEngine.DependencyNode> directDeps = new ArrayList<>();
         for (PackageDescriptor pkgDesc : directDependenciesOfBALA) {
-            directDeps.add(new ResolutionEngine.PackageDependency(pkgDesc, PackageDependencyScope.DEFAULT,
+            directDeps.add(new ResolutionEngine.DependencyNode(pkgDesc, PackageDependencyScope.DEFAULT,
                     DependencyResolutionType.SOURCE));
         }
 
-        boolean offline = rootPackageContext.project().buildOptions().offlineBuild();
-        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
-                rootPackageContext.descriptor(), offline, true);
-        return resolutionEngine.resolveDependencies(directDeps);
+        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(), dependencyManifest,
+                packageResolver, offline, true);
+        resolutionEngine.resolveDependencies(directDeps);
+        return resolutionEngine.getPackageDependencyGraph(rootPackageContext.project());
     }
 
-    DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky) {
+    DependencyGraph<ResolvedPackageDependency> createDependencyGraphFromSources(boolean sticky, boolean offline) {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
@@ -266,7 +268,7 @@ public class PackageResolution {
         PackageContainer<DirectPackageDependency> directDepsContainer =
                 moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
 
-        List<ResolutionEngine.PackageDependency> directDeps = new ArrayList<>();
+        List<ResolutionEngine.DependencyNode> directDeps = new ArrayList<>();
         for (DirectPackageDependency directPkgDependency : directDepsContainer.getAll()) {
             PackageVersion depVersion;
             String repository;
@@ -299,15 +301,15 @@ public class PackageResolution {
                 throw new IllegalStateException("Unsupported direct dependency kind: " +
                         directPkgDependency.dependencyKind());
             }
-            directDeps.add(new ResolutionEngine.PackageDependency(
+            directDeps.add(new ResolutionEngine.DependencyNode(
                     PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
                     directPkgDependency.scope(), directPkgDependency.resolutionType()));
         }
 
-        boolean offline = rootPackageContext.project().buildOptions().offlineBuild();
-        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.project(), dependencyManifest,
-                rootPackageContext.descriptor(), offline, sticky);
-        return resolutionEngine.resolveDependencies(directDeps);
+        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(), dependencyManifest,
+                packageResolver, offline, sticky);
+        resolutionEngine.resolveDependencies(directDeps);
+        return resolutionEngine.getPackageDependencyGraph(rootPackageContext.project());
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
