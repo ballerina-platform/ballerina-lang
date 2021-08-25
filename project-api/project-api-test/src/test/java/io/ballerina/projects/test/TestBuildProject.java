@@ -490,7 +490,6 @@ public class TestBuildProject extends BaseTest {
                 "version = \"0.1.0\"\n" +
                 "\n" +
                 "[build-options]\n" +
-                "b7aConfigFile=\"/tmp/ballerina.conf\"\n" +
                 "experimental=true\n" +
                 "observabilityIncluded=true\n" +
                 "skipTests=true\n" +
@@ -501,6 +500,9 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(newPackage.project().buildOptions().offlineBuild());
         // Test when build option provided only in Ballerina TOML
         Assert.assertTrue(newPackage.project().buildOptions().codeCoverage());
+        Assert.assertTrue(newPackage.project().buildOptions().observabilityIncluded());
+        Assert.assertTrue(newPackage.project().buildOptions().experimental());
+        Assert.assertTrue(newPackage.project().buildOptions().skipTests());
     }
 
     @Test
