@@ -162,10 +162,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<Hover> hover(HoverParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            HoverContext context = ContextBuilder
-                    .buildHoverContext(fileUri, this.workspaceManager, this.serverContext, params.getPosition());
+            HoverContext context =
+                    ContextBuilder.buildHoverContext(
+                            fileUri, this.workspaceManager,
+                            this.serverContext, params.getPosition(),
+                            cancelChecker);
             Hover hover;
             try {
                 hover = HoverUtil.getHover(context);

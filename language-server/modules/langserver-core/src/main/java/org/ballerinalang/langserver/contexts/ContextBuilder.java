@@ -230,11 +230,13 @@ public class ContextBuilder {
     public static HoverContext buildHoverContext(String uri,
                                                  WorkspaceManager workspaceManager,
                                                  LanguageServerContext serverContext,
-                                                 Position position) {
+                                                 Position position,
+                                                 CancelChecker cancelChecker) {
         return new HoverContextImpl.HoverContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withPosition(position)
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 

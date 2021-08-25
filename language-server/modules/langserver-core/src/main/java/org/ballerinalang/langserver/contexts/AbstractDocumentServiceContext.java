@@ -300,7 +300,12 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
         }
 
         public DocumentServiceContext build() {
-            return new AbstractDocumentServiceContext(this.operation, this.fileUri, this.wsManager, this.serverContext);
+            return new AbstractDocumentServiceContext(
+                    this.operation,
+                    this.fileUri,
+                    this.wsManager,
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         public abstract T self();

@@ -74,7 +74,11 @@ public class HoverUtil {
 
         Position cursorPosition = context.getCursorPosition();
         LinePosition linePosition = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
+        // Check for the cancellation before the time consuming operation
+        context.checkCancelled();
         Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
+        // Check for the cancellation after the time consuming operation
+        context.checkCancelled();
         if (symbolAtCursor.isEmpty()) {
             return HoverUtil.getDefaultHoverObject();
         }
@@ -285,13 +289,6 @@ public class HoverUtil {
 
         return getDescriptionOnlyHoverObject(((Documentable) symbol).documentation().get());
     }
-
-//    private static boolean skipFirstParam(LSContext context, BInvokableSymbol invokableSymbol) {
-    // Fixme in the next phase
-//        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
-//        return CommonUtil.isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
-//        return false;
-//    }
 
     private static Hover getFunctionHoverMarkupContent(FunctionSymbol symbol, HoverContext ctx) {
         Optional<Documentation> documentation = symbol.documentation();
