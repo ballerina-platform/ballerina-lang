@@ -200,9 +200,7 @@ public class AnnotationDesugar {
     }
 
     private boolean isServiceDeclaration(BLangClassDefinition serviceClass) {
-        return Objects.nonNull(serviceClass.getFlags())
-                && serviceClass.getFlags().contains(Flag.SERVICE)
-                && (serviceClass.isServiceDecl || serviceClass.getFlags().contains(Flag.OBJECT_CTOR));
+        return serviceClass.getFlags().contains(Flag.SERVICE) && serviceClass.isServiceDecl;
     }
 
     private void addIntrospectionInfoAnnotation(BLangClassDefinition serviceClass) {
