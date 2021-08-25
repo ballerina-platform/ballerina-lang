@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BServiceType;
 
@@ -36,13 +37,18 @@ import io.ballerina.runtime.internal.types.BServiceType;
  */
 public class Async {
 
-    public static long isolatedGetA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "getA", true);
+    public static long getA(Environment env, BObject obj) {
+        invokeAsync(env, obj, "getA");
         return 0;
     }
 
-    public static long isolatedGetAWithoutConcurrent(Environment env, BObject obj) {
-        invokeAsync(env, obj, "getA");
+    public static long getResourceA(Environment env, BObject obj) {
+        invokeAsync(env, obj, "$gen$$getA$$0046");
+        return 0;
+    }
+
+    public static long isolatedGetA(Environment env, BObject obj) {
+        invokeMethodAsyncConcurrently(env, obj, "getA");
         return 0;
     }
 
@@ -55,12 +61,7 @@ public class Async {
     }
 
     public static long nonIsolatedGetA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "getA", false);
-        return 0;
-    }
-
-    public static long nonIsolatedGetAWithoutConcurrent(Environment env, BObject obj) {
-        invokeAsync(env, obj, "getA");
+        invokeMethodAsyncSequentially(env, obj, "getA");
         return 0;
     }
 
@@ -73,12 +74,7 @@ public class Async {
     }
 
     public static long isolatedServiceGetA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "$gen$$getA$$0046", true);
-        return 0;
-    }
-
-    public static long isolatedServiceGetAWithoutConcurrent(Environment env, BObject obj) {
-        invokeAsync(env, obj, "$gen$$getA$$0046");
+        invokeMethodAsyncConcurrently(env, obj, "$gen$$getA$$0046");
         return 0;
     }
 
@@ -91,12 +87,7 @@ public class Async {
     }
 
     public static long nonIsolatedServiceGetA(Environment env, BObject obj) {
-        invokeAsync(env, obj, "$gen$$getA$$0046", false);
-        return 0;
-    }
-
-    public static long nonIsolatedServiceGetAWithoutConcurrent(Environment env, BObject obj) {
-        invokeAsync(env, obj, "$gen$$getA$$0046");
+        invokeMethodAsyncSequentially(env, obj, "$gen$$getA$$0046");
         return 0;
     }
 
@@ -109,38 +100,68 @@ public class Async {
     }
 
     public static Object callAsyncNullObject(Environment env) {
-        invokeAsync(env, null, "getA", true);
-        return 0;
-    }
-
-    public static Object callAsyncNullObjectMethod(Environment env, BObject obj) {
-        invokeAsync(env, obj, null, true);
-        return 0;
-    }
-
-    public static Object callAsyncInvalidObjectMethod(Environment env, BObject obj) {
-        invokeAsync(env, obj, "foo", true);
-        return 0;
-    }
-
-    public static Object callAsyncNullObjectWithoutConcurrent(Environment env) {
         invokeAsync(env, null, "getA");
         return 0;
     }
 
-    public static Object callAsyncNullObjectMethodWithoutConcurrent(Environment env, BObject obj) {
+    public static Object callAsyncNullObjectMethod(Environment env, BObject obj) {
         invokeAsync(env, obj, null);
         return 0;
     }
 
-    public static Object callAsyncInvalidObjectMethodWithoutConcurrent(Environment env, BObject obj) {
+    public static Object callAsyncInvalidObjectMethod(Environment env, BObject obj) {
         invokeAsync(env, obj, "foo");
         return 0;
     }
 
-    private static void invokeAsync(Environment env, BObject obj, String methodName, boolean callConcurrently) {
+    public static Object callAsyncNullObjectSequentially(Environment env) {
+        invokeAsync(env, null, "getA");
+        return 0;
+    }
+
+    public static Object callAsyncNullObjectMethodSequentially(Environment env, BObject obj) {
+        invokeAsync(env, obj, null);
+        return 0;
+    }
+
+    public static Object callAsyncInvalidObjectMethodSequentially(Environment env, BObject obj) {
+        invokeAsync(env, obj, "foo");
+        return 0;
+    }
+
+    public static Object callAsyncNullObjectConcurrently(Environment env) {
+        invokeAsync(env, null, "getA");
+        return 0;
+    }
+
+    public static Object callAsyncNullObjectMethodConcurrently(Environment env, BObject obj) {
+        invokeAsync(env, obj, null);
+        return 0;
+    }
+
+    public static Object callAsyncInvalidObjectMethodConcurrently(Environment env, BObject obj) {
+        invokeAsync(env, obj, "foo");
+        return 0;
+    }
+
+    private static void invokeMethodAsyncSequentially(Environment env, BObject obj, String methodName) {
         Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsync(obj, methodName, null, null, callConcurrently, new Callback() {
+        BFuture bFuture = env.getRuntime().invokeMethodAsyncSequentially(obj, methodName, null, null, new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                future.complete(result);
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                future.complete(error);
+            }
+        }, null, PredefinedTypes.TYPE_INT);
+    }
+
+    private static void invokeMethodAsyncConcurrently(Environment env, BObject obj, String methodName) {
+        Future future = env.markAsync();
+        BFuture bFuture = env.getRuntime().invokeMethodAsyncConcurrently(obj, methodName, null, null, new Callback() {
             @Override
             public void notifySuccess(Object result) {
                 future.complete(result);
@@ -155,7 +176,7 @@ public class Async {
 
     private static void invokeAsync(Environment env, BObject obj, String methodName) {
         Future future = env.markAsync();
-        env.getRuntime().invokeMethodAsync(obj, methodName, null, null, new Callback() {
+        Object result = env.getRuntime().invokeMethodAsync(obj, methodName, null, null, new Callback() {
             @Override
             public void notifySuccess(Object result) {
                 future.complete(result);

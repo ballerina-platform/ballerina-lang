@@ -45,7 +45,7 @@ public class MockListener {
         if (service != null) {
             CountDownLatch latch = new CountDownLatch(1);
             Runtime runtime = env.getRuntime();
-            runtime.invokeMethodAsync(service, name.getValue(), null, null, true,
+            runtime.invokeMethodAsync(service, name.getValue(), null, null,
                                       new Callback() {
                                           @Override
                                           public void notifySuccess(Object result) {
