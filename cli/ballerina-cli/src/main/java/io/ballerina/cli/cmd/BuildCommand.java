@@ -209,6 +209,10 @@ public class BuildCommand implements BLauncherCmd {
             coverage = false;
         }
 
+        if (sticky == null) {
+            sticky = false;
+        }
+
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFileBuild = false;
