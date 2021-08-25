@@ -19,6 +19,11 @@ package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.ProperSubtypeData;
 
+/**
+ * Represent StringSubtype.
+ *
+ * @since 2.0.0
+ */
 public class StringSubtype implements ProperSubtypeData {
 
 }

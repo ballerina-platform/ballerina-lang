@@ -19,6 +19,11 @@ package io.ballerina.semtype;
 
 import java.util.ArrayList;
 
+/**
+ * ComplexSemType node.
+ *
+ * @since 2.0.0
+ */
 public class ComplexSemType implements SemType {
     // For a uniform type with code c,
     // all & (1 << c) is non-zero iff this type contains all of the uniform type

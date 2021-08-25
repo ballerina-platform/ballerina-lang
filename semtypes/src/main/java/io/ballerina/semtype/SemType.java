@@ -17,5 +17,10 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * SemType node.
+ *
+ * @since 2.0.0
+ */
 public interface SemType {
 }

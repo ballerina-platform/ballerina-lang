@@ -20,7 +20,7 @@ package io.ballerina.semtype;
 /**
  * Represent bit field that indicate which uniform type a semType belongs to.
  * Regular types are divided longo mutable part and immutable part and these parts are called an uniform type.
- * 5th bit indicate mutability; 0 immutable, 1 mutable
+ * 5th bit indicate mutability; 0 immutable, 1 mutable.
  *
  * @since 2.0.0
  */

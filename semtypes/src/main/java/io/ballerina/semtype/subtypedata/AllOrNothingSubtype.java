@@ -19,6 +19,12 @@ package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.SubtypeData;
 
+/**
+ * A subtype representing either all subtypes or nothing.
+ * This is the Java representation of the `boolean` found in `SubtypeData` type in Ballerina impl.
+ *
+ * @since 2.0.0
+ */
 public class AllOrNothingSubtype implements SubtypeData {
     private final boolean isAll;
 

@@ -17,10 +17,15 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.CommonUniformTypeOps;
 import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.UniformTypeOps;
 
-public abstract class CommonOps implements UniformTypeOps {
+/**
+ * Common methods operate on SubtypeData.
+ *
+ * @since 2.0.0
+ */
+public abstract class CommonOps implements CommonUniformTypeOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         throw new AssertionError();

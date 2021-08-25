@@ -17,5 +17,10 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * MappingAtomicType node.
+ *
+ * @since 2.0.0
+ */
 public class MappingAtomicType implements AtomicType {
 }

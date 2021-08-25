@@ -17,6 +17,11 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * FunctionAtomicType node.
+ *
+ * @since 2.0.0
+ */
 public class FunctionAtomicType {
     SemType paramType;
     SemType retType;

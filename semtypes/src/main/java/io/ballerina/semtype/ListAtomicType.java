@@ -19,6 +19,11 @@ package io.ballerina.semtype;
 
 import java.util.ArrayList;
 
+/**
+ * ListAtomicType node.
+ *
+ * @since 2.0.0
+ */
 public class ListAtomicType implements AtomicType {
     final ArrayList<SemType> members;
     final SemType rest;

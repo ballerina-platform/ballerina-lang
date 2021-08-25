@@ -17,11 +17,16 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * UniformSubtype node.
+ *
+ * @since 2.0.0
+ */
 public class UniformSubtype {
-    public final long uniformTypeCode;
+    public final int uniformTypeCode;
     public final SubtypeData subtypeData;
 
-    public UniformSubtype(long uniformTypeCode, SubtypeData subtypeData) {
+    public UniformSubtype(int uniformTypeCode, SubtypeData subtypeData) {
         this.uniformTypeCode = uniformTypeCode;
         this.subtypeData = subtypeData;
     }

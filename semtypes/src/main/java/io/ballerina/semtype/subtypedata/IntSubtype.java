@@ -25,6 +25,11 @@ import io.ballerina.semtype.UniformTypeCode;
 
 import java.util.Optional;
 
+/**
+ * Represent IntSubtype.
+ *
+ * @since 2.0.0
+ */
 public class IntSubtype implements ProperSubtypeData {
 
     private final Range[] ranges;
@@ -127,6 +132,9 @@ public class IntSubtype implements ProperSubtypeData {
         return Optional.of(min);
     }
 
+    /**
+     * Int Range node.
+     */
     public static class Range {
         final long min;
         final long max;

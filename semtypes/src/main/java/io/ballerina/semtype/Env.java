@@ -20,6 +20,11 @@ package io.ballerina.semtype;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Env node.
+ *
+ * @since 2.0.0
+ */
 public class Env {
     private final HashMap<AtomicType, TypeAtom> atomTable;
     private final ArrayList<ListAtomicType> recListAtoms;
@@ -30,7 +35,8 @@ public class Env {
         this.atomTable = new HashMap<>();
         // Set up index 0 for use by bddFixReadOnly
         this.recListAtoms = new ArrayList<>();
-        // todo: add LIST_SUBTYPE_RO
+        this.recListAtoms.add(ListAtomicType.LIST_SUBTYPE_RO);
+
         this.recMappingAtoms = new ArrayList<>();
         // todo: add MAPPING_SUBTYPE_RO
         this.recFunctionAtoms = new ArrayList<>();

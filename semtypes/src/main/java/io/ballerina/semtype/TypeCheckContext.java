@@ -17,6 +17,11 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * TypeCheckContext node.
+ *
+ * @since 2.0.0
+ */
 public class TypeCheckContext {
     private final Env env;
     // todo: Normal hash tables should do here

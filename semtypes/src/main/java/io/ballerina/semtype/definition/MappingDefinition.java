@@ -21,6 +21,11 @@ import io.ballerina.semtype.Definition;
 import io.ballerina.semtype.Env;
 import io.ballerina.semtype.SemType;
 
+/**
+ * Represent mapping type desc.
+ *
+ * @since 2.0.0
+ */
 public class MappingDefinition implements Definition {
     @Override
     public SemType getSemType(Env env) {

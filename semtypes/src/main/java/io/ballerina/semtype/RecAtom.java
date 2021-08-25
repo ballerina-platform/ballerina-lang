@@ -17,6 +17,11 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * Represent a recursive type atom.
+ *
+ * @since 2.0.0
+ */
 public class RecAtom implements Atom {
     long index;
 
