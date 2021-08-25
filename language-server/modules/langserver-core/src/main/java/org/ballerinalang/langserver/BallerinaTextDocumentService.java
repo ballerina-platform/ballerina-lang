@@ -221,23 +221,26 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition
             (DefinitionParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
                         params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        params.getPosition(),
+                        cancelChecker);
                 return Either.forLeft(DefinitionUtil.getDefinition(defContext, params.getPosition()));
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Goto Definition", e);
-                return Either.forLeft(Collections.emptyList());
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation Exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_DEFINITION, msg, e, params.getTextDocument(),
                         params.getPosition());
-                return Either.forLeft(Collections.emptyList());
             }
+            
+            return Either.forLeft(Collections.emptyList());
         });
     }
 

@@ -290,11 +290,13 @@ public class ContextBuilder {
     public static BallerinaDefinitionContext buildDefinitionContext(String uri,
                                                                     WorkspaceManager workspaceManager,
                                                                     LanguageServerContext serverContext,
-                                                                    Position position) {
+                                                                    Position position,
+                                                                    CancelChecker cancelChecker) {
         return new BallerinaDefinitionContextImpl.DefinitionContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCursorPosition(position)
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 

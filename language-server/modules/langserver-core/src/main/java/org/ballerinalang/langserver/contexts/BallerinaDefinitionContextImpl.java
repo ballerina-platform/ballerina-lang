@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.Optional;
 
@@ -44,8 +45,9 @@ public class BallerinaDefinitionContextImpl
                                    String fileUri,
                                    WorkspaceManager wsManager,
                                    Position position,
-                                   LanguageServerContext serverContext) {
-        super(operation, fileUri, wsManager, serverContext);
+                                   LanguageServerContext serverContext,
+                                   CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
         this.cursorPosition = position;
     }
 
@@ -112,7 +114,8 @@ public class BallerinaDefinitionContextImpl
                     this.fileUri,
                     this.wsManager,
                     this.cursor,
-                    this.serverContext);
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         @Override
