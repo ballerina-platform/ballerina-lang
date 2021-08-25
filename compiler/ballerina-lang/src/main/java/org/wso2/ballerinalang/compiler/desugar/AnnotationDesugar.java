@@ -106,6 +106,7 @@ public class AnnotationDesugar {
     public static final String ANNOTATION_DATA = "$annotation_data";
     private static final String ANNOT_FUNC = "$annot_func$";
     public static final String BUILTIN_PKG_KEY = "ballerina" + "/" + "builtin";
+    public static final String HTTP_PKG_KEY = "ballerina" + "/" + "http";
     public static final String DEFAULTABLE_ANN = "DefaultableArgs";
     public static final String DEFAULTABLE_REC = "ArgsData";
     public static final String ARG_NAMES = "args";
@@ -209,8 +210,8 @@ public class AnnotationDesugar {
         // Create Annotation Attachment.
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(serviceClass.symbol.getEnclosingSymbol());
-        symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol), 
-                                                  names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
+        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol),
+                names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -225,7 +226,7 @@ public class AnnotationDesugar {
         BLangRecordLiteral literalNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         annoAttachment.expr = literalNode;
         BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        pkgAlias.setValue(BUILTIN_PKG_KEY);
+        pkgAlias.setValue(HTTP_PKG_KEY);
         annoAttachment.pkgAlias = pkgAlias;
         annoAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
         literalNode.pos = position;
