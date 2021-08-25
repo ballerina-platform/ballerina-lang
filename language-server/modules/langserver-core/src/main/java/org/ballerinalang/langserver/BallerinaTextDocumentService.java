@@ -304,6 +304,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .collect(Collectors.toList());
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Action", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeAction' failed!";
                 Range range = params.getRange();
@@ -316,13 +318,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
-        return CompletableFuture.supplyAsync(() -> {
-            List<CodeLens> lenses;
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             if (!LSCodeLensesProviderHolder.getInstance(this.serverContext).isEnabled()) {
                 // Disabled ballerina codeLens feature
                 clientCapabilities.getTextDocCapabilities().setCodeLens(null);
                 // Skip code lenses if codeLens disabled
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             String fileUri = params.getTextDocument().getUri();
@@ -330,33 +331,27 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             // Note: If the path does not exist, then return early and ignore
             if (docSymbolFilePath.isEmpty()) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
-            DocumentServiceContext codeLensContext = ContextBuilder.buildDocumentServiceContext(fileUri,
-                    this.workspaceManager,
-                    LSContextOperation.TXT_CODE_LENS, this.serverContext);
-
+            DocumentServiceContext codeLensContext = ContextBuilder.buildDocumentServiceContext(
+                    fileUri, this.workspaceManager,
+                    LSContextOperation.TXT_CODE_LENS, this.serverContext,
+                    cancelChecker);
             try {
-                lenses = CodeLensUtil.getCodeLenses(codeLensContext, params.getTextDocument());
-                return lenses;
+                return CodeLensUtil.getCodeLenses(codeLensContext, params.getTextDocument());
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Code Lens", e);
-                // Source compilation failed, serve from cache
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeLens' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_CODE_LENS, msg, e, params.getTextDocument(),
                         (Position) null);
-                // Source compilation failed, serve from cache
             }
 
             return Collections.emptyList();
         });
-    }
-
-    @Override
-    public CompletableFuture<CodeLens> resolveCodeLens(CodeLens unresolved) {
-        return null;
     }
 
     @Override

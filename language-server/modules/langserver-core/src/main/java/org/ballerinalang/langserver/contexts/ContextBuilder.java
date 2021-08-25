@@ -77,6 +77,27 @@ public class ContextBuilder {
      *
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
+     * @param operation        language server operation
+     * @param serverContext    language server context
+     * @param cancelChecker    cancellation checker
+     * @return {@link DocumentServiceContext} base context generated
+     */
+    public static DocumentServiceContext buildDocumentServiceContext(String uri, WorkspaceManager workspaceManager,
+                                                                     LSContextOperation operation,
+                                                                     LanguageServerContext serverContext,
+                                                                     CancelChecker cancelChecker) {
+        return new BaseContextImpl.BaseContextBuilder(operation, serverContext)
+                .withFileUri(uri)
+                .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
+                .build();
+    }
+
+    /**
+     * Build the did open context.
+     *
+     * @param uri              file uri
+     * @param workspaceManager workspace manager instance
      * @param capabilities     completion capabilities
      * @param serverContext    language server context
      * @param position         cursor position where the completion triggered

@@ -47,6 +47,7 @@ public class CodeLensUtil {
         LSClientLogger clientLogger = LSClientLogger.getInstance(codeLensContext.languageServercontext());
         for (LSCodeLensesProvider provider : providers) {
             try {
+                codeLensContext.checkCancelled();
                 lenses.addAll(provider.getLenses(codeLensContext));
             } catch (LSCodeLensesProviderException e) {
                 clientLogger.logError(LSContextOperation.TXT_CODE_LENS,
