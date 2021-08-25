@@ -18,7 +18,7 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
-import com.google.gson.JsonElement;
+import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 
 /**
  * Represents with connector AST.
@@ -27,56 +27,19 @@ import com.google.gson.JsonElement;
  */
 public class BallerinaConnectorResponse {
 
-    private final String org;
-    private final String module;
-    private final String version;
-    private final String name;
-    private final String displayName;
+    private Connector connector;
     private final String error;
-    private JsonElement ast;
-    private final Boolean beta;
 
-    public BallerinaConnectorResponse(String org, String module, String version, String name, String displayName,
-                                      JsonElement ast, String error, Boolean beta) {
-        this.org = org;
-        this.module = module;
-        this.version = version;
-        this.name = name;
-        this.displayName = displayName;
-        this.ast = ast;
+    public BallerinaConnectorResponse(Connector connector, String error) {
+        this.connector = connector;
         this.error = error;
-        this.beta = beta;
     }
 
-    public String getOrg() {
-        return org;
-    }
-
-    public String getModule() {
-        return module;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public JsonElement getAst() {
-        return ast;
+    public Connector getConnector() {
+        return connector;
     }
 
     public String getError() {
         return error;
-    }
-
-    public Boolean getBeta() {
-        return beta;
     }
 }
