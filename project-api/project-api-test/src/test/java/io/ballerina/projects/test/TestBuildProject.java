@@ -471,7 +471,7 @@ public class TestBuildProject extends BaseTest {
     @Test(description = "tests overriding build options when editing Toml")
     public void testOverrideBuildOptionsOnTomlEdit() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
-        // 1) Initialize the project instance
+        // Initialize the project instance
         BuildProject project = null;
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
         try {
@@ -479,9 +479,24 @@ public class TestBuildProject extends BaseTest {
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
+        // Test when no change to Ballerina TOML
         BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().apply();
         Package newPackage = newBallerinaToml.packageInstance();
         Assert.assertTrue(newPackage.project().buildOptions().offlineBuild());
+        // Test when build option updated in Ballerina TOML
+        newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("[package]\n" +
+                "org = \"sameera\"\n" +
+                "name = \"winery\"\n" +
+                "version = \"0.1.0\"\n" +
+                "\n" +
+                "[build-options]\n" +
+                "b7aConfigFile=\"/tmp/ballerina.conf\"\n" +
+                "experimental=true\n" +
+                "observabilityIncluded=true\n" +
+                "skipTests=true\n" +
+                "offline=false").apply();
+        newPackage = newBallerinaToml.packageInstance();
+        Assert.assertFalse(newPackage.project().buildOptions().offlineBuild());
     }
 
     @Test
