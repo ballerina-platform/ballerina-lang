@@ -475,11 +475,11 @@ public class TestBuildProject extends BaseTest {
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
-        // Test when no change to Ballerina TOML
+        // Test when build option provided only during project load
         BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().apply();
         Package newPackage = newBallerinaToml.packageInstance();
         Assert.assertTrue(newPackage.project().buildOptions().offlineBuild());
-        // Test when build option updated in Ballerina TOML
+
         newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("[package]\n" +
                 "org = \"sameera\"\n" +
                 "name = \"winery\"\n" +
@@ -490,9 +490,13 @@ public class TestBuildProject extends BaseTest {
                 "experimental=true\n" +
                 "observabilityIncluded=true\n" +
                 "skipTests=true\n" +
-                "offline=false").apply();
+                "offline=false\n" +
+                "codeCoverage=true").apply();
         newPackage = newBallerinaToml.packageInstance();
-        Assert.assertFalse(newPackage.project().buildOptions().offlineBuild());
+        // Test when build option provided in both project load and Ballerina TOML
+        Assert.assertTrue(newPackage.project().buildOptions().offlineBuild());
+        // Test when build option provided only in Ballerina TOML
+        Assert.assertTrue(newPackage.project().buildOptions().codeCoverage());
     }
 
     @Test
