@@ -467,7 +467,8 @@ public class Package {
             } else {
                 newBuildOptions = manifestBuilder.buildOptions();
             }
-            this.project.setBuildOptions(this.project.buildOptions().acceptTheirs(newBuildOptions));
+            // The build options passed during project loading takes priority.
+            this.project.setBuildOptions(newBuildOptions.acceptTheirs(this.project.buildOptions()));
         }
 
         private void updateDependencyManifest() {
