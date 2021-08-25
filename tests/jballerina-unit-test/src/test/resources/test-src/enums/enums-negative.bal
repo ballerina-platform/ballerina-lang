@@ -42,12 +42,13 @@ public enum LiftStatus {
     OPEN,
     OPEN,
     CLOSED = "0",
-    HOLD
+    HOLD = "HO" + "D"
 }
 
 public enum TrailStatus {
     OPEN,
-    CLOSED
+    CLOSED,
+    HOLD = "h" + "d"
 }
 
 function testBasicEnumSupportNegative() {
