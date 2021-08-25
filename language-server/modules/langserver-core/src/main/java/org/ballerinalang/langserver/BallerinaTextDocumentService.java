@@ -49,7 +49,7 @@ import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.LSClientUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
-import org.ballerinalang.langserver.util.documentsymbol.SymbolUtil;
+import org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.rename.RenameUtil;
 import org.eclipse.lsp4j.CodeAction;
@@ -276,7 +276,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         this.workspaceManager,
                         this.serverContext,
                         this.clientCapabilities);
-                return SymbolUtil.documentSymbols(context);
+                return DocumentSymbolUtil.documentSymbols(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Document Symbols", e);
                 return new ArrayList<>();

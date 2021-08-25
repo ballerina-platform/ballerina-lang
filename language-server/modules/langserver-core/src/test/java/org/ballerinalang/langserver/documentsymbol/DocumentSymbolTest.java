@@ -34,7 +34,7 @@ public class DocumentSymbolTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "Test Rename", dataProvider = "testDataProvider")
+    @Test(description = "Test Document Symbol", dataProvider = "testDataProvider")
     public void test(String configPath) throws IOException {
         JsonObject resultJson = FileUtils.fileContentAsObject(configRoot.resolve(configPath).toString());
         JsonObject source = resultJson.getAsJsonObject("source");

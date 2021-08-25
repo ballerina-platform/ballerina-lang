@@ -99,7 +99,7 @@ public class DocumentSymbolContextImpl extends AbstractDocumentServiceContext im
         public DocumentSymbolContextBuilder(DocumentSymbolParams params,
                                             LanguageServerContext serverContext,
                                             LSClientCapabilities clientCapabilities) {
-            super(LSContextOperation.TXT_HOVER, serverContext);
+            super(LSContextOperation.TXT_DOC_SYMBOL, serverContext);
             this.clientCapabilities = clientCapabilities;
             this.params = params;
         }
