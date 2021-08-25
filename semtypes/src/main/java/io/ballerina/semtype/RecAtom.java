@@ -23,13 +23,13 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class RecAtom implements Atom {
-    long index;
+    int index;
 
-    public RecAtom(long index) {
+    public RecAtom(int index) {
         this.index = index;
     }
 
-    public static RecAtom createRecAtom(long index) {
+    public static RecAtom createRecAtom(int index) {
         return new RecAtom(index);
     }
 }
