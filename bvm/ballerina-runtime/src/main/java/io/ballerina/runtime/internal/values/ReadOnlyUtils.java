@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BField;
@@ -132,7 +133,8 @@ public class ReadOnlyUtils {
 
 
     private static Type getImmutableType(Type type, Set<Type> unresolvedTypes) {
-        if (TypeChecker.isInherentlyImmutableType(type)) {
+        if (TypeChecker.isInherentlyImmutableType(type) || (SymbolFlags.isFlagOn(type.getFlags(),
+                SymbolFlags.READONLY))) {
             return type;
         }
 
@@ -214,11 +216,12 @@ public class ReadOnlyUtils {
                                           originalField.getFieldName(), originalField.getFlags()));
                 }
 
-                BRecordType immutableRecordType = new BRecordType(origRecordType.getName().concat(" & readonly"),
-                                                                  origRecordType.getPackage(),
-                                                                  origRecordType.flags |= SymbolFlags.READONLY, fields,
-                                                                  null, origRecordType.sealed,
-                                                                  origRecordType.typeFlags);
+                BRecordType immutableRecordType = new BRecordType(
+                        IdentifierUtils.decodeIdentifier(origRecordType.getName().concat(" & readonly")),
+                        origRecordType.getPackage(),
+                        origRecordType.flags |= SymbolFlags.READONLY, fields,
+                        null, origRecordType.sealed,
+                        origRecordType.typeFlags);
                 BIntersectionType intersectionType = createAndSetImmutableIntersectionType(origRecordType,
                                                                                            immutableRecordType);
 
@@ -240,7 +243,7 @@ public class ReadOnlyUtils {
                                                         getImmutableType(origKeyType, unresolvedTypes), true);
                 } else {
                     immutableTableType = new BTableType(getImmutableType(origTableType.getConstrainedType(),
-                                                                                     unresolvedTypes),
+                                                                         unresolvedTypes),
                                                         origTableType.getFieldNames(), true);
                 }
 
@@ -250,9 +253,9 @@ public class ReadOnlyUtils {
 
                 Map<String, Field> originalObjectFields = origObjectType.getFields();
                 Map<String, Field> immutableObjectFields = new HashMap<>(originalObjectFields.size());
-                BObjectType immutableObjectType = new BObjectType(origObjectType.getName().concat(" & readonly"),
-                                                                  origObjectType.getPackage(),
-                                                                  origObjectType.flags |= SymbolFlags.READONLY);
+                BObjectType immutableObjectType = new BObjectType(
+                        IdentifierUtils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
+                        origObjectType.getPackage(), origObjectType.flags |= SymbolFlags.READONLY);
                 immutableObjectType.setFields(immutableObjectFields);
                 immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;
                 immutableObjectType.initializer = origObjectType.initializer;

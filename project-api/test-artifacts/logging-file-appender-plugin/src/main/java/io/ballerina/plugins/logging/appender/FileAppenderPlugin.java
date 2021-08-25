@@ -18,6 +18,7 @@
 package io.ballerina.plugins.logging.appender;
 
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CompilerPlugin;
@@ -50,7 +51,15 @@ public class FileAppenderPlugin extends CompilerPlugin {
         @Override
         public void init(CodeAnalysisContext analysisContext) {
             analysisContext.addCompilationAnalysisTask(compilationAnalysisContext -> {
-                Path logFilePath = Paths.get("build/logs/diagnostics.log").toAbsolutePath();
+                Path logFilePath;
+                if (compilationAnalysisContext.currentPackage().project().kind() == ProjectKind.BALA_PROJECT) {
+                    throw new UnsupportedOperationException();
+                }
+                if (compilationAnalysisContext.currentPackage().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+                    logFilePath = Paths.get("build/logs/diagnostics.log").toAbsolutePath();
+                } else {
+                    logFilePath = Paths.get("build/logs/single-file/diagnostics.log").toAbsolutePath();
+                }
                 StringBuilder logs = new StringBuilder();
                 compilationAnalysisContext.compilation().diagnosticResult().diagnostics().forEach(
                         diagnostic -> logs.append(diagnostic.toString()).append("\n"));

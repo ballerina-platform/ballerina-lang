@@ -1,6 +1,6 @@
 public function foo() {
     fork {
-        worker 
+        worker
         }
     }
 

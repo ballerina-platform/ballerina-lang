@@ -26,6 +26,8 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -60,11 +62,15 @@ public class BallerinaSymbol implements Symbol {
         }
 
         this.internalSymbol = symbol;
-        this.position = new BLangDiagnosticLocation(symbol.pos.lineRange().filePath(),
-                                                    symbol.pos.lineRange().startLine().line(),
-                                                    symbol.pos.lineRange().endLine().line(),
-                                                    symbol.pos.lineRange().startLine().offset(),
-                                                    symbol.pos.lineRange().endLine().offset());
+        LineRange lineRange = symbol.pos.lineRange();
+        TextRange textRange = symbol.pos.textRange();
+        this.position = new BLangDiagnosticLocation(lineRange.filePath(),
+                                                    lineRange.startLine().line(),
+                                                    lineRange.endLine().line(),
+                                                    lineRange.startLine().offset(),
+                                                    lineRange.endLine().offset(),
+                                                    textRange.startOffset(),
+                                                    textRange.length());
     }
 
     @Override

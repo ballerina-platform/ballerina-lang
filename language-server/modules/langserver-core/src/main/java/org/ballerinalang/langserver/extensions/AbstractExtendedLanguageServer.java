@@ -120,4 +120,12 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
         }
         return null;
     }
+
+    public WorkspaceManager getWorkspaceManager() {
+        return workspaceManager;
+    }
+
+    public LanguageServerContext getServerContext() {
+        return serverContext;
+    }
 }

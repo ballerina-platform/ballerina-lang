@@ -1,2 +1,8 @@
 [build-options]
 observabilityIncluded = true
+
+[[dependency]]
+org = "testOrg"
+name = "configLib"
+version = "0.1.0"
+repository = "local"

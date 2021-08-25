@@ -17,6 +17,7 @@
  */
 package org.ballerina.testobserve.listenerendpoint;
 
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BObject;
@@ -86,7 +87,12 @@ public class Resource {
     }
 
     public Type[] getParamTypes() {
-        return this.resourceMethodType.getParameterTypes();
+        Parameter[] parameters = this.resourceMethodType.getParameters();
+        Type[] types = new Type[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            types[i] = parameters[i].type;
+        }
+        return types;
     }
 
     public Type getReturnType() {

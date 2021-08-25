@@ -687,7 +687,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
-      "insertText": "value5",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -701,7 +701,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value as value5 ;\n"
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     }

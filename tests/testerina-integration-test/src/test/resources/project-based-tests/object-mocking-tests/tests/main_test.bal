@@ -61,6 +61,18 @@ function testProvideAReturnValue() {
 }
 
 @test:Config {}
+function testProvideErrorReturnValue() {
+    TestHttpClient:HttpClient mockClient = test:mock(TestHttpClient:HttpClient);
+
+    test:prepare(mockClient).when("getError").thenReturn(error("mocked error response"));
+    clientEndpoint = mockClient;
+
+    string|error response = getTheError();
+    test:assertTrue(response is error);
+    test:assertEquals((<error>response).message(), "mocked error response");
+}
+
+@test:Config {}
 function testProvideAReturnValueBasedOnInput() {
     TestHttpClient:HttpClient mockClient = test:mock(TestHttpClient:HttpClient);
 

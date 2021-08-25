@@ -16,12 +16,25 @@
 //
 
 function getType(any value) returns string|error {
-    var result = trap (typeof value);
-    if(result is typedesc) {
-        string typeString = result.toString();
-        return typeString.startsWith("typedesc ") ? typeString.substring(9) : typeString;
+    // Need to handle simple values separately, since `typeof` operation returns the singleton type for simple values.
+    if (value is int) {
+        return "int";
+    } else if (value is float) {
+        return "float";
+    } else if (value is boolean) {
+        return "boolean";
+    } else if (value is byte) {
+        return "byte";
+    } else if (value is string) {
+        return "string";
     } else {
-        return result;
+        var result = trap (typeof value);
+        if (result is typedesc) {
+            string typeString = result.toString();
+            return typeString.startsWith("typedesc ") ? typeString.substring(9) : typeString;
+        } else {
+            return result;
+        }
     }
 }
 

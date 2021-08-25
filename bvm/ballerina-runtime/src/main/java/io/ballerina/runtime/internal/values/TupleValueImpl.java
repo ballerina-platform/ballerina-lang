@@ -17,6 +17,7 @@
 */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
@@ -25,6 +26,8 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -43,6 +46,8 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -63,6 +68,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     Object[] refValues;
     private int minSize;
     private boolean hasRestElement; // cached value for ease of access
+    private BTypedesc typedesc;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Override
@@ -105,6 +111,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
         this.minSize = memTypes.size();
         this.size = refValues.length;
+        this.typedesc = getTypedescValue(tupleType, this);
     }
 
     public TupleValueImpl(TupleType type) {
@@ -130,6 +137,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             }
             this.refValues[i] = memType.getZeroValue();
         }
+        this.typedesc = getTypedescValue(tupleType, this);
     }
 
     public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
@@ -154,6 +162,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (size >= memCount) {
+            this.typedesc = getTypedescValue(tupleType, this);
             return;
         }
 
@@ -165,6 +174,12 @@ public class TupleValueImpl extends AbstractArrayValue {
 
             this.refValues[i] = memType.getZeroValue();
         }
+        this.typedesc = getTypedescValue(tupleType, this);
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -390,20 +405,40 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public String stringValue(BLink parent) {
-        StringJoiner sj = new StringJoiner(" ");
+        StringJoiner sj = new StringJoiner(",");
         for (int i = 0; i < this.size; i++) {
-            sj.add(StringUtils.getStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
+            Object value = this.refValues[i];
+            Type type = TypeChecker.getType(value);
+            CycleUtils.Node parentNode = new CycleUtils.Node(this, parent);
+            switch (type.getTag()) {
+                case TypeTags.STRING_TAG:
+                case TypeTags.XML_TAG:
+                case TypeTags.XML_ELEMENT_TAG:
+                case TypeTags.XML_ATTRIBUTES_TAG:
+                case TypeTags.XML_COMMENT_TAG:
+                case TypeTags.XML_PI_TAG:
+                case TypeTags.XMLNS_TAG:
+                case TypeTags.XML_TEXT_TAG:
+                    sj.add(((BValue) value).informalStringValue(parentNode));
+                    break;
+                case TypeTags.NULL_TAG:
+                    sj.add("null");
+                    break;
+                default:
+                    sj.add(StringUtils.getStringValue(value, new CycleUtils.Node(this, parentNode)));
+                    break;
+            }
         }
-        return sj.toString();
+        return "[" + sj + "]";
     }
 
     @Override
     public String expressionStringValue(BLink parent) {
-        StringJoiner sj = new StringJoiner(" ");
+        StringJoiner sj = new StringJoiner(",");
         for (int i = 0; i < this.size; i++) {
             sj.add(StringUtils.getExpressionStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
         }
-        return sj.toString();
+        return "[" + sj + "]";
     }
 
     @Override
@@ -531,6 +566,7 @@ public class TupleValueImpl extends AbstractArrayValue {
                 ((RefValue) value).freezeDirect();
             }
         }
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     /**

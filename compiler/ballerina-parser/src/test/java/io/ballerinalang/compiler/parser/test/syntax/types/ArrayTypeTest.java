@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 /**
  * Test parsing array type.
  */
-
 public class ArrayTypeTest extends AbstractTypesTest {
 
     //Valid source test

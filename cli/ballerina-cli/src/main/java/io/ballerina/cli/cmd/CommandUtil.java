@@ -65,6 +65,7 @@ import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Packerina command util.
@@ -74,6 +75,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public class CommandUtil {
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
+    public static final String DIST_VERSION = "DIST_VERSION";
     public static final String GITIGNORE = "gitignore";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
@@ -123,7 +125,7 @@ public class CommandUtil {
             stream.println("For more information try --help");
         }
     }
-
+    
     /**
      * Exit with error code 1.
      *
@@ -171,7 +173,7 @@ public class CommandUtil {
             Files.createFile(gitignore);
         }
         String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
-        write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -231,7 +233,14 @@ public class CommandUtil {
      */
     public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
-        Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+        if (template.equalsIgnoreCase("main")) {
+            templateDir = getTemplatePath().resolve("default");
+            Path tempDirTest = getTemplatePath().resolve("main");
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
+        } else {
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+        }
     }
 
     /**
@@ -600,8 +609,9 @@ public class CommandUtil {
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
         // replace manifest org and name with a guessed value.
-        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName()).
-                replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName));
+        defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
+                .replaceAll(PKG_NAME, ProjectUtils.guessPkgName(packageName))
+                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }

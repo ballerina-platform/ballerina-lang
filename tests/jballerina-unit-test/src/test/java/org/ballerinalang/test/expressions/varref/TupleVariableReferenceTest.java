@@ -348,6 +348,16 @@ public class TupleVariableReferenceTest {
                 "'[string,boolean...]'", 173, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, errorMsg1 + "'[int,string,string]', found " +
                 "'[int,string,boolean...]'", 176, 31);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'a'", 180, 26);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'b'", 180, 29);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'c'", 181, 44);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'd'", 181, 47);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'f'", 182, 31);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'i'", 183, 103);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'j'", 183, 107);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'l'", 183, 116);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'm'", 183, 120);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "self referenced variable 'n'", 183, 124);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

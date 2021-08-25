@@ -39,11 +39,13 @@ public class XmlComment extends XmlNonElementItem {
     public XmlComment(String data) {
         this.data = data;
         this.type = PredefinedTypes.TYPE_COMMENT;
+        setTypedescValue(type);
     }
 
     public XmlComment(String data, boolean readonly) {
         this.data = data;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_COMMENT : PredefinedTypes.TYPE_COMMENT;
+        setTypedescValue(type);
     }
 
     @Override
@@ -120,15 +122,6 @@ public class XmlComment extends XmlNonElementItem {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj instanceof XmlComment) {
-            XmlComment that = (XmlComment) obj;
-            return data.equals(that.data);
-
-        }
-        return false;
+        return this == obj;
     }
 }

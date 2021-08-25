@@ -41,6 +41,7 @@ public class XmlPi extends XmlNonElementItem {
         this.data = data;
         this.target = target;
         this.type = PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
+        setTypedescValue(type);
     }
 
     public XmlPi(String data, String target, boolean readonly) {
@@ -48,6 +49,7 @@ public class XmlPi extends XmlNonElementItem {
         this.target = target;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_PROCESSING_INSTRUCTION :
                 PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
+        setTypedescValue(type);
     }
 
     @Override
@@ -119,15 +121,7 @@ public class XmlPi extends XmlNonElementItem {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (obj instanceof XmlPi) {
-            XmlPi that = (XmlPi) obj;
-            return data.equals(that.data) && target.equals(that.target);
-        }
-        return false;
+        return this == obj;
     }
 
     @Override

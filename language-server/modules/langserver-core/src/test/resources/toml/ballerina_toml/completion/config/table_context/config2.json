@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 8,
+    "character": 0
+  },
+  "source": "source/project2/Ballerina.toml",
+  "items": [
+    {
+      "label": "platform.java11.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "license",
+      "kind": "Snippet",
+      "detail": "Array",
+      "sortText": "A",
+      "insertText": "license=[${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "keywords",
+      "kind": "Snippet",
+      "detail": "Array",
+      "sortText": "A",
+      "insertText": "keywords=[${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "export",
+      "kind": "Snippet",
+      "detail": "Array",
+      "sortText": "A",
+      "insertText": "export=[${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[dependency]]"
+    },
+    {
+      "label": "distribution",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "distribution=\"${1:}\""
+    }
+  ]
+}

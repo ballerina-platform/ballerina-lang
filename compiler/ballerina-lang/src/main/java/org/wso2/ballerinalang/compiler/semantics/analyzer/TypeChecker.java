@@ -388,6 +388,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return resultType;
     }
 
+    private void analyzeObjectConstructor(BLangNode node, SymbolEnv env) {
+        if (!nonErrorLoggingCheck) {
+            semanticAnalyzer.analyzeNode(node, env);
+        }
+    }
+
     private void validateAndSetExprExpectedType(BLangExpression expr) {
         if (resultType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
@@ -2874,13 +2880,13 @@ public class TypeChecker extends BLangNodeVisitor {
         // todo: Need to add type-checking when fixing #29247 for positional args beyond second arg.
     }
 
-    private BType checkExprSilent(BLangRecordLiteral recordLiteral, BType expType, SymbolEnv env) {
+    private BType checkExprSilent(BLangExpression expr, BType expType, SymbolEnv env) {
         boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
         this.nonErrorLoggingCheck = true;
         int errorCount = this.dlog.errorCount();
         this.dlog.mute();
 
-        BType type = checkExpr(recordLiteral, env, expType);
+        BType type = checkExpr(expr, env, expType);
 
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         dlog.setErrorCount(errorCount);
@@ -3285,7 +3291,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
                                                           true);
                     } else {
-                        semanticAnalyzer.analyzeNode(classDefForConstructor, pkgEnv);
+                        analyzeObjectConstructor(classDefForConstructor, pkgEnv);
                     }
 
                     markConstructedObjectIsolatedness(actualObjectType);
@@ -5034,6 +5040,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType) {
         final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
+            validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
             return BUnionType.create(null, tableType, symTable.errorType);
@@ -5041,6 +5048,15 @@ public class TypeChecker extends BLangNodeVisitor {
         return tableType;
     }
 
+    private void validateKeySpecifier(List<IdentifierNode> fieldList, BType constraintType) {
+        for (IdentifierNode identifier : fieldList) {
+            BField field = types.getTableConstraintField(constraintType, identifier.getValue());
+            if (field == null) {
+                dlog.error(identifier.getPosition(), DiagnosticErrorCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER,
+                        identifier.getValue(), constraintType);
+            }
+        }
+    }
 
     private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
@@ -5375,11 +5391,6 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypes));
         }
 
-        if (actualType.tag == TypeTags.NEVER) {
-            dlog.error(checkedExpr.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_WITH_CHECKED_EXPR,
-                    operatorType);
-        }
-
         resultType = types.checkType(checkedExpr, actualType, expType);
     }
 
@@ -5571,7 +5582,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
+    public void checkSelfReferences(Location pos, SymbolEnv env, BVarSymbol varSymbol) {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticErrorCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
@@ -6037,7 +6048,16 @@ public class TypeChecker extends BLangNodeVisitor {
             // function call error.
             if (i == 0 && arg.typeChecked && iExpr.expr != null && iExpr.expr == arg) {
                 BType expectedType = paramTypes.get(i);
-                types.checkType(arg.pos, arg.getBType(), expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                BType actualType = arg.getBType();
+                if (expectedType == symTable.charStringType) {
+                    arg.cloneAttempt++;
+                    BLangExpression clonedArg = nodeCloner.cloneNode(arg);
+                    BType argType = checkExprSilent(clonedArg, expectedType, env);
+                    if (argType != symTable.semanticError) {
+                        actualType = argType;
+                    }
+                }
+                types.checkType(arg.pos, actualType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                 types.setImplicitCastExpr(arg, arg.getBType(), expectedType);
             }
 
@@ -6358,6 +6378,8 @@ public class TypeChecker extends BLangNodeVisitor {
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
                 return true;
+            case ELVIS_EXPR:
+            case TERNARY_EXPR:
             case NUMERIC_LITERAL:
                 return inferTypeForNumericLiteral;
             default:
@@ -6773,7 +6795,8 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BType type = expr.getBType();
-            if (type.tag >= TypeTags.JSON) {
+            if (type.tag >= TypeTags.JSON &&
+                    !TypeTags.isIntegerTypeTag(type.tag) && !TypeTags.isStringTypeTag(type.tag)) {
                 if (type != symTable.semanticError && !TypeTags.isXMLTypeTag(type.tag)) {
                     dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             BUnionType.create(null, symTable.intType, symTable.floatType,
@@ -8241,7 +8264,7 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
             if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
-                semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+                analyzeObjectConstructor(classDefForConstructor, env);
                 hasNeverReadOnlyField = true;
 
                 if (!logErrors) {
@@ -8265,7 +8288,7 @@ public class TypeChecker extends BLangNodeVisitor {
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
                                                   anonymousModelHelper, symTable, names, cIExpr.pos);
 
-        semanticAnalyzer.analyzeNode(classDefForConstructor, env);
+        analyzeObjectConstructor(classDefForConstructor, env);
     }
 
     private void markConstructedObjectIsolatedness(BObjectType actualObjectType) {

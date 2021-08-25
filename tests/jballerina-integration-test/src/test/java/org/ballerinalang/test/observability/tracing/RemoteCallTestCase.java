@@ -166,13 +166,13 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
     public Object[][] getRemoteErrorReturnData() {
         return new Object[][]{
                 {"resourceTwo", FILE_NAME + ":27:5", FILE_NAME + ":28:15", "Test Error\n" +
-                        "    at intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithErrorReturn" +
+                        "    at intg_tests.tracing_tests.utils.0.MockClient:callWithErrorReturn" +
                         "(mock_client_endpoint.bal:45)\n" +
-                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceTwo(03_remote_call.bal:28)"},
+                        "       intg_tests.tracing_tests.0.$anonType$_0:$post$resourceTwo(03_remote_call.bal:28)"},
                 {"resourceThree", FILE_NAME + ":33:5", FILE_NAME + ":34:20", "Test Error\n" +
-                        "    at intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithErrorReturn" +
+                        "    at intg_tests.tracing_tests.utils.0.MockClient:callWithErrorReturn" +
                         "(mock_client_endpoint.bal:45)\n" +
-                        "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceThree(03_remote_call.bal:34)"}
+                        "       intg_tests.tracing_tests.0.$anonType$_0:$post$resourceThree(03_remote_call.bal:34)"}
         };
     }
 
@@ -329,9 +329,9 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
 //                    TODO: Uncomment the bellow line once #ballerina-lang/issues/28686 is fixed
 //                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
-//                            "    at intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithErrorReturn" +
+//                            "    at intg_tests.tracing_tests.utils.0.MockClient:callWithErrorReturn" +
 //                            "(mock_client_endpoint.bal:46)\n" +
-//                            "       intg_tests.tracing_tests.0_0_1.$anonType$_8:$post$resourceFour" +
+//                            "       intg_tests.tracing_tests.0.$anonType$_8:$post$resourceFour" +
 //                            "(03_remote_call.bal:41)")
                     new AbstractMap.SimpleEntry<>("error", "true")
 
@@ -434,9 +434,9 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithPanic"),
 //                    TODO: Uncomment the bellow line once #ballerina-lang/issues/28686 is fixed
 //                    new AbstractMap.SimpleEntry<>("error.message", "Test Error\n" +
-//                            "    at intg_tests.tracing_tests.utils.0_0_1.MockClient:callWithPanic" +
+//                            "    at intg_tests.tracing_tests.utils.0.MockClient:callWithPanic" +
 //                            "(mock_client_endpoint.bal:58)\n" +
-//                            "       intg_tests.tracing_tests.0_0_1.$anonType$_7:$post$resourceFive" +
+//                            "       intg_tests.tracing_tests.0.$anonType$_7:$post$resourceFive" +
 //                            "(03_remote_call.bal:47)")
                     new AbstractMap.SimpleEntry<>("error", "true")
             ));

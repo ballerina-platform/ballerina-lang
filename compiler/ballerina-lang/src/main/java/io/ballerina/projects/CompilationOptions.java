@@ -24,8 +24,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-class CompilationOptions {
-    private Boolean skipTests;
+public class CompilationOptions {
     private Boolean offlineBuild;
     private Boolean experimental;
     private Boolean observabilityIncluded;
@@ -33,11 +32,11 @@ class CompilationOptions {
     private String dumpBirFile;
     private String cloud;
     private Boolean listConflictedClasses;
+    private Boolean sticky;
 
-    public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
+    public CompilationOptions(Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean listConflictedClasses) {
-        this.skipTests = skipTests;
+                              String cloud, Boolean listConflictedClasses, Boolean sticky) {
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
@@ -45,14 +44,15 @@ class CompilationOptions {
         this.dumpBirFile = dumpBirFile;
         this.cloud = cloud;
         this.listConflictedClasses = listConflictedClasses;
+        this.sticky = sticky;
     }
 
-    boolean skipTests() {
-        return toBooleanDefaultIfNull(skipTests);
-    }
-
-    boolean offlineBuild() {
+    public boolean offlineBuild() {
         return toBooleanDefaultIfNull(offlineBuild);
+    }
+
+    boolean sticky() {
+        return toBooleanDefaultIfNull(sticky);
     }
 
     boolean experimental() {
@@ -86,9 +86,6 @@ class CompilationOptions {
      * @return a new {@code CompilationOptions} instance that contains our options and their options
      */
     CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
-
-        this.skipTests = Objects.requireNonNullElseGet(
-                theirOptions.skipTests, () -> toBooleanDefaultIfNull(this.skipTests));
         this.offlineBuild = Objects.requireNonNullElseGet(
                 theirOptions.offlineBuild, () -> toBooleanDefaultIfNull(this.offlineBuild));
         this.experimental = Objects.requireNonNullElseGet(
@@ -100,6 +97,8 @@ class CompilationOptions {
         this.dumpBirFile = theirOptions.dumpBirFile;
         this.listConflictedClasses = Objects.requireNonNullElseGet(
                 theirOptions.listConflictedClasses, () -> toBooleanDefaultIfNull(this.listConflictedClasses));
+        this.sticky = Objects.requireNonNullElseGet(
+                theirOptions.sticky, () -> toBooleanDefaultIfNull(this.sticky));
         return this;
     }
 
