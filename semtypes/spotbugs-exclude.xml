@@ -20,4 +20,32 @@
     <Match>
         <Package name="org.ballerina.semtype"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <!-- should be able to remove below exclusion after adding methods -->
+    <Match>
+        <Class name="io.ballerina.semtype.ComplexSemType"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Or>
+            <Class name="io.ballerina.semtype.Env"/>
+            <Class name="io.ballerina.semtype.ListAtomicType"/>
+            <Class name="io.ballerina.semtype.RecAtom"/>
+            <Class name="io.ballerina.semtype.TypeAtom"/>
+            <Class name="io.ballerina.semtype.TypeCheckContext"/>
+            <Class name="io.ballerina.semtype.UniformTypeBitSet"/>
+            <Class name="io.ballerina.semtype.BddMemo"/>
+            <Class name="io.ballerina.semtype.ComplexSemType"/>
+            <Class name="io.ballerina.semtype.ComplexSemTypeMock"/>
+            <Class name="io.ballerina.semtype.FunctionAtomicType"/>
+            <Class name="io.ballerina.semtype.subtypedata.BddNode"/>
+        </Or>
+        <Or>
+            <Bug pattern="URF_UNREAD_FIELD"/>
+            <Bug pattern="UUF_UNUSED_FIELD"/>
+        </Or>
+    </Match>
 </FindBugsFilter>
