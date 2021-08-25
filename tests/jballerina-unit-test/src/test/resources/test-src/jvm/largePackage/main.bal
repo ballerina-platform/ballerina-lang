@@ -33,6 +33,7 @@ public function main() {
     r:MyRecordV10 myRecord = {a:"Hello World"};
     test:assertEquals(myRecord.a, "Hello World");
     en:EN299|() myEnum = en:A299;
+    en:MyZnum myZnum = en:Z1000;
     test:assertTrue(myEnum is en:EN299);
     e:MyError1 myError = error("My Error");
     test:assertEquals(myError.message(), "My Error");

@@ -29,6 +29,7 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ResolutionEngine;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.repositories.LocalPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -39,6 +40,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +50,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * Resolves dependencies and handles version conflicts in the dependency graph.
@@ -64,6 +70,7 @@ public class PackageResolution {
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
+    private boolean autoUpdate;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
@@ -81,8 +88,7 @@ public class PackageResolution {
 
         this.moduleResolver = new ModuleResolver(projectEnvContext.getService(PackageResolver.class));
 
-        boolean sticky = rootPackageContext.project().buildOptions().sticky();
-        dependencyGraph = buildDependencyGraph(sticky, compilationOptions.offlineBuild());
+        dependencyGraph = buildDependencyGraph(getSticky(rootPackageContext), compilationOptions.offlineBuild());
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -141,6 +147,34 @@ public class PackageResolution {
         var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
         this.diagnosticList.add(packageDiagnostic);
         this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
+    }
+
+    public boolean autoUpdate() {
+        return autoUpdate;
+    }
+
+    private boolean getSticky(PackageContext rootPackageContext) {
+        boolean sticky = rootPackageContext.project().buildOptions().sticky();
+        if (sticky) {
+            this.autoUpdate = false;
+            return true;
+        }
+        // set sticky if `build` file exists and `last_update_time` not passed 24 hours
+        if (rootPackageContext.project().kind() == ProjectKind.BUILD_PROJECT) {
+            Path buildFilePath = this.rootPackageContext.project().sourceRoot().resolve(TARGET_DIR_NAME)
+                    .resolve(BUILD_FILE);
+            if (buildFilePath.toFile().exists()) {
+                BuildJson buildJson = readBuildJson(buildFilePath);
+                if (!buildJson.isExpiredLastUpdateTime()) {
+                    this.autoUpdate = false;
+                    return true;
+                }
+            }
+            this.autoUpdate = true;
+            return false;
+        }
+        this.autoUpdate = true;
+        return false;
     }
 
     /**
