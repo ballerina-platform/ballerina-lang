@@ -209,8 +209,8 @@ public class AnnotationDesugar {
         // Create Annotation Attachment.
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(serviceClass.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(
-                pkgEnv, names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
+        symResolver.lookupSymbolInAnnotationSpace(symTable.pkgEnvMap.get(symTable.rootPkgSymbol), 
+                                                  names.fromString(SERVICE_INTROSPECTION_INFO_ANN));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
