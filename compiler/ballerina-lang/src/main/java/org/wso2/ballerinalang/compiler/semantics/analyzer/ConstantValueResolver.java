@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -444,10 +445,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private void checkUniqueness(BLangConstant constant) {
-        if (constant.expr instanceof BLangLiteral) {
+        if (constant.symbol.kind == SymbolKind.CONSTANT) {
             String nameString = constant.name.value;
-            Object value = ((BLangLiteral) constant.expr).value;
-            String valueString = value == null ? ((BLangLiteral) constant.expr).originalValue : String.valueOf(value);
+            BLangConstantValue value = ((BConstantSymbol) constant.symbol).value;
+            String valueString = String.valueOf(value);
             if (constantMap.containsKey(nameString)) {
                 if (!valueString.equals(constantMap.get(nameString))) {
                     dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString,
