@@ -283,15 +283,19 @@ function removeIfHasKey() returns boolean {
 }
 
 function testHasKey() {
-    table<record { readonly int? k; }> key(k) tbl = table[];
+    table<record { readonly int|string|float? k; }> key(k) tbl = table[];
     tbl.add({k: 0});
     tbl.add({k: 5});
     tbl.add({k: -31});
+    tbl.add({k: "10"});
+    tbl.add({k: 100.05});
     assertFalse(tbl.hasKey(()));
     assertFalse(tbl.hasKey(30));
     assertTrue(tbl.hasKey(0));
     assertTrue(tbl.hasKey(-31));
     assertTrue(tbl.hasKey(5));
+    assertFalse(tbl.hasKey(10));
+    assertFalse(tbl.hasKey("100.05"));
 }
 
 function testGetKeyList() returns any[] {
