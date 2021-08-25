@@ -39,7 +39,7 @@ import java.util.function.Function;
  */
 public class Runtime {
 
-    private Scheduler scheduler;
+    private final Scheduler scheduler;
 
     Runtime(Scheduler scheduler) {
         this.scheduler = scheduler;
@@ -55,6 +55,38 @@ public class Runtime {
     public static Runtime getCurrentRuntime() {
         Strand strand = Scheduler.getStrand();
         return new Runtime(strand.scheduler);
+    }
+
+    /**
+     * Invoke Object method asynchronously and sequentially. This method will ensure that object methods are invoked in
+     * same thread where other object methods are executed. So methods will be executed sequentially per object level.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
+     *                   optional and can be null.
+     * @param metadata   Meta data of new strand.
+     * @param callback   Callback which will get notify once method execution done.
+     * @param properties Set of properties for strand
+     * @param returnType Expected return type of this method
+     * @param args       Ballerina function arguments.
+     * @return {@link FutureValue} containing return value of executing this method.
+     */
+    public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
+                                                 StrandMetadata metadata,
+                                                 Callback callback, Map<String, Object> properties,
+                                                 Type returnType, Object... args) {
+        try {
+            validateArgs(object, methodName);
+            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
+            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
+                                                   returnType, strandName, metadata);
+        } catch (BError e) {
+            callback.notifyFailure(e);
+        } catch (Throwable e) {
+            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
+        }
+        return null;
     }
 
     /**
@@ -82,38 +114,6 @@ public class Runtime {
             Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
             return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
                                       metadata);
-        } catch (BError e) {
-            callback.notifyFailure(e);
-        } catch (Throwable e) {
-            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(e.getMessage())));
-        }
-        return null;
-    }
-
-    /**
-     * Invoke Object method asynchronously. This method will ensure that object methods are invoked in same thread
-     * where other object methods are executed. So methods will be executed sequentially per object level.
-     *
-     * @param object     Object Value.
-     * @param methodName Name of the method.
-     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
-     *                   optional and can be null.
-     * @param metadata   Meta data of new strand.
-     * @param callback   Callback which will get notify once method execution done.
-     * @param properties Set of properties for strand
-     * @param returnType Expected return type of this method
-     * @param args       Ballerina function arguments.
-     * @return {@link FutureValue} containing return value of executing this method.
-     */
-    public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
-                                                 StrandMetadata metadata,
-                                                 Callback callback, Map<String, Object> properties,
-                                                 Type returnType, Object... args) {
-        try {
-            validateArgs(object, methodName);
-            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-            return scheduler.scheduleToObjectGroup(object, new Object[1], func, null, callback, properties,
-                                                   returnType, strandName, metadata);
         } catch (BError e) {
             callback.notifyFailure(e);
         } catch (Throwable e) {

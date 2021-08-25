@@ -46,7 +46,7 @@ public class Accumulator {
     private static void accumulateI(ObjectValue intFunction, long i, long to, Runtime runtime, Future future,
                                     long[] relay) {
 
-        runtime.invokeMethodAsync(intFunction, "invoke", null, null, true, new Callback() {
+        runtime.invokeMethodAsync(intFunction, "invoke", null, null, new Callback() {
             @Override
             public void notifySuccess(Object result) {
                 relay[0] += (long) result;
