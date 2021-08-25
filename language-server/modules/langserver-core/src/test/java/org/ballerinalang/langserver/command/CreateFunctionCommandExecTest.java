@@ -50,6 +50,7 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"createUndefinedFunction2.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction3.json", "createUndefinedFunction.bal"},
                 {"createUndefinedFunction4.json", "createUndefinedFunction2.bal"},
+                {"createUndefinedFunction18.json", "createUndefinedFunction8.bal"},
                 // TODO Doesn't support method creation in objects
                 // {"createUndefinedFunction5.json", "createUndefinedFunction3.bal"},
                 // TODO Doesn't support methods inside services yet

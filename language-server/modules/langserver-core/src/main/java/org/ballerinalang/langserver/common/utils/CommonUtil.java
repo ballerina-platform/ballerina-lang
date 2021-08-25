@@ -154,6 +154,7 @@ public class CommonUtil {
     private static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
+    
     private static final int MAX_DEPTH = 1;
 
     static {
@@ -378,6 +379,9 @@ public class CommonUtil {
                 break;
             case DECIMAL:
                 typeString = Integer.toString(0);
+                break;
+            case NIL:
+                typeString = "()";
                 break;
             default:
                 if (typeKind.isIntegerType()) {
