@@ -21,17 +21,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Env {
-    private final HashMap<AtomicType, Atom> atomTable;
+    private final HashMap<AtomicType, TypeAtom> atomTable;
     private final ArrayList<ListAtomicType> recListAtoms;
     private final ArrayList<MappingAtomicType> recMappingAtoms;
     private final ArrayList<FunctionAtomicType> recFunctionAtoms;
 
     public Env() {
         this.atomTable = new HashMap<>();
+        // Set up index 0 for use by bddFixReadOnly
         this.recListAtoms = new ArrayList<>();
-
+        // todo: add LIST_SUBTYPE_RO
         this.recMappingAtoms = new ArrayList<>();
-
+        // todo: add MAPPING_SUBTYPE_RO
         this.recFunctionAtoms = new ArrayList<>();
     }
 

@@ -21,12 +21,12 @@ public class TypeAtom implements Atom {
     long index;
     AtomicType atomicType;
 
-    public TypeAtom(int index, AtomicType atomicType) {
+    public TypeAtom(long index, AtomicType atomicType) {
         this.index = index;
         this.atomicType = atomicType;
     }
 
-    public static TypeAtom createTypeAtom(int index, AtomicType atomicType) {
+    public static TypeAtom createTypeAtom(long index, AtomicType atomicType) {
         return new TypeAtom(index, atomicType);
     }
 }

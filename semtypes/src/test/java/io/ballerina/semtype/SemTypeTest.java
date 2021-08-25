@@ -17,8 +17,6 @@
  */
 package io.ballerina.semtype;
 
-import io.ballerina.semtype.ComplexSemType;
-import io.ballerina.semtype.UniformTypeBitSet;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -48,7 +48,8 @@ public class PredefinedType {
 
     // this is SubtypeData|error
     public static final UniformTypeBitSet TOP = uniformTypeUnion(UniformTypeCode.UT_MASK);
-    public static final UniformTypeBitSet ANY = uniformTypeUnion(UniformTypeCode.UT_MASK & ~(1 << UniformTypeCode.UT_ERROR));
+    public static final UniformTypeBitSet ANY =
+            uniformTypeUnion(UniformTypeCode.UT_MASK & ~(1 << UniformTypeCode.UT_ERROR));
     public static final UniformTypeBitSet READONLY = uniformTypeUnion(UniformTypeCode.UT_READONLY);
     public static final UniformTypeBitSet SIMPLE_OR_STRING =
             uniformTypeUnion((1 << UniformTypeCode.UT_NIL)
@@ -59,12 +60,12 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_STRING));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
 
-    private static UniformTypeBitSet uniformTypeUnion(long bitset) {
+    private static UniformTypeBitSet uniformTypeUnion(int bitset) {
         return new UniformTypeBitSet(bitset);
     }
 
-    private static UniformTypeBitSet uniformType(long code) {
-        return new UniformTypeBitSet(1L << code);
+    private static UniformTypeBitSet uniformType(int code) {
+        return new UniformTypeBitSet(1 << code);
     }
 
     public static SemType uniformSubtype(long code, ProperSubtypeData data) {

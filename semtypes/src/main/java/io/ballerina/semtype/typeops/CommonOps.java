@@ -18,7 +18,6 @@
 package io.ballerina.semtype.typeops;
 
 import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
 
 public abstract class CommonOps implements UniformTypeOps {
@@ -39,11 +38,6 @@ public abstract class CommonOps implements UniformTypeOps {
 
     @Override
     public SubtypeData complement(SubtypeData t) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
         throw new AssertionError();
     }
 }

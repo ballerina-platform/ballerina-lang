@@ -8,3 +8,5 @@ against the original implementation and if applicable, should be fixed there too
 
 - Operations on sem types are separated into XXXXOps classes and the data into derivatives of `SubtypeData`.
 This way we can have the logic within the functions reflect the Ballerina code.
+
+- `bitCount` and `numberOfTrailingZeros` are available in Java `Integer` class, hence not implemented here.

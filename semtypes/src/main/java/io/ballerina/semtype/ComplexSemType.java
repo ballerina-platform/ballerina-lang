@@ -35,8 +35,8 @@ public class ComplexSemType implements SemType {
         this.subtypeDataList = subtypeDataList;
     }
 
-    public static ComplexSemType createComplexSemType(long allBitset, UniformSubtype... subtypeList) {
-        long some = 0;
+    public static ComplexSemType createComplexSemType(int allBitset, UniformSubtype... subtypeList) {
+        int some = 0;
         ArrayList<SubtypeData> dataList = new ArrayList<>();
         for (UniformSubtype uniformSubtype : subtypeList) {
             dataList.add(uniformSubtype.subtypeData);

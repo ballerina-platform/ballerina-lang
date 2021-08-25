@@ -18,9 +18,9 @@
 package io.ballerina.semtype;
 
 public class UniformTypeBitSet  implements SemType {
-    long bitset;
+    int bitset;
 
-    public UniformTypeBitSet(long bitset) {
+    public UniformTypeBitSet(int bitset) {
         this.bitset = bitset;
     }
 }
