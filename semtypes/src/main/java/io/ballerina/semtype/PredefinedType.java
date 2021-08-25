@@ -19,7 +19,11 @@ package io.ballerina.semtype;
 
 import io.ballerina.semtype.subtypedata.IntSubtype;
 
-// todo: Should we rename this to `Core`?
+/**
+ * Contain predefined types used for constructing other types.
+ *
+ * @since 2.0.0
+ */
 public class PredefinedType {
     public static final UniformTypeBitSet NEVER = uniformTypeUnion(0);
     public static final UniformTypeBitSet NIL = uniformType(UniformTypeCode.UT_NIL);
@@ -68,7 +72,7 @@ public class PredefinedType {
         return new UniformTypeBitSet(1 << code);
     }
 
-    public static SemType uniformSubtype(long code, ProperSubtypeData data) {
+    public static SemType uniformSubtype(int code, ProperSubtypeData data) {
         return ComplexSemType.createComplexSemType(0, new UniformSubtype(code, data));
     }
 }

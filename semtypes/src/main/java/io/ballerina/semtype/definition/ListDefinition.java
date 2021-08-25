@@ -21,6 +21,11 @@ import io.ballerina.semtype.Definition;
 import io.ballerina.semtype.Env;
 import io.ballerina.semtype.SemType;
 
+/**
+ * Represent list/tuple type desc.
+ *
+ * @since 2.0.0
+ */
 public class ListDefinition implements Definition {
     @Override
     public SemType getSemType(Env env) {

@@ -17,11 +17,10 @@
  */
 package io.ballerina.semtype;
 
-public interface UniformTypeOps {
-    SubtypeData union(SubtypeData t1, SubtypeData t2);
-    SubtypeData intersect(SubtypeData t1, SubtypeData t2);
-    SubtypeData diff(SubtypeData t1, SubtypeData t2);
-    SubtypeData complement(SubtypeData t);
-    boolean isEmpty(TypeCheckContext tc, SubtypeData t);
-
+/**
+ * Interface representing type operations on uniform types.
+ *
+ * @since 2.0.0
+ */
+public interface UniformTypeOps extends IsEmptyOp, CommonUniformTypeOps {
 }

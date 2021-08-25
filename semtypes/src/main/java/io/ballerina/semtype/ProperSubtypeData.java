@@ -17,5 +17,10 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * ProperSubtypeData node.
+ *
+ * @since 2.0.0
+ */
 public interface ProperSubtypeData extends SubtypeData {
 }

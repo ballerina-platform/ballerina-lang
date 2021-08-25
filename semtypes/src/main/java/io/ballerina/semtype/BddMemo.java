@@ -17,10 +17,14 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * Represent BddMomo type used for memoization.
+ *
+ * @since 2.0.0
+ */
 public class BddMemo {
     Bdd bddNode;
     MemoStatus isEmpty;
-
 
     enum MemoStatus {
         NOT_SET, TRUE, FALSE;

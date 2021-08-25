@@ -17,5 +17,10 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * Represent the BDD atom.
+ *
+ * @since 2.0.0
+ */
 public interface Atom {
 }

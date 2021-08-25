@@ -17,5 +17,10 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * Represent BDD node.
+ *
+ * @since 2.0.0
+ */
 public interface Bdd extends ProperSubtypeData {
 }

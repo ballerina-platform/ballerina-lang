@@ -17,6 +17,11 @@
  */
 package io.ballerina.semtype;
 
+/**
+ * Represent a TypeAtom.
+ *
+ * @since 2.0.0
+ */
 public class TypeAtom implements Atom {
     long index;
     AtomicType atomicType;

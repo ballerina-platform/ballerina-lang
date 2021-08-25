@@ -25,6 +25,11 @@ import io.ballerina.semtype.UniformTypeCode;
 
 import java.util.Optional;
 
+/**
+ * Represent IntSubtype.
+ *
+ * @since 2.0.0
+ */
 public class IntSubtype implements ProperSubtypeData {
 
     private final Range[] ranges;

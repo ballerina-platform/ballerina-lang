@@ -15,16 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.typeops;
+package io.ballerina.semtype;
 
-import io.ballerina.semtype.UniformTypeOps;
-
-// todo: use this to place common things between Ro and RW, if there are non; delete this.
 /**
- * Common mapping related methods operate on SubtypeData.
+ * Interface representing {@code isEmpty} operation.
  *
  * @since 2.0.0
  */
-public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
-
+public interface IsEmptyOp {
+    boolean isEmpty(TypeCheckContext tc, SubtypeData t);
 }

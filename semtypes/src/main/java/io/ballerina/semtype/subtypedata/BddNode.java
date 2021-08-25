@@ -20,6 +20,11 @@ package io.ballerina.semtype.subtypedata;
 import io.ballerina.semtype.Atom;
 import io.ballerina.semtype.Bdd;
 
+/**
+ * Bdd node.
+ *
+ * @since 2.0.0
+ */
 public class BddNode implements Bdd {
     Atom atom;
     BddNode left;

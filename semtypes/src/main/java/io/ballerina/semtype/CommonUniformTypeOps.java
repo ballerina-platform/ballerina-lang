@@ -15,16 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.typeops;
+package io.ballerina.semtype;
 
-import io.ballerina.semtype.UniformTypeOps;
-
-// todo: use this to place common things between Ro and RW, if there are non; delete this.
 /**
- * Common mapping related methods operate on SubtypeData.
+ * Operations common to most of the subtypes.
  *
  * @since 2.0.0
  */
-public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
-
+public interface CommonUniformTypeOps {
+    SubtypeData union(SubtypeData t1, SubtypeData t2);
+    SubtypeData intersect(SubtypeData t1, SubtypeData t2);
+    SubtypeData diff(SubtypeData t1, SubtypeData t2);
+    SubtypeData complement(SubtypeData t);
 }
