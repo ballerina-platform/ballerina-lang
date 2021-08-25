@@ -1,5 +1,7 @@
 module io.ballerina.docerina {
     exports org.ballerinalang.docgen.docs;
+    exports org.ballerinalang.docgen.generator.model;
+    exports org.ballerinalang.docgen;
     requires io.ballerina.lang;
     requires com.google.gson;
     requires org.apache.commons.io;
