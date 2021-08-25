@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.util.Objects;
-
 /**
  * Build options of a project.
  */
@@ -39,19 +37,19 @@ public class BuildOptions {
     }
 
     public boolean testReport() {
-        return toBooleanDefaultIfNull(testReport);
+        return toBooleanDefaultIfNull(this.testReport);
     }
 
     public boolean codeCoverage() {
-        return toBooleanDefaultIfNull(codeCoverage);
+        return toBooleanDefaultIfNull(this.codeCoverage);
     }
 
     public boolean dumpBuildTime() {
-        return toBooleanDefaultIfNull(dumpBuildTime);
+        return toBooleanDefaultIfNull(this.dumpBuildTime);
     }
 
     public boolean skipTests() {
-        return toBooleanDefaultIfNull(skipTests);
+        return toBooleanDefaultIfNull(this.skipTests);
     }
 
     public boolean offlineBuild() {
@@ -79,7 +77,7 @@ public class BuildOptions {
     }
 
     CompilationOptions compilationOptions() {
-        return compilationOptions;
+        return this.compilationOptions;
     }
 
     /**
@@ -89,16 +87,19 @@ public class BuildOptions {
      * @return a new {@code BuildOptions} instance that contains our options and their options
      */
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
-        this.skipTests = Objects.requireNonNullElseGet(
-                theirOptions.skipTests, () -> toBooleanDefaultIfNull(this.skipTests));
-        this.codeCoverage = Objects.requireNonNullElseGet(
-                theirOptions.codeCoverage, () -> toBooleanDefaultIfNull(this.codeCoverage));
-        this.testReport = Objects.requireNonNullElseGet(
-                theirOptions.testReport, () -> toBooleanDefaultIfNull(this.testReport));
-        this.dumpBuildTime = Objects.requireNonNullElseGet(
-                theirOptions.dumpBuildTime, () -> toBooleanDefaultIfNull(this.dumpBuildTime));
+        if (theirOptions.skipTests != null) {
+            this.skipTests = theirOptions.skipTests;
+        }
+        if (theirOptions.codeCoverage != null) {
+            this.codeCoverage = theirOptions.codeCoverage;
+        }
+        if (theirOptions.testReport != null) {
+            this.testReport = theirOptions.testReport;
+        }
+        if (theirOptions.dumpBuildTime != null) {
+            this.dumpBuildTime = theirOptions.dumpBuildTime;
+        }
         this.compilationOptions = compilationOptions.acceptTheirs(theirOptions.compilationOptions());
-
         return this;
     }
 
