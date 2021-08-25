@@ -113,67 +113,25 @@ public class QueryExpressionProcessor {
         }
     }
 
-    private String constructMainClassName(BuildProject project) {
-        Optional<DocumentId> docId = project.currentPackage().getDefaultModule().documentIds().stream().findFirst();
-        Document document = project.currentPackage().getDefaultModule().document(docId.get());
-
-        StringJoiner classNameJoiner = new StringJoiner(".");
-        classNameJoiner.add(TEMP_PACKAGE_ORG);
-        classNameJoiner.add(TEMP_PACKAGE_NAME);
-        // Generated class name will only contain the major version.
-        classNameJoiner.add(TEMP_PACKAGE_VERSION.split("\\.")[0]);
-        classNameJoiner.add(getFileNameWithoutExtension(document.name()));
-
-        return classNameJoiner.toString();
-    }
-
-    private Path createExecutables(BuildProject project) throws EvaluationException {
-        Target target;
-        try {
-            target = new Target(project.sourceRoot());
-        } catch (IOException | ProjectException e) {
-            throw createEvaluationException("failed to resolve target path while evaluating query expression: "
-                    + e.getMessage());
-        }
-
-        Path executablePath;
-        try {
-            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
-        } catch (IOException e) {
-            throw createEvaluationException("failed to create executable while evaluating query expression: "
-                    + e.getMessage());
-        }
-
-        try {
-            PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-            if (pkgCompilation.diagnosticResult().hasErrors()) {
-                StringJoiner errors = new StringJoiner(System.lineSeparator());
-                errors.add("compilation failed while creating executables for the query evaluation: ");
-                pkgCompilation.diagnosticResult().errors().forEach(error -> {
-                    if (error.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                        errors.add(error.message());
-                    }
-                });
-                throw createEvaluationException(errors.toString());
-            }
-            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
-        } catch (ProjectException e) {
-            throw createEvaluationException("failed to create executable while evaluating query expression: "
-                    + e.getMessage());
-        }
-        return executablePath;
-    }
-
     /**
-     * Returns the file name without extension.
+     * Generates the Ballerina program code snippet, which can output the result of the given query expression.
      *
-     * @param fileName file name
-     * @return File name without extension
+     * @return Ballerina program snippet
      */
-    private static String getFileNameWithoutExtension(String fileName) {
-        int index = indexOfExtension(fileName);
-        return index == -1 ? fileName : fileName.substring(0, index);
+    private String generateQuerySnippet() throws EvaluationException {
+        // Generates top level declarations snippet
+        String topLevelDeclarations = generateModuleLevelDeclarations();
+
+        // Generates function signature (parameter definitions) for the snippet.
+        processSnippetFunctionParameters();
+        StringJoiner parameters = new StringJoiner(",");
+        externalVariableNames.forEach(parameters::add);
+
+        return String.format(QUERY_FUNCTION_TEMPLATE,
+                topLevelDeclarations,
+                QUERY_FUNCTION_NAME,
+                parameters,
+                syntaxNode.toSourceCode());
     }
 
     /**
@@ -218,6 +176,75 @@ public class QueryExpressionProcessor {
     }
 
     /**
+     * Creates a Ballerina executable jar on the generated code snippet, in a temp directory.
+     *
+     * @param project build project instance
+     * @return path of the created executable JAR
+     */
+    private Path createExecutables(BuildProject project) throws EvaluationException {
+        Target target;
+        try {
+            target = new Target(project.sourceRoot());
+        } catch (IOException | ProjectException e) {
+            throw createEvaluationException("failed to resolve target path while evaluating query expression: "
+                    + e.getMessage());
+        }
+
+        Path executablePath;
+        try {
+            executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
+        } catch (IOException e) {
+            throw createEvaluationException("failed to create executable while evaluating query expression: "
+                    + e.getMessage());
+        }
+
+        try {
+            PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
+            if (pkgCompilation.diagnosticResult().hasErrors()) {
+                StringJoiner errors = new StringJoiner(System.lineSeparator());
+                errors.add("compilation failed while creating executables for the query evaluation: ");
+                pkgCompilation.diagnosticResult().errors().forEach(error -> {
+                    if (error.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                        errors.add(error.message());
+                    }
+                });
+                throw createEvaluationException(errors.toString());
+            }
+            JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+        } catch (ProjectException e) {
+            throw createEvaluationException("failed to create executable while evaluating query expression: "
+                    + e.getMessage());
+        }
+        return executablePath;
+    }
+
+    private String constructMainClassName(BuildProject project) {
+        Optional<DocumentId> docId = project.currentPackage().getDefaultModule().documentIds().stream().findFirst();
+        Document document = project.currentPackage().getDefaultModule().document(docId.get());
+
+        StringJoiner classNameJoiner = new StringJoiner(".");
+        classNameJoiner.add(TEMP_PACKAGE_ORG);
+        classNameJoiner.add(TEMP_PACKAGE_NAME);
+        // Generated class name will only contain the major version.
+        classNameJoiner.add(TEMP_PACKAGE_VERSION.split("\\.")[0]);
+        classNameJoiner.add(getFileNameWithoutExtension(document.name()));
+
+        return classNameJoiner.toString();
+    }
+
+    /**
+     * Returns the file name without extension.
+     *
+     * @param fileName file name
+     * @return File name without extension
+     */
+    private static String getFileNameWithoutExtension(String fileName) {
+        int index = indexOfExtension(fileName);
+        return index == -1 ? fileName : fileName.substring(0, index);
+    }
+
+    /**
      * Helper method to write a string source to a file.
      *
      * @param source Content to write to the file.
@@ -234,24 +261,7 @@ public class QueryExpressionProcessor {
         return mainBalFile;
     }
 
-    private String generateQuerySnippet() throws EvaluationException {
-        // Generates top level declarations snippet
-        String topLevelDeclarations = generateModuleLevelDeclarations();
-
-        // Generates function signature (parameter definitions) for the snippet.
-        processSnippetFunctionParameters();
-        StringJoiner parameters = new StringJoiner(",");
-        externalVariableNames.forEach(parameters::add);
-
-        return String.format(QUERY_FUNCTION_TEMPLATE,
-                topLevelDeclarations,
-                QUERY_FUNCTION_NAME,
-                parameters,
-                syntaxNode.toSourceCode());
-    }
-
     private String generateModuleLevelDeclarations() {
-
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
@@ -271,7 +281,13 @@ public class QueryExpressionProcessor {
                 .orElse("");
     }
 
-    private String getTypeString(BVariable bVar) {
+    /**
+     * Returns the type name of the given Ballerina variable instance.
+     *
+     * @param bVar ballerina variable instance
+     * @return type name
+     */
+    private String getTypeNameString(BVariable bVar) {
         switch (bVar.getBType()) {
             case BOOLEAN:
             case INT:
@@ -315,18 +331,13 @@ public class QueryExpressionProcessor {
         for (String name : capturedVarNames) {
             Value jdiValue = VariableUtils.getVariableValue(context, name);
             BVariable bVar = VariableFactory.getVariable(context, jdiValue);
-            capturedTypes.add(getTypeString(bVar));
+            capturedTypes.add(getTypeNameString(bVar));
             externalVariableValues.add(jdiValue);
         }
 
         for (int index = 0; index < capturedVarNames.size(); index++) {
             externalVariableNames.add(capturedTypes.get(index) + " " + capturedVarNames.get(index));
         }
-    }
-
-    public void dispose() {
-        // Todo - anything else to be disposed?
-        deleteDirectory(this.tempProjectDir);
     }
 
     /**
@@ -348,5 +359,10 @@ public class QueryExpressionProcessor {
             }
         }
         return directory.delete();
+    }
+
+    public void dispose() {
+        // Todo - anything else to be disposed?
+        deleteDirectory(this.tempProjectDir);
     }
 }
