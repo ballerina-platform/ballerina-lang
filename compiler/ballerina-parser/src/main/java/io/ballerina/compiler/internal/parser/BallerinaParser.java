@@ -17,8 +17,8 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.external.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.compiler.internal.parser.tree.STAmbiguousCollectionNode;
@@ -165,6 +165,7 @@ public class BallerinaParser extends AbstractParser {
             if (validateStatement(stmt)) {
                 continue;
             }
+
             stmts.add(stmt);
         }
         // TODO: fix invalid tokens attached to eof token

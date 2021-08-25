@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.external.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.external.diagnostics.DiagnosticWarningCode;
+import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
