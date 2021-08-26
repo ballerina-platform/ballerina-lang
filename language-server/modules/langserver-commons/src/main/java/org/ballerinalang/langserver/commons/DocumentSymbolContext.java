@@ -70,4 +70,11 @@ public interface DocumentSymbolContext extends DocumentServiceContext {
      * @return {@link Optional<SymbolTagSupportCapabilities>} supported tags.
      */
     Optional<SymbolTagSupportCapabilities> supportedTags();
+
+    /**
+     * Returns if the deprecated tag is supported.
+     *
+     * @return deprecated tag support.
+     */
+    boolean deprecatedSupport();
 }

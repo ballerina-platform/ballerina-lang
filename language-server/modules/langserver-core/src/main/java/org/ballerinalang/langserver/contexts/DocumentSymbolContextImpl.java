@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.DocumentSymbolParams;
+import org.eclipse.lsp4j.SymbolTag;
 import org.eclipse.lsp4j.SymbolTagSupportCapabilities;
 
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class DocumentSymbolContextImpl extends AbstractDocumentServiceContext im
     private LSClientCapabilities clientCapabilities;
     private DocumentSymbolParams params;
     private DocumentSymbolCapabilities documentSymbolClientCapabilities;
+    boolean deprecatedTagSupport;
 
     DocumentSymbolContextImpl(LSOperation operation, String fileUri, WorkspaceManager wsManager,
                               LanguageServerContext serverContext,
@@ -52,6 +54,12 @@ public class DocumentSymbolContextImpl extends AbstractDocumentServiceContext im
                     .getHierarchicalDocumentSymbolSupport();
             this.supportedTags = this.getDocumentSymbolClientCapabilities().getTagSupport();
             this.labelSupport = this.getDocumentSymbolClientCapabilities().getLabelSupport();
+        }
+        if (this.supportedTags != null &&
+                this.supportedTags.getValueSet().contains(SymbolTag.Deprecated)) {
+            this.deprecatedTagSupport = true;
+        } else {
+            this.deprecatedTagSupport = false;
         }
         this.params = params;
     }
@@ -84,6 +92,11 @@ public class DocumentSymbolContextImpl extends AbstractDocumentServiceContext im
     @Override
     public Optional<SymbolTagSupportCapabilities> supportedTags() {
         return Optional.ofNullable(this.supportedTags);
+    }
+
+    @Override
+    public boolean deprecatedSupport() {
+        return Boolean.TRUE.equals(this.deprecatedTagSupport);
     }
 
     /**

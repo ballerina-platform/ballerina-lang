@@ -5,7 +5,7 @@
   "result": [
     {
       "right": {
-        "name": "Main",
+        "name": "default",
         "kind": "Module",
         "range": {
           "start": {

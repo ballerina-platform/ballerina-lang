@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
  * Workspace service implementation for Ballerina.
  */
 public class BallerinaWorkspaceService implements WorkspaceService {
-
+    
     private final BallerinaLanguageServer languageServer;
     private final LSClientConfigHolder configHolder;
     private LSClientCapabilities clientCapabilities;
@@ -130,10 +130,10 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     .map(CommandArgument::from)
                     .collect(Collectors.toList());
             ExecuteCommandContext context = ContextBuilder.buildExecuteCommandContext(this.workspaceManager,
-                    this.serverContext,
-                    commandArguments,
-                    this.clientCapabilities,
-                    this.languageServer);
+                                                                                      this.serverContext,
+                                                                                      commandArguments,
+                                                                                      this.clientCapabilities,
+                                                                                      this.languageServer);
 
             try {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
@@ -158,9 +158,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
             }
             this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, "Operation 'workspace/executeCommand' failed!",
-                    new LSCommandExecutorException(
-                            "No command executor found for '" + params.getCommand() + "'"),
-                    null, (Position) null);
+                                       new LSCommandExecutorException(
+                                               "No command executor found for '" + params.getCommand() + "'"),
+                                       null, (Position) null);
             return false;
         });
     }
@@ -189,7 +189,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             return Collections.emptyList();
         }
 
-        Optional<PackageCompilation> packageCompilation =
+        Optional<PackageCompilation> packageCompilation = 
                 context.workspace().waitAndGetPackageCompilation(filePath.get());
         Optional<Document> document = context.workspace().document(filePath.get());
         Optional<SemanticModel> semanticModel = context.workspace().semanticModel(filePath.get());
@@ -197,7 +197,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             return Collections.emptyList();
         }
 
-        CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(uri, filePath.get(),
+        CodeActionExecutionContext codeActionContext = CodeActionExecutionContextImpl.from(uri, filePath.get(), 
                 null, document.get(), semanticModel.get(), args);
 
         String providerName = params.getCommand();
@@ -214,7 +214,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             }
 
             LineRange lineRange = originalST.get().rootNode().lineRange();
-            Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(),
+            Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), 
                     lineRange.startLine(), lineRange.endLine()));
             TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
             TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(

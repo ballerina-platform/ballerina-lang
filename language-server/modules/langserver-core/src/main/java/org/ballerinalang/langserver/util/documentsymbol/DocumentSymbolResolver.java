@@ -17,16 +17,17 @@
  */
 package org.ballerinalang.langserver.util.documentsymbol;
 
-import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.eclipse.lsp4j.DocumentSymbol;
@@ -61,6 +62,11 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     }
 
     @Override
+    public Optional<DocumentSymbol> transform(Token token) {
+        return Optional.empty();
+    }
+
+    @Override
     protected Optional<DocumentSymbol> transformSyntaxNode(Node node) {
         return Optional.empty();
     }
@@ -72,14 +78,14 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         String name;
         if (module.isPresent()) {
             if (module.get().isDefaultModule()) {
-                name = "Main";
+                name = "default";
             } else {
                 name = module.get().moduleName().moduleNamePart();
             }
         } else {
-            name = "Module";
+            name = "module";
         }
-        List<DocumentSymbol> children = transformChildren(modulePartNode.children());
+        List<DocumentSymbol> children = transformMembers(modulePartNode.members());
         Range range = DocumentSymbolUtil.generateNodeRange(modulePartNode);
         return Optional.ofNullable(createDocumentSymbol(name, SymbolKind.Module,
                 null, range, range, false, children, this.context));
@@ -128,7 +134,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = classDefinitionNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        List<DocumentSymbol> children = transformChildren(classDefinitionNode.children());
+        List<DocumentSymbol> children = transformMembers(classDefinitionNode.members());
         return Optional.ofNullable(createDocumentSymbol(name, symbolKind,
                 null, range, range, isDeprecated, children, this.context));
     }
@@ -144,7 +150,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         Optional<MetadataNode> metadata = serviceDeclarationNode.metadata();
         boolean isDeprecated = metadata.isPresent() &&
                 DocumentSymbolUtil.isDeprecated(metadata.get());
-        List<DocumentSymbol> children = transformChildren(serviceDeclarationNode.children());
+        List<DocumentSymbol> children = transformMembers(serviceDeclarationNode.members());
         return Optional.ofNullable(createDocumentSymbol(name, symbolKind, null,
                 range, range, isDeprecated, children, this.context));
     }
@@ -152,16 +158,13 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     /**
      * Provided a ChildNodes list generate the corresponding document symbols.
      *
-     * @param nodes {@link ChildNodeList} Child nodes list.
+     * @param nodes {@link NodeList<? extends Node>} Member nodes list.
      * @return {@link List<DocumentSymbol>} Generated list of document symbols.
      */
-    private List<DocumentSymbol> transformChildren(ChildNodeList nodes) {
+    private List<DocumentSymbol> transformMembers(NodeList<? extends Node> nodes) {
         List<DocumentSymbol> childSymbols = new ArrayList<>();
         nodes.forEach(node -> {
-            Optional<DocumentSymbol> docSymbol = node.apply(this);
-            if (docSymbol != null) {
-                docSymbol.ifPresent(childSymbols::add);
-            }
+            node.apply(this).ifPresent(childSymbols::add);
         });
         return childSymbols;
     }
@@ -192,8 +195,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         documentSymbol.setDetail(detail);
         documentSymbol.setRange(range);
         documentSymbol.setSelectionRange(selectionRange);
-        if (isDeprecated && context.supportedTags().isPresent() &&
-                context.supportedTags().get().getValueSet().contains(SymbolTag.Deprecated)) {
+        if (isDeprecated && context.deprecatedSupport()) {
             documentSymbol.setTags(List.of(SymbolTag.Deprecated));
         }
         if (context.getHierarchicalDocumentSymbolSupport()) {
