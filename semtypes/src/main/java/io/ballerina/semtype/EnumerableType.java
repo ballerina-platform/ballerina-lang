@@ -18,10 +18,10 @@
 package io.ballerina.semtype;
 
 /**
- * Abstract class to indicate Enumerable types.
+ * Interface to indicate Enumerable types.
  *
  * @since 2.0.0
  */
-public abstract class EnumerableType {
-    Object value;
+public interface EnumerableType {
+    public Object value();
 }
