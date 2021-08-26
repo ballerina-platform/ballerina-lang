@@ -23,5 +23,4 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public interface EnumerableType {
-    public Object value();
 }

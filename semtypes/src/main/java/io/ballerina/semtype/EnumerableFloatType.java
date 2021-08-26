@@ -23,10 +23,9 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class EnumerableFloatType implements EnumerableType{
-    Double value;
+    final double value;
 
-    @Override
-    public Object value() {
-        return value;
+    public EnumerableFloatType(double value) {
+        this.value = value;
     }
 }

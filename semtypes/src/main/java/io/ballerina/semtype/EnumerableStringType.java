@@ -23,10 +23,9 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class EnumerableStringType implements EnumerableType{
-    String value;
+    final String value;
 
-    @Override
-    public Object value() {
-        return value;
+    public EnumerableStringType(String value) {
+        this.value = value;
     }
 }
