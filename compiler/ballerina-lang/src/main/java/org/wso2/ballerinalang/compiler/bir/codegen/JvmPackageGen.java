@@ -85,6 +85,7 @@ import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -112,7 +113,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
@@ -258,7 +258,7 @@ public class JvmPackageGen {
             setLockStoreField(mv, className);
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
-            setCurrentModuleField(cw, mv, birPackage.packageID, className);
+            setCurrentModuleField(cw, mv, constantVariables, birPackage.packageID, className);
         }
         JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
@@ -266,7 +266,8 @@ public class JvmPackageGen {
         mv.visitEnd();
     }
 
-    private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage, ConstantVariables constantVariables) {
+    private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage,
+                                          ConstantVariables constantVariables) {
         if (birPackage.constants.isEmpty()) {
             return;
         }
@@ -310,19 +311,14 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
     }
 
-    private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, PackageID packageID,
-                                              String moduleInitClass) {
+    private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, ConstantVariables constantVariables,
+                                              PackageID packageID, String moduleInitClass) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_VAR_NAME,
                                         String.format("L%s;", MODULE), null, null);
         fv.visitEnd();
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.orgName.value));
-        mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(packageID.name.value));
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE,
-                           JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
-                                                          STRING_VALUE), false);
+        String varName = constantVariables.getModuleConstantVar(packageID);
+        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+                          String.format("L%s;", MODULE));
         mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
     }
 
