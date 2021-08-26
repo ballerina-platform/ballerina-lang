@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
 import ballerina/lang.'value as value;
 
 type Address record {
@@ -1555,6 +1556,25 @@ function assert(anydata actual, anydata expected) {
     string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
     panic error(reason);
+}
+
+type RecordWithHandleField record {|
+    int i;
+    handle h;
+|};
+
+function testToJsonConversionError() {
+    table<RecordWithHandleField> tb = table [
+         {i: 12, h: java:fromString("pqr")},
+         {i: 34, h: java:fromString("pqr")}
+   ];
+
+   json|error j = trap tb.toJson();
+   assert(j is error, true);
+   error err = <error> j;
+   assert(err.message(), "{ballerina/lang.value}ConversionError");
+   assert(<string> checkpanic err.detail()["message"], "'table<RecordWithHandleField>' value cannot be converted to " +
+                                      "'json': cannot construct the json object from 'handle' type data");
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
