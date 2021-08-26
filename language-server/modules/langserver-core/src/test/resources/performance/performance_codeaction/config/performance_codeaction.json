@@ -1,24 +1,36 @@
 {
-  "line": 0,
+  "line": 205,
   "character": 0,
   "expected": [
     {
-      "title": "Convert to public function",
-      "edits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
+      "title": "Document this",
+      "command": {
+        "title": "Document this",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 205,
+                "character": 0
+              },
+              "end": {
+                "line": 228,
+                "character": 1
+              }
             }
-          },
-          "newText": "public "
-        }
-      ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Document all",
+      "command": {
+        "title": "Document all",
+        "command": "ADD_ALL_DOC",
+        "arguments": []
+      }
     }
   ]
 }

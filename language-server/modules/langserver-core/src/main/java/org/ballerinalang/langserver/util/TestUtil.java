@@ -722,7 +722,8 @@ public class TestUtil {
     public static boolean isResponseWithinExpected(long responseTime) {
         if (responseTime == 0) {
             return false;
+        } else {
+            return responseTime < 3000;
         }
-        else return responseTime < 3000;
     }
 }
