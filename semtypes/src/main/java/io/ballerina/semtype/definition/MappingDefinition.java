@@ -17,9 +17,12 @@
  */
 package io.ballerina.semtype.definition;
 
+import io.ballerina.semtype.ComplexSemType;
 import io.ballerina.semtype.Definition;
 import io.ballerina.semtype.Env;
 import io.ballerina.semtype.SemType;
+
+import java.util.List;
 
 /**
  * Represent mapping type desc.
@@ -27,8 +30,13 @@ import io.ballerina.semtype.SemType;
  * @since 2.0.0
  */
 public class MappingDefinition implements Definition {
+
     @Override
     public SemType getSemType(Env env) {
         throw new AssertionError();
+    }
+
+    public ComplexSemType define(Env env, List<Field> fields, SemType rest) {
+        throw new IllegalStateException();
     }
 }

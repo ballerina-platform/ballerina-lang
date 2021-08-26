@@ -39,7 +39,7 @@ public class UnpackComplexSemType {
         List<UniformSubtype> subtypeList = new ArrayList<>();
         for (SubtypeData data : t.subtypeDataList) {
             int code = Integer.numberOfTrailingZeros(some);
-            subtypeList.add(new UniformSubtype(UniformTypeCode.from(code), data));
+            subtypeList.add(UniformSubtype.from(UniformTypeCode.from(code), data));
             some ^= (1 << code);
         }
         return subtypeList;

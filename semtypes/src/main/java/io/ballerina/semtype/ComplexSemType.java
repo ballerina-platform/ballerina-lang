@@ -49,6 +49,8 @@ public class ComplexSemType implements SemType {
             some |= 1L << c;
         }
         return new ComplexSemType(
-                new UniformTypeBitSet(allBitset), new UniformTypeBitSet(some), dataList.toArray(new SubtypeData[]{}));
+                UniformTypeBitSet.from(allBitset),
+                UniformTypeBitSet.from(some),
+                dataList.toArray(new SubtypeData[]{}));
     }
 }

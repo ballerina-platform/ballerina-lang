@@ -62,17 +62,22 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_FLOAT.code)
                     | (1 << UniformTypeCode.UT_DECIMAL.code)
                     | (1 << UniformTypeCode.UT_STRING.code));
+
+    public static final UniformTypeBitSet NUMBER =
+            uniformTypeUnion((1 << UniformTypeCode.UT_INT.code)
+                    | (1 << UniformTypeCode.UT_FLOAT.code)
+                    | (1 << UniformTypeCode.UT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
 
     private static UniformTypeBitSet uniformTypeUnion(int bitset) {
-        return new UniformTypeBitSet(bitset);
+        return UniformTypeBitSet.from(bitset);
     }
 
     private static UniformTypeBitSet uniformType(UniformTypeCode code) {
-        return new UniformTypeBitSet(1 << code.code);
+        return UniformTypeBitSet.from(1 << code.code);
     }
 
     public static SemType uniformSubtype(UniformTypeCode code, ProperSubtypeData data) {
-        return ComplexSemType.createComplexSemType(0, new UniformSubtype(code, data));
+        return ComplexSemType.createComplexSemType(0, UniformSubtype.from(code, data));
     }
 }

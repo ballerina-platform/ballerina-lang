@@ -26,8 +26,12 @@ public class UniformSubtype {
     public final UniformTypeCode uniformTypeCode;
     public final SubtypeData subtypeData;
 
-    public UniformSubtype(UniformTypeCode uniformTypeCode, SubtypeData subtypeData) {
+    private UniformSubtype(UniformTypeCode uniformTypeCode, SubtypeData subtypeData) {
         this.uniformTypeCode = uniformTypeCode;
         this.subtypeData = subtypeData;
+    }
+
+    public static UniformSubtype from(UniformTypeCode typeCode, SubtypeData data) {
+        return new UniformSubtype(typeCode, data);
     }
 }

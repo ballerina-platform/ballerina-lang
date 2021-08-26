@@ -18,6 +18,7 @@
 package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.ProperSubtypeData;
+import io.ballerina.semtype.SubtypeData;
 
 /**
  * Represent FloatSubtype.
@@ -25,5 +26,9 @@ import io.ballerina.semtype.ProperSubtypeData;
  * @since 2.0.0
  */
 public class FloatSubtype implements ProperSubtypeData {
+
+    public static boolean floatSubtypeContains(SubtypeData d, double f) {
+        throw new IllegalStateException();
+    }
 
 }
