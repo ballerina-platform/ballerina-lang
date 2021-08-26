@@ -464,6 +464,43 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
+    @Test(description = "tests overriding build options when editing Toml")
+    public void testOverrideBuildOptionsOnTomlEdit() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        // Initialize the project instance
+        BuildProject project = null;
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        try {
+            project = BuildProject.load(projectPath, buildOptions);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // Test when build option provided only during project load
+        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().apply();
+        Package newPackage = newBallerinaToml.packageInstance();
+        Assert.assertTrue(newPackage.project().buildOptions().offlineBuild());
+
+        newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("[package]\n" +
+                "org = \"sameera\"\n" +
+                "name = \"winery\"\n" +
+                "version = \"0.1.0\"\n" +
+                "\n" +
+                "[build-options]\n" +
+                "experimental=true\n" +
+                "observabilityIncluded=true\n" +
+                "skipTests=true\n" +
+                "offline=false\n" +
+                "codeCoverage=true").apply();
+        newPackage = newBallerinaToml.packageInstance();
+        // Test when build option provided in both project load and Ballerina TOML
+        Assert.assertTrue(newPackage.project().buildOptions().offlineBuild());
+        // Test when build option provided only in Ballerina TOML
+        Assert.assertTrue(newPackage.project().buildOptions().codeCoverage());
+        Assert.assertTrue(newPackage.project().buildOptions().observabilityIncluded());
+        Assert.assertTrue(newPackage.project().buildOptions().experimental());
+        Assert.assertTrue(newPackage.project().buildOptions().skipTests());
+    }
+
     @Test
     public void testUpdateDocument() {
         // Inputs from langserver
