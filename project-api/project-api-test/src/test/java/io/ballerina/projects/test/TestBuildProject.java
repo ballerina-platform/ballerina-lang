@@ -1396,7 +1396,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
     }
 
-    @Test(description = "test auto updating dependencies using build file")
+    @Test(description = "test auto updating dependencies using build file", enabled = false)
     public void testAutoUpdateWithBuildFile() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
