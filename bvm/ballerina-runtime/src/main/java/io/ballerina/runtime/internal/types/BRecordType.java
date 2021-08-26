@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeUtils;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -113,7 +114,7 @@ public class BRecordType extends BStructureType implements RecordType {
     public <V extends Object> V getZeroValue() {
         String typeName = this.typeName;
         if (intersectionType != null) {
-            typeName = ((BIntersectionType) intersectionType).getConstituentTypes().get(0).getName();
+            typeName = TypeUtils.getMutableType((BIntersectionType) intersectionType).getName();
         }
         return (V) ValueCreator.createRecordValue(this.pkg, typeName);
     }
