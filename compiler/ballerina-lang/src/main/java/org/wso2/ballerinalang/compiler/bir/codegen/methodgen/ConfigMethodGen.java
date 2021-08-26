@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmUnionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -87,7 +88,8 @@ public class ConfigMethodGen {
     String innerClassName;
 
     public void generateConfigMapper(List<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
-                                     JvmBStringConstantsGen stringConstantsGen, Map<String, byte[]> jarEntries) {
+                                     JvmBStringConstantsGen stringConstantsGen,
+                                     JvmUnionTypeConstantsGen unionTypeConstantsGen, Map<String, byte[]> jarEntries) {
         innerClassName = JvmCodeGenUtil.getModuleLevelClassName(pkg.packageID, CONFIGURATION_CLASS_NAME);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, innerClassName, null, OBJECT, null);
@@ -101,7 +103,8 @@ public class ConfigMethodGen {
         mv.visitEnd();
 
         generateConfigInit(cw, moduleInitClass, imprtMods, pkg.packageID);
-        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen, pkg.packageID));
+        populateConfigDataMethod(cw, moduleInitClass, pkg,
+                                 new JvmTypeGen(stringConstantsGen, unionTypeConstantsGen, pkg.packageID));
         cw.visitEnd();
         jarEntries.put(innerClassName + ".class", cw.toByteArray());
     }

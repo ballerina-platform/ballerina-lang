@@ -52,7 +52,7 @@ public class CompilationOptions {
     }
 
     boolean sticky() {
-        return toBooleanDefaultIfNull(sticky);
+        return toBooleanTrueIfNull(sticky);
     }
 
     boolean experimental() {
@@ -98,13 +98,20 @@ public class CompilationOptions {
         this.listConflictedClasses = Objects.requireNonNullElseGet(
                 theirOptions.listConflictedClasses, () -> toBooleanDefaultIfNull(this.listConflictedClasses));
         this.sticky = Objects.requireNonNullElseGet(
-                theirOptions.sticky, () -> toBooleanDefaultIfNull(this.sticky));
+                theirOptions.sticky, () -> toBooleanTrueIfNull(this.sticky));
         return this;
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
         if (bool == null) {
             return false;
+        }
+        return bool;
+    }
+
+    private boolean toBooleanTrueIfNull(Boolean bool) {
+        if (bool == null) {
+            return true;
         }
         return bool;
     }

@@ -18,13 +18,14 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,6 @@ import static org.objectweb.asm.Opcodes.NEWARRAY;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.T_INT;
 import static org.objectweb.asm.Opcodes.V1_8;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
@@ -66,11 +66,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  */
 public class JvmBStringConstantsGen {
 
-    private ConcurrentHashMap<String, String> bStringVarMap;
+    private final ConcurrentHashMap<String, String> bStringVarMap;
 
-    private String stringConstantsClass;
+    private final String stringConstantsClass;
 
-    private AtomicInteger constantIndex = new AtomicInteger();
+    private final AtomicInteger constantIndex = new AtomicInteger();
 
     /*
      MAX_STRINGS_PER_METHOD is calculated as below.
@@ -80,9 +80,9 @@ public class JvmBStringConstantsGen {
      */
     private static final int MAX_STRINGS_PER_METHOD = 5000;
 
-    public JvmBStringConstantsGen(BIRNode.BIRPackage module) {
+    public JvmBStringConstantsGen(PackageID module) {
         this.bStringVarMap = new ConcurrentHashMap<>();
-        this.stringConstantsClass = getModuleLevelClassName(module.packageID, MODULE_STRING_CONSTANT_CLASS_NAME);
+        this.stringConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(module, MODULE_STRING_CONSTANT_CLASS_NAME);
     }
 
     public String addBString(String val) {

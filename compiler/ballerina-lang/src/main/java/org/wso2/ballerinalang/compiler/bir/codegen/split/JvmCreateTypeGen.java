@@ -337,7 +337,7 @@ public class JvmCreateTypeGen {
                     populateError(mv, (BErrorType) bType);
                     break;
                 case TypeTags.UNION:
-                    populateUnion(mv, (BUnionType) bType);
+                    populateUnion(cw, mv, (BUnionType) bType, fieldName);
                     break;
                 case TypeTags.TUPLE:
                     populateTuple(mv, (BTupleType) bType);
@@ -363,7 +363,7 @@ public class JvmCreateTypeGen {
         addImmutableType(mv, bType);
     }
 
-    private void populateUnion(MethodVisitor mv, BUnionType bType) {
+    private void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String name) {
         mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
@@ -371,7 +371,7 @@ public class JvmCreateTypeGen {
 
         addCyclicFlag(mv, bType);
         // populate member fields
-        addUnionMembers(mv, bType);
+        addUnionMembers(cw, mv, bType, name);
         addImmutableType(mv, bType);
     }
 
@@ -1359,16 +1359,16 @@ public class JvmCreateTypeGen {
      * Add member type to unions in a type definition.
      *
      * @param mv        method visitor
-     * @param unionType   unionType
+     * @param unionType unionType
      */
-    private void addUnionMembers(MethodVisitor mv, BUnionType unionType) {
-        jvmTypeGen.createUnionMembersArray(mv, unionType.getMemberTypes());
+    private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String name) {
+        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), typesClass, name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
-                String.format("([L%s;)V", TYPE), false);
+                           String.format("([L%s;)V", TYPE), false);
 
-        jvmTypeGen.createUnionMembersArray(mv, unionType.getOriginalMemberTypes());
+        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), typesClass, "original" + name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD,
-                String.format("([L%s;)V", TYPE), false);
+                           String.format("([L%s;)V", TYPE), false);
     }
 
     /**
