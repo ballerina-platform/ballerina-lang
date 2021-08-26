@@ -16,7 +16,6 @@
 
 import ballerina/jballerina.java;
 
-function testClassDefNotFound() returns handle = @java:Method {
-   name: "foo",
+function testClassDefNotFound() returns handle = @java:Constructor {
    'class: "javalibs.app.App"
 } external;
