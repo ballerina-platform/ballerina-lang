@@ -1149,20 +1149,21 @@ public class JvmTypeGen {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE),
                         false);
             } else {
-                switch (valueType.tag) {
-                    case TypeTags.BOOLEAN:
-                        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-                                String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-                        break;
-                    case TypeTags.FLOAT:
-                        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
-                                String.format("(D)L%s;", DOUBLE_VALUE), false);
-                        break;
-                    case TypeTags.BYTE:
-                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
-                                String.format("(I)L%s;", INT_VALUE), false);
-                        break;
-                }
+                checkValueTypeTag(mv, valueType);
+//                switch (valueType.tag) {
+//                    case TypeTags.BOOLEAN:
+//                        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
+//                                String.format("(Z)L%s;", BOOLEAN_VALUE), false);
+//                        break;
+//                    case TypeTags.FLOAT:
+//                        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+//                                String.format("(D)L%s;", DOUBLE_VALUE), false);
+//                        break;
+//                    case TypeTags.BYTE:
+//                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
+//                                String.format("(I)L%s;", INT_VALUE), false);
+//                        break;
+//                }
             }
 
             // Add the value to the set
@@ -1176,5 +1177,24 @@ public class JvmTypeGen {
         // initialize the finite type using the value space
         mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE_IMPL, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;I)V", STRING_VALUE, SET), false);
+    }
+
+    private void checkValueTypeTag(MethodVisitor mv, BType valueType) {
+        switch (valueType.tag) {
+            case TypeTags.BOOLEAN:
+                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
+                        String.format("(Z)L%s;", BOOLEAN_VALUE), false);
+                break;
+            case TypeTags.FLOAT:
+                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                        String.format("(D)L%s;", DOUBLE_VALUE), false);
+                break;
+            case TypeTags.BYTE:
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
+                        String.format("(I)L%s;", INT_VALUE), false);
+                break;
+            case TypeTags.TYPEREFDESC:
+                checkValueTypeTag(mv, getConstrainedTypeFromRefType(valueType));
+        }
     }
 }

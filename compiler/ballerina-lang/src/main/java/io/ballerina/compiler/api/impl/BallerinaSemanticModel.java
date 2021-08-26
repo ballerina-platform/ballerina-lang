@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -315,7 +316,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                         && compilationUnit.getName().equals(symbolAtCursor.pos.lineRange().filePath())
                         && PositionUtil.withinBlock(position, symbolAtCursor.pos))) {
             return Optional.ofNullable(
-                    typesFactory.getTypeDescriptor(symbolAtCursor.type, (BTypeSymbol) symbolAtCursor));
+                    typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
         }
 
         return Optional.ofNullable(symbolFactory.getBCompiledSymbol(symbolAtCursor,
@@ -372,7 +373,11 @@ public class BallerinaSemanticModel implements SemanticModel {
                 .get();
     }
 
-    private boolean isTypeSymbol(BSymbol symbol) {
+    private boolean isTypeSymbol(BSymbol tSymbol) {
+        BSymbol symbol = tSymbol;
+        if(symbol instanceof BTypeDefinitionSymbol) {
+            symbol = symbol.type.tsymbol;
+        }
         return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
                 && !Symbols.isTagOn(symbol, ANNOTATION);
     }

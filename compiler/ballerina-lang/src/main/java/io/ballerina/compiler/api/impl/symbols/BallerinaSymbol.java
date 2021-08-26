@@ -179,6 +179,9 @@ public class BallerinaSymbol implements Symbol {
     }
 
     Documentation getDocAttachment(BSymbol symbol) {
+//        return symbol == null ? null : (symbol instanceof BTypeDefinitionSymbol ?
+//                new BallerinaDocumentation(symbol.type.tsymbol.markdownDocumentation) :
+//                new BallerinaDocumentation(symbol.markdownDocumentation));
         return symbol == null ? null : new BallerinaDocumentation(symbol.markdownDocumentation);
     }
 

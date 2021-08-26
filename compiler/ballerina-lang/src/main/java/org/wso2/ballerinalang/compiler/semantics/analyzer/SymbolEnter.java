@@ -1508,7 +1508,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             typeDefSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDefinition.flagSet),
                     names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
-                    typeDefinition.pos, SOURCE);
+                    typeDefinition.name.pos, SOURCE);
 //            typeDefSymbol.kind = definedType.tsymbol.kind;
             if(definedType.tsymbol.name == Names.EMPTY) {
                 label = false;
@@ -1516,11 +1516,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                 definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
                 definedType.tsymbol.flags |= typeDefSymbol.flags;
                 definedType.tsymbol.pos = typeDefSymbol.pos;
+//                if (definedType.tsymbol.pos == null) {
+//                    definedType.tsymbol.pos = typeDefSymbol.pos;
+//                }
+
             }
 //        } else {
 //            typeDefSymbol = definedType.tsymbol;
 //        }
-
+        if(typeDefinition.flagSet.contains(Flag.ENUM)) {
+            typeDefSymbol = definedType.tsymbol;
+        }
 
         boolean isErrorIntersection = isErrorIntersection(definedType);
         if (isErrorIntersection) {

@@ -141,7 +141,7 @@ public class TypesFactory {
         return getTypeDescriptor(bType, bType != null ? bType.tsymbol : null, false);
     }
 
-    public TypeSymbol getTypeDescriptor(BType bType, BTypeSymbol tSymbol) {
+    public TypeSymbol getTypeDescriptor(BType bType, BSymbol tSymbol) {
         return getTypeDescriptor(bType, tSymbol, false);
     }
 
@@ -181,14 +181,20 @@ public class TypesFactory {
 //                    typeRefFromIntersectType);
 //        }
 
-        TypeSymbol typeSymbol;
-        if(tSymbol instanceof BTypeDefinitionSymbol) {
-            typeSymbol = createTypeDescriptor(bType, tSymbol.type.tsymbol, moduleID);
+//        TypeSymbol typeSymbol;
+//        if((tSymbol instanceof BTypeDefinitionSymbol && !rawTypeOnly) || isTypeReference(bType, tSymbol, rawTypeOnly)) {
+        if(isTypeReference(bType, tSymbol, rawTypeOnly)) {
+            bType.tsymbol.markdownDocumentation = tSymbol.markdownDocumentation;
+            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
+                    typeRefFromIntersectType);
         } else {
-            typeSymbol = createTypeDescriptor(bType, (BTypeSymbol) tSymbol, moduleID);
+            if (tSymbol instanceof BTypeDefinitionSymbol) {
+                return createTypeDescriptor(bType, tSymbol.type.tsymbol, moduleID);
+            }
+            return createTypeDescriptor(bType, (BTypeSymbol) tSymbol, moduleID);
+//            return createTypeDescriptor(bType, bType.tsymbol, moduleID);
         }
 
-        return typeSymbol;
     }
 
     private TypeSymbol createTypeDescriptor(BType bType, BTypeSymbol tSymbol, ModuleID moduleID) {
@@ -267,12 +273,13 @@ public class TypesFactory {
 
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
             case FUNCTION:
-                if(tSymbol.tag == SymTag.TYPE_DEF) {
-                    return new BallerinaFunctionTypeSymbol(this.context, moduleID,
-                            (BInvokableTypeSymbol) tSymbol.type.tsymbol, bType);
-                } else {
-                    return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
-                }
+                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
+//                if(tSymbol.tag == SymTag.TYPE_DEF) {
+//                    return new BallerinaFunctionTypeSymbol(this.context, moduleID,
+//                            (BInvokableTypeSymbol) tSymbol.type.tsymbol, bType);
+//                } else {
+//                    return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
+//                }
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
             case NONE:
@@ -328,27 +335,28 @@ public class TypesFactory {
         throw new IllegalStateException("Invalid XML subtype type tag: " + internalType.tag);
     }
 
-//    private boolean isTypeReference(BType bType, BSymbol tSymbol, boolean rawTypeOnly) {
-//        // Not considering type params as type refs for now because having it in the typedesc form will make more
-//        // sense for end users of the API consumers (e.g., VS Code plugin users). This probably can be removed once
-//        // https://github.com/ballerina-platform/ballerina-lang/issues/18150 is fixed.
-//        if (rawTypeOnly || tSymbol == null || Symbols.isFlagOn(tSymbol.flags, Flags.TYPE_PARAM)) {
-//            return false;
-//        }
-//
-//        if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
-//            return false;
-//        }
-//
-//        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
-//            return true;
-//        }
-//
-//        final TypeKind kind = bType.getKind();
-//        return kind == RECORD || kind == OBJECT || kind == PARAMETERIZED || tSymbol.isLabel
-//                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
-//                || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
-//    }
+    private boolean isTypeReference(BType bType, BSymbol tSymbol, boolean rawTypeOnly) {
+        // Not considering type params as type refs for now because having it in the typedesc form will make more
+        // sense for end users of the API consumers (e.g., VS Code plugin users). This probably can be removed once
+        // https://github.com/ballerina-platform/ballerina-lang/issues/18150 is fixed.
+        if (rawTypeOnly || tSymbol == null || Symbols.isFlagOn(tSymbol.flags, Flags.TYPE_PARAM)) {
+            return false;
+        }
+
+        if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
+            return false;
+        }
+
+        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
+            return true;
+        }
+
+        final TypeKind kind = bType.getKind();
+        return kind == PARAMETERIZED || tSymbol instanceof BTypeDefinitionSymbol
+                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
+                || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
+//        return isCustomError(tSymbol);
+    }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
         switch (bTypeKind) {
@@ -420,7 +428,7 @@ public class TypesFactory {
         }
     }
 
-    private static boolean isCustomError(BTypeSymbol tSymbol) {
+    private static boolean isCustomError(BSymbol tSymbol) {
         return tSymbol.kind == SymbolKind.ERROR && !Names.ERROR.equals(tSymbol.name);
     }
 

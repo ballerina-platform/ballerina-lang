@@ -476,7 +476,8 @@ public class BIRPackageSymbolEnter {
         }
 
         // Temp solution to add abstract flag if available TODO find a better approach
-        flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLASS) ? flags | Flags.CLASS : flags;
+        boolean isClass = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLASS);
+        flags = isClass ? flags | Flags.CLASS : flags;
 
         // Temp solution to add client flag if available TODO find a better approach
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
@@ -493,14 +494,22 @@ public class BIRPackageSymbolEnter {
 //            type.tsymbol.pos = pos;
 //        }
 //        else {
+//        if(Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
+        if (isClass || Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
+            symbol = type.tsymbol;
+        } else {
+            //todo FindModulePrefixRefsTest failure
             symbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
-                    names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol.owner,
-                    pos, SOURCE);
-            symbol.originalName = names.fromString(typeDefOrigName);
+                    names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol,
+                    pos, COMPILED_SOURCE);
+        }
+        symbol.originalName = names.fromString(typeDefOrigName);
         if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
             type.tsymbol.name = symbol.name;
             type.tsymbol.originalName = symbol.originalName;
         }
+        symbol.origin = toOrigin(origin);
+        symbol.flags = flags;
 //            if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
 //                type.tsymbol = symbol;
 //            }
@@ -527,8 +536,11 @@ public class BIRPackageSymbolEnter {
 //        symbol.pos = pos;
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
+            //todo junit fails only 3
+//            type.tsymbol.flags = flags;
+//            type.tsymbol.markdownDocumentation = symbol.markdownDocumentation;
+            type.tsymbol.origin = toOrigin(origin);
             this.structureTypes.add((BStructureTypeSymbol) type.tsymbol);
-//            this.structureTypes.add((BStructureTypeSymbol) symbol);
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
