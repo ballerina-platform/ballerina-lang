@@ -19,6 +19,11 @@ package io.ballerina.projects.test.resolution.packages.internal;
 
 import io.ballerina.projects.PackageDependencyScope;
 
+/**
+ * Contains utility methods used throughout the test framework.
+ *
+ * @since 2.0.0
+ */
 public class Utils {
     private Utils() {
     }
