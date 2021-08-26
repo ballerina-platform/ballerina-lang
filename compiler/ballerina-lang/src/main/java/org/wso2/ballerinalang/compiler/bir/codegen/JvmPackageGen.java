@@ -88,6 +88,7 @@ import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
@@ -96,6 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -246,12 +248,13 @@ public class JvmPackageGen {
     private static void generateStaticInitializer(ClassWriter cw, String className, BIRPackage birPackage,
                                                   boolean isInitClass, boolean serviceEPAvailable,
                                                   AsyncDataCollector asyncDataCollector,
-                                                 ConstantVariables constantVariables) {
+                                                  ConstantVariables constantVariables) {
         if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
         if (isInitClass) {
+            setConstantFields(mv, birPackage, constantVariables);
             setLockStoreField(mv, className);
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
@@ -261,6 +264,14 @@ public class JvmPackageGen {
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage, ConstantVariables constantVariables) {
+        if (birPackage.constants.isEmpty()) {
+            return;
+        }
+        mv.visitMethodInsn(INVOKESTATIC, constantVariables.getConstantClass(), CONSTANT_INIT_METHOD_PREFIX, "()V",
+                           false);
     }
 
     private static void setLockStoreField(MethodVisitor mv, String className) {

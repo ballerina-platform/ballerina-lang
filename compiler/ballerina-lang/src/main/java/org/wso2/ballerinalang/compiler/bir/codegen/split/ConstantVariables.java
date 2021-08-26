@@ -65,10 +65,10 @@ public class ConstantVariables {
     }
 
     public void generateConstants(Map<String, byte[]> jarEntries) {
-        stringConstantsGen.generateConstantInit(jarEntries);
-        moduleConstantsGen.generateConstantInit(jarEntries);
         constantsGen.generateConstantInit(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);
+        moduleConstantsGen.generateConstantInit(jarEntries);
+        stringConstantsGen.generateConstantInit(jarEntries);
     }
 
     public void generateGetBUnionType(MethodVisitor mv, String varName) {
@@ -81,5 +81,9 @@ public class ConstantVariables {
 
     public String getModuleConstantClass() {
         return moduleConstantsGen.getModuleConstantClass();
+    }
+
+    public String getConstantClass() {
+        return constantsGen.getConstantClass();
     }
 }

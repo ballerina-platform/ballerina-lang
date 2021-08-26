@@ -279,6 +279,7 @@ public class JvmConstants {
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
+    public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
