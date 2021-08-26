@@ -24,6 +24,10 @@
   },
   {
     "description": "Field access of null.",
-    "code": "json j2 = null; j2?.name"
+    "code": "json j2 = null;"
+  },
+  {
+    "description": "Field access of null - get value.",
+    "code": "j2?.name"
   }
 ]

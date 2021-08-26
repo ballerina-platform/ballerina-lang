@@ -1,57 +1,101 @@
 [
   {
-    "description": "Define variable.",
-    "code": "int value = 1; value",
+    "description": "Compound logical shift.",
+    "code": "int x = 0; x = x + 1"
+  },
+  {
+    "description": "Compound logical shift - get value.",
+    "code": "x",
     "expr": "1"
   },
   {
     "description": "Compound addition.",
-    "code": "value += 7; value",
+    "code": "value += 7;"
+  },
+  {
+    "description": "Compound addition - get value.",
+    "code": "value",
     "expr": "8"
   },
   {
     "description": "Compound addition.",
-    "code": "value -= 2; value",
+    "code": "value -= 2;"
+  },
+  {
+    "description": "Compound addition - get value.",
+    "code": "value",
     "expr": "6"
   },
   {
     "description": "Compound division.",
-    "code": "value /= 3; value",
+    "code": "value /= 3;"
+  },
+  {
+    "description": "Compound division - get value.",
+    "code": "value",
     "expr": "2"
   },
   {
     "description": "Compound multiplication.",
-    "code": "value *= 2; value",
+    "code": "value *= 2;"
+  },
+  {
+    "description": "Compound multiplication - get value.",
+    "code": "value",
     "expr": "4"
   },
   {
     "description": "Compound AND.",
-    "code": "value &= 4; value",
+    "code": "value &= 4;"
+  },
+  {
+    "description": "Compound AND - get value.",
+    "code": "value",
     "expr": "4"
   },
   {
     "description": "Compound OR.",
-    "code": "value |= 3; value",
+    "code": "value |= 3;"
+  },
+  {
+    "description": "Compound OR - get value.",
+    "code": "value",
     "expr": "7"
   },
   {
     "description": "Compound XOR.",
-    "code": "value ^= 5; value",
+    "code": "value ^= 5;"
+  },
+  {
+    "description": "Compound XOR - get value.",
+    "code": "value",
     "expr": "2"
   },
   {
     "description": "Compound left shift.",
-    "code": "value <<= 1; value",
+    "code": "value <<= 1;"
+  },
+  {
+    "description": "Compound left shift - get value.",
+    "code": "value",
     "expr": "4"
   },
   {
     "description": "Compound right shift.",
-    "code": "value >>= 1; value",
+    "code": "value >>= 1;"
+  },
+  {
+    "description": "Compound right shift - get value.",
+    "code": "value",
     "expr": "2"
   },
   {
     "description": "Compound logical shift.",
-    "code": "value >>>= 1; value",
+    "code": "value >>>= 1;"
+  },
+  {
+    "description": "Compound logical shift - get value.",
+    "code": "value",
     "expr": "1"
   }
 ]

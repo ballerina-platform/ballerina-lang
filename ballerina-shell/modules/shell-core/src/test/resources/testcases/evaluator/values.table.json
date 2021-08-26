@@ -13,12 +13,20 @@
   },
   {
     "description": "Create a table with data.",
-    "code": "EmployeeTable employeeTab = table [ {id: 1, name: \"John\", salary: 300.50}, {id: 2, name: \"Bella\", salary: 500.50}, {id: 3, name: \"Peter\", salary: 750.0} ]; employeeTab.keys()",
+    "code": "EmployeeTable employeeTab = table [ {id: 1, name: \"John\", salary: 300.50}, {id: 2, name: \"Bella\", salary: 500.50}, {id: 3, name: \"Peter\", salary: 750.0} ]"
+  },
+  {
+    "description": "Create a table with data - get value.",
+    "code": "employeeTab.keys()",
     "expr": "[1,2,3]"
   },
   {
     "description": "Add a new table entry.",
-    "code": "Employee emp = {id: 4, name: \"Max\", salary: 900.0}; employeeTab.add(emp);  employeeTab[4]",
+    "code": "Employee emp = {id: 4, name: \"Max\", salary: 900.0}; employeeTab.add(emp)"
+  },
+  {
+    "description": "Add a new table entry - get value.",
+    "code": "employeeTab[4]",
     "expr": "{\"id\":4,\"name\":\"Max\",\"salary\":900.0}"
   },
   {
@@ -33,12 +41,20 @@
   },
   {
     "description": "Remove a table entry.",
-    "code": "string filtered = \"\"; employeeTab.forEach(function (Employee employee) {if (employee.salary < 400.0) {filtered += employee.name;filtered += \" \";} }); filtered",
+    "code": "string filtered = \"\"; employeeTab.forEach(function (Employee employee) {if (employee.salary < 400.0) {filtered += employee.name;filtered += \" \";} });"
+  },
+  {
+    "description": "Remove a table entry.",
+    "code": "filtered",
     "expr": "\"John \""
   },
   {
     "description": "Creating table with map constrained members.",
-    "code": "table<map<any>> customerTab = table [{id: 13 , fname: \"Dan\", lname: \"Bing\"}]; customerTab.toArray()",
+    "code": "table<map<any>> customerTab = table [{id: 13 , fname: \"Dan\", lname: \"Bing\"}];"
+  },
+  {
+    "description": "Creating table with map constrained members.",
+    "code": "customerTab.toArray()",
     "expr": "[{\"id\":13,\"fname\":\"Dan\",\"lname\":\"Bing\"}]"
   }
 ]
