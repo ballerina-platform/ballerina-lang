@@ -58,8 +58,9 @@ public class Runtime {
     }
 
     /**
-     * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are invoked in
-     * the same thread where other object methods are executed. So, the methods will be executed sequentially per object level.
+     * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are
+     * invoked in the same thread where other object methods are executed. So, the methods will be executed
+     * sequentially per object level.
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
@@ -124,11 +125,11 @@ public class Runtime {
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
-     * This API checks whether the object or object method is isolated. So, if an object method is isolated, method will be
-     * concurrently executed in different os threads.
+     * This API checks whether the object or object method is isolated. So, if an object method is isolated, method
+     * will be concurrently executed in different os threads.
      * <p>
-     * Caller needs to ensure that no data race is possible for the mutable state with given arguments. So, the method can
-     * be concurrently run with different os threads.
+     * Caller needs to ensure that no data race is possible for the mutable state with given arguments. So, the
+     * method can be concurrently run with different os threads.
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
