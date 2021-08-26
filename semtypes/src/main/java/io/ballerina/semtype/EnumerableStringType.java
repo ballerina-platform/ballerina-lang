@@ -18,11 +18,11 @@
 package io.ballerina.semtype;
 
 /**
- * Enumerable type wrapper for string
+ * Enumerable type wrapper for string.
  *
  * @since 2.0.0
  */
-public class EnumerableStringType implements EnumerableType{
+public class EnumerableStringType implements EnumerableType {
     final String value;
 
     public EnumerableStringType(String value) {

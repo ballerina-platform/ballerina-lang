@@ -21,6 +21,11 @@ package io.ballerina.semtype;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * EnumerableSubtype with enumerable subtype ops.
+ *
+ * @since 2.0.0
+ */
 public class EnumerableSubtype {
     static final int LT = -1;
     static final int EQ = 0;
@@ -73,10 +78,8 @@ public class EnumerableSubtype {
         return allowed;
     }
 
-    public static void enumerableListUnion(List<? extends EnumerableType> ve1, List<? extends EnumerableType> ve2,
-                                           List<? extends EnumerableType> resulte){
-        List<EnumerableType> v1 = (List<EnumerableType>) ve1;
-        List<EnumerableType> v2 = (List<EnumerableType>) ve2;
+    public static void enumerableListUnion(List<? extends EnumerableType> v1, List<? extends EnumerableType> v2,
+                                           List<? extends EnumerableType> resulte) {
         List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
@@ -115,10 +118,8 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListIntersect(List<? extends EnumerableType> ve1, List<? extends EnumerableType> ve2,
-                                               List<? extends EnumerableType> resulte){
-        List<EnumerableType> v1 = (List<EnumerableType>) ve1;
-        List<EnumerableType> v2 = (List<EnumerableType>) ve2;
+    public static void enumerableListIntersect(List<? extends EnumerableType> v1, List<? extends EnumerableType> v2,
+                                               List<? extends EnumerableType> resulte) {
         List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
@@ -148,10 +149,8 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListDiff(List<? extends EnumerableType> ve1, List<? extends EnumerableType> ve2,
+    public static void enumerableListDiff(List<? extends EnumerableType> v1, List<? extends EnumerableType> v2,
                                           List<? extends EnumerableType> resulte) {
-        List<EnumerableType> v1 = (List<EnumerableType>) ve1;
-        List<EnumerableType> v2 = (List<EnumerableType>) ve2;
         List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;

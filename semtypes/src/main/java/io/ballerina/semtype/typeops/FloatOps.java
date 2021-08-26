@@ -7,6 +7,11 @@ import io.ballerina.semtype.subtypedata.FloatSubtype;
 
 import java.util.ArrayList;
 
+/**
+ * Float specific methods operate on SubtypeData.
+ *
+ * @since 2.0.0
+ */
 public class FloatOps extends CommonOps  {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {

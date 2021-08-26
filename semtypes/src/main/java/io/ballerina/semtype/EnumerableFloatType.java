@@ -18,11 +18,11 @@
 package io.ballerina.semtype;
 
 /**
- * Enumerable type wrapper for float
+ * Enumerable type wrapper for float.
  *
  * @since 2.0.0
  */
-public class EnumerableFloatType implements EnumerableType{
+public class EnumerableFloatType implements EnumerableType {
     final double value;
 
     public EnumerableFloatType(double value) {
