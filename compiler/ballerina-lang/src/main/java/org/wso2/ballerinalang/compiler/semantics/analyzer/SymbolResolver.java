@@ -1384,23 +1384,32 @@ public class SymbolResolver extends BLangNodeVisitor {
             errorTypeNode.flagSet.add(Flag.ANONYMOUS);
         }
 
+        // The builtin error type
+        BErrorType bErrorType = symTable.errorType;
+
         boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
         if (detailType == symTable.detailType && !distinctErrorDef &&
                 !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
-            resultType = symTable.errorType;
+            resultType = bErrorType;
             return;
         }
 
         // Define user define error type.
-        BErrorTypeSymbol errorTypeSymbol = Symbols
-                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
-                                   null, env.scope.owner, errorTypeNode.pos, SOURCE);
+        BErrorTypeSymbol errorTypeSymbol;
+
+        errorTypeSymbol = Symbols
+                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, bErrorType.tsymbol.pkgID, null,
+                        bErrorType.tsymbol.owner, errorTypeNode.pos, SOURCE);
 
         PackageID packageID = env.enclPkg.packageID;
         if (env.node.getKind() != NodeKind.PACKAGE) {
             errorTypeSymbol.name = names.fromString(
                     anonymousModelHelper.getNextAnonymousTypeKey(packageID));
             symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, env);
+        } else {
+            // If the error type descriptor is at the module level, the error type symbol's owner should be the current
+            // environment's scope owner.
+            errorTypeSymbol.owner = env.scope.owner;
         }
 
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
