@@ -18,7 +18,7 @@
 
 package io.ballerina.semtype;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class EnumerableSubtype {
@@ -27,10 +27,10 @@ public class EnumerableSubtype {
     static final int GT = 1;
 
     boolean allowed;
-    ArrayList<EnumerableType> values;
+    List<? extends EnumerableType> values;
 
     public static boolean enumerableSubtypeUnion(EnumerableSubtype t1, EnumerableSubtype t2,
-                                                 ArrayList<? extends EnumerableType> result) {
+                                                 List<? extends EnumerableType> result) {
         boolean b1 = t1.allowed;
         boolean b2 = t2.allowed;
         boolean allowed;
@@ -52,7 +52,7 @@ public class EnumerableSubtype {
     }
 
     public static boolean enumerableSubtypeIntersect(EnumerableSubtype t1, EnumerableSubtype t2,
-                                                     ArrayList<? extends EnumerableType> result) {
+                                                     List<? extends EnumerableType> result) {
         boolean b1 = t1.allowed;
         boolean b2 = t2.allowed;
         boolean allowed;
@@ -73,11 +73,11 @@ public class EnumerableSubtype {
         return allowed;
     }
 
-    public static void enumerableListUnion(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends EnumerableType>
-            ve2, ArrayList<? extends EnumerableType> resulte){
-        ArrayList<EnumerableType> v1 = (ArrayList<EnumerableType>) ve1;
-        ArrayList<EnumerableType> v2 = (ArrayList<EnumerableType>) ve2;
-        ArrayList<EnumerableType> result = (ArrayList<EnumerableType>) resulte;
+    public static void enumerableListUnion(List<? extends EnumerableType> ve1, List<? extends EnumerableType> ve2,
+                                           List<? extends EnumerableType> resulte){
+        List<EnumerableType> v1 = (List<EnumerableType>) ve1;
+        List<EnumerableType> v2 = (List<EnumerableType>) ve2;
+        List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
         int len1 = v1.size();
@@ -112,11 +112,11 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListIntersect(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends
-            EnumerableType> ve2, ArrayList<? extends EnumerableType> resulte){
-        ArrayList<EnumerableType> v1 = (ArrayList<EnumerableType>) ve1;
-        ArrayList<EnumerableType> v2 = (ArrayList<EnumerableType>) ve2;
-        ArrayList<EnumerableType> result = (ArrayList<EnumerableType>) resulte;
+    public static void enumerableListIntersect(List<? extends EnumerableType> ve1, List<? extends EnumerableType> ve2,
+                                               List<? extends EnumerableType> resulte){
+        List<EnumerableType> v1 = (List<EnumerableType>) ve1;
+        List<EnumerableType> v2 = (List<EnumerableType>) ve2;
+        List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
         int len1 = v1.size();
@@ -142,11 +142,11 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListDiff(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends
-            EnumerableType> ve2, ArrayList<? extends EnumerableType> resulte) {
-        ArrayList<EnumerableType> v1 = (ArrayList<EnumerableType>) ve1;
-        ArrayList<EnumerableType> v2 = (ArrayList<EnumerableType>) ve2;
-        ArrayList<EnumerableType> result = (ArrayList<EnumerableType>) resulte;
+    public static void enumerableListDiff(List<? extends EnumerableType> ve1, List<? extends EnumerableType> ve2,
+                                          List<? extends EnumerableType> resulte) {
+        List<EnumerableType> v1 = (List<EnumerableType>) ve1;
+        List<EnumerableType> v2 = (List<EnumerableType>) ve2;
+        List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
         int len1 = v1.size();
