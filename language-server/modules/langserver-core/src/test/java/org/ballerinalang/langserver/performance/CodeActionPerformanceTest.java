@@ -55,14 +55,11 @@ import java.util.stream.Collectors;
  */
 public class CodeActionPerformanceTest {
     private Endpoint serviceEndpoint;
-
     private final JsonParser parser = new JsonParser();
-
-    private final Path sourcesPath = new File(getClass().getClassLoader().getResource("performance").getFile()).toPath();
-    
+    private final Path sourcesPath
+            = new File(getClass().getClassLoader().getResource("performance").getFile()).toPath();
     private static final WorkspaceManager workspaceManager
             = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
-
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
 
     @BeforeClass
