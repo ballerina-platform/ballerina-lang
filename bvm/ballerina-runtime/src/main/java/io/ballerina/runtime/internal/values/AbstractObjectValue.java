@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -56,13 +57,14 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 0.995.0
  */
 public abstract class AbstractObjectValue implements ObjectValue {
-
+    private BTypedesc typedesc;
     private BObjectType type;
 
     private final HashMap<String, Object> nativeData = new HashMap<>();
 
     public AbstractObjectValue(BObjectType type) {
         this.type = type;
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -175,6 +177,11 @@ public abstract class AbstractObjectValue implements ObjectValue {
         }
 
         return sj.toString();
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     private String getStringValue(Object value) {

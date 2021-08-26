@@ -184,7 +184,7 @@ function testXMLAttributeWithCompoundAssignment() returns (string){
 
     if (result is string) {
         result += "bar2";
-        return result;
+        return checkpanic result;
     } else {
         return result.toString();
     }

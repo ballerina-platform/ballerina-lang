@@ -115,3 +115,42 @@ function testPredeclPrefixInTernary() returns int {
     int a = true? int:sum(5, 6) : 5;
     return a;
 }
+
+function testTernaryAsArgument() {
+    string[] filters = [];
+    boolean trueVal = true;
+    boolean falseVal = false;
+
+    string s1 = trueVal ? "str" : "";
+    filters.push(s1);
+    filters.push(trueVal ? "str" : "");
+
+    string s2 = falseVal ? "str" : "";
+    filters.push(s2);
+    filters.push(falseVal ? "str" : "");
+
+    byte[] a = [];
+    a.push(trueVal ? 0 : 255);
+    a.push(falseVal ? 0 : 255);
+
+    assertEquals(filters[0], "str");
+    assertEquals(filters[2], "");
+    assertEquals(filters[0], filters[1]);
+    assertEquals(filters[2], filters[3]);
+    assertEquals(a[0], 0);
+    assertEquals(a[1], 255);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquals(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string msg = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(ASSERTION_ERROR_REASON, message = msg);
+}

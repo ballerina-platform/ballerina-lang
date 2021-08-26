@@ -3,5 +3,11 @@ org = "testOrg"
 name = "asyncFunctionPackage"
 version = "0.1.0"
 
+[[dependency]]
+org = "testOrg"
+name = "functionsLib"
+version = "0.1.0"
+repository = "local"
+
 [build-options]
 observabilityIncluded = true

@@ -17,11 +17,9 @@
 package org.ballerinalang.test.expressions.typecast;
 
 import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -58,148 +56,6 @@ public class TypeCastExpressionsTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected assertion to succeed and return the " +
                 "original value");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to '\\(\\)'.*")
-    public void testNilCastNegative() {
-        BRunUtil.invoke(result, "testNilCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'string'.*")
-    public void testNilValueCastAsSimpleBasicTypeNegative() {
-        BRunUtil.invoke(result, "testNilValueCastAsSimpleBasicTypeNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'map<string>'.*")
-    public void testNilValueCastAsStructuredTypeNegative() {
-        BRunUtil.invoke(result, "testNilValueCastAsStructuredTypeNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: '\\(string\\|int\\)\\?\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
-    public void testArrayCastNegative() {
-        BRunUtil.invoke(result, "testArrayCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,\\(int\\|string\\),float\\]' cannot " +
-                    "be cast to '\\[string,int,float\\]'.*")
-    public void testTupleCastNegative() {
-        BRunUtil.invoke(result, "testTupleCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'lang.xml:Text' cannot be cast to 'json'.*")
-    public void testJsonCastNegative() {
-        BRunUtil.invoke(result, "testJsonCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'map' cannot be cast to 'map<string>'.*")
-    public void testMapCastNegative() {
-        BRunUtil.invoke(result, "testMapCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'Employee' cannot be cast to 'Lead'.*")
-    public void testRecordCastNegative() {
-        BRunUtil.invoke(result, "testRecordCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'table<TableEmployee> key\\(id\\)' cannot be cast to 'table<TableEmployeeTwo>'\"}.*")
-    public void testTableCastNegative() {
-        BRunUtil.invoke(result, "testTableCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml\\" +
-                    "<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\)\\>'.*")
-    public void testXmlCastNegative() {
-        BRunUtil.invoke(result, "testXmlCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'MyErrorTwo'.*")
-    public void testErrorCastNegative() {
-        BRunUtil.invoke(result, "testErrorCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*'isolated function \\(string,int\\) returns \\(string\\)' cannot be cast" +
-                " to 'function \\(string\\) returns \\(string\\)'.*")
-    public void testFunctionCastNegative() {
-        BRunUtil.invoke(result, "testFunctionCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'EmployeeObject' cannot be cast to 'LeadObject'.*")
-    public void testObjectCastNegative() {
-        BRunUtil.invoke(result, "testObjectCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'typedesc' cannot be cast to 'int'.*")
-    public void testTypedescCastNegative() {
-        BRunUtil.invoke(result, "testTypedescCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'map<string>' cannot be cast to 'map<int>'.*")
-    public void testMapElementCastNegative() {
-        BRunUtil.invoke(result, "testMapElementCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
-    public void testListElementCastNegative() {
-        BRunUtil.invoke(result, "testListElementCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'int' cannot be cast to '\\(string\\|boolean\\)'.*")
-    public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
-        BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'string' cannot be cast to '\\(Lead\\|int\\)'.*")
-    public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
-        BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
-    }
-
-    @Test
-    public void testMutableJsonMappingToExclusiveRecordNegative() {
-        BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
-    }
-
-    @Test
-    public void testTypeCastInConstructorMemberWithUnionCET() {
-        BRunUtil.invoke(result, "testTypeCastInConstructorMemberWithUnionCET");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
-    public void testStringAsInvalidBasicType() {
-        BRunUtil.invoke(result, "testStringAsInvalidBasicType");
-    }
-
-    @Test
-    public void testCastPanicWithCheckTrap() {
-        BValue[] returns = BRunUtil.invoke(result, "testCastPanicWithCheckTrap");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BError.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'isolated function (string,int) returns (string)' cannot be cast to " +
-                                    "'function (string) returns (string)'");
     }
 
     @Test(dataProvider = "stringAsStringTests")
@@ -246,32 +102,6 @@ public class TypeCastExpressionsTest {
         Assert.assertEquals(returns[0].stringValue(), "Server mode configuration");
         Assert.assertEquals(returns[1].stringValue(), "Embedded mode configuration");
         Assert.assertEquals(returns[2].stringValue(), "In-memory mode configuration");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string'.*")
-    public void testFiniteTypeToValueTypeCastNegative() {
-        BRunUtil.invoke(result, "testFiniteTypeToValueTypeCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to '\\(string\\|xml\\" +
-            "<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\)\\>\\)'.*")
-    public void testFiniteTypeToRefTypeCastNegative() {
-        BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'FooBarOne'.*")
-    public void testValueTypeToFiniteTypeCastNegative() {
-        BRunUtil.invoke(result, "testValueTypeToFiniteTypeCastNegative");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'FooOneTrue'.*")
-    public void testFiniteTypeToFiniteTypeCastNegative() {
-        BRunUtil.invoke(result, "testFiniteTypeToFiniteTypeCastNegative");
     }
 
     @Test
@@ -392,9 +222,26 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, function);
     }
 
-    @Test
-    public void testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
-        BRunUtil.invoke(result, "testCastOfFiniteTypeWithIntersectingBuiltInSubType");
+    @Test(dataProvider = "negativeCastTests")
+    public void testNegativeCast(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public Object[] negativeCastTests() {
+        return new String[]{
+                "testNilValueCastAsSimpleBasicTypeNegative", "testNilValueCastAsStructuredTypeNegative",
+                "testArrayCastNegative", "testTupleCastNegative", "testJsonCastNegative", "testMapCastNegative",
+                "testRecordCastNegative", "testTableCastNegative", "testXmlCastNegative", "testErrorCastNegative",
+                "testFunctionCastNegative", "testObjectCastNegative", "testTypedescCastNegative",
+                "testMapElementCastNegative", "testListElementCastNegative",
+                "testDirectlyUnmatchedUnionToUnionCastNegative_1", "testDirectlyUnmatchedUnionToUnionCastNegative_2",
+                "testMutableJsonMappingToExclusiveRecordNegative", "testTypeCastInConstructorMemberWithUnionCET",
+                "testStringAsInvalidBasicType", "testCastPanicWithCheckTrap", "testFiniteTypeToValueTypeCastNegative",
+                "testFiniteTypeToRefTypeCastNegative", "testValueTypeToFiniteTypeCastNegative",
+                "testFiniteTypeToFiniteTypeCastNegative", "testCastOfFiniteTypeWithIntersectingBuiltInSubType",
+                "testFiniteTypeArrayNegative"
+        };
     }
 
     @AfterClass
