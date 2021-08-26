@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerina.compiler.external.parser.ParserRuleContext;
+import io.ballerina.compiler.parser.ParserRuleContext;
 import io.ballerina.compiler.syntax.tree.BalPartNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;

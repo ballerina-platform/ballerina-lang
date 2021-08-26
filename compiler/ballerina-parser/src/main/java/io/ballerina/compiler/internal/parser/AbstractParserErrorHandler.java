@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
+import io.ballerina.compiler.parser.ParserRuleContext;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;

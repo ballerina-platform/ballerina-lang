@@ -17,8 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.external.diagnostics.DiagnosticErrorCode;
-import io.ballerina.compiler.external.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.compiler.internal.parser.tree.STAmbiguousCollectionNode;
@@ -68,6 +66,8 @@ import io.ballerina.compiler.internal.parser.tree.STUnaryExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.utils.ConditionalExprResolver;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import io.ballerina.compiler.parser.ParserRuleContext;
+import io.ballerina.compiler.parser.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.text.CharReader;
@@ -174,7 +174,7 @@ public class BallerinaParser extends AbstractParser {
             stmts.add(stmt);
         }
 
-        STNode eofToken = invalidateAndParseEofToken();
+        STNode eofToken = invalidateRestAndParseEofToken();
         return STNodeFactory.createBalPartNode(STNodeFactory.createNodeList(stmts), eofToken);
     }
 
@@ -193,11 +193,16 @@ public class BallerinaParser extends AbstractParser {
         STNode expr = parseExpression();
         exprs.add(expr);
 
-        STNode eofToken = invalidateAndParseEofToken();
+        STNode eofToken = invalidateRestAndParseEofToken();
         return STNodeFactory.createBalPartNode(STNodeFactory.createNodeList(exprs), eofToken);
     }
 
-    private STNode invalidateAndParseEofToken() {
+    /**
+     * Marks all remaining tokens as invalid and parse the eof token.
+     *
+     * @return Parsed node
+     */
+    private STNode invalidateRestAndParseEofToken() {
         // invalidate all remaining tokens
         while (peek().kind != SyntaxKind.EOF_TOKEN) {
             STToken invalidToken = consume();
