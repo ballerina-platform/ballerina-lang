@@ -39,9 +39,8 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANTS_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 
 /**
@@ -85,31 +84,30 @@ public class JvmConstantsGen {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-
         // Create multiple module constant init methods based on module count.
-        generateModuleInits(cw);
+        generateConstantsInits(cw);
         // Create static initializer which will call previously generated module init methods.
-        generateStaticInitializer(cw);
+        generateConstantInitPublicMethod(cw);
         cw.visitEnd();
         jarEntries.put(constantClass + ".class", cw.toByteArray());
     }
 
-    private void generateModuleInits(ClassWriter cw) {
+    private void generateConstantsInits(ClassWriter cw) {
         MethodVisitor mv = null;
         int moduleCount = 0;
         int methodCount = 0;
         for (BIRNode.BIRConstant constant : module.constants) {
             if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC, MODULE_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
+                mv = cw.visitMethod(ACC_STATIC, CONSTANT_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
             }
             setConstantField(mv, constant, moduleInitClass, constantVariables);
             moduleCount++;
             if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
                 if (moduleCount != module.constants.size()) {
-                    mv.visitMethodInsn(INVOKESTATIC, constantClass, MODULE_INIT_METHOD_PREFIX + methodCount,
+                    mv.visitMethodInsn(INVOKESTATIC, constantClass, CONSTANT_INIT_METHOD_PREFIX + methodCount,
                                        "()V", false);
-                    mv.visitInsn(RETURN);
                 }
+                mv.visitInsn(RETURN);
                 mv.visitMaxs(0, 0);
                 mv.visitEnd();
             }
@@ -122,9 +120,9 @@ public class JvmConstantsGen {
         }
     }
 
-    private void generateStaticInitializer(ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
-        mv.visitMethodInsn(INVOKESTATIC, constantClass, MODULE_INIT_METHOD_PREFIX + 0, "()V", false);
+    private void generateConstantInitPublicMethod(ClassWriter cw) {
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC + ACC_PUBLIC, CONSTANT_INIT_METHOD_PREFIX, "()V", null, null);
+        mv.visitMethodInsn(INVOKESTATIC, constantClass, CONSTANT_INIT_METHOD_PREFIX + 0, "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -138,6 +136,10 @@ public class JvmConstantsGen {
             JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, constantVariables);
             mv.visitFieldInsn(PUTSTATIC, className, constant.name.value, descriptor);
         }
+    }
+
+    public String getConstantClass() {
+        return constantClass;
     }
 }
 
