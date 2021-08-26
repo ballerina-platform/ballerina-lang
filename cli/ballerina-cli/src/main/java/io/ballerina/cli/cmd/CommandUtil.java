@@ -65,7 +65,6 @@ import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.write;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * Packerina command util.
@@ -535,7 +534,7 @@ public class CommandUtil {
             try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
                 PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
                 if (Files.exists(packageJsonPath)) {
-                    if (packageJson.getTemplate() == true) {
+//                    if (packageJson.getTemplate() == true) {
                         userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
                         // Copy docs
                         Path packageMDFilePath = balaPath.resolve("docs")
@@ -571,7 +570,7 @@ public class CommandUtil {
                         Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
                         Files.createFile(balaToml);
                         writeBallerinaToml(balaToml, packageJson, template, platformLibRelativePath);
-                    }
+//                    }
                 }
             } catch (IOException e) {
                 printError(errStream,

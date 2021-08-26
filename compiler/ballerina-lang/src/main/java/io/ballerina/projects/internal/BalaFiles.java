@@ -34,7 +34,6 @@ import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
-import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -396,13 +395,11 @@ public class BalaFiles {
         return compilerPluginJson.map(pluginJson -> PackageManifest
                 .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
                         packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                        packageJson.getExport(), packageJson.getSourceRepository(), packageJson.getBallerinaVersion(),
-                        packageJson.getTemplate()))
+                        packageJson.getExport(), packageJson.getSourceRepository(), packageJson.getBallerinaVersion()))
                 .orElseGet(() -> PackageManifest
                         .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
                                 packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                                packageJson.getSourceRepository(), packageJson.getBallerinaVersion(),
-                                packageJson.getTemplate()));
+                                packageJson.getSourceRepository(), packageJson.getBallerinaVersion()));
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {
