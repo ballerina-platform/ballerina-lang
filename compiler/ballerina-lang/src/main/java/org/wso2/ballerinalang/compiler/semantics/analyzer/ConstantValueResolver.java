@@ -62,7 +62,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Location currentPos;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
-    private Map<String, String> constantMap = new HashMap<String, String>();
+    private Map<String, BLangConstantValue> constantMap = new HashMap<String, BLangConstantValue>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -448,17 +448,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constant.symbol.kind == SymbolKind.CONSTANT) {
             String nameString = constant.name.value;
             BLangConstantValue value = constant.symbol.value;
-            String valueAndType = "null";
 
-            if (!(value == null)) {
-                valueAndType = String.valueOf(value) + value.type.getKind().typeName();
-            }
             if (constantMap.containsKey(nameString)) {
-                if (!valueAndType.equals(constantMap.get(nameString))) {
-                    dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
+                BLangConstantValue lastValue = constantMap.get(nameString);
+                if (!value.equals(lastValue)) {
+                    if (lastValue == null) {
+                        dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
+                    } else {
+                        dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER,
+                                nameString, lastValue);
+                    }
                 }
             } else {
-                constantMap.put(nameString, valueAndType);
+                constantMap.put(nameString, value);
             }
         }
     }

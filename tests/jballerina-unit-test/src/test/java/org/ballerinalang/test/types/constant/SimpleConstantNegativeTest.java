@@ -66,7 +66,7 @@ public class SimpleConstantNegativeTest {
                                   42, 18);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 46, 7);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc'", 47, 7);
-        BAssertUtil.validateError(compileResult, index++, "symbol 'abc' is already initialized", 47, 7);
+        BAssertUtil.validateError(compileResult, index++, "symbol 'abc' is already initialized with 'abc'", 47, 7);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'GET', found 'XYZ'",
                 64, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
@@ -154,6 +154,6 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "cannot resolve constant 'UT_COUNT'", 302, 27);
         BAssertUtil.validateError(compileResult, index++, "self referenced constant 'CONST1'", 304, 20);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'abc2'", 308, 7);
-        BAssertUtil.validateError(compileResult, index, "symbol 'abc2' is already initialized", 308, 7);
+        BAssertUtil.validateError(compileResult, index, "symbol 'abc2' is already initialized with '1'", 308, 7);
     }
 }
