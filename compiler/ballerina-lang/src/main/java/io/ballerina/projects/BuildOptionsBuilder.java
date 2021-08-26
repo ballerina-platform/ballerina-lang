@@ -66,7 +66,7 @@ public class BuildOptionsBuilder {
     }
 
     public BuildOptionsBuilder offline(Boolean value) {
-        compilationOptionsBuilder.buildOffline(value);
+        compilationOptionsBuilder.offline(value);
         return this;
     }
 

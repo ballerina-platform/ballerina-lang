@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
@@ -44,19 +45,19 @@ public class MockListener {
         if (service != null) {
             CountDownLatch latch = new CountDownLatch(1);
             Runtime runtime = env.getRuntime();
-            runtime.invokeMethodAsync(service, name.getValue(), null, null,
-                                      new Callback() {
-                                          @Override
-                                          public void notifySuccess(Object result) {
-                                              latch.countDown();
-                                          }
+            runtime.invokeMethodAsyncConcurrently(service, name.getValue(), null, null,
+                                                  new Callback() {
+                                                      @Override
+                                                      public void notifySuccess(Object result) {
+                                                          latch.countDown();
+                                                      }
 
-                                          @Override
-                                          public void notifyFailure(BError error) {
-                                              err = error;
-                                              latch.countDown();
-                                          }
-                             }, new HashMap<>());
+                                                      @Override
+                                                      public void notifyFailure(BError error) {
+                                                          err = error;
+                                                          latch.countDown();
+                                                      }
+                                                  }, null, PredefinedTypes.TYPE_NULL, new HashMap<>());
             latch.await();
         }
         return err;

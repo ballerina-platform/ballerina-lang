@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-import java.util.Objects;
-
 /**
  * The class {@code CompilationOptions} holds various Ballerina compilation options.
  *
@@ -48,35 +46,35 @@ public class CompilationOptions {
     }
 
     public boolean offlineBuild() {
-        return toBooleanDefaultIfNull(offlineBuild);
+        return toBooleanDefaultIfNull(this.offlineBuild);
     }
 
     boolean sticky() {
-        return toBooleanTrueIfNull(sticky);
+        return toBooleanTrueIfNull(this.sticky);
     }
 
     boolean experimental() {
-        return toBooleanDefaultIfNull(experimental);
+        return toBooleanDefaultIfNull(this.experimental);
     }
 
     boolean observabilityIncluded() {
-        return toBooleanDefaultIfNull(observabilityIncluded);
+        return toBooleanDefaultIfNull(this.observabilityIncluded);
     }
 
     public Boolean dumpBir() {
-        return toBooleanDefaultIfNull(dumpBir);
+        return toBooleanDefaultIfNull(this.dumpBir);
     }
 
     public String getBirDumpFile() {
-        return dumpBirFile;
+        return this.dumpBirFile;
     }
 
     public String getCloud() {
-        return cloud;
+        return toStringDefaultIfNull(this.cloud);
     }
 
     public boolean listConflictedClasses() {
-        return toBooleanDefaultIfNull(listConflictedClasses);
+        return toBooleanDefaultIfNull(this.listConflictedClasses);
     }
 
     /**
@@ -86,19 +84,28 @@ public class CompilationOptions {
      * @return a new {@code CompilationOptions} instance that contains our options and their options
      */
     CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
-        this.offlineBuild = Objects.requireNonNullElseGet(
-                theirOptions.offlineBuild, () -> toBooleanDefaultIfNull(this.offlineBuild));
-        this.experimental = Objects.requireNonNullElseGet(
-                theirOptions.experimental, () -> toBooleanDefaultIfNull(this.experimental));
-        this.observabilityIncluded = Objects.requireNonNullElseGet(
-                theirOptions.observabilityIncluded, () -> toBooleanDefaultIfNull(this.observabilityIncluded));
-        this.dumpBir = Objects.requireNonNullElseGet(theirOptions.dumpBir, () -> toBooleanDefaultIfNull(this.dumpBir));
-        this.cloud = Objects.requireNonNullElse(theirOptions.cloud, toStringDefaultIfNull(this.cloud));
+        if (theirOptions.offlineBuild != null) {
+            this.offlineBuild = theirOptions.offlineBuild;
+        }
+        if (theirOptions.experimental != null) {
+            this.experimental = theirOptions.experimental;
+        }
+        if (theirOptions.observabilityIncluded != null) {
+            this.observabilityIncluded = theirOptions.observabilityIncluded;
+        }
+        if (theirOptions.dumpBir != null) {
+            this.dumpBir = theirOptions.dumpBir;
+        }
+        if (theirOptions.cloud != null) {
+            this.cloud = theirOptions.cloud;
+        }
         this.dumpBirFile = theirOptions.dumpBirFile;
-        this.listConflictedClasses = Objects.requireNonNullElseGet(
-                theirOptions.listConflictedClasses, () -> toBooleanDefaultIfNull(this.listConflictedClasses));
-        this.sticky = Objects.requireNonNullElseGet(
-                theirOptions.sticky, () -> toBooleanTrueIfNull(this.sticky));
+        if (theirOptions.listConflictedClasses != null) {
+            this.listConflictedClasses = theirOptions.listConflictedClasses;
+        }
+        if (theirOptions.sticky != null) {
+            this.sticky = theirOptions.sticky;
+        }
         return this;
     }
 
