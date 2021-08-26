@@ -66,10 +66,9 @@ public class DotGraphUtils {
 
     public static DependencyNode getDependencyNode(String name,
                                                    String repo,
-                                                   String scopeStr,
+                                                   PackageDependencyScope scope,
                                                    String resolutionTypeStr) {
         PackageDescriptor pkgDesc = getPkgDescFromNode(name, repo);
-        PackageDependencyScope scope = PackageDependencyScope.valueOf(scopeStr.toUpperCase(Locale.ENGLISH));
         DependencyResolutionType resolutionType = DependencyResolutionType.valueOf(
                 resolutionTypeStr.toUpperCase(Locale.ENGLISH));
         return new DependencyNode(pkgDesc, scope, resolutionType);
@@ -84,6 +83,34 @@ public class DotGraphUtils {
         String[] split1 = split[1].split(":");
         return PackageDescriptor.from(PackageOrg.from(split[0]), PackageName.from(split1[0]),
                 PackageVersion.from(split1[1]), repo);
+    }
+
+    public static DependencyGraph<PackageDescriptor> createPackageDescGraph(MutableGraph mutableGraph) {
+        Map<String, PackageDescriptor> pkgDescMap = new HashMap<>();
+        DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder =
+                DependencyGraph.DependencyGraphBuilder.getBuilder();
+        for (MutableNode node : mutableGraph.nodes()) {
+            MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
+
+            String repo = null;
+            if (attrs.get("repo") != null) {
+                repo = Objects.requireNonNull(attrs.get("repo")).toString();
+                if (!repo.equals("local")) {
+                    throw new IllegalStateException("Unsupported repository: " + repo);
+                }
+            }
+
+            String name = node.name().toString();
+            pkgDescMap.put(name, getPkgDescFromNode(name, repo));
+        }
+
+        for (Link edge : mutableGraph.edges()) {
+            PackageDescriptor dependent = pkgDescMap.get(edge.from().name().toString());
+            PackageDescriptor dependency = pkgDescMap.get(edge.to().name().toString());
+            graphBuilder.addDependency(dependent, dependency);
+        }
+
+        return graphBuilder.build();
     }
 
     public static DependencyGraph<DependencyNode> createDependencyNodeGraph(MutableGraph mutableGraph) {
@@ -102,12 +129,7 @@ public class DotGraphUtils {
                 }
             }
 
-            String scope;
-            if (attrs.get("scope") != null) {
-                scope = Objects.requireNonNull(attrs.get("scope")).toString();
-            } else {
-                scope = "default";
-            }
+            PackageDependencyScope scope = Utils.getDependencyScope(attrs.get("scope"));
 
             String kind;
             if (attrs.get("kind") != null) {

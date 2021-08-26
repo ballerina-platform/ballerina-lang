@@ -24,6 +24,8 @@ import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.environment.PackageRepository;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +48,7 @@ public class PackageRepositoryBuilder {
     public PackageRepositoryBuilder(TestCaseFilePaths filePaths) {
         this.centralRepo = (DefaultPackageRepository) buildInternal(filePaths, RepositoryKind.CENTRAL);
         this.distRepo = (DefaultPackageRepository) buildInternal(filePaths, RepositoryKind.DIST);
-        this.localRepo = (LocalPackageRepository) buildInternal(filePaths, RepositoryKind.LOCAL);
+        this.localRepo = (LocalPackageRepository) buildLocalRepo(filePaths.localRepoDirPath().orElse(null));
     }
 
     public PackageRepository buildCentralRepo() {
@@ -77,18 +79,44 @@ public class PackageRepositoryBuilder {
             case CENTRAL:
                 return filePaths.centralRepoPath();
             case LOCAL:
-                return filePaths.localRepoPath();
+                return filePaths.localRepoDirPath();
             default:
                 throw new IllegalStateException("Unsupported package repository kind " + repoKind);
         }
     }
 
-    private PackageRepository buildInternal(Path repoDotFilePath, RepositoryKind repoKind) {
+    private PackageRepository buildLocalRepo(Path localRepoDirPath) {
+        if (localRepoDirPath == null) {
+            return DefaultPackageRepository.EMPTY_REPO;
+        }
+
+        try {
+            return buildLocalRepo(Files.list(localRepoDirPath).collect(Collectors.toList()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private PackageRepository buildLocalRepo(List<Path> localPackagePaths) {
         PackageContainer<PackageDescriptor> pkgContainer = new PackageContainer<>();
         Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap = new HashMap<>();
+
+        for (Path localPackagePath : localPackagePaths) {
+            MutableGraph repoDotGraph = DotGraphUtils.createGraph(localPackagePath);
+            PackageDescriptor rootPkgNode = DotGraphUtils.getPkgDescFromNode(repoDotGraph.name().toString());
+            DependencyGraph<PackageDescriptor> packageDescGraph =
+                    DotGraphUtils.createPackageDescGraph(repoDotGraph);
+            pkgContainer.add(rootPkgNode.org(), rootPkgNode.name(), rootPkgNode.version(), rootPkgNode);
+            graphMap.put(rootPkgNode, packageDescGraph);
+
+        }
+        return buildInternal(pkgContainer, graphMap, RepositoryKind.LOCAL);
+    }
+
+    private PackageRepository buildInternal(Path repoDotFilePath, RepositoryKind repoKind) {
+        PackageContainer<PackageDescriptor> pkgContainer = new PackageContainer<>();
         GraphNodeMarker nodeMarker = new GraphNodeMarker();
-        DependencyGraphBuilder<PackageDescriptor> graphBuilder =
-                DependencyGraphBuilder.getBuilder();
+        DependencyGraphBuilder<PackageDescriptor> graphBuilder = DependencyGraphBuilder.getBuilder();
 
         MutableGraph repoDotGraph = DotGraphUtils.createGraph(repoDotFilePath);
         for (MutableGraph packageGraph : repoDotGraph.graphs()) {
@@ -105,7 +133,6 @@ public class PackageRepositoryBuilder {
                 nodeMarker.nodeFound(dependency);
                 graphBuilder.addDependency(dependent, dependency);
             }
-
         }
 
         List<PackageDescriptor> unmarkedNodes = nodeMarker.getUnmarkedNodes();
@@ -133,6 +160,7 @@ public class PackageRepositoryBuilder {
             }
         }
 
+        Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap = new HashMap<>();
         DependencyGraph<PackageDescriptor> repoGraph = graphBuilder.build();
         for (PackageDescriptor pkgDesc : pkgContainer.getAll()) {
             DependencyGraphBuilder<PackageDescriptor> builder = DependencyGraphBuilder.getBuilder();
