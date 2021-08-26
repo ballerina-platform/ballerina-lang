@@ -42,6 +42,7 @@
             <Class name="io.ballerina.semtype.ComplexSemTypeMock"/>
             <Class name="io.ballerina.semtype.FunctionAtomicType"/>
             <Class name="io.ballerina.semtype.subtypedata.BddNode"/>
+            <Class name="io.ballerina.semtype.typeops.SubtypePair"/>
         </Or>
         <Or>
             <Bug pattern="URF_UNREAD_FIELD"/>

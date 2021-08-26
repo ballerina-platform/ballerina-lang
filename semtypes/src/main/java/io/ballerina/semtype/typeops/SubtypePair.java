@@ -15,19 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.typeops;
+
+import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformTypeCode;
 
 /**
- * UniformSubtype node.
+ * Represent a 3-tuple containing paired-up subtype data.
  *
  * @since 2.0.0
  */
-public class UniformSubtype {
-    public final UniformTypeCode uniformTypeCode;
-    public final SubtypeData subtypeData;
+public class SubtypePair {
+    final UniformTypeCode uniformTypeCode;
+    final SubtypeData subtypeData1;
+    final SubtypeData subtypeData2;
 
-    public UniformSubtype(UniformTypeCode uniformTypeCode, SubtypeData subtypeData) {
+    private SubtypePair(UniformTypeCode uniformTypeCode, SubtypeData subtypeData1, SubtypeData subtypeData2) {
         this.uniformTypeCode = uniformTypeCode;
-        this.subtypeData = subtypeData;
+        this.subtypeData1 = subtypeData1;
+        this.subtypeData2 = subtypeData2;
+    }
+
+    public static SubtypePair create(UniformTypeCode uniformTypeCode,
+                                     SubtypeData subtypeData1, SubtypeData subtypeData2) {
+        return new SubtypePair(uniformTypeCode, subtypeData1, subtypeData2);
     }
 }

@@ -45,7 +45,7 @@ public class ComplexSemType implements SemType {
         ArrayList<SubtypeData> dataList = new ArrayList<>();
         for (UniformSubtype uniformSubtype : subtypeList) {
             dataList.add(uniformSubtype.subtypeData);
-            long c = uniformSubtype.uniformTypeCode;
+            int c = uniformSubtype.uniformTypeCode.code;
             some |= 1L << c;
         }
         return new ComplexSemType(
