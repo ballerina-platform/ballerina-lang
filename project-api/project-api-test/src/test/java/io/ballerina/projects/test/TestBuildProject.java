@@ -1375,7 +1375,7 @@ public class TestBuildProject extends BaseTest {
 
         // 2) Pass compilations option 'offline' to the package compilation
         CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
-        compilationOptionsBuilder.buildOffline(true);
+        compilationOptionsBuilder.offline(true);
         project.currentPackage().getCompilation(compilationOptionsBuilder.build());
         Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
 

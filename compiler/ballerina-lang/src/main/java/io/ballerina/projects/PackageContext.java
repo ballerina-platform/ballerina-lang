@@ -218,7 +218,7 @@ class PackageContext {
 
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
         CompilationOptions options = new CompilationOptionsBuilder()
-                .buildOffline(this.compilationOptions.offlineBuild())
+                .offline(this.compilationOptions.offlineBuild())
                 .experimental(this.compilationOptions.experimental())
                 .observabilityIncluded(this.compilationOptions.observabilityIncluded())
                 .dumpBir(this.compilationOptions.dumpBir())
