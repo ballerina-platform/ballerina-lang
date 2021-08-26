@@ -4,6 +4,11 @@
     "code": "import ballerina/lang.array;"
   },
   {
+    "description": "Creates an `int` array of length 0.",
+    "code": "int[] a = []; a",
+    "expr": "[]"
+  },
+  {
     "description": "Creates an array specifying an array literal.",
     "code": "int[] b = [1, 2, 3, 4, 5, 6, 7, 8];"
   },
