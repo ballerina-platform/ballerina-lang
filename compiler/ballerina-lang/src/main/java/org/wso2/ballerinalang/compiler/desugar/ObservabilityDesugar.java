@@ -71,21 +71,4 @@ public class ObservabilityDesugar {
             pkgNode.symbol.imports.add(importDcl.symbol);
         }
     }
-
-    void addObserveModuleImport(BLangPackage pkgNode) {
-        if (observabilityIncluded && (pkgNode.moduleContextDataHolder != null
-                && !pkgNode.moduleContextDataHolder.projectKind().equals(ProjectKind.BALA_PROJECT))) {
-            BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
-            List<BLangIdentifier> pkgNameComps = new ArrayList<>();
-            pkgNameComps.add(ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.OBSERVE.value));
-            importDcl.pkgNameComps = pkgNameComps;
-            importDcl.pos = pkgNode.symbol.pos;
-            importDcl.orgName = ASTBuilderUtil.createIdentifier(pkgNode.pos, Names.BALLERINA_ORG.value);
-            importDcl.alias = ASTBuilderUtil.createIdentifier(pkgNode.pos, "_");
-            importDcl.version = ASTBuilderUtil.createIdentifier(pkgNode.pos, "");
-            importDcl.symbol = packageCache.getSymbol(PackageID.OBSERVE);
-            pkgNode.imports.add(importDcl);
-            pkgNode.symbol.imports.add(importDcl.symbol);
-        }
-    }
 }
