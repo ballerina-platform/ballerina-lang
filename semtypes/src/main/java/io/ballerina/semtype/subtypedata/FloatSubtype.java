@@ -19,7 +19,6 @@ package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.EnumerableFloatType;
 import io.ballerina.semtype.EnumerableSubtype;
-import io.ballerina.semtype.EnumerableType;
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SemType;

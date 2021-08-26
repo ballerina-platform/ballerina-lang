@@ -29,7 +29,8 @@ public class EnumerableSubtype {
     boolean allowed;
     ArrayList<EnumerableType> values;
 
-    public static boolean enumerableSubtypeUnion(EnumerableSubtype t1, EnumerableSubtype t2, ArrayList<? extends EnumerableType> result) {
+    public static boolean enumerableSubtypeUnion(EnumerableSubtype t1, EnumerableSubtype t2,
+                                                 ArrayList<? extends EnumerableType> result) {
         boolean b1 = t1.allowed;
         boolean b2 = t2.allowed;
         boolean allowed;
@@ -50,7 +51,8 @@ public class EnumerableSubtype {
         return allowed;
     }
 
-    public static boolean enumerableSubtypeIntersect(EnumerableSubtype t1, EnumerableSubtype t2, ArrayList<? extends EnumerableType> result) {
+    public static boolean enumerableSubtypeIntersect(EnumerableSubtype t1, EnumerableSubtype t2,
+                                                     ArrayList<? extends EnumerableType> result) {
         boolean b1 = t1.allowed;
         boolean b2 = t2.allowed;
         boolean allowed;
@@ -71,7 +73,8 @@ public class EnumerableSubtype {
         return allowed;
     }
 
-    public static void enumerableListUnion(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends EnumerableType> ve2, ArrayList<? extends EnumerableType> resulte){
+    public static void enumerableListUnion(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends EnumerableType>
+            ve2, ArrayList<? extends EnumerableType> resulte){
         ArrayList<EnumerableType> v1 = (ArrayList<EnumerableType>) ve1;
         ArrayList<EnumerableType> v2 = (ArrayList<EnumerableType>) ve2;
         ArrayList<EnumerableType> result = (ArrayList<EnumerableType>) resulte;
@@ -109,7 +112,8 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListIntersect(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends EnumerableType> ve2, ArrayList<? extends EnumerableType> resulte){
+    public static void enumerableListIntersect(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends
+            EnumerableType> ve2, ArrayList<? extends EnumerableType> resulte){
         ArrayList<EnumerableType> v1 = (ArrayList<EnumerableType>) ve1;
         ArrayList<EnumerableType> v2 = (ArrayList<EnumerableType>) ve2;
         ArrayList<EnumerableType> result = (ArrayList<EnumerableType>) resulte;
@@ -138,7 +142,8 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListDiff(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends EnumerableType> ve2, ArrayList<? extends EnumerableType> resulte) {
+    public static void enumerableListDiff(ArrayList<? extends EnumerableType> ve1, ArrayList<? extends
+            EnumerableType> ve2, ArrayList<? extends EnumerableType> resulte) {
         ArrayList<EnumerableType> v1 = (ArrayList<EnumerableType>) ve1;
         ArrayList<EnumerableType> v2 = (ArrayList<EnumerableType>) ve2;
         ArrayList<EnumerableType> result = (ArrayList<EnumerableType>) resulte;
