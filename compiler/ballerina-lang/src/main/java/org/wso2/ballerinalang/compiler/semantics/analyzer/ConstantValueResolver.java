@@ -447,15 +447,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private void checkUniqueness(BLangConstant constant) {
         if (constant.symbol.kind == SymbolKind.CONSTANT) {
             String nameString = constant.name.value;
-            BLangConstantValue value = ((BConstantSymbol) constant.symbol).value;
-            String valueString = String.valueOf(value);
+            BLangConstantValue value = constant.symbol.value;
+            String valueNType;
+            if (value == null) {
+                valueNType = String.valueOf(value);
+            } else {
+                valueNType = String.valueOf(value) + value.type.getKind().typeName();
+            }
             if (constantMap.containsKey(nameString)) {
-                if (!valueString.equals(constantMap.get(nameString))) {
-                    dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString,
-                            constantMap.get(nameString));
+                if (!valueNType.equals(constantMap.get(nameString))) {
+                    dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
                 }
             } else {
-                constantMap.put(nameString, valueString);
+                constantMap.put(nameString, valueNType);
             }
         }
     }
