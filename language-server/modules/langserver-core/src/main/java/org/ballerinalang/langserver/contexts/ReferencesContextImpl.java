@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Language server context implementation.
@@ -38,8 +39,9 @@ public class ReferencesContextImpl extends PositionedOperationContextImpl implem
                           String fileUri,
                           WorkspaceManager wsManager,
                           Position cursorPos,
-                          LanguageServerContext serverContext) {
-        super(operation, fileUri, wsManager, serverContext);
+                          LanguageServerContext serverContext,
+                          CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
         this.cursorPos = cursorPos;
     }
 
@@ -77,7 +79,8 @@ public class ReferencesContextImpl extends PositionedOperationContextImpl implem
                     this.fileUri,
                     this.wsManager,
                     this.position,
-                    this.serverContext);
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         @Override

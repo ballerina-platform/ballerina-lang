@@ -20,6 +20,7 @@ import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Represents folding range context implementation.
@@ -34,8 +35,9 @@ public class FoldingRangeContextImpl extends AbstractDocumentServiceContext impl
                             String uri,
                             WorkspaceManager wsManager,
                             boolean lineFoldingOnly,
-                            LanguageServerContext serverContext) {
-        super(operation, uri, wsManager, serverContext);
+                            LanguageServerContext serverContext,
+                            CancelChecker cancelChecker) {
+        super(operation, uri, wsManager, serverContext, cancelChecker);
         this.lineFoldingOnly = lineFoldingOnly;
     }
 
@@ -61,7 +63,8 @@ public class FoldingRangeContextImpl extends AbstractDocumentServiceContext impl
                     this.fileUri,
                     this.wsManager,
                     this.lineFoldingOnly,
-                    this.serverContext);
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         @Override

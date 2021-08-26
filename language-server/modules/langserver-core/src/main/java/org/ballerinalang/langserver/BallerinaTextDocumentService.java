@@ -213,7 +213,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_SIGNATURE, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
-            
+
             return new SignatureHelp();
         });
     }
@@ -239,23 +239,25 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_DEFINITION, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
-            
+
             return Either.forLeft(Collections.emptyList());
         });
     }
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        params.getPosition(),
+                        cancelChecker);
 
                 Map<Module, List<io.ballerina.tools.diagnostics.Location>> referencesMap =
                         ReferencesUtil.getReferences(context);
 
+                context.checkCancelled();
                 List<Location> references = new ArrayList<>();
                 referencesMap.forEach((module, locations) ->
                         locations.forEach(location -> {
@@ -266,20 +268,22 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return references;
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Find References", e);
-                return new ArrayList<>();
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/references' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_REFERENCES, msg, e, params.getTextDocument(),
                         params.getPosition());
-                return new ArrayList<>();
             }
+            
+            return Collections.emptyList();
         });
     }
 
     @Override
     public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>>
     documentSymbol(DocumentSymbolParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
             Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
 
@@ -365,36 +369,34 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends TextEdit>> formatting(DocumentFormattingParams params) {
-        return CompletableFuture.supplyAsync(() -> {
-            TextEdit textEdit = new TextEdit();
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
-            // Note: If the path does not exist, then return early and ignore
-            if (formattingFilePath.isEmpty()) {
-                return Collections.singletonList(textEdit);
-            }
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
+                    this.workspaceManager,
+                    LSContextOperation.TXT_FORMATTING,
+                    this.serverContext,
+                    cancelChecker);
             try {
-                CommonUtil.getPathFromURI(fileUri);
-                Optional<Document> document = workspaceManager.document(formattingFilePath.get());
-                if (document.isEmpty()) {
-                    return new ArrayList<>();
+                Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+                if (syntaxTree.isEmpty()) {
+                    return Collections.emptyList();
                 }
-                SyntaxTree syntaxTree = document.get().syntaxTree();
-                String formattedSource = Formatter.format(syntaxTree).toSourceCode();
-
-                LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
+                String formattedSource = Formatter.format(syntaxTree.get()).toSourceCode();
+                LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range range = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
-                textEdit = new TextEdit(range, formattedSource);
+                TextEdit textEdit = new TextEdit(range, formattedSource);
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException | FormatterException e) {
                 this.clientLogger.notifyUser("Formatting", e);
-                return Collections.singletonList(textEdit);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/formatting' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_FORMATTING, msg, e, params.getTextDocument(),
                         (Position) null);
-                return Collections.singletonList(textEdit);
             }
+            
+            return Collections.emptyList();
         });
     }
 
@@ -406,59 +408,62 @@ class BallerinaTextDocumentService implements TextDocumentService {
      */
     @Override
     public CompletableFuture<List<? extends TextEdit>> rangeFormatting(DocumentRangeFormattingParams params) {
-        return CompletableFuture.supplyAsync(() -> {
-            TextEdit textEdit = new TextEdit();
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            Optional<Path> formattingFilePath = CommonUtil.getPathFromURI(fileUri);
-            // Note: If the path does not exist, then return early and ignore
-            if (formattingFilePath.isEmpty()) {
-                return Collections.singletonList(textEdit);
-            }
+            DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
+                    this.workspaceManager,
+                    LSContextOperation.TXT_FORMATTING,
+                    this.serverContext,
+                    cancelChecker);
             try {
-                CommonUtil.getPathFromURI(fileUri);
-                Optional<Document> document = workspaceManager.document(formattingFilePath.get());
-                if (document.isEmpty()) {
-                    return new ArrayList<>();
+                Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+                if (syntaxTree.isEmpty()) {
+                    return Collections.emptyList();
                 }
-                SyntaxTree syntaxTree = document.get().syntaxTree();
                 Range range = params.getRange();
                 LinePosition startPos = LinePosition.from(range.getStart().getLine(), range.getStart().getCharacter());
                 LinePosition endPos = LinePosition.from(range.getEnd().getLine(), range.getEnd().getCharacter());
 
-                LineRange lineRange = LineRange.from(syntaxTree.filePath(), startPos, endPos);
-                SyntaxTree formattedTree = Formatter.format(syntaxTree, lineRange);
+                LineRange lineRange = LineRange.from(syntaxTree.get().filePath(), startPos, endPos);
+                SyntaxTree formattedTree = Formatter.format(syntaxTree.get(), lineRange);
 
-                LinePosition eofPos = syntaxTree.rootNode().lineRange().endLine();
+                LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
-                textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
+                TextEdit textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
+                
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException | FormatterException e) {
                 this.clientLogger.notifyUser("Formatting", e);
-                return Collections.singletonList(textEdit);
+            } catch (CancellationException ignore) {
+                // ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/rangeFormatting' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_RANGE_FORMATTING, msg, e, params.getTextDocument(),
                         (Position) null);
-                return Collections.singletonList(textEdit);
             }
+            
+            return Collections.emptyList();
         });
     }
 
     @Override
     public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 PrepareRenameContext context = ContextBuilder.buildPrepareRenameContext(
                         params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        params.getPosition());
+                        params.getPosition(),
+                        cancelChecker);
                 Optional<Range> range = RenameUtil.prepareRename(context);
                 if (range.isPresent()) {
                     return Either.forLeft(range.get());
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
+            } catch (CancellationException ignore) {
+                // ignore the cancellation exception
             } catch (Throwable t) {
                 String msg = "Operation 'text/prepareRename' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_PREPARE_RENAME, msg, t, params.getTextDocument(),
@@ -471,12 +476,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 RenameContext context = ContextBuilder.buildRenameContext(params,
                         this.workspaceManager,
                         this.serverContext,
-                        this.clientCapabilities);
+                        this.clientCapabilities,
+                        cancelChecker);
 
                 return RenameUtil.rename(context);
             } catch (UserErrorException e) {
@@ -556,17 +562,18 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<FoldingRange>> foldingRange(FoldingRangeRequestParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 boolean lineFoldingOnly = this.clientCapabilities.getTextDocCapabilities().getFoldingRange() != null &&
                         Boolean.TRUE.equals(this.clientCapabilities.getTextDocCapabilities()
                                 .getFoldingRange().getLineFoldingOnly());
-                FoldingRangeContext foldingRangeContext = ContextBuilder.buildFoldingRangeContext(
+                FoldingRangeContext context = ContextBuilder.buildFoldingRangeContext(
                         params.getTextDocument().getUri(),
                         this.workspaceManager,
                         this.serverContext,
-                        lineFoldingOnly);
-                return FoldingRangeProvider.getFoldingRange(foldingRangeContext);
+                        lineFoldingOnly,
+                        cancelChecker);
+                return FoldingRangeProvider.getFoldingRange(context);
             } catch (Throwable e) {
                 String msg = "Operation 'text/foldingRange' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_FOLDING_RANGE, msg, e,

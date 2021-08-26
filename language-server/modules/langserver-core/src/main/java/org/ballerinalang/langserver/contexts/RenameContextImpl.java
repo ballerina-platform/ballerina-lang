@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Implementation of {@link RenameContext}.
@@ -31,9 +32,9 @@ import org.eclipse.lsp4j.RenameParams;
  */
 public class RenameContextImpl extends ReferencesContextImpl implements RenameContext {
 
-    private LSClientCapabilities clientCapabilities;
-    private RenameParams params;
-    private Boolean honorsChangeAnnotations;
+    private final LSClientCapabilities clientCapabilities;
+    private final RenameParams params;
+    private final Boolean honorsChangeAnnotations;
 
     RenameContextImpl(LSOperation operation,
                       String fileUri,
@@ -41,8 +42,9 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
                       Position cursorPos,
                       LanguageServerContext serverContext,
                       RenameParams params,
-                      LSClientCapabilities clientCapabilities) {
-        super(operation, fileUri, wsManager, cursorPos, serverContext);
+                      LSClientCapabilities clientCapabilities,
+                      CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, cursorPos, serverContext, cancelChecker);
         this.clientCapabilities = clientCapabilities;
         this.params = params;
         this.honorsChangeAnnotations = clientCapabilities.getTextDocCapabilities().getRename() != null
@@ -57,8 +59,8 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
      */
     protected static class RenameContextBuilder extends PositionedOperationContextBuilder<RenameContext> {
 
-        private RenameParams params;
-        private LSClientCapabilities clientCapabilities;
+        private final RenameParams params;
+        private final LSClientCapabilities clientCapabilities;
 
         public RenameContextBuilder(LanguageServerContext serverContext, RenameParams params,
                                     LSClientCapabilities clientCapabilities) {
@@ -74,7 +76,8 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
                     this.position,
                     this.serverContext,
                     this.params,
-                    this.clientCapabilities);
+                    this.clientCapabilities,
+                    this.cancelChecker);
         }
 
         @Override

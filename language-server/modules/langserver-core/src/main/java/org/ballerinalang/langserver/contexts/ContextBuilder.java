@@ -153,11 +153,12 @@ public class ContextBuilder {
     public static ReferencesContext buildReferencesContext(String uri,
                                                            WorkspaceManager workspaceManager,
                                                            LanguageServerContext serverContext,
-                                                           Position position) {
+                                                           Position position, CancelChecker cancelChecker) {
         return new ReferencesContextImpl.ReferencesContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withPosition(position)
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 
@@ -173,11 +174,13 @@ public class ContextBuilder {
     public static PrepareRenameContext buildPrepareRenameContext(String uri,
                                                                  WorkspaceManager workspaceManager,
                                                                  LanguageServerContext serverContext,
-                                                                 Position position) {
+                                                                 Position position,
+                                                                 CancelChecker cancelChecker) {
         return new PrepareRenameContextImpl.PrepareRenameContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withPosition(position)
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 
@@ -191,11 +194,13 @@ public class ContextBuilder {
     public static RenameContext buildRenameContext(RenameParams params,
                                                    WorkspaceManager workspaceManager,
                                                    LanguageServerContext serverContext,
-                                                   LSClientCapabilities clientCapabilities) {
+                                                   LSClientCapabilities clientCapabilities,
+                                                   CancelChecker cancelChecker) {
         return new RenameContextImpl.RenameContextBuilder(serverContext, params, clientCapabilities)
                 .withFileUri(params.getTextDocument().getUri())
                 .withWorkspaceManager(workspaceManager)
                 .withPosition(params.getPosition())
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 
@@ -271,10 +276,12 @@ public class ContextBuilder {
      */
     public static FoldingRangeContext buildFoldingRangeContext(String uri, WorkspaceManager workspaceManager,
                                                                LanguageServerContext serverContext,
-                                                               boolean lineFoldingOnly) {
+                                                               boolean lineFoldingOnly,
+                                                               CancelChecker cancelChecker) {
         return new FoldingRangeContextImpl.FoldingRangeContextBuilder(lineFoldingOnly, serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 

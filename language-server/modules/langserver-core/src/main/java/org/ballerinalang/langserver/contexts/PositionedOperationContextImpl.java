@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Abstract implementation of the {@link PositionedOperationContext}.
@@ -31,11 +32,20 @@ import org.eclipse.lsp4j.Position;
 public abstract class PositionedOperationContextImpl extends AbstractDocumentServiceContext
         implements PositionedOperationContext {
 
+    @Deprecated(forRemoval = true)
     PositionedOperationContextImpl(LSOperation operation,
                                    String fileUri,
                                    WorkspaceManager wsManager,
                                    LanguageServerContext serverContext) {
         super(operation, fileUri, wsManager, serverContext);
+    }
+    
+    PositionedOperationContextImpl(LSOperation operation,
+                                   String fileUri,
+                                   WorkspaceManager wsManager,
+                                   LanguageServerContext serverContext,
+                                   CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
     }
 
     /**
