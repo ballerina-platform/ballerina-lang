@@ -1375,7 +1375,7 @@ public class TestBuildProject extends BaseTest {
 
         // 2) Pass compilations option 'offline' to the package compilation
         CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
-        compilationOptionsBuilder.buildOffline(true);
+        compilationOptionsBuilder.offline(true);
         project.currentPackage().getCompilation(compilationOptionsBuilder.build());
         Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
 
@@ -1396,14 +1396,22 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(project.currentPackage().compilationOptions().offlineBuild());
     }
 
-    @Test(description = "test auto updating dependencies using build file", enabled = false)
-    public void testAutoUpdateWithBuildFile() {
+    @Test(description = "test auto updating dependencies using build file")
+    public void testAutoUpdateWithBuildFile() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        // Delete build file if already exists
+        if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
+            Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        }
+        // Set sticky false, to imitate the default behavior
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        buildOptionsBuilder.sticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = BuildProject.load(projectPath, buildOptions);
             project.save();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -1419,7 +1427,7 @@ public class TestBuildProject extends BaseTest {
         // 2) Build project again with build file
         BuildProject projectSecondBuild = null;
         try {
-            projectSecondBuild = BuildProject.load(projectPath);
+            projectSecondBuild = BuildProject.load(projectPath, buildOptions);
             projectSecondBuild.save();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -1436,7 +1444,7 @@ public class TestBuildProject extends BaseTest {
         ProjectUtils.writeBuildFile(buildFile, secondBuildJson);
         BuildProject projectThirdBuild = null;
         try {
-            projectThirdBuild = BuildProject.load(projectPath);
+            projectThirdBuild = BuildProject.load(projectPath, buildOptions);
             Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
             projectThirdBuild.save();
         } catch (Exception e) {

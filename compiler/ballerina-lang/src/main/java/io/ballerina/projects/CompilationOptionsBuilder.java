@@ -25,7 +25,7 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 public class CompilationOptionsBuilder {
-    private Boolean buildOffline;
+    private Boolean offline;
     private Boolean experimental;
     private Boolean observabilityIncluded;
     private Boolean dumpBir;
@@ -37,8 +37,8 @@ public class CompilationOptionsBuilder {
     public CompilationOptionsBuilder() {
     }
 
-    public CompilationOptionsBuilder buildOffline(Boolean value) {
-        buildOffline = value;
+    public CompilationOptionsBuilder offline(Boolean value) {
+        offline = value;
         return this;
     }
 
@@ -73,11 +73,11 @@ public class CompilationOptionsBuilder {
     }
 
     public CompilationOptions build() {
-        return new CompilationOptions(buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, listConflictedClasses, sticky);
+        return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
+                                      dumpBirFile, cloud, listConflictedClasses, sticky);
     }
 
-    void sticky(Boolean value) {
+    public void sticky(Boolean value) {
         sticky = value;
     }
 }
