@@ -81,12 +81,10 @@ public class PackageResolutionTestCaseBuilder {
     }
 
     private static PackageResolver buildPackageResolver(TestCaseFilePaths filePaths) {
-        PackageRepository centralRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.CENTRAL);
-        PackageRepository distRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.DIST);
-        PackageRepository localRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.LOCAL);
+        PackageRepositoryBuilder repoBuilder = new PackageRepositoryBuilder(filePaths);
+        PackageRepository centralRepo = repoBuilder.buildCentralRepo();
+        PackageRepository distRepo = repoBuilder.buildDistRepo();
+        PackageRepository localRepo = repoBuilder.buildLocalRepo();
 
         // Package cache is not needed for now.
         return new DefaultPackageResolver(distRepo, centralRepo, localRepo, null);
