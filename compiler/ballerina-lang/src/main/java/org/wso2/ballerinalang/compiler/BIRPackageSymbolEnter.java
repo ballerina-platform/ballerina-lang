@@ -483,22 +483,9 @@ public class BIRPackageSymbolEnter {
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
         BSymbol symbol;
-
-//        if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
-////            symbol = type.tsymbol;
-//            type.tsymbol.name = names.fromString(typeDefName);
-//            type.tsymbol.type = type;
-//            type.tsymbol.pkgID = this.env.pkgSymbol.pkgID;
-//            type.tsymbol.flags = flags;
-//            type.tsymbol.origin = toOrigin(origin);
-//            type.tsymbol.pos = pos;
-//        }
-//        else {
-//        if(Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
         if (isClass || Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
             symbol = type.tsymbol;
         } else {
-            //todo FindModulePrefixRefsTest failure
             symbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
                     names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol,
                     pos, COMPILED_SOURCE);
@@ -510,10 +497,6 @@ public class BIRPackageSymbolEnter {
         }
         symbol.origin = toOrigin(origin);
         symbol.flags = flags;
-//            if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
-//                type.tsymbol = symbol;
-//            }
-//        }
 
         defineMarkDownDocAttachment(symbol, docBytes);
 
@@ -1490,6 +1473,9 @@ public class BIRPackageSymbolEnter {
                     }
                     if (isImmutable(flags)) {
                         objectSymbol.flags |= Flags.READONLY;
+                    }
+                    if (Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
+                        objectSymbol.flags |= Flags.ANONYMOUS;
                     }
                     objectType.flags = flags;
                     objectSymbol.type = objectType;

@@ -234,10 +234,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isRedeclaredSymbol(BSymbol symbol, BSymbol foundSym) {
-        if(symbol.tag == SymTag.TYPE_DEF && foundSym.tag != SymTag.TYPE_DEF) {
-            symbol = symbol.type.tsymbol;
-        }
-        return hasSameOwner(symbol, foundSym) || isSymbolRedeclaredInTestPackage(symbol, foundSym);
+        return hasSameOwner(symbol, foundSym) || isSymbolRedeclaredInTestPackage(symbol, foundSym) ||
+                isRedeclaredTypeDefinitionSymbol(symbol, foundSym);
     }
 
     public boolean checkForUniqueSymbol(SymbolEnv env, BSymbol symbol) {
@@ -343,6 +341,17 @@ public class SymbolResolver extends BLangNodeVisitor {
             return  true;
         }
         return  false;
+    }
+
+    private boolean isRedeclaredTypeDefinitionSymbol(BSymbol symbol, BSymbol foundSym) {
+        if (symbol.kind != SymbolKind.TYPE_DEF && foundSym.kind != SymbolKind.TYPE_DEF) {
+            return false;
+        }
+        if (symbol.kind == SymbolKind.TYPE_DEF) {
+            return hasSameOwner(symbol.type.tsymbol, foundSym);
+        } else {
+            return hasSameOwner(symbol, foundSym.type.tsymbol);
+        }
     }
 
     private boolean isSymbolRedeclaredInTestPackage(BSymbol symbol, BSymbol foundSym) {
