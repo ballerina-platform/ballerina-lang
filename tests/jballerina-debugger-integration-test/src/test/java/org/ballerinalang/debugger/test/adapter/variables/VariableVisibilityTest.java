@@ -65,7 +65,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         Assert.assertEquals(localVariables.size(), 0);
 
         // global variable visibility test at the beginning of the main() method (should be 14).
-        Assert.assertEquals(globalVariables.size(), 16);
+        Assert.assertEquals(globalVariables.size(), 14);
     }
 
     @Test(description = "Variable visibility test in the middle of the main() method for a new variable")
