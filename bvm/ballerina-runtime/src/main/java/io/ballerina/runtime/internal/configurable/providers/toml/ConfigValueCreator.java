@@ -34,6 +34,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.TypeUtils;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
@@ -198,7 +199,7 @@ public class ConfigValueCreator {
             recordName = type.getName();
             recordType = (RecordType) type;
         } else {
-            recordType = (RecordType) ((BIntersectionType) type).getConstituentTypes().get(0);
+            recordType = (RecordType) TypeUtils.getMutableType((BIntersectionType) type);
             recordName = recordType.getName();
         }
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;
@@ -226,7 +227,7 @@ public class ConfigValueCreator {
                 constraintType = ((IntersectionType) constraintType).getEffectiveType();
             }
             if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                tableType = (TableType) ((BIntersectionType) type).getConstituentTypes().get(0);
+                tableType = (TableType) TypeUtils.getMutableType((BIntersectionType) type);
             }
         } else {
             tableType = (TableType) type;
