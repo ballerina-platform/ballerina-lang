@@ -191,6 +191,17 @@ public class DependenciesTomlTests {
     }
 
     @Test
+    public void testDependenciesTomlWithInvalidDependencyScope() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-invalid-scope.toml"));
+        depsManifest.diagnostics().errors().forEach(OUT::println);
+        Assert.assertTrue(depsManifest.diagnostics().hasErrors());
+        Assert.assertEquals(depsManifest.diagnostics().errorCount(), 1);
+        Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
+                            "invalid 'scope' under [[package]]: 'scope' can only contain value 'testOnly'");
+    }
+
+    @Test
     public void testDependenciesTomlWithoutDepsTomlVersion() throws IOException {
         DependencyManifest depsManifest = getDependencyManifest(
                 DEPENDENCIES_TOML_REPO.resolve("without-deps-toml-version.toml"));
@@ -236,7 +247,6 @@ public class DependenciesTomlTests {
                 + "version = \"1.2.3\"\n"
                 + "repository = \"local\"\n";
         Assert.assertEquals(iterator.next().message(), localDepsWarning);
-
     }
 
     private DependencyManifest getDependencyManifest(Path dependenciesTomlPath) throws IOException {
