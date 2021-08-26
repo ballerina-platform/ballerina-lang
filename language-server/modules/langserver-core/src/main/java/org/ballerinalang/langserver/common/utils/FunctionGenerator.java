@@ -115,8 +115,12 @@ public class FunctionGenerator {
             // returns clause
             returnsClause = "returns " + returnType.get();
             // return statement
-            returnStmt = "return " + CommonUtil.getDefaultValueForType(returnTypeSymbol) +
-                    CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            String defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+            if (defaultReturnValue.equals(CommonKeys.PARANTHESIS_KEY)) {
+                returnStmt = "return;";
+            } else {
+                returnStmt = "return " + defaultReturnValue + CommonKeys.SEMI_COLON_SYMBOL_KEY;
+            }
         }
 
         // body
