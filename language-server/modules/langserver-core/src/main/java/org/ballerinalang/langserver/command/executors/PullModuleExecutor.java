@@ -16,7 +16,10 @@
 package org.ballerinalang.langserver.command.executors;
 
 import io.ballerina.projects.CompilationOptionsBuilder;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -153,7 +156,10 @@ public class PullModuleExecutor implements LSCommandExecutor {
         public void execute() throws Exception {
             Package currentPackage = project.currentPackage();
             // Compile in online mode so missing modules are pulled
-            currentPackage.getCompilation(new CompilationOptionsBuilder().buildOffline(false).build());
+            PackageCompilation compilation = currentPackage.getCompilation(
+                    new CompilationOptionsBuilder().buildOffline(false).build());
+            // Generate jar and BIR caches. To improve subsequent compilations
+            JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
 
             Path filePath = CommonUtil.getPathFromURI(fileUri)
                     .orElseThrow(() -> new ProjectException("Couldn't determine the project path"));
