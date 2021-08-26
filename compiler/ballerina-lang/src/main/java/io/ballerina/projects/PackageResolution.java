@@ -221,13 +221,6 @@ public class PackageResolution {
                         PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
-            {
-                String moduleName = Names.OBSERVE.getValue();
-                ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
-                        PackageOrg.from(Names.BALLERINA_ORG.value), moduleName,
-                        PackageDependencyScope.DEFAULT, DependencyResolutionType.PLATFORM_PROVIDED);
-                allModuleLoadRequests.add(observeModuleLoadReq);
-            }
         }
 
         // TODO Can we make this a builtin compiler plugin
