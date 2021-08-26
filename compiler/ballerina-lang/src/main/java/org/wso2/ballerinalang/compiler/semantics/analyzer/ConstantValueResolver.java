@@ -448,18 +448,17 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constant.symbol.kind == SymbolKind.CONSTANT) {
             String nameString = constant.name.value;
             BLangConstantValue value = constant.symbol.value;
-            String valueNType;
-            if (value == null) {
-                valueNType = String.valueOf(value);
-            } else {
-                valueNType = String.valueOf(value) + value.type.getKind().typeName();
+            String valueAndType = "null";
+
+            if (!(value == null)) {
+                valueAndType = String.valueOf(value) + value.type.getKind().typeName();
             }
             if (constantMap.containsKey(nameString)) {
-                if (!valueNType.equals(constantMap.get(nameString))) {
+                if (!valueAndType.equals(constantMap.get(nameString))) {
                     dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
                 }
             } else {
-                constantMap.put(nameString, valueNType);
+                constantMap.put(nameString, valueAndType);
             }
         }
     }
