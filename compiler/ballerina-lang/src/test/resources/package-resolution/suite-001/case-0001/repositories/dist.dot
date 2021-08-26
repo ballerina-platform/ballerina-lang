@@ -1,4 +1,4 @@
-digraph central {
+digraph dist {
     subgraph "ballerina/io:1.0.1" {
     }
 
