@@ -25,6 +25,7 @@ import io.ballerina.projects.ProjectException;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.codeaction.providers.imports.PullModuleCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -39,6 +40,7 @@ import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.task.BackgroundTaskService;
 import org.ballerinalang.langserver.task.Task;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
@@ -48,8 +50,10 @@ import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 /**
  * Command executor for pulling a package from central.
@@ -97,13 +101,6 @@ public class PullModuleExecutor implements LSCommandExecutor {
                 new PullModuleTask(fileUri, project, context));
 
         return new Object();
-    }
-
-    protected static boolean isCancellation(Throwable t) {
-        if (t instanceof CompletionException) {
-            return isCancellation(t.getCause());
-        }
-        return (t instanceof CancellationException);
     }
 
     /**
@@ -156,8 +153,9 @@ public class PullModuleExecutor implements LSCommandExecutor {
         public void execute() throws Exception {
             Package currentPackage = project.currentPackage();
             // Compile in online mode so missing modules are pulled
-            PackageCompilation compilation = currentPackage.getCompilation(
-                    new CompilationOptionsBuilder().buildOffline(false).build());
+            CompilationOptionsBuilder builder = new CompilationOptionsBuilder();
+            builder.offline(false).sticky(false);
+            PackageCompilation compilation = currentPackage.getCompilation(builder.build());
             // Generate jar and BIR caches. To improve subsequent compilations
             JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
 
@@ -171,6 +169,25 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     context.languageServercontext());
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(context.languageServercontext());
             diagnosticsHelper.compileAndSendDiagnostics(context.getLanguageClient(), documentServiceContext);
+
+            // If there is any unresolved module, show an error
+            Optional<List<String>> missingModules = context.workspace().project(filePath)
+                    .map(project -> project.currentPackage().getCompilation())
+                    .map(comp -> comp.diagnosticResult().diagnostics())
+                    .map(diagnostics -> diagnostics.stream()
+                            .filter(diagnostic -> DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId()
+                                    .equals(diagnostic.diagnosticInfo().code()))
+                            .map(diagnostic -> PullModuleCodeAction.getMissingModuleNameFromDiagnostic(diagnostic))
+                            .filter(modName -> modName.isPresent())
+                            .map(modName -> modName.get())
+                            .collect(Collectors.toList())
+                    );
+            if (missingModules.isEmpty()) {
+                throw new UserErrorException("Unable to pull modules");
+            } else if (!missingModules.get().isEmpty()) {
+                String moduleNames = String.join(", ", missingModules.get());
+                throw new UserErrorException(String.format("Failed to pull modules: %s", moduleNames));
+            }
         }
 
         @Override
@@ -190,7 +207,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
         @Override
         public void onFail(Throwable t) {
             WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Unable to pull modules. Aborted!");
+            endNotification.setMessage("Failed to pull modules!");
             context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(getTaskId()),
                     Either.forLeft(endNotification)));
 
@@ -198,9 +215,11 @@ public class PullModuleExecutor implements LSCommandExecutor {
                     "Pull modules failed for project: " + project.sourceRoot().toString(),
                     t, null, (Position) null);
 
-            if (isCancellation(t)) {
+            if (t instanceof CancellationException) {
                 CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error,
                         "Pull modules operation cancelled");
+            } else if (t instanceof UserErrorException) {
+                CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error, t.getMessage());
             } else if (t instanceof ProjectException) {
                 CommandUtil.notifyClient(context.getLanguageClient(), MessageType.Error,
                         "Error occurred while pulling modules");

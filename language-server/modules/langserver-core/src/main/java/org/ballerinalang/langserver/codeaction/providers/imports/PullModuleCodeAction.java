@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
@@ -50,11 +51,7 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
-
-        Optional<String> moduleName = positionDetails.diagnosticProperty(MISSING_MODULE_NAME_INDEX);
+        Optional<String> moduleName = getMissingModuleNameFromDiagnostic(diagnostic);
         if (moduleName.isEmpty()) {
             return Collections.emptyList();
         }
@@ -77,5 +74,25 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    /**
+     * Returns the missing module's name taken from diagnostic properties.
+     *
+     * @param diagnostic Diagnostic
+     * @return Optional module name
+     */
+    public static Optional<String> getMissingModuleNameFromDiagnostic(Diagnostic diagnostic) {
+        if (!DiagnosticErrorCode.MODULE_NOT_FOUND.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
+            return Optional.empty();
+        }
+
+        List<DiagnosticProperty<?>> properties = diagnostic.properties();
+        if (properties.size() <= MISSING_MODULE_NAME_INDEX) {
+            return Optional.empty();
+        }
+
+        DiagnosticProperty<?> diagnosticProperty = properties.get(MISSING_MODULE_NAME_INDEX);
+        return Optional.of((String) diagnosticProperty.value());
     }
 }
