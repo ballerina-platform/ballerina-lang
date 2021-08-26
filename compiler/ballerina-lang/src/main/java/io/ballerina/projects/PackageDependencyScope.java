@@ -40,6 +40,10 @@ public enum PackageDependencyScope {
         this.value = value;
     }
 
+    public String getValue() {
+        return value;
+    }
+
     public static PackageDependencyScope fromString(String value) {
         if (value == null || value.isEmpty()) {
             return DEFAULT;

@@ -34,7 +34,9 @@ public class ResolutionWithNoDepsTomlTest extends AbstractPackageResolutionTest 
     public static Object[][] testCaseProvider() {
         return new Object[][]{
                 {"suite-001", "case-0001", true},
-                {"suite-001", "case-0001", false}
+                {"suite-001", "case-0001", false},
+                {"suite-001", "case-0002", true},
+                {"suite-001", "case-0002", false}
         };
     }
 }

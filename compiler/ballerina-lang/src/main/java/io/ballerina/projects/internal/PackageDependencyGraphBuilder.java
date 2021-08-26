@@ -199,13 +199,12 @@ public class PackageDependencyGraphBuilder {
     }
 
     private boolean addNewVertex(Vertex vertex, DependencyNode newPkgDep, boolean markAsDirty) {
-        if (markAsDirty) {
-            dirtyVertices.add(vertex);
-        }
-
         if (!vertices.containsKey(vertex)) {
             vertices.put(vertex, newPkgDep);
             depGraph.put(vertex, new HashSet<>());
+            if (markAsDirty) {
+                dirtyVertices.add(vertex);
+            }
             return true;
         }
 
@@ -247,7 +246,11 @@ public class PackageDependencyGraphBuilder {
             depGraph.put(vertex, new HashSet<>());
             return true;
         } else {
-            return false;
+            // We have the same package version in existing dependency and in the resolved dependency
+            // If the existing repository is equal to the resolved repository, then we return false because
+            //  there has been no change to the existing dependency
+            // If the existing repository is different from the resolved repository, then there has been a change
+            return !Objects.equals(existingPkgDep.pkgDesc().repository(), resolvedPkgDep.pkgDesc().repository());
         }
     }
 
