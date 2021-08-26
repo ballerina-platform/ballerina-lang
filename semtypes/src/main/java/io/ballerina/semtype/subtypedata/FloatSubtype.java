@@ -17,6 +17,7 @@
  */
 package io.ballerina.semtype.subtypedata;
 
+import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SemType;
@@ -31,7 +32,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class FloatSubtype implements ProperSubtypeData {
+public class FloatSubtype implements ProperSubtypeData, EnumerableSubtype {
 
     boolean allowed;
     ArrayList<Double> values;
@@ -84,13 +85,13 @@ public class FloatSubtype implements ProperSubtypeData {
 
     static SubtypeData floatSubtypeUnion(SubtypeData d1, SubtypeData d2) {
         ArrayList<Double> values = new ArrayList<>();
-        boolean allowed = true; // TODO create enumerable: enumerableSubtypeUnion
+        boolean allowed = EnumerableSubtype.enumerableSubtypeUnion((FloatSubtype) d1, (FloatSubtype) d2, values);
         return createFloatSubtype(allowed, values);
     }
 
     static SubtypeData floatSubtypeIntersect(SubtypeData d1, SubtypeData d2) {
         ArrayList<Double> values = new ArrayList<>();
-        boolean allowed = true; // TODO create enumerable: enumerableSubtypeIntersect
+        boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((FloatSubtype) d1, (FloatSubtype) d2, values);
         return createFloatSubtype(allowed, values);
     }
 
