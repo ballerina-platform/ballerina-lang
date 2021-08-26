@@ -52,6 +52,10 @@ public class  DefaultPackageRepository extends AbstractPackageRepository {
         this.graphMap = graphMap;
     }
 
+    public DependencyGraph<PackageDescriptor> getDependencyGraph(PackageDescriptor pkgDesc) {
+        return graphMap.get(pkgDesc);
+    }
+
     @Override
     protected List<PackageVersion> getPackageVersions(PackageOrg org,
                                                       PackageName name,

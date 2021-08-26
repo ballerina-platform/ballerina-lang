@@ -31,7 +31,7 @@ public class TestCaseFilePaths {
 
     private final Path centralRepoPath;
     private final Path distRepoPath;
-    private final Path localRepoPath;
+    private final Path localRepoDirPath;
     private final Path appPath;
     private final Path dependenciesTomlPath;
     private final Path expectedGraphStickyPath;
@@ -39,14 +39,14 @@ public class TestCaseFilePaths {
 
     TestCaseFilePaths(Path centralRepoPath,
                       Path distRepoPath,
-                      Path localRepoPath,
+                      Path localRepoDirPath,
                       Path appPath,
                       Path dependenciesTomlPath,
                       Path expectedGraphStickyPath,
                       Path expectedGraphNoStickyPath) {
         this.centralRepoPath = centralRepoPath;
         this.distRepoPath = distRepoPath;
-        this.localRepoPath = localRepoPath;
+        this.localRepoDirPath = localRepoDirPath;
         this.appPath = appPath;
         this.dependenciesTomlPath = dependenciesTomlPath;
         this.expectedGraphStickyPath = expectedGraphStickyPath;
@@ -61,8 +61,8 @@ public class TestCaseFilePaths {
         return Optional.ofNullable(distRepoPath);
     }
 
-    public Optional<Path> localRepoPath() {
-        return Optional.ofNullable(localRepoPath);
+    public Optional<Path> localRepoDirPath() {
+        return Optional.ofNullable(localRepoDirPath);
     }
 
     public Path appPath() {
@@ -104,8 +104,8 @@ public class TestCaseFilePaths {
                     Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.CENTRAL_REPO_FILE_NAME));
             Path distRepoPath = getFilePath(testSuitePath, testCasePath,
                     Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.DIST_REPO_FILE_NAME));
-            Path localRepoPath = getFilePath(testSuitePath, testCasePath,
-                    Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.LOCAL_REPO_FILE_NAME));
+            Path localRepoDirPath = getFilePath(testSuitePath, testCasePath,
+                    Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.LOCAL_REPO_DIR_NAME));
 
             Path depsTomlPath = getFilePath(testSuitePath, testCasePath, Paths.get(Constants.DEPS_TOML_FILE_NAME));
             Path expGraphStickyPath = getFilePath(testSuitePath, testCasePath,
@@ -113,7 +113,7 @@ public class TestCaseFilePaths {
             Path expGraphNoStickyPath = getFilePath(testSuitePath, testCasePath,
                     Paths.get(Constants.EXP_GRAPH_NO_STICKY_FILE_NAME));
 
-            return new TestCaseFilePaths(centralRepoPath, distRepoPath, localRepoPath,
+            return new TestCaseFilePaths(centralRepoPath, distRepoPath, localRepoDirPath,
                     appPath, depsTomlPath, expGraphStickyPath, expGraphNoStickyPath);
         }
 

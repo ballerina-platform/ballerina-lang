@@ -17,22 +17,27 @@
  */
 package io.ballerina.projects.test.resolution.packages.internal;
 
+import io.ballerina.projects.PackageDependencyScope;
+
 /**
- * Contains various constants used through out the package resolution test framework.
+ * Contains utility methods used throughout the test framework.
  *
  * @since 2.0.0
  */
-public class Constants {
+public class Utils {
+    private Utils() {
+    }
 
-    public static final String APP_FILE_NAME = "app.dot";
-    public static final String REPO_DIR_NAME = "repositories";
-    public static final String CENTRAL_REPO_FILE_NAME = "central.dot";
-    public static final String DIST_REPO_FILE_NAME = "dist.dot";
-    public static final String LOCAL_REPO_DIR_NAME = "local";
-    public static final String DEPS_TOML_FILE_NAME = "dependencies.dot";
-    public static final String EXP_GRAPH_STICKY_FILE_NAME = "expected-graph-sticky.dot";
-    public static final String EXP_GRAPH_NO_STICKY_FILE_NAME = "expected-graph-nosticky.dot";
-
-    private Constants() {
+    public static PackageDependencyScope getDependencyScope(Object scopeValue) {
+        if (scopeValue != null) {
+            String scopeStr = scopeValue.toString();
+            if (scopeStr.equals("testOnly")) {
+                return PackageDependencyScope.TEST_ONLY;
+            } else {
+                throw new IllegalStateException("Unsupported scope: " + scopeStr);
+            }
+        } else {
+            return PackageDependencyScope.DEFAULT;
+        }
     }
 }

@@ -56,8 +56,8 @@ public class PackageResolutionTestCaseBuilder {
         Collection<DependencyNode> directDeps = getDirectDependencies(filePaths.appPath());
 
         // Create dependencyManifest
-        DependencyManifest dependencyManifest = DependencyManifest.from("2.0.0",
-                Collections.emptyList());
+        DependencyManifest dependencyManifest = getDependencyManifest(
+                filePaths.dependenciesTomlPath().orElse(null));
 
         // Root Package Descriptor
         PackageDescriptor rootPkgDesc = getRootPackageDesc(filePaths.appPath());
@@ -81,12 +81,10 @@ public class PackageResolutionTestCaseBuilder {
     }
 
     private static PackageResolver buildPackageResolver(TestCaseFilePaths filePaths) {
-        PackageRepository centralRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.CENTRAL);
-        PackageRepository distRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.DIST);
-        PackageRepository localRepo = PackageRepositoryBuilder.build(filePaths,
-                RepositoryKind.LOCAL);
+        PackageRepositoryBuilder repoBuilder = new PackageRepositoryBuilder(filePaths);
+        PackageRepository centralRepo = repoBuilder.buildCentralRepo();
+        PackageRepository distRepo = repoBuilder.buildDistRepo();
+        PackageRepository localRepo = repoBuilder.buildLocalRepo();
 
         // Package cache is not needed for now.
         return new DefaultPackageResolver(distRepo, centralRepo, localRepo, null);
@@ -108,22 +106,37 @@ public class PackageResolutionTestCaseBuilder {
                 }
             }
 
-            PackageDependencyScope scope;
-            if (attrs.get("scope") != null) {
-                String scopeStr = Objects.requireNonNull(attrs.get("scope")).toString();
-                if (!scopeStr.equals("test_only")) {
-                    throw new IllegalStateException("Unsupported scope: " + scopeStr);
-                }
-                scope = PackageDependencyScope.TEST_ONLY;
-            } else {
-                scope = PackageDependencyScope.DEFAULT;
-            }
-
+            PackageDependencyScope scope = Utils.getDependencyScope(attrs.get("scope"));
             DependencyResolutionType resolutionType = DependencyResolutionType.SOURCE;
             PackageDescriptor pkgDesc = DotGraphUtils.getPkgDescFromNode(node.name().value(), repo);
             directDeps.add(new DependencyNode(pkgDesc, scope, resolutionType));
         }
         return directDeps;
+    }
+
+    private static DependencyManifest getDependencyManifest(Path dependenciesTomlPath) {
+        if (dependenciesTomlPath == null) {
+            return DependencyManifest.from("2.0.0", Collections.emptyList());
+        }
+
+        List<DependencyManifest.Package> recordedDeps = new ArrayList<>();
+
+        MutableGraph graph = DotGraphUtils.createGraph(dependenciesTomlPath);
+        for (MutableNode node : graph.nodes()) {
+            MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
+
+            PackageDependencyScope scope = Utils.getDependencyScope(attrs.get("scope"));
+
+            boolean isTransitive = false;
+            if (attrs.get("transitive") != null) {
+                isTransitive = Boolean.parseBoolean((Objects.requireNonNull(attrs.get("transitive"))).toString());
+            }
+
+            PackageDescriptor pkgDesc = DotGraphUtils.getPkgDescFromNode(node.name().value(), null);
+            recordedDeps.add(new DependencyManifest.Package(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(),
+                    scope.getValue(), isTransitive, Collections.emptyList(), Collections.emptyList()));
+        }
+        return DependencyManifest.from("2.0.0", recordedDeps);
     }
 
     private static PackageDescriptor getRootPackageDesc(Path appDotFilePath) {
