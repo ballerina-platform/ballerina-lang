@@ -58,19 +58,19 @@ public class Runtime {
     }
 
     /**
-     * Invoke Object method asynchronously and sequentially. This method will ensure that object methods are invoked in
-     * same thread where other object methods are executed. So methods will be executed sequentially per object level.
+     * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are invoked in
+     * the same thread where other object methods are executed. So, the methods will be executed sequentially per object level.
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
-     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
+     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
      *                   optional and can be null.
      * @param metadata   Meta data of new strand.
-     * @param callback   Callback which will get notify once method execution done.
-     * @param properties Set of properties for strand
-     * @param returnType Expected return type of this method
+     * @param callback   Callback which will get notified once the method execution is done.
+     * @param properties Set of properties for strand.
+     * @param returnType Expected return type of this method.
      * @param args       Ballerina function arguments.
-     * @return {@link FutureValue} containing return value of executing this method.
+     * @return {@link FutureValue} containing return value for executing this method.
      */
     public BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -91,19 +91,19 @@ public class Runtime {
 
     /**
      * Invoke Object method asynchronously and concurrently. Caller needs to ensure that no data race is possible for
-     * the mutable state with given object method with and arguments so method can be can be concurrently run with
+     * the mutable state with given object method and with arguments. So, the method can be concurrently run with
      * different os threads.
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
-     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is
+     * @param strandName Name for newly created strand which is used to execute the function pointer. This is
      *                   optional and can be null.
      * @param metadata   Meta data of new strand.
-     * @param callback   Callback which will get notify once method execution done.
-     * @param properties Set of properties for strand
-     * @param returnType Expected return type of this method
+     * @param callback   Callback which will get notified once the method execution is done.
+     * @param properties Set of properties for strand.
+     * @param returnType Expected return type of this method.
      * @param args       Ballerina function arguments.
-     * @return {@link FutureValue} containing return value of executing this method.
+     * @return {@link FutureValue} containing return value for executing this method.
      */
     public BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
                                                  StrandMetadata metadata,
@@ -124,11 +124,11 @@ public class Runtime {
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
-     * API will check the object or object method is isolated. So if object method is isolated, methd will be
+     * This API checks whether the object or object method is isolated. So, if an object method is isolated, method will be
      * concurrently executed in different os threads.
      * <p>
-     * Caller needs to ensure that no data race is possible for the mutable state with given arguments so method can
-     * be can be concurrently run with different os threads.
+     * Caller needs to ensure that no data race is possible for the mutable state with given arguments. So, the method can
+     * be concurrently run with different os threads.
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
@@ -139,7 +139,7 @@ public class Runtime {
      * @param properties Set of properties for strand
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
-     * @return {@link FutureValue} containing return value of executing this method.
+     * @return {@link FutureValue} containing return value for executing this method.
      * @deprecated If caller can ensure that given object and object method is isolated and no data race is possible
      * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
      * otherwise @invokeMethodAsyncSequentially .
@@ -174,12 +174,12 @@ public class Runtime {
      *
      * @param object     Object Value.
      * @param methodName Name of the method.
-     * @param strandName Name for newly creating strand which is used to execute the function pointer. This is optional
+     * @param strandName Name for newly created strand which is used to execute the function pointer. This is optional
      *                   and can be null.
      * @param metadata   Meta data of new strand.
-     * @param callback   Callback which will get notify once method execution done.
+     * @param callback   Callback which will get notified once the method execution is done.
      * @param args       Ballerina function arguments.
-     * @return the result of the function invocation
+     * @return the result of the function invocation.
      * @deprecated If caller can ensure that given object and object method is isolated and no data race is possible
      * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
      * otherwise @invokeMethodAsyncSequentially .
