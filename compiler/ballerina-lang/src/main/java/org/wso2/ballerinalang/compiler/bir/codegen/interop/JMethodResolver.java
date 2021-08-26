@@ -795,7 +795,7 @@ class JMethodResolver {
         try {
             return clazz.getMethods();
         } catch (NoClassDefFoundError e) {
-            throw new JInteropException(NO_CLASS_DEF_FOUND, "Definition of class '" + e.getMessage() + "' not found");
+            throw new JInteropException(NO_CLASS_DEF_FOUND, "Class definition '" + e.getMessage() + "' not found");
         }
     }
 
@@ -803,7 +803,7 @@ class JMethodResolver {
         try {
             return clazz.getConstructors();
         } catch (NoClassDefFoundError e) {
-            throw new JInteropException(CLASS_NOT_FOUND, "Definition of class '" + e.getMessage() + "' not found");
+            throw new JInteropException(NO_CLASS_DEF_FOUND, "Class definition '" + e.getMessage() + "' not found");
         }
     }
 
