@@ -459,6 +459,7 @@ public class LangLibValueTest {
                 { "testToJsonWithIntArray" },
                 { "testToJsonWithTable" },
                 { "testToJsonWithCyclicParameter" },
+                { "testTableToJsonConversion" },
                 { "testToJsonConversionError" }
         };
     }

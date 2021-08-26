@@ -1558,6 +1558,57 @@ function assert(anydata actual, anydata expected) {
     panic error(reason);
 }
 
+type RecordWithSimpleTypeFields record {|
+    int a;
+    byte b;
+    float c;
+    decimal d;
+    string e;
+    boolean f;
+|};
+
+type RecordWithArrayValueFields record {|
+    float[] a;
+    [string, int] t;
+|};
+
+type RecordAnydata record {|
+    int id;
+    anydata a;
+|};
+
+type RecordWithRecordField record {|
+    RecordAnydata r;
+|};
+
+function testTableToJsonConversion() {
+    table<RecordWithSimpleTypeFields> tb1 = table [
+        {a: 5, b: 1, c: 2.5, d: 3.1, e: "abc", f: true},
+        {a: 7, b: 2, c: 4.5, d: 5.2, e: "def", f: false}
+    ];
+
+    json j1 = tb1.toJson();
+    assert(j1.toJsonString(), "[{\"a\":5, \"b\":1, \"c\":2.5, \"d\":3.1, \"e\":\"abc\", \"f\":true}, " +
+                                         "{\"a\":7, \"b\":2, \"c\":4.5, \"d\":5.2, \"e\":\"def\", \"f\":false}]");
+
+    table<RecordWithArrayValueFields> tb2 = table [
+        {a: [1.2, 2.4], t: ["abc", 5]},
+        {a: [4.0, 6.5], t: ["def", 8]}
+    ];
+
+    json j2 = tb2.toJson();
+    assert(j2.toJsonString(), "[{\"a\":[1.2, 2.4], \"t\":[\"abc\", 5]}, {\"a\":[4.0, 6.5], \"t\":[\"def\", 8]}]");
+
+    table<RecordWithRecordField> tb3 = table [
+        {r: {id: 10001, a: xml `<book>The Lost World</book>`}},
+        {r: {id: 10002, a: xml `<book>Shadows of the Empire</book>`}}
+    ];
+
+    json j3 = tb3.toJson();
+    assert(j3.toJsonString(), "[{\"r\":{\"id\":10001, \"a\":\"<book>The Lost World</book>\"}}, " +
+                                          "{\"r\":{\"id\":10002, \"a\":\"<book>Shadows of the Empire</book>\"}}]");
+}
+
 type RecordWithHandleField record {|
     int i;
     handle h;

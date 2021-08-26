@@ -139,6 +139,10 @@ public class TableJsonDataSource implements JsonDataSource {
                 Long intVal = record.getIntValue(key);
                 jsonObject.put(key, intVal);
                 break;
+            case TypeTags.BYTE_TAG:
+                Integer byteVal = (Integer) record.get(key);
+                jsonObject.put(key, byteVal);
+                break;
             case TypeTags.FLOAT_TAG:
                 Double floatVal = record.getFloatValue(key);
                 jsonObject.put(key, floatVal);
@@ -152,6 +156,7 @@ public class TableJsonDataSource implements JsonDataSource {
                 jsonObject.put(key, boolVal);
                 break;
             case TypeTags.ARRAY_TAG:
+            case TypeTags.TUPLE_TAG:
                 jsonObject.put(key, getDataArray(record, key));
                 break;
             case TypeTags.JSON_TAG:
