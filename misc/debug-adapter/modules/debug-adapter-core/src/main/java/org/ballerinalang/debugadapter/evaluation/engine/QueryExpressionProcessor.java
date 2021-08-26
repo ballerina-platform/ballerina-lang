@@ -202,7 +202,7 @@ public class QueryExpressionProcessor {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             if (pkgCompilation.diagnosticResult().hasErrors()) {
                 StringJoiner errors = new StringJoiner(System.lineSeparator());
-                errors.add("compilation failed while creating executables for the query evaluation: ");
+                errors.add("compilation error(s) found while creating executables for the query evaluation: ");
                 pkgCompilation.diagnosticResult().errors().forEach(error -> {
                     if (error.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                         errors.add(error.message());

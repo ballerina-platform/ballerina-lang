@@ -757,25 +757,22 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
                         "        };",
                 "stream<map>", "stream");
 
-        // Query table evaluation
-        debugTestRunner.assertExpression(context, "table key(id, name) from var customer in customerList" +
-                        "         select {" +
-                        "             id: customer.id," +
-                        "             name: customer.name," +
-                        "             noOfItems: customer.noOfItems" +
-                        "         }" +
-                        "         on conflict onConflictError;",
-                "table<map> (entries = 3)", "table");
+        // Nested from clauses
+        debugTestRunner.assertExpression(context, "from var i in from var j in [1, 2, 3] select j select i",
+                "int[3]", "array");
 
-        // Query table evaluation with on conflict clause
-        debugTestRunner.assertExpression(context, "table key(id, name) from var customer in conflictedCustomerList" +
-                        "         select {" +
-                        "             id: customer.id," +
-                        "             name: customer.name," +
-                        "             noOfItems: customer.noOfItems" +
-                        "         }" +
-                        "         on conflict onConflictError;",
-                "Key Conflict", "error");
+        // Query join expression evaluation
+        debugTestRunner.assertExpression(context, "from var student in gradStudentList\n" +
+                        "        join var department in departmentList\n" +
+                        "        on student.deptId equals department.deptId\n" +
+                        "        limit 3\n" +
+                        "        select { " +
+                        "            name: student.firstName + \" \" + student.lastName, " +
+                        "            deptName: department.deptName, " +
+                        "            degree: \"Bachelor of Science\", " +
+                        "            intakeYear: student.intakeYear " +
+                        "        }",
+                "map[3]", "array");
     }
 
     @Override

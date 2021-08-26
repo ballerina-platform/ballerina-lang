@@ -99,6 +99,8 @@ public class QueryReferenceFinder extends NodeVisitor {
 
     @Override
     public void visit(JoinClauseNode joinClauseNode) {
+        BindingPatternNode bindingPattern = joinClauseNode.typedBindingPattern().bindingPattern();
+        internalVariables.addAll(extractVariablesFromBindingPattern(bindingPattern));
         joinClauseNode.expression().accept(this);
     }
 
