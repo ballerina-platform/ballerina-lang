@@ -74,13 +74,17 @@ public class EnumTest {
         validateError(negativeTest, i++, "incompatible types: expected 'string', found 'int'", 37, 16);
         validateError(negativeTest, i++, "incompatible types: expected 'string', found 'float'", 38, 13);
         validateError(negativeTest, i++, "redeclared symbol 'OPEN'", 43, 5);
-        validateError(negativeTest, i++, "symbol 'CLOSED' is already initialized with '0'", 50, 5);
-        validateError(negativeTest, i++, "symbol 'HOLD' is already initialized with 'HOD'", 51, 5);
+        validateError(negativeTest, i++, "symbol 'CLOSED' is already initialized", 50, 5);
+        validateError(negativeTest, i++, "symbol 'HOLD' is already initialized", 51, 5);
         validateError(negativeTest, i++, "incompatible types: expected 'int', found 'string'", 55, 18);
         validateError(negativeTest, i++, "incompatible types: expected 'float', found 'string'", 56, 16);
         validateError(negativeTest, i++, "incompatible types: expected 'Shape', found 'string'", 60, 15);
         validateError(negativeTest, i++, "incompatible types: expected 'Artist', found 'string'", 61, 16);
         validateError(negativeTest, i++, "incompatible types: expected 'Ed Shereen', found 'string'", 62, 12);
+        validateError(negativeTest, i++, "expression is not a constant expression", 65, 18);
+        validateError(negativeTest, i++, "undefined symbol 'x'", 65, 18);
+        validateError(negativeTest, i++, "symbol 'A' is already initialized", 69, 5);
+        validateError(negativeTest, i++, "symbol 'B' is already initialized", 70, 5);
         assertEquals(negativeTest.getErrorCount(), i);
     }
 

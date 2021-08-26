@@ -61,3 +61,11 @@ function testEnumAsType() {
     Artist e = "Adele";
     ED p = "EMINEM";
 }
+
+const string A = x;
+const B = 1;
+
+enum E1 {
+    A = "1",
+    B = "1"
+}
