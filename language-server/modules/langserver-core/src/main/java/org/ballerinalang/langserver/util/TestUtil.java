@@ -718,4 +718,11 @@ public class TestUtil {
         diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
     }
+
+    public static boolean isResponseWithinExpected(long responseTime) {
+        if (responseTime == 0) {
+            return false;
+        }
+        else return responseTime < 3000;
+    }
 }
