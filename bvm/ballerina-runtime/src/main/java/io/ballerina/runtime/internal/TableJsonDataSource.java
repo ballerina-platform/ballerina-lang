@@ -118,7 +118,7 @@ public class TableJsonDataSource implements JsonDataSource {
                 Iterator<Map.Entry<String, Field>> itr = internalStructFields.entrySet().iterator();
                 for (int i = 0; i < internalStructFields.size(); i++) {
                     Field internalStructField = itr.next().getValue();
-                    int type = internalStructField.getFieldType().getTag();
+                    Type type = internalStructField.getFieldType();
                     String fieldName = internalStructField.getFieldName();
                     constructJsonData(record, objNode, fieldName, type, structFields, i);
                 }
@@ -129,47 +129,48 @@ public class TableJsonDataSource implements JsonDataSource {
     }
 
     private static void constructJsonData(MapValueImpl record, MapValue<BString, Object> jsonObject, String name,
-                                          int typeTag, BField[] structFields, int index) {
+                                          Type type, BField[] structFields, int index) {
         BString key = StringUtils.fromString(name);
-        switch (typeTag) {
+        switch (type.getTag()) {
             case TypeTags.STRING_TAG:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
+                jsonObject.put(key, record.getStringValue(key));
                 break;
             case TypeTags.INT_TAG:
                 Long intVal = record.getIntValue(key);
-                jsonObject.put(StringUtils.fromString(name), intVal);
+                jsonObject.put(key, intVal);
                 break;
             case TypeTags.FLOAT_TAG:
                 Double floatVal = record.getFloatValue(key);
-                jsonObject.put(StringUtils.fromString(name), floatVal);
+                jsonObject.put(key, floatVal);
                 break;
             case TypeTags.DECIMAL_TAG:
                 DecimalValue decimalVal = (DecimalValue) record.get(key);
-                jsonObject.put(StringUtils.fromString(name), decimalVal);
+                jsonObject.put(key, decimalVal);
                 break;
             case TypeTags.BOOLEAN_TAG:
                 Boolean boolVal = record.getBooleanValue(key);
-                jsonObject.put(StringUtils.fromString(name), boolVal);
+                jsonObject.put(key, boolVal);
                 break;
             case TypeTags.ARRAY_TAG:
-                jsonObject.put(StringUtils.fromString(name), getDataArray(record, key));
+                jsonObject.put(key, getDataArray(record, key));
                 break;
             case TypeTags.JSON_TAG:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key) == null ? null :
+                jsonObject.put(key, record.getStringValue(key) == null ? null :
                         JsonParser.parse(record.getStringValue(key).toString()));
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                jsonObject.put(StringUtils.fromString(name),
-                               getStructData(record.getMapValue(key), structFields, index, key));
+                jsonObject.put(key, getStructData(record.getMapValue(key), structFields, index, key));
                 break;
             case TypeTags.XML_TAG:
                 BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
-                jsonObject.put(StringUtils.fromString(name), strVal);
+                jsonObject.put(key, strVal);
+                break;
+            case TypeTags.MAP_TAG:
+                jsonObject.put(key, record.getMapValue(key));
                 break;
             default:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
-                break;
+                throw new BallerinaException("cannot construct the json object from '" + type + "' type data");
         }
     }
 
