@@ -30,6 +30,11 @@ public class BddMemo {
         this.bddNode = bddNode;
     }
 
+    /**
+     * Represent if BddMemo is null or not.
+     *
+     * @since 2.0.0
+     */
     public enum MemoStatus {
         NOT_SET, TRUE, FALSE;
     }

@@ -64,7 +64,12 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
             }
         }
         boolean isEmpty = functionBddIsEmpty(tc, b, PredefinedType.NEVER, null, null);
-        return true;
+       if (isEmpty) {
+           m.isEmpty = BddMemo.MemoStatus.TRUE;
+       } else {
+           m.isEmpty = BddMemo.MemoStatus.FALSE;
+       }
+       return isEmpty;
     }
 
     private boolean functionBddIsEmpty(TypeCheckContext tc, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
