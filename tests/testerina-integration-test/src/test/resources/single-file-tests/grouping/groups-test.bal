@@ -14,9 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+// Verifies the test execution behaviour when executing or disabling specific
+// groups and listing groups. Single or multiple groups should be enabled/disabled
+// and the output should be verified.
 
-// Single or multiple groups should be enabled/disabled and the output should be verified
+import ballerina/test;
 
 @test:Config{
     groups:["g1","g2"]

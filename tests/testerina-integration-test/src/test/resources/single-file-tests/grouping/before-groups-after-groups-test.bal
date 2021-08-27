@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Test file to test the test execution behavior when @BeforeGroups and @AfterGroups functions are defined.
-// The expected behavior is that, each @BeforeGroups function will execute before the first
+// Verifies the test execution behavior when @BeforeGroups and @AfterGroups functions are defined with a single
+// test group. The expected behavior is that, each @BeforeGroups function will execute before the first
 // test of that group is executed and each @AfterGroups function will execute after the
 // last test of that group is executed.
 

@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// Verifies the behavior of @AfterGroups function when the specific group contains a disabled test.
+
 import ballerina/test;
 
 string a = "";
@@ -51,15 +53,15 @@ function testFunc3 () {
     dependsOn: [testFunc3]
 }
 function testFunc5 () {
-    a += "5";
+    a += "4";
     test:assertFalse(false, msg = "errorMessage");
 }
 
 @test:AfterGroups { value : ["g1"] }
 function afterGroupsFunc1() {
-    a += "4";
+    a += "5";
 }
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    test:assertEquals(a, "1234");
+    test:assertEquals(a, "1235");
 }
