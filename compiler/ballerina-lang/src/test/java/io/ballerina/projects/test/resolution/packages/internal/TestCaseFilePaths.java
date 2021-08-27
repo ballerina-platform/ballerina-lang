@@ -34,6 +34,7 @@ public class TestCaseFilePaths {
     private final Path localRepoDirPath;
     private final Path appPath;
     private final Path dependenciesTomlPath;
+    private final Path ballerinaTomlPath;
     private final Path expectedGraphStickyPath;
     private final Path expectedGraphNoStickyPath;
 
@@ -42,6 +43,7 @@ public class TestCaseFilePaths {
                       Path localRepoDirPath,
                       Path appPath,
                       Path dependenciesTomlPath,
+                      Path ballerinaTomlPath,
                       Path expectedGraphStickyPath,
                       Path expectedGraphNoStickyPath) {
         this.centralRepoPath = centralRepoPath;
@@ -49,6 +51,7 @@ public class TestCaseFilePaths {
         this.localRepoDirPath = localRepoDirPath;
         this.appPath = appPath;
         this.dependenciesTomlPath = dependenciesTomlPath;
+        this.ballerinaTomlPath = ballerinaTomlPath;
         this.expectedGraphStickyPath = expectedGraphStickyPath;
         this.expectedGraphNoStickyPath = expectedGraphNoStickyPath;
     }
@@ -67,6 +70,10 @@ public class TestCaseFilePaths {
 
     public Path appPath() {
         return appPath;
+    }
+
+    public Optional<Path> ballerinaTomlPath() {
+        return Optional.ofNullable(ballerinaTomlPath);
     }
 
     public Optional<Path> dependenciesTomlPath() {
@@ -108,13 +115,14 @@ public class TestCaseFilePaths {
                     Paths.get(Constants.REPO_DIR_NAME).resolve(Constants.LOCAL_REPO_DIR_NAME));
 
             Path depsTomlPath = getFilePath(testSuitePath, testCasePath, Paths.get(Constants.DEPS_TOML_FILE_NAME));
+            Path balTomlPath = getFilePath(testSuitePath, testCasePath, Paths.get(Constants.BAL_TOML_FILE_NAME));
             Path expGraphStickyPath = getFilePath(testSuitePath, testCasePath,
                     Paths.get(Constants.EXP_GRAPH_STICKY_FILE_NAME));
             Path expGraphNoStickyPath = getFilePath(testSuitePath, testCasePath,
                     Paths.get(Constants.EXP_GRAPH_NO_STICKY_FILE_NAME));
 
             return new TestCaseFilePaths(centralRepoPath, distRepoPath, localRepoDirPath,
-                    appPath, depsTomlPath, expGraphStickyPath, expGraphNoStickyPath);
+                    appPath, depsTomlPath, balTomlPath, expGraphStickyPath, expGraphNoStickyPath);
         }
 
         private static Path getFilePath(Path testSuitePath, Path testCasePath, Path relativeFilePath) {

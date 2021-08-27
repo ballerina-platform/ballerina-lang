@@ -31,17 +31,28 @@ public class ImportModuleResponse {
     private final ImportModuleRequest importModuleRequest;
     private final ResolutionResponse.ResolutionStatus resolutionStatus;
 
-    public ImportModuleResponse(PackageDescriptor packageDescriptor,
-                                ImportModuleRequest importModuleRequest) {
+    private ImportModuleResponse(PackageDescriptor packageDescriptor,
+                                 ImportModuleRequest importModuleRequest,
+                                 ResolutionResponse.ResolutionStatus status) {
         this.packageDescriptor = packageDescriptor;
         this.importModuleRequest = importModuleRequest;
-        this.resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
+        this.resolutionStatus = status;
+    }
+
+    public ImportModuleResponse(PackageDescriptor packageDescriptor,
+                                ImportModuleRequest importModuleRequest) {
+        this(packageDescriptor, importModuleRequest, ResolutionResponse.ResolutionStatus.RESOLVED);
     }
 
     public ImportModuleResponse(ImportModuleRequest importModuleRequest) {
         this.packageDescriptor = null;
         this.importModuleRequest = importModuleRequest;
         this.resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
+    }
+
+    public static ImportModuleResponse createUnresolvedResponse(ImportModuleRequest importModuleRequest) {
+        return new ImportModuleResponse(null, importModuleRequest,
+                ResolutionResponse.ResolutionStatus.UNRESOLVED);
     }
 
     public ImportModuleRequest importModuleRequest() {

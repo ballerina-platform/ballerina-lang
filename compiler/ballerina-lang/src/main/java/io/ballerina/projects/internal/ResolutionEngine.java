@@ -22,8 +22,10 @@ import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageResolver;
@@ -45,25 +47,38 @@ import java.util.Set;
  */
 public class ResolutionEngine {
     private final PackageDescriptor rootPkgDesc;
-    private final DependencyManifest dependencyManifest;
+    private final BlendedManifest blendedManifest;
+    private final PackageResolver packageResolver;
+    private final ModuleResolver moduleResolver;
     private final boolean offline;
     private final boolean sticky;
 
+    private final DependencyManifest dependencyManifest;
+    //    private final PackageManifest packageManifest;
     private final PackageDependencyGraphBuilder graphBuilder;
-    private final PackageResolver packageResolver;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
-                            DependencyManifest dependencyManifest,
+                            BlendedManifest blendedManifest,
                             PackageResolver packageResolver,
+                            ModuleResolver moduleResolver,
                             boolean offline, // TODO Can we combine these two options into buildOptions
                             boolean sticky) {
-        this.dependencyManifest = dependencyManifest;
         this.rootPkgDesc = rootPkgDesc;
+        this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
+        this.moduleResolver = moduleResolver;
         this.offline = offline;
         this.sticky = sticky;
 
+        this.dependencyManifest = blendedManifest.dependencyManifest();
+//        this.packageManifest = blendedManifest.packageManifest();
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
+    }
+
+    public DependencyGraph<DependencyNode> resolveDependenciesFromImports(
+            Collection<ModuleLoadRequest> moduleLoadRequests) {
+        Collection<DependencyNode> directDependencies = resolvePackages(moduleLoadRequests);
+        return resolveDependencies(directDependencies);
     }
 
     public DependencyGraph<DependencyNode> resolveDependencies(Collection<DependencyNode> directDependencies) {
@@ -72,14 +87,59 @@ public class ResolutionEngine {
         // Resolve dependency versions
         populateInitialDependencyGraph(directDependencies, graphBuilder);
         completeDependencyGraph(graphBuilder);
-
-        // TODO we need to return the dependency graph and the diagnostics....
         return graphBuilder.buildGraph();
     }
 
     // TODO Move this method to the PackageResolution class.
     public DependencyGraph<ResolvedPackageDependency> getPackageDependencyGraph(Project currentProject) {
         return graphBuilder.buildPackageDependencyGraph(packageResolver, currentProject, offline);
+    }
+
+    private Collection<DependencyNode> resolvePackages(Collection<ModuleLoadRequest> moduleLoadRequests) {
+        // Get the direct dependencies of the current package.
+        // This list does not contain langlib and the root package.
+        PackageContainer<ModuleResolver.DirectPackageDependency> directDepsContainer =
+                moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
+
+        List<ResolutionEngine.DependencyNode> directDeps = new ArrayList<>();
+        for (ModuleResolver.DirectPackageDependency directPkgDependency : directDepsContainer.getAll()) {
+            PackageVersion depVersion;
+            String repository;
+            PackageDescriptor depPkgDesc = directPkgDependency.pkgDesc();
+            if (directPkgDependency.dependencyKind() == ModuleResolver.DirectPackageDependencyKind.NEW) {
+                // This blendedDep may be resolved from the local repository as well.
+                Optional<BlendedManifest.Dependency> blendedDepOptional = blendedManifest.dependency(
+                        depPkgDesc.org(), depPkgDesc.name());
+
+                // If the package version is not null, use it
+                if (directPkgDependency.pkgDesc().version() != null) {
+                    depVersion = directPkgDependency.pkgDesc().version();
+                    repository = blendedDepOptional
+                            .map(BlendedManifest.Dependency::repositoryName)
+                            .orElse(null);
+                } else if (blendedDepOptional.isPresent()) {
+                    BlendedManifest.Dependency blendedDep = blendedDepOptional.get();
+                    repository = blendedDep.repositoryName();
+                    depVersion = blendedDep.version();
+                } else {
+                    depVersion = null;
+                    repository = null;
+                }
+            } else if (directPkgDependency.dependencyKind() == ModuleResolver.DirectPackageDependencyKind.EXISTING) {
+                BlendedManifest.Dependency blendedDep = blendedManifest.dependencyOrThrow(
+                        depPkgDesc.org(), depPkgDesc.name());
+                depVersion = blendedDep.version();
+                repository = blendedDep.repositoryName();
+            } else {
+                throw new IllegalStateException("Unsupported direct dependency kind: " +
+                        directPkgDependency.dependencyKind());
+            }
+            directDeps.add(new ResolutionEngine.DependencyNode(
+                    PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
+                    directPkgDependency.scope(), directPkgDependency.resolutionType()));
+        }
+
+        return directDeps;
     }
 
     private void populateInitialDependencyGraph(Collection<DependencyNode> directDependencies,

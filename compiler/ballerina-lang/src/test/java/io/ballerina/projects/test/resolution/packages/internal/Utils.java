@@ -17,7 +17,14 @@
  */
 package io.ballerina.projects.test.resolution.packages.internal;
 
+import io.ballerina.projects.DependencyResolutionType;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.environment.ModuleLoadRequest;
 
 /**
  * Contains utility methods used throughout the test framework.
@@ -39,5 +46,41 @@ public class Utils {
         } else {
             return PackageDependencyScope.DEFAULT;
         }
+    }
+
+    public static ModuleLoadRequest getModuleLoadRequest(String name,
+                                                         PackageDependencyScope scope,
+                                                         DependencyResolutionType resolutionType) {
+        String[] split = name.split("/");
+        if (split.length != 2) {
+            throw new IllegalArgumentException("Import declarations in app.dot file " +
+                    "should have <org>/<module-name> format");
+        }
+        return new ModuleLoadRequest(PackageOrg.from(split[0]), split[1], scope, resolutionType);
+    }
+
+    public static PackageDescriptor getPkgDescFromNode(String name, String repo) {
+        String[] split = name.split("/");
+        String[] split1 = split[1].split(":");
+        return PackageDescriptor.from(PackageOrg.from(split[0]), PackageName.from(split1[0]),
+                PackageVersion.from(split1[1]), repo);
+    }
+
+    public static PackageDescriptor getPkgDescFromNode(String name) {
+        return getPkgDescFromNode(name, null);
+    }
+
+    public static ModuleName getModuleName(PackageName packageName, String moduleNameStr) {
+        ModuleName moduleName;
+        if (packageName.value().equals(moduleNameStr)) {
+            moduleName = ModuleName.from(packageName);
+        } else {
+            String moduleNamePart = moduleNameStr.substring(packageName.value().length() + 1);
+            if (moduleNamePart.isEmpty()) {
+                moduleNamePart = null;
+            }
+            moduleName = ModuleName.from(packageName, moduleNamePart);
+        }
+        return moduleName;
     }
 }
