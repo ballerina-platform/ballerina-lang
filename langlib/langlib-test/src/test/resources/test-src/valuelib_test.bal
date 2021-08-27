@@ -1585,6 +1585,14 @@ type RecordWithMapField record {|
     map<anydata> m;
 |};
 
+type RecordWithXmlField record {|
+    xml x;
+    xml:Element e;
+    xml:Comment c;
+    xml:ProcessingInstruction p;
+    xml:Text t;
+|};
+
 function testTableToJsonConversion() {
     table<RecordWithSimpleTypeFields> tb1 = table [
         {a: 5, b: 1, c: 2.5, d: 3.1, e: "abc", f: true},
@@ -1619,6 +1627,14 @@ function testTableToJsonConversion() {
 
     json j4 = tb4.toJson();
     assert(j4.toJsonString(), "[{\"m\":{\"a\":5, \"b\":\"abc\"}}, {\"m\":{\"c\":12.5, \"d\":\"A\"}}]");
+
+    table<RecordWithXmlField> tb5 = table [
+        {x: xml `<bar>Text</bar>`, e: xml `<foo/>`, c: xml `<!--Comment-->`, p: xml `<?PI ?>`, t: xml `Text`}
+    ];
+
+    json j5 = tb5.toJson();
+    assert(j5.toJsonString(), "[{\"x\":\"<bar>Text</bar>\", \"e\":\"<foo/>\", \"c\":\"<!--Comment-->\", " +
+                                          "\"p\":\"<?PI ?>\", \"t\":\"Text\"}]");
 }
 
 type RecordWithHandleField record {|
