@@ -76,12 +76,21 @@ public function main() {
 }
 
 service /abc/users on new http:Listener(8080) {
-    resource function post register(@http:Payload json payload) returns http:Response {
+
+    resource function post .(@http:Payload json payload) returns http:Response {
+        return payload;
+    }
+    
+    resource function post [string id](@http:Payload json payload) returns http:Response {
+        return payload;
+    }
+    
+    resource function post register/[string id](@http:Payload json payload) returns http:Response {
         return payload;
     }
 
-    resource function get user(@http:Payload json payload) returns http:Response {
-        
+    resource function get user/[string id]() returns http:Response {
+        return users[id]
     }
 }
 
@@ -90,7 +99,7 @@ service /abc/items on new http:Listener(8090) {
         return payload;
     }
 
-    resource function get item(@http:Payload json payload) returns http:Response {
+    resource function get item[string... props](@http:Payload json payload) returns http:Response {
         return payload;
     }
 

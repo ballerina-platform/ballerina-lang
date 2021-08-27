@@ -18,6 +18,8 @@
 package org.ballerinalang.langserver.util.documentsymbol;
 
 import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -53,12 +55,20 @@ public class DocumentSymbolUtil {
         if (syntaxTree.isEmpty()) {
             return symbols;
         }
-        DocumentSymbolResolver symbolResolver = new DocumentSymbolResolver(context);
-        Optional<DocumentSymbol> rootSymbol = syntaxTree.get().rootNode().apply(symbolResolver);
-        if (context.getHierarchicalDocumentSymbolSupport()) {
-            rootSymbol.ifPresent(documentSymbol -> symbols.add(Either.forRight(documentSymbol)));
-        } else {
-            symbolResolver.getDocumentSymbolStore().forEach(symbol -> symbols.add(Either.forRight(symbol)));
+        Node rootNode = syntaxTree.get().rootNode();
+        if (rootNode.kind() == SyntaxKind.MODULE_PART) {
+            DocumentSymbolResolver symbolResolver = new DocumentSymbolResolver(context);
+            List<DocumentSymbol> memberSymbols = new ArrayList<>();
+            for (ModuleMemberDeclarationNode member : ((ModulePartNode) rootNode).members()) {
+                member.apply(symbolResolver).ifPresent(memberSymbols::add);
+            }
+            if (context.getHierarchicalDocumentSymbolSupport()) {
+                for (DocumentSymbol symbol : memberSymbols) {
+                    symbols.add(Either.forRight(symbol));
+                }
+            } else {
+                symbolResolver.getDocumentSymbolStore().forEach(symbol -> symbols.add(Either.forRight(symbol)));
+            }
         }
         return symbols;
     }
@@ -79,6 +89,7 @@ public class DocumentSymbolUtil {
 
     /**
      * Returns if the given metadata contains deprecated annotation.
+     *
      * @param metadata Metadata.
      * @return isDeprecated.
      */

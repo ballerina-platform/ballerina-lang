@@ -21,21 +21,18 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.SymbolKind;
 import org.eclipse.lsp4j.SymbolTag;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,28 +69,8 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     }
 
     @Override
-    public Optional<DocumentSymbol> transform(ModulePartNode modulePartNode) {
-        Path filePath = context.filePath();
-        Optional<Module> module = context.workspace().module(filePath);
-        String name;
-        if (module.isPresent()) {
-            if (module.get().isDefaultModule()) {
-                name = "default";
-            } else {
-                name = module.get().moduleName().moduleNamePart();
-            }
-        } else {
-            name = "module";
-        }
-        List<DocumentSymbol> children = transformMembers(modulePartNode.members());
-        Range range = DocumentSymbolUtil.generateNodeRange(modulePartNode);
-        return Optional.ofNullable(createDocumentSymbol(name, SymbolKind.Module,
-                null, range, range, false, children, this.context));
-    }
-
-    @Override
     public Optional<DocumentSymbol> transform(FunctionDefinitionNode functionDefinitionNode) {
-        String name;
+        String name = "";
         Range range = DocumentSymbolUtil.generateNodeRange(functionDefinitionNode);
         SymbolKind symbolKind;
         Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
@@ -108,15 +85,31 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
                 symbolKind = SymbolKind.Method;
                 break;
             case RESOURCE_ACCESSOR_DEFINITION:
-                StringBuilder resourceFuncName = new StringBuilder(functionDefinitionNode.functionName().text());
+                String accessor = functionDefinitionNode.functionName().text();
+                List<String> pathParams = new ArrayList<>();
+                String resourcePath = "";
                 for (Node child : functionDefinitionNode.children()) {
                     if (child.kind() == SyntaxKind.IDENTIFIER_TOKEN &&
-                            !((IdentifierToken) child).text().equals(functionDefinitionNode.functionName().text())) {
-                        resourceFuncName.append(":").append(((IdentifierToken) child).text());
-                        break;
+                            !((IdentifierToken) child).text().equals(accessor)) {
+                        resourcePath = ((IdentifierToken) child).text();
+                    } else if (child.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM) {
+                        String[] param = child.toSourceCode()
+                                .replaceAll("\\[|\\]", "").split("\\s+");
+                        pathParams.add(param[param.length - 1]);
+                    } else if (child.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
+                        pathParams.add("*");
                     }
                 }
-                name = resourceFuncName.toString();
+                if (!accessor.isEmpty()) {
+                    name = accessor + ":" + resourcePath;
+                    if (!pathParams.isEmpty()) {
+                        String params = pathParams.stream().map(param -> "{" + param + "}")
+                                .collect(Collectors.joining("/"));
+                        name = name + (resourcePath.isEmpty() ? params : "/" + params);
+                    } else if (resourcePath.isEmpty()) {
+                        name = name + "/";
+                    }
+                }
                 symbolKind = SymbolKind.Function;
                 break;
             default:
@@ -144,7 +137,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
         String name = "service " + serviceDeclarationNode.absoluteResourcePath().stream()
                 .map(Node::toString).collect(Collectors.joining(""))
                 + " on " + serviceDeclarationNode.expressions().stream()
-                .map(Node::toString).collect(Collectors.joining(""));
+                .map(Node::toSourceCode).collect(Collectors.joining(""));
         SymbolKind symbolKind = SymbolKind.Interface;
         Range range = DocumentSymbolUtil.generateNodeRange(serviceDeclarationNode);
         Optional<MetadataNode> metadata = serviceDeclarationNode.metadata();

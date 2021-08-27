@@ -19,3 +19,28 @@ public type User object {
     public function getType() returns UserType;
     public function getAddress() returns Address;
 };
+
+public Class AnotherItem {
+    string code;
+
+    # Init method
+    #
+    # + code - Item code.
+    public function init(string code) {
+        self.code = code;
+    }
+
+    # Returns the code of the item.
+    # + return - address.
+    public function getCode() returns string {
+        return self.code;
+    }
+}
+
+# Deprecated function.
+# # Deprecated
+# This is a deprecated function.
+@deprecated 
+public function deprecatedFunction() {
+    
+}
