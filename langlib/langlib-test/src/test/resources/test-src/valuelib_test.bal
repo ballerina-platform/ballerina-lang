@@ -1581,6 +1581,10 @@ type RecordWithRecordField record {|
     RecordAnydata r;
 |};
 
+type RecordWithMapField record {|
+    map<anydata> m;
+|};
+
 function testTableToJsonConversion() {
     table<RecordWithSimpleTypeFields> tb1 = table [
         {a: 5, b: 1, c: 2.5, d: 3.1, e: "abc", f: true},
@@ -1607,6 +1611,14 @@ function testTableToJsonConversion() {
     json j3 = tb3.toJson();
     assert(j3.toJsonString(), "[{\"r\":{\"id\":10001, \"a\":\"<book>The Lost World</book>\"}}, " +
                                           "{\"r\":{\"id\":10002, \"a\":\"<book>Shadows of the Empire</book>\"}}]");
+
+    table<RecordWithMapField> tb4 = table [
+        {m: {a: 5, b: "abc"}},
+        {m: {c: 12.5, d: "A"}}
+    ];
+
+    json j4 = tb4.toJson();
+    assert(j4.toJsonString(), "[{\"m\":{\"a\":5, \"b\":\"abc\"}}, {\"m\":{\"c\":12.5, \"d\":\"A\"}}]");
 }
 
 type RecordWithHandleField record {|
