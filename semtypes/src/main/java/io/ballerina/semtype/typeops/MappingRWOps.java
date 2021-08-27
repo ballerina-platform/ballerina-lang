@@ -15,35 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.semtype;
+package io.ballerina.semtype.typeops;
+
+import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.TypeCheckContext;
 
 /**
- * SemType Interface.
+ * Mapping read/write specific methods operate on SubtypeData.
+ *
+ * @since 2.0.0
  */
-public interface SemType {
-
-}
-
-/**
- * Complex SemType implementation.
- */
-class ComplexSemType implements SemType {
-    UniformTypeBitSet all;
-    UniformTypeBitSet some;
-
-}
-
-/**
- * UniformTypeBitSet SemType implementation.
- */
-class UniformTypeBitSet implements SemType {
-    int value;
-
-    public UniformTypeBitSet(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
+public class MappingRWOps extends MappingCommonOps {
+    @Override
+    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+        throw new AssertionError();
     }
 }
