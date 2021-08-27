@@ -1,0 +1,3 @@
+digraph "myOrg/app:0.1.0" {
+    "myOrg/bazz"
+}
