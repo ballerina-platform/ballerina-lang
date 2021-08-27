@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -143,12 +142,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 return LangExtensionDelegator.instance()
                         .completion(position, context, this.serverContext, cancelChecker);
-            } catch (CancellationException e) {
+            } catch (CancellationException ignore) {
                 // Ignore the cancellation exception
-                String msg = "Operation 'text/completion' cancelled! [line: "
-                        + position.getPosition().getLine() + ", char: "
-                        + position.getPosition().getCharacter() + "]";
-                this.clientLogger.logTrace(msg);
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/completion' failed!";
@@ -164,23 +159,22 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<Hover> hover(HoverParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            HoverContext context =
-                    ContextBuilder.buildHoverContext(
-                            fileUri, this.workspaceManager,
-                            this.serverContext, params.getPosition(),
-                            cancelChecker);
-            Hover hover;
+            HoverContext context = ContextBuilder.buildHoverContext(
+                    fileUri, this.workspaceManager,
+                    this.serverContext, params.getPosition(),
+                    cancelChecker);
             try {
-                hover = HoverUtil.getHover(context);
+                return HoverUtil.getHover(context);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_HOVER, msg, e, params.getTextDocument(),
                         params.getPosition());
-                hover = HoverUtil.getDefaultHoverObject();
             }
 
-            return hover;
+            return null;
         });
     }
 
@@ -214,7 +208,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         params.getPosition());
             }
 
-            return new SignatureHelp();
+            return null;
         });
     }
 
@@ -275,7 +269,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_REFERENCES, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
-            
+
             return Collections.emptyList();
         });
     }
@@ -395,7 +389,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_FORMATTING, msg, e, params.getTextDocument(),
                         (Position) null);
             }
-            
+
             return Collections.emptyList();
         });
     }
@@ -430,7 +424,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 LinePosition eofPos = syntaxTree.get().rootNode().lineRange().endLine();
                 Range updateRange = new Range(new Position(0, 0), new Position(eofPos.line() + 1, eofPos.offset()));
                 TextEdit textEdit = new TextEdit(updateRange, formattedTree.toSourceCode());
-                
+
                 return Collections.singletonList(textEdit);
             } catch (UserErrorException | FormatterException e) {
                 this.clientLogger.notifyUser("Formatting", e);
@@ -441,7 +435,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.logError(LSContextOperation.TXT_RANGE_FORMATTING, msg, e, params.getTextDocument(),
                         (Position) null);
             }
-            
+
             return Collections.emptyList();
         });
     }
@@ -487,6 +481,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return RenameUtil.rename(context);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/rename' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_RENAME, msg, e, params.getTextDocument(),
@@ -574,30 +570,40 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         lineFoldingOnly,
                         cancelChecker);
                 return FoldingRangeProvider.getFoldingRange(context);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'text/foldingRange' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_FOLDING_RANGE, msg, e,
                         new TextDocumentIdentifier(params.getTextDocument().getUri()),
                         (Position) null);
-                return Collections.emptyList();
             }
+
+            return Collections.emptyList();
         });
     }
 
     @Override
     public CompletableFuture<SemanticTokens> semanticTokensFull(SemanticTokensParams params) {
-        return CompletableFuture.supplyAsync(() -> {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
-                SemanticTokensContext semanticTokensContext = ContextBuilder.buildSemanticTokensContext(
-                        params.getTextDocument().getUri(), this.workspaceManager, this.serverContext);
-                return SemanticTokensUtils.getSemanticTokens(semanticTokensContext);
+                SemanticTokensContext context = ContextBuilder.buildSemanticTokensContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManager,
+                        this.serverContext,
+                        cancelChecker);
+
+                return SemanticTokensUtils.getSemanticTokens(context);
+            } catch (CancellationException ignore) {
+                // Ignore cancellation exception
             } catch (Throwable e) {
                 String msg = "Operation 'textDocument/semanticTokens/full' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_SEMANTIC_TOKENS_FULL, msg, e,
                         new TextDocumentIdentifier(params.getTextDocument().getUri()),
                         (Position) null);
-                return new SemanticTokens(new ArrayList<>());
             }
+            
+            return new SemanticTokens(new ArrayList<>());
         });
     }
 }

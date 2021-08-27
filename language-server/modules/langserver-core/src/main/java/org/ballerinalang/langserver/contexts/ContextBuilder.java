@@ -317,10 +317,12 @@ public class ContextBuilder {
      */
     public static SemanticTokensContext buildSemanticTokensContext(String uri,
                                                                    WorkspaceManager workspaceManager,
-                                                                   LanguageServerContext serverContext) {
+                                                                   LanguageServerContext serverContext,
+                                                                   CancelChecker cancelChecker) {
         return new SemanticTokensContextImpl.SemanticTokensContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
+                .withCancelChecker(cancelChecker)
                 .build();
     }
 }
