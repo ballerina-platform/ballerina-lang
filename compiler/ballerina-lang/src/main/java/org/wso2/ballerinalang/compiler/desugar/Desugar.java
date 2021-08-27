@@ -6853,27 +6853,11 @@ public class Desugar extends BLangNodeVisitor {
     private BLangStatementExpression createStmtExprForNullableBinaryExpr(BLangBinaryExpr binaryExpr) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(binaryExpr.pos);
 
-        BLangExpression tempExpr;
-
         BUnionType exprBType = (BUnionType) binaryExpr.getBType();
         BType nilLiftType = exprBType.getMemberTypes().iterator().next();
-        BType nullableType = BUnionType.create(null, nilLiftType, symTable.nilType);
-
-        BLangSimpleVariableDef tempOne;
 
         if (binaryExpr.lhsExpr.getBType().isNullable()) {
-            tempExpr = rewriteExpr(binaryExpr.lhsExpr);
-            tempOne = createVarDef("$temp_1", nullableType, tempExpr, binaryExpr.pos);
-        } else {
-            tempExpr = binaryExpr.lhsExpr;
-            tempOne = createVarDef("$temp_1", tempExpr.getBType(), tempExpr, binaryExpr.pos);
-        }
-
-        BLangSimpleVarRef tempOneRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempOne.var.symbol);
-        blockStmt.addStatement(tempOne);
-
-        if (tempOneRef.getBType().isNullable()) {
-            ((BUnionType) tempOne.getBType()).setNullable(false);
+            binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         }
 
         BLangSimpleVariableDef tempVarDef = createVarDef("result",
@@ -6881,24 +6865,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempVarDef.var.symbol);
         blockStmt.addStatement(tempVarDef);
 
-        BLangSimpleVariableDef tempTwo;
-        if (binaryExpr.rhsExpr.getBType().isNullable()) {
-            tempTwo = createVarDef("$temp_2",
-                    nullableType, binaryExpr.rhsExpr, binaryExpr.pos);
-        } else {
-            tempTwo = createVarDef("$temp_2",
-                    binaryExpr.rhsExpr.getBType(), binaryExpr.rhsExpr, binaryExpr.pos);
-        }
-
-        BLangSimpleVarRef tempTwoRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempTwo.var.symbol);
-        blockStmt.addStatement(tempTwo);
-
-        BLangTypeTestExpr typeTestExprOne = createTypeCheckExpr(binaryExpr.pos, tempOneRef,
+        BLangTypeTestExpr typeTestExprOne = createTypeCheckExpr(binaryExpr.pos, binaryExpr.lhsExpr,
                 getNillTypeNode());
         typeTestExprOne.setBType(symTable.booleanType);
 
         BLangTypeTestExpr typeTestExprTwo = createTypeCheckExpr(binaryExpr.pos,
-                tempTwoRef, getNillTypeNode());
+                binaryExpr.rhsExpr, getNillTypeNode());
         typeTestExprTwo.setBType(symTable.booleanType);
 
         BLangBinaryExpr ifBlockCondition = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, typeTestExprOne,
@@ -6913,13 +6885,11 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment bLangAssignmentElse = ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, elseBody);
         bLangAssignmentElse.varRef = tempVarRef;
 
-        if (tempTwoRef.getBType().tag == TypeTags.UNION) {
-            ((BUnionType) tempTwoRef.getBType()).setNullable(false);
-        }
-
-        BLangBinaryExpr newBinaryExpr = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, tempOneRef,
-                tempTwoRef, nilLiftType, binaryExpr.opKind, binaryExpr.opSymbol);
-        bLangAssignmentElse.expr = createTypeCastExpr(newBinaryExpr, binaryExpr.getBType());
+        BLangBinaryExpr newBinaryExpr = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, binaryExpr.lhsExpr,
+                binaryExpr.rhsExpr, nilLiftType, binaryExpr.opKind, binaryExpr.opSymbol);
+        newBinaryExpr.lhsExpr = createTypeCastExpr(newBinaryExpr.lhsExpr, nilLiftType);
+        newBinaryExpr.rhsExpr = createTypeCastExpr(newBinaryExpr.rhsExpr, nilLiftType);
+        bLangAssignmentElse.expr = newBinaryExpr;
 
         BLangIf ifStatement = ASTBuilderUtil.createIfStmt(binaryExpr.pos, blockStmt);
         ifStatement.expr = ifBlockCondition;
@@ -7162,21 +7132,10 @@ public class Desugar extends BLangNodeVisitor {
     private BLangStatementExpression createStmtExprForNullableUnaryExpr(BLangUnaryExpr unaryExpr) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(unaryExpr.pos);
 
-        BLangExpression tempExpr;
-
         BUnionType exprBType = (BUnionType) unaryExpr.getBType();
         BType nilLiftType = exprBType.getMemberTypes().iterator().next();
-        BType nullableType = BUnionType.create(null, nilLiftType, symTable.nilType);
 
-        tempExpr = rewriteExpr(unaryExpr.expr);
-        BLangSimpleVariableDef tempOne = createVarDef("$temp_1", nullableType, tempExpr, unaryExpr.pos);
-
-        BLangSimpleVarRef tempOneRef = ASTBuilderUtil.createVariableRef(unaryExpr.pos, tempOne.var.symbol);
-        blockStmt.addStatement(tempOne);
-
-        if (tempOneRef.getBType().isNullable()) {
-            ((BUnionType) tempOne.getBType()).setNullable(false);
-        }
+        unaryExpr.expr = rewriteExpr(unaryExpr.expr);
 
         BLangSimpleVariableDef tempVarDef = createVarDef("$result",
                 unaryExpr.getBType(), createNilLiteral(), unaryExpr.pos);
@@ -7184,7 +7143,7 @@ public class Desugar extends BLangNodeVisitor {
 
         blockStmt.addStatement(tempVarDef);
 
-        BLangTypeTestExpr typeTestExpr = createTypeCheckExpr(unaryExpr.pos, tempOneRef,
+        BLangTypeTestExpr typeTestExpr = createTypeCheckExpr(unaryExpr.pos, unaryExpr.expr,
                 getNillTypeNode());
         typeTestExpr.setBType(symTable.booleanType);
 
@@ -7197,10 +7156,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment bLangAssignmentElse = ASTBuilderUtil.createAssignmentStmt(unaryExpr.pos, elseBody);
         bLangAssignmentElse.varRef = tempVarRef;
 
-        BLangUnaryExpr newUnaryExpr = ASTBuilderUtil.createUnaryExpr(unaryExpr.pos, tempOneRef,
+        BLangUnaryExpr newUnaryExpr = ASTBuilderUtil.createUnaryExpr(unaryExpr.pos, unaryExpr.expr,
                 nilLiftType, unaryExpr.operator, unaryExpr.opSymbol);
         newUnaryExpr.expr = createTypeCastExpr(newUnaryExpr.expr, nilLiftType);
-        bLangAssignmentElse.expr = createTypeCastExpr(newUnaryExpr, unaryExpr.getBType());
+        bLangAssignmentElse.expr = newUnaryExpr;
 
         BLangIf ifStatement = ASTBuilderUtil.createIfStmt(unaryExpr.pos, blockStmt);
         ifStatement.expr = typeTestExpr;
