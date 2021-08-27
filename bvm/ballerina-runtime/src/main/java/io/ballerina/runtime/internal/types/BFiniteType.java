@@ -27,6 +27,9 @@ import io.ballerina.runtime.internal.values.RefValue;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.StringJoiner;
+
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 
 /**
  * {@code BFiniteType} represents the finite type in Ballerina.
@@ -134,5 +137,26 @@ public class BFiniteType extends BType implements FiniteType {
 
     public int getTypeFlags() {
         return typeFlags;
+    }
+
+    @Override
+    public String toString() {
+        if (typeName != null && !typeName.isEmpty()) {
+            return typeName;
+        }
+        StringJoiner joiner = new StringJoiner("|");
+        for (Object value : this.valueSpace) {
+            switch (getType(value).getTag()) {
+                case TypeTags.FLOAT_TAG:
+                    joiner.add(value + "f");
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    joiner.add(value + "d");
+                    break;
+                default:
+                    joiner.add(value.toString());
+            }
+        }
+        return valueSpace.size() == 1 ? joiner.toString() : "(" + joiner + ")";
     }
 }

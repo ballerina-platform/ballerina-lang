@@ -57,7 +57,6 @@ public class BLangCompilerConstants {
     public static final String TRANSACTION_VERSION = "0.0.1";
     public static final String TRANSACTION_INTERNAL_VERSION = "1.0.15";
     public static final String OBSERVE_INTERNAL_VERSION = "0.9.0";
-    public static final String OBSERVE_VERSION = "0.9.0";
     public static final String C2C_VERSION = "1.0.0";
 
     private BLangCompilerConstants() {

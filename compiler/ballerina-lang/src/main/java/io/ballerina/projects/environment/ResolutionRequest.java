@@ -38,7 +38,7 @@ public final class ResolutionRequest {
     private final PackageDependencyScope scope;
 
     // TODO Why did we introduce the offline flag here.
-    private DependencyResolutionType dependencyResolutionType;
+    private final DependencyResolutionType dependencyResolutionType;
     private final boolean offline;
 
     // TODO rethink about this

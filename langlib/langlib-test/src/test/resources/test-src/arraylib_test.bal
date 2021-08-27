@@ -1292,3 +1292,11 @@ function testReadOnlyArrayFilter() {
 function getRandomNumber(int i) returns int {
     return i + 2;
 }
+
+function testToStreamOnImmutableArray() {
+    (byte[])[] & readonly arr = [[1,2]];
+    var strm = arr.toStream();
+
+    stream<byte[] & readonly> castedstrm = <stream<byte[] & readonly>> strm;
+    assertValueEquality([1, 2], castedstrm.next()?.value);
+}

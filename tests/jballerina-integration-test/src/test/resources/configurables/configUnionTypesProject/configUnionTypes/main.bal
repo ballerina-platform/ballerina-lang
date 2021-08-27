@@ -31,7 +31,7 @@ type HttpResponse record {|
 |};
 
 type Person record {
-    string name;
+    readonly string name;
     int age?;
 };
 

@@ -35,6 +35,9 @@
         <Package name="org.wso2.ballerinalang.compiler.bir.codegen.methodgen" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.bir.codegen.split" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.bir.emit" />
     </Match>
     <Match>
@@ -338,10 +341,9 @@
         <Class name="io.ballerina.projects.CodeActionManager"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
-
-    <!--TODO remove this before master merge-->
     <Match>
-        <Class name="io.ballerina.projects.internal.ResolutionEngine"/>
-        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
+        <Method name="getBooleanFromBuildOptionsTableNode"/>
+        <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
     </Match>
 </FindBugsFilter>

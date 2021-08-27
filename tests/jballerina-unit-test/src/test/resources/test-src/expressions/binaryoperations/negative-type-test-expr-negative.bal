@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function valueTypeWichAlwaysTrue() returns string {
+function valueTypeWichAlwaysFalse() returns string {
     int x = 10;
     if (x !is int) {
         return "int";
@@ -23,7 +23,7 @@ function valueTypeWichAlwaysTrue() returns string {
     return "n/a";
 }
 
-function valueTypeWichAlwaysFalse() returns string {
+function valueTypeWichAlwaysTrue() returns string {
     int x = 10;
     if (x !is float) {
         return "int";
@@ -32,7 +32,7 @@ function valueTypeWichAlwaysFalse() returns string {
     return "n/a";
 }
 
-function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
+function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
     int x = 10;
     if (x !is float|int) {
         return "float|int";
@@ -41,7 +41,7 @@ function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
     return "n/a";
 }
 
-function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
+function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
     int x = 10;
     if (x !is string|float) {
         return "string|float";
@@ -50,7 +50,7 @@ function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
     return "n/a";
 }
 
-function unionTypeAgainstUnionTypeWhichAlwaysTrue_1() returns string {
+function unionTypeAgainstUnionTypeWhichAlwaysFalse_1() returns string {
     int|string x = "hello";
     if (x !is int|string) {
         return "int|string";
@@ -59,7 +59,7 @@ function unionTypeAgainstUnionTypeWhichAlwaysTrue_1() returns string {
     return "n/a";
 }
 
-function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
+function unionTypeAgainstUnionTypeWhichAlwaysFalse_2() returns string {
     int|string x = "hello";
     if (x !is int|string|float) {
         return "int|string|float";
@@ -68,7 +68,7 @@ function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
     return "n/a";
 }
 
-function unionTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
+function unionTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
     int|string x = "hello";
     if (x !is boolean|float) {
         return "boolean|float";

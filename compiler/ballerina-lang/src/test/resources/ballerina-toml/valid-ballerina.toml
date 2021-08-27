@@ -6,6 +6,7 @@ license= ["Apache 2.0"]
 authors= ["jo", "pramodya"]
 keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
+distribution= "slbeta2"
 
 [[platform.java11.dependency]]
 path = "../dummy-jars/toml4j.txt"
