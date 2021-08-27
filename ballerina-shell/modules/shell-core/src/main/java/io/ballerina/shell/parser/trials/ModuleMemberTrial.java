@@ -54,7 +54,7 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
         ModulePartNode node = tree.rootNode();
         assertIf(!node.members().isEmpty(), "expected at least one member");
         ModuleMemberDeclarationNode dclnNode = node.members().get(0);
-        isModuleDeclarationAllowed(dclnNode);
+        validateModuleDeclaration(dclnNode);
         if (dclnNode instanceof ModuleVariableDeclarationNode) {
             // If there are no qualifiers or metadata then this can be also a statement/expression.
             // eg: `mp[a] = f()` (mp is a map) is also valid as `mp [a] = f()` (mp is a type) which is a var-dcln.
@@ -67,16 +67,15 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
         return dclnNode;
     }
 
-    private void isModuleDeclarationAllowed(ModuleMemberDeclarationNode declarationNode) throws InvalidMethodException {
+    private void validateModuleDeclaration(ModuleMemberDeclarationNode declarationNode) throws InvalidMethodException {
         if (declarationNode instanceof FunctionDefinitionNode) {
             String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
             if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
-                String message = "Function name " + "\"" + functionName + "\"" + " not allowed in Ballerina Shell.\n";
+                String message = "Function name " + "'" + functionName + "'" + " not allowed in Ballerina Shell.\n";
                 throw new InvalidMethodException(message);
             }
             if (functionName.startsWith("__")) {
-                String message = "Function name " + "\"" + functionName + "\"" + " not allowed in Ballerina Shell.\n"
-                + "Functions starting with" + " \"__\" " + "not allowed in Ballerina Shell.\n";
+                String message = "Functions starting with" + " '__' " + "not allowed in Ballerina Shell.\n";
                 throw new InvalidMethodException(message);
             }
         }
