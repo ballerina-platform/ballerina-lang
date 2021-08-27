@@ -51,4 +51,8 @@ public class Env {
     public synchronized void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
         this.recFunctionAtoms.set(ra.index, atomicType);
     }
+
+    public synchronized FunctionAtomicType getRecFunctionAtomType(RecAtom ra) {
+        return this.recFunctionAtoms.get(ra.index);
+    }
 }

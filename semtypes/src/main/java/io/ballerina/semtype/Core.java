@@ -18,19 +18,33 @@
 package io.ballerina.semtype;
 
 /**
- * Represent BddMomo type used for memoization.
+ * Contains the core functions in semtypes.
  *
  * @since 2.0.0
  */
-public class BddMemo {
-    Bdd bddNode;
-    public MemoStatus isEmpty;
+public class Core {
 
-    public BddMemo(Bdd bddNode) {
-        this.bddNode = bddNode;
+    public static boolean isEmpty(TypeCheckContext tc, SemType t) {
+        throw new AssertionError();
     }
 
-    public enum MemoStatus {
-        NOT_SET, TRUE, FALSE;
+    public static boolean isSubtype(TypeCheckContext tc, SemType t1, SemType t2) {
+        throw new AssertionError();
+    }
+
+    public static SemType union(SemType t1, SemType t2) {
+        throw new AssertionError();
+    }
+
+    public static SemType diff(SemType t1, SemType t2) {
+        throw new AssertionError();
+    }
+
+    public static SemType complement(SemType t) {
+        return diff(PredefinedType.TOP, t);
+    }
+
+    public static SemType intersect(SemType t1, SemType t2) {
+        throw new AssertionError();
     }
 }

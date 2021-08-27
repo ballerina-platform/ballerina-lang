@@ -26,10 +26,10 @@ import io.ballerina.semtype.Bdd;
  * @since 2.0.0
  */
 public class BddNode implements Bdd {
-    Atom atom;
-    Bdd left;
-    Bdd middle;
-    Bdd right;
+    public Atom atom;
+    public Bdd left;
+    public Bdd middle;
+    public Bdd right;
 
     public BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
         this.atom = atom;

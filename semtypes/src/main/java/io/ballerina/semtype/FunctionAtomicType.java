@@ -23,8 +23,8 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class FunctionAtomicType implements AtomicType {
-    SemType paramType;
-    SemType retType;
+    public SemType paramType;
+    public SemType retType;
 
 
     public FunctionAtomicType(SemType paramType, SemType retType) {

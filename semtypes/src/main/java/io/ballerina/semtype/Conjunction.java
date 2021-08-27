@@ -15,19 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.subtypedata;
-
-import io.ballerina.semtype.Bdd;
+package io.ballerina.semtype;
 
 /**
- * Wrapper for Bdd which is a boolean value.
+ * Represents the Conjunction record type.
  *
  * @since 2.0.0
  */
-public class BddBoolean implements Bdd {
-    public boolean leaf;
+public class Conjunction {
+    public Atom atom;
+    public Conjunction next;
 
-    public BddBoolean(boolean leaf) {
-        this.leaf = leaf;
+    public Conjunction(Atom atom, Conjunction next) {
+        this.atom = atom;
+        this.next = next;
+    }
+
+    public static Conjunction and(Atom atom, Conjunction next) {
+        return new Conjunction(atom, next);
     }
 }
