@@ -184,7 +184,6 @@ public class TypesFactory {
 //        TypeSymbol typeSymbol;
 //        if((tSymbol instanceof BTypeDefinitionSymbol && !rawTypeOnly) || isTypeReference(bType, tSymbol, rawTypeOnly)) {
         if(isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            bType.tsymbol.markdownDocumentation = tSymbol.markdownDocumentation;
             return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
                     typeRefFromIntersectType);
         } else {
