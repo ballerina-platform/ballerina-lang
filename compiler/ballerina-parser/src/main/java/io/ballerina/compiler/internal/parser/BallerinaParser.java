@@ -105,9 +105,14 @@ public class BallerinaParser extends AbstractParser {
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
-     * <li>Top level node</li>
-     * <li>Statement</li>
-     * <li>Expression</li>
+     * <ul>
+     * <li>{@link ParserRuleContext#COMP_UNIT}</li>
+     * </ul>
+     * <li>Bal part (a part of a file)</li>
+     * <ul>
+     * <li>{@link ParserRuleContext#STATEMENTS}</li>
+     * <li>{@link ParserRuleContext#EXPRESSION}</li>
+     * </ul>
      * </ul>
      *
      * @param context Context to start parsing
@@ -116,14 +121,40 @@ public class BallerinaParser extends AbstractParser {
     public STNode parse(ParserRuleContext context) {
         switch (context) {
             case COMP_UNIT:
-                // no source pruning
                 return parseCompUnit();
             case STATEMENTS:
-                // no source pruning
                 return parseAsStatements();
-            case EXPRESSIONS:
-                // no source pruning
+            case EXPRESSION:
                 return parseAsExpression();
+            default:
+                throw new UnsupportedOperationException("Cannot start parsing from: " + context);
+        }
+    }
+
+    /**
+     * Start parsing the input from a given context. Supported starting points are:
+     *
+     * <ul>
+     * <li>Module part (a file)</li>
+     * <li>Top level node</li>
+     * <li>Statement</li>
+     * <li>Expression</li>
+     * </ul>
+     *
+     * <i>Note: This API should be limited to parser internal usage only.
+     * <br>
+     * Top level node, Statement and Expression is subject to source pruning.
+     * <br>
+     * Related issue: <a href="https://github.com/ballerina-platform/ballerina-lang/issues/32416">#32416</a>
+     * </i>
+     *
+     * @param context Context to start parsing
+     * @return Parsed node
+     */
+    public STNode parseInternal(ParserRuleContext context) {
+        switch (context) {
+            case COMP_UNIT:
+                return parseCompUnit();
             case TOP_LEVEL_NODE:
                 startContext(ParserRuleContext.COMP_UNIT);
                 return parseTopLevelNode();
@@ -131,6 +162,10 @@ public class BallerinaParser extends AbstractParser {
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.FUNC_BODY_BLOCK);
                 return parseStatement();
+            case STATEMENTS:
+                startContext(ParserRuleContext.COMP_UNIT);
+                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+                return parseStatements();
             case EXPRESSION:
                 startContext(ParserRuleContext.COMP_UNIT);
                 startContext(ParserRuleContext.VAR_DECL_STMT);

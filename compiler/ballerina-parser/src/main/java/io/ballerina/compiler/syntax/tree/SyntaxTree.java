@@ -67,22 +67,29 @@ public class SyntaxTree {
 
     @Deprecated(forRemoval = true)
     public static SyntaxTree asTopLevel(TextDocument textDocument) {
-        return from(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
+        return fromInternal(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
     }
 
     @Deprecated(forRemoval = true)
     public static SyntaxTree asStatement(TextDocument textDocument) {
-        return from(ParserRuleContext.STATEMENT, textDocument);
+        return fromInternal(ParserRuleContext.STATEMENT, textDocument);
     }
 
     @Deprecated(forRemoval = true)
     public static SyntaxTree asStatements(TextDocument textDocument) {
-        return from(ParserRuleContext.STATEMENTS, textDocument);
+        return fromInternal(ParserRuleContext.STATEMENTS, textDocument);
     }
 
     @Deprecated(forRemoval = true)
     public static SyntaxTree asExpression(TextDocument textDocument) {
-        return from(ParserRuleContext.EXPRESSION, textDocument);
+        return fromInternal(ParserRuleContext.EXPRESSION, textDocument);
+    }
+
+    @Deprecated(forRemoval = true)
+    private static SyntaxTree fromInternal(ParserRuleContext context, TextDocument textDocument) {
+        BallerinaParser parser = ParserFactory.getParser(textDocument);
+        return new SyntaxTree(parser.parseInternal(context).createUnlinkedFacade(),
+                textDocument, null, false);
     }
 
     /**
@@ -91,7 +98,7 @@ public class SyntaxTree {
      * @param context      context to start parsing from. Only following contexts are allowed.
      *                     <br/>&nbsp;{@link ParserRuleContext#COMP_UNIT},
      *                     <br/>&nbsp;{@link ParserRuleContext#STATEMENTS},
-     *                     <br/>&nbsp;{@link ParserRuleContext#EXPRESSIONS}
+     *                     <br/>&nbsp;{@link ParserRuleContext#EXPRESSION}
      * @param textDocument text document of which the syntax tree is required
      * @return obtained syntaxTree
      */
@@ -105,7 +112,7 @@ public class SyntaxTree {
      * @param context      context to start parsing from. Only following contexts are allowed.
      *                     <br/>&nbsp;{@link ParserRuleContext#COMP_UNIT},
      *                     <br/>&nbsp;{@link ParserRuleContext#STATEMENTS},
-     *                     <br/>&nbsp;{@link ParserRuleContext#EXPRESSIONS}
+     *                     <br/>&nbsp;{@link ParserRuleContext#EXPRESSION}
      * @param textDocument text document of which the syntax tree is required
      * @param filePath     file path of the document
      * @return obtained syntaxTree

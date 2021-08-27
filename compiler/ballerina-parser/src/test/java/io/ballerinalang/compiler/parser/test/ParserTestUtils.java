@@ -100,7 +100,7 @@ public class ParserTestUtils {
 
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
-        STNode syntaxTree = parser.parse(context);
+        STNode syntaxTree = parser.parseInternal(context);
 
         // Read the assertion file
         JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));

@@ -273,7 +273,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     // ------------------------ Test obtained syntax tree from a given context ---------------------------
 
     @Test
-    public void testSTObtainedFromTopLvlCtx() {
+    public void testAsTopLevelAPI() {
         String text =
                 "type Student record {\n" +
                 "    string name;\n" +
@@ -281,31 +281,53 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
                 "};";
 
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.asTopLevel(textDocument);
         Node rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.TYPE_DEFINITION);
     }
 
     @Test
-    public void testSTObtainedFromStmtCtx() {
+    public void testAsStatementAPI() {
         String text =
                 "while(a < 10) {\n" +
                 "    a = a + 1;\n" +
                 "}";
 
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.STATEMENT, textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.asStatement(textDocument);
         Node rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.WHILE_STATEMENT);
     }
 
     @Test
-    public void testSTObtainedFromExprCtx() {
+    public void testAsStatementsAPI() {
+        String text =
+                "int a = 0;\n" +
+                "while(a < 10) {\n" +
+                "    a = a + 1;\n" +
+                "}\n" +
+                "a = 20;";
+
+        TextDocument textDocument = TextDocuments.from(text);
+        SyntaxTree syntaxTree = SyntaxTree.asStatements(textDocument);
+        NonTerminalNode rootNode = syntaxTree.rootNode();
+        Assert.assertFalse(rootNode.hasDiagnostics());
+        Assert.assertEquals(rootNode.kind(), SyntaxKind.LIST);
+
+        ChildNodeList children = rootNode.children();
+        Assert.assertEquals(children.size(), 3);
+        Assert.assertEquals(children.get(0).kind(), SyntaxKind.LOCAL_VAR_DECL);
+        Assert.assertEquals(children.get(1).kind(), SyntaxKind.WHILE_STATEMENT);
+        Assert.assertEquals(children.get(2).kind(), SyntaxKind.ASSIGNMENT_STATEMENT);
+    }
+
+    @Test
+    public void testAsExpressionAPI() {
         String text = "3 is int";
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSION, textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.asExpression(textDocument);
         Node rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.TYPE_TEST_EXPRESSION);
@@ -381,11 +403,11 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     }
 
     @Test
-    public void testSTObtainedFromExprsCtx() {
+    public void testSTObtainedFromExprCtx() {
         String text = "3 is int";
 
         TextDocument textDocument = TextDocuments.from(text);
-        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSIONS, textDocument);
+        SyntaxTree syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSION, textDocument);
         NonTerminalNode rootNode = syntaxTree.rootNode();
         Assert.assertFalse(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.BAL_PART);
@@ -404,7 +426,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         text = "int x = 10;";
 
         textDocument = TextDocuments.from(text);
-        syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSIONS, textDocument);
+        syntaxTree = SyntaxTree.from(ParserRuleContext.EXPRESSION, textDocument);
         rootNode = syntaxTree.rootNode();
         Assert.assertTrue(rootNode.hasDiagnostics());
         Assert.assertEquals(rootNode.kind(), SyntaxKind.BAL_PART);

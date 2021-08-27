@@ -95,7 +95,7 @@ public class SyntaxTreeJSONGenerator {
 
     private static STNode getParserTree(String source, ParserRuleContext context) {
         BallerinaParser parser = ParserFactory.getParser(source);
-        return parser.parse(context);
+        return parser.parseInternal(context);
     }
 
     private static JsonElement getJSON(STNode treeNode) {
