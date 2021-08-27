@@ -34,11 +34,11 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class LangLibMethodBinder {
+public class LangLibFunctionBinder {
 
-    private Types types;
+    private final Types types;
 
-    public LangLibMethodBinder(Types types) {
+    public LangLibFunctionBinder(Types types) {
         this.types = types;
     }
 
@@ -80,6 +80,7 @@ public class LangLibMethodBinder {
     }
 
     private BVarSymbol createNewVarSymbol(BVarSymbol param, BType boundType, TypeParamResolver resolver) {
+        // The following null check is required since this method is also used for duplicating the rest param symbols.
         if (param == null) {
             return null;
         }

@@ -77,6 +77,8 @@ public class TypeParamFinder implements TypeVisitor {
             return null;
         }
 
+        setContainsTypeParam(type);
+
         if (this.typeParam != null) {
             return this.typeParam;
         }
@@ -93,40 +95,32 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BArrayType bArrayType) {
-        setContainsTypeParam(bArrayType);
         find(bArrayType.eType);
     }
 
     @Override
     public void visit(BBuiltInRefType bBuiltInRefType) {
-        setContainsTypeParam(bBuiltInRefType);
     }
 
     @Override
     public void visit(BAnyType bAnyType) {
-        setContainsTypeParam(bAnyType);
     }
 
     @Override
     public void visit(BAnydataType bAnydataType) {
-        setContainsTypeParam(bAnydataType);
     }
 
     @Override
     public void visit(BErrorType bErrorType) {
-        setContainsTypeParam(bErrorType);
         find(bErrorType.detailType);
     }
 
     @Override
     public void visit(BFiniteType bFiniteType) {
-        // ignore
     }
 
     @Override
     public void visit(BInvokableType bInvokableType) {
-        setContainsTypeParam(bInvokableType);
-
         for (BType paramType : bInvokableType.paramTypes) {
             find(paramType);
         }
@@ -137,25 +131,21 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BJSONType bjsonType) {
-        setContainsTypeParam(bjsonType);
     }
 
     @Override
     public void visit(BMapType bMapType) {
-        setContainsTypeParam(bMapType);
         find(bMapType.constraint);
     }
 
     @Override
     public void visit(BStreamType bStreamType) {
-        setContainsTypeParam(bStreamType);
         find(bStreamType.constraint);
 //        find(bStreamType.completionType); TODO: Ignoring completion type for now
     }
 
     @Override
     public void visit(BTypedescType bTypedescType) {
-        setContainsTypeParam(bTypedescType);
         find(bTypedescType.constraint);
     }
 
@@ -185,8 +175,6 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        setContainsTypeParam(bTupleType);
-
         for (BType tupleType : bTupleType.tupleTypes) {
             find(tupleType);
         }
@@ -196,8 +184,6 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BUnionType bUnionType) {
-        setContainsTypeParam(bUnionType);
-
         for (BType memberType : bUnionType.getOriginalMemberTypes()) {
             find(memberType);
         }
@@ -205,8 +191,6 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BIntersectionType bIntersectionType) {
-        setContainsTypeParam(bIntersectionType);
-
         for (BType constituentType : bIntersectionType.getConstituentTypes()) {
             find(constituentType);
         }
@@ -214,20 +198,17 @@ public class TypeParamFinder implements TypeVisitor {
 
     @Override
     public void visit(BXMLType bxmlType) {
-        setContainsTypeParam(bxmlType);
         find(bxmlType.constraint);
     }
 
     @Override
     public void visit(BTableType bTableType) {
-        setContainsTypeParam(bTableType);
 //        find(bTableType.keyTypeConstraint); TODO: ignoring key constraint type for now
         find(bTableType.constraint);
     }
 
     @Override
     public void visit(BRecordType bRecordType) {
-        setContainsTypeParam(bRecordType);
         for (BField field : bRecordType.fields.values()) {
             find(field.getType());
         }

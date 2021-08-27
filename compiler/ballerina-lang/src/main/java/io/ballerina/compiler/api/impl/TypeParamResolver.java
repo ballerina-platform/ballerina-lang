@@ -79,6 +79,11 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return boundTypes.get(typeParam);
         }
 
+        if (isTypeParam(typeParam)) {
+            this.boundTypes.put(typeParam, boundType);
+            return boundType;
+        }
+
         BType type = typeParam.accept(this, boundType);
         boundTypes.put(typeParam, type);
         return type;
@@ -96,38 +101,22 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BAnyType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            this.boundTypes.put(typeInSymbol, boundType);
-            return boundType;
-        }
         return typeInSymbol;
     }
 
     @Override
     public BType visit(BAnydataType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            this.boundTypes.put(typeInSymbol, boundType);
-            return boundType;
-        }
         return typeInSymbol;
     }
 
     @Override
     public BType visit(BMapType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            return boundType;
-        }
-
         BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
         return new BMapType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
     @Override
     public BType visit(BXMLType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            return boundType;
-        }
-
         BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
         return new BXMLType(boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
@@ -139,10 +128,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BArrayType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            return boundType;
-        }
-
         BType boundElemType = resolve(typeInSymbol.eType, boundType);
         return new BArrayType(boundElemType, typeInSymbol.tsymbol, typeInSymbol.size, typeInSymbol.state,
                               typeInSymbol.flags);
@@ -160,15 +145,10 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            return boundType;
-        }
-
         List<BType> newTupleTypes = new ArrayList<>();
 
         List<BType> tupleTypes = typeInSymbol.tupleTypes;
-        for (int i = 0; i < tupleTypes.size(); i++) {
-            BType type = tupleTypes.get(i);
+        for (BType type : tupleTypes) {
             BType newType = resolve(type, boundType);
             newTupleTypes.add(newType);
         }
@@ -180,10 +160,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BStreamType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            return boundType;
-        }
-
         BType newConstraintType = resolve(typeInSymbol.constraint, boundType);
         // TODO: The completion type igonred for now
         return new BStreamType(typeInSymbol.tag, newConstraintType, typeInSymbol.completionType, typeInSymbol.tsymbol);
@@ -191,10 +167,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTableType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            return boundType;
-        }
-
         BType newConstraintType = resolve(typeInSymbol.constraint, boundType);
         // TODO: The key constraint type ignored for now
         return new BTableType(typeInSymbol.tag, newConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
@@ -207,10 +179,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BUnionType typeInSymbol, BType boundType) {
-        if (isTypeParam(typeInSymbol)) {
-            return boundType;
-        }
-
         LinkedHashSet<BType> newMembers = new LinkedHashSet<>();
         for (BType memberType : typeInSymbol.getOriginalMemberTypes()) {
             BType newType = resolve(memberType, boundType);

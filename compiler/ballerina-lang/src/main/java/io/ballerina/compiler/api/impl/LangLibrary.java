@@ -59,14 +59,14 @@ public class LangLibrary {
 
     private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
     private final SymbolFactory symbolFactory;
-    private final LangLibMethodBinder methodBinder;
+    private final LangLibFunctionBinder methodBinder;
 
     private LangLibrary(CompilerContext context) {
         context.put(LANG_LIB_KEY, this);
 
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.langLibMethods = new HashMap<>();
-        this.methodBinder = new LangLibMethodBinder(Types.getInstance(context));
+        this.methodBinder = new LangLibFunctionBinder(Types.getInstance(context));
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
