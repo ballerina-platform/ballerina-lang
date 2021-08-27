@@ -20,17 +20,12 @@ package io.ballerina.projects.internal.repositories;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.internal.BalaFiles;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * This class represents the local package repository.
@@ -58,22 +53,5 @@ public class LocalPackageRepository extends FileSystemRepository {
             // TODO Do we need a diagnostic HERE
             return Collections.emptyList();
         }
-    }
-
-    public Optional<Collection<String>> getModuleNames(PackageOrg org, PackageName name, PackageVersion version) {
-        Path balaPackagePath = getPackagePath(org.value(), name.value(), version.toString());
-        if (!Files.exists(balaPackagePath)) {
-            // TODO proper diagnostics
-            throw new ProjectException("Cannot find the given package in your local repository. " +
-                    "org:`" + org + "`, name:`" + name + "`, version:`" + version + "`");
-        }
-
-        BalaFiles.DependencyGraphResult dependencyGraphResult =
-                BalaFiles.createPackageDependencyGraph(balaPackagePath);
-        Collection<String> moduleNames = dependencyGraphResult.moduleDependencies().keySet()
-                .stream()
-                .map(moduleDescriptor -> moduleDescriptor.name().toString())
-                .collect(Collectors.toList());
-        return Optional.of(moduleNames);
     }
 }
