@@ -698,7 +698,8 @@ public class ProjectUtils {
     }
 
     public static boolean isLangLibPackage(PackageOrg org, PackageName packageName) {
-        return (org.isBallerinaOrg() && packageName.value().startsWith("lang.")) ||
+        return (org.isBallerinaOrg() &&
+                (packageName.value().startsWith("lang.") && !packageName.value().equals("lang.test"))) ||
                 (org.isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
     }
 
