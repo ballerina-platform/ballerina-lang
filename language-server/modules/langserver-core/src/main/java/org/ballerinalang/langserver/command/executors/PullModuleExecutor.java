@@ -183,7 +183,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
                             .collect(Collectors.toList())
                     );
             if (missingModules.isEmpty()) {
-                throw new UserErrorException("Unable to pull modules");
+                throw new UserErrorException("Failed to pull modules");
             } else if (!missingModules.get().isEmpty()) {
                 String moduleNames = String.join(", ", missingModules.get());
                 throw new UserErrorException(String.format("Failed to pull modules: %s", moduleNames));
@@ -207,7 +207,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
         @Override
         public void onFail(Throwable t) {
             WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Failed to pull modules!");
+            endNotification.setMessage("Failed to pull unresolved modules!");
             context.getLanguageClient().notifyProgress(new ProgressParams(Either.forLeft(getTaskId()),
                     Either.forLeft(endNotification)));
 
