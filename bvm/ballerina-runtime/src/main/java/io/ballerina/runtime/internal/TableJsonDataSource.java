@@ -168,6 +168,10 @@ public class TableJsonDataSource implements JsonDataSource {
                 jsonObject.put(key, getStructData(record.getMapValue(key), structFields, index, key));
                 break;
             case TypeTags.XML_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
                 BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
                 jsonObject.put(key, strVal);
                 break;
