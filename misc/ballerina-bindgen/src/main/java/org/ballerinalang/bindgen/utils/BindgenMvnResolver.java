@@ -124,7 +124,7 @@ public class BindgenMvnResolver {
                 return;
             }
             // TODO: Syntax tree of the toml document could be used for the update.
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null, projectRoot)
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, projectRoot)
                     .packageManifest();
             if (packageManifest != null) {
                 PackageManifest.Platform platform = packageManifest.platform(JvmTarget.JAVA_11.code());

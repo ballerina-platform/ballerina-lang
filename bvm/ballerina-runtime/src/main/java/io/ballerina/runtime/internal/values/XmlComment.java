@@ -39,11 +39,13 @@ public class XmlComment extends XmlNonElementItem {
     public XmlComment(String data) {
         this.data = data;
         this.type = PredefinedTypes.TYPE_COMMENT;
+        setTypedescValue(type);
     }
 
     public XmlComment(String data, boolean readonly) {
         this.data = data;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_COMMENT : PredefinedTypes.TYPE_COMMENT;
+        setTypedescValue(type);
     }
 
     @Override

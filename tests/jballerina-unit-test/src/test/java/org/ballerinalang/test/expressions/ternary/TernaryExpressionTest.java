@@ -335,10 +335,12 @@ public class TernaryExpressionTest {
     @Test
     public void testNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/expressions/ternary/ternary-expr-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
         BAssertUtil.validateError(compileResult, 0, "incompatible types: expected 'string', found 'int'", 6, 29);
         BAssertUtil.validateError(compileResult, 1, "incompatible types: expected 'boolean', found 'int'", 7, 13);
         BAssertUtil.validateError(compileResult, 2, "incompatible types: expected 'string', found 'boolean'", 13, 30);
+        BAssertUtil.validateError(compileResult, 3, "incompatible types: expected 'int', found 'string'", 21, 26);
+        BAssertUtil.validateError(compileResult, 4, "incompatible types: expected 'byte', found 'int'", 24, 27);
     }
 
     @Test
@@ -351,6 +353,11 @@ public class TernaryExpressionTest {
     public void testPredeclPrefixInTernary() {
         BValue[] results = BRunUtil.invoke(compileResult, "testPredeclPrefixInTernary");
         Assert.assertEquals(((BInteger) results[0]).intValue(), 11);
+    }
+
+    @Test
+    public void testTernaryAsArgument() {
+        BRunUtil.invoke(compileResult, "testTernaryAsArgument");
     }
 
     @AfterClass

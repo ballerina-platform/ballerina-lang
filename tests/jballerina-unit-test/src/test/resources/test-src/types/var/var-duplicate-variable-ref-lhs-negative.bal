@@ -6,3 +6,7 @@ function testMultiReturnVarRefDuplication() returns [int,int] {
 function retTwoInt() returns [int,int]{
     return [100, 200];
 }
+
+function testSelfRefWithVar() {
+    var some = some;
+}

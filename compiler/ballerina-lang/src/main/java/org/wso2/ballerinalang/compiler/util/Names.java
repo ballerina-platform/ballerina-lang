@@ -171,7 +171,6 @@ public class Names {
     public static final Name TRANSACTION_INTERNAL_VERSION =
             new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
     public static final Name OBSERVE_INTERNAL_VERSION = new Name(BLangCompilerConstants.OBSERVE_INTERNAL_VERSION);
-    public static final Name OBSERVE_VERSION = new Name(BLangCompilerConstants.OBSERVE_VERSION);
 
     public CompilerContext context;
 

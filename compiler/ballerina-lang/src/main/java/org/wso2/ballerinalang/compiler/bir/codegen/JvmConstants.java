@@ -49,7 +49,7 @@ public class JvmConstants {
     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
     public static final String STRING_VALUE = "java/lang/String";
-    public static final String FUNCTION_PARAMETER = "io/ballerina/runtime/api/Parameter";
+    public static final String FUNCTION_PARAMETER = "io/ballerina/runtime/api/types/Parameter";
     public static final String B_STRING_VALUE = "io/ballerina/runtime/api/values/BString";
     public static final String NON_BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/NonBmpStringValue";
     public static final String BMP_STRING_VALUE = "io/ballerina/runtime/internal/values/BmpStringValue";
@@ -264,7 +264,14 @@ public class JvmConstants {
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "$_string_constants";
+    public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
+    public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
+    public static final String MODULE_RECORDS_CLASS_NAME = "types/$_records";
+    public static final String MODULE_OBJECTS_CLASS_NAME = "types/$_objects";
+    public static final String MODULE_ERRORS_CLASS_NAME = "types/$_errors";
+    public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
+    public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";
@@ -296,8 +303,8 @@ public class JvmConstants {
     public static final String ANY_TO_BOOLEAN_METHOD = "anyToBoolean";
     public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
     public static final String VALUE_OF_METHOD = "valueOf";
+    public static final String EQUALS_METHOD = "equals";
     public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
-    public static final String CHECK_FLOAT_EXACT_EQUAL = "checkFloatExactEqual";
     public static final String CREATE_TYPES_METHOD = "$createTypes";
     public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
     public static final String GLOBAL_LOCK_NAME = "lock";

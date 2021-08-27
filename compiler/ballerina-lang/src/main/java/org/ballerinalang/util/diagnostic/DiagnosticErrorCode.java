@@ -529,6 +529,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_CONST_EXPRESSION("BCE3505", "invalid.const.expression"),
     CONSTANT_EXPRESSION_NOT_SUPPORTED("BCE3506", "const.expression.not.supported"),
     CONSTANT_DECLARATION_NOT_YET_SUPPORTED("BCE3507", "constant.declaration.not.yet.supported.for.type"),
+    SELF_REFERENCE_CONSTANT("BCE3508", "self.reference.constant"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("BCE3600", "arrow.expression.mismatched.parameter.length"),
@@ -741,7 +742,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_IN_OBJECT_WITH_NO_INIT_METHOD("BCE4011",
             "invalid.usage.of.check.in.object.field.initializer.in.object.with.no.init.method"),
     INVALID_USAGE_OF_CHECK_IN_OBJECT_FIELD_INITIALIZER_WITH_INIT_METHOD_RETURN_TYPE_MISMATCH("BCE4012",
-            "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch")
+            "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch"),
+    NO_CLASS_DEF_FOUND("BCE4013", "no.class.def.found")
     ;
 
     private String diagnosticId;

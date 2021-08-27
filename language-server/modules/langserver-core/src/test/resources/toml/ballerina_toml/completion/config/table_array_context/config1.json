@@ -1,0 +1,62 @@
+{
+  "position": {
+    "line": 7,
+    "character": 0
+  },
+  "source": "source/project1/Ballerina.toml",
+  "items": [
+    {
+      "label": "package",
+      "kind": "Snippet",
+      "detail": "Table",
+      "sortText": "C",
+      "insertText": "[package]"
+    },
+    {
+      "label": "platform.java11.dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "groupId",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "groupId=\"${1:}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "scope",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "scope=\"${1:}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "artifactId",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "artifactId=\"${1:}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "version",
+      "kind": "Snippet",
+      "detail": "String",
+      "sortText": "A",
+      "insertText": "version=\"${1:}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[dependency]]"
+    }
+  ]
+}

@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -64,6 +65,8 @@ import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
+import org.eclipse.lsp4j.SemanticTokensParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
@@ -79,15 +82,20 @@ import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -136,6 +144,8 @@ public class TestUtil {
     private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
 
     private static final String DOCUMENT_EXEC_POSITIONS = "ballerinaDocument/executorPositions";
+
+    private static final String SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full";
 
     private static final Gson GSON = new Gson();
 
@@ -425,6 +435,18 @@ public class TestUtil {
     }
 
     /**
+     * Returns semanticTokensFull API response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate semantic tokens
+     * @return {@link String} Document semantic tokens response
+     */
+    public static String getSemanticTokensResponse(Endpoint serviceEndpoint, String filePath) {
+        SemanticTokensParams semanticTokensParams = new SemanticTokensParams(getTextDocumentIdentifier(filePath));
+        return getResponseString(serviceEndpoint.request(SEMANTIC_TOKENS_FULL, semanticTokensParams));
+    }
+
+    /**
      * Open a document.
      *
      * @param serviceEndpoint Language Server Service Endpoint
@@ -458,7 +480,7 @@ public class TestUtil {
     }
 
     /**
-     * Initialize the language server instance with given FoldingRangeCapabilities.
+     * Creates a new language server instance and initialize it.
      *
      * @return {@link Endpoint}     Service Endpoint
      */
@@ -469,6 +491,23 @@ public class TestUtil {
         ExtendedLanguageClient client = launcher.getRemoteProxy();
         languageServer.connect(client);
         
+        return initializeLanguageSever(languageServer);
+    }
+
+    /**
+     * Initializes the provided language server instance and returns the endpoint.
+     *
+     * @param languageServer A language server instance
+     * @return {@link Endpoint}     Service Endpoint
+     */
+    public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer) {
+        InputStream in = new ByteArrayInputStream(new byte[1024]);
+        OutputStream out = new ByteArrayOutputStream();
+        Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
+                ExtendedLanguageClient.class, in, out);
+        ExtendedLanguageClient client = launcher.getRemoteProxy();
+        languageServer.connect(client);
+
         Endpoint endpoint = ServiceEndpoints.toEndpoint(languageServer);
         endpoint.request("initialize", getInitializeParams());
         endpoint.request("initialized", new InitializedParams());
@@ -594,6 +633,7 @@ public class TestUtil {
         renameCapabilities.setPrepareSupport(true);
         renameCapabilities.setHonorsChangeAnnotations(true);
         textDocumentClientCapabilities.setRename(renameCapabilities);
+        textDocumentClientCapabilities.setSemanticTokens(new SemanticTokensCapabilities(true));
 
         capabilities.setTextDocument(textDocumentClientCapabilities);
 
@@ -601,8 +641,12 @@ public class TestUtil {
         workspaceCapabilities.setExecuteCommand(new ExecuteCommandCapabilities(true));
 
         capabilities.setWorkspace(workspaceCapabilities);
-        
+
+        Map<String, Object> initializationOptions = new HashMap<>();
+        initializationOptions.put(InitializationOptions.KEY_PULL_MODULE_SUPPORT, true);
+
         params.setCapabilities(capabilities);
+        params.setInitializationOptions(GSON.toJsonTree(initializationOptions));
         return params;
     }
 

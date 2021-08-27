@@ -17,8 +17,8 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.environment.ResolutionResponse;
 
 /**
  * Represents a resolved imported module.
@@ -26,20 +26,33 @@ import io.ballerina.projects.PackageOrg;
  * @since 2.0.0
  */
 public class ImportModuleResponse {
-    // TODO can we replace this with Vertex?
-    private final PackageOrg packageOrg;
-    private final PackageName packageName;
 
-    public ImportModuleResponse(PackageOrg packageOrg, PackageName packageName) {
-        this.packageOrg = packageOrg;
-        this.packageName = packageName;
+    private final PackageDescriptor packageDescriptor;
+    private final ImportModuleRequest importModuleRequest;
+    private final ResolutionResponse.ResolutionStatus resolutionStatus;
+
+    public ImportModuleResponse(PackageDescriptor packageDescriptor,
+                                ImportModuleRequest importModuleRequest) {
+        this.packageDescriptor = packageDescriptor;
+        this.importModuleRequest = importModuleRequest;
+        this.resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
     }
 
-    public PackageOrg packageOrg() {
-        return packageOrg;
+    public ImportModuleResponse(ImportModuleRequest importModuleRequest) {
+        this.packageDescriptor = null;
+        this.importModuleRequest = importModuleRequest;
+        this.resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
     }
 
-    public PackageName packageName() {
-        return packageName;
+    public ImportModuleRequest importModuleRequest() {
+        return importModuleRequest;
+    }
+
+    public PackageDescriptor packageDescriptor() {
+        return packageDescriptor;
+    }
+
+    public ResolutionResponse.ResolutionStatus resolutionStatus() {
+        return resolutionStatus;
     }
 }
