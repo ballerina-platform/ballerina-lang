@@ -83,10 +83,6 @@
     "code": "var rec = {name: \"Amy\", age: 18, ...address};"
   },
   {
-    "description": "Use of var keyword.",
-    "code": "var rec = {name: \"Amy\", age: 18, ...address};"
-  },
-  {
     "description": "Use of var keyword. - get value",
     "code": "rec",
     "expr": "{\"name\":\"Amy\",\"age\":18,\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}"

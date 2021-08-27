@@ -1,12 +1,20 @@
 [
   {
     "description": "Declares a simple variable.",
-    "code": "int i = 4; i",
+    "code": "int i = 4;"
+  },
+  {
+    "description": "Declares a simple variable - get value.",
+    "code": "i;",
     "expr": "4"
   },
   {
     "description": "Assigns to the variable.",
-    "code": "i = 100; i",
+    "code": "i = 100;"
+  },
+  {
+    "description": "Assigns to the variable - get value.",
+    "code": "i",
     "expr": "100"
   },
   {
@@ -16,17 +24,29 @@
   },
   {
     "description": "Declares an union type variable.",
-    "code": "int|string x = 10; x is int",
+    "code": "int|string x = 10;"
+  },
+  {
+    "description": "Declares an union type variable - get value.",
+    "code": "x is int",
     "expr": "true"
   },
   {
     "description": "Declares an optional type variable.",
-    "code": "string? y = (); y is string",
+    "code": "string? y = ();"
+  },
+  {
+    "description": "Declares an optional type variable - get value.",
+    "code": "y is string",
     "expr": "false"
   },
   {
     "description": "Uses i in a string template.",
-    "code": "string template = string `Hello ${i}!!!`; template",
+    "code": "string template = string `Hello ${i}!!!`;"
+  },
+  {
+    "description": "Uses i in a string template - get value.",
+    "code": "template",
     "expr": "\"Hello 100!!!\""
   },
   {
@@ -41,17 +61,29 @@
   },
   {
     "description": "Constant value declaration.",
-    "code": "const SPEED_OF_LIGHT = 299792000; SPEED_OF_LIGHT",
+    "code": "const SPEED_OF_LIGHT = 299792000;"
+  },
+  {
+    "description": "Constant value declaration - get value.",
+    "code": "SPEED_OF_LIGHT",
     "expr": "299792000"
   },
   {
     "description": "Define readonly inherently immutable variable.",
-    "code": "readonly numberRo = 5; numberRo",
+    "code": "readonly numberRo = 5;"
+  },
+  {
+    "description": "Define readonly inherently immutable variable - get value.",
+    "code": "numberRo",
     "expr": "5"
   },
   {
     "description": "Define readonly selectively immutable variable.",
-    "code": "map<int> & readonly marksRo = { math: 80, physics: 85, chemistry: 75 }; marksRo.isReadOnly()",
+    "code": "map<int> & readonly marksRo = { math: 80, physics: 85, chemistry: 75 };"
+  },
+  {
+    "description": "Define readonly selectively immutable variable - get value.",
+    "code": "marksRo.isReadOnly()",
     "expr": "true"
   },
   {
@@ -60,22 +92,38 @@
   },
   {
     "description": "Anydata type definition and assignment.",
-    "code": "anydata ad = 1; ad = (); ad = false; ad = \"Hi\"; ad = [1, 2, 3]; ad",
+    "code": "anydata ad = 1; ad = (); ad = false; ad = \"Hi\"; ad = [1, 2, 3];"
+  },
+  {
+    "description": "Anydata type definition and assignment - get value.",
+    "code": "ad",
     "expr": "[1,2,3]"
   },
   {
     "description": "Create a byte array.",
-    "code": "byte[] byteArray1 = [5, 24, 56, 243]; byteArray1",
+    "code": "byte[] byteArray1 = [5, 24, 56, 243];"
+  },
+  {
+    "description": "Create a byte array - get value.",
+    "code": "byteArray1",
     "expr": "[5,24,56,243]"
   },
   {
     "description": "Create a byte array using base16 literal.",
-    "code": "byte[] byteArray2 = base16 `aeeecdefabcd12345567888822`; byteArray2",
+    "code": "byte[] byteArray2 = base16 `aeeecdefabcd12345567888822`;"
+  },
+  {
+    "description": "Create a byte array using base16 literal - get value.",
+    "code": "byteArray2",
     "expr": "[174,238,205,239,171,205,18,52,85,103,136,136,34]"
   },
   {
     "description": "Create a byte array using base literal.",
-    "code": "byte[] byteArray3 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`; byteArray3",
+    "code": "byte[] byteArray3 = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;"
+  },
+  {
+    "description": "Create a byte array using base literal - get value.",
+    "code": "byteArray3",
     "expr": "[104,101,108,108,111,32,98,97,108,108,101,114,105,110,97,32,33,33,33]"
   },
   {
