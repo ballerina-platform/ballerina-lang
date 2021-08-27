@@ -161,6 +161,12 @@ public class PackageDependencyGraphBuilder {
     private boolean addDependencyInternal(PackageDescriptor dependent,
                                           DependencyNode dependencyNode,
                                           boolean markAsDirty) {
+        // Skip langlib nodes if the root node is not a langlib
+        if (!rootDepNode.pkgDesc().isLangLibPackage()) {
+            if (dependencyNode.pkgDesc().isLangLibPackage()) {
+                return true;
+            }
+        }
         // Add the correct version of the dependent to the graph.
         Vertex dependentVertex = new Vertex(dependent.org(), dependent.name());
         if (!depGraph.containsKey(dependentVertex)) {
