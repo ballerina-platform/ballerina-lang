@@ -334,6 +334,20 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     }
 
     @Test
+    public void testSTObtainedFromCompUnitCtx() {
+        String text =
+                "public function main() {\n" +
+                "}";
+
+        TextDocument textDocument = TextDocuments.from(text);
+        SyntaxTree syntaxTree = SyntaxTree
+                .from(ParserRuleContext.COMP_UNIT, textDocument); // Equivalent to SyntaxTree.from(textDocument);
+        NonTerminalNode rootNode = syntaxTree.rootNode();
+        Assert.assertFalse(rootNode.hasDiagnostics());
+        Assert.assertEquals(rootNode.kind(), SyntaxKind.MODULE_PART);
+    }
+
+    @Test
     public void testSTObtainedFromStmtsCtx() {
         String text =
                 "int a = 0;\n" +
@@ -440,5 +454,12 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(children.size(), 2);
         Assert.assertEquals(children.get(0).kind(), SyntaxKind.INT_TYPE_DESC);
         Assert.assertEquals(children.get(1).kind(), SyntaxKind.EOF_TOKEN);
+    }
+
+    @Test(expectedExceptions = UnsupportedOperationException.class)
+    public void testExceptionForUnsupportedCtx() {
+        String text = "int x = 10;";
+        TextDocument textDocument = TextDocuments.from(text);
+        SyntaxTree.from(ParserRuleContext.STATEMENT, textDocument);
     }
 }
