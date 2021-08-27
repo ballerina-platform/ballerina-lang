@@ -27,7 +27,18 @@ import io.ballerina.semtype.Bdd;
  */
 public class BddNode implements Bdd {
     Atom atom;
-    BddNode left;
-    BddNode middle;
-    BddNode right;
+    Bdd left;
+    Bdd middle;
+    Bdd right;
+
+    public BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
+        this.atom = atom;
+        this.left = left;
+        this.middle = middle;
+        this.right = right;
+    }
+
+    public static synchronized BddNode bddAtom(Atom atom) {
+        return new BddNode(atom, new BddBoolean(true), new BddBoolean(false), new BddBoolean(false));
+    }
 }

@@ -22,7 +22,13 @@ package io.ballerina.semtype;
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType {
+public class FunctionAtomicType implements AtomicType {
     SemType paramType;
     SemType retType;
+
+
+    public FunctionAtomicType(SemType paramType, SemType retType) {
+        this.paramType = paramType;
+        this.retType = retType;
+    }
 }

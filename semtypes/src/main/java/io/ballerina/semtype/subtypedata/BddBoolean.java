@@ -15,21 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.subtypedata;
+
+import io.ballerina.semtype.Atom;
+import io.ballerina.semtype.Bdd;
 
 /**
- * Represent a recursive type atom.
+ * Wrapper for Bdd which is a boolean value.
  *
  * @since 2.0.0
  */
-public class RecAtom implements Atom {
-    public int index;
+public class BddBoolean implements Bdd {
+    boolean leaf;
 
-    public RecAtom(int index) {
-        this.index = index;
-    }
-
-    public static RecAtom createRecAtom(int index) {
-        return new RecAtom(index);
+    public BddBoolean(boolean leaf) {
+        this.leaf = leaf;
     }
 }
