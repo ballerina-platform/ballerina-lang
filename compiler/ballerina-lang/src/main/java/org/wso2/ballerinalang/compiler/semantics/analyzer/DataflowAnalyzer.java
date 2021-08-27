@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -443,8 +444,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, typeDefinition.symbol.scope, env);
-        this.currDependentSymbol.push(typeDefinition.symbol);
+        SymbolEnv typeDefEnv;
+        BSymbol symbol = typeDefinition.symbol;
+        if (typeDefinition.symbol instanceof BTypeDefinitionSymbol) {
+            symbol = typeDefinition.symbol.type.tsymbol;
+        }
+        typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, symbol.scope, env);
+        this.currDependentSymbol.push(symbol);
         analyzeNode(typeDefinition.typeNode, typeDefEnv);
         this.currDependentSymbol.pop();
     }
@@ -525,7 +531,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         this.currDependentSymbol.push(symbol);
         if (variable.typeNode != null && variable.typeNode.getBType() != null) {
-            recordGlobalVariableReferenceRelationship(variable.typeNode.getBType().tsymbol);
+            BType type = variable.typeNode.getBType();
+            recordGlobalVariableReferenceRelationship(types.getConstraintFromReferenceType(type).tsymbol);
         }
         boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
         if (withInModuleVarLetExpr) {
@@ -1328,7 +1335,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), typeInitExpr.getBType().tsymbol);
+            addDependency(this.currDependentSymbol.peek(), types.getConstraintFromReferenceType(typeInitExpr.getBType()).tsymbol);
         }
     }
 
@@ -1608,7 +1615,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (this.currDependentSymbol.isEmpty()) {
             return;
         }
-        BType resolvedType = userDefinedType.getBType();
+        BType resolvedType = types.getConstraintFromReferenceType(userDefinedType.getBType());
         if (resolvedType == symTable.semanticError) {
             return;
         }
@@ -1647,14 +1654,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BTypeSymbol tsymbol = recordTypeNode.getBType().tsymbol;
+        BTypeSymbol tsymbol = types.getConstraintFromReferenceType(recordTypeNode.getBType()).tsymbol;
         for (TypeNode type : recordTypeNode.getTypeReferences()) {
             BLangType bLangType = (BLangType) type;
             analyzeNode(bLangType, env);
-            recordGlobalVariableReferenceRelationship(bLangType.getBType().tsymbol);
+            recordGlobalVariableReferenceRelationship(types.getConstraintFromReferenceType(bLangType.getBType()).tsymbol);
         }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
-            addTypeDependency(tsymbol, field.getBType(), new HashSet<>());
+            addTypeDependency(tsymbol, types.getConstraintFromReferenceType(field.getBType()), new HashSet<>());
             analyzeNode(field, env);
             recordGlobalVariableReferenceRelationship(field.symbol);
         }
@@ -1744,10 +1751,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), serviceConstructorExpr.getBType().tsymbol);
+            addDependency(this.currDependentSymbol.peek(), types.getConstraintFromReferenceType(serviceConstructorExpr.getBType()).tsymbol);
         }
 
-        addDependency(serviceConstructorExpr.getBType().tsymbol, serviceConstructorExpr.serviceNode.symbol);
+        addDependency(types.getConstraintFromReferenceType(serviceConstructorExpr.getBType()).tsymbol, serviceConstructorExpr.serviceNode.symbol);
         analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 
@@ -2006,7 +2013,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 BLangAccessExpression accessExpr = (BLangAccessExpression) varRef;
 
                 BLangExpression expr = accessExpr.expr;
-                BType type = expr.getBType();
+                BType type = types.getConstraintFromReferenceType(expr.getBType());
                 if (isObjectMemberAccessWithSelf(accessExpr)) {
                     BObjectType objectType = (BObjectType) type;
 
