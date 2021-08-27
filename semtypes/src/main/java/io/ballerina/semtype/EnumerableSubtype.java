@@ -185,13 +185,13 @@ public class EnumerableSubtype {
     }
 
     public static int compareEnumerable(EnumerableType v1, EnumerableType v2) {
-        if (v1 instanceof EnumerableStringType) {
-            String s2 = ((EnumerableStringType) v2).value;
-            String s1 = ((EnumerableStringType) v1).value;
+        if (v1 instanceof EnumerableString) {
+            String s2 = ((EnumerableString) v2).value;
+            String s1 = ((EnumerableString) v1).value;
             return Objects.equals(s1, s2) ? EQ : s1.length() < s2.length() ? LT : GT;
         } else {
-            double f1 = ((EnumerableFloatType) v2).value;
-            double f2 = ((EnumerableFloatType) v2).value;
+            double f1 = ((EnumerableFloat) v2).value;
+            double f2 = ((EnumerableFloat) v2).value;
             if (f1 == f2) {
                 return EQ;
             } else if (Double.isNaN(f1)) {

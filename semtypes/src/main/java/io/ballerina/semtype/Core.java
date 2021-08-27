@@ -198,7 +198,7 @@ public class Core {
             return (((UniformTypeBitSet) t).bitset & (1 << UniformTypeCode.UT_FLOAT.code)) != 0;
         } else {
             return FloatSubtype.floatSubtypeContains(
-                    getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_FLOAT), n);
+                    getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_FLOAT), EnumerableFloat.from(n));
         }
     }
 

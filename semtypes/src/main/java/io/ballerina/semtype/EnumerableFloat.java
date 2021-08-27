@@ -22,10 +22,14 @@ package io.ballerina.semtype;
  *
  * @since 2.0.0
  */
-public class EnumerableFloatType implements EnumerableType {
+public class EnumerableFloat implements EnumerableType {
     final double value;
 
-    public EnumerableFloatType(double value) {
+    private EnumerableFloat(double value) {
         this.value = value;
+    }
+
+    public static EnumerableFloat from(double d) {
+        return new EnumerableFloat(d);
     }
 }
