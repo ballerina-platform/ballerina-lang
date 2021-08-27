@@ -146,10 +146,14 @@ public class LangLibTupleTest {
     }
 
     @Test
+    public void testToStream() {
+        BRunUtil.invoke(compileResult, "testToStream");
+    }
+
+    @Test
     public void testNegativeCases() {
         assertEquals(negativeResult.getErrorCount(), 1);
         validateError(negativeResult, 0, "incompatible types: expected '[int,string][]', " +
                 "found '[int,(string|int)][]'", 20, 25);
     }
-
 }
