@@ -22,10 +22,14 @@
     </Match>
     <Match>
         <Or>
-            <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
-            <Class name="io.ballerina.semtype.subtypedata.BooleanSubtype"/>
-            <Class name="io.ballerina.semtype.subtypedata.StringSubtype"/>
             <Class name="io.ballerina.semtype.Core"/>
+            <Class name="io.ballerina.semtype.EnumerableType"/>
+            <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+            <Class name="io.ballerina.semtype.subtypedata.BooleanSubtype"/>
+            <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
+            <Class name="io.ballerina.semtype.subtypedata.FloatSubtype"/>
+            <Class name="io.ballerina.semtype.subtypedata.StringSubtype"/>
+            <Class name="io.ballerina.semtype.typeops.FloatOps"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
@@ -58,5 +62,17 @@
             <Bug pattern="URF_UNREAD_FIELD"/>
             <Bug pattern="UUF_UNUSED_FIELD"/>
         </Or>
+    </Match>
+    <Match>
+        <Or>
+            <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+        </Or>
+        <Bug pattern="SF_SWITCH_NO_DEFAULT"/>
+    </Match>
+    <Match>
+        <Or>
+            <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+        </Or>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
 </FindBugsFilter>
