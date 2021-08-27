@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/lang.array;
+import ballerina/lang.test;
 
 function testEnumerate() returns [int, (int|string|float)][] {
     [int, string, int, float] person = [1, "John Doe", 25, 5.9];
@@ -137,4 +138,23 @@ function testPush2() returns int {
     [int...] tup = [];
     tup.push(10, 11, 12, 13);
     return tup.length();
+}
+
+type Type [1, "hello"]|[2];
+
+function testToStream() {
+    Type tuple1 = [1, "hello"];
+    stream<1|"hello"|2> stream1 = tuple1.toStream();
+    test:assertValueEqual({value:1}, stream1.next());
+    test:assertValueEqual({value:"hello"}, stream1.next());
+    test:assertValueEqual((), stream1.next());
+    stream<1|"hello"|2> stream2 = <stream<1|"hello"|2>> stream1;
+
+    [int, string, boolean] tuple2 = [3, "hey", true];
+    stream<int|string|boolean> stream3 = tuple2.toStream();
+    stream<int|string|boolean> stream4 = <stream<int|string|boolean>> stream3;
+    test:assertValueEqual({value:3}, stream4.next());
+    test:assertValueEqual({value:"hey"}, stream4.next());
+    test:assertValueEqual({value:true}, stream4.next());
+    test:assertValueEqual((), stream4.next());
 }
