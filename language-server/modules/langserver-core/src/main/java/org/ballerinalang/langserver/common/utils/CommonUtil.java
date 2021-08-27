@@ -287,7 +287,7 @@ public class CommonUtil {
                 break;
             case RECORD:
                 if (depth > MAX_DEPTH) {
-                    return Optional.ofNullable("{}");
+                    return Optional.of("{}");
                 }
                 // TODO: Here we have disregarded the formatting of the record fields. Need to consider that in future
                 RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rawType;
@@ -295,7 +295,7 @@ public class CommonUtil {
                 typeString += getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
                         .map(recordFieldSymbol -> recordFieldSymbol.getName().get() + ": " +
-                                getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse("()"))
+                                getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse(""))
                         .collect(Collectors.joining(", "));
                 typeString += "}";
                 break;
@@ -304,7 +304,7 @@ public class CommonUtil {
                 break;
             case OBJECT:
                 if (depth > MAX_DEPTH) {
-                    return Optional.ofNullable("");
+                    return Optional.of("");
                 }
                 ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
                 if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
@@ -324,16 +324,16 @@ public class CommonUtil {
                 break;
             case UNION:
                 if (depth > MAX_DEPTH) {
-                    return Optional.ofNullable("");
+                    return Optional.of("");
                 }
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
                 List<TypeSymbol> nilMembers = members.stream()
                         .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
                 if (nilMembers.isEmpty()) {
-                    typeString = getDefaultValueForType(members.get(0), depth + 1).orElse("()");
+                    typeString = getDefaultValueForType(members.get(0), depth + 1).orElse("");
                 } else {
-                    return Optional.ofNullable("()");
+                    return Optional.of("()");
                 }
                 break;
             case INTERSECTION:
@@ -471,7 +471,7 @@ public class CommonUtil {
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse("()");
+                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
                 fieldEntries.add(fieldEntry);
             }
         } else {
@@ -479,7 +479,7 @@ public class CommonUtil {
             for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse("()");
+                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
                 fieldEntries.add(fieldEntry);
             }
         }
@@ -636,7 +636,7 @@ public class CommonUtil {
             insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
         } else {
             insertText.append("${").append(fieldId).append(":")
-                    .append(getDefaultValueForType(bField.typeDescriptor()).orElse("()")).append("}");
+                    .append(getDefaultValueForType(bField.typeDescriptor()).orElse(" ")).append("}");
         }
 
         return insertText.toString();

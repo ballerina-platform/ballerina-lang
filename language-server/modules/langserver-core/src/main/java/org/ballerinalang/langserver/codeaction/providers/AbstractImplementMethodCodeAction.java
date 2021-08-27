@@ -162,7 +162,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 Optional<String> defaultReturnValueForType = CommonUtil.getDefaultValueForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
-                    if (defaultReturnValue.equals(CommonKeys.PARANTHESIS_KEY)) {
+                    if (defaultReturnValue.equals(CommonKeys.PARANTHESES_KEY)) {
                         returnStmt = "return;";
                     } else {
                         returnStmt = "return " + defaultReturnValue + CommonKeys.SEMI_COLON_SYMBOL_KEY;
