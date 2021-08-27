@@ -2,6 +2,9 @@ digraph central {
     subgraph "samjs/foo:1.2.1" {
         "samjs/foo:1.2.1" -> "samjs/bar:1.3.4"
         "samjs/foo:1.2.1" -> "samjs/bazz:1.4.4"
+
+        // This is how we can specify other modules in the package
+        "samjs/foo:1.2.1" [other_modules = "foo.a, foo.a.bar"]
     }
 
     subgraph "ballerina/io:1.0.2" {
@@ -20,6 +23,9 @@ digraph central {
 
     subgraph "samjs/b:1.3.4" {
         "samjs/b:1.3.4" -> "samjs/c:0.4.4"
+
+        // This is how we can specify other modules in the package
+        "samjs/b:1.3.4" [other_modules = "b.foo, b.foo.bar"]
     }
 
     subgraph "samjs/p:1.3.4" {
@@ -59,11 +65,11 @@ digraph central {
     }
 
     subgraph "samjs/c:0.4.6" {
-    "samjs/c:0.4.6" -> "samjs/t:4.5.7"
+        "samjs/c:0.4.6" -> "samjs/t:4.5.7"
     }
 
     subgraph "samjs/c:0.5.0" {
-    "samjs/c:0.5.0" -> "samjs/t:4.6.0"
+        "samjs/c:0.5.0" -> "samjs/t:4.6.0"
     }
 
     subgraph "ballerinax/github:1.0.0" {

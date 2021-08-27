@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class LocalPackageRepository extends DefaultPackageRepository {
-    public LocalPackageRepository(PackageContainer<PackageDescriptor> pkgContainer,
+    public LocalPackageRepository(PackageContainer<PackageDescWrapper> pkgContainer,
                                   Map<PackageDescriptor, DependencyGraph<PackageDescriptor>> graphMap) {
         super(pkgContainer, graphMap);
     }
@@ -47,6 +47,7 @@ public class LocalPackageRepository extends DefaultPackageRepository {
                 .map(Collections::singletonList)
                 .orElseGet(Collections::emptyList)
                 .stream()
+                .map(PackageDescWrapper::pkgDesc)
                 .map(PackageDescriptor::version)
                 .collect(Collectors.toList());
     }
