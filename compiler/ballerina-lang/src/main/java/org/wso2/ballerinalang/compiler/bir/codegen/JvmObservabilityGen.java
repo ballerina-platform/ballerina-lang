@@ -265,19 +265,13 @@ class JvmObservabilityGen {
      * @param originalInsPosition The source code position of the invocation
      */
     private void injectCheckpointCall(BIRBasicBlock currentBB, BIRPackage pkg, Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg.packageID);
-        String position = generatePositionId(originalInsPosition);
-
-        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
-
         JIMethodCall recordCheckPointCallTerminator = new JIMethodCall(null);
         recordCheckPointCallTerminator.invocationType = INVOKESTATIC;
         recordCheckPointCallTerminator.jClassName = OBSERVE_UTILS;
-        recordCheckPointCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V",
+        recordCheckPointCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJ)V",
                 BAL_ENV, B_STRING_VALUE, B_STRING_VALUE);
         recordCheckPointCallTerminator.name = RECORD_CHECKPOINT_METHOD;
-        recordCheckPointCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand);
+        recordCheckPointCallTerminator.args = generatePositionArgs(pkg, originalInsPosition);
         currentBB.terminator = recordCheckPointCallTerminator;
     }
 
@@ -710,14 +704,9 @@ class JvmObservabilityGen {
                                                     String resourcePathOrFunction, String resourceAccessor,
                                                     boolean isResource, boolean isRemote, BIRPackage pkg,
                                                     Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg.packageID);
-        String position = generatePositionId(originalInsPosition);
-
-        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
         BIROperand serviceNameOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, serviceName);
         BIROperand resourcePathOrFunctionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
-                resourcePathOrFunction);
+                                                                                 resourcePathOrFunction);
         BIROperand resourceAccessorOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
                 resourceAccessor);
         BIROperand isResourceOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType, isResource);
@@ -726,11 +715,14 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(null);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;L%s;L%s;ZZ)V",
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJL%s;L%s;L%s;ZZ)V",
                 BAL_ENV, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE);
         observeStartCallTerminator.name = START_RESOURCE_OBSERVATION_METHOD;
-        observeStartCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand, serviceNameOperand,
-                resourcePathOrFunctionOperand, resourceAccessorOperand, isResourceOperand, isRemoteOperand);
+        List<BIROperand> positionOperands = generatePositionArgs(pkg, originalInsPosition);
+        List<BIROperand> otherOperands = Arrays.asList(serviceNameOperand, resourcePathOrFunctionOperand,
+                resourceAccessorOperand, isResourceOperand, isRemoteOperand);
+        positionOperands.addAll(otherOperands);
+        observeStartCallTerminator.args = positionOperands;
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
@@ -751,11 +743,6 @@ class JvmObservabilityGen {
                                                     boolean isRemote, boolean isMainEntryPoint, boolean isWorker,
                                                     BIROperand objectOperand, String action, BIRPackage pkg,
                                                     Location originalInsPosition) {
-        String pkgId = generatePackageId(pkg.packageID);
-        String position = generatePositionId(originalInsPosition);
-
-        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        BIROperand originalInsPosOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, position);
         BIROperand actionOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, action);
         BIROperand isMainEntryPointOperand = generateGlobalConstantOperand(pkg, symbolTable.booleanType,
                 isMainEntryPoint);
@@ -765,11 +752,14 @@ class JvmObservabilityGen {
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsLocation);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;L%s;L%s;ZZZ)V", BAL_ENV, B_STRING_VALUE,
+        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;JJL%s;L%s;ZZZ)V", BAL_ENV, B_STRING_VALUE,
                 B_STRING_VALUE, B_OBJECT, B_STRING_VALUE);
         observeStartCallTerminator.name = START_CALLABLE_OBSERVATION_METHOD;
-        observeStartCallTerminator.args = Arrays.asList(pkgOperand, originalInsPosOperand, objectOperand, actionOperand,
-                isMainEntryPointOperand, isRemoteOperand, isWorkerOperand);
+        List<BIROperand> positionOperands = generatePositionArgs(pkg, originalInsPosition);
+        List<BIROperand> otherOperands = Arrays.asList(objectOperand, actionOperand, isMainEntryPointOperand,
+                                                       isRemoteOperand, isWorkerOperand);
+        positionOperands.addAll(otherOperands);
+        observeStartCallTerminator.args = positionOperands;
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
@@ -998,17 +988,6 @@ class JvmObservabilityGen {
     }
 
     /**
-     * Generate a ID for a source code position.
-     *
-     * @param pos The position for which the ID should be generated
-     * @return The generated ID
-     */
-    private String generatePositionId(Location pos) {
-        return String.format("%s:%d:%d", pos.lineRange().filePath(), pos.lineRange().startLine().line() + 1,
-                pos.lineRange().startLine().offset() + 1);
-    }
-
-    /**
      * Generate a ID for a ballerina module.
      *
      * @param pkg The module for which the ID should be generated
@@ -1016,5 +995,24 @@ class JvmObservabilityGen {
      */
     private String generatePackageId(PackageID pkg) {
         return String.format("%s/%s:%s", pkg.orgName.value, pkg.name.value, getMajorVersion(pkg.version.value));
+    }
+
+    /**
+     * Generate operands for location.
+     *
+     * @param pkg      Bir package
+     * @param location Location
+     * @return List of operands for source file name, start and end positions
+     */
+    private List<BIROperand> generatePositionArgs(BIRPackage pkg, Location location) {
+        String pkgId = generatePackageId(pkg.packageID);
+        BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
+        BIROperand fileNameOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
+                                                                   location.lineRange().filePath());
+        BIROperand startPositionOperand = generateGlobalConstantOperand(pkg, symbolTable.intType,
+                                                                        location.lineRange().startLine().line() + 1);
+        BIROperand endPositionOperand = generateGlobalConstantOperand(pkg, symbolTable.intType,
+                                                                      location.lineRange().startLine().offset() + 1);
+        return new ArrayList<>(Arrays.asList(pkgOperand, fileNameOperand, startPositionOperand, endPositionOperand));
     }
 }
