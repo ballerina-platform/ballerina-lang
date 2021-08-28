@@ -18,6 +18,7 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyGraph;
+import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.ModuleConfig;
@@ -67,10 +68,12 @@ public class PackageConfigCreator {
         TomlDocument pluginToml = packageData.compilerPluginToml()
                 .map(d -> TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML, d.content())).orElse(null);
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, dependenciesToml, pluginToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, projectDirPath);
         PackageManifest packageManifest = manifestBuilder.packageManifest();
+        DependencyManifestBuilder dependencyManifestBuilder = DependencyManifestBuilder.from(dependenciesToml);
+        DependencyManifest dependencyManifest = dependencyManifestBuilder.dependencyManifest();
 
-        return createPackageConfig(packageData, packageManifest);
+        return createPackageConfig(packageData, packageManifest, dependencyManifest);
     }
 
     public static PackageConfig createSingleFileProjectConfig(Path filePath) {
@@ -80,30 +83,34 @@ public class PackageConfigCreator {
         PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
                 PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
+        DependencyManifest dependencyManifest = DependencyManifest.from(null, Collections.emptyList());
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
-        return createPackageConfig(packageData, packageManifest);
+        return createPackageConfig(packageData, packageManifest, dependencyManifest);
     }
 
     public static PackageConfig createBalaProjectConfig(Path balaPath) {
         ProjectFiles.validateBalaProjectPath(balaPath);
         PackageManifest packageManifest = BalaFiles.createPackageManifest(balaPath);
+        DependencyManifest dependencyManifest = BalaFiles.createDependencyManifest(balaPath);
         PackageData packageData = BalaFiles.loadPackageData(balaPath, packageManifest);
         BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
                 .createPackageDependencyGraph(balaPath);
 
-        return createPackageConfig(packageData, packageManifest,
+        return createPackageConfig(packageData, packageManifest, dependencyManifest,
                 packageDependencyGraph.packageDependencyGraph(), packageDependencyGraph.moduleDependencies());
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData,
-                                                    PackageManifest packageManifest) {
-        return createPackageConfig(packageData, packageManifest, DependencyGraph.emptyGraph(),
+                                                    PackageManifest packageManifest,
+                                                    DependencyManifest dependencyManifest) {
+        return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
                 Collections.emptyMap());
     }
 
     public static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
+                                                    DependencyManifest dependencyManifest,
                                                     DependencyGraph<PackageDescriptor> packageDependencyGraph,
                                                     Map<ModuleDescriptor, List<ModuleDescriptor>>
                                                             moduleDependencyGraph) {
@@ -136,8 +143,10 @@ public class PackageConfigCreator {
         DocumentConfig packageMd = packageData.packageMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
-        return PackageConfig.from(packageId, packageData.packagePath(), packageManifest, ballerinaToml,
-                dependenciesToml, cloudToml, compilerPluginToml, packageMd, moduleConfigs, packageDependencyGraph);
+        return PackageConfig
+                .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
+                      dependenciesToml, cloudToml, compilerPluginToml, packageMd, moduleConfigs,
+                      packageDependencyGraph);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,

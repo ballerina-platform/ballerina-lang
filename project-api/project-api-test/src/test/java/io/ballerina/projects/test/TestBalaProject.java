@@ -18,6 +18,8 @@
 
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.EmitResult;
@@ -137,14 +139,15 @@ public class TestBalaProject {
         Assert.assertEquals(pluginDescriptor.get().getCompilerPluginDependencies().size(), 2);
     }
 
-    @Test (description = "test bala project load with newly created bala")
+    @Test (description = "test bala project load with newly created bala", enabled = false)
     public void testBalaProjectAPIWithNewBalaBuild() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            BuildOptions buildOptions = new BuildOptionsBuilder().sticky(true).build();
+            project = BuildProject.load(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
         }

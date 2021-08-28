@@ -147,7 +147,7 @@ public class StringQueryExpressionTest {
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
-    @Test(description = "Test method access with casting in select clause", groups = {"disableOnOldParser"})
+    @Test(description = "Test method access with casting in select clause")
     public void testMethodAccessWithCasting() {
         CompileResult resultV2 = BCompileUtil.compile("test-src/query/string-query-expression-v2.bal");
         BValue[] returnValues = BRunUtil.invoke(resultV2, "testMethodAccessWithCasting");

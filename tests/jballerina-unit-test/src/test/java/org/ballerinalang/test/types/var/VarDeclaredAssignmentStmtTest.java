@@ -145,6 +145,16 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test(description = "Test object to var assignment.")
+    public void testObjectToVarAssignment() {
+        BRunUtil.invoke(result, "testObjectToVarAssignment");
+    }
+
+    @Test(description = "Test object to var assignment.")
+    public void testObjectToVarAssignment2() {
+        BRunUtil.invoke(result, "testObjectToVarAssignment2");
+    }
+
     @Test(description = "Test var in variable def.", groups = { "disableOnOldParser" })
     public void testVarTypeInVariableDefStatement() {
         //var type is not not allowed in variable def statements
@@ -167,8 +177,9 @@ public class VarDeclaredAssignmentStmtTest {
     @Test
     public void testVarDeclarationWithDuplicateVariableRefs() {
         CompileResult res = BCompileUtil.compile("test-src/types/var/var-duplicate-variable-ref-lhs-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 1);
+        Assert.assertEquals(res.getErrorCount(), 2);
         BAssertUtil.validateError(res, 0, "redeclared symbol 'age'", 2, 15);
+        BAssertUtil.validateError(res, 1, "undefined symbol 'some'", 11, 16);
     }
 
     @Test

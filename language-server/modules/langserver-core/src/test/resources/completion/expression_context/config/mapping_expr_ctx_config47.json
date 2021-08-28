@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 5,
+    "character": 17
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source47.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "next",
+      "kind": "Field",
+      "detail": "LinkedList.next",
+      "sortText": "G",
+      "insertText": "next: ${1:{}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value",
+      "kind": "Field",
+      "detail": "LinkedList.value",
+      "sortText": "G",
+      "insertText": "value: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill LinkedList Required Fields",
+      "kind": "Property",
+      "detail": "LinkedList",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "next: {},\nvalue: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

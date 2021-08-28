@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -26,7 +25,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
@@ -36,6 +34,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunct
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -86,13 +86,13 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.ISTORE;
-import static org.objectweb.asm.Opcodes.L2I;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SWAP;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
@@ -102,10 +102,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
@@ -119,7 +117,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
@@ -141,32 +138,24 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  *
  * @since 1.2.0
  */
-class JvmValueGen {
+public class JvmValueGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
-    static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
-    static final TypeHashComparator TYPE_HASH_COMPARATOR = new TypeHashComparator();
+    public static final TypeHashComparator TYPE_HASH_COMPARATOR = new TypeHashComparator();
     static final String ENCODED_RECORD_INIT =
             IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;
     private final JvmPackageGen jvmPackageGen;
     private final MethodGen methodGen;
     private final BType booleanType;
+    private final JvmObjectGen jvmObjectGen;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
         this.booleanType = jvmPackageGen.symbolTable.booleanType;
-    }
-
-    private static BIRNode.BIRFunction getFunction(BIRNode.BIRFunction func) {
-
-        if (func == null) {
-            throw new BLangCompilerException("Invalid function");
-        }
-
-        return func;
+        this.jvmObjectGen = new JvmObjectGen();
     }
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
@@ -231,31 +220,8 @@ class JvmValueGen {
         mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels.toArray(new Label[0]));
         return labels;
     }
-    static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex, String errorMessage) {
 
-        mv.visitLabel(defaultCaseLabel);
-        mv.visitTypeInsn(NEW, ERROR_VALUE);
-        mv.visitInsn(DUP);
-
-        // Create error message
-        mv.visitTypeInsn(NEW, STRING_BUILDER);
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn(errorMessage);
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, String.format("(L%s;)V", STRING_VALUE),
-                false);
-        mv.visitVarInsn(ALOAD, nameRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append",
-                String.format("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, String.format("()L%s;", STRING_VALUE)
-                , false);
-        mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString", String.format("(L%s;)L%s;", STRING_VALUE,
-                                                                                   B_STRING_VALUE), false);
-        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", B_STRING_VALUE),
-                           false);
-        mv.visitInsn(ATHROW);
-    }
-
-    static String getTypeDescClassName(String packageName, String typeName) {
+    public static String getTypeDescClassName(String packageName, String typeName) {
         return packageName + TYPEDESC_CLASS_PREFIX + typeName;
     }
 
@@ -351,73 +317,6 @@ class JvmValueGen {
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(5, 5);
-        mv.visitEnd();
-    }
-
-    private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                  JvmCastGen jvmCastGen) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "call", String.format(
-                "(L%s;L%s;[L%s;)L%s;", STRAND_CLASS, STRING_VALUE, OBJECT, OBJECT), null, null);
-        mv.visitCode();
-
-        int funcNameRegIndex = 2;
-
-        Label defaultCaseLabel = new Label();
-
-        // sort the fields before generating switch case
-        functions.sort(NAME_HASH_COMPARATOR);
-
-        List<Label> labels = JvmTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions, defaultCaseLabel);
-        List<Label> targetLabels = JvmTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions, labels,
-                                                             defaultCaseLabel);
-
-        // case body
-        int i = 0;
-        for (BIRNode.BIRFunction optionalFunc : functions) {
-            BIRNode.BIRFunction func = getFunction(optionalFunc);
-            Label targetLabel = targetLabels.get(i);
-            mv.visitLabel(targetLabel);
-
-            List<BType> paramTypes = func.type.paramTypes;
-            BType retType = func.type.retType;
-
-            String methodSig;
-
-            // use index access, since retType can be nil.
-            methodSig = JvmCodeGenUtil.getMethodDesc(paramTypes, retType);
-
-            // load self
-            mv.visitVarInsn(ALOAD, 0);
-
-            // load strand
-            mv.visitVarInsn(ALOAD, 1);
-            int j = 0;
-            for (BType paramType : paramTypes) {
-                // load parameters
-                mv.visitVarInsn(ALOAD, 3);
-
-                // load j'th parameter
-                mv.visitLdcInsn((long) j);
-                mv.visitInsn(L2I);
-                mv.visitInsn(AALOAD);
-                jvmCastGen.addUnboxInsn(mv, paramType);
-                j += 1;
-            }
-
-            mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value,
-                               methodSig, false);
-            if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
-                mv.visitInsn(ACONST_NULL);
-            } else {
-                jvmCastGen.addBoxInsn(mv, retType);
-            }
-            mv.visitInsn(ARETURN);
-            i += 1;
-        }
-
-        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
-        mv.visitMaxs(functions.size() + 10, functions.size() + 10);
         mv.visitEnd();
     }
 
@@ -642,11 +541,11 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    static String getTypeValueClassName(PackageID packageID, String typeName) {
+    public static String getTypeValueClassName(PackageID packageID, String typeName) {
         return getTypeValueClassName(JvmCodeGenUtil.getPackageName(packageID), typeName);
     }
 
-    static String getTypeValueClassName(String packageName, String typeName) {
+    public static String getTypeValueClassName(String packageName, String typeName) {
         return packageName + VALUE_CLASS_PREFIX + typeName;
     }
 
@@ -1400,7 +1299,7 @@ class JvmValueGen {
         }
 
         this.createObjectInit(cw, fields, className);
-        this.createCallMethod(cw, attachedFuncs, className, jvmCastGen);
+        jvmObjectGen.createCallMethod(cw, attachedFuncs, className, jvmCastGen);
         this.createObjectGetMethod(cw, fields, className, jvmCastGen);
         this.createObjectSetMethod(cw, fields, className, jvmCastGen);
         this.createObjectSetOnInitializationMethod(cw, fields, className, jvmCastGen);
