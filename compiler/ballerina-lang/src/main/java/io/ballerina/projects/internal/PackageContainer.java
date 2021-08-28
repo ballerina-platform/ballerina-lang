@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageOrg;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,6 +52,28 @@ public class PackageContainer<T> {
         }
 
         return Optional.ofNullable(pkgNameMap.get(pkgName));
+    }
+
+    public T getOrElseThrow(PackageOrg pkgOrg, PackageName pkgName) {
+        T value = null;
+        Map<PackageName, T> pkgNameMap = pkgOrgMap.get(pkgOrg);
+        if (pkgNameMap != null) {
+            value = pkgNameMap.get(pkgName);
+        }
+
+        if (value == null) {
+            throw new NoSuchElementException("No value present");
+        }
+        return value;
+    }
+
+    public boolean contains(PackageOrg pkgOrg, PackageName pkgName) {
+        Map<PackageName, T> pkgNameMap = pkgOrgMap.get(pkgOrg);
+        if (pkgNameMap == null) {
+            return false;
+        }
+
+        return pkgNameMap.containsKey(pkgName);
     }
 
     public Collection<T> getAll() {

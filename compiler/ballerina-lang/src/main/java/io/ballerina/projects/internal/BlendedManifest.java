@@ -18,12 +18,13 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyManifest;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
-import io.ballerina.projects.internal.repositories.LocalPackageRepository;
+import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.util.Collection;
@@ -38,14 +39,20 @@ import java.util.stream.Collectors;
  */
 public class BlendedManifest {
     private final PackageContainer<Dependency> depContainer;
+    private final DependencyManifest dependencyManifest;
+    private final PackageManifest packageManifest;
 
-    private BlendedManifest(PackageContainer<Dependency> pkgContainer) {
+    private BlendedManifest(PackageContainer<Dependency> pkgContainer,
+                            DependencyManifest dependencyManifest,
+                            PackageManifest packageManifest) {
         this.depContainer = pkgContainer;
+        this.dependencyManifest = dependencyManifest;
+        this.packageManifest = packageManifest;
     }
 
-    public static BlendedManifest from(PackageManifest packageManifest,
-                                       DependencyManifest dependencyManifest,
-                                       LocalPackageRepository localPackageRepository) {
+    public static BlendedManifest from(DependencyManifest dependencyManifest,
+                                       PackageManifest packageManifest,
+                                       AbstractPackageRepository localPackageRepository) {
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
         for (DependencyManifest.Package pkgInDepManifest : dependencyManifest.packages()) {
             depContainer.add(pkgInDepManifest.org(), pkgInDepManifest.name(),
@@ -79,7 +86,15 @@ public class BlendedManifest {
             }
         }
 
-        return new BlendedManifest(depContainer);
+        return new BlendedManifest(depContainer, dependencyManifest, packageManifest);
+    }
+
+    public DependencyManifest dependencyManifest() {
+        return dependencyManifest;
+    }
+
+    public PackageManifest packageManifest() {
+        return packageManifest;
     }
 
     private static DependencyRelation getRelation(boolean isTransitive) {
@@ -94,13 +109,13 @@ public class BlendedManifest {
     }
 
     private static Collection<String> moduleNames(PackageManifest.Dependency dependency,
-                                                  LocalPackageRepository localPackageRepository) {
-        Optional<Collection<String>> optionalModuleNameList = localPackageRepository.getModuleNames(
+                                                  AbstractPackageRepository localPackageRepository) {
+        Collection<ModuleDescriptor> moduleDescriptors = localPackageRepository.getModules(
                 dependency.org(), dependency.name(), dependency.version());
-        return optionalModuleNameList.orElseThrow(
-                () -> new IllegalStateException("Package in local repository with no modules"));
+        return moduleDescriptors.stream()
+                .map(moduleDesc -> moduleDesc.name().toString())
+                .collect(Collectors.toList());
     }
-
 
     public Optional<Dependency> dependency(PackageOrg org, PackageName name) {
         return depContainer.get(org, name);
@@ -110,7 +125,6 @@ public class BlendedManifest {
         return depContainer.get(org, name).orElseThrow(() -> new IllegalStateException("Dependency with org `" +
                 org + "` and name `" + name + "` must exists."));
     }
-
 
     /**
      * Represents a local dependency package.

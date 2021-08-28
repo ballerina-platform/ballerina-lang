@@ -67,8 +67,6 @@ public class DefaultPackageResolver implements PackageResolver {
 
     @Override
     public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        // TODO Update this logic to lookup packages in the local repo.
-
         // We will only receive hierarchical imports in importModuleRequests
         List<ImportModuleResponse> responseListInDist = distributionRepo.resolvePackageNames(importModuleRequests);
         List<ImportModuleResponse> responseListInCentral =
