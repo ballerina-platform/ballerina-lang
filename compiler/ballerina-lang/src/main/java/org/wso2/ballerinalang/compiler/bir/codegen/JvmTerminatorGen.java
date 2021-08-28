@@ -403,6 +403,7 @@ public class JvmTerminatorGen {
 
         boolean errorIncluded = false;
         for (BType member : bType.getMemberTypes()) {
+            member = getConstraintFromReferenceType(member);
             if (member.tag == TypeTags.ERROR) {
                 errorIncluded = true;
                 break;
@@ -416,6 +417,14 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKESTATIC, WORKER_UTILS, "handleWorkerError",
                                     String.format("(L%s;L%s;[L%s;)V", REF_VALUE, STRAND_CLASS, CHANNEL_DETAILS), false);
         }
+    }
+
+    private BType getConstraintFromReferenceType(BType type) {
+        BType constraint = type;
+        if(type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
     }
 
     private void notifyChannels(List<BIRNode.ChannelDetails> channels, int retIndex) {
