@@ -35,8 +35,8 @@ public class AllInOneResolutionTests extends AbstractPackageResolutionTest {
         return new Object[][]{
                 {"suite-all_in_one", "case-0001", true},
                 {"suite-all_in_one", "case-0001", false},
-//                {"suite-all_in_one", "case-0002", true},
-//                {"suite-all_in_one", "case-0002", false}
+                {"suite-all_in_one", "case-0002", true},
+                {"suite-all_in_one", "case-0002", false}
         };
     }
 }
