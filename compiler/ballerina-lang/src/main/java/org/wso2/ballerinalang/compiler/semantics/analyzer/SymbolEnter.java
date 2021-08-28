@@ -1158,8 +1158,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 for (BLangNode node : this.unresolvedTypes) {
                     String name = getTypeOrClassName(node);
                     boolean symbolNotFound = false;
-                    if ((node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CLASS_DEFN)
-                            && i != 0) { // Do not skip the first iteration
+                    boolean isTypeOrClassDefinition =
+                            node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CLASS_DEFN;
+                    // Skip the type resolving in the first iteration (i == 0)
+                    // as we want to define the type before trying to resolve it.
+                    if (isTypeOrClassDefinition && i != 0) { // Do not skip the first iteration
                         BSymbol bSymbol = symResolver.lookupSymbolInMainSpace(env, names.fromString(name));
                         symbolNotFound = (bSymbol == symTable.notFoundSymbol);
                     }
