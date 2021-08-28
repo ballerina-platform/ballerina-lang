@@ -23,11 +23,15 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class UniformSubtype {
-    public final int uniformTypeCode;
+    public final UniformTypeCode uniformTypeCode;
     public final SubtypeData subtypeData;
 
-    public UniformSubtype(int uniformTypeCode, SubtypeData subtypeData) {
+    private UniformSubtype(UniformTypeCode uniformTypeCode, SubtypeData subtypeData) {
         this.uniformTypeCode = uniformTypeCode;
         this.subtypeData = subtypeData;
+    }
+
+    public static UniformSubtype from(UniformTypeCode typeCode, SubtypeData data) {
+        return new UniformSubtype(typeCode, data);
     }
 }

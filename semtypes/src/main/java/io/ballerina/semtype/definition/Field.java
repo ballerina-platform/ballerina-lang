@@ -15,17 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.definition;
+
+import io.ballerina.semtype.SemType;
 
 /**
- * Enumerable type wrapper for float.
- *
- * @since 2.0.0
+ * Represent a record field in a type-descriptor.
  */
-public class EnumerableFloatType implements EnumerableType {
-    final double value;
+public class Field {
+    public final String name;
+    public final SemType type;
 
-    public EnumerableFloatType(double value) {
-        this.value = value;
+    private Field(String name, SemType type) {
+        this.name = name;
+        this.type = type;
+    }
+
+    public static Field from(String name, SemType type) {
+        return new Field(name, type);
     }
 }
