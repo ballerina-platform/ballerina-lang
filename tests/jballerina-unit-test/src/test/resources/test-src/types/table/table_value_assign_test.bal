@@ -80,7 +80,7 @@ function testAssignKeyedTableValueToTableType() {
         {name: "John", id: 4567}
     ];
     var a2 = checkpanic table key(id) from var {id} in tbl1 select {id};
-    table<record {| int id; |}> key(id) a3 = a2;
+    table<record {| readonly int id; |}> key(id) a3 = a2;
     any a4 = table key(id) [{"id": 1234}, {"id": 4567}];
 
     assertEqual(table key(id) [{"id": 1234}, {"id": 4567}], a3);
