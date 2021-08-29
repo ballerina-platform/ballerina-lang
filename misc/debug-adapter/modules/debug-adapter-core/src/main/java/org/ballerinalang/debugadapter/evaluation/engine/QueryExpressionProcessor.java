@@ -69,7 +69,6 @@ public class QueryExpressionProcessor {
     private final QueryExpressionNode syntaxNode;
     private final List<String> externalVariableNames = new ArrayList<>();
     private final List<Value> externalVariableValues = new ArrayList<>();
-
     private Path tempProjectDir;
 
     private static final String TEMP_DIR_PREFIX = "query-executable-dir-";
@@ -81,7 +80,7 @@ public class QueryExpressionProcessor {
 
     // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
     // return non-public types.
-    private static final String QUERY_FUNCTION_TEMPLATE = "%s function %s(%s) returns any|error { return %s; }";
+    private static final String QUERY_SNIPPET_TEMPLATE = "%s function %s(%s) returns any|error { return %s; }";
 
     public QueryExpressionProcessor(SuspendedContext context, QueryExpressionNode syntaxNode) {
         this.context = context;
@@ -120,18 +119,25 @@ public class QueryExpressionProcessor {
      */
     private String generateQuerySnippet() throws EvaluationException {
         // Generates top level declarations snippet
-        String topLevelDeclarations = generateModuleLevelDeclarations();
+        String declarations = generateModuleLevelDeclarations();
 
-        // Generates function signature (parameter definitions) for the snippet.
+        // Generates function signature (parameter definitions) for the query function template.
         processSnippetFunctionParameters();
         StringJoiner parameters = new StringJoiner(",");
         externalVariableNames.forEach(parameters::add);
 
-        return String.format(QUERY_FUNCTION_TEMPLATE,
-                topLevelDeclarations,
-                QUERY_FUNCTION_NAME,
-                parameters,
-                syntaxNode.toSourceCode());
+        // Constructs the query expression string to be injected.
+        String queryExpression;
+        if (syntaxNode.parent() != null && syntaxNode.parent().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
+            // Since Ballerina query expression return type might depend on the contextual type, we need to inject
+            // any existing type castings o top of the query expressions (expression will results in semantic errors
+            // otherwise.)
+            queryExpression = syntaxNode.parent().toSourceCode();
+        } else {
+            queryExpression = syntaxNode.toSourceCode();
+        }
+
+        return String.format(QUERY_SNIPPET_TEMPLATE, declarations, QUERY_FUNCTION_NAME, parameters, queryExpression);
     }
 
     /**

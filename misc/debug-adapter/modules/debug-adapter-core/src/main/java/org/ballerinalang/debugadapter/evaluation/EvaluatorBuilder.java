@@ -329,6 +329,13 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(TypeCastExpressionNode typeCastExpressionNode) {
         visitSyntaxNode(typeCastExpressionNode);
         typeCastExpressionNode.expression().accept(this);
+
+        // Since the query expression evaluator is capable of handling its type casts itself, no need to create a
+        // separate type cast evaluator in this context.
+        if (typeCastExpressionNode.expression().kind() == SyntaxKind.QUERY_EXPRESSION) {
+            return;
+        }
+
         Evaluator subExprEvaluator = result;
         result = new TypeCastExpressionEvaluator(context, typeCastExpressionNode, subExprEvaluator);
     }
