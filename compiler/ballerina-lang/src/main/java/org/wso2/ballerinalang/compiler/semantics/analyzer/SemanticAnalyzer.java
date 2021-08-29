@@ -1009,6 +1009,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     }
                 }
                 break;
+            case TYPEREFDESC:
+                return isSupportedConfigType(types.getConstraintFromReferenceType(type), errors, varName,
+                        unresolvedTypes);
             default:
                 return  types.isAssignable(type, symTable.intType) ||
                         types.isAssignable(type, symTable.floatType) ||
