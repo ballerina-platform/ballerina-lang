@@ -175,15 +175,7 @@ public class TypesFactory {
 
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
-//        if (bType.tag == TypeTags.TYPEREFDESC) {
-//        if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-//            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType,  bType.tsymbol,
-//                    typeRefFromIntersectType);
-//        }
-
-//        TypeSymbol typeSymbol;
-//        if((tSymbol instanceof BTypeDefinitionSymbol && !rawTypeOnly) || isTypeReference(bType, tSymbol, rawTypeOnly)) {
-        if(isTypeReference(bType, tSymbol, rawTypeOnly)) {
+        if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
             return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
                     typeRefFromIntersectType);
         } else {
@@ -191,7 +183,6 @@ public class TypesFactory {
                 return createTypeDescriptor(bType, tSymbol.type.tsymbol, moduleID);
             }
             return createTypeDescriptor(bType, (BTypeSymbol) tSymbol, moduleID);
-//            return createTypeDescriptor(bType, bType.tsymbol, moduleID);
         }
 
     }
@@ -237,7 +228,7 @@ public class TypesFactory {
             case OBJECT:
                 ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
                 if (Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)) {
-                    BTypeSymbol classSymbol = tSymbol.isLabel ? tSymbol.type.tsymbol : tSymbol;
+                    BTypeSymbol classSymbol = tSymbol;
                     return symbolFactory.createClassSymbol((BClassSymbol) classSymbol, classSymbol.name.value, objType);
                 }
                 return objType;
@@ -352,9 +343,7 @@ public class TypesFactory {
 
         final TypeKind kind = bType.getKind();
         return kind == PARAMETERIZED || tSymbol instanceof BTypeDefinitionSymbol
-                || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
                 || tSymbol.kind == SymbolKind.ENUM || isCustomError(tSymbol);
-//        return isCustomError(tSymbol);
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {

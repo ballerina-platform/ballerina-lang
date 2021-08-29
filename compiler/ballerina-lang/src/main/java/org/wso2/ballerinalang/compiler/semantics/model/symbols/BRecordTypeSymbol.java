@@ -36,13 +36,4 @@ public class BRecordTypeSymbol extends BStructureTypeSymbol {
                              Location pos, SymbolOrigin origin) {
         super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner, pos, origin);
     }
-
-    @Override
-    public BRecordTypeSymbol createLabelSymbol() {
-        BRecordTypeSymbol copy = Symbols.createRecordSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin);
-        copy.attachedFuncs = attachedFuncs;
-        copy.initializerFunc = initializerFunc;
-        copy.isLabel = true;
-        return copy;
-    }
 }

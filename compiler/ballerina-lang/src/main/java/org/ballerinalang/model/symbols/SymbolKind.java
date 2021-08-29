@@ -56,6 +56,5 @@ public enum SymbolKind {
     SCOPE,
     OTHER,
 
-    INVOKABLE_TYPE,
-    TYPE_DEF_SYM
+    INVOKABLE_TYPE
 }

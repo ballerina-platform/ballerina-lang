@@ -1506,7 +1506,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 //            label = true;
 //            typeDefSymbol = definedType.tsymbol.createLabelSymbol();
 
-            typeDefSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDefinition.flagSet),
+            typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
                     names.fromIdNode(typeDefinition.name), env.enclPkg.symbol.pkgID, definedType, env.scope.owner,
                     typeDefinition.name.pos, SOURCE);
 //            typeDefSymbol.kind = definedType.tsymbol.kind;
@@ -1634,9 +1634,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
                 typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
-                if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
-                    definedType.tsymbol.isLabel = false;
-                }
+//                if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+//                    definedType.tsymbol.isLabel = false;
+//                }
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             }

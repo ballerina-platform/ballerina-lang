@@ -179,15 +179,14 @@ public class Symbols {
         return new BTypeSymbol(symTag, flags, name, originalName, pkgID, type, owner, pos, origin);
     }
 
-    public static BTypeDefinitionSymbol createTypeDefinitionSymbol(int symTag,
-                                               long flags,
-                                               Name name,
-                                               PackageID pkgID,
-                                               BType type,
-                                               BSymbol owner,
-                                               Location pos,
-                                               SymbolOrigin origin) {
-        return new BTypeDefinitionSymbol(symTag, flags, name, pkgID, type, owner, pos, origin);
+    public static BTypeDefinitionSymbol createTypeDefinitionSymbol(long flags,
+                                                                   Name name,
+                                                                   PackageID pkgID,
+                                                                   BType type,
+                                                                   BSymbol owner,
+                                                                   Location pos,
+                                                                   SymbolOrigin origin) {
+        return new BTypeDefinitionSymbol(flags, name, pkgID, type, owner, pos, origin);
     }
 
 

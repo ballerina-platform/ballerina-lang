@@ -44,13 +44,4 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
         super(SymbolKind.OBJECT, symTag, flags, name, pkgID, type, owner, pos, origin);
         this.referencedFunctions = new ArrayList<>();
     }
-
-    @Override
-    public BObjectTypeSymbol createLabelSymbol() {
-        BObjectTypeSymbol copy = Symbols.createObjectSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin);
-        copy.attachedFuncs = attachedFuncs;
-        copy.initializerFunc = initializerFunc;
-        copy.isLabel = true;
-        return copy;
-    }
 }

@@ -43,9 +43,9 @@ public class BTypeDefinitionSymbol extends BSymbol {
     public List<Qualifier> qualifiers;
     private final boolean readonly;
 
-    public BTypeDefinitionSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public BTypeDefinitionSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                  Location pos, SymbolOrigin origin) {
-        super(symTag, flags, name, pkgID, type, owner, pos, origin);
+        super(SymTag.TYPE_DEF, flags, name, pkgID, type, owner, pos, origin);
         this.readonly = Symbols.isFlagOn(owner.flags, Flags.READONLY);
         this.isLabel = false;
         this.kind = SymbolKind.TYPE_DEF;
@@ -60,12 +60,4 @@ public class BTypeDefinitionSymbol extends BSymbol {
         }
         return this.pkgID.toString() + ":" + this.name;
     }
-
-//    @Override
-//    public BTypeDefinitionSymbol createLabelSymbol() {
-//        BTypeDefinitionSymbol typeSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY,
-//                pkgID, type, owner, pos, origin);
-//        typeSymbol.isLabel = true;
-//        return typeSymbol;
-//    }
 }

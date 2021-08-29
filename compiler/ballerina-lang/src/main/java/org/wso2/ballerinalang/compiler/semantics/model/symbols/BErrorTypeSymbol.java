@@ -37,11 +37,4 @@ public class BErrorTypeSymbol extends BTypeSymbol {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.kind = SymbolKind.ERROR;
     }
-
-    @Override
-    public BErrorTypeSymbol createLabelSymbol() {
-        BErrorTypeSymbol copy = Symbols.createErrorSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin);
-        copy.isLabel = true;
-        return copy;
-    }
 }

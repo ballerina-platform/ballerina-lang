@@ -87,20 +87,6 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         return this.memberTypes;
     }
 
-    public List<BType> getAllTypes(BType type) {
-        if (type.tag != TypeTags.UNION) {
-            if (type.tag == TypeTags.TYPEREFDESC) {
-                return getAllTypes(((BTypeReferenceType) type).constraint);
-            } else {
-                return Lists.of(type);
-            }
-        }
-
-        List<BType> memberTypes = new ArrayList<>();
-        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
-        return memberTypes;
-    }
-
     @Override
     public List<TypeSymbol> userSpecifiedMemberTypes() {
         if (this.originalMemberTypes == null) {
@@ -210,5 +196,19 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             return true;
         }
         return false;
+    }
+
+    private List<BType> getAllTypes(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            if (type.tag == TypeTags.TYPEREFDESC) {
+                return getAllTypes(((BTypeReferenceType) type).constraint);
+            } else {
+                return Lists.of(type);
+            }
+        }
+
+        List<BType> memberTypes = new ArrayList<>();
+        ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
+        return memberTypes;
     }
 }

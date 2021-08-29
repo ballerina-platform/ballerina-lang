@@ -189,7 +189,7 @@ public class SymbolFactory {
             if (symbol instanceof BPackageSymbol) {
                 return createModuleSymbol((BPackageSymbol) symbol, name);
             }
-            if (symbol instanceof BClassSymbol && !((BClassSymbol) symbol).isLabel) {
+            if (symbol instanceof BClassSymbol) {
                 return createClassSymbol((BClassSymbol) symbol, name);
             }
             if (symbol instanceof BEnumSymbol) {

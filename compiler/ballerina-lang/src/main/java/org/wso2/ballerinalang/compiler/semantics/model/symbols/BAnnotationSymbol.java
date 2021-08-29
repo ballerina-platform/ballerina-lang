@@ -78,15 +78,6 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
     }
 
-    @Override
-    public BAnnotationSymbol createLabelSymbol() {
-        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, points, Names.EMPTY, Names.EMPTY,
-                                                                pkgID, type, owner, pos, origin);
-        copy.attachedType = attachedType;
-        copy.isLabel = true;
-        return copy;
-    }
-
     private int getMaskedPoints(Set<AttachPoint> attachPoints) {
         Set<AttachPoint.Point> points = new HashSet<>();
         if (!attachPoints.isEmpty()) {

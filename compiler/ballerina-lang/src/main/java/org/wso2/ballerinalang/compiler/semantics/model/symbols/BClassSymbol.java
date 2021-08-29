@@ -58,14 +58,4 @@ public class BClassSymbol extends BObjectTypeSymbol implements Annotatable {
     public List<? extends AnnotationSymbol> getAnnotations() {
         return this.annots;
     }
-
-    @Override
-    public BClassSymbol createLabelSymbol() {
-        BClassSymbol copy = Symbols.createClassSymbol(flags, Names.EMPTY, pkgID, type, owner, pos, origin,
-                                                      isServiceDecl);
-        copy.attachedFuncs = attachedFuncs;
-        copy.initializerFunc = initializerFunc;
-        copy.isLabel = true;
-        return copy;
-    }
 }

@@ -486,42 +486,21 @@ public class BIRPackageSymbolEnter {
         if (isClass || Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
             symbol = type.tsymbol;
         } else {
-            symbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_DEF, flags,
-                    names.fromString(typeDefName), this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol,
-                    pos, COMPILED_SOURCE);
+            symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
+                    this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
         }
         symbol.originalName = names.fromString(typeDefOrigName);
-        if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
-            type.tsymbol.name = symbol.name;
-            type.tsymbol.originalName = symbol.originalName;
-        }
         symbol.origin = toOrigin(origin);
         symbol.flags = flags;
 
         defineMarkDownDocAttachment(symbol, docBytes);
 
-//        BTypeSymbol symbol;
-//        if (isLabel) {
-//            symbol = type.tsymbol.createLabelSymbol();
-//        } else {
-//            symbol = type.tsymbol;
-//
-//        }
-//
-//        defineMarkDownDocAttachment(symbol, docBytes);
-//
-//        symbol.name = names.fromString(typeDefName);
-//        symbol.originalName = names.fromString(typeDefOrigName);
-//        symbol.type = type;
-//        symbol.pkgID = this.env.pkgSymbol.pkgID;
-//        symbol.flags = flags;
-//        symbol.origin = toOrigin(origin);
-//        symbol.pos = pos;
+        if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
+            type.tsymbol.name = symbol.name;
+            type.tsymbol.originalName = symbol.originalName;
+        }
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
-            //todo junit fails only 3
-//            type.tsymbol.flags = flags;
-//            type.tsymbol.markdownDocumentation = symbol.markdownDocumentation;
             type.tsymbol.origin = toOrigin(origin);
             this.structureTypes.add((BStructureTypeSymbol) type.tsymbol);
         }
@@ -1163,24 +1142,24 @@ public class BIRPackageSymbolEnter {
                     PackageID pkg = getPackageId(pkgIndex);
 
                     String typeDefName = getStringCPEntryValue(inputStream);
-                    BTypeDefinitionSymbol typeSymbol = Symbols.createTypeDefinitionSymbol(SymTag.TYPE_REF,
+                    BTypeDefinitionSymbol definitionSymbol = Symbols.createTypeDefinitionSymbol(
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
-                    BTypeSymbol tsymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
+                    BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
-                    typeSymbol.flags |= flags;
-                    typeSymbol.scope = new Scope(typeSymbol);
+                    definitionSymbol.flags |= flags;
+                    definitionSymbol.scope = new Scope(definitionSymbol);
                     BTypeReferenceType typeReferenceType = new BTypeReferenceType(null,
-                            tsymbol, typeSymbol.flags);
+                            typeSymbol, definitionSymbol.flags);
                     typeReferenceType.flags |= flags;
-                    typeSymbol.referenceType = typeReferenceType;
+                    definitionSymbol.referenceType = typeReferenceType;
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.constraint = readTypeFromCp();
-                    typeSymbol.type = typeReferenceType.constraint;
+                    definitionSymbol.type = typeReferenceType.constraint;
 
                     Object poppedRefType = compositeStack.pop();
                     assert poppedRefType == typeReferenceType;

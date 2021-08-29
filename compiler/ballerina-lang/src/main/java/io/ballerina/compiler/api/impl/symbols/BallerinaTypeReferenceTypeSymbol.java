@@ -69,7 +69,6 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             this.typeDescriptorImpl = typesFactory.getTypeDescriptor(
                     this.getBType(), this.getBType().tsymbol, true, !fromIntersectionType, false);
-//                    this.getBType(), this.tSymbol, true, !fromIntersectionType, false);
         }
 
         return this.typeDescriptorImpl;
