@@ -495,7 +495,8 @@ public class AnnotationDesugar {
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
-        if (annTypeSymbol instanceof BTypeDefinitionSymbol && annTypeSymbol.type.tsymbol instanceof BStructureTypeSymbol) {
+        if (annTypeSymbol instanceof BTypeDefinitionSymbol &&
+                annTypeSymbol.type.tsymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
             literalNode.setBType(annTypeSymbol.type);
         } else if (annTypeSymbol instanceof BStructureTypeSymbol) {

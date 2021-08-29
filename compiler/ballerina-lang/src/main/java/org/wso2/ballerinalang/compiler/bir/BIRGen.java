@@ -77,7 +77,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -432,8 +431,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                           astTypeDefinition.symbol.origin.toBIROrigin(),
                                                           displayName,
                                                           astTypeDefinition.symbol.originalName);
-        //todo revisit @chiran
-        if(astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
+        if (astTypeDefinition.symbol.tag == SymTag.TYPE_DEF) {
             typeDefs.put(astTypeDefinition.symbol.type.tsymbol, typeDef);
         } else {
             typeDefs.put(astTypeDefinition.symbol, typeDef);
@@ -455,8 +453,7 @@ public class BIRGen extends BLangNodeVisitor {
         BSymbol typeSymbol = astTypeDefinition.symbol.tag == SymTag.TYPE_DEF
                 ? astTypeDefinition.symbol.type.tsymbol : astTypeDefinition.symbol;
         // Write referenced functions, if this is an abstract-object
-        if (typeSymbol.tag != SymTag.OBJECT ||
-                !Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS)) {
+        if (typeSymbol.tag != SymTag.OBJECT || !Symbols.isFlagOn(typeSymbol.flags, Flags.CLASS)) {
             return;
         }
 
@@ -493,19 +490,11 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    public BType getConstraintFromReferenceType(BType type) {
-        BType constraint = type;
-        if(type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).constraint;
-        }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
-    }
-
     private BType getDefinedType(BLangTypeDefinition astTypeDefinition) {
         BType nodeType = astTypeDefinition.typeNode.getBType();
         // Consider: type DE distinct E;
         // For distinct types, the type defined by typeDefStmt (DE) is different from type used to define it (E).
-        if (getConstraintFromReferenceType(nodeType).tag == TypeTags.ERROR) {
+        if (types.getConstraintFromReferenceType(nodeType).tag == TypeTags.ERROR) {
             return astTypeDefinition.symbol.type;
         }
         return nodeType;
@@ -687,8 +676,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
-        //todo @chiran
-//        BType retType = unifier.build(getConstraintFromReferenceType(astFunc.symbol.type.getReturnType()));
         BType retType = unifier.build(astFunc.symbol.type.getReturnType());
         birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, retType, this.env.nextLocalVarId(names),
                                                     VarScope.FUNCTION, VarKind.RETURN, null);
@@ -1762,7 +1749,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIRTypeDefinition def = typeDefs.get(objectTypeSymbol);
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, def, toVarRef);
         } else {
-            BType connectorInitExprType = getConstraintFromReferenceType(connectorInitExpr.getBType());
+            BType connectorInitExprType = types.getConstraintFromReferenceType(connectorInitExpr.getBType());
             BType objectType = connectorInitExprType.tag != TypeTags.UNION ? connectorInitExprType :
                     ((BUnionType) connectorInitExprType).getMemberTypes().stream()
                             .filter(bType -> bType.tag != TypeTags.ERROR)
@@ -1771,7 +1758,7 @@ public class BIRGen extends BLangNodeVisitor {
 
             String objectName = objectType.tsymbol.name.value;
             instruction = new BIRNonTerminator.NewInstance(connectorInitExpr.pos, objectTypeSymbol.pkgID,
-                    objectName, toVarRef);
+                                                           objectName, toVarRef);
         }
         setScopeAndEmit(instruction);
         this.env.targetOperand = toVarRef;
@@ -1851,7 +1838,7 @@ public class BIRGen extends BLangNodeVisitor {
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTableAccessExpr.getBType(), this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
+                                                       VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand tempVarRef = new BIROperand(tempVarDcl);
 
@@ -2565,13 +2552,13 @@ public class BIRGen extends BLangNodeVisitor {
     private void generateListConstructorExpr(BLangListConstructorExpr listConstructorExpr) {
         // Emit create array instruction
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(listConstructorExpr.getBType(), this.env.nextLocalVarId(names),
-                VarScope.FUNCTION, VarKind.TEMP);
+                                                       VarScope.FUNCTION, VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         long size = -1L;
         List<BLangExpression> exprs = listConstructorExpr.exprs;
-        BType listConstructorExprType = getConstraintFromReferenceType(listConstructorExpr.getBType());
+        BType listConstructorExprType = types.getConstraintFromReferenceType(listConstructorExpr.getBType());
         if (listConstructorExprType.tag == TypeTags.ARRAY &&
                 ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
             size = ((BArrayType) listConstructorExprType).size;
@@ -2633,7 +2620,7 @@ public class BIRGen extends BLangNodeVisitor {
         boolean variableStore = this.varAssignment;
         this.varAssignment = false;
         InstructionKind insKind;
-        BType astAccessExprExprType = getConstraintFromReferenceType(astIndexBasedAccessExpr.expr.getBType());;
+        BType astAccessExprExprType = types.getConstraintFromReferenceType(astIndexBasedAccessExpr.expr.getBType());;
         if (variableStore) {
             BIROperand rhsOp = this.env.targetOperand;
 
@@ -2648,8 +2635,8 @@ public class BIRGen extends BLangNodeVisitor {
                 keyRegIndex = getQNameOP(astIndexBasedAccessExpr.indexExpr, keyRegIndex);
             } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
                     (astAccessExprExprType.tag == TypeTags.UNION &&
-                            ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                    .next().tag == TypeTags.OBJECT)) {
+                             ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
+                                     .next().tag == TypeTags.OBJECT)) {
                 insKind = InstructionKind.OBJECT_STORE;
             } else {
                 insKind = InstructionKind.MAP_STORE;
@@ -2680,8 +2667,8 @@ public class BIRGen extends BLangNodeVisitor {
                 return;
             } else if (astAccessExprExprType.tag == TypeTags.OBJECT ||
                     (astAccessExprExprType.tag == TypeTags.UNION &&
-                            ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
-                                    .next().tag == TypeTags.OBJECT)) {
+                             ((BUnionType) astAccessExprExprType).getMemberTypes().iterator()
+                                     .next().tag == TypeTags.OBJECT)) {
                 insKind = InstructionKind.OBJECT_LOAD;
             } else {
                 insKind = InstructionKind.MAP_LOAD;
@@ -2696,7 +2683,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private BTypeSymbol getObjectTypeSymbol(BType objType) {
-        BType type = getConstraintFromReferenceType(objType);
+        BType type = types.getConstraintFromReferenceType(objType);
         if (type.tag == TypeTags.UNION) {
             return ((BUnionType) type).getMemberTypes().stream()
                     .filter(t -> t.tag == TypeTags.OBJECT)

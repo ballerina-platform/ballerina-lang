@@ -117,7 +117,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getConstraintFromReferenceType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.injectDefaultParamInits;
@@ -545,7 +544,7 @@ public class JvmPackageGen {
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = getConstraintFromReferenceType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(optionalTypeDef.type);
 
             if ((bType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS))) {
                 continue;
@@ -735,7 +734,7 @@ public class JvmPackageGen {
                 BSymbol typeSymbol = symbol.scope.lookup(lookupKey).symbol;
                 BObjectTypeSymbol objectTypeSymbol;
                 if (typeSymbol instanceof BTypeDefinitionSymbol) {
-                    objectTypeSymbol = (BObjectTypeSymbol) ((BTypeDefinitionSymbol) symbol.scope.lookup(lookupKey).symbol).type.tsymbol;
+                    objectTypeSymbol = (BObjectTypeSymbol) typeSymbol.type.tsymbol;
                 } else {
                     objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
                 }

@@ -447,7 +447,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         SymbolEnv typeDefEnv;
         BSymbol symbol = typeDefinition.symbol;
         if (typeDefinition.symbol instanceof BTypeDefinitionSymbol) {
-            symbol = typeDefinition.symbol.type.tsymbol;
+            symbol = symbol.type.tsymbol;
         }
         typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, symbol.scope, env);
         this.currDependentSymbol.push(symbol);

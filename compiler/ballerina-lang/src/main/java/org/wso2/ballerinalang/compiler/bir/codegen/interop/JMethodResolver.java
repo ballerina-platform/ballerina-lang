@@ -468,9 +468,6 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
-//                    if (jTypeName.equals(J_OBJECT_TNAME)) {
-//                        return true;
-//                    }
                     return isValidParamBType(jType, ((BTypeReferenceType) bType).constraint, isLastParam,
                             restParamExist);
                 default:
@@ -631,9 +628,6 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
-//                    if (jTypeName.equals(J_OBJECT_TNAME)) {
-//                        return true;
-//                    }
                     return isValidReturnBType(jType, ((BTypeReferenceType)bType).constraint, jMethodRequest, visitedSet);
                 default:
                     return false;

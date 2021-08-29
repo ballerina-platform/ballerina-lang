@@ -240,8 +240,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public BLangStructLiteral(Location pos, BType structType, List<RecordField> fields) {
             super(pos);
             this.setBType(structType);
-            BTypeSymbol typeSymbol = structType.getKind() == TypeKind.TYPEREFDESC ? ((BTypeReferenceType)structType).constraint.tsymbol : structType.tsymbol;
-//            BTypeSymbol typeSymbol = structType.tsymbol;
+            BTypeSymbol typeSymbol = structType.getKind() == TypeKind.TYPEREFDESC ?
+                    ((BTypeReferenceType)structType).constraint.tsymbol : structType.tsymbol;
             this.initializer = ((BRecordTypeSymbol) typeSymbol).initializerFunc;
             this.fields = fields;
         }

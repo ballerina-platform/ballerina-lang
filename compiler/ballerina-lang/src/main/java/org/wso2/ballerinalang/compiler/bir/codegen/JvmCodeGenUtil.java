@@ -609,17 +609,17 @@ public class JvmCodeGenUtil {
         }
     }
 
-    private static BType getConstrainedTypeFromRefType(BType refType) {
+    public static BType getConstraintFromReferenceType(BType refType) {
         BType constraint = refType;
         if(refType.tag == TypeTags.TYPEREFDESC) {
             constraint = ((BTypeReferenceType) refType).constraint;
         }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmBStringConstantsGen stringConstantsGen) {
-        int typeTag = getConstrainedTypeFromRefType(bType).tag;
+        int typeTag = getConstraintFromReferenceType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);

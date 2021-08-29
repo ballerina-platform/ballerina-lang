@@ -545,19 +545,10 @@ public class MethodGen {
         mv.visitTypeInsn(CHECKCAST, frameName);
     }
 
-    private BType getConstrainedTypeFromRefType(BType type) {
-        BType constraint = type;
-        if(type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).constraint;
-        }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
-    }
-
-
     private void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                              BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            BType bType = getConstrainedTypeFromRefType(localVar.type);
+            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(localVar.type);
 
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
@@ -678,7 +669,7 @@ public class MethodGen {
 
     private void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
                                               int index, String frameName) {
-        JType jType = (JType) getConstrainedTypeFromRefType(localVar.type);
+        JType jType = (JType) JvmCodeGenUtil.getConstraintFromReferenceType(localVar.type);
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -719,7 +710,7 @@ public class MethodGen {
     private void generateFrameClassFieldUpdate(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                                BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            BType bType = getConstrainedTypeFromRefType(localVar.type);
+            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(localVar.type);
 
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);

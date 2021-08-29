@@ -518,11 +518,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
-            if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
-                ((BEnumSymbol) (typeDefinition.symbol.type.tsymbol)).addAnnotations(annotSymbols);
-            } else {
-                ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
-            }
+            ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+//            if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
+//                ((BEnumSymbol) (typeDefinition.symbol.type.tsymbol)).addAnnotations(annotSymbols);
+//            } else {
+//                ((BEnumSymbol) typeDefinition.symbol).addAnnotations(annotSymbols);
+//            }
             HashSet<String> enumElements = new HashSet<String>();
             BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode)  typeDefinition.typeNode;
             for (int j = bLangUnionTypeNode.memberTypeNodes.size() - 1; j >= 0; j--) {
@@ -4159,9 +4160,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType annotType = annotationSymbol.attachedType.type;
         if (annAttachmentNode.expr == null) {
-            BType annotConstrainedTyped = types.getConstraintFromReferenceType(annotType);
-            BRecordType recordType = annotConstrainedTyped.tag == TypeTags.RECORD ? (BRecordType) annotConstrainedTyped :
-                    annotConstrainedTyped.tag == TypeTags.ARRAY &&
+            BType annotConstrainedType = types.getConstraintFromReferenceType(annotType);
+            BRecordType recordType = annotConstrainedType.tag == TypeTags.RECORD ? (BRecordType) annotConstrainedType :
+                    annotConstrainedType.tag == TypeTags.ARRAY &&
                             types.getConstraintFromReferenceType(((BArrayType) annotType).eType).tag == TypeTags.RECORD ?
                             (BRecordType) types.getConstraintFromReferenceType(((BArrayType) annotType).eType) : null;
             if (recordType != null && hasRequiredFields(recordType)) {

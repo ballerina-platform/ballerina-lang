@@ -361,7 +361,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         expType = types.getConstraintFromReferenceType(expType);
-
         if (expType.tag == TypeTags.INTERSECTION) {
             expType = ((BIntersectionType) expType).effectiveType;
         }
@@ -377,9 +376,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         expr.accept(this);
 
-        //todo @chiran
         resultType = types.getConstraintFromReferenceType(resultType);
-
         if (resultType.tag == TypeTags.INTERSECTION) {
             resultType = ((BIntersectionType) resultType).effectiveType;
         }
@@ -5685,9 +5682,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, env, pkgAlias, funcName);
                 if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
                     funcSymbol = symbol;
-//                    if(symbol.type.tag == TypeTags.TYPEREFDESC) {
-//                        funcSymbol = types.getConstraintFromReferenceType(symbol.type).tsymbol;
-//                    }
                 }
                 if (symTable.rootPkgSymbol.pkgID.equals(symbol.pkgID) &&
                         (symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {

@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -159,19 +160,11 @@ public class JvmValueGen {
         this.jvmObjectGen = new JvmObjectGen();
     }
 
-    public static BType getConstraintFromReferenceType(BType type) {
-        BType constraint = type;
-        if(type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).constraint;
-        }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
-    }
-
     static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
                                                        JvmPackageGen jvmPackageGen) {
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = getConstraintFromReferenceType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(optionalTypeDef.type);
             if ((bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(
                     bType.tsymbol.flags, Flags.CLASS)) || bType.tag == TypeTags.RECORD) {
                 desugarObjectMethods(module.packageID, bType, optionalTypeDef.attachedFuncs, initMethodGen,
@@ -491,7 +484,7 @@ public class JvmValueGen {
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = getConstraintFromReferenceType(bType);
+            BType typeRef = JvmCodeGenUtil.getConstraintFromReferenceType(bType);
             if (typeRef.tag == TypeTags.RECORD) {
                 String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID, toNameString(typeRef));
                 mv.visitInsn(DUP2);
@@ -694,7 +687,7 @@ public class JvmValueGen {
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType bType : typeDef.referencedTypes) {
-            BType typeRef = getConstraintFromReferenceType(bType);
+            BType typeRef = JvmCodeGenUtil.getConstraintFromReferenceType(bType);
             if (typeRef.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -716,7 +709,7 @@ public class JvmValueGen {
             valueClassName = className;
         } else {
             // record type is the original record-type of this type-label
-            BRecordType recordType = (BRecordType) getConstraintFromReferenceType(typeDef.type);
+            BRecordType recordType = (BRecordType) JvmCodeGenUtil.getConstraintFromReferenceType(typeDef.type);
             valueClassName = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
             initFuncName = recordType.name + ENCODED_RECORD_INIT;
         }
@@ -1269,7 +1262,7 @@ public class JvmValueGen {
 
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
-            BType bType = getConstraintFromReferenceType(optionalTypeDef.type);
+            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(optionalTypeDef.type);
             String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {

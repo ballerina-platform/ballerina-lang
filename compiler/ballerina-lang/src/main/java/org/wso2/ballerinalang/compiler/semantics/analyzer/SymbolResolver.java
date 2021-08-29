@@ -178,7 +178,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
         //lookup symbol
         BSymbol foundSym = symTable.notFoundSymbol;
-//        int expSymTag = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol.tag : symbol.tag;
         int expSymTag = symbol.tag;
         if ((expSymTag & SymTag.IMPORT) == SymTag.IMPORT) {
             foundSym = lookupSymbolInPrefixSpace(env, symbol.name);
@@ -283,8 +282,6 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return true if the symbol is unique, false otherwise.
      */
     private boolean isDistinctSymbol(Location pos, BSymbol symbol, BSymbol foundSym) {
-//        int symbolTag = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol.tag: symbol.tag;
-//        int foundSymTag = foundSym.tag == SymTag.TYPE_DEF ? foundSym.type.tsymbol.tag: foundSym.tag;
         int symbolTag = symbol.tag;
         int foundSymTag = foundSym.tag;
         // It is allowed to have a error constructor symbol with the same name as a type def.
@@ -363,7 +360,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private boolean isSymbolDefinedInRootPkgLvl(BSymbol foundSym) {
-//        int foundSymTag = foundSym.tag == SymTag.TYPE_DEF ? foundSym.type.tsymbol.tag: foundSym.tag;
         int foundSymTag = foundSym.tag;
         return symTable.rootPkgSymbol.pkgID.equals(foundSym.pkgID) &&
                 (foundSymTag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME;
@@ -1505,7 +1501,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
-
             if (!TypeTags.isXMLTypeTag(memberType.tag)) {
                 dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
                            constraintUnionType);
@@ -2100,9 +2095,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
 
-//        if (typeOne.tag == TypeTags.TYPEREFDESC) {
-//            typeOne = ((BTypeReferenceType) typeOne).constraint;
-//        }
         typeOne = types.getConstraintFromReferenceType(typeOne);
 
         if (typeOne == symTable.noType) {
@@ -2114,9 +2106,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
 
-//        if (typeTwo.tag == TypeTags.TYPEREFDESC) {
-//            typeTwo = ((BTypeReferenceType) typeTwo).constraint;
-//        }
         typeTwo = types.getConstraintFromReferenceType(typeTwo);
 
         if (typeTwo == symTable.noType) {

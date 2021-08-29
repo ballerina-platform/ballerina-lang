@@ -1285,7 +1285,7 @@ public class Types {
     }
 
     public boolean referenceTypeMatchesTag(BType type, int tag) {
-        return getConstraintFromReferenceType(type).tag == tag;
+        return type.tag == tag;
     }
 
     public BType getConstraintFromReferenceType(BType type) {
@@ -3383,18 +3383,6 @@ public class Types {
                                             isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
                                                     getConstraintFromReferenceType(targetMemType))));
         }
-//        if (expType.tag == TypeTags.UNION) {
-//            List<BType> unionMemberTypes = getAllTypes(expType);
-//            return finiteType.getValueSpace().stream()
-//                    .allMatch(valueExpr -> {
-//                        for (BType targetMemType : unionMemberTypes) {
-//                            targetMemType = getConstraintFromReferenceType(targetMemType);
-//                            if (targetMemType.tag == TypeTags.FINITE ?
-//                                    isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
-//                                    isAssignable(valueExpr.getBType(), expType, unresolvedTypes) ||
-//                                    isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
-//                                                                                   targetMemType)));
-//        }
 
         for (BLangExpression expression : finiteType.getValueSpace()) {
             if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&

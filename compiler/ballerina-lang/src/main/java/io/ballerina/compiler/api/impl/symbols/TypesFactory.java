@@ -264,12 +264,6 @@ public class TypesFactory {
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
             case FUNCTION:
                 return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
-//                if(tSymbol.tag == SymTag.TYPE_DEF) {
-//                    return new BallerinaFunctionTypeSymbol(this.context, moduleID,
-//                            (BInvokableTypeSymbol) tSymbol.type.tsymbol, bType);
-//                } else {
-//                    return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
-//                }
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
             case NONE:

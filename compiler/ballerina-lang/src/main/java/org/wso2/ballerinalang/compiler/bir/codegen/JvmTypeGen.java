@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -1149,21 +1148,7 @@ public class JvmTypeGen {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE),
                         false);
             } else {
-                checkValueTypeTag(mv, valueType);
-//                switch (valueType.tag) {
-//                    case TypeTags.BOOLEAN:
-//                        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
-//                                String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-//                        break;
-//                    case TypeTags.FLOAT:
-//                        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
-//                                String.format("(D)L%s;", DOUBLE_VALUE), false);
-//                        break;
-//                    case TypeTags.BYTE:
-//                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
-//                                String.format("(I)L%s;", INT_VALUE), false);
-//                        break;
-//                }
+                loadValueType(mv, valueType);
             }
 
             // Add the value to the set
@@ -1179,7 +1164,7 @@ public class JvmTypeGen {
                            String.format("(L%s;L%s;I)V", STRING_VALUE, SET), false);
     }
 
-    private void checkValueTypeTag(MethodVisitor mv, BType valueType) {
+    private void loadValueType(MethodVisitor mv, BType valueType) {
         switch (valueType.tag) {
             case TypeTags.BOOLEAN:
                 mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
@@ -1194,7 +1179,7 @@ public class JvmTypeGen {
                         String.format("(I)L%s;", INT_VALUE), false);
                 break;
             case TypeTags.TYPEREFDESC:
-                checkValueTypeTag(mv, getConstrainedTypeFromRefType(valueType));
+                loadValueType(mv, getConstrainedTypeFromRefType(valueType));
         }
     }
 }

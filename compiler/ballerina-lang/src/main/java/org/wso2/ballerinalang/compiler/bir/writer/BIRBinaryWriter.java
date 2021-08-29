@@ -23,6 +23,7 @@ import io.netty.buffer.Unpooled;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationArrayValue;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -512,16 +513,8 @@ public class BIRBinaryWriter {
         }
     }
 
-    private BType getConstrainedTypeFromRefType(BType type) {
-        BType constraint = type;
-        if(type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).constraint;
-        }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
-    }
-
     private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
-        BType annotType = getConstrainedTypeFromRefType(annotValue.type);
+        BType annotType = JvmCodeGenUtil.getConstraintFromReferenceType(annotValue.type);
         if (annotType.tag == TypeTags.ARRAY) {
             writeType(annotBuf, annotType);
             BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;

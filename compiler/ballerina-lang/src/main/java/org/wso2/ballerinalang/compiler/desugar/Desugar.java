@@ -463,7 +463,6 @@ public class Desugar extends BLangNodeVisitor {
             }
             BSymbol typeSymbol = typeDef.symbol.tag == SymTag.TYPE_DEF ? typeDef.symbol.type.tsymbol : typeDef.symbol;
             if (typeSymbol.tag == SymTag.OBJECT) {
-//            if (typeDef.symbol.tag == SymTag.OBJECT) {
                 BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
 
                 objectTypeNode.functions.forEach(f -> {
@@ -473,7 +472,6 @@ public class Desugar extends BLangNodeVisitor {
                     }
                 });
             } else if (typeSymbol.tag == SymTag.RECORD) {
-//            } else if (typeDef.symbol.tag == SymTag.RECORD) {
                 BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
                 recordTypeNode.initFunction = rewrite(
                         TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
@@ -5031,8 +5029,7 @@ public class Desugar extends BLangNodeVisitor {
                                                                              foreach.collection, dataSymbol);
             BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(foreach.pos, dataVariable);
 
-            // Get the symbol of the variable (collection).
-            BLangBlockStmt blockNode = desugarForeach(dataVariable.symbol, foreach.collection.getBType(),
+            BLangBlockStmt blockNode = desugarForeachStmt(dataVariable.symbol, foreach.collection.getBType(),
                     foreach, dataVarDef);
 
             // Rewrite the block.
@@ -5041,8 +5038,9 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    BLangBlockStmt desugarForeach(BVarSymbol collectionSymbol, BType collectionType, BLangForeach foreach,
-             BLangSimpleVariableDef dataVarDef) {
+    BLangBlockStmt desugarForeachStmt(BVarSymbol collectionSymbol, BType collectionType, BLangForeach foreach,
+                                      BLangSimpleVariableDef dataVarDef) {
+        // Get the symbol of the variable (collection).
         switch (collectionType.tag) {
             case TypeTags.STRING:
             case TypeTags.ARRAY:
@@ -5061,7 +5059,7 @@ public class Desugar extends BLangNodeVisitor {
                 return desugarForeachWithIteratorDef(foreach, dataVarDef, collectionSymbol,
                         iteratorSymbol, false);
             case TypeTags.TYPEREFDESC:
-                return desugarForeach(collectionSymbol, ((BTypeReferenceType) foreach.collection.getBType()).constraint,
+                return desugarForeachStmt(collectionSymbol, ((BTypeReferenceType) foreach.collection.getBType()).constraint,
                         foreach, dataVarDef);
             default:
                 BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(foreach.pos);
@@ -6352,8 +6350,6 @@ public class Desugar extends BLangNodeVisitor {
         rewriteExprs(errorConstructorExpr.positionalArgs);
 
         BLangExpression errorDetail;
-//        BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(errorConstructorExpr.pos,
-//                types.getConstraintFromReferenceType(((BErrorType) errorConstructorExpr.getBType()).detailType));
         BLangRecordLiteral recordLiteral = ASTBuilderUtil.createEmptyRecordLiteral(errorConstructorExpr.pos,
                 ((BErrorType) errorConstructorExpr.getBType()).detailType);
         if (errorConstructorExpr.namedArgs.isEmpty()) {
