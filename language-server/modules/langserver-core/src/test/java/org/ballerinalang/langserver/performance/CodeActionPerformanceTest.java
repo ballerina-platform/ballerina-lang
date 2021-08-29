@@ -80,8 +80,8 @@ public class CodeActionPerformanceTest {
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
-        diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+        diags = diags.stream()
+                .filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
@@ -92,7 +92,7 @@ public class CodeActionPerformanceTest {
         long responseTime = end - start;
         boolean isResponseWithinTime = TestUtil.isResponseWithinExpected(responseTime);
         Assert.assertEquals(isResponseWithinTime, true);
-        
+
         for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
             JsonObject expected = element.getAsJsonObject();
             String expTitle = expected.get("title").getAsString();
@@ -171,7 +171,7 @@ public class CodeActionPerformanceTest {
         return "performance" + File.separator + getResourceDir() + File.separator + "config" + File.separator +
                 configFilePath;
     }
- 
+
     @AfterClass
     public void cleanupLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);

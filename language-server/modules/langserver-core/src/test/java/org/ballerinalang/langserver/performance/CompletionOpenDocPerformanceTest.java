@@ -44,7 +44,7 @@ public class CompletionOpenDocPerformanceTest extends CompletionPerformanceTest 
     public void init() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
-    
+
     @Test(dataProvider = "performance-data-provider")
     public void testCompletion(String config, String configPath) throws IOException, WorkspaceDocumentException {
         super.testCompletion(config, configPath);
@@ -70,7 +70,7 @@ public class CompletionOpenDocPerformanceTest extends CompletionPerformanceTest 
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         return responseTime;
     }
-    
+
     @Override
     String getResponseCompletion(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
@@ -94,7 +94,7 @@ public class CompletionOpenDocPerformanceTest extends CompletionPerformanceTest 
     public void cleanupLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
-    
+
     @DataProvider(name = "performance-data-provider")
     @Override
     public Object[][] dataProvider() {
