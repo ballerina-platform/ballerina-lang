@@ -95,8 +95,7 @@ public class PackageDescriptor {
         PackageDescriptor that = (PackageDescriptor) other;
         return packageName.equals(that.packageName) &&
                 packageOrg.equals(that.packageOrg) &&
-                Objects.equals(packageVersion, that.packageVersion) &&
-                Objects.equals(repository, that.repository);
+                Objects.equals(packageVersion, that.packageVersion);
     }
 
     @Override

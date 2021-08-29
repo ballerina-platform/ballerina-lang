@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -326,13 +325,11 @@ public class VersionConflictResolutionTests {
         for (DependencyJson directDependency : directDependencies) {
             PackageDescriptor pkgDesc = getPackageDesc(directDependency);
             depGraphBuilder.addNode(pkgDesc, PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
-            List<PackageDescriptor> pkgDescDependencies = new ArrayList<>();
             for (DependencyJson dependency : directDependency.getDependencies()) {
                 PackageDescriptor pkgDescDependency = getPackageDesc(dependency);
-                pkgDescDependencies.add(pkgDescDependency);
+                depGraphBuilder.addDependency(pkgDesc, pkgDescDependency,
+                        PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
             }
-            depGraphBuilder.addDependencies(pkgDesc, pkgDescDependencies,
-                    PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
         }
         return depGraphBuilder.buildGraph();
     }

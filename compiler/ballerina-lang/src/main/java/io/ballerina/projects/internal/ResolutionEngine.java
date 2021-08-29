@@ -22,13 +22,16 @@ import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
+import io.ballerina.projects.internal.PackageDependencyGraphBuilder.NodeStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,32 +46,138 @@ import java.util.Optional;
  */
 public class ResolutionEngine {
     private final PackageDescriptor rootPkgDesc;
-    private final DependencyManifest dependencyManifest;
+    private final BlendedManifest blendedManifest;
+    private final PackageResolver packageResolver;
+    private final ModuleResolver moduleResolver;
     private final boolean offline;
     private final boolean sticky;
 
+    private final DependencyManifest dependencyManifest;
     private final PackageDependencyGraphBuilder graphBuilder;
-    private final PackageResolver packageResolver;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
-                            DependencyManifest dependencyManifest,
+                            BlendedManifest blendedManifest,
                             PackageResolver packageResolver,
+                            ModuleResolver moduleResolver,
                             boolean offline, // TODO Can we combine these two options into buildOptions
                             boolean sticky) {
-        this.dependencyManifest = dependencyManifest;
         this.rootPkgDesc = rootPkgDesc;
+        this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
+        this.moduleResolver = moduleResolver;
         this.offline = offline;
         this.sticky = sticky;
+
+        this.dependencyManifest = blendedManifest.dependencyManifest();
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
     }
 
+    public DependencyGraph<DependencyNode> resolveDependenciesFromImports(
+            Collection<ModuleLoadRequest> moduleLoadRequests) {
+        // Resolve import declarations into Packages.
+        Collection<DependencyNode> directDependencies = resolvePackages(moduleLoadRequests);
+        return resolveDependencies(directDependencies);
+    }
+
     public DependencyGraph<DependencyNode> resolveDependencies(Collection<DependencyNode> directDependencies) {
-        // 2. Add direct dependencies(resolved from imports) and their graphs.
-        // 3. Keep track new dependencies and modified existing dependencies ()
+        // 1) Pre-populate the graphBuilder with dependencies recorded in Dependencies.toml
+        populateGraphWithPreviousCompilationDependencies(dependencyManifest, graphBuilder);
 
-        // TODO We need to deal with the previous dependencies that not are used by the current source code..
+        // 2) TODO Should we add the dependencies specified in Ballerina.toml here
 
+        // 3) Create the static/initial dependency graph.
+        //    This graph contains direct dependencies and their transitives,
+        //     but we don't update versions.
+        populateInitialDependencyGraph(directDependencies, graphBuilder);
+
+        // 4) Update the dependency versions if required
+        //    This method traverse through the graph as many time as time until the graph is completed.
+        //    Graph is complete when it contains latest compatible versions of all dependencies.
+        completeDependencyGraph(graphBuilder);
+
+        // 5) Build final the dependency graph.
+        return graphBuilder.buildGraph();
+    }
+
+    // TODO Move this method to the PackageResolution class.
+    public DependencyGraph<ResolvedPackageDependency> getPackageDependencyGraph(Project currentProject) {
+        return graphBuilder.buildPackageDependencyGraph(packageResolver, currentProject, offline);
+    }
+
+    private Collection<DependencyNode> resolvePackages(Collection<ModuleLoadRequest> moduleLoadRequests) {
+        // Get the direct dependencies of the current package.
+        // This list does not contain langlib and the root package.
+        PackageContainer<ModuleResolver.DirectPackageDependency> directDepsContainer =
+                moduleResolver.resolveModuleLoadRequests(moduleLoadRequests);
+
+        List<ResolutionEngine.DependencyNode> directDeps = new ArrayList<>();
+        for (ModuleResolver.DirectPackageDependency directPkgDependency : directDepsContainer.getAll()) {
+            PackageVersion depVersion;
+            String repository;
+            PackageDescriptor depPkgDesc = directPkgDependency.pkgDesc();
+            if (directPkgDependency.dependencyKind() == ModuleResolver.DirectPackageDependencyKind.NEW) {
+                // This blendedDep may be resolved from the local repository as well.
+                Optional<BlendedManifest.Dependency> blendedDepOptional = blendedManifest.dependency(
+                        depPkgDesc.org(), depPkgDesc.name());
+
+                // If the package version is not null, use it
+                if (directPkgDependency.pkgDesc().version() != null) {
+                    depVersion = directPkgDependency.pkgDesc().version();
+                    repository = blendedDepOptional
+                            .map(BlendedManifest.Dependency::repositoryName)
+                            .orElse(null);
+                } else if (blendedDepOptional.isPresent()) {
+                    BlendedManifest.Dependency blendedDep = blendedDepOptional.get();
+                    repository = blendedDep.repositoryName();
+                    depVersion = blendedDep.version();
+                } else {
+                    depVersion = null;
+                    repository = null;
+                }
+            } else if (directPkgDependency.dependencyKind() == ModuleResolver.DirectPackageDependencyKind.EXISTING) {
+                BlendedManifest.Dependency blendedDep = blendedManifest.dependencyOrThrow(
+                        depPkgDesc.org(), depPkgDesc.name());
+                depVersion = blendedDep.version();
+                repository = blendedDep.repositoryName();
+            } else {
+                throw new IllegalStateException("Unsupported direct dependency kind: " +
+                        directPkgDependency.dependencyKind());
+            }
+            directDeps.add(new ResolutionEngine.DependencyNode(
+                    PackageDescriptor.from(depPkgDesc.org(), depPkgDesc.name(), depVersion, repository),
+                    directPkgDependency.scope(), directPkgDependency.resolutionType()));
+        }
+
+        return directDeps;
+    }
+
+    private void populateInitialDependencyGraph(Collection<DependencyNode> directDependencies,
+                                                PackageDependencyGraphBuilder graphBuilder) {
+        List<PackageMetadataResponse> pkgMetadataResponses = resolveDirectDependencies(directDependencies);
+        for (PackageMetadataResponse resolutionResp : pkgMetadataResponses) {
+            if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
+                // TODO Report diagnostics
+                continue;
+            }
+
+            ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
+            PackageDescriptor resolvedPkgDesc = resolutionResp.resolvedDescriptor();
+            DependencyResolutionType resolutionType = resolutionReq.dependencyResolutionType();
+            PackageDependencyScope scope = resolutionReq.scope();
+
+            // Merge the dependency graph only if the node is accepted by the graphBuilder
+            NodeStatus nodeStatus = graphBuilder.addResolvedDependency(rootPkgDesc,
+                    resolvedPkgDesc, scope, resolutionType);
+            if (nodeStatus == NodeStatus.ACCEPTED) {
+                mergeGraph(resolvedPkgDesc,
+                        resolutionResp.dependencyGraph().orElseThrow(
+                                () -> new IllegalStateException("Graph cannot be null in a resolved dependency")),
+                        scope, resolutionType, graphBuilder);
+            }
+        }
+    }
+
+    private List<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDependencies) {
         // Set the default locking mode based on the sticky build option.
         PackageLockingMode lockingMode = sticky ? PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
@@ -88,35 +197,87 @@ public class ResolutionEngine {
                     directDependency.scope(), directDependency.resolutionType(), offline, lockingMode));
         }
 
-        List<PackageMetadataResponse> responseDescriptors =
-                packageResolver.resolvePackageMetadata(resolutionRequests);
-        for (PackageMetadataResponse resolutionResp : responseDescriptors) {
+        return packageResolver.resolvePackageMetadata(resolutionRequests);
+    }
+
+    private void mergeGraph(PackageDescriptor rootNode,
+                            DependencyGraph<PackageDescriptor> dependencyGraph,
+                            PackageDependencyScope scope,
+                            DependencyResolutionType resolutionType,
+                            PackageDependencyGraphBuilder graphBuilder) {
+        Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
+        for (PackageDescriptor directDep : directDependencies) {
+            // Merge the dependency graph only if the node is accepted by the graphBuilder
+            NodeStatus nodeStatus = graphBuilder.addDependency(rootNode, directDep, scope, resolutionType);
+            if (nodeStatus == NodeStatus.ACCEPTED) {
+                mergeGraph(directDep, dependencyGraph, scope, resolutionType, graphBuilder);
+            }
+        }
+    }
+
+    private void completeDependencyGraph(PackageDependencyGraphBuilder graphBuilder) {
+        Collection<DependencyNode> unresolvedNodes = graphBuilder.cleanUnresolvedNodes();
+        if (!sticky) {
+            // Discard the previous unresolved nodes,
+            // Since sticky = false, we have to update all dependency nodes.
+            unresolvedNodes = graphBuilder.getAllDependencies();
+        }
+        completeDependencyGraph(graphBuilder, unresolvedNodes);
+    }
+
+    private void completeDependencyGraph(PackageDependencyGraphBuilder graphBuilder,
+                                         Collection<DependencyNode> unresolvedNodes) {
+        PackageLockingMode lockingMode = PackageLockingMode.MEDIUM;
+        while (!unresolvedNodes.isEmpty()) {
+            List<ResolutionRequest> resRequests = new ArrayList<>(unresolvedNodes.size());
+            for (DependencyNode unresolvedNode : unresolvedNodes) {
+                resRequests.add(ResolutionRequest.from(unresolvedNode.pkgDesc(),
+                        unresolvedNode.scope(), unresolvedNode.resolutionType(), offline, lockingMode));
+            }
+
+            List<PackageMetadataResponse> pkgMetadataResponses =
+                    packageResolver.resolvePackageMetadata(resRequests);
+            resolvePackageMetadata(pkgMetadataResponses, graphBuilder);
+            unresolvedNodes = graphBuilder.cleanUnresolvedNodes();
+        }
+    }
+
+    private void resolvePackageMetadata(List<PackageMetadataResponse> pkgMetadataResponses,
+                                        PackageDependencyGraphBuilder graphBuilder) {
+        for (PackageMetadataResponse resolutionResp : pkgMetadataResponses) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
                 continue;
             }
 
-            ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
-            graphBuilder.addDependency(rootPkgDesc, resolutionResp.resolvedDescriptor(),
-                    resolutionReq.scope(),
-                    resolutionReq.dependencyResolutionType());
-            graphBuilder.mergeGraph(resolutionResp.dependencyGraph().orElseThrow(
-                    () -> new IllegalStateException("Graph cannot be null in a resolved dependency")),
-                    resolutionReq.scope(), resolutionReq.dependencyResolutionType());
+            if (!graphBuilder.containsNode(resolutionResp.resolvedDescriptor())) {
+                addNodeToGraph(graphBuilder, resolutionResp);
+            }
         }
-
-        // TODO Resolve transitive dependencies.
-
-        // TODO Automatic update transitive dependencies
-        // TODO test cases with json
-
-
-        // TODO we need to return the dependency graph and the diagnostics....
-        return graphBuilder.buildGraph();
     }
 
-    public DependencyGraph<ResolvedPackageDependency> getPackageDependencyGraph(Project currentProject) {
-        return graphBuilder.buildPackageDependencyGraph(packageResolver, currentProject, offline);
+    private void addNodeToGraph(PackageDependencyGraphBuilder graphBuilder,
+                                PackageMetadataResponse resolutionResp) {
+        ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
+        PackageDescriptor pkgDesc = resolutionResp.resolvedDescriptor();
+        PackageDependencyScope scope = resolutionReq.scope();
+        DependencyResolutionType resolvedType = resolutionReq.dependencyResolutionType();
+
+        // Merge the dependency graph only if the node is accepted by the graphBuilder
+        NodeStatus nodeStatus = graphBuilder.addResolvedNode(pkgDesc, scope, resolvedType);
+        if (nodeStatus == NodeStatus.ACCEPTED) {
+            mergeGraph(pkgDesc, resolutionResp.dependencyGraph().orElseThrow(
+                    () -> new IllegalStateException("Graph cannot be null in a resolved dependency")),
+                    scope, resolvedType, graphBuilder);
+        }
+    }
+
+    private void populateGraphWithPreviousCompilationDependencies(DependencyManifest dependencyManifest,
+                                                                  PackageDependencyGraphBuilder graphBuilder) {
+        for (DependencyManifest.Package pkg : dependencyManifest.packages()) {
+            graphBuilder.addResolvedNode(PackageDescriptor.from(pkg.org(), pkg.name(), pkg.version()),
+                    PackageDependencyScope.fromString(pkg.scope()), DependencyResolutionType.SOURCE);
+        }
     }
 
     /**
@@ -160,7 +321,10 @@ public class ResolutionEngine {
             }
 
             DependencyNode that = (DependencyNode) o;
-            return Objects.equals(pkgDesc, that.pkgDesc) &&
+            return Objects.equals(pkgDesc.org(), that.pkgDesc.org()) &&
+                    Objects.equals(pkgDesc.name(), that.pkgDesc.name()) &&
+                    Objects.equals(pkgDesc.version(), that.pkgDesc.version()) &&
+                    Objects.equals(pkgDesc.repository(), that.pkgDesc.repository()) &&
                     scope == that.scope &&
                     resolutionType == that.resolutionType;
         }

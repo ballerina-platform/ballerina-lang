@@ -28,8 +28,9 @@ public class Constants {
     public static final String REPO_DIR_NAME = "repositories";
     public static final String CENTRAL_REPO_FILE_NAME = "central.dot";
     public static final String DIST_REPO_FILE_NAME = "dist.dot";
-    public static final String LOCAL_REPO_FILE_NAME = "local.dot";
-    public static final String DEPS_TOML_FILE_NAME = "dependencies.dot";
+    public static final String LOCAL_REPO_DIR_NAME = "local";
+    public static final String DEPS_TOML_FILE_NAME = "Dependencies_toml.dot";
+    public static final String BAL_TOML_FILE_NAME = "Ballerina_toml.dot";
     public static final String EXP_GRAPH_STICKY_FILE_NAME = "expected-graph-sticky.dot";
     public static final String EXP_GRAPH_NO_STICKY_FILE_NAME = "expected-graph-nosticky.dot";
 

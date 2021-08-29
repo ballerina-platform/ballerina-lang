@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
 /**
  * Package resolution test cases with no Dependencies.toml files.
  */
-public class ResolutionWithNoDepsTomlTest extends AbstractPackageResolutionTest {
+public class AllInOneResolutionTests extends AbstractPackageResolutionTest {
 
     @Test(dataProvider = "resolutionTestCaseProvider")
     public void testcase(String testSuite, String testCase, boolean sticky) {
@@ -33,8 +33,10 @@ public class ResolutionWithNoDepsTomlTest extends AbstractPackageResolutionTest 
     @DataProvider(name = "resolutionTestCaseProvider")
     public static Object[][] testCaseProvider() {
         return new Object[][]{
-                {"suite-001", "case-0001", true},
-                {"suite-001", "case-0001", false}
+                {"suite-all_in_one", "case-0001", true},
+                {"suite-all_in_one", "case-0001", false},
+                {"suite-all_in_one", "case-0002", true},
+                {"suite-all_in_one", "case-0002", false}
         };
     }
 }
