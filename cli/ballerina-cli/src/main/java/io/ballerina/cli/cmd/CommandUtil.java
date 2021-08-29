@@ -332,17 +332,18 @@ public class CommandUtil {
             PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
 
             try (Stream<Path> walk = Files.walk(balaCache)) {
+                if (pathMatcher != null) {
+                    List<Path> balaList = walk
+                            .filter(pathMatcher::matches)
+                            .collect(Collectors.toList());
 
-                List<Path> balaList = walk
-                        .filter(pathMatcher::matches)
-                        .collect(Collectors.toList());
-
-                Collections.sort(balaList);
-                // get the latest
-                if (balaList.size() > 0) {
-                    return balaList.get(balaList.size() - 1);
-                } else {
-                    return null;
+                    Collections.sort(balaList);
+                    // get the latest
+                    if (balaList.size() > 0) {
+                        return balaList.get(balaList.size() - 1);
+                    } else {
+                        return null;
+                    }
                 }
             } catch (IOException e) {
                 printError(errStream,
@@ -530,11 +531,11 @@ public class CommandUtil {
             }
 
             Gson gson = new Gson();
-            Path packageJsonPath = balaPath.resolve("package.json");
-            try (FileReader packageReader = new FileReader(String.valueOf(packageJsonPath))) {
+            String packageJsonPath = String.valueOf(balaPath.resolve("package.json"));
+            try (FileReader packageReader = new FileReader(packageJsonPath)) {
                 PackageJson packageJson = gson.fromJson(packageReader, PackageJson.class);
-                if (Files.exists(packageJsonPath)) {
-//                    if (packageJson.getTemplate() == true) {
+                if (Files.exists(balaPath.resolve("package.json"))) {
+                    if (packageJson.getTemplate() == true) {
                         userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
                         // Copy docs
                         Path packageMDFilePath = balaPath.resolve("docs")
@@ -570,7 +571,7 @@ public class CommandUtil {
                         Path balaToml = modulePath.resolve(ProjectConstants.BALLERINA_TOML);
                         Files.createFile(balaToml);
                         writeBallerinaToml(balaToml, packageJson, template, platformLibRelativePath);
-//                    }
+                    }
                 }
             } catch (IOException e) {
                 printError(errStream,
