@@ -24,7 +24,6 @@ import io.ballerina.semtype.subtypedata.BooleanSubtype;
 import io.ballerina.semtype.subtypedata.FloatSubtype;
 import io.ballerina.semtype.subtypedata.IntSubtype;
 import io.ballerina.semtype.subtypedata.StringSubtype;
-import io.ballerina.semtype.typeops.SubtypePairIterator;
 import io.ballerina.semtype.typeops.SubtypePair;
 import io.ballerina.semtype.typeops.SubtypePairs;
 
