@@ -44,6 +44,7 @@ public class TrialTreeParserTest {
     private static final String EXPRESSION_TESTCASES = "testcases/treeparser.expression.json";
     private static final String MODULE_DCLN_TESTCASES = "testcases/treeparser.moduledcln.json";
     private static final String MISC_TESTCASES = "testcases/treeparser.misc.json";
+    private static final String MODULE_DCLN_NAME_TESTCASES = "testcases/treeparser.dclnname.json";
 
     @Test
     public void testImportParse() {
@@ -76,6 +77,11 @@ public class TrialTreeParserTest {
         testParse(MISC_TESTCASES, Node.class);
     }
 
+    @Test(expectedExceptions = TreeParserException.class)
+    public void testMiscParseTest() throws TreeParserException {
+        testModuleMemberName(MODULE_DCLN_NAME_TESTCASES);
+    }
+
     private void testParse(String fileName, Class<?> parentClazz) {
         TestCases testCases = TestUtils.loadTestCases(fileName, TestCases.class);
         TreeParser treeParser = TestUtils.getTestTreeParser();
@@ -88,6 +94,14 @@ public class TrialTreeParserTest {
             } catch (TreeParserException e) {
                 Assert.assertNull(testCase.getExpected(), testCase.getName() + " error: " + e.getMessage());
             }
+        }
+    }
+
+    private void testModuleMemberName(String fileName) throws TreeParserException {
+        TestCases testCases = TestUtils.loadTestCases(fileName, TestCases.class);
+        TreeParser treeParser = TestUtils.getTestTreeParser();
+        for (TestCase testCase : testCases) {
+                treeParser.parse(testCase.getInput());
         }
     }
 }
