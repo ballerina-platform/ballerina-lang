@@ -15,22 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.semtype;
+package io.ballerina.semtype.typeops;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import io.ballerina.semtype.UniformTypeOps;
 
+// todo: use this to place common things between Ro and RW, if there are non; delete this.
 /**
- * Tests if placeholder is created.
+ * Common mapping related methods operate on SubtypeData.
  *
+ * @since 2.0.0
  */
-public class SemTypeTest {
+public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
 
-    @Test
-    public void testSemType() {
-        SemType s1 = new UniformTypeBitSet(0x00);
-        SemType s2 = new ComplexSemType();
-        Assert.assertTrue(s1 instanceof UniformTypeBitSet);
-        Assert.assertTrue(s2 instanceof ComplexSemType);
-    }
 }

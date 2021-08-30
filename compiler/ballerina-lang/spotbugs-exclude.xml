@@ -341,4 +341,9 @@
         <Class name="io.ballerina.projects.CodeActionManager"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.ManifestBuilder"/>
+        <Method name="getBooleanFromBuildOptionsTableNode"/>
+        <Bug pattern="NP_BOOLEAN_RETURN_NULL"/>
+    </Match>
 </FindBugsFilter>
