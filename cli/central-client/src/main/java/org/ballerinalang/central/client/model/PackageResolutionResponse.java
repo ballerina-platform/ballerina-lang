@@ -43,24 +43,24 @@ public class PackageResolutionResponse {
      *
      */
     public static class Package {
-        private String orgName;
+        private String org;
         private String name;
         private String version;
-        private List<Package> dependencies;
+        private List<Dependency> dependencyGraph;
 
-        public Package(String orgName, String name, String version, List<Package> dependencies) {
-            this.orgName = orgName;
+        public Package(String orgName, String name, String version, List<Dependency> dependencies) {
+            this.org = orgName;
             this.name = name;
             this.version = version;
-            this.dependencies = dependencies;
+            this.dependencyGraph = dependencies;
         }
 
-        public String orgName() {
-            return orgName;
+        public String org() {
+            return org;
         }
 
-        public void setOrgName(String orgName) {
-            this.orgName = orgName;
+        public void setOrg(String org) {
+            this.org = org;
         }
 
         public String name() {
@@ -79,12 +79,35 @@ public class PackageResolutionResponse {
             this.version = version;
         }
 
-        public List<Package> dependencies() {
-            return dependencies;
+        public List<Dependency> dependencyGraph() {
+            return dependencyGraph;
         }
 
-        public void setDependencies(List<Package> dependencies) {
-            this.dependencies = dependencies;
+        public void setDependencies(List<Dependency> dependencies) {
+            this.dependencyGraph = dependencies;
+        }
+    }
+
+    public static class Dependency {
+        private String org;
+        private String name;
+        private String version;
+        private List<Dependency> dependencies;
+
+        public String org() {
+            return org;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        public String version() {
+            return version;
+        }
+
+        public List<Dependency> dependencies() {
+            return dependencies;
         }
     }
 
