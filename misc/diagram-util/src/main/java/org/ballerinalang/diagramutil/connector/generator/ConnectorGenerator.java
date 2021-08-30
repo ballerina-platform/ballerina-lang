@@ -124,7 +124,8 @@ public class ConnectorGenerator {
                 Type param = Type.fromSyntaxNode(requiredParameterNode.typeName(), semanticModel);
                 param.name = requiredParameterNode.paramName().isPresent() ?
                         requiredParameterNode.paramName().get().text() : null;
-                param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(requiredParameterNode.annotations());
+                param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
+                        requiredParameterNode.annotations());
                 param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
                 parameters.add(param);
             } else if (parameterNode instanceof DefaultableParameterNode) {
@@ -132,7 +133,8 @@ public class ConnectorGenerator {
                 Type param = Type.fromSyntaxNode(defaultableParameter.typeName(), semanticModel);
                 param.name = defaultableParameter.paramName().isPresent() ?
                         defaultableParameter.paramName().get().text() : "";
-                param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(defaultableParameter.annotations());
+                param.displayAnnotation = getDisplayAnnotationFromAnnotationsList(
+                        defaultableParameter.annotations());
                 param.defaultValue = defaultableParameter.expression().toString();
                 param.documentation = getParameterDocFromMetadataList(param.name, optionalMetadataNode);
                 parameters.add(param);
