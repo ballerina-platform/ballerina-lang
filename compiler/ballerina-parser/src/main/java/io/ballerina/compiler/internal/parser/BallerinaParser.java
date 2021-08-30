@@ -144,14 +144,13 @@ public class BallerinaParser extends AbstractParser {
      * <i>Note: This API should be limited to parser internal usage only.
      * <br>
      * Top level node, Statement and Expression is subject to source pruning.
-     * <br>
-     * Related issue: <a href="https://github.com/ballerina-platform/ballerina-lang/issues/32416">#32416</a>
      * </i>
      *
      * @param context Context to start parsing
      * @return Parsed node
      */
     public STNode parseInternal(ParserRuleContext context) {
+        // TODO: issue #32416
         switch (context) {
             case COMP_UNIT:
                 return parseCompUnit();
