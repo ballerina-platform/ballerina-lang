@@ -15,34 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.definition;
+
+import io.ballerina.semtype.SemType;
 
 /**
- * SemType Interface.
+ * Represent a record field in a type-descriptor.
  */
-public interface SemTypeMock {
+public class Field {
+    public final String name;
+    public final SemType type;
 
-}
-
-/**
- * Complex SemType implementation.
- */
-class ComplexSemTypeMock implements SemTypeMock {
-    UniformTypeBitSet all;
-    UniformTypeBitSet some;
-}
-
-/**
- * UniformTypeBitSet SemType implementation.
- */
-class UniformTypeBitSetMock implements SemTypeMock {
-    int value;
-
-    public UniformTypeBitSetMock(int value) {
-        this.value = value;
+    private Field(String name, SemType type) {
+        this.name = name;
+        this.type = type;
     }
 
-    public int getValue() {
-        return value;
+    public static Field from(String name, SemType type) {
+        return new Field(name, type);
     }
 }

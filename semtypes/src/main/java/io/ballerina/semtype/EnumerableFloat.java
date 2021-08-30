@@ -18,31 +18,18 @@
 package io.ballerina.semtype;
 
 /**
- * SemType Interface.
+ * Enumerable type wrapper for float.
+ *
+ * @since 2.0.0
  */
-public interface SemTypeMock {
+public class EnumerableFloat implements EnumerableType {
+    final double value;
 
-}
-
-/**
- * Complex SemType implementation.
- */
-class ComplexSemTypeMock implements SemTypeMock {
-    UniformTypeBitSet all;
-    UniformTypeBitSet some;
-}
-
-/**
- * UniformTypeBitSet SemType implementation.
- */
-class UniformTypeBitSetMock implements SemTypeMock {
-    int value;
-
-    public UniformTypeBitSetMock(int value) {
+    private EnumerableFloat(double value) {
         this.value = value;
     }
 
-    public int getValue() {
-        return value;
+    public static EnumerableFloat from(double d) {
+        return new EnumerableFloat(d);
     }
 }

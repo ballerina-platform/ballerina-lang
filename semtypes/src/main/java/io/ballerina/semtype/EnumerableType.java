@@ -18,31 +18,9 @@
 package io.ballerina.semtype;
 
 /**
- * SemType Interface.
+ * Interface to indicate Enumerable types.
+ *
+ * @since 2.0.0
  */
-public interface SemTypeMock {
-
-}
-
-/**
- * Complex SemType implementation.
- */
-class ComplexSemTypeMock implements SemTypeMock {
-    UniformTypeBitSet all;
-    UniformTypeBitSet some;
-}
-
-/**
- * UniformTypeBitSet SemType implementation.
- */
-class UniformTypeBitSetMock implements SemTypeMock {
-    int value;
-
-    public UniformTypeBitSetMock(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
+public interface EnumerableType {
 }

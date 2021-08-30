@@ -18,31 +18,18 @@
 package io.ballerina.semtype;
 
 /**
- * SemType Interface.
+ * Enumerable type wrapper for string.
+ *
+ * @since 2.0.0
  */
-public interface SemTypeMock {
+public class EnumerableString implements EnumerableType {
+    final String value;
 
-}
-
-/**
- * Complex SemType implementation.
- */
-class ComplexSemTypeMock implements SemTypeMock {
-    UniformTypeBitSet all;
-    UniformTypeBitSet some;
-}
-
-/**
- * UniformTypeBitSet SemType implementation.
- */
-class UniformTypeBitSetMock implements SemTypeMock {
-    int value;
-
-    public UniformTypeBitSetMock(int value) {
+    private EnumerableString(String value) {
         this.value = value;
     }
 
-    public int getValue() {
-        return value;
+    public static EnumerableString from(String v) {
+        return new EnumerableString(v);
     }
 }
