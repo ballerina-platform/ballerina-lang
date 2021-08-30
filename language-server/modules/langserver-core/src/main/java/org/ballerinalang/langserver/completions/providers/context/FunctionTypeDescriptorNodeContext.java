@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -35,6 +36,8 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link FunctionTypeDescriptorNode} context.
@@ -52,10 +55,23 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-
-        if (this.onSuggestionsAfterQualifiers(context, node)) {
-            // Currently we consider the isolated qualifier only
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        if (onSuggestionsAfterQualifiers(context, node)) {
+            /*
+             * Covers the following
+             * type T <qualifier(s)> <cursor>
+             * Currently the qualifier can be isolated/transactional.
+             */
+            NodeList<Token> qualifiers = node.qualifierList();
+            List<Token> otherQuals = node.leadingInvalidTokens();
+            Token lastQualifier;
+            if (qualifiers.size() > 0) {
+                lastQualifier = qualifiers.get(qualifiers.size() - 1);
+            } else {
+                lastQualifier = otherQuals.get(otherQuals.size() - 1);
+            }
+            Set<SyntaxKind> qualKinds = qualifiers.stream().map(Token::kind).collect(Collectors.toSet());
+            qualKinds.addAll(otherQuals.stream().map(Token::kind).collect(Collectors.toSet()));
+            completionItems.addAll(getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context));
         } else if (this.withinParameterContext(context, node)) {
             /*
             Covers the completions when the cursor is within the parameter context
@@ -105,10 +121,17 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         NodeList<Token> qualifiers = node.qualifierList();
         Token functionKeyword = node.functionKeyword();
 
+        Token lastQualifier;
         if (qualifiers.isEmpty()) {
-            return false;
+            List<Token> otherQuals = node.leadingInvalidTokens();
+            if (otherQuals.size() > 0) {
+                lastQualifier = otherQuals.get(otherQuals.size() - 1);
+            } else {
+                return false;
+            }
+        } else {
+            lastQualifier = qualifiers.get(qualifiers.size() - 1);
         }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         return cursor > lastQualifier.textRange().endOffset()
                 && (functionKeyword.isMissing() || cursor < functionKeyword.textRange().startOffset());
     }

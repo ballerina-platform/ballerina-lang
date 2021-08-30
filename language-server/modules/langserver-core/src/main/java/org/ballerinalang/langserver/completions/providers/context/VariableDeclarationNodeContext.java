@@ -15,6 +15,9 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
@@ -26,9 +29,11 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link VariableDeclarationNode} context.
@@ -45,21 +50,42 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, VariableDeclarationNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node.initializer().isPresent() && onExpressionContext(context, node)) {
-            List<LSCompletionItem> completionItems
-                    = this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+            ExpressionNode initializer = node.initializer().get();
+            if (onSuggestionsAfterQualifiers(context, initializer)) {
+                /*
+                    Covers the following
+                    x = <qualifier(s)> <cursor>
+                    x = <qualifier(s)>  x<cursor>
+                    currently the qualifier can be isolated/transactional.
+                 */
+                List<Token> qualifiers = initializer.leadingInvalidTokens();
+                Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+                Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                completionItems.addAll(getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context));
+            } else {
+                completionItems.addAll(this.initializerContextCompletions(context,
+                        node.typedBindingPattern().typeDescriptor()));
+            }
             this.sort(context, node, completionItems);
-
             return completionItems;
-        } else if (this.onVariableNameContext(context, node)) {
-            return Collections.emptyList();
+        } else if (onSuggestionsAfterQualifiers(context, node)) {
+            /*
+                Covers following
+                (1) <qualifier(s)> <cursor>
+                (2) <qualifier(s)> x<cursor>
+                currently the qualifier can be isolated/transactional.
+            */
+            List<Token> qualifiers = node.leadingInvalidTokens();
+            Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+            Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+            completionItems.addAll(getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context));
+            this.sort(context, node, completionItems);
+            return completionItems;
+        } else if (onVariableNameContext(context, node)) {
+            return completionItems;
         }
-
-        /*
-        Following is to support the example temporarily.
-        (1) isolated <cursor>
-        (2) isolated s<cursor>
-         */
         return CompletionUtil.route(context, node.parent());
     }
 
@@ -81,5 +107,15 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
 
         return cursor > typeDescriptorNode.textRange().endOffset()
                 && (equalsToken.isEmpty() || cursor < equalsToken.get().textRange().startOffset());
+    }
+
+    private boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
+        int cursor = context.getCursorPositionInTree();
+        List<Token> qualifiers = node.leadingInvalidTokens();
+        if (qualifiers.isEmpty()) {
+            return false;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        return cursor > lastQualifier.textRange().endOffset();
     }
 }

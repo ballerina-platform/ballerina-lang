@@ -85,6 +85,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -605,6 +606,31 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     return new SymbolCompletionItem(ctx, methodSymbol, completionItem);
                 }).forEach(completionItems::add);
 
+        return completionItems;
+    }
+
+    protected static List<LSCompletionItem> getCompletionItemsOnQualifiers(Set<SyntaxKind> qualifiers,
+                                                                           Token lastQualifier,
+                                                                           BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CLIENT.get()));
+            if (!qualifiers.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+            }
+        } else if (lastQualifier.kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+            if (!qualifiers.contains(SyntaxKind.ISOLATED_KEYWORD)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+            }
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        } else if (lastQualifier.kind() == SyntaxKind.CLIENT_KEYWORD ||
+                lastQualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_OBJECT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()));
+        }
         return completionItems;
     }
 }
