@@ -37,8 +37,6 @@ import java.util.Optional;
  */
 public class Core {
     // subtypeList must be ordered
-    // TODO get ops from OpsTable after implemented
-    static List<UniformTypeOps> ops;
 
 
     public static List<UniformSubtype> unpackComplexSemType(ComplexSemType t) {
@@ -101,11 +99,6 @@ public class Core {
         if (some.bitset == 0) {
             return PredefinedType.uniformTypeUnion(all.bitset);
         }
-        if (subtypes.isEmpty()) {
-            return all;
-        }
-        return ComplexSemType.createComplexSemType(all.bitset, subtypes);
-    }
 
         List<UniformSubtype> subtypes = new ArrayList<>();
 
@@ -180,14 +173,15 @@ public class Core {
         UniformTypeBitSet some = UniformTypeBitSet.from((some1.bitset | all1.bitset) & (some2.bitset | all2.bitset));
         some = UniformTypeBitSet.from(some.bitset & ~all.bitset);
         if (some.bitset == 0) {
-            return uniformTypeUnion(all.bitset);
+            return PredefinedType.uniformTypeUnion(all.bitset);
         }
+
         List<UniformSubtype> subtypes = new ArrayList<>();
-        SubtypePairIterator stpi = new SubtypePairIterator(t1, t2, some);
-        while (stpi.hasNext()) {
-            UniformTypeCode code = stpi.next().uniformTypeCode;
-            SubtypeData data1 = stpi.next().subtypeData1;
-            SubtypeData data2 = stpi.next().subtypeData2;
+
+        for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
+            UniformTypeCode code = pair.uniformTypeCode;
+            SubtypeData data1 = pair.subtypeData1;
+            SubtypeData data2 = pair.subtypeData2;
 
             SubtypeData data;
             if (data1 == null) {
@@ -195,7 +189,7 @@ public class Core {
             } else if (data2 == null) {
                 data = data1;
             } else {
-                data = ops.get(code.code).intersect(data1, data2);
+                data = OpsTable.OPS[code.code].intersect(data1, data2);
             }
             if (!(data instanceof AllOrNothingSubtype) || ((AllOrNothingSubtype) data).isAllSubtype()) {
                 subtypes.add(UniformSubtype.from(code, data));
@@ -244,22 +238,21 @@ public class Core {
         UniformTypeBitSet some = UniformTypeBitSet.from((all1.bitset | some1.bitset) & ~all2.bitset);
         some = UniformTypeBitSet.from(some.bitset & ~all.bitset);
         if (some.bitset == 0) {
-            return uniformTypeUnion(all.bitset);
+            return PredefinedType.uniformTypeUnion(all.bitset);
         }
         List<UniformSubtype> subtypes = new ArrayList<>();
-        SubtypePairIterator stpi = new SubtypePairIterator(t1, t2, some);
-        while (stpi.hasNext()) {
-            UniformTypeCode code = stpi.next().uniformTypeCode;
-            SubtypeData data1 = stpi.next().subtypeData1;
-            SubtypeData data2 = stpi.next().subtypeData2;
+        for (SubtypePair pair : new SubtypePairs(t1, t2, some)) {
+            UniformTypeCode code = pair.uniformTypeCode;
+            SubtypeData data1 = pair.subtypeData1;
+            SubtypeData data2 = pair.subtypeData2;
 
             SubtypeData data;
             if (data1 == null) {
-                data = ops.get(code.code).complement(data2);
+                data = OpsTable.OPS[code.code].complement(data2);
             } else if (data2 == null) {
                 data = data1;
             } else {
-                data = ops.get(code.code).diff(data1, data2);
+                data = OpsTable.OPS[code.code].diff(data1, data2);
             }
             if (!(data instanceof AllOrNothingSubtype) || ((AllOrNothingSubtype) data).isAllSubtype()) {
                 subtypes.add(UniformSubtype.from(code, data));
@@ -288,7 +281,7 @@ public class Core {
                 return false;
             }
             for (var st : unpackComplexSemType(ct)) {
-                if (!ops.get(st.uniformTypeCode.code).isEmpty(tc, st.subtypeData)) {
+                if (!OpsTable.OPS[st.uniformTypeCode.code].isEmpty(tc, st.subtypeData)) {
                     return false;
                 }
             }
