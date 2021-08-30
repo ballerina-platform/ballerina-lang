@@ -187,7 +187,7 @@ public class TypeSymbolTest {
         assertEquals(constant.typeKind(), SINGLETON);
         assertEquals(constant.typeDescriptor().typeKind(), SINGLETON);
         assertEquals(constant.broaderTypeDescriptor().typeKind(), STRING);
-//        assertEquals(constant.signature(), expName);
+        assertEquals(constant.signature(), "FOO");
     }
 
     // private utils
