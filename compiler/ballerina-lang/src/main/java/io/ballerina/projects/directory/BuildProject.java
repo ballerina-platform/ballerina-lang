@@ -208,12 +208,20 @@ public class BuildProject extends Project {
 
             List<Dependency> pkgDependencies = getPackageDependencies();
             pkgDependencies.sort(comparator);
-            String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
 
-            if (!dependenciesContent.isEmpty()) {
+            Path dependenciesTomlFile = currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML);
+            String dependenciesContent = getDependenciesTomlContent(pkgDependencies);
+            if (!pkgDependencies.isEmpty()) {
                 // write content to Dependencies.toml file
-                createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
-                                          dependenciesContent);
+                createIfNotExists(dependenciesTomlFile);
+                writeContent(dependenciesTomlFile, dependenciesContent);
+            } else {
+                // when there are no package dependencies to write
+                // if Dependencies.toml does not exists ---> Dependencies.toml will not be created
+                // if Dependencies.toml exists          ---> content will be written to existing Dependencies.toml
+                if (dependenciesTomlFile.toFile().exists()) {
+                    writeContent(dependenciesTomlFile, dependenciesContent);
+                }
             }
         }
     }
@@ -304,7 +312,7 @@ public class BuildProject extends Project {
         return dependencyList;
     }
 
-    private static void createIfNotExistsAndWrite(Path filePath, String content) {
+    private static void createIfNotExists(Path filePath) {
         if (!filePath.toFile().exists()) {
             try {
                 Files.createFile(filePath);
@@ -312,12 +320,13 @@ public class BuildProject extends Project {
                 throw new ProjectException("Failed to create 'Dependencies.toml' file to write dependencies");
             }
         }
+    }
 
+    private static void writeContent(Path filePath, String content) {
         try {
             Files.write(filePath, Collections.singleton(content));
         } catch (IOException e) {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
         }
-
     }
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.test.query;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -173,6 +174,22 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(semanticsNegativeResult, 0, "on conflict can only be used with queries which produce tables " +
                         "with key specifiers",
                 39, 13);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
+                    "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
+    public void testQueryConstructingTableUpdateKeyPanic1() {
+        BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic1");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot update 'readonly' field 'id' in record of type 'record " +
+                    "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
+    public void testQueryConstructingTableUpdateKeyPanic2() {
+        BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic2");
     }
 
     @AfterClass
