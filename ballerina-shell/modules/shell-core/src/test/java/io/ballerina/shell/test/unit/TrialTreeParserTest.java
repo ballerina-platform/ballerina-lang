@@ -78,8 +78,8 @@ public class TrialTreeParserTest {
     }
 
     @Test(expectedExceptions = TreeParserException.class)
-    public void testMiscParseTest() throws TreeParserException {
-        testModuleMemberName(MODULE_DCLN_NAME_TESTCASES);
+    public void testModuleDclnNameTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_NAME_TESTCASES);
     }
 
     private void testParse(String fileName, Class<?> parentClazz) {
@@ -97,7 +97,7 @@ public class TrialTreeParserTest {
         }
     }
 
-    private void testModuleMemberName(String fileName) throws TreeParserException {
+    private void testModuleDclnName(String fileName) throws TreeParserException {
         TestCases testCases = TestUtils.loadTestCases(fileName, TestCases.class);
         TreeParser treeParser = TestUtils.getTestTreeParser();
         for (TestCase testCase : testCases) {
