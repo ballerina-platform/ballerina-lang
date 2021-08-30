@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 27);
+        Assert.assertEquals(compileResult.getErrorCount(), 32);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -90,8 +90,18 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "invalid type 'k' for field 'Row' used in key specifier, " +
                 "expected sub type of anydata", 175, 12);
         validateError(compileResult, index++, "value expression of key specifier 'k' must be a " +
+                "constant expression", 176, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'k' must be a " +
                 "constant expression", 188, 5);
-        validateError(compileResult, index, "value expression of key specifier 'm' must be a " +
+        validateError(compileResult, index++, "value expression of key specifier 'm' must be a " +
                 "constant expression", 194, 5);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
+                "'map<any|error>' but found 'any'", 197, 25);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
+                "'map<any|error>' but found 'any'", 200, 14);
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not " +
+                "found in table constraint type 'Person'", 203, 19);
+        validateError(compileResult, index, "field name 'invalidField' used in key specifier " +
+                "is not found in table constraint type 'Person'", 204, 19);
     }
 }
