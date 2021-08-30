@@ -17,6 +17,8 @@
  */
 package io.ballerina.semtype;
 
+import java.util.Hashtable;
+
 /**
  * TypeCheckContext node.
  *
@@ -27,7 +29,8 @@ public class TypeCheckContext {
     // todo: Normal hash tables should do here
     //    BddMemoTable listMemo = table [];
     //    BddMemoTable mappingMemo = table [];
-    //    BddMemoTable functionMemo = table [];
+
+    public Hashtable<Bdd, BddMemo> functionMemo = new Hashtable<>();
 
     public TypeCheckContext(Env env) {
         this.env = env;
@@ -51,8 +54,8 @@ public class TypeCheckContext {
 //            return <MappingAtomicType>atom.atomicType;
 //        }
 //    }
-//
-//    function functionAtomType(Atom atom) returns FunctionAtomicType {
-//        return self.env.getRecFunctionAtomType(<RecAtom>atom);
-//    }
+
+    public FunctionAtomicType functionAtomType(Atom atom) {
+        return this.env.getRecFunctionAtomType((RecAtom) atom);
+    }
 }

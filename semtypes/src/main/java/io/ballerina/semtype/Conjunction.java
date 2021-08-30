@@ -18,16 +18,20 @@
 package io.ballerina.semtype;
 
 /**
- * FunctionAtomicType node.
+ * Represents the Conjunction record type.
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public SemType paramType;
-    public SemType retType;
+public class Conjunction {
+    public Atom atom;
+    public Conjunction next;
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    private Conjunction(Atom atom, Conjunction next) {
+        this.atom = atom;
+        this.next = next;
+    }
+
+    public static Conjunction and(Atom atom, Conjunction next) {
+        return new Conjunction(atom, next);
     }
 }
