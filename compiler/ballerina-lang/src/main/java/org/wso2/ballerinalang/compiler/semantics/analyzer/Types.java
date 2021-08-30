@@ -1290,7 +1290,7 @@ public class Types {
 
     public BType getConstraintFromReferenceType(BType type) {
         BType constraint = type;
-        if(type.tag == TypeTags.TYPEREFDESC) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
             constraint = ((BTypeReferenceType) type).constraint;
         }
         return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
@@ -2784,9 +2784,11 @@ public class Types {
                 return (source == target) || isIntOrStringType(sourceTag, targetTag);
             }
             if (sourceTag == TypeTags.FINITE) {
-                return checkValueSpaceHasSameType(((BFiniteType) getConstraintFromReferenceType(source)), getConstraintFromReferenceType(target));
+                return checkValueSpaceHasSameType(((BFiniteType) getConstraintFromReferenceType(source)),
+                        getConstraintFromReferenceType(target));
             }
-            return isSameOrderedType(getConstraintFromReferenceType(target), getConstraintFromReferenceType(source), this.unresolvedTypes);
+            return isSameOrderedType(getConstraintFromReferenceType(target),
+                    getConstraintFromReferenceType(source), this.unresolvedTypes);
         }
 
         @Override
@@ -3004,7 +3006,7 @@ public class Types {
                     }
                 }
             } else if (type.tag == TypeTags.UNION) {
-                return checkUnionHasSameType((LinkedHashSet<BType>) ((UnionType)type).getMemberTypes(), baseType);
+                return checkUnionHasSameType((LinkedHashSet<BType>) ((UnionType) type).getMemberTypes(), baseType);
             } else if (isSimpleBasicType(type.tag)) {
                 isSameType = isSameOrderedType(type, baseType);
                 if (!isSameType) {
@@ -3376,12 +3378,16 @@ public class Types {
         if (targetType.tag == TypeTags.UNION) {
             List<BType> unionMemberTypes = getAllTypes(targetType);
             return finiteType.getValueSpace().stream()
-                    .allMatch(valueExpr ->  unionMemberTypes.stream()
-                            .anyMatch(targetMemType -> getConstraintFromReferenceType(targetMemType).tag == TypeTags.FINITE ?
-                                    isAssignableToFiniteType(getConstraintFromReferenceType(targetMemType), (BLangLiteral) valueExpr) :
-                                    isAssignable(valueExpr.getBType(), getConstraintFromReferenceType(targetMemType), unresolvedTypes) ||
-                                            isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) valueExpr,
-                                                    getConstraintFromReferenceType(targetMemType))));
+                    .allMatch(valueExpr -> unionMemberTypes.stream()
+                            .anyMatch(targetMemType ->
+                                    getConstraintFromReferenceType(targetMemType).tag == TypeTags.FINITE ?
+                                            isAssignableToFiniteType(getConstraintFromReferenceType(targetMemType),
+                                                    (BLangLiteral) valueExpr) :
+                                            isAssignable(valueExpr.getBType(),
+                                                    getConstraintFromReferenceType(targetMemType), unresolvedTypes) ||
+                                                    isLiteralCompatibleWithBuiltinTypeWithSubTypes(
+                                                            (BLangLiteral) valueExpr,
+                                                            getConstraintFromReferenceType(targetMemType))));
         }
 
         for (BLangExpression expression : finiteType.getValueSpace()) {
@@ -5529,7 +5535,7 @@ public class Types {
                         if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                             return false;
                         }
-                    } else if(memType.tag == TypeTags.UNION) {
+                    } else if (memType.tag == TypeTags.UNION) {
                         return isOrderedType(memType, hasCycle);
                     } else if (memType.tag != firstTypeInUnion.tag && memType.tag != TypeTags.NIL &&
                             !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {

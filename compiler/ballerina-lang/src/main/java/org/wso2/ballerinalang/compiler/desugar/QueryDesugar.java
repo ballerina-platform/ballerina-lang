@@ -30,9 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -278,8 +276,9 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangVariableReference result;
             if (TypeTags.isXMLTypeTag(types.getConstraintFromReferenceType(queryExpr.getBType()).tag) ||
                     (types.getConstraintFromReferenceType(queryExpr.getBType()).tag == TypeTags.UNION &&
-                    ((BUnionType) types.getConstraintFromReferenceType(queryExpr.getBType())).getMemberTypes().stream()
-                            .allMatch(memType -> TypeTags.isXMLTypeTag(types.getConstraintFromReferenceType(memType).tag)))) {
+                            ((BUnionType) types.getConstraintFromReferenceType(queryExpr.getBType()))
+                                    .getMemberTypes().stream().allMatch(memType ->
+                                    TypeTags.isXMLTypeTag(types.getConstraintFromReferenceType(memType).tag)))) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
             } else if (TypeTags.isStringTypeTag(types.getConstraintFromReferenceType(queryExpr.getBType()).tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);

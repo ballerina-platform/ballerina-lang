@@ -126,7 +126,8 @@ public class ServiceDesugar {
         final Location pos = variable.pos;
 
         // Find correct symbol.
-        BTypeSymbol listenerTypeSymbol = types.getConstraintFromReferenceType(getListenerType(variable.getBType())).tsymbol;
+        BTypeSymbol listenerTypeSymbol = types.getConstraintFromReferenceType(
+                getListenerType(variable.getBType())).tsymbol;
         final Name functionName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, method));
         BInvokableSymbol methodInvocationSymbol = (BInvokableSymbol) symResolver

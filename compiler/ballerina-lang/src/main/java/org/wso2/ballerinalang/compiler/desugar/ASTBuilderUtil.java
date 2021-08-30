@@ -663,7 +663,7 @@ public class ASTBuilderUtil {
 
     private static BType getConstrainedTypeFromRefType(BType type) {
         BType constraint = type;
-        if(type.tag == TypeTags.TYPEREFDESC) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
             constraint = ((BTypeReferenceType) type).constraint;
         }
         return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;

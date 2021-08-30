@@ -488,7 +488,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (literalType == symTable.semanticError) {
                     return symTable.semanticError;
                 }
-            } else if (expectedType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expectedType, literalExpr)) {
+            } else if (expectedType.tag == TypeTags.FINITE
+                    && types.isAssignableToFiniteType(expectedType, literalExpr)) {
                 BFiniteType finiteType = (BFiniteType) expectedType;
                 if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.INT)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.intType);
@@ -618,7 +619,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 literalExpr.value = numericLiteral;
             } else if (expectedType.tag == TypeTags.FLOAT) {
                 literalExpr.value = Double.parseDouble(String.valueOf(numericLiteral));
-            } else if (expectedType.tag == TypeTags.FINITE && types.isAssignableToFiniteType(expectedType, literalExpr)) {
+            } else if (expectedType.tag == TypeTags.FINITE
+                    && types.isAssignableToFiniteType(expectedType, literalExpr)) {
                 BFiniteType finiteType = (BFiniteType) expectedType;
                 if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.FLOAT)) {
                     BType valueType = setLiteralValueAndGetType(literalExpr, symTable.floatType);
@@ -5902,8 +5904,9 @@ public class TypeChecker extends BLangNodeVisitor {
         Name remoteMethodQName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
         Name actionName = names.fromIdNode(aInv.name);
-        BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(aInv.pos, types.getConstraintFromReferenceType(epSymbol.type).tsymbol.scope, env, remoteMethodQName, SymTag.FUNCTION);
+        BSymbol remoteFuncSymbol = symResolver.lookupMemberSymbol(aInv.pos,
+                types.getConstraintFromReferenceType(epSymbol.type).tsymbol.scope,
+                env, remoteMethodQName, SymTag.FUNCTION);
 
         if (remoteFuncSymbol == symTable.notFoundSymbol) {
             BSymbol invocableField = symResolver.resolveInvocableObjectField(
@@ -7164,8 +7167,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType checkFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName) {
         BType actualType = symTable.semanticError;
 
-        if(varRefType.tag == TypeTags.TYPEREFDESC) {
-            varRefType = ((BTypeReferenceType)varRefType).constraint;
+        if (varRefType.tag == TypeTags.TYPEREFDESC) {
+            varRefType = ((BTypeReferenceType) varRefType).constraint;
         }
 
         if (types.isSubTypeOfBaseType(varRefType, TypeTags.OBJECT)) {
@@ -7417,10 +7420,11 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType);
 
             if (actualType == symTable.semanticError) {
-                if (types.getConstraintFromReferenceType(indexExpr.getBType()).tag == TypeTags.STRING && isConst(indexExpr)) {
+                if (types.getConstraintFromReferenceType(indexExpr.getBType()).tag == TypeTags.STRING
+                        && isConst(indexExpr)) {
                     String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD,
-                               fieldName, indexBasedAccessExpr.expr.getBType());
+                            fieldName, indexBasedAccessExpr.expr.getBType());
                     return actualType;
                 }
 
@@ -7896,7 +7900,8 @@ public class TypeChecker extends BLangNodeVisitor {
                         BUnionType.create(null, possibleTypesByMember);
                 break;
             case TypeTags.TYPEREFDESC:
-                return checkRecordIndexBasedAccess(accessExpr, record, types.getConstraintFromReferenceType(currentType));
+                return checkRecordIndexBasedAccess(accessExpr, record,
+                        types.getConstraintFromReferenceType(currentType));
         }
         return actualType;
     }

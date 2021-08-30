@@ -628,7 +628,8 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
-                    return isValidReturnBType(jType, ((BTypeReferenceType)bType).constraint, jMethodRequest, visitedSet);
+                    return isValidReturnBType(jType, ((BTypeReferenceType) bType).constraint,
+                            jMethodRequest, visitedSet);
                 default:
                     return false;
             }

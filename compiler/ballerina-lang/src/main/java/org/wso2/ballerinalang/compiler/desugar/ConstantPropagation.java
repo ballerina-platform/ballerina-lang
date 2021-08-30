@@ -1109,7 +1109,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
             BType literalType = types.getConstraintFromReferenceType(constSymbol.literalType);
-            if (literalType.tag <= TypeTags.BOOLEAN ||literalType.tag == TypeTags.NIL) {
+            if (literalType.tag <= TypeTags.BOOLEAN || literalType.tag == TypeTags.NIL) {
                 BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, literalType,
                                                                             constSymbol.value.value);
                 constRef.variableName = varRefExpr.variableName;

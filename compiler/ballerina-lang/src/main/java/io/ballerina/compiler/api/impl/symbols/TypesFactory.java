@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -65,15 +64,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Optional;
 import java.util.Set;
 
-import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
-import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.ANYDATA;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
@@ -271,7 +267,7 @@ public class TypesFactory {
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             case TYPEREFDESC:
-                return createTypeDescriptor(((BTypeReferenceType)bType).constraint, tSymbol, moduleID);
+                return createTypeDescriptor(((BTypeReferenceType) bType).constraint, tSymbol, moduleID);
             default:
                 if (bType.tag == SEMANTIC_ERROR) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);

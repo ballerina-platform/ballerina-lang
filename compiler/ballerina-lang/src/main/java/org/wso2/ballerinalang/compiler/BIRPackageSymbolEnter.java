@@ -113,7 +113,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
-import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;

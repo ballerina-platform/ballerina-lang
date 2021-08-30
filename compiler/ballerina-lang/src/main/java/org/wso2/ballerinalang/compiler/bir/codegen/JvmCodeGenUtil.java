@@ -214,7 +214,7 @@ public class JvmCodeGenUtil {
                 case JTypeTags.JTYPE:
                     return InteropMethodGen.getJTypeSignature((JType) bType);
                 case TypeTags.TYPEREFDESC:
-                    return getFieldTypeSignature(((BTypeReferenceType)bType).constraint);
+                    return getFieldTypeSignature(((BTypeReferenceType) bType).constraint);
                 default:
                     throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
             }
@@ -380,7 +380,7 @@ public class JvmCodeGenUtil {
             case TypeTags.HANDLE:
                 return String.format("L%s;", HANDLE_VALUE);
             case TypeTags.TYPEREFDESC:
-                return getArgTypeSignature(((BTypeReferenceType)bType).constraint);
+                return getArgTypeSignature(((BTypeReferenceType) bType).constraint);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          String.format("%s", bType));
@@ -443,7 +443,7 @@ public class JvmCodeGenUtil {
             case TypeTags.HANDLE:
                 return String.format(")L%s;", HANDLE_VALUE);
             case TypeTags.TYPEREFDESC:
-                return generateReturnType(((BTypeReferenceType)bType).constraint);
+                return generateReturnType(((BTypeReferenceType) bType).constraint);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -611,7 +611,7 @@ public class JvmCodeGenUtil {
 
     public static BType getConstraintFromReferenceType(BType refType) {
         BType constraint = refType;
-        if(refType.tag == TypeTags.TYPEREFDESC) {
+        if (refType.tag == TypeTags.TYPEREFDESC) {
             constraint = ((BTypeReferenceType) refType).constraint;
         }
         return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;

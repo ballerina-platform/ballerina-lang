@@ -1335,7 +1335,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         typeInitExpr.argsExpr.forEach(argExpr -> analyzeNode(argExpr, env));
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), types.getConstraintFromReferenceType(typeInitExpr.getBType()).tsymbol);
+            addDependency(this.currDependentSymbol.peek(),
+                    types.getConstraintFromReferenceType(typeInitExpr.getBType()).tsymbol);
         }
     }
 
@@ -1658,7 +1659,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         for (TypeNode type : recordTypeNode.getTypeReferences()) {
             BLangType bLangType = (BLangType) type;
             analyzeNode(bLangType, env);
-            recordGlobalVariableReferenceRelationship(types.getConstraintFromReferenceType(bLangType.getBType()).tsymbol);
+            recordGlobalVariableReferenceRelationship(
+                    types.getConstraintFromReferenceType(bLangType.getBType()).tsymbol);
         }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             addTypeDependency(tsymbol, types.getConstraintFromReferenceType(field.getBType()), new HashSet<>());
@@ -1690,7 +1692,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                         unresolvedTypes);
                 break;
             case TypeTags.TYPEREFDESC:
-                addTypeDependency(dependentTypeSymbol, types.getConstraintFromReferenceType(providerType), unresolvedTypes);
+                addTypeDependency(dependentTypeSymbol, types.getConstraintFromReferenceType(providerType),
+                        unresolvedTypes);
                 break;
             default:
                 addDependency(dependentTypeSymbol, providerType.tsymbol);
@@ -1751,10 +1754,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         if (this.currDependentSymbol.peek() != null) {
-            addDependency(this.currDependentSymbol.peek(), types.getConstraintFromReferenceType(serviceConstructorExpr.getBType()).tsymbol);
+            addDependency(this.currDependentSymbol.peek(),
+                    types.getConstraintFromReferenceType(serviceConstructorExpr.getBType()).tsymbol);
         }
 
-        addDependency(types.getConstraintFromReferenceType(serviceConstructorExpr.getBType()).tsymbol, serviceConstructorExpr.serviceNode.symbol);
+        addDependency(types.getConstraintFromReferenceType(serviceConstructorExpr.getBType()).tsymbol,
+                serviceConstructorExpr.serviceNode.symbol);
         analyzeNode(serviceConstructorExpr.serviceNode, env);
     }
 

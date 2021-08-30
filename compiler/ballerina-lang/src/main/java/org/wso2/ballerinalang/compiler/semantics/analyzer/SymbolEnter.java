@@ -1874,8 +1874,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // `typeDefSymbol` is different to `definedErrorType.tsymbol` in a type definition statement that use
         // already defined type as the base type.
         if (definedErrorType.tsymbol != typeDefSymbol) {
-            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags, typeDefSymbol.name, typeDefSymbol.pkgID,
-                    typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
+            BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags, typeDefSymbol.name,
+                    typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos,
+                    typeDefSymbol.origin);
             BErrorType bErrorType = new BErrorType(typeSymbol);
             bErrorType.detailType = definedErrorType.detailType;
             typeDefSymbol.type = bErrorType;
@@ -3634,7 +3635,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (detailType == symTable.noType) {
                     BType resolvedType = symResolver.resolveTypeNode(typeNode, typeDefEnv);
                     BErrorType type = (BErrorType) types.getConstraintFromReferenceType(resolvedType);
-                    ((BErrorType) types.getConstraintFromReferenceType(typeDef.symbol.type)).detailType = type.detailType;
+                    ((BErrorType) types.getConstraintFromReferenceType(typeDef.symbol.type))
+                            .detailType = type.detailType;
                 }
             }
         }

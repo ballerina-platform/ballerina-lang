@@ -53,8 +53,8 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -660,7 +660,8 @@ public class MethodGen {
                 generateFrameClassJFieldLoad(localVar, mv, index, frameName);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index, ((BTypeReferenceType) bType).constraint);
+                generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index,
+                        ((BTypeReferenceType) bType).constraint);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -822,7 +823,8 @@ public class MethodGen {
                 generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, ((BTypeReferenceType) bType).constraint);
+                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index,
+                        ((BTypeReferenceType) bType).constraint);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

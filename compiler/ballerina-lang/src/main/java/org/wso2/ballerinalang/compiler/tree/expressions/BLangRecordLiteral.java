@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -241,7 +240,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
             super(pos);
             this.setBType(structType);
             BTypeSymbol typeSymbol = structType.getKind() == TypeKind.TYPEREFDESC ?
-                    ((BTypeReferenceType)structType).constraint.tsymbol : structType.tsymbol;
+                    ((BTypeReferenceType) structType).constraint.tsymbol : structType.tsymbol;
             this.initializer = ((BRecordTypeSymbol) typeSymbol).initializerFunc;
             this.fields = fields;
         }

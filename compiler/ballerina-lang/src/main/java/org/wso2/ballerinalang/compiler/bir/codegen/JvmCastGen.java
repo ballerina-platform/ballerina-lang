@@ -445,7 +445,7 @@ public class JvmCastGen {
             case TypeTags.NEVER:
                 break;
             case TypeTags.TYPEREFDESC:
-                generateJToBCheckCast(mv, indexMap, sourceType, ((BTypeReferenceType)targetType).constraint);
+                generateJToBCheckCast(mv, indexMap, sourceType, ((BTypeReferenceType) targetType).constraint);
                 return;
             default:
                 switch (targetType.tag) {
@@ -743,7 +743,7 @@ public class JvmCastGen {
             case TypeTags.FINITE:
                 return targetType.isNullable();
             case TypeTags.TYPEREFDESC:
-                return isNillable(((BTypeReferenceType)targetType).constraint);
+                return isNillable(((BTypeReferenceType) targetType).constraint);
         }
 
         return false;
@@ -851,7 +851,7 @@ public class JvmCastGen {
                     generateCheckCastToFiniteType(mv, sourceType, (BFiniteType) targetType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    generateCheckCast(mv, sourceType, ((BTypeReferenceType)targetType).constraint, indexMap);
+                    generateCheckCast(mv, sourceType, ((BTypeReferenceType) targetType).constraint, indexMap);
                     return;
                 default:
                     // do the ballerina checkcast
@@ -1467,7 +1467,7 @@ public class JvmCastGen {
                         false);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateCastToInt(mv, ((BTypeReferenceType)sourceType).constraint);
+                generateCastToInt(mv, ((BTypeReferenceType) sourceType).constraint);
                 break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'",

@@ -677,7 +677,8 @@ public class TypeParamAnalyzer {
                 if (typeParamEntry.typeParam.tag == TypeTags.TYPEREFDESC && expType.tag != TypeTags.TYPEREFDESC) {
                     typeParamEntry.typeParam = types.getConstraintFromReferenceType(typeParamEntry.typeParam);
                 }
-                if (typeParamEntry.typeParam == expType || typeParamEntry.typeParam == types.getConstraintFromReferenceType(expType)) {
+                if (typeParamEntry.typeParam == expType ||
+                        typeParamEntry.typeParam == types.getConstraintFromReferenceType(expType)) {
                     return typeParamEntry.boundType;
                 }
             }

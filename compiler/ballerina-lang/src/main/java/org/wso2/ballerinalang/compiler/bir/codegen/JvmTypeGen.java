@@ -190,7 +190,7 @@ public class JvmTypeGen {
 
     private BType getConstrainedTypeFromRefType(BType type) {
         BType constraint = type;
-        if(type.tag == TypeTags.TYPEREFDESC) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
             constraint = ((BTypeReferenceType) type).constraint;
         }
         return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
@@ -462,7 +462,7 @@ public class JvmTypeGen {
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    loadType(mv, ((BTypeReferenceType)bType).constraint);
+                    loadType(mv, ((BTypeReferenceType) bType).constraint);
                     return;
                 default:
                     return;
@@ -1118,7 +1118,7 @@ public class JvmTypeGen {
             case TypeTags.INVOKABLE:
                 return String.format("L%s;", FUNCTION_POINTER);
             case TypeTags.TYPEREFDESC:
-                return getTypeDesc(((BTypeReferenceType)bType).constraint);
+                return getTypeDesc(((BTypeReferenceType) bType).constraint);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }

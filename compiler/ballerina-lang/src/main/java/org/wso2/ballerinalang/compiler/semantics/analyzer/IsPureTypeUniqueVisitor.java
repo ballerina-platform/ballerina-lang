@@ -81,7 +81,7 @@ public class IsPureTypeUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.CHAR_STRING:
                 return true;
             case TypeTags.TYPEREFDESC:
-                return isAnydata(((BTypeReferenceType)type).constraint);
+                return isAnydata(((BTypeReferenceType) type).constraint);
             default:
                 return false;
         }

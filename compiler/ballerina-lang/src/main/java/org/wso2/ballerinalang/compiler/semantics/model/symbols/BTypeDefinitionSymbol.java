@@ -17,37 +17,25 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
-import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
-import org.ballerinalang.model.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.Flags;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @since 0.94
  */
 public class BTypeDefinitionSymbol extends BSymbol {
 
-    public boolean isLabel;
     public BTypeReferenceType referenceType = null;
-
-    public List<Qualifier> qualifiers;
-    private final boolean readonly;
 
     public BTypeDefinitionSymbol(long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                                  Location pos, SymbolOrigin origin) {
         super(SymTag.TYPE_DEF, flags, name, pkgID, type, owner, pos, origin);
-        this.readonly = Symbols.isFlagOn(owner.flags, Flags.READONLY);
-        this.isLabel = false;
         this.kind = SymbolKind.TYPE_DEF;
     }
 

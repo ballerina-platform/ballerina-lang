@@ -27,7 +27,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -51,14 +50,12 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private ModuleSymbol module;
     private Symbol definition;
     private boolean moduleEvaluated;
-    private BSymbol tSymbol;
     private boolean fromIntersectionType;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
                                             BSymbol tSymbol, boolean fromIntersectionType) {
         super(context, TypeDescKind.TYPE_REFERENCE, bType);
         this.definitionName = tSymbol != null ? tSymbol.getOriginalName().getValue() : null;
-        this.tSymbol = tSymbol;
         this.fromIntersectionType = fromIntersectionType;
         this.location = tSymbol != null ? tSymbol.pos : null;
     }

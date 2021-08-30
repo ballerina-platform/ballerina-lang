@@ -522,7 +522,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (typeNode.nullable && types.getConstraintFromReferenceType(this.resultType).tag == TypeTags.UNION) {
                 BUnionType unionType = (BUnionType) types.getConstraintFromReferenceType(this.resultType);
                 unionType.add(symTable.nilType);
-            } else if (typeNode.nullable && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.JSON && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.ANY) {
+            } else if (typeNode.nullable && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.JSON
+                    && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.ANY) {
                 this.resultType = BUnionType.create(null, this.resultType, symTable.nilType);
             }
         }

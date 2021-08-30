@@ -2072,7 +2072,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar,
                                                      BLangVariable var,
                                                      boolean errorTypeInMatchExpr) {
-        if (types.getConstraintFromReferenceType(precedingVar.getBType()).tag == TypeTags.SEMANTIC_ERROR || var.getBType().tag == TypeTags.SEMANTIC_ERROR) {
+        if (types.getConstraintFromReferenceType(precedingVar.getBType()).tag == TypeTags.SEMANTIC_ERROR ||
+                var.getBType().tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
 

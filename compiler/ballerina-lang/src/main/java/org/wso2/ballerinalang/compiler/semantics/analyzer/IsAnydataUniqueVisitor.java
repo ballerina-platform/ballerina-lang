@@ -82,7 +82,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.UNSIGNED32_INT:
                 return true;
             case TypeTags.TYPEREFDESC:
-                return isAnydata(((BTypeReferenceType)type).constraint);
+                return isAnydata(((BTypeReferenceType) type).constraint);
             default:
                 return false;
         }
