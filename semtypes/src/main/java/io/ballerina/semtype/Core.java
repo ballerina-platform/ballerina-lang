@@ -155,7 +155,13 @@ public class Core {
     }
 
     public static boolean isReadOnly(SemType t) {
-        throw new AssertionError("Not Implemented");
+        UniformTypeBitSet bits;
+        if (t instanceof UniformTypeBitSet) {
+            bits = (UniformTypeBitSet) t;
+        } else {
+            bits = UniformTypeBitSet.from(((ComplexSemType) t).all.bitset | ((ComplexSemType) t).some.bitset);
+        }
+        return ((bits.bitset & UniformTypeCode.UT_RW_MASK) == 0);
     }
 
     public static boolean containsConst(SemType t, Object v) {
