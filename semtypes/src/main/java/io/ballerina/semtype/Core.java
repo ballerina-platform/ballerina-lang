@@ -29,7 +29,6 @@ import io.ballerina.semtype.typeops.SubtypePairIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiFunction;
 
 /**
  * Contain functions defined in `core.bal` file.
@@ -274,8 +273,7 @@ public class Core {
     public static boolean isEmpty(TypeCheckContext tc, SemType t) {
         if (t instanceof UniformTypeBitSet) {
             return (((UniformTypeBitSet) t).bitset == 0);
-        }
-        else {
+        } else {
             ComplexSemType ct = (ComplexSemType) t;
             if (ct.all.bitset != 0) {
                 return false;
