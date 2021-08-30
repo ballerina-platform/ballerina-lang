@@ -46,7 +46,7 @@ public class TestUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
-    static BuildProject loadBuildProject(Path projectPath) {
+    public static BuildProject loadBuildProject(Path projectPath) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
         return BuildProject.load(projectPath, buildOptions);
     }
@@ -69,7 +69,7 @@ public class TestUtils {
         return BuildProject.load(environmentBuilder, projectPath, options);
     }
 
-    static SingleFileProject loadSingleFileProject(Path projectPath) {
+    public static SingleFileProject loadSingleFileProject(Path projectPath) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
         return SingleFileProject.load(projectPath, buildOptions);
     }

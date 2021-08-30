@@ -19,6 +19,7 @@ package io.ballerina.projects.test.plugins;
 
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.test.TestUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.Test;
 
