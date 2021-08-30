@@ -578,8 +578,15 @@ public class ProjectUtils {
         // write dependencies from package dependency graph
         pkgGraphDependencies.forEach(graphDependency -> {
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
+            String version;
+            // Avoid persisting the version of built-in packages
+            if (descriptor.isBuiltInPackage()) {
+                version = null;
+            } else {
+                version = descriptor.version().toString();
+            }
             addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
-                                 descriptor.version().value().toString(), null, false, Collections.emptyList(),
+                                 version, null, false, Collections.emptyList(),
                                  Collections.emptyList());
             content.append("\n");
         });
@@ -603,7 +610,14 @@ public class ProjectUtils {
 
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
-            addDependencyContent(content, dependency.getOrg(), dependency.getName(), dependency.getVersion(),
+            // Avoid persisting the version of built-in packages
+            String version;
+            if (isBuiltInPackage(PackageOrg.from(dependency.getOrg()), dependency.getName())) {
+                version = null;
+            } else {
+                version = dependency.getVersion();
+            }
+            addDependencyContent(content, dependency.getOrg(), dependency.getName(), version,
                                  getDependencyScope(dependency.getScope()), dependency.isTransitive(),
                                  dependency.getDependencies(), dependency.getModules());
             content.append("\n");
@@ -617,7 +631,9 @@ public class ProjectUtils {
         content.append("[[package]]\n");
         content.append("org = \"").append(org).append("\"\n");
         content.append("name = \"").append(name).append("\"\n");
-        content.append("version = \"").append(version).append("\"\n");
+        if (version != null) {
+            content.append("version = \"").append(version).append("\"\n");
+        }
         if (scope != null) {
             content.append("scope = \"").append(scope).append("\"\n");
         }

@@ -2,6 +2,18 @@
     "packages": [
         {
             "org": "samjs",
+            "name": "package_root",
+            "version": "0.1.0",
+            "dependencies": [
+                {
+                    "org": "samjs",
+                    "name": "package_a",
+                    "version": "0.1.0"
+                }
+            ]
+        },
+        {
+            "org": "samjs",
             "name": "package_a",
             "version": "0.1.0",
             "dependencies": [

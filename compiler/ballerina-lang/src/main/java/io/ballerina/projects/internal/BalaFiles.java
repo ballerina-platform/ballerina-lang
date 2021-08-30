@@ -423,10 +423,17 @@ public class BalaFiles {
                 }
             }
 
+            // Version of a built-in package will be null
+            PackageVersion version;
+            if (dependency.getVersion() == null) {
+                version = null;
+            } else {
+                version = PackageVersion.from(dependency.getVersion());
+            }
             DependencyManifest.Package pkg = new
                     DependencyManifest.Package(PackageName.from(dependency.getName()),
                                                PackageOrg.from(dependency.getOrg()),
-                                               PackageVersion.from(dependency.getVersion()),
+                                               version,
                                                dependency.getScope() != null ? dependency.getScope().name() : null,
                                                dependency.isTransitive(),
                                                dependencies,
@@ -478,13 +485,27 @@ public class BalaFiles {
         DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
 
         for (io.ballerina.projects.internal.model.Dependency dependency : packageDependencyGraph) {
-            PackageDescriptor pkg = PackageDescriptor.from(PackageOrg.from(dependency.getOrg()),
-                    PackageName.from(dependency.getName()), PackageVersion.from(dependency.getVersion()));
+            PackageDescriptor pkg;
+            // Version of a built-in package will be null
+            if (dependency.getVersion() == null) {
+                pkg = PackageDescriptor.from(PackageOrg.from(dependency.getOrg()),
+                        PackageName.from(dependency.getName()));
+            } else {
+                pkg = PackageDescriptor.from(PackageOrg.from(dependency.getOrg()),
+                        PackageName.from(dependency.getName()), PackageVersion.from(dependency.getVersion()));
+            }
             Set<PackageDescriptor> dependentPackages = new HashSet<>();
             for (io.ballerina.projects.internal.model.Dependency dependencyPkg : dependency.getDependencies()) {
-                dependentPackages.add(PackageDescriptor.from(PackageOrg.from(dependencyPkg.getOrg()),
-                        PackageName.from(dependencyPkg.getName()),
-                        PackageVersion.from(dependencyPkg.getVersion())));
+                PackageDescriptor depPkgDesc;
+                if (dependencyPkg.getVersion() == null) {
+                    depPkgDesc = PackageDescriptor.from(PackageOrg.from(dependencyPkg.getOrg()),
+                            PackageName.from(dependencyPkg.getName()));
+                } else {
+                    depPkgDesc = PackageDescriptor.from(PackageOrg.from(dependencyPkg.getOrg()),
+                            PackageName.from(dependencyPkg.getName()),
+                            PackageVersion.from(dependencyPkg.getVersion()));
+                }
+                dependentPackages.add(depPkgDesc);
             }
             graphBuilder.addDependencies(pkg, dependentPackages);
         }
@@ -500,9 +521,16 @@ public class BalaFiles {
     }
 
     private static ModuleDescriptor getModuleDescriptorFromDependencyEntry(ModuleDependency modDepEntry) {
-        PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(modDepEntry.getOrg()),
-                PackageName.from(modDepEntry.getPackageName()),
-                PackageVersion.from(modDepEntry.getVersion()));
+        PackageDescriptor pkgDesc;
+        // Version of a built-in package will be null
+        if (modDepEntry.getVersion() == null) {
+            pkgDesc = PackageDescriptor.from(PackageOrg.from(modDepEntry.getOrg()),
+                    PackageName.from(modDepEntry.getPackageName()));
+        } else {
+            pkgDesc = PackageDescriptor.from(PackageOrg.from(modDepEntry.getOrg()),
+                    PackageName.from(modDepEntry.getPackageName()),
+                    PackageVersion.from(modDepEntry.getVersion()));
+        }
         final ModuleName moduleName;
         if (modDepEntry.getModuleName().equals(pkgDesc.name().toString())) {
             moduleName = ModuleName.from(pkgDesc.name());

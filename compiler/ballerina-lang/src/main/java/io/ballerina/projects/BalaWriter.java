@@ -21,6 +21,9 @@ package io.ballerina.projects;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializer;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
@@ -30,6 +33,7 @@ import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -254,7 +258,15 @@ public abstract class BalaWriter {
                 this.packageContext.project().currentPackage(), packageCache);
 
         DependencyGraphJson depGraphJson = new DependencyGraphJson(packageDependencyGraph, moduleDependencyGraph);
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        Gson gson;
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        if (!this.packageContext.descriptor().isLangLibPackage()) {
+            // Avoid persisting the version for built-in packages
+            gsonBuilder.registerTypeAdapter(Dependency.class, getDependencySerializer());
+            gsonBuilder.registerTypeAdapter(ModuleDependency.class, getModuleDependencySerializer());
+        }
+        gson = gsonBuilder.setPrettyPrinting().create();
 
         try {
             putZipEntry(balaOutputStream, Paths.get(DEPENDENCY_GRAPH_JSON),
@@ -262,6 +274,51 @@ public abstract class BalaWriter {
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
+    }
+
+    private JsonSerializer<Dependency> getDependencySerializer() {
+        return (depPkg, type, serializationContext) -> {
+            Gson gson = new Gson();
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(depPkg);
+            if (ProjectUtils.isBuiltInPackage(
+                    PackageOrg.from(depPkg.getOrg()), depPkg.getName())) {
+                jsonObject.remove("version");
+            }
+
+            JsonArray dependencies = jsonObject.get("dependencies").getAsJsonArray();
+            for (JsonElement jsonElement : dependencies) {
+                JsonObject depJsonObject = jsonElement.getAsJsonObject();
+                if (ProjectUtils.isBuiltInPackage(
+                        PackageOrg.from(depJsonObject.get("org").getAsString()),
+                        depJsonObject.get("name").getAsString())) {
+                    depJsonObject.remove("version");
+                }
+            }
+
+            return jsonObject;
+        };
+    }
+
+    private JsonSerializer<ModuleDependency> getModuleDependencySerializer() {
+        return (dependency, type, serializationContext) -> {
+            Gson gson = new Gson();
+            JsonObject jsonObject = (JsonObject) gson.toJsonTree(dependency);
+            if (ProjectUtils.isLangLibPackage(
+                    PackageOrg.from(dependency.getOrg()), PackageName.from(dependency.getPackageName()))) {
+                jsonObject.remove("version");
+            }
+
+            JsonArray dependencies = jsonObject.get("dependencies").getAsJsonArray();
+            for (JsonElement jsonElement : dependencies) {
+                JsonObject depJsonObject = jsonElement.getAsJsonObject();
+                if (ProjectUtils.isBuiltInPackage(
+                        PackageOrg.from(depJsonObject.get("org").getAsString()),
+                        depJsonObject.get("package_name").getAsString())) {
+                    depJsonObject.remove("version");
+                }
+            }
+            return jsonObject;
+        };
     }
 
     private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {

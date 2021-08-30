@@ -49,17 +49,19 @@ public class VersionConflictResolutionTests {
         // pkg_a(1.1.1) --> pkg_b(2.1.0) --> pkg_c(1.0.5)
         //              --> pkg_d(3.4.5) --> pkg_c(1.0.5)
         //              --> pkg_c(1.0.5)
-        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_1_input.json")),
-                getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_1_expected.json")));
+        PackageDescriptor rootDescriptor = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("package_a"), PackageVersion.from("0.1.0"));
+        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_1_input.json"), rootDescriptor),
+                getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_1_expected.json"), rootDescriptor));
 
-        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_2_input.json")),
-                getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_2_expected.json")));
+        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_2_input.json"), rootDescriptor),
+                getDependencyGraph(testSourcesDirectory.resolve("no_conflicts_2_expected.json"), rootDescriptor));
 
-        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("conflicts_1_input.json")),
-                getDependencyGraph(testSourcesDirectory.resolve("conflicts_1_expected.json")));
+        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("conflicts_1_input.json"), rootDescriptor),
+                getDependencyGraph(testSourcesDirectory.resolve("conflicts_1_expected.json"), rootDescriptor));
 
-        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("conflicts_2_input.json")),
-                getDependencyGraph(testSourcesDirectory.resolve("conflicts_2_expected.json")));
+        compareGraphs(getDependencyGraph(testSourcesDirectory.resolve("conflicts_2_input.json"), rootDescriptor),
+                getDependencyGraph(testSourcesDirectory.resolve("conflicts_2_expected.json"), rootDescriptor));
     }
 
     @Test(description = "Override default scope dependency with another default version dependency")
@@ -285,7 +287,9 @@ public class VersionConflictResolutionTests {
     @Test(expectedExceptions = ProjectException.class, expectedExceptionsMessageRegExp =
             "Two incompatible versions exist in the dependency graph: samjs/package_b versions: 1.1.0, 2.1.0")
     public void testVersionConflictsMajor() throws IOException {
-        getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"));
+        PackageDescriptor rootDescriptor = PackageDescriptor.from(PackageOrg.from("samjs"),
+                PackageName.from("package_root"), PackageVersion.from("0.1.0"));
+        getDependencyGraph(testSourcesDirectory.resolve("conflicts_negative_1.json"), rootDescriptor);
     }
 
     private void compareGraphs(DependencyGraph<DependencyNode> actualDependencyGraph,
@@ -315,8 +319,9 @@ public class VersionConflictResolutionTests {
                 PackageVersion.from(dependency.getVersion()));
     }
 
-    private DependencyGraph<DependencyNode> getDependencyGraph(Path jsonPath) throws IOException {
-        PackageDependencyGraphBuilder depGraphBuilder = new PackageDependencyGraphBuilder();
+    private DependencyGraph<DependencyNode> getDependencyGraph(Path jsonPath, PackageDescriptor rootNode)
+            throws IOException {
+        PackageDependencyGraphBuilder depGraphBuilder = new PackageDependencyGraphBuilder(rootNode);
         DependencyGraphJson dependencyGraphJson = gson
                 .fromJson(Files.newBufferedReader(jsonPath),
                         DependencyGraphJson.class);

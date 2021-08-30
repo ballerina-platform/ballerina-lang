@@ -34,6 +34,7 @@ import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -117,6 +118,12 @@ public class PackageDependencyGraphBuilder {
         DependencyNode dependencyNode = vertices.get(new Vertex(node.org(), node.name()));
         if (dependencyNode == null) {
             return false;
+        }
+
+        if (!rootDepNode.pkgDesc().isLangLibPackage() && node.isBuiltInPackage()) {
+            if (dependencyNode.pkgDesc().version() == null) {
+                return false;
+            }
         }
 
         return dependencyNode.pkgDesc().version().equals(node.version());
@@ -210,8 +217,15 @@ public class PackageDependencyGraphBuilder {
             }
             return NodeStatus.ACCEPTED;
         }
-
         // There exists another version in the graph.
+        if (!rootDepNode.pkgDesc().isLangLibPackage()
+                && ProjectUtils.isBuiltInPackage(vertex.org, vertex.name.toString())) {
+            // Built-in packages does not need version conflict resolution
+            // since it is provided from the distribution
+            vertices.put(vertex, newPkgDep);
+            depGraph.put(vertex, new HashSet<>());
+            return NodeStatus.ACCEPTED;
+        }
         DependencyNode existingPkgDep = vertices.get(vertex);
         PackageDescriptor resolvedPkgDesc = handleDependencyConflict(newPkgDep, existingPkgDep);
 

@@ -39,10 +39,14 @@ public class ModuleDescriptor {
 
         if (packageDesc.name().value().equals(".") && packageDesc.org().anonymous()) {
             moduleCompilationId = PackageID.DEFAULT;
-        } else {
+        } else if (packageDesc.version() != null) {
             moduleCompilationId = new PackageID(new Name(packageDesc.org().value()),
                     new Name(packageDesc.name().value()), new Name(moduleName.toString()),
                     new Name(packageDesc.version().toString()), null);
+        } else {
+            // This should be executed only for package resolution phase. When the final dependency
+            // graph is created, moduleCompilationId should be non null
+            moduleCompilationId = null;
         }
     }
 

@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -55,6 +56,17 @@ public class BlendedManifest {
                                        AbstractPackageRepository localPackageRepository) {
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
         for (DependencyManifest.Package pkgInDepManifest : dependencyManifest.packages()) {
+            // Avoid recording the version for built-in packages
+            boolean builtInPackage = ProjectUtils.isBuiltInPackage(
+                    packageManifest.org(), packageManifest.name().toString());
+            if (builtInPackage) {
+                depContainer.add(pkgInDepManifest.org(), pkgInDepManifest.name(),
+                        new Dependency(pkgInDepManifest.org(),
+                                pkgInDepManifest.name(),
+                                getRelation(pkgInDepManifest.isTransitive()),
+                                Repository.NOT_SPECIFIED, moduleNames(pkgInDepManifest)));
+                continue;
+            }
             depContainer.add(pkgInDepManifest.org(), pkgInDepManifest.name(),
                     new Dependency(pkgInDepManifest.org(),
                             pkgInDepManifest.name(), pkgInDepManifest.version(),
@@ -149,6 +161,19 @@ public class BlendedManifest {
             this.org = org;
             this.name = name;
             this.version = version;
+            this.repository = repository;
+            this.relation = relation;
+            this.modules = modules;
+        }
+
+        private Dependency(PackageOrg org,
+                           PackageName name,
+                           DependencyRelation relation,
+                           Repository repository,
+                           Collection<String> modules) {
+            this.org = org;
+            this.name = name;
+            this.version = null;
             this.repository = repository;
             this.relation = relation;
             this.modules = modules;

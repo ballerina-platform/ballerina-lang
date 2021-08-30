@@ -339,7 +339,9 @@ public class DependencyGraphTests extends BaseTest {
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.2")),
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.SOFT);
-        responseDescriptors = packageResolver.resolvePackageMetadata(Collections.singletonList(resolutionRequest));
+        List<ResolutionRequest> requestList = new ArrayList<>();
+        requestList.add(resolutionRequest);
+        responseDescriptors = packageResolver.resolvePackageMetadata(requestList);
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
@@ -395,7 +397,9 @@ public class DependencyGraphTests extends BaseTest {
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.0")),
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
-        responseDescriptors = packageResolver.resolvePackageMetadata(Collections.singletonList(resolutionRequest));
+        List<ResolutionRequest> requestList = new ArrayList<>();
+        requestList.add(resolutionRequest);
+        responseDescriptors = packageResolver.resolvePackageMetadata(requestList);
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.4.2");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
@@ -404,7 +408,9 @@ public class DependencyGraphTests extends BaseTest {
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.3.2")),
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
-        responseDescriptors = packageResolver.resolvePackageMetadata(Collections.singletonList(resolutionRequest));
+        requestList = new ArrayList<>();
+        requestList.add(resolutionRequest);
+        responseDescriptors = packageResolver.resolvePackageMetadata(requestList);
         Assert.assertNull(responseDescriptors.get(0).resolvedDescriptor());
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.UNRESOLVED);
@@ -413,7 +419,9 @@ public class DependencyGraphTests extends BaseTest {
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), null),
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.MEDIUM);
-        responseDescriptors = packageResolver.resolvePackageMetadata(Collections.singletonList(resolutionRequest));
+        requestList = new ArrayList<>();
+        requestList.add(resolutionRequest);
+        responseDescriptors = packageResolver.resolvePackageMetadata(requestList);
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
@@ -469,8 +477,9 @@ public class DependencyGraphTests extends BaseTest {
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), PackageVersion.from("1.4.0")),
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.HARD);
-        responseDescriptors = packageResolver.resolvePackageMetadata(
-                Collections.singletonList(resolutionRequest));
+        List<ResolutionRequest> requestList = new ArrayList<>();
+        requestList.add(resolutionRequest);
+        responseDescriptors = packageResolver.resolvePackageMetadata(requestList);
         Assert.assertNull(responseDescriptors.get(0).resolvedDescriptor());
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.UNRESOLVED);
@@ -479,8 +488,9 @@ public class DependencyGraphTests extends BaseTest {
         resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("samjs"), PackageName.from("io"), null),
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE, true, PackageLockingMode.HARD);
-        responseDescriptors = packageResolver.resolvePackageMetadata(
-                Collections.singletonList(resolutionRequest));
+        requestList = new ArrayList<>();
+        requestList.add(resolutionRequest);
+        responseDescriptors = packageResolver.resolvePackageMetadata(requestList);
         Assert.assertEquals(responseDescriptors.get(0).resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(responseDescriptors.get(0).resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
