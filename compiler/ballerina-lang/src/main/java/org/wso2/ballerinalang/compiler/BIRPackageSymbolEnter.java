@@ -461,7 +461,6 @@ public class BIRPackageSymbolEnter {
         String typeDefOrigName = getStringCPEntryValue(dataInStream);
 
         var flags = dataInStream.readLong();
-        boolean isLabel = dataInStream.readByte() == 1;
         byte origin = dataInStream.readByte();
 
         byte[] docBytes = readDocBytes(dataInStream);

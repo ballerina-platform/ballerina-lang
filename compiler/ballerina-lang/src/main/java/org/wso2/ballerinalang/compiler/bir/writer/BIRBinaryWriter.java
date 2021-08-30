@@ -177,7 +177,6 @@ public class BIRBinaryWriter {
         buf.writeInt(addStringCPEntry(typeDef.originalName.value));
         // Flags
         buf.writeLong(typeDef.flags);
-        buf.writeByte(typeDef.isLabel ? 1 : 0);
         // Origin
         buf.writeByte(typeDef.origin.value());
         // write documentation

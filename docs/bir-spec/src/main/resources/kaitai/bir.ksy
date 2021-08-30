@@ -504,8 +504,6 @@ types:
         type: s4
       - id: flags
         type: s8
-      - id: label
-        type: s1
       - id: origin
         type: s1
       - id: doc

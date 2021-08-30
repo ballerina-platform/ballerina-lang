@@ -469,8 +469,6 @@ public abstract class BIRNode {
 
         public BType type;
 
-        public boolean isLabel;
-
         public boolean isBuiltin;
 
         public List<BType> referencedTypes;
