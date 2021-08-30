@@ -36,12 +36,9 @@ import java.util.function.BiFunction;
  */
 public class Core {
     // subtypeList must be ordered
+    // TODO get ops from OpsTable after implemented
     static List<UniformTypeOps> ops;
 
-    public Core(List<UniformTypeOps> ops) {
-        // TODO create UniformTypeOps list
-        Core.ops = ops;
-    }
 
     public static List<UniformSubtype> unpackComplexSemType(ComplexSemType t) {
         int some = t.some.bitset;
@@ -112,8 +109,7 @@ public class Core {
             } else if (data2 == null) {
                 data = data1;
             } else {
-                BiFunction<SubtypeData, SubtypeData, SubtypeData> union = ops.get(code.code)::union;
-                data = union.apply(data1, data2);
+                data = ops.get(code.code).union(data1, data2);
             }
             if (data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isAllSubtype()) {
                 int c = code.code;
@@ -134,13 +130,137 @@ public class Core {
     }
 
     public static SemType intersect(SemType t1, SemType t2) {
+        UniformTypeBitSet all1;
+        UniformTypeBitSet all2;
+        UniformTypeBitSet some1;
+        UniformTypeBitSet some2;
 
-        throw new AssertionError("Not Implemented");
+        if (t1 instanceof UniformTypeBitSet) {
+            if (t2 instanceof UniformTypeBitSet) {
+                return UniformTypeBitSet.from(((UniformTypeBitSet) t1).bitset & ((UniformTypeBitSet) t2).bitset);
+            } else {
+                if (((UniformTypeBitSet) t1).bitset == 0) {
+                    return t1;
+                }
+                if (((UniformTypeBitSet) t1).bitset == UniformTypeCode.UT_MASK) {
+                    return t2;
+                }
+                all2 = ((ComplexSemType) t2).all;
+                some2 = ((ComplexSemType) t2).some;
+            }
+            all1 = (UniformTypeBitSet) t1;
+            some1 = UniformTypeBitSet.from(0);
+        } else {
+            all1 = ((ComplexSemType) t1).all;
+            some1 = ((ComplexSemType) t1).some;
+            if (t2 instanceof UniformTypeBitSet) {
+                if (((UniformTypeBitSet) t2).bitset == 0) {
+                    return t2;
+                }
+                if (((UniformTypeBitSet) t2).bitset == UniformTypeCode.UT_MASK) {
+                    return t1;
+                }
+                all2 = (UniformTypeBitSet) t2;
+                some2 = UniformTypeBitSet.from(0);
+            } else {
+                all2 = ((ComplexSemType) t2).all;
+                some2 = ((ComplexSemType) t2).some;
+            }
+        }
+
+        UniformTypeBitSet all = UniformTypeBitSet.from(all1.bitset & all2.bitset);
+        UniformTypeBitSet some = UniformTypeBitSet.from((some1.bitset | all1.bitset) & (some2.bitset | all2.bitset));
+        some = UniformTypeBitSet.from(some.bitset & ~all.bitset);
+        if (some.bitset == 0) {
+            return uniformTypeUnion(all.bitset);
+        }
+        List<UniformSubtype> subtypes = new ArrayList<>();
+        SubtypePairIterator stpi = new SubtypePairIterator(t1, t2, some);
+        while (stpi.hasNext()) {
+            UniformTypeCode code = stpi.next().uniformTypeCode;
+            SubtypeData data1 = stpi.next().subtypeData1;
+            SubtypeData data2 = stpi.next().subtypeData2;
+
+            SubtypeData data;
+            if (data1 == null) {
+                data = data2;
+            } else if (data2 == null) {
+                data = data1;
+            } else {
+                data = ops.get(code.code).intersect(data1, data2);
+            }
+            if (!(data instanceof AllOrNothingSubtype) || ((AllOrNothingSubtype) data).isAllSubtype()) {
+                subtypes.add(UniformSubtype.from(code, data));
+            }
+        }
+        if (subtypes.isEmpty()) {
+            return all;
+        }
+        return ComplexSemType.createComplexSemType(all.bitset, subtypes);
     }
 
     public static SemType diff(SemType t1, SemType t2) {
+        UniformTypeBitSet all1;
+        UniformTypeBitSet all2;
+        UniformTypeBitSet some1;
+        UniformTypeBitSet some2;
 
-        throw new AssertionError("Not Implemented");
+        if (t1 instanceof UniformTypeBitSet) {
+            if (t2 instanceof UniformTypeBitSet) {
+                return UniformTypeBitSet.from(((UniformTypeBitSet) t1).bitset & ~((UniformTypeBitSet) t2).bitset);
+            } else {
+                if (((UniformTypeBitSet) t1).bitset == 0) {
+                    return t1;
+                }
+                all2 = ((ComplexSemType) t2).all;
+                some2 = ((ComplexSemType) t2).some;
+            }
+            all1 = (UniformTypeBitSet) t1;
+            some1 = UniformTypeBitSet.from(0);
+        } else {
+            all1 = ((ComplexSemType) t1).all;
+            some1 = ((ComplexSemType) t1).some;
+            if (t2 instanceof UniformTypeBitSet) {
+                if (((UniformTypeBitSet) t2).bitset == UniformTypeCode.UT_MASK) {
+                    return UniformTypeBitSet.from(0);
+                }
+                all2 = (UniformTypeBitSet) t2;
+                some2 = UniformTypeBitSet.from(0);
+            } else {
+                all2 = ((ComplexSemType) t2).all;
+                some2 = ((ComplexSemType) t2).some;
+            }
+        }
+
+        UniformTypeBitSet all = UniformTypeBitSet.from(all1.bitset & ~(all2.bitset | some2.bitset));
+        UniformTypeBitSet some = UniformTypeBitSet.from((all1.bitset | some1.bitset) & ~all2.bitset);
+        some = UniformTypeBitSet.from(some.bitset & ~all.bitset);
+        if (some.bitset == 0) {
+            return uniformTypeUnion(all.bitset);
+        }
+        List<UniformSubtype> subtypes = new ArrayList<>();
+        SubtypePairIterator stpi = new SubtypePairIterator(t1, t2, some);
+        while (stpi.hasNext()) {
+            UniformTypeCode code = stpi.next().uniformTypeCode;
+            SubtypeData data1 = stpi.next().subtypeData1;
+            SubtypeData data2 = stpi.next().subtypeData2;
+
+            SubtypeData data;
+            if (data1 == null) {
+                data = ops.get(code.code).complement(data2);
+            } else if (data2 == null) {
+                data = data1;
+            } else {
+                data = ops.get(code.code).diff(data1, data2);
+            }
+            if (!(data instanceof AllOrNothingSubtype) || ((AllOrNothingSubtype) data).isAllSubtype()) {
+                subtypes.add(UniformSubtype.from(code, data));
+            }
+        }
+        if (subtypes.isEmpty()) {
+            return all;
+        }
+        return ComplexSemType.createComplexSemType(all.bitset, subtypes);
     }
 
     public static SemType complement(SemType t) {
@@ -152,13 +272,25 @@ public class Core {
     }
 
     public static boolean isEmpty(TypeCheckContext tc, SemType t) {
-
-        throw new AssertionError("Not Implemented");
+        if (t instanceof UniformTypeBitSet) {
+            return (((UniformTypeBitSet) t).bitset == 0);
+        }
+        else {
+            ComplexSemType ct = (ComplexSemType) t;
+            if (ct.all.bitset != 0) {
+                return false;
+            }
+            for (var st : unpackComplexSemType(ct)) {
+                if (!ops.get(st.uniformTypeCode.code).isEmpty(tc, st.subtypeData)) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     public static boolean isSubtype(TypeCheckContext tc, SemType t1, SemType t2) {
-
-        throw new AssertionError("Not Implemented");
+        return isEmpty(tc, diff(t1, t2));
     }
 
     public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
