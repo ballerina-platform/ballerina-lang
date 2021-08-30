@@ -35,10 +35,10 @@ public class PredefinedType {
     public static final UniformTypeBitSet ERROR = uniformType(UniformTypeCode.UT_ERROR);
     public static final UniformTypeBitSet LIST_RW = uniformType(UniformTypeCode.UT_LIST_RW);
     public static final UniformTypeBitSet LIST =
-            uniformTypeUnion((1 << UniformTypeCode.UT_LIST_RO) | (1 << UniformTypeCode.UT_LIST_RW));
+            uniformTypeUnion((1 << UniformTypeCode.UT_LIST_RO.code) | (1 << UniformTypeCode.UT_LIST_RW.code));
     public static final UniformTypeBitSet MAPPING_RW = uniformType(UniformTypeCode.UT_MAPPING_RW);
     public static final UniformTypeBitSet MAPPING =
-            uniformTypeUnion((1 << UniformTypeCode.UT_MAPPING_RO) | (1 << UniformTypeCode.UT_MAPPING_RW));
+            uniformTypeUnion((1 << UniformTypeCode.UT_MAPPING_RO.code) | (1 << UniformTypeCode.UT_MAPPING_RW.code));
 
     // matches all functions
     public static final UniformTypeBitSet FUNCTION = uniformType(UniformTypeCode.UT_FUNCTION);
@@ -46,33 +46,38 @@ public class PredefinedType {
     public static final UniformTypeBitSet HANDLE = uniformType(UniformTypeCode.UT_HANDLE);
 
     public static final UniformTypeBitSet XML =
-            uniformTypeUnion((1 << UniformTypeCode.UT_XML_RO) | (1 << UniformTypeCode.UT_XML_RW));
+            uniformTypeUnion((1 << UniformTypeCode.UT_XML_RO.code) | (1 << UniformTypeCode.UT_XML_RW.code));
     public static final UniformTypeBitSet STREAM = uniformType(UniformTypeCode.UT_STREAM);
     public static final UniformTypeBitSet FUTURE = uniformType(UniformTypeCode.UT_FUTURE);
 
     // this is SubtypeData|error
     public static final UniformTypeBitSet TOP = uniformTypeUnion(UniformTypeCode.UT_MASK);
     public static final UniformTypeBitSet ANY =
-            uniformTypeUnion(UniformTypeCode.UT_MASK & ~(1 << UniformTypeCode.UT_ERROR));
+            uniformTypeUnion(UniformTypeCode.UT_MASK & ~(1 << UniformTypeCode.UT_ERROR.code));
     public static final UniformTypeBitSet READONLY = uniformTypeUnion(UniformTypeCode.UT_READONLY);
     public static final UniformTypeBitSet SIMPLE_OR_STRING =
-            uniformTypeUnion((1 << UniformTypeCode.UT_NIL)
-                    | (1 << UniformTypeCode.UT_BOOLEAN)
-                    | (1 << UniformTypeCode.UT_INT)
-                    | (1 << UniformTypeCode.UT_FLOAT)
-                    | (1 << UniformTypeCode.UT_DECIMAL)
-                    | (1 << UniformTypeCode.UT_STRING));
+            uniformTypeUnion((1 << UniformTypeCode.UT_NIL.code)
+                    | (1 << UniformTypeCode.UT_BOOLEAN.code)
+                    | (1 << UniformTypeCode.UT_INT.code)
+                    | (1 << UniformTypeCode.UT_FLOAT.code)
+                    | (1 << UniformTypeCode.UT_DECIMAL.code)
+                    | (1 << UniformTypeCode.UT_STRING.code));
+
+    public static final UniformTypeBitSet NUMBER =
+            uniformTypeUnion((1 << UniformTypeCode.UT_INT.code)
+                    | (1 << UniformTypeCode.UT_FLOAT.code)
+                    | (1 << UniformTypeCode.UT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
 
     private static UniformTypeBitSet uniformTypeUnion(int bitset) {
-        return new UniformTypeBitSet(bitset);
+        return UniformTypeBitSet.from(bitset);
     }
 
-    private static UniformTypeBitSet uniformType(int code) {
-        return new UniformTypeBitSet(1 << code);
+    private static UniformTypeBitSet uniformType(UniformTypeCode code) {
+        return UniformTypeBitSet.from(1 << code.code);
     }
 
-    public static SemType uniformSubtype(int code, ProperSubtypeData data) {
-        return ComplexSemType.createComplexSemType(0, new UniformSubtype(code, data));
+    public static SemType uniformSubtype(UniformTypeCode code, ProperSubtypeData data) {
+        return ComplexSemType.createComplexSemType(0, UniformSubtype.from(code, data));
     }
 }

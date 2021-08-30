@@ -15,32 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.subtypedata;
+package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformTypeCode;
 
 /**
- * Represent BooleanSubtype.
+ * Represent a 3-tuple containing paired-up subtype data.
  *
  * @since 2.0.0
  */
-public class BooleanSubtype implements ProperSubtypeData {
-    public final boolean value;
+public class SubtypePair {
+    final UniformTypeCode uniformTypeCode;
+    final SubtypeData subtypeData1;
+    final SubtypeData subtypeData2;
 
-    private BooleanSubtype(boolean value) {
-        this.value = value;
+    private SubtypePair(UniformTypeCode uniformTypeCode, SubtypeData subtypeData1, SubtypeData subtypeData2) {
+        this.uniformTypeCode = uniformTypeCode;
+        this.subtypeData1 = subtypeData1;
+        this.subtypeData2 = subtypeData2;
     }
 
-    public static BooleanSubtype from(boolean value) {
-        return new BooleanSubtype(value);
-    }
-
-    public static boolean booleanSubtypeContains(SubtypeData d, boolean b) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
-        }
-        BooleanSubtype r = (BooleanSubtype) d;
-        return r.value == b;
+    public static SubtypePair create(UniformTypeCode uniformTypeCode,
+                                     SubtypeData subtypeData1, SubtypeData subtypeData2) {
+        return new SubtypePair(uniformTypeCode, subtypeData1, subtypeData2);
     }
 }
