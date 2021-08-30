@@ -1875,9 +1875,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // already defined type as the base type.
         if (definedErrorType.tsymbol != typeDefSymbol) {
             BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_DEF, typeDefSymbol.flags, typeDefSymbol.name,
-                    typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos,
-                    typeDefSymbol.origin);
+                    typeDefSymbol.pkgID, null, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
             BErrorType bErrorType = new BErrorType(typeSymbol);
+            typeSymbol.type = bErrorType;
             bErrorType.detailType = definedErrorType.detailType;
             typeDefSymbol.type = bErrorType;
             definedErrorType = bErrorType;
