@@ -56,8 +56,7 @@ import java.util.stream.Collectors;
 public class CodeActionPerformanceTest {
     private Endpoint serviceEndpoint;
     private final JsonParser parser = new JsonParser();
-    private final Path sourcesPath
-            = new File(getClass().getClassLoader().getResource("performance").getFile()).toPath();
+    private final Path testRoot = FileUtils.RES_DIR.resolve("performance");
     private static final WorkspaceManager workspaceManager
             = BallerinaWorkspaceManager.getInstance(new LanguageServerContextImpl());
     private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
@@ -70,7 +69,7 @@ public class CodeActionPerformanceTest {
     @Test(dataProvider = "performance-data-provider")
     public void testCodeAction(String config, String source) throws IOException, WorkspaceDocumentException {
         String configJsonPath = getConfigJsonPath(config);
-        Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
+        Path sourcePath = testRoot.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
@@ -90,8 +89,7 @@ public class CodeActionPerformanceTest {
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
         long end = System.currentTimeMillis();
         long responseTime = end - start;
-        boolean isResponseWithinTime = TestUtil.isResponseWithinExpected(responseTime);
-        Assert.assertEquals(isResponseWithinTime, true);
+        Assert.assertEquals(responseTime < 3000, true);
 
         for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
             JsonObject expected = element.getAsJsonObject();

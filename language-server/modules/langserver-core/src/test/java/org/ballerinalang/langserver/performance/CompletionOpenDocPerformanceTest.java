@@ -17,18 +17,17 @@
  */
 package org.ballerinalang.langserver.performance;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -39,6 +38,7 @@ public class CompletionOpenDocPerformanceTest extends CompletionPerformanceTest 
 
     private Endpoint serviceEndpoint;
     private final Path testRoot = FileUtils.RES_DIR.resolve("performance");
+    private final String configDir = "config";
 
     @BeforeClass
     public void init() {
@@ -46,48 +46,23 @@ public class CompletionOpenDocPerformanceTest extends CompletionPerformanceTest 
     }
 
     @Test(dataProvider = "performance-data-provider")
-    public void testCompletion(String config, String configPath) throws IOException, WorkspaceDocumentException {
-        super.testCompletion(config, configPath);
+    public void testCompletion(String config, String configPath) throws IOException {
+        String configJsonPath = "performance" + File.separator + configPath
+                + File.separator + configDir + File.separator + config;
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+
+        long responseTime = getResponseTimeCompletion(configJsonObject);
+        Assert.assertEquals(responseTime < 3000, true);
     }
 
-    @Override
-    public long getResponseTimeCompletion(JsonObject configJsonObject) throws IOException {
+    long getResponseTimeCompletion(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        String responseString;
-        Position position = new Position();
-        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        position.setLine(positionObj.get("line").getAsInt());
-        position.setCharacter(positionObj.get("character").getAsInt());
-        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
-        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
-
         long start = System.currentTimeMillis();
         TestUtil.openDocument(serviceEndpoint, sourcePath);
         long end = System.currentTimeMillis();
         long responseTime = end - start;
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         return responseTime;
-    }
-
-    @Override
-    String getResponseCompletion(JsonObject configJsonObject) throws IOException {
-        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        String responseString;
-        Position position = new Position();
-        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        position.setLine(positionObj.get("line").getAsInt());
-        position.setCharacter(positionObj.get("character").getAsInt());
-        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
-        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
-
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
-
-        return responseString;
     }
 
     @AfterClass
