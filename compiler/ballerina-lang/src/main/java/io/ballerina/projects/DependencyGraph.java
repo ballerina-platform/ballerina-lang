@@ -34,7 +34,8 @@ import java.util.Set;
  */
 public class DependencyGraph<T> {
     @SuppressWarnings("rawtypes")
-    private static final DependencyGraph EMPTY_GRAPH = new DependencyGraph<>(new HashMap<>());
+    private static final DependencyGraph EMPTY_GRAPH = new DependencyGraph<>(null, new HashMap<>());
+    private final T rootNode;
     private final Map<T, Set<T>> dependencies;
 
     private List<T> topologicallySortedNodes;
@@ -50,10 +51,11 @@ public class DependencyGraph<T> {
             return (DependencyGraph<T>) EMPTY_GRAPH;
         }
 
-        return new DependencyGraph<>(dependencies);
+        return new DependencyGraph<>(null, dependencies);
     }
 
-    private DependencyGraph(Map<T, Set<T>> dependencies) {
+    private DependencyGraph(T rootNode, Map<T, Set<T>> dependencies) {
+        this.rootNode = rootNode;
         this.dependencies = Collections.unmodifiableMap(dependencies);
     }
 
@@ -80,7 +82,7 @@ public class DependencyGraph<T> {
     public DependencyGraph<T> add(T node) {
         Map<T, Set<T>> newDependencies = new HashMap<>(this.dependencies);
         newDependencies.put(node, new HashSet<>());
-        return new DependencyGraph<>(newDependencies);
+        return new DependencyGraph<>(rootNode, newDependencies);
     }
 
     public DependencyGraph<T> addAll(Collection<T> nodes) {
@@ -114,6 +116,10 @@ public class DependencyGraph<T> {
         } else {
             return deps;
         }
+    }
+
+    public T getRoot() {
+        return rootNode;
     }
 
     public boolean contains(T node) {
@@ -153,14 +159,20 @@ public class DependencyGraph<T> {
      * @since 2.0.0
      */
     public static class DependencyGraphBuilder<T> {
+        private final T rootNode;
         private final Map<T, Set<T>> dependenciesMap;
 
-        private DependencyGraphBuilder(Map<T, Set<T>> dependencies) {
+        private DependencyGraphBuilder(T rootNode, Map<T, Set<T>> dependencies) {
+            this.rootNode = rootNode;
             this.dependenciesMap = dependencies;
         }
 
         public static <T> DependencyGraphBuilder<T> getBuilder() {
-            return new DependencyGraphBuilder<>(new HashMap<>());
+            return new DependencyGraphBuilder<>(null, new HashMap<>());
+        }
+
+        public static <T> DependencyGraphBuilder<T> getBuilder(T rootNode) {
+            return new DependencyGraphBuilder<>(rootNode, new HashMap<>());
         }
 
         public DependencyGraphBuilder<T> add(T node) {
@@ -197,7 +209,7 @@ public class DependencyGraph<T> {
         }
 
         public DependencyGraph<T> build() {
-            return new DependencyGraph<>(dependenciesMap);
+            return new DependencyGraph<>(rootNode, dependenciesMap);
         }
 
         private Set<T> getCurrentDependencies(T dependent) {
