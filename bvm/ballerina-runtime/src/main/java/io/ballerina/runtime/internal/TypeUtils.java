@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 
@@ -39,11 +38,11 @@ public class TypeUtils {
      */
     public static Type getMutableType(BIntersectionType intersectionType) {
         for (Type type : intersectionType.getConstituentTypes()) {
-            if (type != PredefinedTypes.TYPE_READONLY) {
+            if (intersectionType.getEffectiveType().getTag() == type.getTag()) {
                 return type;
             }
         }
-        return intersectionType.getEffectiveType();
+        throw new IllegalStateException("Unsupported intersection type found: " + intersectionType);
     }
 
 }
