@@ -181,8 +181,6 @@ function testIndirectRecursion() {
     tupleDef test6;
     if (test5.get("one")[0] is XNil) { // always true
         test6 = [["nil", ["|"], "&"]];
-    } else {
-        error:unreachable();
     }
     assert(test6[0][1][0] is string, true);
 

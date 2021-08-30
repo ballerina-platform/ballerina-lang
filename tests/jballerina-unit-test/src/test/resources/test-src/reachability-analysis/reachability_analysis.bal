@@ -14,14 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testReachableCodeWithIf1() {
-    if false {
-        error:unreachable();
-        error:unreachable();
-    }
-    int|string c = 25;
-}
-
 function testReachableCodeWithIf2() {
     string a = "";
     if true {
@@ -53,9 +45,6 @@ function testReachableCodeWithIfElse1() {
         a = "ABC";
         string b = a;
         a += bam(b);
-    } else {
-        error:unreachable();
-        error:unreachable();
     }
     int|string c = a + "GHI";
     assertEqual(c, "ABCABCDEFGHI");
@@ -88,8 +77,6 @@ function doSomething(E e) {
         doY();
     } else if e is Z {
         doZ();
-    } else {
-        error:unreachable();
     }
     msg += "End.";
 }
@@ -147,7 +134,6 @@ function getIntValue(E e) returns int {
     if e is Z {
         return 3;
     }
-    error:unreachable();
 }
 
 function testReachableCodeWithIfElse4() {
@@ -168,7 +154,6 @@ function getValue() returns int|string {
             return a;
         }
     }
-    error:unreachable();
 }
 
 function testReachableCodeWithNestedIfElse1() {
@@ -196,12 +181,10 @@ function getTypeAsString() returns string {
                 return "string";
             }
         }
-        error:unreachable();
     }
     if i is boolean {
         return "boolean";
     }
-    error:unreachable();
 }
 
 function testReachableCodeWithIfElseAndConditionalExpr() {
@@ -251,8 +234,6 @@ function findTypes(int|string|float|boolean|xml x) returns string {
             if x is string|float {
                 if true {
                     str += x is float ? "float in if" : "string in if";
-                } else {
-                    error:unreachable();
                 }
                 str += " -> after true block1";
             }
@@ -263,8 +244,6 @@ function findTypes(int|string|float|boolean|xml x) returns string {
                 str += x is float ? " -> float in else" : x is string ? " -> string in else" : " -> boolean in else";
             }
             str += " -> after all checks";
-        } else {
-            error:unreachable();
         }
         string s = " -> after true block2";
         str += s;
@@ -275,21 +254,11 @@ function findTypes(int|string|float|boolean|xml x) returns string {
     return str;
 }
 
-function testReachableCodeWithWhile1() {
-    while false {
-        error:unreachable();
-        error:unreachable();
-    }
-    int|string c = 25;
-}
-
 function testReachableCodeWithWhile2() {
     while true {
         string a = "A";
         return;
-        error:unreachable();
     }
-    error:unreachable();
 }
 
 function testReachableCodeWithWhile3() {
@@ -320,7 +289,6 @@ function foo1() returns int {
             return 2;
         }
     }
-    error:unreachable();
 }
 
 function foo2() returns int {
@@ -334,12 +302,10 @@ function foo2() returns int {
                 if true {
                     return 1;
                 }
-                error:unreachable();
             }
             if b is int {
                 break;
             }
-            error:unreachable();
         } else {
             return 2;
         }
@@ -363,16 +329,13 @@ function testReachableCodeWithFail() returns error? {
                     i += 1;
                     panic getError();
                 }
-                error:unreachable();
             }
             if a is int {
                 if true {
                     str += "DEF";
                     fail getError();
                 }
-                error:unreachable();
             }
-            error:unreachable();
         }
     }
 }
@@ -402,7 +365,6 @@ function foo3(string p) returns string {
             str += "a is string";
             panic error("Error");
         }
-        error:unreachable();
     }
     string x = " -> end.";
     return str + x + " -> parameter:" + p;
@@ -421,7 +383,6 @@ function foo4() returns error|string {
             str += "a is string";
             panic error("Panic");
         }
-        error:unreachable();
     } on fail error e1 {
         foreach int digit in 1 ... 5 {
             do {
@@ -438,7 +399,6 @@ function foo4() returns error|string {
         }
         return str;
     }
-    error:unreachable();
 }
 
 function foo5() returns string {
@@ -475,7 +435,6 @@ function foo6() returns string {
             str += "a is string -> ";
             continue;
         }
-        error:unreachable();
     }
     str += "end.";
     return str;
@@ -491,7 +450,6 @@ function testCallStmtFuncReturningNever() {
 
 function foo7() {
     impossible();
-    error:unreachable();
 }
 
 function testForeachCompletingNormally() {
@@ -514,7 +472,6 @@ function foo8() returns string {
             str += "a is string -> ";
             continue;
         }
-        error:unreachable();
     }
     str += "end.";
     return str;
@@ -534,6 +491,22 @@ function foo9() returns string {
         str += "outside while -> ";
     }
     str += " -> end.";
+    return str;
+}
+
+function testReachableCodeWithForeach() returns string {
+    string str = "";
+    int i = 1;
+    foreach int idx in 1...5 {
+        int|string a = 12;
+        while true {
+            if a is int {
+                str += "a is int -> ";
+                break;
+            }
+        }
+    }
+    str += "end.";
     return str;
 }
 

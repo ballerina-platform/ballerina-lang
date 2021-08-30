@@ -147,8 +147,6 @@ function foo3(int|error a = getIntOrError(GLB)) returns error {
     if (a is int) { // always true
         return error("Not Error " + a.toString());
     }
-
-    error:unreachable();
 }
 
 // Test 6

@@ -16,7 +16,7 @@
 
 function valueTypeWichAlwaysFalse() returns string {
     int x = 10;
-    if (x !is int) {
+    if (x !is int) { // always false, unreachable code
         return "int";
     }
 
@@ -34,7 +34,7 @@ function valueTypeWichAlwaysTrue() returns string {
 
 function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
     int x = 10;
-    if (x !is float|int) {
+    if (x !is float|int) { // always false, unreachable code
         return "float|int";
     }
 
@@ -52,7 +52,7 @@ function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
 
 function unionTypeAgainstUnionTypeWhichAlwaysFalse_1() returns string {
     int|string x = "hello";
-    if (x !is int|string) {
+    if (x !is int|string) { // always false, unreachable code
         return "int|string";
     }
 
@@ -61,7 +61,7 @@ function unionTypeAgainstUnionTypeWhichAlwaysFalse_1() returns string {
 
 function unionTypeAgainstUnionTypeWhichAlwaysFalse_2() returns string {
     int|string x = "hello";
-    if (x !is int|string|float) {
+    if (x !is int|string|float) { // always false, unreachable code
         return "int|string|float";
     }
 
@@ -88,9 +88,9 @@ type B record {
 
 function testSimpleRecordTypes() returns string {
     A a = {};
-    if (a !is B) {
+    if (a !is B) { // always false, unreachable code
         return "a is B";
-    } else if (a !is A) {
+    } else if (a !is A) { // always false, unreachable code
         return "a is A";
     }
 
@@ -115,9 +115,9 @@ type Y record {
 
 function testNestedRecordTypes() returns string {
     X x = {};
-    if (x !is Y) {
+    if (x !is Y) { // always false, unreachable code
         return "x is B";
-    } else if (x !is X) {
+    } else if (x !is X) { // always false, unreachable code
         return "x is A";
     }
 
@@ -174,7 +174,7 @@ function testSealedRecordTypes() returns string {
     A3 a = {};
      if (a !is B3) {
         return "a is B3";
-    } else if (a !is A3) {
+    } else if (a !is A3) { // always false, unreachable code
         return "a is A3";
     }
 
@@ -222,11 +222,11 @@ function testObjectEquivalency() returns [string, string] {
     string s1 = "";
     string s2 = "";
 
-    if(z !is X1) {
+    if(z !is X1) { // always false, unreachable code
         s1 = "values: " + z.p.toString() + ", " + z.q;
     }
 
-    if (z !is Y1) {
+    if (z !is Y1) { // always false, unreachable code
         s2 = "values: " + z.p.toString() + ", " + z.q + ", " + z.r.toString();
     }
 
@@ -238,12 +238,12 @@ type FooOne "foo"|1;
 
 function testFiniteTypeAsAlwaysTrueBroaderType() {
     FooBar f1 = "foo";
-    if (f1 !is string) {
+    if (f1 !is string) { // always false, unreachable code
         string y = f1;
     }
 
     FooOne f2 = "foo";
-    if (f2 !is string|int) {
+    if (f2 !is string|int) { // always false, unreachable code
         string|int y = f2;
     }
 }

@@ -95,8 +95,9 @@ function testFunctionParam(string name) returns string {
 
 function testNestedBlocks() returns string {
     if (true) {
-        if (false) {
-            error:unreachable();
+        int|string a = 10;
+        if (a is string) {
+            string s = "nested if";
         } else {
             string s = "nested else";
         }
@@ -104,8 +105,6 @@ function testNestedBlocks() returns string {
         string s = "var after nested if-else";
         return s;
     }
-
-    error:unreachable();
 }
 
 function testNamespaces1() returns xml {

@@ -27,8 +27,6 @@ function testWithValue() {
     }
 
     if (someValue is readonly) { // always true
-    } else {
-        error:unreachable();
     }
 
     if (someValue is string|int) {
@@ -95,8 +93,6 @@ function testWithError() {
     }
 
     if (someValue is readonly) { // always true
-    } else {
-        error:unreachable();
     }
 
     if (someValue is string|int) {
@@ -135,13 +131,9 @@ function testWithOnlyError() {
     }
 
     if (err is MyError|error) { // always true
-    } else {
-        error:unreachable();
     }
 
     if (err is error) { // always true
-    } else {
-        error:unreachable();
     }
 }
 

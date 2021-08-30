@@ -20,7 +20,7 @@ function valueTypeWichAlwaysTrue() returns string {
         return "int";
     }
 
-    error:unreachable();
+    return "n/a"; // unreachable code
 }
 
 function valueTypeWichAlwaysFalse() returns string {
@@ -38,7 +38,7 @@ function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
         return "float|int";
     }
 
-    error:unreachable();
+    return "n/a"; // unreachable code
 }
 
 function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -56,7 +56,7 @@ function unionTypeAgainstUnionTypeWhichAlwaysTrue_1() returns string {
         return "int|string";
     }
 
-    error:unreachable();
+    return "n/a"; // unreachable code
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
@@ -65,7 +65,7 @@ function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
         return "int|string|float";
     }
 
-    error:unreachable();
+    return "n/a"; // unreachable code
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -88,9 +88,9 @@ type B record {
 
 function testSimpleRecordTypes() returns string {
     A a = {};
-    if (a is B) {
+    if (a is B) { // always true
         return "a is B";
-    } else if (a is A) {
+    } else if (a is A) { // unreachable code
         return "a is A";
     }
 
@@ -98,7 +98,7 @@ function testSimpleRecordTypes() returns string {
     // if (a is C) {
     //
     // }
-    error:unreachable();
+    return "n/a"; // unreachable code
 }
 
 type X record {
@@ -115,13 +115,13 @@ type Y record {
 
 function testNestedRecordTypes() returns string {
     X x = {};
-    if (x is Y) {
+    if (x is Y) { // always true
         return "x is B";
-    } else if (x is X) {
+    } else if (x is X) { // unreachable code
         return "x is A";
     }
 
-    error:unreachable();
+    return "n/a"; // unreachable code
 }
 
 function testArrays() {
@@ -178,7 +178,7 @@ function testSealedRecordTypes() returns string {
         return "a is A3";
     }
 
-    error:unreachable();
+    return "n/a"; // unreachable code
 }
 
 function testRecordArrays() returns [boolean, boolean] {

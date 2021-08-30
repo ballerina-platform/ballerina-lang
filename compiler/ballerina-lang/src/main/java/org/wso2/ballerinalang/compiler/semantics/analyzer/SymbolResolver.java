@@ -667,8 +667,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                bSymbol = symTable.langMapModuleSymbol != null ? lookupMethodInModule(symTable.langMapModuleSymbol,
-                        name, env) : symTable.notFoundSymbol;
+                bSymbol = lookupMethodInModule(symTable.langMapModuleSymbol, name, env);
                 break;
             case TypeTags.OBJECT:
                 bSymbol = lookupMethodInModule(symTable.langObjectModuleSymbol, name, env);

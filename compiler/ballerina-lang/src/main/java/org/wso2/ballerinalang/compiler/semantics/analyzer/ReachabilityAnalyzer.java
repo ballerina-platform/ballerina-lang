@@ -210,13 +210,9 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
         checkStatementExecutionValidity(exprStmtNode);
-        if (exprStmtNode.expr.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation invocation = (BLangInvocation) exprStmtNode.expr;
-            if (invocation.symbol != null && !((invocation.symbol.flags & Flags.LANG_LIB) ==
-                    Flags.LANG_LIB && invocation.name.value.equals("unreachable")) &&
-                    types.isNeverTypeOrStructureTypeWithARequiredNeverMember(invocation.getBType())) {
-                this.statementReturnsPanicsOrFails = true;
-            }
+        if (exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
+            this.statementReturnsPanicsOrFails = true;
         }
     }
 
@@ -467,7 +463,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhile whileNode) {
-        boolean statementReturns = this.statementReturnsPanicsOrFails;
+        boolean statementReturnsPanicsOrFails = this.statementReturnsPanicsOrFails;
         boolean failureHandled = this.failureHandled;
         this.inWhileOrIfBlock = true;
         checkStatementExecutionValidity(whileNode);
@@ -479,7 +475,7 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
         this.loopFound = false;
         this.failureHandled = failureHandled;
         if (booleanConstCondition != BooleanConst.TRUE || breakStmtFound) {
-            this.statementReturnsPanicsOrFails = statementReturns;
+            this.statementReturnsPanicsOrFails = statementReturnsPanicsOrFails;
         }
         resetLastStatement();
         this.breakStmtFound = false;
@@ -642,33 +638,10 @@ public class ReachabilityAnalyzer extends BLangNodeVisitor {
     private void checkStatementReachableConditionedByBooleanConst(BLangStatement statement) {
         Location errPosition = (inWhileOrIfBlock || inElseBlock) && statement.parent != null ?
                 statement.parent.getPosition() : statement.pos;
-        if (statement.getKind() != NodeKind.EXPRESSION_STATEMENT ||
-                (statement.getKind() == NodeKind.EXPRESSION_STATEMENT &&
-                        ((BLangExpressionStmt) statement).expr.getKind() != NodeKind.INVOCATION)) {
-            checkUnreachableCode(errPosition);
-            return;
-        }
-        BLangInvocation invocationExpr = (BLangInvocation) ((BLangExpressionStmt) statement).expr;
-        if (invocationExpr.symbol != null && (invocationExpr.symbol.flags & Flags.LANG_LIB) != Flags.LANG_LIB
-                && !invocationExpr.name.value.equals("unreachable")) {
-            checkUnreachableCode(errPosition);
-            return;
-        }
-        checkStatementReachable(statement);
+        checkUnreachableCode(errPosition);
     }
 
     private void checkStatementReachable(BLangStatement statement) {
-        if (statement.getKind() == NodeKind.EXPRESSION_STATEMENT &&
-                ((BLangExpressionStmt) statement).expr.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation invocationExpr = (BLangInvocation) ((BLangExpressionStmt) statement).expr;
-            if (invocationExpr.symbol != null && (invocationExpr.symbol.flags & Flags.LANG_LIB) ==
-                    Flags.LANG_LIB && invocationExpr.name.value.equals("unreachable")) {
-                if (!statementReturnsPanicsOrFails && !lastStatement && !errorThrown && !unreachableBlock) {
-                    dlog.error(statement.pos, DiagnosticErrorCode.INVALID_UNREACHABLE_LANGLIB_INVOCATION);
-                }
-                return;
-            }
-        }
         checkUnreachableCode(statement.pos);
     }
 
