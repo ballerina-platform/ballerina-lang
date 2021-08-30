@@ -21,6 +21,8 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
@@ -65,6 +67,21 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
 
     @Override
     protected Optional<DocumentSymbol> transformSyntaxNode(Node node) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<DocumentSymbol> transform(ModulePartNode modulePartNode) {
+        List<DocumentSymbol> memberSymbols = new ArrayList<>();
+        for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
+            member.apply(this).ifPresent(memberSymbols::add);
+        }
+        if (context.getHierarchicalDocumentSymbolSupport()) {
+            this.documentSymbolStore.addAll(memberSymbols);
+        }
+        /*  since module part node is a collection of multiple documents. We don't create the 
+            document symbol node corresponding to the module part node here. 
+         */
         return Optional.empty();
     }
 
@@ -135,7 +152,7 @@ public class DocumentSymbolResolver extends NodeTransformer<Optional<DocumentSym
     @Override
     public Optional<DocumentSymbol> transform(ServiceDeclarationNode serviceDeclarationNode) {
         String name = "service " + serviceDeclarationNode.absoluteResourcePath().stream()
-                .map(Node::toString).collect(Collectors.joining(""))
+                .map(Node::toSourceCode).collect(Collectors.joining(""))
                 + " on " + serviceDeclarationNode.expressions().stream()
                 .map(Node::toSourceCode).collect(Collectors.joining(""));
         SymbolKind symbolKind = SymbolKind.Interface;

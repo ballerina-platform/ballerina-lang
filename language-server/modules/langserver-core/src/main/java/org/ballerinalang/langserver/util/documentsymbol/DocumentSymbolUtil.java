@@ -18,8 +18,6 @@
 package org.ballerinalang.langserver.util.documentsymbol;
 
 import io.ballerina.compiler.syntax.tree.MetadataNode;
-import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -56,20 +54,9 @@ public class DocumentSymbolUtil {
             return symbols;
         }
         Node rootNode = syntaxTree.get().rootNode();
-        if (rootNode.kind() == SyntaxKind.MODULE_PART) {
-            DocumentSymbolResolver symbolResolver = new DocumentSymbolResolver(context);
-            List<DocumentSymbol> memberSymbols = new ArrayList<>();
-            for (ModuleMemberDeclarationNode member : ((ModulePartNode) rootNode).members()) {
-                member.apply(symbolResolver).ifPresent(memberSymbols::add);
-            }
-            if (context.getHierarchicalDocumentSymbolSupport()) {
-                for (DocumentSymbol symbol : memberSymbols) {
-                    symbols.add(Either.forRight(symbol));
-                }
-            } else {
-                symbolResolver.getDocumentSymbolStore().forEach(symbol -> symbols.add(Either.forRight(symbol)));
-            }
-        }
+        DocumentSymbolResolver symbolResolver = new DocumentSymbolResolver(context);
+        rootNode.apply(symbolResolver);
+        symbolResolver.getDocumentSymbolStore().forEach(symbol -> symbols.add(Either.forRight(symbol)));
         return symbols;
     }
 
