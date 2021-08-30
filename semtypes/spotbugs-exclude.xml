@@ -30,6 +30,7 @@
             <Class name="io.ballerina.semtype.subtypedata.FloatSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.StringSubtype"/>
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
+            <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>

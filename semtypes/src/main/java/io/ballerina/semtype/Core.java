@@ -86,8 +86,17 @@ public class Core {
                 some2 =  ((ComplexSemType) t2).some;
             }
         }
+        UniformTypeBitSet all = UniformTypeBitSet.from(all1.bitset | all2.bitset);
+        UniformTypeBitSet some = UniformTypeBitSet.from((some1.bitset | some2.bitset) & ~all.bitset);
+        if (some.bitset == 0) {
+            return uniformTypeUnion(all.bitset);
+        }
 
         throw new AssertionError("Not Implemented");
+    }
+
+    public static UniformTypeBitSet uniformTypeUnion(int bits) {
+        return UniformTypeBitSet.from(bits);
     }
 
     public static SemType intersect(SemType t1, SemType t2) {
