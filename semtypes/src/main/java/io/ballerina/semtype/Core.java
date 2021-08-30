@@ -145,14 +145,16 @@ public class Core {
                 if (((UniformTypeBitSet) t1).bitset == UniformTypeCode.UT_MASK) {
                     return t2;
                 }
-                all2 = ((ComplexSemType) t2).all;
-                some2 = ((ComplexSemType) t2).some;
+                ComplexSemType complexT2 = (ComplexSemType) t2;
+                all2 = complexT2.all;
+                some2 = complexT2.some;
             }
             all1 = (UniformTypeBitSet) t1;
             some1 = UniformTypeBitSet.from(0);
         } else {
-            all1 = ((ComplexSemType) t1).all;
-            some1 = ((ComplexSemType) t1).some;
+            ComplexSemType complexT1 = (ComplexSemType) t1;
+            all1 = complexT1.all;
+            some1 = complexT1.some;
             if (t2 instanceof UniformTypeBitSet) {
                 if (((UniformTypeBitSet) t2).bitset == 0) {
                     return t2;
@@ -163,8 +165,9 @@ public class Core {
                 all2 = (UniformTypeBitSet) t2;
                 some2 = UniformTypeBitSet.from(0);
             } else {
-                all2 = ((ComplexSemType) t2).all;
-                some2 = ((ComplexSemType) t2).some;
+                ComplexSemType complexT2 = (ComplexSemType) t2;
+                all2 = complexT2.all;
+                some2 = complexT2.some;
             }
         }
 
@@ -213,14 +216,16 @@ public class Core {
                 if (((UniformTypeBitSet) t1).bitset == 0) {
                     return t1;
                 }
-                all2 = ((ComplexSemType) t2).all;
-                some2 = ((ComplexSemType) t2).some;
+                ComplexSemType complexT2 = (ComplexSemType) t2;
+                all2 = complexT2.all;
+                some2 = complexT2.some;
             }
             all1 = (UniformTypeBitSet) t1;
             some1 = UniformTypeBitSet.from(0);
         } else {
-            all1 = ((ComplexSemType) t1).all;
-            some1 = ((ComplexSemType) t1).some;
+            ComplexSemType complexT1 = (ComplexSemType) t1;
+            all1 = complexT1.all;
+            some1 = complexT1.some;
             if (t2 instanceof UniformTypeBitSet) {
                 if (((UniformTypeBitSet) t2).bitset == UniformTypeCode.UT_MASK) {
                     return UniformTypeBitSet.from(0);
@@ -228,8 +233,9 @@ public class Core {
                 all2 = (UniformTypeBitSet) t2;
                 some2 = UniformTypeBitSet.from(0);
             } else {
-                all2 = ((ComplexSemType) t2).all;
-                some2 = ((ComplexSemType) t2).some;
+                ComplexSemType complexT2 = (ComplexSemType) t2;
+                all2 = complexT2.all;
+                some2 = complexT2.some;
             }
         }
 
