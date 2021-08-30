@@ -22,10 +22,14 @@ package io.ballerina.semtype;
  *
  * @since 2.0.0
  */
-public class EnumerableStringType implements EnumerableType {
+public class EnumerableString implements EnumerableType {
     final String value;
 
-    public EnumerableStringType(String value) {
+    private EnumerableString(String value) {
         this.value = value;
+    }
+
+    public static EnumerableString from(String v) {
+        return new EnumerableString(v);
     }
 }

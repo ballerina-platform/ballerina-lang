@@ -15,32 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.subtypedata;
+package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.ProperSubtypeData;
+import io.ballerina.semtype.ComplexSemType;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformSubtype;
+import io.ballerina.semtype.UniformTypeCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Represent BooleanSubtype.
+ * Represent `unpackComplexSemType` function.
  *
  * @since 2.0.0
  */
-public class BooleanSubtype implements ProperSubtypeData {
-    public final boolean value;
-
-    private BooleanSubtype(boolean value) {
-        this.value = value;
+public class UnpackComplexSemType {
+    private UnpackComplexSemType() {
     }
 
-    public static BooleanSubtype from(boolean value) {
-        return new BooleanSubtype(value);
-    }
-
-    public static boolean booleanSubtypeContains(SubtypeData d, boolean b) {
-        if (d instanceof AllOrNothingSubtype) {
-            return ((AllOrNothingSubtype) d).isAllSubtype();
+    public static List<UniformSubtype> unpack(ComplexSemType t) {
+        int some = t.some.bitset;
+        List<UniformSubtype> subtypeList = new ArrayList<>();
+        for (SubtypeData data : t.subtypeDataList) {
+            int code = Integer.numberOfTrailingZeros(some);
+            subtypeList.add(UniformSubtype.from(UniformTypeCode.from(code), data));
+            some ^= (1 << code);
         }
-        BooleanSubtype r = (BooleanSubtype) d;
-        return r.value == b;
+        return subtypeList;
     }
 }

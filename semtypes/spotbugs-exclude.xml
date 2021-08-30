@@ -22,17 +22,23 @@
     </Match>
     <Match>
         <Or>
-            <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
+            <Class name="io.ballerina.semtype.Core"/>
             <Class name="io.ballerina.semtype.EnumerableType"/>
             <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+            <Class name="io.ballerina.semtype.subtypedata.BooleanSubtype"/>
+            <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.FloatSubtype"/>
+            <Class name="io.ballerina.semtype.subtypedata.StringSubtype"/>
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <!-- should be able to remove below exclusion after adding methods -->
     <Match>
-        <Class name="io.ballerina.semtype.ComplexSemType"/>
+        <Or>
+            <Class name="io.ballerina.semtype.ComplexSemType"/>
+            <Class name="io.ballerina.semtype.definition.Field"/>
+        </Or>
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>
@@ -48,6 +54,9 @@
             <Class name="io.ballerina.semtype.ComplexSemTypeMock"/>
             <Class name="io.ballerina.semtype.FunctionAtomicType"/>
             <Class name="io.ballerina.semtype.subtypedata.BddNode"/>
+            <Class name="io.ballerina.semtype.typeops.SubtypePair"/>
+            <Class name="io.ballerina.semtype.definition.Field"/>
+            <Class name="io.ballerina.semtype.Value"/>
         </Or>
         <Or>
             <Bug pattern="URF_UNREAD_FIELD"/>

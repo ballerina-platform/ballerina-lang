@@ -18,6 +18,7 @@
 package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.ProperSubtypeData;
+import io.ballerina.semtype.SubtypeData;
 
 /**
  * Represent StringSubtype.
@@ -25,5 +26,28 @@ import io.ballerina.semtype.ProperSubtypeData;
  * @since 2.0.0
  */
 public class StringSubtype implements ProperSubtypeData {
+    public final boolean allowed;
+    public final String[] values;
 
+    private StringSubtype(boolean allowed, String[] values) {
+        this.allowed = allowed;
+        this.values = values;
+    }
+
+    public static boolean stringSubtypeContains(SubtypeData d, String s) {
+        if (d instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d).isAllSubtype();
+        }
+        StringSubtype v = (StringSubtype) d;
+
+        boolean found = false;
+        for (String value : v.values) {
+            if (value.equals(s)) {
+                found = true;
+                break;
+            }
+        }
+
+        return found ? v.allowed : !v.allowed;
+    }
 }
