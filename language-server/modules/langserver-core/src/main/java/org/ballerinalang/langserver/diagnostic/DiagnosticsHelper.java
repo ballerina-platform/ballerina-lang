@@ -49,7 +49,7 @@ public class DiagnosticsHelper {
     /**
      * Holds last sent diagnostics for the purpose of clear-off when publishing new diagnostics.
      */
-    private final Map<Path, Map<String, List<Diagnostic>>> lastDiagnosticMap;
+    private Map<String, List<Diagnostic>> lastDiagnosticMap;
 
     public static DiagnosticsHelper getInstance(LanguageServerContext serverContext) {
         DiagnosticsHelper diagnosticsHelper = serverContext.get(DIAGNOSTICS_HELPER_KEY);
@@ -77,27 +77,25 @@ public class DiagnosticsHelper {
         if (project.isEmpty()) {
             return;
         }
-        Map<String, List<Diagnostic>> latestDiagnostics = getLatestDiagnostics(context);
+        Map<String, List<Diagnostic>> diagnosticMap = getLatestDiagnostics(context);
 
         // If the client is null, returns
         if (client == null) {
             return;
         }
-        Map<String, List<Diagnostic>> lastProjectDiagnostics =
-                lastDiagnosticMap.getOrDefault(project.get().sourceRoot(), new HashMap<>());
 
-        // Clear old diagnostic entries of the project with an empty list
-        lastProjectDiagnostics.forEach((key, value) -> {
-            if (!latestDiagnostics.containsKey(key)) {
+        // Clear old entries with an empty list
+        lastDiagnosticMap.forEach((key, value) -> {
+            if (!diagnosticMap.containsKey(key)) {
                 client.publishDiagnostics(new PublishDiagnosticsParams(key, emptyDiagnosticList));
             }
         });
 
-        // Publish diagnostics for the project
-        latestDiagnostics.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
+        // Publish diagnostics
+        diagnosticMap.forEach((key, value) -> client.publishDiagnostics(new PublishDiagnosticsParams(key, value)));
 
-        // Replace old diagnostic map associated with the project
-        lastDiagnosticMap.put(project.get().sourceRoot(), latestDiagnostics);
+        // Replace old map
+        lastDiagnosticMap = diagnosticMap;
     }
 
     public Map<String, List<Diagnostic>> getLatestDiagnostics(DocumentServiceContext context) {
