@@ -297,9 +297,7 @@ public class BuildProject extends Project {
             if (directDependencies.contains(transDependency)) {
                 continue;
             }
-            if (transDependency.packageInstance() != this.currentPackage()
-                    && !transDependency.packageInstance().descriptor().isBuiltInPackage()
-                    && !transDependency.isPlatformProvided()) {
+            if (transDependency.packageInstance() != this.currentPackage()) {
                 Package aPackage = transDependency.packageInstance();
                 Dependency dependency = new Dependency(aPackage.packageOrg().toString(),
                                                        aPackage.packageName().value(),
