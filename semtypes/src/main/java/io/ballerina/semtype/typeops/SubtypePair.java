@@ -26,9 +26,9 @@ import io.ballerina.semtype.UniformTypeCode;
  * @since 2.0.0
  */
 public class SubtypePair {
-    final UniformTypeCode uniformTypeCode;
-    final SubtypeData subtypeData1;
-    final SubtypeData subtypeData2;
+    public final UniformTypeCode uniformTypeCode;
+    public final SubtypeData subtypeData1;
+    public final SubtypeData subtypeData2;
 
     private SubtypePair(UniformTypeCode uniformTypeCode, SubtypeData subtypeData1, SubtypeData subtypeData2) {
         this.uniformTypeCode = uniformTypeCode;

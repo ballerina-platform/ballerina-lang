@@ -24,16 +24,24 @@ import io.ballerina.semtype.subtypedata.BooleanSubtype;
 import io.ballerina.semtype.subtypedata.FloatSubtype;
 import io.ballerina.semtype.subtypedata.IntSubtype;
 import io.ballerina.semtype.subtypedata.StringSubtype;
+import io.ballerina.semtype.typeops.SubtypePairIterator;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * Contain functions defined in `core.bal` file.
  */
 public class Core {
     // subtypeList must be ordered
+    static List<UniformTypeOps> ops;
+
+    public Core(List<UniformTypeOps> ops) {
+        // TODO create UniformTypeOps list
+        Core.ops = ops;
+    }
 
     public static List<UniformSubtype> unpackComplexSemType(ComplexSemType t) {
         int some = t.some.bitset;
@@ -69,12 +77,60 @@ public class Core {
         if (t1 instanceof UniformTypeBitSet) {
             if (t2 instanceof UniformTypeBitSet) {
                 return UniformTypeBitSet.from(((UniformTypeBitSet) t1).bitset | ((UniformTypeBitSet) t2).bitset);
+            } else {
+                all2 =  ((ComplexSemType) t2).all;
+                some2 =  ((ComplexSemType) t2).some;
             }
+            all1 = (UniformTypeBitSet) t1;
+            some1 = UniformTypeBitSet.from(0);
         } else {
-
+            all1 =  ((ComplexSemType) t1).all;
+            some1 =  ((ComplexSemType) t1).some;
+            if (t2 instanceof UniformTypeBitSet) {
+                all2 = (UniformTypeBitSet) t2;
+                some2 = UniformTypeBitSet.from(0);
+            } else {
+                all2 =  ((ComplexSemType) t2).all;
+                some2 =  ((ComplexSemType) t2).some;
+            }
         }
+        UniformTypeBitSet all = UniformTypeBitSet.from(all1.bitset | all2.bitset);
+        UniformTypeBitSet some = UniformTypeBitSet.from((some1.bitset | some2.bitset) & ~all.bitset);
+        if (some.bitset == 0) {
+            return uniformTypeUnion(all.bitset);
+        }
+        List<UniformSubtype> subtypes = new ArrayList<>();
+        SubtypePairIterator stpi = new SubtypePairIterator(t1, t2, some);
+        while (stpi.hasNext()) {
+            UniformTypeCode code = stpi.next().uniformTypeCode;
+            SubtypeData data1 = stpi.next().subtypeData1;
+            SubtypeData data2 = stpi.next().subtypeData2;
 
-        throw new AssertionError("Not Implemented");
+            SubtypeData data;
+            if (data1 == null) {
+                data = data2;
+            } else if (data2 == null) {
+                data = data1;
+            } else {
+                BiFunction<SubtypeData, SubtypeData, SubtypeData> union = ops.get(code.code)::union;
+                data = union.apply(data1, data2);
+            }
+            if (data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isAllSubtype()) {
+                int c = code.code;
+                all = UniformTypeBitSet.from(all.bitset | (1 << c));
+            } else {
+                subtypes.add(UniformSubtype.from(code, data));
+            }
+        }
+        if (subtypes.isEmpty()) {
+            return all;
+        }
+        return ComplexSemType.createComplexSemType(all.bitset, subtypes);
+    }
+
+
+    private static UniformTypeBitSet uniformTypeUnion(int bits) {
+        return UniformTypeBitSet.from(bits);
     }
 
     public static SemType intersect(SemType t1, SemType t2) {
