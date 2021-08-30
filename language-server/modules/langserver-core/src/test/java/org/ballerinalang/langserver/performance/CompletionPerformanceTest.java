@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -66,10 +67,9 @@ public class CompletionPerformanceTest {
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
-        long responseTime = getResponseTimeCompletion(configJsonObject);
-        boolean isResponseWithinTime = TestUtil.isResponseWithinExpected(responseTime);
-        Assert.assertEquals(isResponseWithinTime, true);
-        String response = getResponseCompletion(configJsonObject);
+        long responseTime = getResponseCompletion(configJsonObject).getLeft();
+        Assert.assertEquals(responseTime < 3000, true);
+        String response = getResponseCompletion(configJsonObject).getRight();
         JsonObject json = parser.parse(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() {
         }.getType();
@@ -82,25 +82,7 @@ public class CompletionPerformanceTest {
         }
     }
 
-    String getResponseCompletion(JsonObject configJsonObject) throws IOException {
-        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        String responseString;
-        Position position = new Position();
-        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        position.setLine(positionObj.get("line").getAsInt());
-        position.setCharacter(positionObj.get("character").getAsInt());
-        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
-        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
-
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
-
-        return responseString;
-    }
-
-    long getResponseTimeCompletion(JsonObject configJsonObject) throws IOException {
+    Pair<Long, String> getResponseCompletion(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         String responseString;
         Position position = new Position();
@@ -117,7 +99,7 @@ public class CompletionPerformanceTest {
         long end = System.currentTimeMillis();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         long responseTime = end - start;
-        return responseTime;
+        return Pair.of(responseTime, responseString);
     }
 
     List<CompletionItem> getExpectedList(JsonObject configJsonObject) {

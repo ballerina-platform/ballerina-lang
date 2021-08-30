@@ -63,8 +63,7 @@ public class HoverProviderPerformanceTest {
                 .getAsJsonObject().toString();
         long end = System.currentTimeMillis();
         long responseTime = end - start;
-        boolean isResponseWithinTime = TestUtil.isResponseWithinExpected(responseTime);
-        Assert.assertEquals(isResponseWithinTime, true);
+        Assert.assertEquals(responseTime < 3000, true);
         String expected = configJson.getAsJsonObject("expected").toString();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
