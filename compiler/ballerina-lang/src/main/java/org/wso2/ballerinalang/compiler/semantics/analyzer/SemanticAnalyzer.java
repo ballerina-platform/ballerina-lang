@@ -1669,10 +1669,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (types.getConstraintFromReferenceType(rhsType).tag == TypeTags.UNION ||
                         types.getConstraintFromReferenceType(rhsType).tag == TypeTags.ARRAY) {
                     BTupleType tupleVariableType = null;
-                    BType type = tupleVariable.typeNode.getBType();
-                    if (tupleVariable.typeNode != null
-                            && types.getConstraintFromReferenceType(type).tag == TypeTags.TUPLE) {
-                        tupleVariableType = (BTupleType) types.getConstraintFromReferenceType(type);
+                    BLangType type = tupleVariable.typeNode;
+                    if (type != null && types.getConstraintFromReferenceType(type.getBType()).tag == TypeTags.TUPLE) {
+                        tupleVariableType = (BTupleType) types.getConstraintFromReferenceType(type.getBType());
                     }
                     if (!(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
                             tupleVariableType, blockEnv))) {
@@ -4167,11 +4166,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType annotType = annotationSymbol.attachedType.type;
         if (annAttachmentNode.expr == null) {
             BType annotConstrainedType = types.getConstraintFromReferenceType(annotType);
-            BType elementType = ((BArrayType) annotType).eType;
-            BRecordType recordType = annotConstrainedType.tag == TypeTags.RECORD ? (BRecordType) annotConstrainedType :
-                    annotConstrainedType.tag == TypeTags.ARRAY &&
-                            types.getConstraintFromReferenceType(elementType).tag == TypeTags.RECORD ?
-                            (BRecordType) types.getConstraintFromReferenceType(elementType) : null;
+            BRecordType recordType = annotConstrainedType.tag == TypeTags.RECORD
+                    ? (BRecordType) annotConstrainedType
+                    : (annotConstrainedType.tag == TypeTags.ARRAY
+                    && types.getConstraintFromReferenceType(((BArrayType) annotType).eType).tag == TypeTags.RECORD ?
+                    (BRecordType) types.getConstraintFromReferenceType(((BArrayType) annotType).eType) : null);
             if (recordType != null && hasRequiredFields(recordType)) {
                 this.dlog.error(annAttachmentNode.pos, DiagnosticErrorCode.ANNOTATION_ATTACHMENT_REQUIRES_A_VALUE,
                         recordType);

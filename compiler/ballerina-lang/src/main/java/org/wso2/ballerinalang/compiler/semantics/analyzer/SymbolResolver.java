@@ -1334,7 +1334,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             tableType.keyPos = tableKeySpecifier.pos;
         }
 
-        if (constraintType.tag == TypeTags.MAP &&
+        if (types.getConstraintFromReferenceType(constraintType).tag == TypeTags.MAP &&
                 (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
                 !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(tableType.keyPos,
