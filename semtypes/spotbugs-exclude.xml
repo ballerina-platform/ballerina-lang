@@ -77,6 +77,7 @@
     <Match>
         <Or>
             <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+            <Class name="io.ballerina.semtype.Core"/>
         </Or>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
