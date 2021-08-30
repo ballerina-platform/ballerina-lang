@@ -69,7 +69,7 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
 
-    private static UniformTypeBitSet uniformTypeUnion(int bitset) {
+    static UniformTypeBitSet uniformTypeUnion(int bitset) {
         return UniformTypeBitSet.from(bitset);
     }
 

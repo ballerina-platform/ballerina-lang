@@ -18,6 +18,8 @@
 package io.ballerina.semtype;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * ComplexSemType node.
@@ -41,6 +43,10 @@ public class ComplexSemType implements SemType {
     }
 
     public static ComplexSemType createComplexSemType(int allBitset, UniformSubtype... subtypeList) {
+        return createComplexSemType(allBitset, Arrays.asList(subtypeList));
+    }
+
+    public static ComplexSemType createComplexSemType(int allBitset, List<UniformSubtype> subtypeList) {
         int some = 0;
         ArrayList<SubtypeData> dataList = new ArrayList<>();
         for (UniformSubtype uniformSubtype : subtypeList) {
