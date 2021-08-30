@@ -1558,14 +1558,14 @@ function assert(anydata actual, anydata expected) {
     panic error(reason);
 }
 
-type RecordWithSimpleTypeFields record {|
+type RecordWithSimpleTypeFields record {
     int a;
     byte b;
     float c;
     decimal d;
     string e;
     boolean f;
-|};
+};
 
 type RecordWithArrayValueFields record {|
     float[] a;
@@ -1581,9 +1581,9 @@ type RecordWithRecordField record {|
     RecordAnydata r;
 |};
 
-type RecordWithMapField record {|
+type RecordWithMapField record {
     map<anydata> m;
-|};
+};
 
 type RecordWithXmlField record {|
     xml x;
