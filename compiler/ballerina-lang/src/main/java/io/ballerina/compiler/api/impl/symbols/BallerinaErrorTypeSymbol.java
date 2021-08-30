@@ -90,11 +90,9 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
             return this.signature;
         }
 
-        String definitionName;
+        String definitionName = "error";
         if (detailTypeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-            definitionName = getBType().toString();
-        } else {
-            definitionName = "error";
+            definitionName += "<" + detailTypeDescriptor().signature() + ">";
         }
 
         if (this.getModule().isEmpty()) {
