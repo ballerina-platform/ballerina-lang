@@ -141,20 +141,34 @@ public class Type {
     }
 
     public static Type fromSemanticSymbol(Symbol symbol) {
+        return fromSemanticSymbol(symbol, 0);
+    }
+
+    public static Type fromSemanticSymbol(Symbol symbol, int depth) {
         Type type = null;
+        final int maximumDepth = 14;
+
+        if (depth > maximumDepth) {
+            // Handle too may recursions
+            return null;
+        }
+
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) symbol;
             if (typeReferenceTypeSymbol.definition().kind().equals(SymbolKind.ENUM)) {
                 List<Type> fields = new ArrayList<>();
                 ((UnionTypeSymbol) typeReferenceTypeSymbol.typeDescriptor()).memberTypeDescriptors()
                         .forEach(typeSymbol -> {
-                            fields.add(fromSemanticSymbol(typeSymbol));
+                            Type semanticSymbol = fromSemanticSymbol(typeSymbol, depth + 1);
+                            if (semanticSymbol != null) {
+                                fields.add(semanticSymbol);
+                            }
                         });
                 type = new EnumType(fields);
             } else {
-                type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor());
+                type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor(), depth + 1);
             }
-            if (symbol.getName().isPresent() && symbol.getModule().isPresent()) {
+            if (type != null && symbol.getName().isPresent() && symbol.getModule().isPresent()) {
                 ModuleID moduleID = symbol.getModule().get().id();
                 type.typeInfo = new TypeInfo(symbol.getName().get(), moduleID.orgName(), moduleID.moduleName(),
                         null, moduleID.version());
@@ -165,22 +179,28 @@ public class Type {
             RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) symbol;
             List<Type> fields = new ArrayList<>();
             recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
-                Type subType = fromSemanticSymbol(field.typeDescriptor());
-                subType.name = name;
-                subType.optional = field.isOptional();
-                fields.add(subType);
+                Type subType = fromSemanticSymbol(field.typeDescriptor(), depth + 1);
+                if (subType != null) {
+                    subType.name = name;
+                    subType.optional = field.isOptional();
+                    fields.add(subType);
+                }
             });
             Type restType = recordTypeSymbol.restTypeDescriptor().isPresent() ?
-                    fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get()) : null;
+                    fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get(), depth + 1) : null;
             type = new RecordType(fields, restType);
         } else if (symbol instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
-            type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor()));
+            type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor(), depth + 1));
         } else if (symbol instanceof UnionTypeSymbol) {
             UnionTypeSymbol unionSymbol = (UnionTypeSymbol) symbol;
             UnionType unionType = new UnionType();
-            unionSymbol.memberTypeDescriptors().forEach(typeSymbol -> unionType.members
-                    .add(fromSemanticSymbol(typeSymbol)));
+            unionSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
+                Type semanticSymbol = fromSemanticSymbol(typeSymbol, depth + 1);
+                if (semanticSymbol != null) {
+                    unionType.members.add(semanticSymbol);
+                }
+            });
             if (unionType.members.stream().allMatch(type1 -> type1 instanceof ErrorType)) {
                 ErrorType errType = new ErrorType();
                 errType.isErrorUnion = true;
@@ -193,14 +213,18 @@ public class Type {
             ErrorTypeSymbol errSymbol = (ErrorTypeSymbol) symbol;
             ErrorType errType = new ErrorType();
             if (errSymbol.detailTypeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                errType.detailType = fromSemanticSymbol(errSymbol.detailTypeDescriptor());
+                errType.detailType = fromSemanticSymbol(errSymbol.detailTypeDescriptor(), depth + 1);
             }
             type = errType;
         } else if (symbol instanceof IntersectionTypeSymbol) {
             IntersectionTypeSymbol intersectionTypeSymbol = (IntersectionTypeSymbol) symbol;
             IntersectionType intersectionType = new IntersectionType();
-            intersectionTypeSymbol.memberTypeDescriptors().forEach(typeSymbol ->
-                    intersectionType.members.add(fromSemanticSymbol(typeSymbol)));
+            intersectionTypeSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
+                Type semanticSymbol = fromSemanticSymbol(typeSymbol, depth + 1);
+                if (semanticSymbol != null) {
+                    intersectionType.members.add(semanticSymbol);
+                }
+            });
             type = intersectionType;
         } else if (symbol instanceof TypeSymbol) {
             type = new PrimitiveType(((TypeSymbol) symbol).signature());
