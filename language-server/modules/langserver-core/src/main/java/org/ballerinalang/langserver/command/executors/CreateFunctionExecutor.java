@@ -36,7 +36,6 @@ import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeF
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -44,7 +43,6 @@ import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentEdit;

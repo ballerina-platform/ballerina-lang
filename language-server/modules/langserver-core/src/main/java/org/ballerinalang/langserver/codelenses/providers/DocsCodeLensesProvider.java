@@ -23,7 +23,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.projects.Document;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocumentationGenerator;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
