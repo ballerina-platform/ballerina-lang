@@ -18,26 +18,17 @@
 package io.ballerina.semtype.typeops;
 
 import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.UniformTypeCode;
+import io.ballerina.semtype.TypeCheckContext;
+import io.ballerina.semtype.UniformTypeOps;
 
 /**
- * Represent a 3-tuple containing paired-up subtype data.
+ * Uniform type ops for error type.
  *
  * @since 2.0.0
  */
-public class SubtypePair {
-    public final UniformTypeCode uniformTypeCode;
-    public final SubtypeData subtypeData1;
-    public final SubtypeData subtypeData2;
-
-    private SubtypePair(UniformTypeCode uniformTypeCode, SubtypeData subtypeData1, SubtypeData subtypeData2) {
-        this.uniformTypeCode = uniformTypeCode;
-        this.subtypeData1 = subtypeData1;
-        this.subtypeData2 = subtypeData2;
-    }
-
-    public static SubtypePair create(UniformTypeCode uniformTypeCode,
-                                     SubtypeData subtypeData1, SubtypeData subtypeData2) {
-        return new SubtypePair(uniformTypeCode, subtypeData1, subtypeData2);
+public class ErrorOps extends CommonOps implements UniformTypeOps {
+    @Override
+    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+        throw new AssertionError();
     }
 }
