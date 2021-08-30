@@ -44,6 +44,7 @@ public class Env {
 
     public synchronized RecAtom recFunctionAtom() {
         int result = this.recFunctionAtoms.size();
+        // represents adding () in nballerina
         this.recFunctionAtoms.add(null);
         return new RecAtom(result);
     }

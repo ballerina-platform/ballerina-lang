@@ -26,7 +26,6 @@ public class FunctionAtomicType implements AtomicType {
     public SemType paramType;
     public SemType retType;
 
-
     public FunctionAtomicType(SemType paramType, SemType retType) {
         this.paramType = paramType;
         this.retType = retType;

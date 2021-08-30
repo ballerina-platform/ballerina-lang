@@ -26,7 +26,7 @@ public class Conjunction {
     public Atom atom;
     public Conjunction next;
 
-    public Conjunction(Atom atom, Conjunction next) {
+    private Conjunction(Atom atom, Conjunction next) {
         this.atom = atom;
         this.next = next;
     }
