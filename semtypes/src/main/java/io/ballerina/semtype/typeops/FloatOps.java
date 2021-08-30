@@ -3,6 +3,8 @@ package io.ballerina.semtype.typeops;
 import io.ballerina.semtype.EnumerableFloat;
 import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.TypeCheckContext;
+import io.ballerina.semtype.UniformTypeOps;
 import io.ballerina.semtype.subtypedata.FloatSubtype;
 
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.ArrayList;
  *
  * @since 2.0.0
  */
-public class FloatOps extends CommonOps  {
+public class FloatOps extends CommonOps implements UniformTypeOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         ArrayList<EnumerableFloat> values = new ArrayList<>();
@@ -38,4 +40,8 @@ public class FloatOps extends CommonOps  {
         return FloatSubtype.createFloatSubtype(!s.allowed, s.values);
     }
 
+    @Override
+    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+        throw  new IllegalStateException();
+    }
 }
