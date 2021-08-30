@@ -20,14 +20,52 @@ package io.ballerina.semtype.subtypedata;
 import io.ballerina.semtype.Atom;
 import io.ballerina.semtype.Bdd;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Bdd node.
  *
  * @since 2.0.0
  */
 public class BddNode implements Bdd {
-    Atom atom;
-    BddNode left;
-    BddNode middle;
-    BddNode right;
+    public final Atom atom;
+    public final Bdd left;
+    public final Bdd middle;
+    public final Bdd right;
+
+    private final static AtomicInteger bddCount = new AtomicInteger();
+
+
+    private BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
+        this.atom = atom;
+        this.left = left;
+        this.middle = middle;
+        this.right = right;
+    }
+
+    public static BddNode create(Atom atom, Bdd left, Bdd middle, Bdd right) {
+        return new BddNode(atom, left, middle, right);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof BddNode) {
+            BddNode that = (BddNode) obj;
+            return Objects.equals(this.atom, that.atom)
+                    && Objects.equals(this.left, that.left)
+                    && Objects.equals(this.middle, that.middle)
+                    && Objects.equals(this.right, that.right);
+        }
+
+        return false;
+    }
+
+    public int bddGetCount() {
+        return bddCount.get();
+    }
 }
