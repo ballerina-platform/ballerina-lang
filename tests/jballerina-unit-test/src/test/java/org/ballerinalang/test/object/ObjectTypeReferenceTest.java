@@ -342,7 +342,8 @@ public class ObjectTypeReferenceTest {
                                           "(string aString, int anInt, AnotherBar... bars) returns string'",
                                   66, 5);
         BAssertUtil.validateError(result, index++,
-                                  "mismatched function signatures: expected 'function test5(Status... status) returns Bar', found 'function test5(Status... stat) returns Bar'", 71, 5);
+                "mismatched function signatures: expected 'function test5(Status... status) returns Bar',"
+                        + " found 'function test5(Status... stat) returns Bar'", 71, 5);
         BAssertUtil.validateError(result, index++,
                                   "mismatched function signatures: expected 'function test6([string,Status]... tup)'," +
                                           " found 'function test6([string,Status]... tupl)'", 76, 5);

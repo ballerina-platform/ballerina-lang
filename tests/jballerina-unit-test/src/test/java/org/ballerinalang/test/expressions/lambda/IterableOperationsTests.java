@@ -82,7 +82,8 @@ public class IterableOperationsTests {
                 "'function (ballerina/lang.array:1.1.0:Type) returns ()', found 'function () returns ()'", 64, 15);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 65, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
-                "'function (ballerina/lang.array:1.1.0:Type) returns (boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
+                "'function (ballerina/lang.array:1.1.0:Type) returns (boolean)', " +
+                "found 'function (string) returns ([boolean,int])'", 65, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 66, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
                 "'function (ballerina/lang.array:1.1.0:Type) returns " +

@@ -213,8 +213,8 @@ public class SealedArrayTest {
                                   "invalid usage of list constructor: type 'myVar[3]' does not have a filler value",
                                   63, 18);
         BAssertUtil.validateError(listExprNegative, 4,
-                                  "invalid usage of list constructor: type 'myNonHomogeneousUnion[3]' does not have a filler value",
-                                  69, 34);
+                                  "invalid usage of list constructor: type 'myNonHomogeneousUnion[3]' " +
+                                          "does not have a filler value", 69, 34);
         BAssertUtil.validateError(listExprNegative, 5,
                                   "invalid usage of list constructor: type 'Rec[2]' does not have a filler value",
                                   88, 16);
