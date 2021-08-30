@@ -198,7 +198,6 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
         // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
@@ -209,17 +208,11 @@ public class BuildProject extends Project {
         } else {
             // build file exists
             BuildJson buildJson = readBuildJson(buildFilePath);
-            // check whether last updated time is expired
-            if (shouldUpdate) {
-                // need to update Dependencies toml
-                writeDependencies();
-                // update build json file
-                writeBuildFile(buildFilePath);
-            } else {
-                // only update build time
-                buildJson.setLastBuildTime(System.currentTimeMillis());
-                ProjectUtils.writeBuildFile(buildFilePath, buildJson);
-            }
+            // need to update Dependencies toml
+            writeDependencies();
+            // only update build time
+            buildJson.setLastBuildTime(System.currentTimeMillis());
+            ProjectUtils.writeBuildFile(buildFilePath, buildJson);
         }
     }
 
@@ -297,9 +290,7 @@ public class BuildProject extends Project {
             if (directDependencies.contains(transDependency)) {
                 continue;
             }
-            if (transDependency.packageInstance() != this.currentPackage()
-                    && !transDependency.packageInstance().descriptor().isBuiltInPackage()
-                    && !transDependency.isPlatformProvided()) {
+            if (transDependency.packageInstance() != this.currentPackage()) {
                 Package aPackage = transDependency.packageInstance();
                 Dependency dependency = new Dependency(aPackage.packageOrg().toString(),
                                                        aPackage.packageName().value(),
