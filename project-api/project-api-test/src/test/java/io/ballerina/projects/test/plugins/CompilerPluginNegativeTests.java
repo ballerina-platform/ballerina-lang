@@ -109,6 +109,6 @@ public class CompilerPluginNegativeTests {
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/negative_cases/package_compiler_plugin_" + testCase);
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_that_imports_plugin_" + testCase);
-        BuildProject.load(projectDirPath).currentPackage().getCompilation();
+        TestUtils.loadBuildProject(projectDirPath).currentPackage().getCompilation();
     }
 }

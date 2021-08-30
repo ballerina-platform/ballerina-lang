@@ -18,6 +18,15 @@
 
 package io.ballerina.projects.test;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.EnvironmentBuilder;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,6 +45,74 @@ import java.util.zip.ZipInputStream;
 public class TestUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+
+    static BuildProject loadBuildProject(Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return BuildProject.load(projectPath, buildOptions);
+    }
+
+    static BuildProject loadBuildProject(Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        options.acceptTheirs(buildOptions);
+        return BuildProject.load(projectPath, options);
+    }
+
+    static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return BuildProject.load(environmentBuilder, projectPath, buildOptions);
+    }
+
+    static BuildProject loadBuildProject(
+            ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        options.acceptTheirs(buildOptions);
+        return BuildProject.load(environmentBuilder, projectPath, options);
+    }
+
+    static SingleFileProject loadSingleFileProject(Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return SingleFileProject.load(projectPath, buildOptions);
+    }
+
+    static SingleFileProject loadSingleFileProject(Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        options.acceptTheirs(buildOptions);
+        return SingleFileProject.load(projectPath, options);
+    }
+
+    static SingleFileProject loadSingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return SingleFileProject.load(environmentBuilder, projectPath, buildOptions);
+    }
+
+    static SingleFileProject loadSingleFileProject(
+            ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        options.acceptTheirs(buildOptions);
+        return SingleFileProject.load(environmentBuilder, projectPath, options);
+    }
+
+    static Project loadProject(Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return ProjectLoader.loadProject(projectPath, buildOptions);
+    }
+
+    static Project loadProject(Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        options.acceptTheirs(buildOptions);
+        return ProjectLoader.loadProject(projectPath, options);
+    }
+
+    static Project loadProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        return ProjectLoader.loadProject(projectPath, environmentBuilder, buildOptions);
+    }
+
+    static Project loadProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
+        BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+        options.acceptTheirs(buildOptions);
+        return ProjectLoader.loadProject(projectPath, environmentBuilder, options);
+    }
 
     static void unzip(String fileZipPath, String destinationDirectory) throws IOException {
         byte[] buffer = new byte[1024 * 4];

@@ -154,7 +154,7 @@ public class CompilerPluginTests {
     @Test
     public void testInBuiltCompilerPluginSingleFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_test_inbuilt_plugin/single-file/main.bal");
-        Package currentPackage = SingleFileProject.load(projectDirPath).currentPackage();
+        Package currentPackage = TestUtils.loadSingleFileProject(projectDirPath).currentPackage();
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
@@ -214,7 +214,7 @@ public class CompilerPluginTests {
 
     private Package loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         return buildProject.currentPackage();
     }
 }

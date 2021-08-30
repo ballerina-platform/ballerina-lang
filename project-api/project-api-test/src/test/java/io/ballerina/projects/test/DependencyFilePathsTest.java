@@ -54,7 +54,7 @@ public class DependencyFilePathsTest extends BaseTest {
     @Test
     public void testGetDependencyFilePathFromBuildProject() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_a");
-        Project project = ProjectLoader.loadProject(projectDirPath);
+        Project project = TestUtils.loadProject(projectDirPath);
         Package currentPackage = project.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
 
@@ -101,7 +101,7 @@ public class DependencyFilePathsTest extends BaseTest {
         Assert.assertEquals(filepath.toString(), expectedPath.toString());
 
         // get document id of dependency filepath
-        Project balaProject = ProjectLoader.loadProject(
+        Project balaProject = TestUtils.loadProject(
                 Paths.get("build/repo/bala/samjs/package_b/0.1.0/any/"));
         DocumentId documentId1 = balaProject.documentId(filepath);
 
@@ -115,7 +115,7 @@ public class DependencyFilePathsTest extends BaseTest {
     @Test
     public void testGetLangLibFilePath() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_a");
-        Project project = ProjectLoader.loadProject(projectDirPath);
+        Project project = TestUtils.loadProject(projectDirPath);
         Package currentPackage = project.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
 
@@ -158,7 +158,7 @@ public class DependencyFilePathsTest extends BaseTest {
         Assert.assertEquals(filepath.toString(), expectedPath.toString());
 
         // get document id of dependency filepath
-        Project balaProject = ProjectLoader.loadProject(
+        Project balaProject = TestUtils.loadProject(
                 Paths.get("build/repo/bala/ballerina/lang.float/1.0.0/any"));
         DocumentId documentId1 = balaProject.documentId(filepath);
         Assert.assertEquals(documentId1,

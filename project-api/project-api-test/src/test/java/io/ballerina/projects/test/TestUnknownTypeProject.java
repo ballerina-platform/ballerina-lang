@@ -45,7 +45,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -81,7 +81,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("tests").resolve("main_tests.bal");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -118,7 +118,7 @@ public class TestUnknownTypeProject {
                 .resolve("svc.bal");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -154,7 +154,7 @@ public class TestUnknownTypeProject {
                 .resolve("tests").resolve("svc_tests.bal");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -189,7 +189,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -224,7 +224,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -248,7 +248,7 @@ public class TestUnknownTypeProject {
                 .resolve("modules/package_c/main.bal");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -270,7 +270,7 @@ public class TestUnknownTypeProject {
                 .resolve("modules/package_c.mod_c1/mod1.bal");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -291,7 +291,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -311,7 +311,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any/modules/package_c");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -331,7 +331,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("extracted-bala-project/package_c/0.1.0/any/package.json");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
             Assert.fail("project loading with a non-bal file is expected to fail");
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("provided path is not a valid Ballerina source file"));
@@ -343,7 +343,7 @@ public class TestUnknownTypeProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
         Project project = null;
         try {
-            project = ProjectLoader.loadProject(projectPath);
+            project = TestUtils.loadProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }

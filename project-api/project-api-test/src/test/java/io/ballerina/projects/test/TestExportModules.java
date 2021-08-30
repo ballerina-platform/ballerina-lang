@@ -81,7 +81,7 @@ public class TestExportModules {
     @Test(description = "test build project with export entry in Ballerina.toml")
     public void testBuildProjectWithExportModules() {
         Path projectPath = EXPORT_MODULES.resolve("build_project_with_export");
-        Project project = BuildProject.load(projectPath);
+        Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         if (packageCompilation.diagnosticResult().hasErrors()) {
@@ -96,7 +96,7 @@ public class TestExportModules {
     @Test(description = "test build project without export entry in Ballerina.toml")
     public void testBuildProjectWithoutExportModules() {
         Path projectPath = EXPORT_MODULES.resolve("build_project_without_export");
-        Project project = BuildProject.load(projectPath);
+        Project project = TestUtils.loadBuildProject(projectPath);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         if (packageCompilation.diagnosticResult().hasErrors()) {
