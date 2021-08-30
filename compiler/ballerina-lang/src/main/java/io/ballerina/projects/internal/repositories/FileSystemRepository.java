@@ -36,6 +36,7 @@ import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -173,7 +174,52 @@ public class FileSystemRepository extends AbstractPackageRepository {
         } catch (IOException e) {
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
+
+        List<Path> incompatibleVersions = new ArrayList<>();
+
+        if (!versions.isEmpty()) {
+            for (Path ver : versions) {
+                Path pkgJsonPath = bala.resolve(org.value()).resolve(name.value()).resolve(ver.toString())
+                        .resolve("any").resolve(ProjectConstants.PACKAGE_JSON);
+
+                if (Files.exists(pkgJsonPath)) {
+                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion()
+                            .replace("sl", "");
+                    String packVer = RepoUtils.getBallerinaShortVersion().replace("sl", "");
+
+                    if (!packageVer.equals(packVer)) {
+                        if (!isCompatible(packageVer, packVer)) {
+                            incompatibleVersions.add(ver);
+                        }
+                    }
+                }
+            }
+        }
+
+        versions.removeAll(incompatibleVersions);
         return pathToVersions(versions);
+    }
+
+    private boolean isCompatible(String packageVer, String packVer) {
+        if (!packageVer.equals(packVer)) {
+            // Compare the first substrings - alpha, beta stages
+            String packageStage = packageVer.substring(0, packageVer.length() - 1);
+            String packStage = packVer.substring(0, packVer.length() - 1);
+
+            // If the stages are equal, we need to check the versions
+            if (packageStage.equals(packStage)) {
+                String packageVerValue = packageVer.substring(packageVer.length() - 1);
+                String packVerValue = packVer.substring(packVer.length() - 1);
+                // If package_ver is greater than pack version
+                if (Integer.parseInt(packageVerValue) > Integer.parseInt(packVerValue)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
