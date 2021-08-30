@@ -25,7 +25,7 @@ import io.ballerina.semtype.subtypedata.BddAllOrNothing;
 import io.ballerina.semtype.subtypedata.BddNode;
 
 /**
- * Contain common BDD operations found in bdd.bal
+ * Contain common BDD operations found in bdd.bal file.
  *
  * @since 2.0.0
  */

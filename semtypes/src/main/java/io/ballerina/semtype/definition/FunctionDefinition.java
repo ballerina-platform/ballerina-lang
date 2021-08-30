@@ -24,7 +24,7 @@ import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.RecAtom;
 import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.UniformTypeCode;
-import io.ballerina.semtype.subtypedata.BddNode;
+import io.ballerina.semtype.typeops.BddCommonOps;
 
 /**
  * Represent function type desc.
@@ -39,8 +39,7 @@ public class FunctionDefinition implements Definition {
     public FunctionDefinition(Env env) {
         FunctionAtomicType dummy = new FunctionAtomicType(PredefinedType.NEVER, PredefinedType.NEVER);
         this.atom = env.recFunctionAtom();
-        this.semType = PredefinedType.uniformSubtype(UniformTypeCode.UT_FUNCTION, BddNode.bddAtom(this.atom));
-
+        this.semType = PredefinedType.uniformSubtype(UniformTypeCode.UT_FUNCTION, BddCommonOps.bddAtom(this.atom));
     }
 
     @Override

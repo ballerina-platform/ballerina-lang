@@ -34,8 +34,7 @@ public class BddNode implements Bdd {
     public final Bdd middle;
     public final Bdd right;
 
-    private final static AtomicInteger bddCount = new AtomicInteger();
-
+    private static final AtomicInteger bddCount = new AtomicInteger();
 
     private BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
         this.atom = atom;
@@ -64,6 +63,15 @@ public class BddNode implements Bdd {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = atom.hashCode();
+        result = 31 * result + left.hashCode();
+        result = 31 * result + middle.hashCode();
+        result = 31 * result + right.hashCode();
+        return result;
     }
 
     public int bddGetCount() {

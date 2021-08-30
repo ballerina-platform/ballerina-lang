@@ -29,6 +29,7 @@
             <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.FloatSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.StringSubtype"/>
+            <Class name="io.ballerina.semtype.typeops.BddCommonOps"/>
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
             <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
             <Class name="io.ballerina.semtype.TypeCheckContext"/>
@@ -59,10 +60,12 @@
             <Class name="io.ballerina.semtype.typeops.SubtypePair"/>
             <Class name="io.ballerina.semtype.definition.Field"/>
             <Class name="io.ballerina.semtype.Value"/>
+            <Class name="io.ballerina.semtype.TypeAtom"/>
         </Or>
         <Or>
             <Bug pattern="URF_UNREAD_FIELD"/>
             <Bug pattern="UUF_UNUSED_FIELD"/>
+            <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
         </Or>
     </Match>
     <Match>
