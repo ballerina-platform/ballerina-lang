@@ -6,7 +6,7 @@
       "title": "Pull unresolved modules",
       "command": {
         "title": "Pull unresolved modules",
-        "command": "ballerina.packages.pull",
+        "command": "PULL_MODULE",
         "arguments": [
           {
             "key": "module",
