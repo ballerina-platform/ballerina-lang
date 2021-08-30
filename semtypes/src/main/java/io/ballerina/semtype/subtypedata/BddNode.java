@@ -42,6 +42,7 @@ public class BddNode implements Bdd {
         this.left = left;
         this.middle = middle;
         this.right = right;
+        bddCount.incrementAndGet();
     }
 
     public static BddNode create(Atom atom, Bdd left, Bdd middle, Bdd right) {
