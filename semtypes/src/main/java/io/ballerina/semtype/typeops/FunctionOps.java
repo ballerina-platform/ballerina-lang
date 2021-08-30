@@ -20,6 +20,7 @@ package io.ballerina.semtype.typeops;
 import io.ballerina.semtype.Bdd;
 import io.ballerina.semtype.BddMemo;
 import io.ballerina.semtype.Conjunction;
+import io.ballerina.semtype.Core;
 import io.ballerina.semtype.FunctionAtomicType;
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.SemType;

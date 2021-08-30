@@ -69,9 +69,22 @@ public class Core {
         if (t1 instanceof UniformTypeBitSet) {
             if (t2 instanceof UniformTypeBitSet) {
                 return UniformTypeBitSet.from(((UniformTypeBitSet) t1).bitset | ((UniformTypeBitSet) t2).bitset);
+            }  else {
+                all2 =  ((ComplexSemType) t2).all;
+                some2 =  ((ComplexSemType) t2).some;
             }
+            all1 = (UniformTypeBitSet) t1;
+            some1 = UniformTypeBitSet.from(0);
         } else {
-
+            all1 =  ((ComplexSemType) t1).all;
+            some1 =  ((ComplexSemType) t1).some;
+            if (t2 instanceof UniformTypeBitSet) {
+                all2 = (UniformTypeBitSet) t2;
+                some2 = UniformTypeBitSet.from(0);
+            } else {
+                all2 =  ((ComplexSemType) t2).all;
+                some2 =  ((ComplexSemType) t2).some;
+            }
         }
 
         throw new AssertionError("Not Implemented");
