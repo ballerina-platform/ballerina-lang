@@ -88,11 +88,21 @@ public class PackageResolutionResponse {
         }
     }
 
+    /**
+     * Package resolution response Dependency model.
+     */
     public static class Dependency {
         private String org;
         private String name;
         private String version;
         private List<Dependency> dependencies;
+
+        public <T> Dependency(String org, String name, String version, List<Dependency> dependencies) {
+            this.org = org;
+            this.name = name;
+            this.version = version;
+            this.dependencies = dependencies;
+        }
 
         public String org() {
             return org;
@@ -108,6 +118,22 @@ public class PackageResolutionResponse {
 
         public List<Dependency> dependencies() {
             return dependencies;
+        }
+
+        public void setOrg(String org) {
+            this.org = org;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public void setDependencies(List<Dependency> dependencies) {
+            this.dependencies = dependencies;
         }
     }
 
