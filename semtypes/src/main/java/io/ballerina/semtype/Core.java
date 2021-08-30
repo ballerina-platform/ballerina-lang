@@ -37,7 +37,6 @@ import java.util.Optional;
 public class Core {
     // subtypeList must be ordered
 
-
     public static List<UniformSubtype> unpackComplexSemType(ComplexSemType t) {
         int some = t.some.bitset;
         List<UniformSubtype> subtypeList = new ArrayList<>();
