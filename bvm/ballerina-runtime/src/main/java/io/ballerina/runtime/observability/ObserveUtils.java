@@ -146,8 +146,8 @@ public class ObserveUtils {
      * @param env                    Ballerina environment
      * @param module                 The module the resource belongs to
      * @param srcFileName            The source code file name the resource in defined in
-     * @param startPosition          The source code start position the resource in defined in
-     * @param endPosition            The source code end position the resource in defined in
+     * @param startLine              The source code start line the resource in defined in
+     * @param startColumn            The source code start column the resource in defined in
      * @param serviceName            Name of the service to which the observer context belongs
      * @param resourcePathOrFunction Full path of the resource
      * @param resourceAccessor       Accessor of the resource
@@ -155,7 +155,7 @@ public class ObserveUtils {
      * @param isRemote               True if this was a remote function invocation
      */
     public static void startResourceObservation(Environment env, BString module, BString srcFileName,
-                                                long startPosition, long endPosition, BString serviceName,
+                                                long startLine, long startColumn, BString serviceName,
                                                 BString resourcePathOrFunction, BString resourceAccessor,
                                                 boolean isResource, boolean isRemote) {
         if (!enabled) {
@@ -207,7 +207,7 @@ public class ObserveUtils {
         observerContext.addTag(TAG_KEY_SRC_OBJECT_NAME, serviceName.getValue());
 
         observerContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
-        observerContext.addTag(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startPosition, endPosition));
+        observerContext.addTag(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startLine, startColumn));
 
         if (observerContext.getEntrypointFunctionModule() != null) {
             observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
@@ -236,14 +236,14 @@ public class ObserveUtils {
     /**
      * Add record checkpoint data to active Trace Span.
      *
-     * @param env           The Ballerina Environment
-     * @param pkg           The package the instrumented code belongs to
-     * @param srcFileName   The source code file name the instrumented code defined in
-     * @param startPosition The source code start position the instrumented code defined in
-     * @param endPosition   The source code end position the instrumented code defined in
+     * @param env         The Ballerina Environment
+     * @param pkg         The package the instrumented code belongs to
+     * @param srcFileName The source code file name the instrumented code defined in
+     * @param startLine   The source code start line the instrumented code defined in
+     * @param startColumn The source code start column the instrumented code defined in
      */
-    public static void recordCheckpoint(Environment env, BString pkg, BString srcFileName, long startPosition,
-                                        long endPosition) {
+    public static void recordCheckpoint(Environment env, BString pkg, BString srcFileName, long startLine,
+                                        long startColumn) {
         if (!tracingEnabled) {
             return;
         }
@@ -260,7 +260,7 @@ public class ObserveUtils {
         // Adding Position and Module ID to the Span
         Attributes eventAttributes = Attributes.builder()
                 .put(TAG_KEY_SRC_MODULE, pkg.getValue())
-                .put(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startPosition, endPosition))
+                .put(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startLine, startColumn))
                 .build();
         span.addEvent(CHECKPOINT_EVENT_NAME, eventAttributes);
     }
@@ -323,8 +323,8 @@ public class ObserveUtils {
      * @param env              Ballerina environment
      * @param module           The module the resource belongs to
      * @param srcFileName      The source code file name the resource in defined in
-     * @param startPosition    The source code start position the resource in defined in
-     * @param endPosition      The source code end position the resource in defined in
+     * @param startLine        The source code start line the resource in defined in
+     * @param startColumn      The source code start column the resource in defined in
      * @param typeDef          The type definition the function was attached to
      * @param functionName     name of the function being invoked
      * @param isMainEntryPoint True if this was a main entry point invocation
@@ -332,7 +332,7 @@ public class ObserveUtils {
      * @param isWorker         True if this was a worker start
      */
     public static void startCallableObservation(Environment env, BString module, BString srcFileName,
-                                                long startPosition, long endPosition, BObject typeDef,
+                                                long startLine, long startColumn, BObject typeDef,
                                                 BString functionName, boolean isMainEntryPoint, boolean isRemote,
                                                 boolean isWorker) {
         if (!enabled) {
@@ -377,7 +377,7 @@ public class ObserveUtils {
 
         newObContext.addTag(TAG_KEY_SRC_FUNCTION_NAME, functionName.getValue());
         newObContext.addTag(TAG_KEY_SRC_MODULE, module.getValue());
-        newObContext.addTag(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startPosition, endPosition));
+        newObContext.addTag(TAG_KEY_SRC_POSITION, generatePositionId(srcFileName, startLine, startColumn));
 
         if (newObContext.getEntrypointFunctionModule() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
@@ -455,12 +455,12 @@ public class ObserveUtils {
     /**
      * Generate a ID for a source code position.
      *
-     * @param srcFileName   source file name
-     * @param startPosition start position of the call
-     * @param endPosition   end position of the call
+     * @param srcFileName source file name
+     * @param startLine   start line of the call
+     * @param startColumn start column of the call
      * @return generated id for source position
      */
-    private static String generatePositionId(BString srcFileName, long startPosition, long endPosition) {
-        return String.format("%s:%d:%d", srcFileName, startPosition, endPosition);
+    private static String generatePositionId(BString srcFileName, long startLine, long startColumn) {
+        return String.format("%s:%d:%d", srcFileName, startLine, startColumn);
     }
 }

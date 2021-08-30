@@ -1013,36 +1013,36 @@ class JvmObservabilityGen {
      * @param func      Bir Function
      * @param currentBB Current basic block
      * @param location  Location
-     * @return List of operands for source file name, start and end positions
+     * @return List of operands for source file name, position start line and start column
      */
     private List<BIROperand> generatePositionArgs(BIRPackage pkg, BIRFunction func, BIRBasicBlock currentBB,
                                                   Location location) {
         String pkgId = generatePackageId(pkg.packageID);
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
         Name fileName = new Name("$observabilityFileName" + localVarIndex++);
-        Name startPosition = new Name("$observabilityStart" + localVarIndex++);
-        Name endPosition = new Name("$observabilityEnd" + localVarIndex++);
+        Name startLine = new Name("$observabilityStartLine" + localVarIndex++);
+        Name startCol = new Name("$observabilityStartCol" + localVarIndex++);
         BIRVariableDcl positionFileVar = new BIRVariableDcl(symbolTable.stringType, fileName, VarScope.FUNCTION,
                 VarKind.TEMP);
-        BIRVariableDcl positionStartVar = new BIRVariableDcl(symbolTable.intType, startPosition, VarScope.FUNCTION,
+        BIRVariableDcl startLineVar = new BIRVariableDcl(symbolTable.intType, startLine, VarScope.FUNCTION,
                 VarKind.TEMP);
-        BIRVariableDcl positionEndVar = new BIRVariableDcl(symbolTable.intType, endPosition, VarScope.FUNCTION,
+        BIRVariableDcl startColumnVar = new BIRVariableDcl(symbolTable.intType, startCol, VarScope.FUNCTION,
                 VarKind.TEMP);
         BIROperand fileNameOperand = new BIROperand(positionFileVar);
-        BIROperand startPositionOperand = new BIROperand(positionStartVar);
-        BIROperand endPositionOperand = new BIROperand(positionEndVar);
+        BIROperand startLineOperand = new BIROperand(startLineVar);
+        BIROperand startColOperand = new BIROperand(startColumnVar);
         ConstantLoad fileNameIns = new ConstantLoad(location, location.lineRange().filePath(),
                 fileNameOperand.variableDcl.type, fileNameOperand);
-        ConstantLoad startPositionIns = new ConstantLoad(location, location.lineRange().startLine().line() + 1,
-                startPositionOperand.variableDcl.type, startPositionOperand);
-        ConstantLoad endPositionIns = new ConstantLoad(location, location.lineRange().startLine().offset() + 1,
-                endPositionOperand.variableDcl.type, endPositionOperand);
+        ConstantLoad startLineIns = new ConstantLoad(location, location.lineRange().startLine().line() + 1,
+                startLineOperand.variableDcl.type, startLineOperand);
+        ConstantLoad startColIns = new ConstantLoad(location, location.lineRange().startLine().offset() + 1,
+                startColOperand.variableDcl.type, startColOperand);
         currentBB.instructions.add(fileNameIns);
-        currentBB.instructions.add(startPositionIns);
-        currentBB.instructions.add(endPositionIns);
+        currentBB.instructions.add(startLineIns);
+        currentBB.instructions.add(startColIns);
         func.localVars.add(positionFileVar);
-        func.localVars.add(positionStartVar);
-        func.localVars.add(positionEndVar);
-        return new ArrayList<>(Arrays.asList(pkgOperand, fileNameOperand, startPositionOperand, endPositionOperand));
+        func.localVars.add(startLineVar);
+        func.localVars.add(startColumnVar);
+        return new ArrayList<>(Arrays.asList(pkgOperand, fileNameOperand, startLineOperand, startColOperand));
     }
 }
