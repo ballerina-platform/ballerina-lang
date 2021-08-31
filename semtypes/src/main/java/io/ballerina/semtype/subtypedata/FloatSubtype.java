@@ -26,6 +26,7 @@ import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.UniformTypeCode;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,6 +90,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
         if (values.isEmpty()) {
             return new AllOrNothingSubtype(!allowed);
         }
-        return new FloatSubtype(allowed, values);
+        List<EnumerableFloat> readOnlyValues = Collections.unmodifiableList(values);
+        return new FloatSubtype(allowed, readOnlyValues);
     }
 }

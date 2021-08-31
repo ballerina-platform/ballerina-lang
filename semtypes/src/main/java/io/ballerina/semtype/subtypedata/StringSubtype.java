@@ -17,19 +17,24 @@
  */
 package io.ballerina.semtype.subtypedata;
 
+import io.ballerina.semtype.EnumerableString;
+import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SubtypeData;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Represent StringSubtype.
  *
  * @since 2.0.0
  */
-public class StringSubtype implements ProperSubtypeData {
+public class StringSubtype extends EnumerableSubtype implements ProperSubtypeData {
     public final boolean allowed;
-    public final String[] values;
+    public final List<EnumerableString> values;
 
-    private StringSubtype(boolean allowed, String[] values) {
+    private StringSubtype(boolean allowed, List<EnumerableString> values) {
         this.allowed = allowed;
         this.values = values;
     }
@@ -41,13 +46,21 @@ public class StringSubtype implements ProperSubtypeData {
         StringSubtype v = (StringSubtype) d;
 
         boolean found = false;
-        for (String value : v.values) {
-            if (value.equals(s)) {
+        for (EnumerableString value : v.values) {
+            if (value.value.equals(s)) {
                 found = true;
                 break;
             }
         }
 
         return found ? v.allowed : !v.allowed;
+    }
+
+    public static SubtypeData createStringSubtype(boolean allowed, List<EnumerableString> values) {
+        if (values.isEmpty()) {
+            return new AllOrNothingSubtype(!allowed);
+        }
+        List<EnumerableString> readOnlyValues = Collections.unmodifiableList(values);
+        return new StringSubtype(allowed, readOnlyValues);
     }
 }
