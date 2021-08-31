@@ -297,7 +297,7 @@ public class PackageResolution {
                 .map(depNode -> createFromDepNode(depNode, resolutionOptions.offline()))
                 .collect(Collectors.toList());
         Collection<ResolutionResponse> resolutionResponses =
-                packageResolver.resolvePackages(resolutionRequests, resolutionOptions.offline());
+                packageResolver.resolvePackages(resolutionRequests, resolutionOptions);
 
         // Add resolved packages to the container
         for (ResolutionResponse resolutionResp : resolutionResponses) {

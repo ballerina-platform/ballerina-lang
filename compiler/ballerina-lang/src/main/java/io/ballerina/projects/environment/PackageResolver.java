@@ -56,5 +56,13 @@ public interface PackageResolver {
     Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
                                                                ResolutionOptions options);
 
-    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> resolutionRequests, boolean offline);
+    /**
+     * Loads the packages specified in {@code ResolutionRequest} collection.
+     *
+     * @param requests package requests
+     * @param options  resolution options
+     * @return a collection of loaded packages
+     */
+    Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> requests,
+                                                   ResolutionOptions options);
 }

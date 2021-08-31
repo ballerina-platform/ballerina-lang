@@ -87,8 +87,8 @@ public class DefaultPackageResolver implements PackageResolver {
                             if (!x.packageDescriptor().name().equals(y.packageDescriptor().name())) {
                                 ResolutionRequest resolutionRequest = ResolutionRequest
                                         .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT, true);
-                                List<PackageVersion> packageVersions =
-                                        distributionRepo.getPackageVersions(resolutionRequest);
+                                Collection<PackageVersion> packageVersions =
+                                        distributionRepo.getPackageVersions(resolutionRequest, options);
                                 // If module exists in both repos, then we check if a newer version of
                                 // y (package in central) in dist repo.
                                 // If yes, we assume that the latest version of y does not contain the
@@ -154,23 +154,23 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> resolutionRequests,
-                                                          boolean offline) {
-        if (resolutionRequests.isEmpty()) {
+    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> requests,
+                                                          ResolutionOptions options) {
+        if (requests.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return resolutionRequests.stream()
-                .map(request -> resolvePackage(request, offline))
+        return requests.stream()
+                .map(request -> resolvePackage(request, options))
                 .collect(Collectors.toList());
     }
 
-    private ResolutionResponse resolvePackage(ResolutionRequest resolutionReq, boolean offline) {
+    private ResolutionResponse resolvePackage(ResolutionRequest resolutionReq, ResolutionOptions options) {
         // 1) Load the package from the cache
         Optional<Package> resolvedPackage = loadFromCache(resolutionReq);
         if (resolvedPackage.isEmpty()) {
             // 2) If not try to resolve from local, dist and central repositories
-            resolvedPackage = resolveFromRepository(resolutionReq, offline);
+            resolvedPackage = resolveFromRepository(resolutionReq, options);
             resolvedPackage.ifPresent(packageCache::cache);
         }
 
@@ -185,12 +185,12 @@ public class DefaultPackageResolver implements PackageResolver {
         return packageCache.getPackage(pkgDesc.org(), pkgDesc.name(), pkgDesc.version());
     }
 
-    private Optional<Package> resolveFromRepository(ResolutionRequest resolutionReq, boolean offline) {
+    private Optional<Package> resolveFromRepository(ResolutionRequest resolutionReq, ResolutionOptions options) {
         PackageDescriptor pkgDesc = resolutionReq.packageDescriptor();
 
         // 1) Try to load from the distribution repo, if the requested package is a built-in package.
         if (pkgDesc.isBuiltInPackage()) {
-            return distributionRepo.getPackage(resolutionReq);
+            return distributionRepo.getPackage(resolutionReq, options);
         }
 
         // 2) Try to load from the local repo, if it is requested from the local repo.
@@ -199,16 +199,16 @@ public class DefaultPackageResolver implements PackageResolver {
             if (!ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repository)) {
                 return Optional.empty();
             }
-            return localRepo.getPackage(resolutionReq);
+            return localRepo.getPackage(resolutionReq, options);
         }
 
         // 3) Try to load from the dist repo
         // TODO update this route only ballerina/* and Ballerinax/* stuff to dist repo
-        Optional<Package> resolvedPackage = distributionRepo.getPackage(resolutionReq);
+        Optional<Package> resolvedPackage = distributionRepo.getPackage(resolutionReq, options);
 
         // 4) Load from the central repo as the last attempt
         if (resolvedPackage.isEmpty()) {
-            resolvedPackage = centralRepo.getPackage(resolutionReq);
+            resolvedPackage = centralRepo.getPackage(resolutionReq, options);
         }
 
         return resolvedPackage;

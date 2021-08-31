@@ -35,9 +35,25 @@ import java.util.Optional;
  */
 public interface PackageRepository {
 
-    Optional<Package> getPackage(ResolutionRequest resolutionRequest);
+    /**
+     * Return the package specified in {@code ResolutionRequest}.
+     * <p>
+     * if the package is not found, this method returns an empty response.
+     *
+     * @param request package request
+     * @param options resolution options
+     * @return The loaded package or else an empty container
+     */
+    Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options);
 
-    List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest);
+    /**
+     * Returns the available package versions in the repository.
+     *
+     * @param request package request
+     * @param options resolution options
+     * @return the available package versions in the repository
+     */
+    Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options);
 
     Map<String, List<String>> getPackages();
 

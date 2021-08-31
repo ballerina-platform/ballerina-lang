@@ -38,6 +38,7 @@ import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
@@ -405,15 +406,16 @@ public class PackageResolutionTests extends BaseTest {
         moduleRequests.add(new ImportModuleRequest(PackageOrg.from("ballerina"), "sample.module"));
 
         //dummyResponse
-        List<ImportModuleResponse>  moduleResponse = new ArrayList<>();
-        for (ImportModuleRequest request: moduleRequests) {
+        List<ImportModuleResponse> moduleResponse = new ArrayList<>();
+        for (ImportModuleRequest request : moduleRequests) {
             String[] parts = request.moduleName().split("[.]");
             moduleResponse.add(new ImportModuleResponse(
                     PackageDescriptor.from(request.packageOrg(), PackageName.from(parts[0])), request));
         }
 
-        when(mockResolver.resolvePackageNames(any())).thenReturn(moduleResponse);
+        when(mockResolver.resolvePackageNames(any(), any(ResolutionOptions.class))).thenReturn(moduleResponse);
 
-        Assert.assertEquals(mockResolver.resolvePackageNames(moduleRequests).size(), 2);
+        Assert.assertEquals(mockResolver.resolvePackageNames(moduleRequests,
+                ResolutionOptions.builder().build()).size(), 2);
     }
 }

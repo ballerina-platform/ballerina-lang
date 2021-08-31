@@ -19,6 +19,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import org.testng.Assert;
@@ -27,6 +28,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -51,12 +53,12 @@ public class FileSystemRepositoryTests {
 
     @Test
     public void testGetPackageVersions() {
-
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("hevayo"), PackageName.from("package_a"), null),
                 PackageDependencyScope.DEFAULT, true
         );
-        List<PackageVersion> versions = fileSystemRepository.getPackageVersions(resolutionRequest);
+        Collection<PackageVersion> versions = fileSystemRepository.getPackageVersions(resolutionRequest,
+                ResolutionOptions.builder().build());
         Assert.assertEquals(versions.size(), 2);
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.2")));
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.5")));

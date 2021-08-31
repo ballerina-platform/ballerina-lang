@@ -84,7 +84,7 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     @Override
-    public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+    public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         // Avoid resolving from remote repository for lang repo tests
         String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
         if (langRepoBuild != null) {
@@ -92,19 +92,19 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         // Check if the package is in cache
-        Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(resolutionRequest);
+        Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(request, options);
         if (cachedPackage.isPresent()) {
             return cachedPackage;
         }
 
-        String packageName = resolutionRequest.packageName().value();
-        String orgName = resolutionRequest.orgName().value();
-        String version = resolutionRequest.version().isPresent() ? resolutionRequest.version().get().toString() : null;
+        String packageName = request.packageName().value();
+        String orgName = request.orgName().value();
+        String version = request.version().isPresent() ? request.version().get().toString() : null;
 
         Path packagePathInBalaCache = this.fileSystemRepo.bala.resolve(orgName).resolve(packageName);
 
         // If environment is online pull from central
-        if (!resolutionRequest.offline()) {
+        if (!options.offline()) {
             for (String supportedPlatform : SUPPORTED_PLATFORMS) {
                 try {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
@@ -115,23 +115,23 @@ public class RemotePackageRepository implements PackageRepository {
             }
         }
 
-        return this.fileSystemRepo.getPackage(resolutionRequest);
+        return this.fileSystemRepo.getPackage(request, options);
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
+    public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
         String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
         if (langRepoBuild != null) {
             return Collections.emptyList();
         }
-        String orgName = resolutionRequest.orgName().value();
-        String packageName = resolutionRequest.packageName().value();
+        String orgName = request.orgName().value();
+        String packageName = request.packageName().value();
 
         // First, Get local versions
-        Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(resolutionRequest));
+        Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(request, options));
 
         // If the resolution request specifies to resolve offline, we return the local version
-        if (resolutionRequest.offline()) {
+        if (options.offline()) {
             return new ArrayList<>(packageVersions);
         }
 
