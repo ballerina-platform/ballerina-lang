@@ -1520,6 +1520,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
+        if (typeDefSymbol instanceof BErrorTypeSymbol) {
+            typeDefSymbol.owner = env.scope.owner;
+        }
+
         if (isNonLabelIntersectionType) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.name = typeDefSymbol.name;

@@ -1406,10 +1406,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             errorTypeSymbol.name = names.fromString(
                     anonymousModelHelper.getNextAnonymousTypeKey(packageID));
             symbolEnter.defineSymbol(errorTypeNode.pos, errorTypeSymbol, env);
-        } else {
-            // If the error type descriptor is at the module level, the error type symbol's owner should be the current
-            // environment's scope owner.
-            errorTypeSymbol.owner = env.scope.owner;
         }
 
         BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
