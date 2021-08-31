@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -74,5 +75,9 @@ public class OpenDocumentPerformanceTest extends CompletionPerformanceTest {
         return new Object[][]{
                 {"performance_completion.json"},
         };
+
+    @Override
+    public String getTestResourceDir() {
+        return "performance_completion";
     }
 }
