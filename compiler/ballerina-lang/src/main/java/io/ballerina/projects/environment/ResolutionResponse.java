@@ -27,31 +27,26 @@ import io.ballerina.projects.PackageDescriptor;
  */
 public class ResolutionResponse {
     private final Package resolvedPackage;
-    private final ResolutionRequest packageLoadRequest;
+    private final ResolutionRequest resolutionRequest;
     private final ResolutionStatus status;
     private final PackageDescriptor requestedPkgDesc;
 
     // TODO We can use this call to send diagnostics if any
     private ResolutionResponse(ResolutionStatus resolutionStatus,
                                Package resolvedPackage,
-                               ResolutionRequest packageLoadRequest,
+                               ResolutionRequest resolutionRequest,
                                PackageDescriptor packageDescriptor) {
         this.resolvedPackage = resolvedPackage;
-        this.packageLoadRequest = packageLoadRequest;
+        this.resolutionRequest = resolutionRequest;
         this.status = resolutionStatus;
         this.requestedPkgDesc = packageDescriptor;
     }
 
     public static ResolutionResponse from(ResolutionStatus resolutionStatus,
                                           Package resolvedPackage,
-                                          ResolutionRequest packageLoadRequest) {
-        return new ResolutionResponse(resolutionStatus, resolvedPackage, packageLoadRequest, null);
-    }
-
-    public static ResolutionResponse from(ResolutionStatus resolutionStatus,
-                                          Package resolvedPackage,
-                                          PackageDescriptor requestedPkgDesc) {
-        return new ResolutionResponse(resolutionStatus, resolvedPackage, null, requestedPkgDesc);
+                                          ResolutionRequest resolutionRequest) {
+        return new ResolutionResponse(resolutionStatus, resolvedPackage, resolutionRequest,
+                resolutionRequest.packageDescriptor());
     }
 
     public ResolutionStatus resolutionStatus() {
@@ -62,8 +57,8 @@ public class ResolutionResponse {
         return resolvedPackage;
     }
 
-    public ResolutionRequest packageLoadRequest() {
-        return packageLoadRequest;
+    public ResolutionRequest resolutionRequest() {
+        return resolutionRequest;
     }
 
     public PackageDescriptor responseDescriptor() {

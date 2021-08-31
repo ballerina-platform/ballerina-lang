@@ -115,7 +115,7 @@ public class ReadOnlyUtils {
     }
 
     private static Type getAvailableImmutableType(Type type) {
-        if (TypeChecker.isInherentlyImmutableType(type)) {
+        if (type.isReadOnly() || TypeChecker.isInherentlyImmutableType(type)) {
             return type;
         }
 
@@ -133,8 +133,7 @@ public class ReadOnlyUtils {
 
 
     private static Type getImmutableType(Type type, Set<Type> unresolvedTypes) {
-        if (TypeChecker.isInherentlyImmutableType(type) || (SymbolFlags.isFlagOn(type.getFlags(),
-                SymbolFlags.READONLY))) {
+        if (type.isReadOnly() || TypeChecker.isInherentlyImmutableType(type)) {
             return type;
         }
 

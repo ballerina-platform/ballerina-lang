@@ -52,6 +52,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -72,6 +73,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -143,11 +145,12 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         Environment environment = EnvironmentBuilder.buildDefault();
 
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
-        PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
+                PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor, false);
 
         PackageResolver packageResolver = environment.getService(PackageResolver.class);
-        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-            Collections.singletonList(packageDescriptor), false);
+        Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+                Collections.singletonList(resolutionRequest), false);
         ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
 
         if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {

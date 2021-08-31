@@ -623,6 +623,7 @@ public class TestUtil {
                 new SignatureInformationCapabilities(Arrays.asList("markdown", "plaintext"));
         signatureHelpCapabilities.setSignatureInformation(sigInfoCapabilities);
         completionCapabilities.setCompletionItem(new CompletionItemCapabilities(true));
+        completionCapabilities.setContextSupport(true);
 
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
         textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
