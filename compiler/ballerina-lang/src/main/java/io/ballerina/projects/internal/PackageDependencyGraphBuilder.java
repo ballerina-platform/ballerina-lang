@@ -273,6 +273,10 @@ public class PackageDependencyGraphBuilder {
         PackageDescriptor newPkgDesc = newPkgDep.pkgDesc();
         PackageDescriptor existingPkgDesc = existingPkgDep.pkgDesc();
 
+        if (existingPkgDesc.isBuiltInPackage()) {
+            return newPkgDesc;
+        }
+
         VersionCompatibilityResult compatibilityResult = newPkgDesc.version().compareTo(existingPkgDesc.version());
         switch (compatibilityResult) {
             case EQUAL:
