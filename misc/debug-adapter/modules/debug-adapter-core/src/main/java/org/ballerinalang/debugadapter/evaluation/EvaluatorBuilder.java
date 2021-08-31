@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
@@ -66,6 +67,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessE
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.NewExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.QualifiedNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.QueryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.RangeExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.SimpleNameReferenceEvaluator;
@@ -445,6 +447,12 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        visitSyntaxNode(qualifiedNameReferenceNode);
+        result = new QualifiedNameReferenceEvaluator(context, qualifiedNameReferenceNode);
+    }
+
+    @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         visitSyntaxNode(simpleNameReferenceNode);
         result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
@@ -554,7 +562,7 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     private void addVariableReferenceExpressionSyntax() {
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
-        // Todo - Add qualified identifier support
+        supportedSyntax.add(SyntaxKind.QUALIFIED_NAME_REFERENCE);
         // Todo - Xml qualified name
     }
 
