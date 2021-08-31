@@ -179,18 +179,13 @@ public class FileSystemRepository extends AbstractPackageRepository {
 
         if (!versions.isEmpty()) {
             for (Path ver : versions) {
-                Path pkgJsonPath = bala.resolve(org.value()).resolve(name.value()).resolve(ver.toString())
-                        .resolve("any").resolve(ProjectConstants.PACKAGE_JSON);
-
+                Path pkgJsonPath = getPackagePath(org.value(), name.value(),
+                        Optional.of(ver.getFileName()).get().toFile().getName()).resolve(ProjectConstants.PACKAGE_JSON);
                 if (Files.exists(pkgJsonPath)) {
-                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion()
-                            .replace("sl", "");
-                    String packVer = RepoUtils.getBallerinaShortVersion().replace("sl", "");
-
-                    if (!packageVer.equals(packVer)) {
-                        if (!isCompatible(packageVer, packVer)) {
-                            incompatibleVersions.add(ver);
-                        }
+                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion();
+                    String packVer = RepoUtils.getBallerinaShortVersion();
+                    if (!isCompatible(packageVer, packVer)) {
+                        incompatibleVersions.add(ver);
                     }
                 }
             }
@@ -200,16 +195,15 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return pathToVersions(versions);
     }
 
-    private boolean isCompatible(String packageVer, String packVer) {
-        if (!packageVer.equals(packVer)) {
-            // Compare the first substrings - alpha, beta stages
-            String packageStage = packageVer.substring(0, packageVer.length() - 1);
-            String packStage = packVer.substring(0, packVer.length() - 1);
+    private boolean isCompatible(String pkgBalVer, String distBalVer) {
+        if (!pkgBalVer.equals(distBalVer)) {
+            String packageStage = pkgBalVer.substring(0, pkgBalVer.length() - 1);
+            String packStage = distBalVer.substring(0, distBalVer.length() - 1);
 
             // If the stages are equal, we need to check the versions
             if (packageStage.equals(packStage)) {
-                String packageVerValue = packageVer.substring(packageVer.length() - 1);
-                String packVerValue = packVer.substring(packVer.length() - 1);
+                String packageVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
+                String packVerValue = distBalVer.substring(distBalVer.length() - 1);
                 // If package_ver is greater than pack version
                 if (Integer.parseInt(packageVerValue) > Integer.parseInt(packVerValue)) {
                     return false;
