@@ -36,6 +36,7 @@ public enum EvaluationExceptionKind {
     INDEX_OUT_OF_RANGE_ERROR("%s index out of range: index=%d, size=%d"),
     INVALID_KEY_TYPE_ERROR("expected key type '%s'; found '%s' in '%s'"),
     TYPE_RESOLVING_ERROR("Failed to resolve type: '%s'"),
+    IMPORT_RESOLVING_ERROR("Failed to resolve the import: '%s'"),
     STRAND_NOT_FOUND("Error occurred when trying to get the current strand instance for executing the method: %s"),
     CLASS_LOADING_FAILED("Failed to load the required classes to execute method: '%s'"),
     INVALID_ARGUMENT("Unsupported/invalid argument found: %s"),

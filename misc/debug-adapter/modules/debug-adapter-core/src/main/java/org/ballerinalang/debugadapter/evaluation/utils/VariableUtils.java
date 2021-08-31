@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.evaluation.utils;
 import com.sun.jdi.Field;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -35,8 +36,10 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 
 /**
@@ -63,27 +66,6 @@ public class VariableUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(), name));
         }
         return bExpressionValue.get().getJdiValue();
-    }
-
-    /**
-     * Returns runtime value of the matching global variable, for the given name.
-     *
-     * @param context       suspended context
-     * @param nameReference name of the variable to be retrieved
-     * @return the JDI value instance of the global variable
-     */
-    private static Optional<BExpressionValue> searchGlobalVariables(SuspendedContext context, String nameReference) {
-        String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
-        List<ReferenceType> cls = context.getAttachedVm().classesByName(classQName);
-        if (cls.size() != 1) {
-            return Optional.empty();
-        }
-        ReferenceType initClassReference = cls.get(0);
-        Field field = initClassReference.fieldByName(nameReference);
-        if (field == null) {
-            return Optional.empty();
-        }
-        return Optional.of(new BExpressionValue(context, initClassReference.getValue(field)));
     }
 
     /**
@@ -130,6 +112,63 @@ public class VariableUtils {
         } catch (JdiProxyException e) {
             return Optional.empty();
         }
+    }
+
+    /**
+     * Returns runtime value of the matching global variable, for the given name.
+     *
+     * @param context       suspended context
+     * @param nameReference name of the variable to be retrieved
+     * @return the JDI value instance of the global variable
+     */
+    private static Optional<BExpressionValue> searchGlobalVariables(SuspendedContext context, String nameReference) {
+        String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
+        return getFieldValue(context, classQName, nameReference);
+    }
+
+    /**
+     * Returns runtime value of the matching global variable, for the given name.
+     *
+     * @param moduleSymbol  module symbol retrieved from the semantic API
+     * @param nameReference name of the variable to be retrieved
+     * @return the JDI value instance of the global variable
+     */
+    public static Optional<BExpressionValue> searchModuleVariables(SuspendedContext context, ModuleSymbol moduleSymbol,
+                                                                   String nameReference) {
+        String classQName = getQualifiedClassName(moduleSymbol, INIT_CLASS_NAME);
+        return getFieldValue(context, classQName, nameReference);
+    }
+
+    /**
+     * Returns full-qualified class name for a given ballerina module symbol and a generated class name.
+     *
+     * @param moduleSymbol module symbol retrieved from the semantic API
+     * @param className    class name
+     * @return full-qualified class name
+     */
+    public static String getQualifiedClassName(ModuleSymbol moduleSymbol, String className) {
+
+        moduleSymbol.id();
+        StringJoiner classNameJoiner = new StringJoiner(".");
+        classNameJoiner.add(moduleSymbol.id().orgName())
+                .add(encodeModuleName(moduleSymbol.id().moduleName()))
+                .add(moduleSymbol.id().version().split("\\.")[0])
+                .add(className);
+        return classNameJoiner.toString();
+    }
+
+    private static Optional<BExpressionValue> getFieldValue(SuspendedContext context, String qualifiedClassName,
+                                                            String fieldName) {
+        List<ReferenceType> cls = context.getAttachedVm().classesByName(qualifiedClassName);
+        if (cls.size() != 1) {
+            return Optional.empty();
+        }
+        ReferenceType initClassReference = cls.get(0);
+        Field field = initClassReference.fieldByName(fieldName);
+        if (field == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new BExpressionValue(context, initClassReference.getValue(field)));
     }
 
     private VariableUtils() {
