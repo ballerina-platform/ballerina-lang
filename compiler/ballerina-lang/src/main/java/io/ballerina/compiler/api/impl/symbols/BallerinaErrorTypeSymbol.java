@@ -114,13 +114,22 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
     private boolean isDefaultDetailTypeDesc() {
 
         if (detailTypeDescriptor().typeKind() == TypeDescKind.MAP) {
+
             BallerinaMapTypeSymbol mapTypeSymbol = (BallerinaMapTypeSymbol) detailTypeDescriptor();
             Optional<String> name = mapTypeSymbol.typeParam().getName();
-            if (name.isPresent() && name.get().equals("Cloneable")) {
-                if (mapTypeSymbol.typeParam().getModule().isPresent()) {
-                    ModuleID moduleID = mapTypeSymbol.typeParam().getModule().get().id();
-                    return moduleID.orgName().equals("ballerina") && moduleID.packageName().equals("lang.value");
+
+            if (name.isPresent()) {
+
+                if (name.get().equals("Cloneable")) {
+                    if (mapTypeSymbol.typeParam().getModule().isPresent()) {
+
+                        ModuleID moduleID = mapTypeSymbol.typeParam().getModule().get().id();
+
+                        return moduleID.orgName().equals("ballerina") && moduleID.packageName().equals("lang.value");
+                    }
                 }
+
+                return name.get().equals("__Cloneable");
             }
         }
 
