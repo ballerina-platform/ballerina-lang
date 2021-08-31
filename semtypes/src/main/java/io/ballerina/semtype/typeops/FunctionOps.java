@@ -85,7 +85,7 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
                 SemType t0 = t.paramType;
                 SemType t1 = t.retType;
                 return (Core.isSubtype(tc, t0, s) && functionTheta(tc, t0, Core.complement(t1), pos))
-                        || functionBddIsEmpty(tc, new BddBoolean(true), s, pos, neg.next);
+                        || functionBddIsEmpty(tc, BddBoolean.from(true), s, pos, neg.next);
             }
         } else {
             BddNode bn = (BddNode) b;
