@@ -211,35 +211,35 @@ function testTypeDefWithIntersectionTypeDescAsTypedesc() {
     assertEquality("typedesc [1,2,3]", (typeof b).toString());
     assertEquality(true, b is int[]);
     assertEquality(true, (<int[]> checkpanic b).isReadOnly());
-    assertEquality(<int[]> [1, 2, 3], b);
+    assertEquality(true, b == [1, 2, 3]);
 
     typedesc<anydata> t = ImmutableTupleArray;
     anydata|error t1 = arr.cloneWithType(a);
     assertEquality(true, t1 is [int, int, int]);
     assertEquality(true, (<int[]> checkpanic t1).isReadOnly());
-    assertEquality(<[int, int, int]> [1, 2, 3], t1);
+    assertEquality(true, t1 == [1, 2, 3]);
 
     typedesc<anydata> j = ImmutableJsonArray;
     anydata|error j1 = arr.cloneWithType(a);
     assertEquality(true, j1 is json[]);
     assertEquality(true, (<json[]> checkpanic j1).isReadOnly());
-    assertEquality(<json[]> [1, 2, 3], j1);
+    assertEquality(true, j1 == [1, 2, 3]);
 
     // tests for fromJsonWithType
     anydata|error c = arr.fromJsonWithType(ImmutableIntArray);
     assertEquality(true, c is int[] & readonly);
     assertEquality(true, (<int[]> checkpanic c).isReadOnly());
-    assertEquality(<int[]> [1, 2, 3], c);
+    assertEquality(true, c == [1, 2, 3]);
 
     anydata|error t2 = arr.fromJsonWithType(t);
     assertEquality(true, t2 is [int, int, int]);
     assertEquality(true, (<int[]> checkpanic t2).isReadOnly());
-    assertEquality(<[int, int, int]> [1, 2, 3], t2);
+    assertEquality(true, t2 == [1, 2, 3]);
 
     anydata|error j2 = arr.fromJsonWithType(j);
     assertEquality(true, j2 is json[]);
     assertEquality(true, (<json[]> checkpanic j2).isReadOnly());
-    assertEquality(<json[]> [1, 2, 3], j2);
+    assertEquality(true, j2 == [1, 2, 3]);
 
     typedesc<anydata> tb = ImmutableTableArray;
     json arr2 = [{name:"waruna"}, {name:"manu"}];

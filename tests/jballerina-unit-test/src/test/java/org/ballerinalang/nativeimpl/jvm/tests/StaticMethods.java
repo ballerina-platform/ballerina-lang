@@ -566,6 +566,7 @@ public class StaticMethods {
                 return 100L;
             case TypeTags.ARRAY_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.FINITE_TYPE_TAG:
                 return value;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:

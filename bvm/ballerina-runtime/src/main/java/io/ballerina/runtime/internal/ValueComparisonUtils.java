@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -236,6 +237,11 @@ public class ValueComparisonUtils {
                 case TypeTags.ARRAY_TAG:
                 case TypeTags.TUPLE_TAG:
                     return compareArrayValues(lhsValue, rhsValue, lhsTypeTag, direction);
+                case TypeTags.FINITE_TYPE_TAG:
+                    BFiniteType lhsType = (BFiniteType) TypeChecker.getType(lhsValue);
+                    BFiniteType rhsType = (BFiniteType) TypeChecker.getType(rhsValue);
+                    return compareValues(lhsType.getValueSpace().iterator().next(),
+                            rhsType.getValueSpace().iterator().next());
             }
         }
 

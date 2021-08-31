@@ -744,6 +744,13 @@ public class TypeChecker {
         }
     }
 
+    private static boolean isSingletonReadOnly(Type sourceType) {
+        if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return (((BFiniteType) sourceType).getValueSpace().size() == 1) && sourceType.isReadOnly();
+        }
+        return false;
+    }
+
     // Private methods
 
     private static boolean checkTypeDescType(Type sourceType, BTypedescType targetType,
@@ -2316,6 +2323,7 @@ public class TypeChecker {
                 return true;
             // TODO: 8/13/19 Check if can be removed
             case TypeTags.FINITE_TYPE_TAG:
+                return isFiniteTypeMatch((BFiniteType) sourceType, TYPE_ANYDATA);
             case TypeTags.UNION_TAG:
                 return checkIsLikeType(sourceValue, TYPE_ANYDATA, unresolvedValues, allowNumericConversion);
             default:
@@ -2723,8 +2731,10 @@ public class TypeChecker {
             return false;
         }
 
-        int lhsValTypeTag = getType(lhsValue).getTag();
-        int rhsValTypeTag = getType(rhsValue).getTag();
+        Type lhsType = getType(lhsValue);
+        int lhsValTypeTag = lhsType.getTag();
+        Type rhsType = getType(rhsValue);
+        int rhsValTypeTag = rhsType.getTag();
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
@@ -2770,11 +2780,11 @@ public class TypeChecker {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return isMappingType(rhsValTypeTag) && isEqual((MapValueImpl) lhsValue, (MapValueImpl) rhsValue,
-                        checkedValues);
+                return isMappingType(rhsValTypeTag, rhsType) && isEqual((MapValueImpl) lhsValue,
+                        (MapValueImpl) rhsValue, checkedValues);
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                return isListType(rhsValTypeTag) &&
+                return isListType(rhsValTypeTag, rhsType) &&
                         isEqual((ArrayValue) lhsValue, (ArrayValue) rhsValue, checkedValues);
             case TypeTags.ERROR_TAG:
                 return rhsValTypeTag == TypeTags.ERROR_TAG &&
@@ -2782,18 +2792,36 @@ public class TypeChecker {
             case TypeTags.SERVICE_TAG:
                 break;
             case TypeTags.TABLE_TAG:
-                return rhsValTypeTag == TypeTags.TABLE_TAG &&
+                return isTableType(rhsValTypeTag, rhsType) &&
                         isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
+            case TypeTags.FINITE_TYPE_TAG:
+                return isEqual(((BFiniteType) lhsType).getValueSpace().iterator().next(), rhsValue);
         }
         return false;
     }
 
-    private static boolean isListType(int typeTag) {
-        return typeTag == TypeTags.ARRAY_TAG || typeTag == TypeTags.TUPLE_TAG;
+    private static boolean isTableType(int typeTag, Type type) {
+        int tag = typeTag;
+        if (typeTag == TypeTags.FINITE_TYPE_TAG) {
+            tag = getType(((BFiniteType) type).getValueSpace().iterator().next()).getTag();
+        }
+        return tag == TypeTags.TABLE_TAG;
     }
 
-    private static boolean isMappingType(int typeTag) {
-        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG || typeTag == TypeTags.JSON_TAG;
+    private static boolean isListType(int typeTag, Type type) {
+        int tag = typeTag;
+        if (typeTag == TypeTags.FINITE_TYPE_TAG) {
+            tag = getType(((BFiniteType) type).getValueSpace().iterator().next()).getTag();
+        }
+        return tag == TypeTags.ARRAY_TAG || tag == TypeTags.TUPLE_TAG;
+    }
+
+    private static boolean isMappingType(int typeTag, Type type) {
+        int tag = typeTag;
+        if (typeTag == TypeTags.FINITE_TYPE_TAG) {
+            tag = getType(((BFiniteType) type).getValueSpace().iterator().next()).getTag();
+        }
+        return tag == TypeTags.MAP_TAG || tag == TypeTags.RECORD_TYPE_TAG || tag == TypeTags.JSON_TAG;
     }
 
     /**

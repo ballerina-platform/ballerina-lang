@@ -35,7 +35,7 @@ function testEnumIntersectionWithReadOnly() {
     assertTrue(d is immutable:EvictionPolicies[] & readonly);
     assertTrue(c is immutable:EvictionPolicies[]);
     assertFalse(c is immutable:EvictionPolicies[] & readonly);
-    assertEquality(c, d);
+    assertTrue(c == d);
     assertEquality(<immutable:EvictionPolicies[]> [immutable:A, immutable:B], d);
 }
 

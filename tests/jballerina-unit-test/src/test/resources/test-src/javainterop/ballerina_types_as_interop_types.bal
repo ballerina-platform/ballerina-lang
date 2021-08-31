@@ -543,7 +543,6 @@ function testReadOnlyAsParamAndReturnTypes() {
     readonly & boolean[] arr = [true, false];
     readonly arrayAsReadOnly = acceptAndReturnReadOnly(arr);
     assertTrue(arrayAsReadOnly is readonly & boolean[2]);
-    assertEquality(<boolean[]> [true, false], arrayAsReadOnly);
     assertEquality(arr, arrayAsReadOnly);
 }
 

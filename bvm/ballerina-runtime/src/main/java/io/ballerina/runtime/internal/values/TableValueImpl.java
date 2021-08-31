@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.SingletonUtils;
 import io.ballerina.runtime.internal.TableUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BIntersectionType;
@@ -60,8 +61,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
@@ -78,7 +77,8 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class TableValueImpl<K, V> implements TableValue<K, V> {
 
-    private TableType type;
+    private Type type;
+    private TableType tableType;
     private Type iteratorNextReturnType;
     private ConcurrentHashMap<Long, Map.Entry<K, V>> entries;
     private LinkedHashMap<Long, V> values;
@@ -98,6 +98,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private BTypedesc typedesc;
 
     public TableValueImpl(TableType type) {
+        this.tableType = type;
         this.type = type;
 
         this.entries = new ConcurrentHashMap<>();
@@ -111,7 +112,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         } else {
             this.valueHolder = new ValueHolder();
         }
-        this.typedesc = getTypedescValue(type, this);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public TableValueImpl(TableType type, ArrayValue data, ArrayValue fieldNames) {
@@ -121,8 +122,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         addData(data);
-        if (type.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
+        if (tableType.isReadOnly()) {
+            this.type = SingletonUtils.createSingletonType(this, type);
+            this.typedesc = new TypedescValueImpl(type);
         }
     }
 
@@ -149,7 +151,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return refs.get(this);
         }
 
-        TableValueImpl<K, V> clone = new TableValueImpl<>(type);
+        TableValueImpl<K, V> clone = new TableValueImpl<>(tableType);
         if (fieldNames != null) {
             clone.fieldNames = fieldNames;
         }
@@ -177,7 +179,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     protected void handleFrozenTableValue() {
         synchronized (this) {
             try {
-                if (this.type.isReadOnly()) {
+                if (this.tableType.isReadOnly()) {
                     ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
@@ -286,7 +288,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return this.get(key);
         }
 
-        Type expectedType = (this.type).getConstrainedType();
+        Type expectedType = (this.tableType).getConstrainedType();
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
@@ -330,10 +332,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return;
         }
 
-        this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+        this.tableType = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
-        this.typedesc = createSingletonTypedesc(this);
+        this.type = SingletonUtils.createSingletonType(this, type);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public String stringValue(BLink parent) {
@@ -365,8 +368,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         StringJoiner keyJoiner = new StringJoiner(",");
-        if (type.getFieldNames() != null) {
-            String[] keysList = type.getFieldNames();
+        if (tableType.getFieldNames() != null) {
+            String[] keysList = tableType.getFieldNames();
             for (int i = 0; i < keysList.length; i++) {
                 keyJoiner.add(keysList[i]);
             }
@@ -412,7 +415,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     public Type getIteratorNextReturnType() {
         if (iteratorNextReturnType == null) {
-            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(type.getConstrainedType());
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(tableType.getConstrainedType());
         }
 
         return iteratorNextReturnType;
@@ -472,7 +475,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
-            checkInherentTypeViolation((MapValue) data, type);
+            checkInherentTypeViolation((MapValue) data, tableType);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
             UUID uuid = UUID.randomUUID();
             entries.put((long) uuid.hashCode(), entry);
@@ -510,7 +513,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
-            checkInherentTypeViolation(dataMap, type);
+            checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
@@ -554,7 +557,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V putData(V data) {
             MapValue dataMap = (MapValue) data;
-            checkInherentTypeViolation(dataMap, type);
+            checkInherentTypeViolation(dataMap, tableType);
             K key = this.keyWrapper.wrapKey(dataMap);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Long hash = TableUtils.hash(key, null);
@@ -585,7 +588,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             public DefaultKeyWrapper() {
                 if (fieldNames.length == 1) {
-                    keyType = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
+                    keyType = getTableConstraintField(tableType.getConstrainedType(), fieldNames[0]);
                     if (keyType != null && keyType.getTag() == TypeTags.INT_TAG) {
                         nextKeySupported = true;
                     }
@@ -602,7 +605,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             public MultiKeyWrapper() {
                 super();
                 List<Type> keyTypes = new ArrayList<>();
-                Type constraintType = type.getConstrainedType();
+                Type constraintType = tableType.getConstrainedType();
                 if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                     BRecordType recordType = (BRecordType) constraintType;
                     Arrays.stream(fieldNames)
@@ -661,7 +664,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         TableValueImpl<?, ?> tableValue = (TableValueImpl<?, ?>) o;
 
-        if (tableValue.type.getTag() != this.type.getTag()) {
+        if (tableValue.tableType.getTag() != this.tableType.getTag()) {
             return false;
         }
 

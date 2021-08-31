@@ -356,7 +356,7 @@ isolated function testIsolatedFunctionWithDefaultableParams() {
 
 isolated function isolatedFunctionWithDefaultableParams(int w = i, int[] x = getIntArray()) {
     assertEquality(1, w);
-    assertEquality(<int[]> [1, 2, 3], x);
+    assertEquality(true, x == [1, 2, 3]);
 }
 
 var isolatedAnonFunctionWithDefaultableParams =

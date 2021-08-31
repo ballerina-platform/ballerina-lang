@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
@@ -1057,6 +1058,11 @@ public class BRunUtil {
             case io.ballerina.runtime.api.TypeTags.SERVICE_TAG:
                 io.ballerina.runtime.api.types.ObjectType bObjectType = ((AbstractObjectValue) value).getType();
                 bvmValue = new BMap(getBVMType(bObjectType, new Stack<>(), new Stack<>(), new Stack<>()));
+                break;
+            case io.ballerina.runtime.api.TypeTags.FINITE_TYPE_TAG:
+                io.ballerina.runtime.api.types.FiniteType finiteType = (FiniteType) type;
+                bvmValue = getBVMValue(getBVMType(finiteType, new Stack<>(), new Stack<>(), new Stack<>()),
+                        bvmValueMap);
                 break;
             default:
                 throw new RuntimeException("Function invocation result for type '" + type + "' is not supported");

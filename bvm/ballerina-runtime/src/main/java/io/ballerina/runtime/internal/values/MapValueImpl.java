@@ -37,6 +37,7 @@ import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonUtils;
 import io.ballerina.runtime.internal.MapUtils;
+import io.ballerina.runtime.internal.SingletonUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -63,8 +64,6 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -105,7 +104,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public MapValueImpl(Type type) {
         super();
         this.type = type;
-        this.typedesc = getTypedescValue(type, this);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
@@ -119,8 +118,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl() {
         super();
-        type = PredefinedTypes.TYPE_MAP;
-        this.typedesc = getTypedescValue(type, this);
+        this.type = PredefinedTypes.TYPE_MAP;
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public Long getIntValue(BString key) {
@@ -294,7 +293,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             }
         }
         if (this.type.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
+            this.type = SingletonUtils.createSingletonType(this, type);
+            this.typedesc = new TypedescValueImpl(type);
         }
     }
 
@@ -520,7 +520,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 ((RefValue) val).freezeDirect();
             }
         });
-        this.typedesc = createSingletonTypedesc(this);
+        this.type = SingletonUtils.createSingletonType(this, type);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public String getJSONString() {

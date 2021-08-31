@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.IteratorUtils;
+import io.ballerina.runtime.internal.SingletonUtils;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
@@ -34,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.namespace.QName;
-
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 
 /**
  * {@code BXML} represents an XML in Ballerina. An XML could be one of:
@@ -252,7 +251,8 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
     }
 
     protected void setTypedescValue(Type type) {
-        this.typedesc = getTypedescValue(type, this);
+        this.type = SingletonUtils.createSingletonType(this, type);
+        this.typedesc = new TypedescValueImpl(this.type);
     }
 
     @Override
