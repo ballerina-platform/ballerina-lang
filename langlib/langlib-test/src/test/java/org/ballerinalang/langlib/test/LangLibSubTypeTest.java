@@ -244,7 +244,8 @@ public class LangLibSubTypeTest {
                 21);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(string:Char|int:Signed8)', found " +
                         "'-1|1|foo'", 322, 33);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string:Char|int:Signed8)[]', found 'Z[]'", 325, 43);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected " +
+                "'(float|string:Char|int:Signed8)[]', found 'Z[]'", 325, 43);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string|int:Unsigned8)[]', " +
                 "found 'Z[]'", 326, 40);
 
@@ -272,7 +273,7 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'Y[]'", 62,
                 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Unsigned8|string:Char)[]',"
-                +" found 'Y[]'", 63, 39);
+                + " found 'Y[]'", 63, 39);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 }
