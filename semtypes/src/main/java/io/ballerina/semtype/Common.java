@@ -21,7 +21,6 @@ import io.ballerina.semtype.subtypedata.BddBoolean;
 import io.ballerina.semtype.subtypedata.BddNode;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,10 +61,10 @@ public class Common {
     // We walk the tree, accumulating the positive and negative conjunctions for a path as we go.
     // When we get to a leaf that is true, we apply the predicate to the accumulated conjunctions.
 
-    public static boolean bddEvery(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg, Method predicate)
+    public static boolean bddEvery(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg, BddPredicate predicate)
             throws InvocationTargetException, IllegalAccessException {
         if (b instanceof BddBoolean) {
-            return !(((BddBoolean) b).leaf) || (boolean) predicate.invoke(tc, pos, neg);
+            return !(((BddBoolean) b).leaf) || predicate.apply(tc, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
             return bddEvery(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
@@ -75,9 +74,9 @@ public class Common {
     }
 
     public static boolean bddEveryPositive(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg,
-                                           Method predicate) throws InvocationTargetException, IllegalAccessException {
+                                           BddPredicate predicate) {
         if (b instanceof BddBoolean) {
-            return !(((BddBoolean) b).leaf) || (boolean) predicate.invoke(tc, pos, neg);
+            return !(((BddBoolean) b).leaf) || predicate.apply(tc, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
             return bddEveryPositive(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
@@ -124,5 +123,14 @@ public class Common {
 
     public static boolean notIsEmpty(TypeCheckContext tc, SubtypeData d) {
         return false;
+    }
+
+    /**
+     * Function interface used for method references.
+     *
+     * @since 2.0.0
+     */
+    public interface BddPredicate {
+        boolean apply(TypeCheckContext tc, Conjunction posList, Conjunction negList);
     }
 }
