@@ -79,7 +79,6 @@ public class SerialTreeParser extends TrialTreeParser {
             } catch (InvalidMethodException e) {
                 errorMessage = e.getMessage();
                 addErrorDiagnostic(errorMessage);
-                throw new TreeParserException();
             } catch (Throwable e) {
                 errorMessage = "Code contains syntax error(s).";
             }

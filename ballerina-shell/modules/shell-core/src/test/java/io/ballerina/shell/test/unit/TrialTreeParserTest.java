@@ -45,6 +45,7 @@ public class TrialTreeParserTest {
     private static final String MODULE_DCLN_TESTCASES = "testcases/treeparser.moduledcln.json";
     private static final String MISC_TESTCASES = "testcases/treeparser.misc.json";
     private static final String MODULE_DCLN_MAIN_TESTCASE = "testcases/treeparser.dcln.main.json";
+    private static final String MODULE_DCLN_INIT_TESTCASE = "testcases/treeparser.dcln.init.json";
     private static final String MODULE_DCLN_UNDERSCORE_TESTCASE = "testcases/treeparser.dcln.underscore.json";
 
     @Test
@@ -84,6 +85,11 @@ public class TrialTreeParserTest {
     }
 
     @Test(expectedExceptions = TreeParserException.class)
+    public void testModuleDclnNameInitTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_INIT_TESTCASE);
+    }
+
+    @Test(expectedExceptions = TreeParserException.class)
     public void testModuleDclnNameDoubleUnderscoreTest() throws TreeParserException {
         testModuleDclnName(MODULE_DCLN_UNDERSCORE_TESTCASE);
     }
@@ -107,7 +113,7 @@ public class TrialTreeParserTest {
         TestCases testCases = TestUtils.loadTestCases(fileName, TestCases.class);
         TreeParser treeParser = TestUtils.getTestTreeParser();
         for (TestCase testCase : testCases) {
-                treeParser.parse(testCase.getInput());
+            treeParser.parse(testCase.getInput());
         }
     }
 }
