@@ -92,12 +92,12 @@ public class RemotePackageRepositoryTests {
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
                 anyString(), anyString(), anyBoolean())).thenReturn(response);
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList(), offlineFalseOption))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
 
         // Test call to remote repository
         List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
-                remotePackageRepository.resolvePackageMetadata(
+                remotePackageRepository.getPackageMetadata(
                         Arrays.asList(resHttp120, resCovid156), offlineFalseOption));
 
         // response should return resolution for same number of requests
@@ -127,13 +127,13 @@ public class RemotePackageRepositoryTests {
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
                 anyString(), anyString(), anyBoolean())).thenReturn(response);
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList(), offlineFalseOption))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(PackageMetadataResponse.createUnresolvedResponse(resHttp120),
                         fileCovid159, fileSmtp130));
 
         // Test call to remote repository
         List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
-                remotePackageRepository.resolvePackageMetadata(
+                remotePackageRepository.getPackageMetadata(
                         Arrays.asList(resHttp120, resCovid156, resSmtp130), offlineFalseOption));
 
         // response should return resolution for same number of requests
@@ -165,14 +165,14 @@ public class RemotePackageRepositoryTests {
                 anyString(), anyString(), anyBoolean()))
                 .thenThrow(new AssertionError("Client get called in offline mode"));
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList(), offlineTrueOption))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
 
         // Test call to remote repository
         ResolutionRequest resHttp120Offline = ResolutionRequest.from(http120, PackageDependencyScope.DEFAULT, true);
         ResolutionRequest resCovid156Offline = ResolutionRequest.from(covid156, PackageDependencyScope.DEFAULT, true);
         List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
-                remotePackageRepository.resolvePackageMetadata(
+                remotePackageRepository.getPackageMetadata(
                         Arrays.asList(resHttp120Offline, resCovid156Offline), offlineTrueOption));
 
         // response should return resolution for same number of requests
@@ -198,12 +198,12 @@ public class RemotePackageRepositoryTests {
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
                 anyString(), anyString(), anyBoolean())).thenThrow(new ConnectionErrorException("500 Error"));
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList(), offlineFalseOption))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
 
         // Test call to remote repository
         List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
-                remotePackageRepository.resolvePackageMetadata(
+                remotePackageRepository.getPackageMetadata(
                         Arrays.asList(resHttp120, resCovid156), offlineFalseOption));
 
         // response should return resolution for same number of requests

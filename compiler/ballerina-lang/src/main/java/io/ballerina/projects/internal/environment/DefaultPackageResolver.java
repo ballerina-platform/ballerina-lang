@@ -113,20 +113,20 @@ public class DefaultPackageResolver implements PackageResolver {
             }
         }
 
-        Collection<PackageMetadataResponse> localRepoPackages =
-                localRepoRequests.isEmpty() ?
-                        Collections.emptyList() : localRepo.resolvePackageMetadata(localRepoRequests, options);
+        Collection<PackageMetadataResponse> localRepoPackages = localRepoRequests.isEmpty() ?
+                Collections.emptyList() :
+                localRepo.getPackageMetadata(localRepoRequests, options);
 
         // TODO Send ballerina* org names to dist repo
         Collection<PackageMetadataResponse> latestVersionsInDist =
-                distributionRepo.resolvePackageMetadata(requests, options);
+                distributionRepo.getPackageMetadata(requests, options);
 
         // Send non built in packages to central
         Collection<ResolutionRequest> centralLoadRequests = requests.stream()
                 .filter(r -> !ProjectUtils.isBuiltInPackage(r.orgName(), r.packageName().value()))
                 .collect(Collectors.toList());
         Collection<PackageMetadataResponse> latestVersionsInCentral =
-                centralRepo.resolvePackageMetadata(centralLoadRequests, options);
+                centralRepo.getPackageMetadata(centralLoadRequests, options);
 
         // TODO Local package should get priority over the same version in central or dist repo
         // TODO Unit test following merge

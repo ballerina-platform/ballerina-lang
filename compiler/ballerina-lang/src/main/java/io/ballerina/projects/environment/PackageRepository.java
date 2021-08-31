@@ -41,8 +41,18 @@ public interface PackageRepository {
 
     Map<String, List<String>> getPackages();
 
-    Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
-                                                               ResolutionOptions options);
+    /**
+     * Returns requested packages metadata such as the availability, dependency graph.
+     * <p>
+     * Metadata requests provide an efficient way to complete the dependency graph without
+     * downloading physical packages from Ballerina central.
+     *
+     * @param requests requested package collection
+     * @param options  resolution options
+     * @return a collection of {@code PackageMetadataResponse} instances
+     */
+    Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+                                                           ResolutionOptions options);
 
     List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 }

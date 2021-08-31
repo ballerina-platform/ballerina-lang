@@ -230,16 +230,14 @@ public class RemotePackageRepository implements PackageRepository {
         return request;
     }
 
-    public Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
-                                                                      ResolutionOptions options) {
-
+    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+                                                                  ResolutionOptions options) {
         if (requests.isEmpty()) {
             return Collections.emptyList();
         }
 
         // Resolve all the requests locally
-        Collection<PackageMetadataResponse> cachedPackages =
-                fileSystemRepo.resolvePackageMetadata(requests, options);
+        Collection<PackageMetadataResponse> cachedPackages = fileSystemRepo.getPackageMetadata(requests, options);
         if (options.offline()) {
             return cachedPackages;
         }

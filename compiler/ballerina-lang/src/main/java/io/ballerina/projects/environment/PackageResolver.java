@@ -33,6 +33,19 @@ public interface PackageResolver {
 
     List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 
+    /**
+     * Loads requested packages metadata such as the availability, dependency graph.
+     * <p>
+     * Metadata requests provide an efficient way to complete the dependency graph without
+     * downloading physical packages from Ballerina central.
+     * <p>
+     * An implementation of the {@code PackageResolver} should issue separate requests
+     * to local, dist and central repositories and aggregate their responses.
+     *
+     * @param requests requested package collection
+     * @param options  resolution options
+     * @return a collection of {@code PackageMetadataResponse} instances
+     */
     Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
                                                                ResolutionOptions options);
 

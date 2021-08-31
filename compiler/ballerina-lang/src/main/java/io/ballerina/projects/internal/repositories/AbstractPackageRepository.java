@@ -48,8 +48,8 @@ import java.util.stream.Collectors;
 public abstract class AbstractPackageRepository implements PackageRepository {
 
     @Override
-    public Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
-                                                                      ResolutionOptions options) {
+    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+                                                                  ResolutionOptions options) {
         List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
         for (ResolutionRequest request : requests) {
             List<PackageVersion> versions = getCompatiblePackageVersions(
