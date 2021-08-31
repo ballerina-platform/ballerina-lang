@@ -383,7 +383,7 @@ function testTupleAssignment(){
     [[DataType[], string], int, float] nt = [ct, 123, 23.45];
     rets[i] = nt;
 
-    assertEquality("123 23.45 true hello world! 255", rets[0].toString());
+    assertEquality("[123,23.45,true,\"hello world!\",255]", rets[0].toString());
     assertEquality(jxt, rets[1]);
     assertEquality(ct, rets[2]);
     assertEquality(nt, rets[3]);
@@ -745,7 +745,7 @@ function testAnydataToTuple3() {
     ad = nt;
 
     if (ad is [[DataType[], string], int, float]) {
-        assertEquality("[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost World</book>`] hello world!", ad[0].toString());
+        assertEquality("[[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost World</book>`],\"hello world!\"]", ad[0].toString());
     }
 }
 

@@ -71,14 +71,14 @@ public class ForeachRecordTypedBindingPatternsTests {
     public void testTupleInRecordWithoutType() {
         BValue[] returns = BRunUtil.invoke(program, "testTupleInRecordWithoutType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1 1:2 A ");
+        Assert.assertEquals(returns[0].stringValue(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test
     public void testTupleInRecordWithType() {
         BValue[] returns = BRunUtil.invoke(program, "testTupleInRecordWithType");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:1 1:2 A ");
+        Assert.assertEquals(returns[0].stringValue(), "0:1 1:[2,\"A\"] ");
     }
 
     @Test

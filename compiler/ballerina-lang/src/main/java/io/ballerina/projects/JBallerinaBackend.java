@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCol
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedInputStream;
@@ -71,7 +70,6 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectUtils.getThinJarFileName;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * This class represents the Ballerina compiler backend that produces executables that runs on the JVM.
@@ -96,7 +94,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private final CodeGenerator jvmCodeGenerator;
     private final InteropValidator interopValidator;
     private final JarResolver jarResolver;
-    private final CompilerOptions compilerOptions;
     private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
@@ -127,7 +124,6 @@ public class JBallerinaBackend extends CompilerBackend {
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
         this.interopValidator = InteropValidator.getInstance(compilerContext);
         this.jvmCodeGenerator = CodeGenerator.getInstance(compilerContext);
-        this.compilerOptions = CompilerOptions.getInstance(compilerContext);
 
         // TODO: Move to a compiler extension once Compiler revamp is complete
         if (packageContext.compilationOptions().observabilityIncluded()) {
@@ -154,7 +150,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // add package resolution diagnostics
         diagnostics.addAll(this.packageContext.getResolution().diagnosticResult().allDiagnostics);
         // add ballerina toml diagnostics
-        diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
+        diagnostics.addAll(this.packageContext.packageManifest().diagnostics().diagnostics());
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
@@ -312,7 +308,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
 
         // skip generation of the test jar if --skip-tests option is set to true
-        if (Boolean.parseBoolean(compilerOptions.get(SKIP_TESTS))) {
+        if (moduleContext.project().buildOptions().skipTests()) {
             return;
         }
 

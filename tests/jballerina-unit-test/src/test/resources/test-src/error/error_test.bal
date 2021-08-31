@@ -485,6 +485,30 @@ function foobar() returns error {
     return err;
 }
 
+class Person {
+    public  string name;
+    public int age;
+
+    function init(string name, int age) {
+        self.name = name;
+        self.age = age;
+        panic error("error");
+    }
+}
+
+function testStacktraceWithPanicInsideInitMethod() {
+    Person person = new("John", 25);
+}
+
+function testStacktraceWithPanicInsideAnonymousFunction() {
+    function () anonFunction =
+                function () {
+                    panic(error("error!!!"));
+                };
+
+    anonFunction();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

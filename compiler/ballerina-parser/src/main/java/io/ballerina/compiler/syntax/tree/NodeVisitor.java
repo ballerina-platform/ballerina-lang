@@ -819,6 +819,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
+    public void visit(BalPartNode balPartNode) {
+        visitSyntaxNode(balPartNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
