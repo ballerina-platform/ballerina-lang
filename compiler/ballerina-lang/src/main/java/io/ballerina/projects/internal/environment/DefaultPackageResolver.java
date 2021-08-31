@@ -22,7 +22,6 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageMetadataResponse;
@@ -37,6 +36,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +72,7 @@ public class DefaultPackageResolver implements PackageResolver {
         List<ImportModuleResponse> responseListInCentral =
                 centralRepo.resolvePackageNames(importModuleRequests);
 
-        List<ImportModuleResponse> responseList = new ArrayList<>(
+        return new ArrayList<>(
                 Stream.of(responseListInDist, responseListInCentral).flatMap(List::stream).collect(Collectors.toMap(
                         ImportModuleResponse::importModuleRequest, Function.identity(),
                         (ImportModuleResponse x, ImportModuleResponse y) -> {
@@ -99,7 +99,6 @@ public class DefaultPackageResolver implements PackageResolver {
                             }
                             return x;
                         })).values());
-        return responseList;
     }
 
     @Override
@@ -156,82 +155,63 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors,
-                                                    boolean offline,
-                                                    Project currentProject) {
-        if (packageDescriptors.isEmpty()) {
+    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> resolutionRequests,
+                                                          boolean offline) {
+        if (resolutionRequests.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<ResolutionResponse> resolutionResponses = new ArrayList<>();
-        Package currentPkg = currentProject != null ? currentProject.currentPackage() : null;
-        for (PackageDescriptor packageDescriptor : packageDescriptors) {
-            Package resolvedPackage = null;
-            // Check whether the requested package is same as the current package
-            if (currentPkg != null && packageDescriptor.equals(currentPkg.descriptor())) {
-                resolvedPackage = currentPkg;
-            }
+        return resolutionRequests.stream()
+                .map(request -> resolvePackage(request, offline))
+                .collect(Collectors.toList());
+    }
 
-            // If not try to load the package from the cache
-            if (resolvedPackage == null) {
-                resolvedPackage = loadFromCache(packageDescriptor);
-            }
-
-            // If not try to resolve from dist and central repositories
-            if (resolvedPackage == null) {
-                resolvedPackage = resolveFromRepository(packageDescriptor, offline);
-            }
-
-            ResolutionResponse.ResolutionStatus resolutionStatus;
-            if (resolvedPackage == null) {
-                resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
-            } else {
-                resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
-                packageCache.cache(resolvedPackage);
-            }
-            resolutionResponses.add(ResolutionResponse.from(resolutionStatus, resolvedPackage, packageDescriptor));
+    private ResolutionResponse resolvePackage(ResolutionRequest resolutionReq, boolean offline) {
+        // 1) Load the package from the cache
+        Optional<Package> resolvedPackage = loadFromCache(resolutionReq);
+        if (resolvedPackage.isEmpty()) {
+            // 2) If not try to resolve from local, dist and central repositories
+            resolvedPackage = resolveFromRepository(resolutionReq, offline);
+            resolvedPackage.ifPresent(packageCache::cache);
         }
 
-        return resolutionResponses;
+        ResolutionStatus resolutionStatus = resolvedPackage.isPresent() ?
+                ResolutionStatus.RESOLVED :
+                ResolutionStatus.UNRESOLVED;
+        return ResolutionResponse.from(resolutionStatus, resolvedPackage.orElse(null), resolutionReq);
     }
 
-    @Override
-    public List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors, boolean offline) {
-        return resolvePackages(packageDescriptors, false, null);
+    private Optional<Package> loadFromCache(ResolutionRequest resolutionReq) {
+        PackageDescriptor pkgDesc = resolutionReq.packageDescriptor();
+        return packageCache.getPackage(pkgDesc.org(), pkgDesc.name(), pkgDesc.version());
     }
 
-    private Package loadFromCache(PackageDescriptor packageDescriptor) {
-        Optional<Package> resolvedPackage = packageCache.getPackage(packageDescriptor.org(),
-                packageDescriptor.name(), packageDescriptor.version());
-        return resolvedPackage.orElse(null);
-    }
+    private Optional<Package> resolveFromRepository(ResolutionRequest resolutionReq, boolean offline) {
+        PackageDescriptor pkgDesc = resolutionReq.packageDescriptor();
 
-    private Package resolveFromRepository(PackageDescriptor requestedPkgDesc, boolean offline) {
-        Optional<Package> resolvedPackage;
-
-        ResolutionRequest resolutionRequest = ResolutionRequest.from(
-                requestedPkgDesc, PackageDependencyScope.DEFAULT, offline);
-
-        if (requestedPkgDesc.isLangLibPackage()) {
-            return distributionRepo.getPackage(resolutionRequest).orElse(null);
+        // 1) Try to load from the distribution repo, if the requested package is a built-in package.
+        if (pkgDesc.isBuiltInPackage()) {
+            return distributionRepo.getPackage(resolutionReq);
         }
 
-        Optional<String> repositoryOptional = requestedPkgDesc.repository();
-        if (repositoryOptional.isPresent()) {
-            String repository = repositoryOptional.get();
+        // 2) Try to load from the local repo, if it is requested from the local repo.
+        if (pkgDesc.repository().isPresent()) {
+            String repository = pkgDesc.repository().get();
             if (!ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repository)) {
-                return null;
+                return Optional.empty();
             }
-            resolvedPackage = localRepo.getPackage(resolutionRequest);
-            if (resolvedPackage.isEmpty()) {
-                return null;
-            }
-        } else {
-            resolvedPackage = distributionRepo.getPackage(resolutionRequest);
-            if (resolvedPackage.isEmpty()) {
-                resolvedPackage = centralRepo.getPackage(resolutionRequest);
-            }
+            return localRepo.getPackage(resolutionReq);
         }
-        return resolvedPackage.orElse(null);
+
+        // 3) Try to load from the dist repo
+        // TODO update this route only ballerina/* and Ballerinax/* stuff to dist repo
+        Optional<Package> resolvedPackage = distributionRepo.getPackage(resolutionReq);
+
+        // 4) Load from the central repo as the last attempt
+        if (resolvedPackage.isEmpty()) {
+            resolvedPackage = centralRepo.getPackage(resolutionReq);
+        }
+
+        return resolvedPackage;
     }
 }

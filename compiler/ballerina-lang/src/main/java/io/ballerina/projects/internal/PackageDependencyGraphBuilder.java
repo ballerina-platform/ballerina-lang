@@ -24,23 +24,16 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
-import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ResolutionResponse;
-import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.util.ProjectConstants;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,12 +54,8 @@ public class PackageDependencyGraphBuilder {
 
     private Set<Vertex> dirtyVertices = new HashSet<>();
 
-    // TODO can we make this final
-    private DependencyNode rootDepNode;
-    private Vertex rootNodeVertex;
-
-    public PackageDependencyGraphBuilder() {
-    }
+    private final DependencyNode rootDepNode;
+    private final Vertex rootNodeVertex;
 
     public PackageDependencyGraphBuilder(PackageDescriptor rootNode) {
         this.rootNodeVertex = new Vertex(rootNode.org(), rootNode.name());
@@ -129,7 +118,10 @@ public class PackageDependencyGraphBuilder {
     }
 
     public DependencyGraph<DependencyNode> buildGraph() {
-        DependencyGraphBuilder<DependencyNode> graphBuilder = DependencyGraphBuilder.getBuilder();
+        // Remove dangling nodes in the graph
+        removeDanglingNodes();
+
+        DependencyGraphBuilder<DependencyNode> graphBuilder = DependencyGraphBuilder.getBuilder(rootDepNode);
         for (Map.Entry<Vertex, Set<Vertex>> dependencyMapEntry : depGraph.entrySet()) {
             Vertex graphNodeKey = dependencyMapEntry.getKey();
             Set<Vertex> graphNodeValues = dependencyMapEntry.getValue();
@@ -309,65 +301,6 @@ public class PackageDependencyGraphBuilder {
             default:
                 throw new IllegalStateException("Unsupported VersionCompatibilityResult: " + compatibilityResult);
         }
-    }
-
-    public DependencyGraph<ResolvedPackageDependency> buildPackageDependencyGraph(PackageResolver packageResolver,
-                                                                                  Project rootProject,
-                                                                                  boolean offline) {
-        List<PackageDescriptor> packageDescriptors = new ArrayList<>();
-        vertices.forEach((key, value) -> packageDescriptors.add(value.pkgDesc()));
-        List<ResolutionResponse> resolutionResponses =
-                packageResolver.resolvePackages(packageDescriptors, offline, rootProject);
-        DependencyGraphBuilder<ResolvedPackageDependency> depGraphBuilder =
-                DependencyGraphBuilder.getBuilder();
-
-        for (Map.Entry<Vertex, Set<Vertex>> graphNodeEntrySet : depGraph.entrySet()) {
-            Vertex graphNode = graphNodeEntrySet.getKey();
-            DependencyNode pkgDep = vertices.get(graphNode);
-
-            ResolutionResponse directDepResponse = findResolutionResponse(pkgDep.pkgDesc(), resolutionResponses);
-            if (directDepResponse == null) {
-                continue;
-            }
-            ResolvedPackageDependency directPackageDep = new ResolvedPackageDependency(
-                    directDepResponse.resolvedPackage(),
-                    pkgDep.scope(),
-                    pkgDep.resolutionType());
-
-            List<ResolvedPackageDependency> resolvedTransitiveDeps = new ArrayList<>();
-            Set<Vertex> transitiveDepGraphNodes = graphNodeEntrySet.getValue();
-            for (Vertex transitiveDepGraphNode : transitiveDepGraphNodes) {
-                DependencyNode transitivePkgDep = vertices.get(transitiveDepGraphNode);
-
-                ResolutionResponse transitiveDepResponse =
-                        findResolutionResponse(transitivePkgDep.pkgDesc(), resolutionResponses);
-                if (transitiveDepResponse == null) {
-                    continue;
-                }
-                ResolvedPackageDependency transitivePackageDep =
-                        new ResolvedPackageDependency(
-                                transitiveDepResponse.resolvedPackage(),
-                                transitivePkgDep.scope(),
-                                transitivePkgDep.resolutionType());
-                resolvedTransitiveDeps.add(transitivePackageDep);
-            }
-            depGraphBuilder.addDependencies(directPackageDep, resolvedTransitiveDeps);
-        }
-        return depGraphBuilder.build();
-    }
-
-    private ResolutionResponse findResolutionResponse(PackageDescriptor pkgDesc,
-                                                      List<ResolutionResponse> resolutionResponses) {
-        for (ResolutionResponse resolutionResponse : resolutionResponses) {
-            if (resolutionResponse.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
-                continue;
-            }
-            if (resolutionResponse.responseDescriptor().equals(pkgDesc)) {
-                return resolutionResponse;
-            }
-        }
-
-        return null;
     }
 
     /**
