@@ -34,7 +34,7 @@ import java.nio.file.Path;
 /**
  * Test performance of openDocument in completions feature in language server.
  */
-public class CompletionOpenDocPerformanceTest extends CompletionPerformanceTest {
+public class OpenDocumentPerformanceTest extends CompletionPerformanceTest {
 
     private Endpoint serviceEndpoint;
     private final Path testRoot = FileUtils.RES_DIR.resolve("performance");
@@ -51,8 +51,10 @@ public class CompletionOpenDocPerformanceTest extends CompletionPerformanceTest 
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
-        long responseTime = getResponseTimeCompletion(configJsonObject);
-        Assert.assertEquals(responseTime < 3000, true);
+        long actualResponseTime = getResponseTimeCompletion(configJsonObject);
+        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold"));
+        Assert.assertTrue(actualResponseTime < expectedResponseTime,
+                String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
     }
 
     long getResponseTimeCompletion(JsonObject configJsonObject) throws IOException {

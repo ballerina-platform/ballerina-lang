@@ -67,8 +67,10 @@ public class CompletionPerformanceTest {
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
-        long responseTime = getResponseCompletion(configJsonObject).getLeft();
-        Assert.assertEquals(responseTime < 3000, true);
+        long actualResponseTime = getResponseCompletion(configJsonObject).getLeft();
+        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold"));
+        Assert.assertTrue(actualResponseTime < expectedResponseTime,
+                String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
         String response = getResponseCompletion(configJsonObject).getRight();
         JsonObject json = parser.parse(response).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() {

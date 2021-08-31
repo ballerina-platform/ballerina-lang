@@ -30,41 +30,38 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Test performance of hover feature in language server.
  */
 public class HoverProviderPerformanceTest {
     private Endpoint serviceEndpoint;
-    protected Path configRoot;
-    protected Path sourceRoot;
+    private final Path testRoot = FileUtils.RES_DIR.resolve("performance");
     private final JsonParser parser = new JsonParser();
 
     @BeforeClass
     public void loadLangServer() throws IOException {
         serviceEndpoint = TestUtil.initializeLanguageSever();
-        configRoot = FileUtils.RES_DIR.resolve("performance").resolve("performance_hover").resolve("config");
-        sourceRoot = FileUtils.RES_DIR.resolve("performance").resolve("performance_hover").resolve("source");
     }
 
     @Test(description = "Test Hover provider", dataProvider = "performance-data-provider")
-    public void testHover(String config) throws IOException {
-        JsonObject configJson = FileUtils.fileContentAsObject(configRoot.resolve(config).toString());
-        Position position = getPosition(configJson);
-        JsonObject source = configJson.getAsJsonObject("source");
-        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
+    public void testHover(String config, String source) throws IOException {
+        String configJsonPath = getConfigJsonPath(config);
+        Path sourcePath = testRoot.resolve(getResourceDir()).resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        Position position = getPosition(configJsonObject);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
+
         long start = System.currentTimeMillis();
         String response = parser.parse(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
                 .getAsJsonObject().toString();
         long end = System.currentTimeMillis();
-        long responseTime = end - start;
-        Assert.assertEquals(responseTime < 3000, true);
-        String expected = configJson.getAsJsonObject("expected").toString();
+        long actualResponseTime = end - start;
+        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold"));
+        Assert.assertTrue(actualResponseTime < expectedResponseTime,
+                String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
+        String expected = configJsonObject.getAsJsonObject("expected").toString();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         boolean result = response.equals(expected);
@@ -75,30 +72,14 @@ public class HoverProviderPerformanceTest {
 
     @DataProvider(name = "performance-data-provider")
     protected Object[][] dataProvider() {
-        if (this.testSubset().length != 0) {
-            return this.testSubset();
-        }
-        List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(FileUtils.RES_DIR.resolve("performance").resolve("performance_hover").resolve("config"))
-                    .filter(path -> {
-                        File file = path.toFile();
-                        return file.isFile() && file.getName().endsWith(".json")
-                                && !skippedTests.contains(file.getName());
-                    })
-                    .map(path -> new Object[]{path.toFile().getName()})
-                    .toArray(size -> new Object[size][2]);
-        } catch (IOException e) {
-            return new Object[0][];
-        }
+        return new Object[][]{
+                {"performance_hover.json", "performance_hover.bal"},
+        };
     }
 
-    private Object[][] testSubset() {
-        return new Object[0][];
-    }
-
-    private List<String> skipList() {
-        return new ArrayList<>();
+    private String getConfigJsonPath(String configFilePath) {
+        return "performance" + File.separator + getResourceDir() + File.separator + "config" + File.separator +
+                configFilePath;
     }
 
     private Position getPosition(JsonObject config) {
@@ -108,5 +89,9 @@ public class HoverProviderPerformanceTest {
         position.setCharacter(positionObj.get("character").getAsInt());
 
         return position;
+    }
+
+    public String getResourceDir() {
+        return "performance_hover";
     }
 }
