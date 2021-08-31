@@ -18,7 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -47,7 +47,7 @@ public class AnnotationAccessExpressionEvaluator extends Evaluator {
     private final AnnotAccessExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public AnnotationAccessExpressionEvaluator(SuspendedContext context, AnnotAccessExpressionNode syntaxNode,
+    public AnnotationAccessExpressionEvaluator(EvaluationContext context, AnnotAccessExpressionNode syntaxNode,
                                                Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = syntaxNode;

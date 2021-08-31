@@ -55,4 +55,11 @@ public class BExpressionValue {
     public Value getJdiValue() {
         return jdiValue;
     }
+
+    public BVariable getBVariable() {
+        if (bVariable == null) {
+            bVariable = VariableFactory.getVariable(context, jdiValue);
+        }
+        return bVariable;
+    }
 }

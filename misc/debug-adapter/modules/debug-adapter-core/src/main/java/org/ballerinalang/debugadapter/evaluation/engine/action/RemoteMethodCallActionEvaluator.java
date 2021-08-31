@@ -24,7 +24,7 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -54,7 +54,7 @@ public class RemoteMethodCallActionEvaluator extends MethodCallExpressionEvaluat
     private final Evaluator objectExpressionEvaluator;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
-    public RemoteMethodCallActionEvaluator(SuspendedContext context, RemoteMethodCallActionNode remoteMethodActionNode,
+    public RemoteMethodCallActionEvaluator(EvaluationContext context, RemoteMethodCallActionNode remoteMethodActionNode,
                                            Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context, null, expression, argEvaluators);
         this.syntaxNode = remoteMethodActionNode;

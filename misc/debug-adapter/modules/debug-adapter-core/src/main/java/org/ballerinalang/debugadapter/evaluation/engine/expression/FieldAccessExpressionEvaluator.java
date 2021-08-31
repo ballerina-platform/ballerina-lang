@@ -21,7 +21,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -50,7 +50,7 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
     private String fieldName;
     private static final String FIELD_NAME_ATTRIBUTES = "attributes";
 
-    public FieldAccessExpressionEvaluator(SuspendedContext context, Evaluator expression,
+    public FieldAccessExpressionEvaluator(EvaluationContext context, Evaluator expression,
                                           ExpressionNode fieldAccessExpressionNode) {
         super(context);
         this.syntaxNode = fieldAccessExpressionNode;

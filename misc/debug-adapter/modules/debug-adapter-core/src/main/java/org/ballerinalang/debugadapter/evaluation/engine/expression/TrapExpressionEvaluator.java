@@ -18,7 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -42,7 +42,7 @@ public class TrapExpressionEvaluator extends Evaluator {
     private final TrapExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public TrapExpressionEvaluator(SuspendedContext context, TrapExpressionNode trapExpressionNode,
+    public TrapExpressionEvaluator(EvaluationContext context, TrapExpressionNode trapExpressionNode,
                                    Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = trapExpressionNode;

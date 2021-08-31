@@ -17,7 +17,7 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -36,7 +36,7 @@ public class ConditionalExpressionEvaluator extends Evaluator {
     private final Evaluator middleEvaluator;
     private final Evaluator endEvaluator;
 
-    public ConditionalExpressionEvaluator(SuspendedContext context, ConditionalExpressionNode conditionalExpressionNode,
+    public ConditionalExpressionEvaluator(EvaluationContext context, ConditionalExpressionNode conditionalExpressionNode,
                                           Evaluator lhsExprEvaluator, Evaluator middleExprEvaluator,
                                           Evaluator endExprEvaluator) {
         super(context);

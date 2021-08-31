@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -46,7 +47,7 @@ public class XMLStepExpressionEvaluator extends Evaluator {
     private final XMLStepExpressionNode syntaxNode;
     private final Evaluator subExprEvaluator;
 
-    public XMLStepExpressionEvaluator(SuspendedContext context, XMLStepExpressionNode stepExpressionNode,
+    public XMLStepExpressionEvaluator(EvaluationContext context, XMLStepExpressionNode stepExpressionNode,
                                       Evaluator subExprEvaluator) {
         super(context);
         this.syntaxNode = stepExpressionNode;

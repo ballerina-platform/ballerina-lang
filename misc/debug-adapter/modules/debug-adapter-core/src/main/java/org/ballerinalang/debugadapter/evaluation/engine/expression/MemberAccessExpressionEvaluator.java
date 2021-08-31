@@ -18,7 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -61,7 +61,7 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
 
     private static final String FIELD_CHILDREN = "children";
 
-    public MemberAccessExpressionEvaluator(SuspendedContext context, IndexedExpressionNode indexedExpressionNode,
+    public MemberAccessExpressionEvaluator(EvaluationContext context, IndexedExpressionNode indexedExpressionNode,
                                            Evaluator containerEvaluator, List<Evaluator> keyEvaluators) {
         super(context);
         this.syntaxNode = indexedExpressionNode;

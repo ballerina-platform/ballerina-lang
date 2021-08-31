@@ -52,7 +52,7 @@ import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.action.RemoteMethodCallActionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.AnnotationAccessExpressionEvaluator;
@@ -142,11 +142,11 @@ public class EvaluatorBuilder extends NodeVisitor {
     private final Set<SyntaxKind> supportedSyntax = new HashSet<>();
     private final Set<SyntaxKind> capturedSyntax = new HashSet<>();
     private final List<Node> unsupportedNodes = new ArrayList<>();
-    private final SuspendedContext context;
+    private final EvaluationContext context;
     private Evaluator result = null;
     private EvaluationException builderException = null;
 
-    public EvaluatorBuilder(SuspendedContext context) {
+    public EvaluatorBuilder(EvaluationContext context) {
         this.context = context;
         prepareForEvaluation();
     }
@@ -159,8 +159,6 @@ public class EvaluatorBuilder extends NodeVisitor {
      */
     public Evaluator build(ExpressionNode parsedExpr) throws EvaluationException {
         clearState();
-        // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
-        parsedExpr = (ExpressionNode) parsedExpr.apply(new IdentifierModifier());
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());

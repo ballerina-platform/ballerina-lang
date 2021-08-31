@@ -22,7 +22,7 @@ import io.ballerina.compiler.syntax.tree.NilLiteralNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -53,19 +53,19 @@ public class BasicLiteralEvaluator extends Evaluator {
     private static final String FLOAT_TYPE_SUFFIX_PATTERN = "[fF]$";
     private static final String DECIMAL_TYPE_SUFFIX_PATTERN = "[dD]$";
 
-    public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
+    public BasicLiteralEvaluator(EvaluationContext context, BasicLiteralNode node) {
         this(context, node, node.literalToken().text());
     }
 
-    public BasicLiteralEvaluator(SuspendedContext context, NilLiteralNode node) {
+    public BasicLiteralEvaluator(EvaluationContext context, NilLiteralNode node) {
         this(context, node, node.toSourceCode().trim());
     }
 
-    public BasicLiteralEvaluator(SuspendedContext context, Token node) {
+    public BasicLiteralEvaluator(EvaluationContext context, Token node) {
         this(context, node, node.text());
     }
 
-    private BasicLiteralEvaluator(SuspendedContext context, Node node, String literalString) {
+    private BasicLiteralEvaluator(EvaluationContext context, Node node, String literalString) {
         super(context);
         this.syntaxNode = node;
         this.literalString = literalString;

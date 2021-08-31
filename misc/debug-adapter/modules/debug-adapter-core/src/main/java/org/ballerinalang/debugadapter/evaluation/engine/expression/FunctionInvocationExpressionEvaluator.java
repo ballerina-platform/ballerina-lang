@@ -25,7 +25,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -56,7 +56,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     private final String functionName;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
-    public FunctionInvocationExpressionEvaluator(SuspendedContext context, FunctionCallExpressionNode node,
+    public FunctionInvocationExpressionEvaluator(EvaluationContext context, FunctionCallExpressionNode node,
                                                  List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = node;

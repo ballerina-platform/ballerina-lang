@@ -54,7 +54,7 @@ public class VariableUtils {
      * @param name    name of the variable to be retrieved
      * @return the JDI value instance of the Ballerina variable
      */
-    public static Value getVariableValue(SuspendedContext context, String name) throws EvaluationException {
+    public static Value fetchVariableValue(SuspendedContext context, String name) throws EvaluationException {
         Optional<BExpressionValue> bExpressionValue = searchLocalVariables(context, name);
         if (bExpressionValue.isEmpty()) {
             bExpressionValue = searchGlobalVariables(context, name);
@@ -72,7 +72,7 @@ public class VariableUtils {
      * @param nameReference name of the variable to be retrieved
      * @return the JDI value instance of the global variable
      */
-    public static Optional<BExpressionValue> searchGlobalVariables(SuspendedContext context, String nameReference) {
+    private static Optional<BExpressionValue> searchGlobalVariables(SuspendedContext context, String nameReference) {
         String classQName = PackageUtils.getQualifiedClassName(context, INIT_CLASS_NAME);
         List<ReferenceType> cls = context.getAttachedVm().classesByName(classQName);
         if (cls.size() != 1) {
@@ -93,7 +93,7 @@ public class VariableUtils {
      * @param nameReference name of the variable to be retrieved
      * @return the JDI value instance of the local variable
      */
-    public static Optional<BExpressionValue> searchLocalVariables(SuspendedContext context, String nameReference) {
+    private static Optional<BExpressionValue> searchLocalVariables(SuspendedContext context, String nameReference) {
         try {
             LocalVariableProxyImpl jvmVar = context.getFrame().visibleVariableByName(nameReference);
             if (jvmVar != null) {

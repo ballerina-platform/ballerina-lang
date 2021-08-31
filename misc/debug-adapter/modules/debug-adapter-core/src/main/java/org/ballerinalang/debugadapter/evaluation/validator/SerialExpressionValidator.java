@@ -59,7 +59,7 @@ public class SerialExpressionValidator extends Validator {
      * @return syntax tree node instance of the user expression
      * @throws EvaluationException if any validation/parsing error is detected.
      */
-    public ExpressionNode validateAndGetResult(String source) throws Exception {
+    public ExpressionNode validateAndParse(String source) throws Exception {
         this.validate(source);
         // Retrieves the expression syntax tree, which was cached during the final validation phase.
         SyntaxTree cachedTree = expressionValidator.getDebugParser().getSyntaxTreeFor(source);

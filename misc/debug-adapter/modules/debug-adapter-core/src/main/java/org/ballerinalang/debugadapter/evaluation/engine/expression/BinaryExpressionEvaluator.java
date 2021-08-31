@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -78,7 +78,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
     protected final Evaluator lhsEvaluator;
     protected final Evaluator rhsEvaluator;
 
-    public BinaryExpressionEvaluator(SuspendedContext context, BinaryExpressionNode node, Evaluator lhsEvaluator,
+    public BinaryExpressionEvaluator(EvaluationContext context, BinaryExpressionNode node, Evaluator lhsEvaluator,
                                      Evaluator rhsEvaluator) {
         super(context);
         this.syntaxNode = node;
