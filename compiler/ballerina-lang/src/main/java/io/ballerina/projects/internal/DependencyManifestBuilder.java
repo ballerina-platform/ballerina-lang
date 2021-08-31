@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
-import static io.ballerina.projects.internal.ManifestUtils.getBooleanFromTomlTableNode;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
 
 /**
@@ -189,7 +188,6 @@ public class DependencyManifestBuilder {
                 String org = getStringValueFromDependencyNode(dependencyNode, "org");
                 String version = getStringValueFromDependencyNode(dependencyNode, "version");
                 String scope = getStringValueFromDependencyNode(dependencyNode, "scope");
-                boolean transitive = getBooleanValueFromDependencyNode(dependencyNode, "transitive");
                 List<DependencyManifest.Dependency> transDependencies = getTransDependenciesFromDependencyNode(
                         dependencyNode);
                 List<DependencyManifest.Module> modules = getModulesFromDependencyNode(dependencyNode);
@@ -210,8 +208,8 @@ public class DependencyManifestBuilder {
                     continue;
                 }
 
-                dependencies.add(new DependencyManifest.Package(depName, depOrg, depVersion, scope, transitive,
-                                                                transDependencies, modules));
+                dependencies.add(new DependencyManifest.Package(depName, depOrg, depVersion, scope, transDependencies,
+                                                                modules));
             }
         }
         return dependencies;
@@ -285,14 +283,6 @@ public class DependencyManifestBuilder {
             return null;
         }
         return getStringFromTomlTableNode(topLevelNode);
-    }
-
-    private boolean getBooleanValueFromDependencyNode(TomlTableNode pkgNode, String key) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
-        if (topLevelNode == null) {
-            return false;
-        }
-        return getBooleanFromTomlTableNode(topLevelNode);
     }
 
     private List<DependencyManifest.Dependency> getTransDependenciesFromDependencyNode(TomlTableNode pkgNode) {

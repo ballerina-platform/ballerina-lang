@@ -261,7 +261,30 @@ public class BuildProject extends Project {
         Collection<ResolvedPackageDependency> directDependencies = dependencyGraph.getDirectDependencies(rootPkgNode);
 
         List<Dependency> dependencies = new ArrayList<>();
-        // 1. set direct dependencies
+        // 1. set root package as a dependency
+        Package rootPackage = rootPkgNode.packageInstance();
+        Dependency rootPkgDependency = new Dependency(rootPackage.packageOrg().value(),
+                                                      rootPackage.packageName().value(),
+                                                      rootPackage.packageVersion().value().toString());
+        // get modules of the root package
+        List<Dependency.Module> rootPkgModules = new ArrayList<>();
+        for (ModuleId moduleId : rootPackage.moduleIds()) {
+            Module module = rootPackage.module(moduleId);
+            Dependency.Module depsModule = new Dependency.Module(module.descriptor().org().value(),
+                                                             module.descriptor().packageName().value(),
+                                                             module.descriptor().name().toString());
+            rootPkgModules.add(depsModule);
+        }
+        // sort modules
+        rootPkgModules.sort(Comparator.comparing(Dependency.Module::moduleName));
+        rootPkgDependency.setModules(rootPkgModules);
+        // get transitive dependencies of the root package
+        rootPkgDependency.setDependencies(getTransitiveDependencies(dependencyGraph, rootPkgNode));
+        // set transitive and scope
+        rootPkgDependency.setScope(rootPkgNode.scope());
+        dependencies.add(rootPkgDependency);
+
+        // 2. set direct dependencies
         for (ResolvedPackageDependency directDependency : directDependencies) {
             Package aPackage = directDependency.packageInstance();
             Dependency dependency = new Dependency(aPackage.packageOrg().toString(), aPackage.packageName().value(),
@@ -286,11 +309,10 @@ public class BuildProject extends Project {
             dependency.setDependencies(getTransitiveDependencies(dependencyGraph, directDependency));
             // set transitive and scope
             dependency.setScope(directDependency.scope());
-            dependency.setTransitive(false);
             dependencies.add(dependency);
         }
 
-        // 2. set transitive dependencies
+        // 3. set transitive dependencies
         Collection<ResolvedPackageDependency> allDependencies = dependencyGraph.getNodes();
         for (ResolvedPackageDependency transDependency : allDependencies) {
             // check whether it's a direct dependency, skip it since it is already added
@@ -308,7 +330,6 @@ public class BuildProject extends Project {
                 dependency.setDependencies(getTransitiveDependencies(dependencyGraph, transDependency));
                 // set transitive and scope
                 dependency.setScope(transDependency.scope());
-                dependency.setTransitive(true);
                 dependencies.add(dependency);
             }
         }

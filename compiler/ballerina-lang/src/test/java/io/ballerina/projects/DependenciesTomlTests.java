@@ -58,7 +58,6 @@ public class DependenciesTomlTests {
         Assert.assertEquals(twitter.org().value(), "wso2");
         Assert.assertEquals(twitter.name().value(), "twitter");
         Assert.assertEquals(twitter.version().toString(), "2.3.4");
-        Assert.assertFalse(twitter.isTransitive());
         List<DependencyManifest.Dependency> twitterTransDependencies = new ArrayList<>(twitter.dependencies());
         Assert.assertEquals(twitterTransDependencies.size(), 5);
 
@@ -80,7 +79,6 @@ public class DependenciesTomlTests {
         Assert.assertEquals(github.name().value(), "github");
         Assert.assertEquals(github.version().toString(), "1.2.3");
         Assert.assertEquals(github.scope(), "testOnly");
-        Assert.assertTrue(github.isTransitive());
         Assert.assertEquals(github.dependencies().size(), 1);
         Assert.assertEquals(github.modules().size(), 0);
     }

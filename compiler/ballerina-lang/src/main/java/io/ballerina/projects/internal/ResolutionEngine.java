@@ -168,7 +168,7 @@ public class ResolutionEngine {
             PackageDescriptor pkgDesc = directDependency.pkgDesc();
             Optional<DependencyManifest.Package> dependency = dependencyManifest.dependency(
                     pkgDesc.org(), pkgDesc.name());
-            if (dependency.isPresent() && dependency.get().isTransitive()) {
+            if (dependency.isPresent() && isTransitivePackage(dependency.get())) {
                 // If the dependency is a direct dependency then use the version otherwise leave it.
                 // The situation is that an indirect dependency(previous compilation) has become a
                 // direct dependency (this compilation). Here we ignore the previous indirect dependency version and
@@ -259,6 +259,27 @@ public class ResolutionEngine {
             graphBuilder.addResolvedNode(PackageDescriptor.from(pkg.org(), pkg.name(), pkg.version()),
                     PackageDependencyScope.fromString(pkg.scope()), DependencyResolutionType.SOURCE);
         }
+    }
+
+    private boolean isTransitivePackage(DependencyManifest.Package aPackage) {
+        DependencyManifest.Package rootPackage = null;
+        for (DependencyManifest.Package pkg : dependencyManifest.packages()) {
+            if (pkg.org() == rootPkgDesc.org() && pkg.name() == rootPkgDesc.name()) {
+                rootPackage = pkg;
+                break;
+            }
+        }
+
+        if (rootPackage == null) {
+            return false;
+        }
+
+        for (DependencyManifest.Dependency dependency : rootPackage.dependencies()) {
+            if (aPackage.org() == dependency.org() && aPackage.name() == dependency.name()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

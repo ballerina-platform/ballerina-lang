@@ -58,7 +58,6 @@ public class BlendedManifest {
             depContainer.add(pkgInDepManifest.org(), pkgInDepManifest.name(),
                     new Dependency(pkgInDepManifest.org(),
                             pkgInDepManifest.name(), pkgInDepManifest.version(),
-                            getRelation(pkgInDepManifest.isTransitive()),
                             Repository.NOT_SPECIFIED, moduleNames(pkgInDepManifest)));
         }
 
@@ -68,7 +67,7 @@ public class BlendedManifest {
             if (existingDepOptional.isEmpty()) {
                 depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
                         new Dependency(depInPkgManifest.org(),
-                                depInPkgManifest.name(), depInPkgManifest.version(), DependencyRelation.UNKNOWN,
+                                depInPkgManifest.name(), depInPkgManifest.version(),
                                 Repository.LOCAL, moduleNames(depInPkgManifest, localPackageRepository)));
 
             } else {
@@ -79,7 +78,7 @@ public class BlendedManifest {
                         compatibilityResult == VersionCompatibilityResult.GREATER_THAN) {
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(),
                             new Dependency(depInPkgManifest.org(),
-                                    depInPkgManifest.name(), depInPkgManifest.version(), DependencyRelation.UNKNOWN,
+                                    depInPkgManifest.name(), depInPkgManifest.version(),
                                     Repository.LOCAL, moduleNames(depInPkgManifest, localPackageRepository)));
                 }
                 // TODO Report a diagnostic else if (compatibilityResult == VersionCompatibilityResult.INCOMPATIBLE)
@@ -95,10 +94,6 @@ public class BlendedManifest {
 
     public PackageManifest packageManifest() {
         return packageManifest;
-    }
-
-    private static DependencyRelation getRelation(boolean isTransitive) {
-        return isTransitive ? DependencyRelation.TRANSITIVE : DependencyRelation.DIRECT;
     }
 
     private static Collection<String> moduleNames(DependencyManifest.Package dependency) {
@@ -135,7 +130,6 @@ public class BlendedManifest {
         private final PackageOrg org;
         private final PackageName name;
         private final PackageVersion version;
-        private final DependencyRelation relation;
         private final Repository repository;
         private final Collection<String> modules;
 
@@ -143,14 +137,12 @@ public class BlendedManifest {
         private Dependency(PackageOrg org,
                            PackageName name,
                            PackageVersion version,
-                           DependencyRelation relation,
                            Repository repository,
                            Collection<String> modules) {
             this.org = org;
             this.name = name;
             this.version = version;
             this.repository = repository;
-            this.relation = relation;
             this.modules = modules;
         }
 
@@ -172,10 +164,6 @@ public class BlendedManifest {
 
         public String repositoryName() {
             return isFromLocalRepository() ? ProjectConstants.LOCAL_REPOSITORY_NAME : null;
-        }
-
-        public DependencyRelation relation() {
-            return relation;
         }
 
         public Collection<String> moduleNames() {

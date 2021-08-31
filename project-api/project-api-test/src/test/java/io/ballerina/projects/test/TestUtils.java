@@ -94,6 +94,14 @@ public class TestUtils {
         projectPath.toFile().setReadable(true, true);
     }
 
+    static String readFileAsString(Path filePath) throws IOException {
+        if (isWindows()) {
+            return Files.readString(filePath).replaceAll("\r", "");
+        } else {
+            return Files.readString(filePath);
+        }
+    }
+
     public static boolean isWindows() {
         return (OS.contains("win"));
     }

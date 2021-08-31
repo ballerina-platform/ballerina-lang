@@ -33,7 +33,6 @@ public class Dependency {
     String name;
     String version;
     PackageDependencyScope scope;
-    boolean transitive;
     List<Dependency> dependencies;
     List<Module> modules;
 
@@ -71,14 +70,6 @@ public class Dependency {
 
     public void setScope(PackageDependencyScope scope) {
         this.scope = scope;
-    }
-
-    public boolean isTransitive() {
-        return transitive;
-    }
-
-    public void setTransitive(boolean transitive) {
-        this.transitive = transitive;
     }
 
     public List<Module> getModules() {

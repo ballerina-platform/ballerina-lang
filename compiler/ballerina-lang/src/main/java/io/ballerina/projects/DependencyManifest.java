@@ -96,7 +96,6 @@ public class DependencyManifest {
         private final PackageOrg packageOrg;
         private final PackageVersion version;
         private final String scope;
-        private final boolean transitive;
         private final List<Dependency> dependencies;
         private final List<Module> modules;
 
@@ -105,18 +104,16 @@ public class DependencyManifest {
             this.packageOrg = packageOrg;
             this.version = version;
             this.scope = null;
-            this.transitive = false;
             this.dependencies = Collections.emptyList();
             this.modules = Collections.emptyList();
         }
 
         public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, String scope,
-                       boolean transitive, List<Dependency> dependencies, List<Module> modules) {
+                       List<Dependency> dependencies, List<Module> modules) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.version = version;
             this.scope = scope;
-            this.transitive = transitive;
             this.dependencies = dependencies;
             this.modules = modules;
         }
@@ -135,10 +132,6 @@ public class DependencyManifest {
 
         public String scope() {
             return scope;
-        }
-
-        public boolean isTransitive() {
-            return transitive;
         }
 
         public Collection<Dependency> dependencies() {

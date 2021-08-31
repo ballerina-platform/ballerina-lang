@@ -75,9 +75,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
+import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
@@ -1535,6 +1537,31 @@ public class TestBuildProject extends BaseTest {
         String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
         Assert.assertTrue(actual.contains(expected));
     }
+
+    @Test(description = "tests Dependencies.toml creation and its content")
+    public void testDependenciesTomlCreationAndItsContent() throws IOException {
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_d");
+
+        // Delete build file if exists
+        Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+
+        BuildProject buildProject = BuildProject.load(projectDirPath);
+        buildProject.save();
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+
+        // Check Dependencies.toml
+        Assert.assertEquals(
+                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
+                readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)));
+    }
+
 
     @AfterClass (alwaysRun = true)
     public void reset() {

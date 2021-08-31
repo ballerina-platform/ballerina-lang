@@ -428,7 +428,6 @@ public class BalaFiles {
                                                PackageOrg.from(dependency.getOrg()),
                                                PackageVersion.from(dependency.getVersion()),
                                                dependency.getScope() != null ? dependency.getScope().name() : null,
-                                               dependency.isTransitive(),
                                                dependencies,
                                                modules);
             packages.add(pkg);
