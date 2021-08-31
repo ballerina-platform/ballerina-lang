@@ -61,10 +61,10 @@ public class CodeActionPerformanceTest {
     }
 
     @Test(dataProvider = "performance-data-provider")
-    public void testCodeAction(String config, String source) throws IOException, WorkspaceDocumentException {
+    public void testCodeAction(String config) throws IOException, WorkspaceDocumentException {
         String configJsonPath = getConfigJsonPath(config);
-        Path sourcePath = testRoot.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
@@ -92,8 +92,8 @@ public class CodeActionPerformanceTest {
     }
 
     private String getConfigJsonPath(String configFilePath) {
-        return "performance" + File.separator + getResourceDir() + File.separator + "config" + File.separator +
-                configFilePath;
+        return "performance" + File.separator + "configs" + File.separator + getResourceDir() + File.separator
+                + configFilePath;
     }
 
     @AfterClass
@@ -104,7 +104,7 @@ public class CodeActionPerformanceTest {
     @DataProvider(name = "performance-data-provider")
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"performance_codeaction.json", "performance_codeaction.bal"},
+                {"performance_codeaction.json"},
         };
     }
 

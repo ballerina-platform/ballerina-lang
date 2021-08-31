@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -40,9 +39,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,7 +49,6 @@ public class CompletionPerformanceTest {
 
     private Endpoint serviceEndpoint;
     private final Path testRoot = FileUtils.RES_DIR.resolve("performance");
-    private final String configDir = "config";
     private final JsonParser parser = new JsonParser();
     private final Gson gson = new Gson();
 
@@ -62,17 +58,30 @@ public class CompletionPerformanceTest {
     }
 
     @Test(dataProvider = "performance-data-provider")
-    public void testCompletion(String config, String configPath) throws WorkspaceDocumentException, IOException {
-        String configJsonPath = "performance" + File.separator + configPath
-                + File.separator + configDir + File.separator + config;
+    public void testCompletion(String config) throws WorkspaceDocumentException, IOException {
+        String configJsonPath = getConfigJsonPath(config);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
 
-        long actualResponseTime = getResponseCompletion(configJsonObject).getLeft();
+        Position position = new Position();
+        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
+        position.setLine(positionObj.get("line").getAsInt());
+        position.setCharacter(positionObj.get("character").getAsInt());
+        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
+        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+
+        long start = System.currentTimeMillis();
+        String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
+                this.serviceEndpoint, triggerChar);
+        long end = System.currentTimeMillis();
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        long actualResponseTime = end - start;
         int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold"));
         Assert.assertTrue(actualResponseTime < expectedResponseTime,
                 String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
-        String response = getResponseCompletion(configJsonObject).getRight();
-        JsonObject json = parser.parse(response).getAsJsonObject();
+
+        JsonObject json = parser.parse(responseString).getAsJsonObject();
         Type collectionType = new TypeToken<List<CompletionItem>>() {
         }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
@@ -84,26 +93,6 @@ public class CompletionPerformanceTest {
         }
     }
 
-    Pair<Long, String> getResponseCompletion(JsonObject configJsonObject) throws IOException {
-        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        String responseString;
-        Position position = new Position();
-        JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        position.setLine(positionObj.get("line").getAsInt());
-        position.setCharacter(positionObj.get("character").getAsInt());
-        JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
-        String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
-
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        long start = System.currentTimeMillis();
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
-        long end = System.currentTimeMillis();
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
-        long responseTime = end - start;
-        return Pair.of(responseTime, responseString);
-    }
-
     List<CompletionItem> getExpectedList(JsonObject configJsonObject) {
         JsonArray expectedItems = configJsonObject.get("items").getAsJsonArray();
         return CompletionTestUtil.getExpectedItemList(expectedItems);
@@ -111,19 +100,9 @@ public class CompletionPerformanceTest {
 
     @DataProvider(name = "performance-data-provider")
     public Object[][] dataProvider() {
-        return this.getConfigsList();
-    }
-
-    public Object[][] testSubset() {
-        return new Object[0][];
-    }
-
-    public List<String> skipList() {
-        return new ArrayList<>();
-    }
-
-    public String getTestResourceDir() {
-        return "performance_completion";
+        return new Object[][]{
+                {"performance_completion.json"},
+        };
     }
 
     @AfterClass
@@ -131,24 +110,12 @@ public class CompletionPerformanceTest {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
-    protected Object[][] getConfigsList() {
-        if (this.testSubset().length != 0) {
-            return this.testSubset();
-        }
-        List<String> skippedTests = this.skipList();
-        try {
-            return Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))
-                    .filter(path -> {
-                        File file = path.toFile();
-                        return file.isFile() && file.getName().endsWith(".json")
-                                && !skippedTests.contains(file.getName());
-                    })
-                    .map(path -> new Object[]{path.toFile().getName(), this.getTestResourceDir()})
-                    .toArray(size -> new Object[size][2]);
-        } catch (IOException e) {
-            // If failed to load tests, then it's a failure
-            Assert.fail("Unable to load test config", e);
-            return new Object[0][];
-        }
+    public String getConfigJsonPath(String configFilePath) {
+        return "performance" + File.separator + "configs" + File.separator + getResourceDir() + File.separator
+                + configFilePath;
+    }
+
+    public String getResourceDir() {
+        return "performance_completion";
     }
 }
