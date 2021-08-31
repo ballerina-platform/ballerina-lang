@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.AsyncCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.FPCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Panic;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
@@ -498,51 +497,32 @@ class JvmObservabilityGen {
                 // Fix the Basic Blocks links
                 currentBB.terminator.thenBB = newCurrentBB;
                 i += 1; // Number of inserted BBs
-            } else if (currentBB.terminator.kind == InstructionKind.CALL
-                    || (currentBB.terminator.kind == InstructionKind.FP_CALL
-                    && !((FPCall) currentBB.terminator).isAsync)) {
-                /*
-                 * Traps for errors needs to be injected for each call and fp call separately to avoid messing up the
-                 * line numbers in the stack trace shown when a panic is thrown.
-                 *
-                 * These panic traps are different from the traps added in rewriteObservableFunctionInvocations method,
-                 * in the sense that these report the error to the Observation covering the current function this body
-                 * belongs to. Also these do not cover the observable calls and fp calls (they are handled using the
-                 * panic terminator handling logic)
-                 */
-
-                // If a panic is captured, it does not need to be reported
-                Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
-                        .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, currentBB))
-                        .findAny();
-                if (existingEE.isEmpty()) {
-                    BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 1);
-                    BIRBasicBlock observeEndBB = insertBasicBlock(func, i + 2);
-                    BIRBasicBlock rePanicBB = insertBasicBlock(func, i + 3);
-
-                    BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
-                            new Name(String.format("$%s$trappedError", currentBB.id.value)), VarScope.FUNCTION,
-                            VarKind.TEMP);
-                    func.localVars.add(trappedErrorVariableDcl);
-                    BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
-
-                    injectCheckErrorCalls(errorCheckBB, observeEndBB, currentBB.terminator.thenBB, func.localVars,
-                            currentBB.terminator.pos, trappedErrorOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
-                    injectStopObservationWithErrorCall(observeEndBB, func.localVars, currentBB.terminator.pos,
-                            trappedErrorOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
-                    rePanicBB.terminator = new Panic(currentBB.terminator.pos, trappedErrorOperand);
-
-                    BIRErrorEntry errorEntry = new BIRErrorEntry(currentBB, currentBB, trappedErrorOperand,
-                            errorCheckBB);
-                    func.errorTable.add(errorEntry);
-
-                    // Fix the Basic Blocks links
-                    currentBB.terminator.thenBB = errorCheckBB;
-                    observeEndBB.terminator.thenBB = rePanicBB;
-                    i += 3; // Number of inserted BBs
-                }
             }
             i++;
+        }
+        // Add error entry for the entire function
+        {
+            int initialBBCount = func.basicBlocks.size();
+            BIRBasicBlock startBB = func.basicBlocks.get(0);
+            BIRBasicBlock endBB = func.basicBlocks.get(initialBBCount - 1);
+            BIRBasicBlock observeEndBB = insertBasicBlock(func, initialBBCount);
+            BIRBasicBlock rePanicBB = insertBasicBlock(func, initialBBCount + 1);
+
+            BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
+                    new Name(String.format("$%s$trappedError", functionName.replace(".", "_"))),
+                    VarScope.FUNCTION, VarKind.TEMP);
+            func.localVars.add(trappedErrorVariableDcl);
+            BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
+
+            injectStopObservationWithErrorCall(observeEndBB, func.localVars, null, trappedErrorOperand,
+                    FUNC_BODY_INSTRUMENTATION_TYPE);
+            rePanicBB.terminator = new Panic(null, trappedErrorOperand);
+
+            BIRErrorEntry errorEntry = new BIRErrorEntry(startBB, endBB, trappedErrorOperand, observeEndBB);
+            func.errorTable.add(errorEntry);
+
+            // Fix the Basic Blocks links
+            observeEndBB.terminator.thenBB = rePanicBB;
         }
     }
 
