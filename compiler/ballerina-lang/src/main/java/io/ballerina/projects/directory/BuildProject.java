@@ -199,6 +199,7 @@ public class BuildProject extends Project {
 
     public void save() {
         Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
             // set both last build time and lat updated time as current timestamp
@@ -210,9 +211,15 @@ public class BuildProject extends Project {
             BuildJson buildJson = readBuildJson(buildFilePath);
             // need to update Dependencies toml
             writeDependencies();
-            // only update build time
-            buildJson.setLastBuildTime(System.currentTimeMillis());
-            ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+            // check whether last updated time is expired
+            if (shouldUpdate) {
+                // update build json file
+                writeBuildFile(buildFilePath);
+            } else {
+                // only update build time
+                buildJson.setLastBuildTime(System.currentTimeMillis());
+                ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+            }
         }
     }
 

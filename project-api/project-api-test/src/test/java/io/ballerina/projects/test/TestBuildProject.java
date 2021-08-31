@@ -1439,7 +1439,7 @@ public class TestBuildProject extends BaseTest {
         if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
             Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         }
-        // Set sticky false, to imitate the default behavior
+        // Set sticky false, to imitate the default build command behavior
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
         buildOptionsBuilder.sticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
