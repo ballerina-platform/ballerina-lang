@@ -13,6 +13,7 @@ import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
@@ -30,6 +31,7 @@ import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -228,43 +230,46 @@ public class RemotePackageRepository implements PackageRepository {
         return request;
     }
 
-    public List<PackageMetadataResponse> resolvePackageMetadata(
-            List<ResolutionRequest> resolutionRequests) {
-        // Resolve all the requests locally
-        List<PackageMetadataResponse> filesystem = fileSystemRepo.resolvePackageMetadata(resolutionRequests);
+    public Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
+                                                                      ResolutionOptions options) {
 
-        // Filter out the requests that can be resolved online
-        List<ResolutionRequest> online = resolutionRequests.stream()
-                .filter(i -> {
-                    return i.offline() == false;
-                }).collect(Collectors.toList());
+        if (requests.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // Resolve all the requests locally
+        Collection<PackageMetadataResponse> cachedPackages =
+                fileSystemRepo.resolvePackageMetadata(requests, options);
+        if (options.offline()) {
+            return cachedPackages;
+        }
+
         // Resolve the requests from remote repository
         try {
-            List<PackageMetadataResponse> remoteResolution;
-            if (online.size() > 0) {
-                PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(online);
-                PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
-                        packageResolutionRequest, JvmTarget.JAVA_11.code(),
-                        RepoUtils.getBallerinaVersion(), true);
+            PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(requests);
+            PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
+                    packageResolutionRequest, JvmTarget.JAVA_11.code(),
+                    RepoUtils.getBallerinaVersion(), true);
 
-                remoteResolution = fromPackageResolutionResponse(resolutionRequests, packageResolutionResponse);
-                // Merge central requests and local requests
-                // Here we will pick the latest package from remote or local
-                return mergeResolution(remoteResolution, filesystem);
-            }
+            Collection<PackageMetadataResponse> remotePackages =
+                    fromPackageResolutionResponse(requests, packageResolutionResponse);
+            // Merge central requests and local requests
+            // Here we will pick the latest package from remote or local
+            return mergeResolution(remotePackages, cachedPackages);
+
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
             // TODO we need to add diagnostics for resolution errors
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
         }
-        // If any issue we will return filesystem results
-        return filesystem;
+        // If any issue we will return cachedPackages results
+        return cachedPackages;
     }
 
-    private List<PackageMetadataResponse> mergeResolution(
-            List<PackageMetadataResponse> remoteResolution,
-            List<PackageMetadataResponse> filesystem) {
+    private Collection<PackageMetadataResponse> mergeResolution(
+            Collection<PackageMetadataResponse> remoteResolution,
+            Collection<PackageMetadataResponse> filesystem) {
         // accumulate the result to a new list
         List<PackageMetadataResponse> mergedResults = new ArrayList<>();
         // Iterate resolutions in original list
@@ -303,8 +308,8 @@ public class RemotePackageRepository implements PackageRepository {
         return mergedResults;
     }
 
-    private List<PackageMetadataResponse> fromPackageResolutionResponse(
-            List<ResolutionRequest> packageLoadRequests, PackageResolutionResponse packageResolutionResponse) {
+    private Collection<PackageMetadataResponse> fromPackageResolutionResponse(
+            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionResponse packageResolutionResponse) {
         // List<PackageResolutionResponse.Package> resolved = packageResolutionResponse.resolved();
         List<PackageMetadataResponse> response = new ArrayList<>();
         for (ResolutionRequest resolutionRequest : packageLoadRequests) {
@@ -351,7 +356,7 @@ public class RemotePackageRepository implements PackageRepository {
         return graphBuilder.build();
     }
 
-    private PackageResolutionRequest toPackageResolutionRequest(List<ResolutionRequest> resolutionRequests) {
+    private PackageResolutionRequest toPackageResolutionRequest(Collection<ResolutionRequest> resolutionRequests) {
         PackageResolutionRequest packageResolutionRequest = new PackageResolutionRequest();
         for (ResolutionRequest resolutionRequest : resolutionRequests) {
             PackageResolutionRequest.Mode mode = PackageResolutionRequest.Mode.HARD;

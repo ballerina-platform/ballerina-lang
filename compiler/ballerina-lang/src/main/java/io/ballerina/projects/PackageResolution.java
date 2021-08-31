@@ -22,6 +22,7 @@ import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.BlendedManifest;
@@ -246,8 +247,9 @@ public class PackageResolution {
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
         // 2) Resolve imports to packages and create the complete dependency graph with package metadata
+        ResolutionOptions options = ResolutionOptions.builder().setOffline(offline).setSticky(sticky).build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
-                blendedManifest, packageResolver, moduleResolver, offline, sticky);
+                blendedManifest, packageResolver, moduleResolver, options);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
 

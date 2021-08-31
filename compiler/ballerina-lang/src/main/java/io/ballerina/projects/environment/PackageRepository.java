@@ -23,6 +23,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +41,8 @@ public interface PackageRepository {
 
     Map<String, List<String>> getPackages();
 
-    List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests);
+    Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
+                                                               ResolutionOptions options);
 
     List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 }

@@ -27,6 +27,7 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
@@ -102,39 +103,36 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests) {
-        List<ResolutionRequest> localRepoPkgLoadRequest = new ArrayList<>();
-        for (ResolutionRequest pkgLoadRequest : resolutionRequests) {
-            Optional<String> repository = pkgLoadRequest.packageDescriptor().repository();
+    public Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
+                                                                      ResolutionOptions options) {
+        Collection<ResolutionRequest> localRepoRequests = new ArrayList<>();
+        for (ResolutionRequest request : requests) {
+            Optional<String> repository = request.packageDescriptor().repository();
             if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                localRepoPkgLoadRequest.add(pkgLoadRequest);
+                localRepoRequests.add(request);
             }
         }
 
-        List<PackageMetadataResponse> responseFrmLocalRepo;
-        if (!localRepoPkgLoadRequest.isEmpty()) {
-            responseFrmLocalRepo = localRepo.resolvePackageMetadata(localRepoPkgLoadRequest);
-        } else {
-            responseFrmLocalRepo = Collections.emptyList();
-        }
+        Collection<PackageMetadataResponse> localRepoPackages =
+                localRepoRequests.isEmpty() ?
+                        Collections.emptyList() : localRepo.resolvePackageMetadata(localRepoRequests, options);
 
         // TODO Send ballerina* org names to dist repo
-        List<PackageMetadataResponse> latestVersionsInDist = distributionRepo
-                .resolvePackageMetadata(resolutionRequests);
-
+        Collection<PackageMetadataResponse> latestVersionsInDist =
+                distributionRepo.resolvePackageMetadata(requests, options);
 
         // Send non built in packages to central
-        List<ResolutionRequest> centralLoadRequests = resolutionRequests.stream()
+        Collection<ResolutionRequest> centralLoadRequests = requests.stream()
                 .filter(r -> !ProjectUtils.isBuiltInPackage(r.orgName(), r.packageName().value()))
                 .collect(Collectors.toList());
-        List<PackageMetadataResponse> latestVersionsInCentral = centralRepo
-                .resolvePackageMetadata(centralLoadRequests);
+        Collection<PackageMetadataResponse> latestVersionsInCentral =
+                centralRepo.resolvePackageMetadata(centralLoadRequests, options);
 
         // TODO Local package should get priority over the same version in central or dist repo
         // TODO Unit test following merge
         List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
-                Stream.of(latestVersionsInDist, latestVersionsInCentral, responseFrmLocalRepo)
-                        .flatMap(List::stream).collect(Collectors.toMap(
+                Stream.of(latestVersionsInDist, latestVersionsInCentral, localRepoPackages)
+                        .flatMap(Collection::stream).collect(Collectors.toMap(
                         PackageMetadataResponse::packageLoadRequest, Function.identity(),
                         (PackageMetadataResponse x, PackageMetadataResponse y) -> {
                             if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {

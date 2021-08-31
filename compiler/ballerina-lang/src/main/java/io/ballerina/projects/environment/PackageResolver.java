@@ -33,7 +33,8 @@ public interface PackageResolver {
 
     List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
 
-    List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests);
+    Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
+                                                               ResolutionOptions options);
 
     Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> resolutionRequests, boolean offline);
 }
