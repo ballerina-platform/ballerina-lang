@@ -37,26 +37,26 @@ public class Range implements RangeHolder {
         this.max = max;
     }
 
-    public static List<Range> rangeListUnion(List<Range> v1, List<Range> v2) {
+    public static Range[] rangeListUnion(Range[] v1, Range[] v2) {
         List<Range> result = new ArrayList<>();
         int i1 = 0;
         int i2 = 0;
-        int len1 = v1.size();
-        int len2 = v2.size();
+        int len1 = v1.length;
+        int len2 = v2.length;
 
         while (true) {
             if (i1 >= len1) {
                 if (i2 >= len2) {
                     break;
                 }
-                rangeUnionPush(result, v2.get(i2));
+                rangeUnionPush(result, v2[i2]);
                 i2 += 1;
             } else if (i2 >= len2) {
-                rangeUnionPush(result, v1.get(i1));
+                rangeUnionPush(result, v1[i1]);
                 i1 += 1;
             } else {
-                Range r1 = v1.get(i1);
-                Range r2 = v2.get(i2);
+                Range r1 = v1[i1];
+                Range r2 = v2[i2];
                 RangeHolder combined = rangeUnion(r1, r2);
                 if (combined instanceof Range) {
                     rangeUnionPush(result, (Range) combined);
@@ -71,7 +71,8 @@ public class Range implements RangeHolder {
                 }
             }
         }
-        return result;
+        Range[] rangeList = new Range[result.size()];
+        return result.toArray(rangeList);
     }
 
     public static void rangeUnionPush(List<Range> ranges, Range next) {
@@ -83,8 +84,7 @@ public class Range implements RangeHolder {
         RangeHolder combined = rangeUnion(ranges.get(lastIndex), next);
         if (combined instanceof Range) {
             ranges.set(lastIndex, (Range) combined);
-        }
-    else {
+        } else {
             ranges.add(next);
         }
     }
@@ -106,33 +106,32 @@ public class Range implements RangeHolder {
         return new Range(Long.min(r1.min, r2.min), Long.max(r1.max, r2.max));
     }
 
-    public static List<Range> rangeListIntersect(List<Range> v1, List<Range> v2) {
+    public static Range[] rangeListIntersect(Range[] v1, Range[] v2) {
         List<Range> result = new ArrayList<>();
         int i1 = 0;
         int i2 = 0;
-        int len1 = v1.size();
-        int len2 = v2.size();
+        int len1 = v1.length;
+        int len2 = v2.length;
         while (true) {
             if (i1 >= len1 || i2 >= len2) {
                 break;
             } else {
-                Range r1 = v1.get(i1);
-                Range r2 = v2.get(i2);
+                Range r1 = v1[i1];
+                Range r2 = v2[i2];
                 RangeHolder combined = rangeIntersect(r1, r2);
                 if (combined instanceof Range) {
                     result.add((Range) combined);
                     i1 += 1;
                     i2 += 1;
-                }
-            else if (((RangeValue) combined).value < 0) {
+                } else if (((RangeValue) combined).value < 0) {
                     i1 += 1;
-                }
-            else {
+                } else {
                     i2 += 1;
                 }
             }
         }
-        return result;
+        Range[] rangeList = new Range[result.size()];
+        return result.toArray(rangeList);
     }
 
     /* [from nballerina] When Range is returned, it is non-empty and the intersection of r1 and r2
@@ -148,20 +147,21 @@ public class Range implements RangeHolder {
         return new Range(Long.max(r1.min, r2.min), Long.min(r1.max, r2.max));
     }
 
-    public static List<Range> rangeListComplement(List<Range> v) {
+    public static Range[] rangeListComplement(Range[] v) {
         List<Range> result = new ArrayList<>();
-        int len = v.size();
-        long min = v.get(0).min;
+        int len = v.length;
+        long min = v[0].min;
         if (min > MIN_VALUE) {
             result.add(new Range(MIN_VALUE,  min - 1));
         }
-        for (int i =1; i < len; i++) {
-            result.add(new Range(v.get(i - 1).max + 1, v.get(i).min - 1 ));
+        for (int i = 1; i < len; i++) {
+            result.add(new Range(v[i - 1].max + 1, v[i].min - 1));
         }
-        long max = v.get(v.size() - 1).max;
+        long max = v[v.length - 1].max;
         if (max < MAX_VALUE) {
             result.add(new Range(max + 1, MAX_VALUE));
         }
-        return result;
+        Range[] rangeList = new Range[result.size()];
+        return result.toArray(rangeList);
     }
 }

@@ -24,7 +24,7 @@ package io.ballerina.semtype;
  *
  * @since 2.0.0
  */
-public class RangeValue implements RangeHolder{
+public class RangeValue implements RangeHolder {
     public final int value;
 
     private RangeValue(int value) {

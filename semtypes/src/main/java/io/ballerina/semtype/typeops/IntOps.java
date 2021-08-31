@@ -17,9 +17,15 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Range;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
+import io.ballerina.semtype.subtypedata.AllOrNothingSubtype;
+import io.ballerina.semtype.subtypedata.IntSubtype;
+
+import static java.lang.Long.MAX_VALUE;
+import static java.lang.Long.MIN_VALUE;
 
 /**
  * Uniform subtype ops for int type.
@@ -28,23 +34,42 @@ import io.ballerina.semtype.UniformTypeOps;
  */
 public class IntOps implements UniformTypeOps {
     @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData union(SubtypeData d1, SubtypeData d2) {
+        IntSubtype v1 = (IntSubtype) d1;
+        IntSubtype v2 = (IntSubtype) d1;
+        Range[] v = Range.rangeListUnion(v1.ranges, v2.ranges);
+        if (v.length == 1 && v[0].min == MIN_VALUE && v[0].max == MAX_VALUE) {
+            return AllOrNothingSubtype.createAll();
+        }
+        return IntSubtype.createIntSubtype(v);
     }
 
     @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
+        IntSubtype v1 = (IntSubtype) d1;
+        IntSubtype v2 = (IntSubtype) d1;
+        Range[] v = Range.rangeListIntersect(v1.ranges, v2.ranges);
+        if (v.length == 0) {
+            return AllOrNothingSubtype.createNothing();
+        }
+        return IntSubtype.createIntSubtype(v);
     }
 
     @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData diff(SubtypeData d1, SubtypeData d2) {
+        IntSubtype v1 = (IntSubtype) d1;
+        IntSubtype v2 = (IntSubtype) d1;
+        Range[] v = Range.rangeListIntersect(v1.ranges, Range.rangeListComplement(v2.ranges));
+        if (v.length == 0) {
+            return AllOrNothingSubtype.createNothing();
+        }
+        return IntSubtype.createIntSubtype(v);
     }
 
     @Override
-    public SubtypeData complement(SubtypeData t) {
-        throw new AssertionError();
+    public SubtypeData complement(SubtypeData d) {
+        IntSubtype v = (IntSubtype) d;
+        return IntSubtype.createIntSubtype(Range.rangeListComplement(v.ranges));
     }
 
     @Override

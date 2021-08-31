@@ -34,7 +34,7 @@ import java.util.Optional;
  */
 public class IntSubtype implements ProperSubtypeData {
 
-    private final Range[] ranges;
+    public final Range[] ranges;
 
     public IntSubtype(Range[] ranges) {
         this.ranges = Arrays.copyOf(ranges, ranges.length);
