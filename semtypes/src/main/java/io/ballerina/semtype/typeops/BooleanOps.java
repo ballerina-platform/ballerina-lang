@@ -17,6 +17,7 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Common;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
@@ -49,6 +50,6 @@ public class BooleanOps implements UniformTypeOps {
 
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+        return Common.notIsEmpty(tc, t);
     }
 }
