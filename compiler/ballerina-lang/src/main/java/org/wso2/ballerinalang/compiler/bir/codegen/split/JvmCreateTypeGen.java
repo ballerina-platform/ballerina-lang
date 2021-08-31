@@ -337,7 +337,7 @@ public class JvmCreateTypeGen {
                     populateError(mv, (BErrorType) bType);
                     break;
                 case TypeTags.UNION:
-                    populateUnion(cw, mv, (BUnionType) bType, fieldName);
+                    populateUnion(cw, mv, (BUnionType) bType, typesClass, fieldName);
                     break;
                 case TypeTags.TUPLE:
                     populateTuple(mv, (BTupleType) bType);
@@ -363,15 +363,13 @@ public class JvmCreateTypeGen {
         addImmutableType(mv, bType);
     }
 
-    private void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String name) {
+    public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String className, String name) {
         mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
-        mv.visitInsn(DUP);
 
-        addCyclicFlag(mv, bType);
         // populate member fields
-        addUnionMembers(cw, mv, bType, name);
+        addUnionMembers(cw, mv, bType, className, name);
         addImmutableType(mv, bType);
     }
 
@@ -427,14 +425,15 @@ public class JvmCreateTypeGen {
 
     private void addImmutableType(MethodVisitor mv, BType type) {
         BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
-        if (immutableType == null || !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))) {
+        if (immutableType == null || type.tsymbol == null || immutableType.tsymbol == null ||
+                !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))) {
             return;
         }
 
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, immutableType);
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, String.format("(L%s;)V",
-                                                                                         INTERSECTION_TYPE), true);
+                                                                                           INTERSECTION_TYPE), true);
     }
 
     private void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {
@@ -1275,32 +1274,42 @@ public class JvmCreateTypeGen {
      * @param mv        method visitor
      * @param unionType union type
      */
-    private void createUnionType(MethodVisitor mv, BUnionType unionType) {
+    public void createUnionType(MethodVisitor mv, BUnionType unionType) {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        jvmTypeGen.loadUnionName(mv, unionType);
+        boolean nameLoaded = jvmTypeGen.loadUnionName(mv, unionType);
 
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
+        if (nameLoaded) {
+            BTypeSymbol tsymbol = unionType.tsymbol;
+            if (tsymbol == null) {
+                mv.visitInsn(ACONST_NULL);
+            } else {
+                mv.visitTypeInsn(NEW, MODULE);
+                mv.visitInsn(DUP);
 
-        PackageID packageID = unionType.tsymbol.pkgID;
+                PackageID pkgID = tsymbol.pkgID;
 
-        mv.visitLdcInsn(packageID.orgName.value);
-        mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+                mv.visitLdcInsn(pkgID.orgName.value);
+                mv.visitLdcInsn(pkgID.name.value);
+                mv.visitLdcInsn(getMajorVersion(pkgID.version.value));
+                mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
+                                   String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+            }
+        }
 
         mv.visitLdcInsn(jvmTypeGen.typeFlag(unionType));
 
         jvmTypeGen.loadCyclicFlag(mv, unionType);
 
         mv.visitLdcInsn(unionType.flags);
-
         // initialize the union type without the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;IZJ)V", STRING_VALUE, MODULE), false);
+        if (nameLoaded) {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
+                               String.format("(L%s;L%s;IZJ)V", STRING_VALUE, MODULE), false);
+        } else {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZJ)V", false);
+        }
     }
 
     /**
@@ -1361,12 +1370,13 @@ public class JvmCreateTypeGen {
      * @param mv        method visitor
      * @param unionType unionType
      */
-    private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String name) {
-        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), typesClass, name);
+    private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String className,
+                                 String name) {
+        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), className, name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
                            String.format("([L%s;)V", TYPE), false);
 
-        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), typesClass, "original" + name);
+        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), className, "original" + name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD,
                            String.format("([L%s;)V", TYPE), false);
     }
@@ -1379,11 +1389,7 @@ public class JvmCreateTypeGen {
      */
     private void addCyclicFlag(MethodVisitor mv, BType userDefinedType) {
         jvmTypeGen.loadCyclicFlag(mv, userDefinedType);
-        if (userDefinedType.tag == TypeTags.TUPLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-        } else if (userDefinedType.tag == TypeTags.UNION) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-        }
+        mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
     }
 
     /**
