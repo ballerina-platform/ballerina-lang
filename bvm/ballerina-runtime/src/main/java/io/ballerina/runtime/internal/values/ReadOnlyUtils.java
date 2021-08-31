@@ -338,6 +338,20 @@ public class ReadOnlyUtils {
         return intersectionType;
     }
 
+    /**
+     * Provides the mutable type used to create the intersection type.
+     * @param intersectionType intersection type
+     * @return mutable type
+     */
+    public static Type getMutableType(BIntersectionType intersectionType) {
+        for (Type type : intersectionType.getConstituentTypes()) {
+            if (intersectionType.getEffectiveType().getTag() == type.getTag()) {
+                return type;
+            }
+        }
+        throw new IllegalStateException("Unsupported intersection type found: " + intersectionType);
+    }
+
     private ReadOnlyUtils() {
     }
 }

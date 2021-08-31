@@ -526,4 +526,36 @@ function testIterationWithImportedImmutableType() {
         count += 1;
     }
     assertEquality(2, count);
+
+    se:UnionMap unionMap = {
+        id: {
+            name: "Tom",
+            id: 5678
+        },
+        user: {
+            username : "user1"
+        }
+    };
+
+    count = 0;
+    foreach var entry in unionMap.cloneReadOnly() {
+        count += 1;
+    }
+    assertEquality(2, count);
+
+    se:UnionTable unionTable = table [
+            {
+                name: "Tom",
+                id: 5678
+            },
+            {
+                username: "user1"
+            }
+        ];
+
+    count = 0;
+    foreach var entry in unionTable.cloneReadOnly() {
+        count += 1;
+    }
+    assertEquality(2, count);
 }
