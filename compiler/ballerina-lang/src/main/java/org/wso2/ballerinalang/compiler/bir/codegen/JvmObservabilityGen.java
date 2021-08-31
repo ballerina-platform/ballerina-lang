@@ -814,31 +814,31 @@ class JvmObservabilityGen {
     /**
      * Inject stop observation with an error call.
      *
-     * @param errorReportBB The basic block to which the report error call should be injected
+     * @param observeEndBB The basic block to which the stop observation call should be injected
      * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param errorOperand Operand for passing the error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectStopObservationWithErrorCall(BIRBasicBlock errorReportBB,
+    private void injectStopObservationWithErrorCall(BIRBasicBlock observeEndBB,
                                                     Collection<BIRVariableDcl> scopeVarList, Location pos,
                                                     BIROperand errorOperand, String uniqueId) {
         BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                new Name(String.format("$%s$%s$castedError", uniqueId, errorReportBB.id.value)), VarScope.FUNCTION,
+                new Name(String.format("$%s$%s$castedError", uniqueId, observeEndBB.id.value)), VarScope.FUNCTION,
                 VarKind.TEMP);
         scopeVarList.add(castedErrorVariableDcl);
         BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
-        errorReportBB.instructions.add(errorCastInstruction);
+        observeEndBB.instructions.add(errorCastInstruction);
 
-        JIMethodCall reportErrorCallTerminator = new JIMethodCall(pos);
-        reportErrorCallTerminator.invocationType = INVOKESTATIC;
-        reportErrorCallTerminator.jClassName = OBSERVE_UTILS;
-        reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;L%s;)V", BAL_ENV, ERROR_VALUE);
-        reportErrorCallTerminator.name = STOP_OBSERVATION_WITH_ERROR_METHOD;
-        reportErrorCallTerminator.args = Collections.singletonList(castedErrorOperand);
-        errorReportBB.terminator = reportErrorCallTerminator;
+        JIMethodCall observeEndBBCallTerminator = new JIMethodCall(pos);
+        observeEndBBCallTerminator.invocationType = INVOKESTATIC;
+        observeEndBBCallTerminator.jClassName = OBSERVE_UTILS;
+        observeEndBBCallTerminator.jMethodVMSig = String.format("(L%s;L%s;)V", BAL_ENV, ERROR_VALUE);
+        observeEndBBCallTerminator.name = STOP_OBSERVATION_WITH_ERROR_METHOD;
+        observeEndBBCallTerminator.args = Collections.singletonList(castedErrorOperand);
+        observeEndBB.terminator = observeEndBBCallTerminator;
     }
 
     /**
