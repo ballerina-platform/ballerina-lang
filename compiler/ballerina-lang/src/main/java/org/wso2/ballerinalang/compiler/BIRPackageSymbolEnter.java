@@ -483,6 +483,7 @@ public class BIRPackageSymbolEnter {
         BSymbol symbol;
         if (isClass || Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
             symbol = type.tsymbol;
+            symbol.pos = pos;
         } else {
             symbol = Symbols.createTypeDefinitionSymbol(flags, names.fromString(typeDefName),
                     this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);
@@ -1140,24 +1141,16 @@ public class BIRPackageSymbolEnter {
                     PackageID pkg = getPackageId(pkgIndex);
 
                     String typeDefName = getStringCPEntryValue(inputStream);
-                    BTypeDefinitionSymbol definitionSymbol = Symbols.createTypeDefinitionSymbol(
-                            Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                            names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                            symTable.builtinPos, COMPILED_SOURCE);
                     BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_REF,
                             Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                             names.fromString(typeDefName), env.pkgSymbol.pkgID, null, env.pkgSymbol,
                             symTable.builtinPos, COMPILED_SOURCE);
-                    definitionSymbol.flags |= flags;
-                    definitionSymbol.scope = new Scope(definitionSymbol);
                     BTypeReferenceType typeReferenceType = new BTypeReferenceType(null,
-                            typeSymbol, definitionSymbol.flags);
+                            typeSymbol, flags);
                     typeReferenceType.flags |= flags;
-                    definitionSymbol.referenceType = typeReferenceType;
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
                     typeReferenceType.constraint = readTypeFromCp();
-                    definitionSymbol.type = typeReferenceType.constraint;
 
                     Object poppedRefType = compositeStack.pop();
                     assert poppedRefType == typeReferenceType;
