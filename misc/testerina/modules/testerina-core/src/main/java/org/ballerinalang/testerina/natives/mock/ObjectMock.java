@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.ParameterizedType;
+import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -39,6 +40,8 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.runtime.internal.TypeChecker.getType;
 
 /**
  * Class that contains inter-op function related to mocking.
@@ -340,43 +343,74 @@ public class ObjectMock {
         return false;
     }
 
+    private static boolean validateParameterizedValue(Object returnVal, ParameterizedType functionReturnType) {
+        return TypeChecker.checkIsType(returnVal, functionReturnType.getParamValueType());
+    }
+
+    private static boolean validateUnionValue(Object returnVal, UnionType functionReturnType) {
+        List<Type> memberTypes = functionReturnType.getMemberTypes();
+        for (Type memberType : memberTypes) {
+            if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                return validateParameterizedValue(returnVal, ((ParameterizedType) memberType));
+            } else {
+                if (TypeChecker.checkIsType(returnVal, memberType)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates the provided return value when the function has stream as return type.
+     *
+     * @param returnVal return value provided
+     * @param streamType stream return type of the attached function
+     * @return whether the return value is valid
+     */
+    private static boolean validateStreamValue(Object returnVal, StreamType streamType) {
+        Type sourceType = getType(returnVal);
+        if (sourceType.getTag() == TypeTags.STREAM_TAG) {
+            Type targetConstrainedType = streamType.getConstrainedType();
+            Type targetCompletionType = streamType.getCompletionType();
+            // Update the target stream constrained type if it is a parameterized type
+            if (targetConstrainedType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                targetConstrainedType = ((ParameterizedType) targetConstrainedType).getParamValueType();
+            }
+            // Update the target stream completion type if it is a parameterized type
+            if (targetCompletionType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                targetCompletionType = ((ParameterizedType) targetCompletionType).getParamValueType();
+            }
+            // The type matches only if both constrained and completion types are matching
+            return TypeChecker.checkIsType(((StreamType) sourceType).getConstrainedType(), targetConstrainedType) &&
+                    TypeChecker.checkIsType(((StreamType) sourceType).getCompletionType(), targetCompletionType);
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Validates the function return value provided when a default mock object is used.
      *
-     * @param functionName function to validate against
-     * @param returnVal return value provided
+     * @param functionName      function to validate against
+     * @param returnVal         return value provided
      * @param attachedFunctions functions available in the mocked type
      * @return whether the return value is valid
      */
     private static boolean validateReturnValue(
             String functionName, Object returnVal, MethodType[] attachedFunctions) {
-
         for (MethodType attachedFunction : attachedFunctions) {
             if (attachedFunction.getName().equals(functionName)) {
-                Type srcReturnParameterType = attachedFunction.getType().getReturnParameterType();
-                if (srcReturnParameterType instanceof UnionType) {
-                    List<Type> memberTypes =
-                            ((UnionType) srcReturnParameterType).getMemberTypes();
-                    for (Type memberType : memberTypes) {
-                        if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
-                            Type bObjectType = ((ParameterizedType) memberType).getParamValueType();
-                            if (TypeChecker.checkIsType(returnVal, bObjectType)) {
-                                return true;
-                            }
-                        } else {
-                            if (TypeChecker.checkIsType(returnVal, memberType)) {
-                                return true;
-                            }
-                        }
-                    }
-                } else {
-                    if (srcReturnParameterType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
-                        Type bObjectType = ((ParameterizedType) srcReturnParameterType).getParamValueType();
-                        if (TypeChecker.checkIsType(returnVal, bObjectType)) {
-                            return true;
-                        }
-                    }
-                    return TypeChecker.checkIsType(returnVal, srcReturnParameterType);
+                Type functionReturnType = attachedFunction.getType().getReturnParameterType();
+                switch (functionReturnType.getTag()) {
+                    case TypeTags.UNION_TAG:
+                        return validateUnionValue(returnVal, (UnionType) functionReturnType);
+                    case TypeTags.STREAM_TAG:
+                        return validateStreamValue(returnVal, (StreamType) functionReturnType);
+                    case TypeTags.PARAMETERIZED_TYPE_TAG:
+                        return validateParameterizedValue(returnVal, (ParameterizedType) functionReturnType);
+                    default:
+                        return TypeChecker.checkIsType(returnVal, functionReturnType);
                 }
             }
         }

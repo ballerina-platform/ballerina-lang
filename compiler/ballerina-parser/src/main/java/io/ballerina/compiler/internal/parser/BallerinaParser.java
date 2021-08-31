@@ -17,7 +17,6 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.compiler.internal.parser.tree.STAmbiguousCollectionNode;
@@ -67,6 +66,8 @@ import io.ballerina.compiler.internal.parser.tree.STUnaryExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.utils.ConditionalExprResolver;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import io.ballerina.compiler.parser.ParserRuleContext;
+import io.ballerina.compiler.parser.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.text.CharReader;
@@ -104,15 +105,52 @@ public class BallerinaParser extends AbstractParser {
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
-     * <li>Top level node</li>
-     * <li>Statement</li>
-     * <li>Expression</li>
+     * <ul>
+     * <li>{@link ParserRuleContext#COMP_UNIT}</li>
+     * </ul>
+     * <li>Bal part (a part of a file)</li>
+     * <ul>
+     * <li>{@link ParserRuleContext#STATEMENTS}</li>
+     * <li>{@link ParserRuleContext#EXPRESSION}</li>
+     * </ul>
      * </ul>
      *
      * @param context Context to start parsing
      * @return Parsed node
      */
     public STNode parse(ParserRuleContext context) {
+        switch (context) {
+            case COMP_UNIT:
+                return parseCompUnit();
+            case STATEMENTS:
+                return parseAsStatements();
+            case EXPRESSION:
+                return parseAsExpression();
+            default:
+                throw new UnsupportedOperationException("Cannot start parsing from: " + context);
+        }
+    }
+
+    /**
+     * Start parsing the input from a given context. Supported starting points are:
+     *
+     * <ul>
+     * <li>Module part (a file)</li>
+     * <li>Top level node</li>
+     * <li>Statement</li>
+     * <li>Expression</li>
+     * </ul>
+     *
+     * <i>Note: This API should be limited to parser internal usage only.
+     * <br>
+     * Top level node, Statement and Expression is subject to source pruning.
+     * </i>
+     *
+     * @param context Context to start parsing
+     * @return Parsed node
+     */
+    public STNode parseInternal(ParserRuleContext context) {
+        // TODO: issue #32416
         switch (context) {
             case COMP_UNIT:
                 return parseCompUnit();
@@ -139,6 +177,74 @@ public class BallerinaParser extends AbstractParser {
     /*
      * Private methods.
      */
+
+    /**
+     * Parse a given input as a statement list. Starts parsing from the statement context.
+     *
+     * @return Parsed node
+     */
+    private STNode parseAsStatements() {
+        ArrayList<STNode> stmts = new ArrayList<>();
+        while (peek().kind != SyntaxKind.EOF_TOKEN) {
+
+            startContext(ParserRuleContext.COMP_UNIT);
+            startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+            STNode stmt = parseStatement();
+            this.errorHandler.getContextStack().clear();
+
+            if (stmt == null) {
+                break;
+            }
+
+            if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
+                continue;
+            }
+
+            if (validateStatement(stmt)) {
+                continue;
+            }
+
+            stmts.add(stmt);
+        }
+
+        STNode eofToken = invalidateRestAndParseEofToken();
+        return STNodeFactory.createBalPartNode(STNodeFactory.createNodeList(stmts), eofToken);
+    }
+
+    /**
+     * Parse a given input as an expression. Starts parsing from the expression context.
+     *
+     * @return Parsed node
+     */
+    private STNode parseAsExpression() {
+        ArrayList<STNode> exprs = new ArrayList<>();
+
+        // We only parse one expr here, since expr followed by expr is not a valid grammar.
+        // e.g. `foo bar` is not valid
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode expr = parseExpression();
+        exprs.add(expr);
+
+        STNode eofToken = invalidateRestAndParseEofToken();
+        return STNodeFactory.createBalPartNode(STNodeFactory.createNodeList(exprs), eofToken);
+    }
+
+    /**
+     * Marks all remaining tokens as invalid and parse the eof token.
+     *
+     * @return Parsed node
+     */
+    private STNode invalidateRestAndParseEofToken() {
+        // invalidate all remaining tokens
+        while (peek().kind != SyntaxKind.EOF_TOKEN) {
+            STToken invalidToken = consume();
+            addInvalidNodeToNextToken(invalidToken, DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+        }
+
+        return consume();
+    }
 
     /**
      * Parse a given input and returns the AST. Starts parsing from the top of a compilation unit.
@@ -4618,7 +4724,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
-        for (STNode qualifier : qualifiers) {
+        for (int i = qualifiers.size() - 1; i >= 0; i--) {
+            STNode qualifier = qualifiers.get(i);
             node = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, qualifier);
         }
         return node;

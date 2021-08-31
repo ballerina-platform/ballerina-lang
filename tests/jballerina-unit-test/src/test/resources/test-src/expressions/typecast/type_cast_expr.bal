@@ -109,19 +109,19 @@ function testNilCastPositive() returns boolean {
 function testNilCastNegative() {
     string a = "hello world";
     anydata b = a;
-    () c = <()> b;
+    assertTypeCastFailureWithMessage(trap <()> b, "incompatible types: 'string' cannot be cast to '()'");
 }
 
 function testNilValueCastAsSimpleBasicTypeNegative() {
     () a = ();
     anydata b = a;
-    string c = <string> b;
+    assertTypeCastFailureWithMessage(trap <string> b, "incompatible types: '()' cannot be cast to 'string'");
 }
 
 function testNilValueCastAsStructuredTypeNegative() {
     () a = ();
     anydata b = a;
-    map<string> c = <map<string>> b;
+    assertTypeCastFailureWithMessage(trap <map<string>> b, "incompatible types: '()' cannot be cast to 'map<string>'");
 }
 
 function testStringCastPositive() returns boolean {
@@ -227,7 +227,8 @@ function testArrayCastPositive() returns boolean {
 function testArrayCastNegative() {
     (string|int)?[2] s1 = ["this is an array", "of length"];
     anydata b = s1;
-    any[2] s2 = <string[2]> b;
+    assertTypeCastFailureWithMessage(trap <string[2]> b, "incompatible types: '(string|int)?[2]' cannot be cast to " +
+    "'string[2]'");
 }
 
 function testTupleCastPositive() returns boolean {
@@ -245,7 +246,8 @@ function testTupleCastPositive() returns boolean {
 function testTupleCastNegative() {
     [string, int|string, float] s = ["this is an array", 1, 3.0];
     any a = s;
-    [string, int|string, float] s2 = <[string, int, float]> a;
+    assertTypeCastFailureWithMessage(trap <[string, int, float]> a, "incompatible types: '[string,(int|string),float]'" +
+    " cannot be cast to '[string,int,float]'");
 }
 
 function testJsonCastPositive() returns boolean {
@@ -262,7 +264,7 @@ function testJsonCastPositive() returns boolean {
 function testJsonCastNegative() {
     xml x = xml `text`;
     any a = x;
-    json j = <json> a;
+    assertTypeCastFailureWithMessage(trap <json> a, "incompatible types: 'lang.xml:Text' cannot be cast to 'json'");
 }
 
 function testMapCastPositive() returns boolean {
@@ -281,7 +283,7 @@ function testMapCastPositive() returns boolean {
 
 function testMapCastNegative() {
     map<any> m1 = { mapType: "unconstrained", elementType: "any" };
-    map<string> m2 = <map<string>> m1;
+    assertTypeCastFailureWithMessage(trap <map<string>> m1, "incompatible types: 'map' cannot be cast to 'map<string>'");
 }
 
 function testRecordCastPositive() returns boolean {
@@ -295,7 +297,7 @@ function testRecordCastPositive() returns boolean {
 function testRecordCastNegative() {
     Employee e = { name: "Em Zee", id: 1100 };
     Person p = e;
-    Lead e2 = <Lead> p;
+    assertTypeCastFailureWithMessage(trap <Lead> p, "incompatible types: 'Employee' cannot be cast to 'Lead'");
 }
 
 function testTableCastPositive() returns boolean {
@@ -318,7 +320,8 @@ function testTableCastNegative() {
         ];
 
     anydata a = t1;
-    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
+    assertTypeCastFailureWithMessage(trap <table<TableEmployeeTwo>> a, "incompatible types: 'table<TableEmployee> " +
+    "key(id)' cannot be cast to 'table<TableEmployeeTwo>'");
 }
 
 function testXmlCastPositive() returns boolean {
@@ -331,7 +334,8 @@ function testXmlCastPositive() returns boolean {
 function testXmlCastNegative() {
     string|xml x1 = "<book>The Lost World</book>";
     any a = x1;
-    xml x2 = <xml> a;
+    assertTypeCastFailureWithMessage(trap <xml> a, "incompatible types: 'string' cannot be cast to " +
+    "'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
 }
 
 function testErrorCastPositive() returns boolean {
@@ -354,7 +358,8 @@ function testErrorCastPositive() returns boolean {
 function testErrorCastNegative() {
     error e1 = error("test my error");
     any|error e2 = e1;
-    MyErrorTwo e3 = <MyErrorTwo> e2;
+    assertTypeCastFailureWithMessage(trap <MyErrorTwo> e2, "incompatible types: 'error' cannot be cast to " +
+    "'MyErrorTwo'");
 }
 
 function testFunctionCastPositive() returns boolean {
@@ -364,10 +369,17 @@ function testFunctionCastPositive() returns boolean {
     return f === f1;
 }
 
+function testFailingCast() {
+    function (string, int) returns string f = testFunc;
+    any a = f;
+    function (string) returns string f1 = <function (string) returns string>a;
+}
+
 function testFunctionCastNegative() {
     function (string, int) returns string f = testFunc;
     any a = f;
-    function (string) returns string f1 = <function (string) returns string> a;
+    assertTypeCastFailureWithMessage(trap <function (string) returns string> a, "incompatible types: 'isolated " +
+    "function (string,int) returns (string)' cannot be cast to 'function (string) returns (string)'");
 }
 
 function testFutureCastPositive() returns boolean {
@@ -388,23 +400,15 @@ function testFutureWithoutFutureConstraintCastPositive() {
 function testFutureCastNegative() {
     future<int> s1 = start testFutureFunc();
     any a = s1;
-    future<int[]>|error s2 = trap <future<int[]>> a;
-
-    test:assertEquals(true, s2 is error);
-    error err = <error> s2;
-    test:assertEquals("{ballerina}TypeCastError", err.message());
-    test:assertEquals("incompatible types: 'future<int>' cannot be cast to 'future<int[]>'", <string> checkpanic err.detail()["message"]);
+    assertTypeCastFailureWithMessage( trap <future<int[]>> a, "incompatible types: 'future<int>' cannot be cast " +
+    "to 'future<int[]>'");
 }
 
 function testFutureOfFutureValueCastNegative() {
     future<future<int>> s = start foo();
     any a = s;
-    future<future<int[]>>|error res = trap <future<future<int[]>>> a;
-
-    test:assertEquals(true, res is error);
-    error err = <error> res;
-    test:assertEquals("{ballerina}TypeCastError", err.message());
-    test:assertEquals("incompatible types: 'future<future<int>>' cannot be cast to 'future<future<int[]>>'", <string> checkpanic err.detail()["message"]);
+    assertTypeCastFailureWithMessage(trap <future<future<int[]>>> a, "incompatible types: 'future<future<int>>' " +
+    "cannot be cast to 'future<future<int[]>>'");
 }
 
 function foo() returns future<int> {
@@ -427,7 +431,8 @@ function testObjectCastPositive() returns boolean {
 function testObjectCastNegative() {
     EmployeeObject e = new("Em Zee");
     PersonObject p = e;
-    LeadObject e2 = <LeadObject> p;
+    assertTypeCastFailureWithMessage(trap <LeadObject> p, "incompatible types: 'EmployeeObject' cannot be cast to " +
+    "'LeadObject'");
 }
 
 function testTypedescCastPositive() returns boolean {
@@ -440,7 +445,7 @@ function testTypedescCastPositive() returns boolean {
 function testTypedescCastNegative() {
     typedesc<int> t1 = int;
     any a = t1;
-    int t2 = <int> a;
+    assertTypeCastFailureWithMessage(trap <int> a, "incompatible types: 'typedesc' cannot be cast to 'int'");
 }
 
 function testMapElementCastPositive() returns boolean {
@@ -487,7 +492,8 @@ function testMapElementCastNegative() {
 
     Employee e3 = <Employee> m.get("emp1");
     int iVal2 = <int> m.get("intVal");
-    map<int> strMapValTwo = <map<int>> m.get("mapVal");
+    assertTypeCastFailureWithMessage(trap <map<int>> m.get("mapVal"), "incompatible types: 'map<string>' cannot be " +
+    "cast to 'map<int>'");
 }
 
 function testListElementCastPositive() returns boolean {
@@ -518,7 +524,7 @@ function testListElementCastNegative() {
 
     any a = t1[2];
     any[] anyArrTwo = <any[]> a;
-    int iValTwo = <int> anyArrTwo[0];
+    assertTypeCastFailureWithMessage(trap <int> anyArrTwo[0], "incompatible types: 'string' cannot be cast to 'int'");
 }
 
 function testOutOfOrderUnionConstraintCastPositive() returns boolean {
@@ -531,7 +537,7 @@ function testOutOfOrderUnionConstraintCastPositive() returns boolean {
 function testStringAsInvalidBasicType() {
     string|int u1 = "I'm not an int!";
     any a = u1;
-    int i = <int> a;
+    assertTypeCastFailureWithMessage(trap <int> a, "incompatible types: 'string' cannot be cast to 'int'");
 }
 
 function testBroaderObjectCast() returns boolean {
@@ -565,12 +571,17 @@ function testCastToNumericType() returns boolean {
     return k == i && m == l && n == o;
 }
 
-function testCastPanicWithCheckTrap() returns string|int|error {
+function testCastPanicWithCheckTrap() {
+    assertTypeCastFailureWithMessage(castPanicWithCheckTrap(), "incompatible types: 'isolated function (string,int)" +
+    " returns (string)' cannot be cast to 'function (string) returns (string)'");
+}
+
+function castPanicWithCheckTrap() returns string|int|error {
     return check trap testFunctionCastNegativeHelper();
 }
 
 function testFunctionCastNegativeHelper() returns string|int {
-    testFunctionCastNegative();
+    testFailingCast();
     return "successful";
 }
 
@@ -723,13 +734,14 @@ function testDirectlyUnmatchedUnionToUnionCastPositive() returns boolean {
 
 function testDirectlyUnmatchedUnionToUnionCastNegative_1() {
     string|int v1 = 1;
-    string|boolean v2 = <string|boolean> v1;
+    assertTypeCastFailureWithMessage(trap <string|boolean> v1, "incompatible types: 'int' cannot be cast to '(string|boolean)'");
 }
 
 function testDirectlyUnmatchedUnionToUnionCastNegative_2() {
     Employee|string v3 = "lead";
-    Lead|int v4 = <Lead|int> v3;
-}
+    Lead|int|error v4 = trap <Lead|int> v3;
+    assertTypeCastFailureWithMessage(trap <Lead|int> v3, "incompatible types: 'string' cannot be cast to '(Lead|int)'");
+    }
 
 function testTypeCastOnRecordLiterals() returns [string, string, string] {
     string s1 = _init_(<ServerModeConfig>{});
@@ -786,7 +798,7 @@ function testFiniteTypeToValueTypeCastPositive() returns boolean {
 
 function testFiniteTypeToValueTypeCastNegative() {
     FooBarOne f2 = 1;
-    string i = <string> f2;
+    assertTypeCastFailureWithMessage(trap <string> f2, "incompatible types: 'int' cannot be cast to 'string'");
 }
 
 function testFiniteTypeToRefTypeCastPositive() returns boolean {
@@ -805,7 +817,8 @@ function testFiniteTypeToRefTypeCastPositive() returns boolean {
 
 function testFiniteTypeToRefTypeCastNegative() {
     FooBarOne f2 = 1;
-    string|xml i = <string|xml> f2;
+    assertTypeCastFailureWithMessage(trap <string|xml> f2, "incompatible types: 'int' cannot be cast to " +
+    "'(string|xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>)'");
 }
 
 function testValueTypeToFiniteTypeCastPositive() returns boolean {
@@ -824,7 +837,7 @@ function testValueTypeToFiniteTypeCastPositive() returns boolean {
 
 function testValueTypeToFiniteTypeCastNegative() {
     int a = 2;
-    FooBarOne d = <FooBarOne> a;
+    assertTypeCastFailureWithMessage(trap <FooBarOne> a, "incompatible types: 'int' cannot be cast to 'FooBarOne'");
 }
 
 type FooOneTrue 1|"foo"|true;
@@ -841,7 +854,7 @@ function testFiniteTypeToFiniteTypeCastPositive() returns boolean {
 
 function testFiniteTypeToFiniteTypeCastNegative() {
     FooBarOne a = "bar";
-    FooOneTrue b = <FooOneTrue> a;
+    assertTypeCastFailureWithMessage(trap <FooOneTrue> a, "incompatible types: 'string' cannot be cast to 'FooOneTrue'");
 }
 
 function testFunc(string s, int i) returns string {
@@ -893,11 +906,7 @@ function testImmutableJsonMappingToInclusiveRecordPositive() {
 }
 
 function testMutableJsonMappingToExclusiveRecordNegative() {
-    Bar|error res = trap <Bar>jsonMapping;
-    assertTrue(res is error);
-    error err = <error> res;
-    assertEquality(TYPE_CAST_ERROR, err.message());
-    assertEquality("incompatible types: 'map<json>' cannot be cast to 'Bar'", err.detail()["message"]);
+    assertTypeCastFailureWithMessage(trap <Bar>jsonMapping, "incompatible types: 'map<json>' cannot be cast to 'Bar'");
 }
 
 function testTypeCastInConstructorMemberWithUnionCET() {
@@ -922,10 +931,7 @@ function testTypeCastInConstructorMemberWithUnionCET() {
 }
 
 function assertErrorForTypeCastFailure(error? res) {
-    assertEquality(true, res is error);
-    error err1 = <error> res;
-    assertEquality("{ballerina}TypeCastError", err1.message());
-    assertEquality("incompatible types: 'any[]' cannot be cast to 'byte[]'", err1.detail()["message"]);
+    assertTypeCastFailureWithMessage(res, "incompatible types: 'any[]' cannot be cast to 'byte[]'");
 }
 
 type Baz "foo"|1;
@@ -938,12 +944,13 @@ function testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
     assertEquality(1, b);
 
     Baz c = "foo";
-    var d = trap <int:Signed16|float> c;
-    assertTrue(d is error);
-    error e = <error> d;
-    assertEquality("{ballerina}TypeCastError", e.message());
-    assertEquality("incompatible types: 'string' cannot be cast to '(lang.int:Signed16|float)'",
-                   <string> checkpanic e.detail()["message"]);
+    assertTypeCastFailureWithMessage(trap <int:Signed16|float> c, "incompatible types: 'string' cannot be cast to '(lang.int:Signed16|float)'");
+}
+
+function testFiniteTypeArrayNegative() {
+    (1|2.0|3.0d)[] a = [];
+    any c = a;
+    assertTypeCastFailureWithMessage(trap <int>c, "incompatible types: '(1|2.0f|3.0d)[]' cannot be cast to 'int'");
 }
 
 // Util functions
@@ -967,4 +974,12 @@ function assertEquality(any|error expected, any|error actual) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+
+function assertTypeCastFailureWithMessage(any|error result, string message) {
+    assertEquality(true, result is error);
+    error err = <error> result;
+    assertEquality(TYPE_CAST_ERROR, err.message());
+    assertEquality(message, err.detail()["message"]);
 }
