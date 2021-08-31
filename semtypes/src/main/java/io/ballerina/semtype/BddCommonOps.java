@@ -15,30 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.subtypedata;
-
-import io.ballerina.semtype.Atom;
-import io.ballerina.semtype.Bdd;
+package io.ballerina.semtype;
 
 /**
- * Bdd node.
+ * Represent the common functions implemented in bdd.bal.
  *
  * @since 2.0.0
  */
-public class BddNode implements Bdd {
-    public Atom atom;
-    public Bdd left;
-    public Bdd middle;
-    public Bdd right;
+public class BddCommonOps {
 
-    private BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
-        this.atom = atom;
-        this.left = left;
-        this.middle = middle;
-        this.right = right;
+    public static Bdd bddUnion(Bdd b1, Bdd b2) {
+        throw new AssertionError("Not Implemented");
     }
 
-    public static synchronized BddNode bddAtom(Atom atom) {
-        return new BddNode(atom, BddBoolean.from(true), BddBoolean.from(false), BddBoolean.from(false));
+    public static Bdd bddIntersect(Bdd b1, Bdd b2) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static Bdd bddDiff(Bdd b1, Bdd b2) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static Bdd bddComplement(Bdd b1) {
+        throw new AssertionError("Not Implemented");
     }
 }
