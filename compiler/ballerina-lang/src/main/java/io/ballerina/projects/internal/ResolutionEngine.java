@@ -182,7 +182,7 @@ public class ResolutionEngine {
             }
 
             resolutionRequests.add(ResolutionRequest.from(pkgDesc, directDependency.scope(),
-                    directDependency.resolutionType(), resolutionOptions.offline(), lockingMode));
+                    directDependency.resolutionType(), lockingMode));
         }
 
         return packageResolver.resolvePackageMetadata(resolutionRequests, resolutionOptions);
@@ -220,8 +220,7 @@ public class ResolutionEngine {
             List<ResolutionRequest> resRequests = new ArrayList<>(unresolvedNodes.size());
             for (DependencyNode unresolvedNode : unresolvedNodes) {
                 resRequests.add(ResolutionRequest.from(unresolvedNode.pkgDesc(),
-                        unresolvedNode.scope(), unresolvedNode.resolutionType(),
-                        resolutionOptions.offline(), lockingMode));
+                        unresolvedNode.scope(), unresolvedNode.resolutionType(), lockingMode));
             }
 
             Collection<PackageMetadataResponse> pkgMetadataResponses =

@@ -55,9 +55,9 @@ public class RemotePackageRepositoryTests {
     PackageDescriptor smtp130 = PackageDescriptor.from(
             PackageOrg.from("ballerinax"), PackageName.from("smtp"), PackageVersion.from("1.3.0"));
     // - Resolution requests
-    ResolutionRequest resHttp120 = ResolutionRequest.from(http120, PackageDependencyScope.DEFAULT, false);
-    ResolutionRequest resCovid156 = ResolutionRequest.from(covid156, PackageDependencyScope.DEFAULT, false);
-    ResolutionRequest resSmtp130 = ResolutionRequest.from(smtp130, PackageDependencyScope.DEFAULT, false);
+    ResolutionRequest resHttp120 = ResolutionRequest.from(http120, PackageDependencyScope.DEFAULT);
+    ResolutionRequest resCovid156 = ResolutionRequest.from(covid156, PackageDependencyScope.DEFAULT);
+    ResolutionRequest resSmtp130 = ResolutionRequest.from(smtp130, PackageDependencyScope.DEFAULT);
 
     ResolutionOptions offlineTrueOption = ResolutionOptions.builder().setOffline(true).build();
     ResolutionOptions offlineFalseOption = ResolutionOptions.builder().setOffline(false).build();
@@ -169,8 +169,8 @@ public class RemotePackageRepositoryTests {
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
 
         // Test call to remote repository
-        ResolutionRequest resHttp120Offline = ResolutionRequest.from(http120, PackageDependencyScope.DEFAULT, true);
-        ResolutionRequest resCovid156Offline = ResolutionRequest.from(covid156, PackageDependencyScope.DEFAULT, true);
+        ResolutionRequest resHttp120Offline = ResolutionRequest.from(http120, PackageDependencyScope.DEFAULT);
+        ResolutionRequest resCovid156Offline = ResolutionRequest.from(covid156, PackageDependencyScope.DEFAULT);
         List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
                 remotePackageRepository.getPackageMetadata(
                         Arrays.asList(resHttp120Offline, resCovid156Offline), offlineTrueOption));

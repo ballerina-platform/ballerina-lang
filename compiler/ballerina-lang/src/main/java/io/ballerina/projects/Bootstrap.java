@@ -205,7 +205,7 @@ public class Bootstrap {
         PackageName pkgName = PackageName.from(packageID.name.getValue());
         PackageVersion pkgVersion = PackageVersion.from(packageID.getPackageVersion().toString());
         PackageDescriptor pkgDesc = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
-        return ResolutionRequest.from(pkgDesc, false);
+        return ResolutionRequest.from(pkgDesc);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

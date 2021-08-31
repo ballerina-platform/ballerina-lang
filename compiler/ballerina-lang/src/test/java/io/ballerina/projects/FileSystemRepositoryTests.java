@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Test file system repository.
@@ -55,10 +54,9 @@ public class FileSystemRepositoryTests {
     public void testGetPackageVersions() {
         ResolutionRequest resolutionRequest = ResolutionRequest.from(
                 PackageDescriptor.from(PackageOrg.from("hevayo"), PackageName.from("package_a"), null),
-                PackageDependencyScope.DEFAULT, true
-        );
+                PackageDependencyScope.DEFAULT);
         Collection<PackageVersion> versions = fileSystemRepository.getPackageVersions(resolutionRequest,
-                ResolutionOptions.builder().build());
+                ResolutionOptions.builder().setOffline(true).build());
         Assert.assertEquals(versions.size(), 2);
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.2")));
         Assert.assertTrue(versions.contains(PackageVersion.from("0.1.5")));

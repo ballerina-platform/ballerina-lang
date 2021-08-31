@@ -294,7 +294,7 @@ public class PackageResolution {
         // Resolve rest of the packages in the graph
         List<ResolutionRequest> resolutionRequests = depGraph.getNodes().stream()
                 .filter(depNode -> !depNode.equals(rootNode)) // Remove root node from the requests
-                .map(depNode -> createFromDepNode(depNode, resolutionOptions.offline()))
+                .map(this::createFromDepNode)
                 .collect(Collectors.toList());
         Collection<ResolutionResponse> resolutionResponses =
                 packageResolver.resolvePackages(resolutionRequests, resolutionOptions);
@@ -335,8 +335,8 @@ public class PackageResolution {
         return depGraphBuilder.build();
     }
 
-    private ResolutionRequest createFromDepNode(DependencyNode depNode, boolean offline) {
-        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType(), offline);
+    private ResolutionRequest createFromDepNode(DependencyNode depNode) {
+        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType());
     }
 
     private DependencyGraph<DependencyNode> createDependencyNodeGraph(
