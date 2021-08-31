@@ -24,7 +24,7 @@ import io.ballerina.semtype.typeops.FunctionOps;
 import io.ballerina.semtype.typeops.IntOps;
 import io.ballerina.semtype.typeops.ListTypeRWOps;
 import io.ballerina.semtype.typeops.ListTypeRoOps;
-import io.ballerina.semtype.typeops.MappingRWOps;
+import io.ballerina.semtype.typeops.MappingRwOps;
 import io.ballerina.semtype.typeops.MappingRoOps;
 import io.ballerina.semtype.typeops.StringOps;
 import io.ballerina.semtype.typeops.UniformTypeOpsPanicImpl;
@@ -60,7 +60,7 @@ public class OpsTable {
         OPS[i++] = PANIC_IMPL;           // RW future
         OPS[i++] = PANIC_IMPL;           // RW stream
         OPS[i++] = new ListTypeRWOps(); // RW list
-        OPS[i++] = new MappingRWOps();  // RW mapping
+        OPS[i++] = new MappingRwOps();  // RW mapping
         OPS[i++] = PANIC_IMPL;           // RW table
         OPS[i++] = PANIC_IMPL;           // RW xml
         OPS[i] = PANIC_IMPL;             // RW object
