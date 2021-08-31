@@ -25,7 +25,7 @@ import io.ballerina.semtype.TypeCheckContext;
  *
  * @since 2.0.0
  */
-public class MappingRWOps extends MappingCommonOps {
+public class MappingRwOps extends MappingCommonOps {
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
         throw new AssertionError();

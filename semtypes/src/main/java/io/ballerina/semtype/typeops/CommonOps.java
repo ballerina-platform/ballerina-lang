@@ -17,6 +17,7 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Bdd;
 import io.ballerina.semtype.CommonUniformTypeOps;
 import io.ballerina.semtype.SubtypeData;
 
@@ -28,21 +29,21 @@ import io.ballerina.semtype.SubtypeData;
 public abstract class CommonOps implements CommonUniformTypeOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+        return BddCommonOps.bddUnion((Bdd) t1, (Bdd) t2);
     }
 
     @Override
     public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+        return BddCommonOps.bddIntersect((Bdd) t1, (Bdd) t2);
     }
 
     @Override
     public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+        return BddCommonOps.bddDiff((Bdd) t1, (Bdd) t2);
     }
 
     @Override
     public SubtypeData complement(SubtypeData t) {
-        throw new AssertionError();
+        return BddCommonOps.bddComplement((Bdd) t);
     }
 }

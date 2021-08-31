@@ -17,8 +17,9 @@
  */
 package io.ballerina.semtype;
 
-import io.ballerina.semtype.subtypedata.BddBoolean;
+import io.ballerina.semtype.subtypedata.BddAllOrNothing;
 import io.ballerina.semtype.subtypedata.BddNode;
+import io.ballerina.semtype.typeops.BddCommonOps;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -63,8 +64,8 @@ public class Common {
 
     public static boolean bddEvery(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg, BddPredicate predicate)
             throws InvocationTargetException, IllegalAccessException {
-        if (b instanceof BddBoolean) {
-            return !(((BddBoolean) b).leaf) || predicate.apply(tc, pos, neg);
+        if (b instanceof BddAllOrNothing) {
+            return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
             return bddEvery(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
@@ -75,8 +76,8 @@ public class Common {
 
     public static boolean bddEveryPositive(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg,
                                            BddPredicate predicate) {
-        if (b instanceof BddBoolean) {
-            return !(((BddBoolean) b).leaf) || predicate.apply(tc, pos, neg);
+        if (b instanceof BddAllOrNothing) {
+            return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
             return bddEveryPositive(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
@@ -92,14 +93,13 @@ public class Common {
     We want to share BDDs between the RW and RO case, so we cannot change how the BDD is interpreted.
     Instead, we transform the BDD to avoid cases that would give the wrong answer.
     Atom index 0 is LIST_SUBTYPE_RO and MAPPING_SUBTYPE_RO */
-
     public static Bdd bddFixReadOnly(Bdd b) {
-        return bddPosMaybeEmpty(b) ? BddCommonOps.bddIntersect(b, BddNode.bddAtom(RecAtom.createRecAtom(0))) : b;
+        return bddPosMaybeEmpty(b) ? BddCommonOps.bddIntersect(b, BddCommonOps.bddAtom(RecAtom.createRecAtom(0))) : b;
     }
 
     public static boolean bddPosMaybeEmpty(Bdd b) {
-        if (b instanceof BddBoolean) {
-            return ((BddBoolean) b).leaf;
+        if (b instanceof BddAllOrNothing) {
+            return ((BddAllOrNothing) b).isAll();
         } else {
             BddNode bn = (BddNode) b;
             return bddPosMaybeEmpty(bn.middle) || bddPosMaybeEmpty(bn.right);

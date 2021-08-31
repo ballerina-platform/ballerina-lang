@@ -17,6 +17,8 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Conjunction;
+import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
 
 // todo: use this to place common things between Ro and RW, if there are non; delete this.
@@ -26,5 +28,9 @@ import io.ballerina.semtype.UniformTypeOps;
  * @since 2.0.0
  */
 public abstract class MappingCommonOps extends CommonOps implements UniformTypeOps {
+
+    public static boolean mappingFormulaIsEmpty(TypeCheckContext tc, Conjunction posList, Conjunction negList) {
+        throw new AssertionError();
+    }
 
 }

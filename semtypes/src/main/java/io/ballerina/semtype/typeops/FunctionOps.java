@@ -27,7 +27,7 @@ import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
-import io.ballerina.semtype.subtypedata.BddBoolean;
+import io.ballerina.semtype.subtypedata.BddAllOrNothing;
 import io.ballerina.semtype.subtypedata.BddNode;
 
 import java.io.PrintStream;
@@ -73,8 +73,8 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
     }
 
     private boolean functionBddIsEmpty(TypeCheckContext tc, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
-        if (b instanceof BddBoolean) {
-            if (!((BddBoolean) b).leaf) {
+        if (b instanceof BddAllOrNothing) {
+            if (((BddAllOrNothing) b).isAll()) {
                 return true;
             }
             if (neg == null) {
@@ -85,7 +85,7 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
                 SemType t0 = t.paramType;
                 SemType t1 = t.retType;
                 return (Core.isSubtype(tc, t0, s) && functionTheta(tc, t0, Core.complement(t1), pos))
-                        || functionBddIsEmpty(tc, BddBoolean.from(true), s, pos, neg.next);
+                        || functionBddIsEmpty(tc, BddAllOrNothing.bddAll(), s, pos, neg.next);
             }
         } else {
             BddNode bn = (BddNode) b;

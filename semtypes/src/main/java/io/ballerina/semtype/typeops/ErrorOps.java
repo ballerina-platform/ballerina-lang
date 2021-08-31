@@ -17,6 +17,9 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Bdd;
+import io.ballerina.semtype.BddMemo;
+import io.ballerina.semtype.Common;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
@@ -27,8 +30,26 @@ import io.ballerina.semtype.UniformTypeOps;
  * @since 2.0.0
  */
 public class ErrorOps extends CommonOps implements UniformTypeOps {
+
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+        Bdd b = Common.bddFixReadOnly((Bdd) t);
+        BddMemo mm = tc.mappingMemo.get(b);
+        BddMemo m;
+        if (mm == null) {
+            m = BddMemo.from(b);
+            tc.mappingMemo.put(m.bdd, m);
+        } else {
+            m = mm;
+            BddMemo.MemoStatus res = m.isEmpty;
+            if (res == BddMemo.MemoStatus.NOT_SET) {
+                return true;
+            } else {
+                return res == BddMemo.MemoStatus.TRUE;
+            }
+        }
+        boolean isEmpty = Common.bddEveryPositive(tc, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
+        m.setIsEmpty(isEmpty);
+        return isEmpty;
     }
 }

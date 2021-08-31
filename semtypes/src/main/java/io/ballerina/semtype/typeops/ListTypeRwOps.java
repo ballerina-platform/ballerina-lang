@@ -15,14 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.subtypedata;
+package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.Bdd;
+import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.TypeCheckContext;
+import io.ballerina.semtype.UniformTypeOps;
 
 /**
- * Represent boolean subtype of Bdd type.
+ * List read/write specific methods operate on SubtypeData.
  *
  * @since 2.0.0
  */
-public class AllOrNothingBdd implements Bdd {
+public class ListTypeRwOps extends CommonOps implements UniformTypeOps {
+    @Override
+    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+        throw new AssertionError();
+    }
 }
