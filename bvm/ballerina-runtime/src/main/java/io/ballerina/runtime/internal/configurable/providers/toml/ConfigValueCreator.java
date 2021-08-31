@@ -34,13 +34,13 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.TypeUtils;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
+import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
@@ -199,7 +199,7 @@ public class ConfigValueCreator {
             recordName = type.getName();
             recordType = (RecordType) type;
         } else {
-            recordType = (RecordType) TypeUtils.getMutableType((BIntersectionType) type);
+            recordType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
             recordName = recordType.getName();
         }
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;
@@ -227,7 +227,7 @@ public class ConfigValueCreator {
                 constraintType = ((IntersectionType) constraintType).getEffectiveType();
             }
             if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                tableType = (TableType) TypeUtils.getMutableType((BIntersectionType) type);
+                tableType = (TableType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
             }
         } else {
             tableType = (TableType) type;
