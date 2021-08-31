@@ -68,6 +68,6 @@ public class BddAllOrNothing implements Bdd {
 
     @Override
     public int hashCode() {
-        return (isAll ? 1 : 0);
+        return 0xa11084 + (isAll ? 1 : 0);
     }
 }

@@ -25,9 +25,26 @@ import io.ballerina.semtype.Bdd;
  * @since 2.0.0
  */
 public class BddBoolean implements Bdd {
-    public boolean leaf;
+    public final boolean leaf;
 
     public BddBoolean(boolean leaf) {
         this.leaf = leaf;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o instanceof BddBoolean) {
+            return this.leaf == ((BddBoolean) o).leaf;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return 0xbb0e + (leaf ? 1 : 0);
     }
 }

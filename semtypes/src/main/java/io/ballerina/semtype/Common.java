@@ -18,16 +18,30 @@
 package io.ballerina.semtype;
 
 /**
- * FunctionAtomicType node.
+ * Placeholder for common class.
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public final SemType paramType;
-    public final SemType retType;
+public class Common {
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    public static boolean bddEveryPositive(TypeCheckContext tc,
+                                   Bdd b,
+                                   Conjunction pos,
+                                   Conjunction neg,
+                                   BddPredicate predicate) {
+        throw new AssertionError();
+    }
+
+    public static Bdd bddFixReadOnly(Bdd t) {
+        throw new AssertionError();
+    }
+
+    /**
+     * Function interface used for method references.
+     *
+     * @since 2.0.0
+     */
+    public interface BddPredicate {
+        boolean apply(TypeCheckContext tc, Conjunction posList, Conjunction negList);
     }
 }
