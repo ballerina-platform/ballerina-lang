@@ -52,4 +52,38 @@ public class Common {
         return Collections.unmodifiableList(types);
     }
 
+    /* [from nballerina] The goal of this is to ensure that mappingFormulaIsEmpty does
+    not get an empty posList, because it will interpret that
+    as `map<any|error>` rather than `map<readonly>`.
+    Similarly, for listFormulaIsEmpty.
+    We want to share BDDs between the RW and RO case so we cannot change how the BDD is interpreted.
+    Instead, we transform the BDD to avoid cases that would give the wrong answer.
+    Atom index 0 is LIST_SUBTYPE_RO and MAPPING_SUBTYPE_RO */
+    public static Bdd bddFixReadOnly(Bdd b) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static boolean bddPosMaybeEmpty(Bdd b) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static Conjunction andIfPositive(Atom atom, Conjunction next) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static SubtypeData bddSubtypeUnion(SubtypeData t1, SubtypeData t2) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static SubtypeData bddSubtypeIntersect(SubtypeData t1, SubtypeData t2) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static SubtypeData bddSubtypeDiff(SubtypeData t1, SubtypeData t2) {
+        throw new AssertionError("Not Implemented");
+    }
+
+    public static SubtypeData bddSubtypeComplement(SubtypeData t1, SubtypeData t2) {
+        throw new AssertionError("Not Implemented");
+    }
 }
