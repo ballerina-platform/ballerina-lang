@@ -282,20 +282,40 @@ function removeIfHasKey() returns boolean {
     return removedPerson1 == () && removedPerson2?.name == "Chiran";
 }
 
+type age record {
+    int|string? age;
+};
+
+type NewPerson record {
+  string name;
+  readonly age age;
+};
+
+type NewPersonalTable table<NewPerson> key(age);
+
 function testHasKey() {
-    table<record { readonly int|string|float? k; }> key(k) tbl = table[];
-    tbl.add({k: 0});
-    tbl.add({k: 5});
-    tbl.add({k: -31});
-    tbl.add({k: "10"});
-    tbl.add({k: 100.05});
-    assertFalse(tbl.hasKey(()));
-    assertFalse(tbl.hasKey(30));
-    assertTrue(tbl.hasKey(0));
-    assertTrue(tbl.hasKey(-31));
-    assertTrue(tbl.hasKey(5));
-    assertFalse(tbl.hasKey(10));
-    assertFalse(tbl.hasKey("100.05"));
+    table<record { readonly int|string|float? k; }> key(k) tbl1 = table[];
+    tbl1.add({k: 0});
+    tbl1.add({k: 5});
+    tbl1.add({k: -31});
+    tbl1.add({k: "10"});
+    tbl1.add({k: 100.05});
+    assertFalse(tbl1.hasKey(()));
+    assertFalse(tbl1.hasKey(30));
+    assertTrue(tbl1.hasKey(0));
+    assertTrue(tbl1.hasKey(-31));
+    assertTrue(tbl1.hasKey(5));
+    assertFalse(tbl1.hasKey(10));
+    assertFalse(tbl1.hasKey("100.05"));
+
+    NewPersonalTable tbl2 = table key(age) [{ name: "Chiran", age: {age: ()}},
+        { name: "Mohan", age: {age: 54} },
+        { name: "Gima", age: {age: "34"} },
+        { name: "Granier", age: {age: "65"} }];
+    assertFalse(tbl2.hasKey({age: 0}));
+    assertFalse(tbl2.hasKey({age: 34}));
+    assertTrue(tbl2.hasKey({age: 54}));
+    assertTrue(tbl2.hasKey({age: "65"}));
 }
 
 function testGetKeyList() returns any[] {
