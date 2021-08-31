@@ -18,16 +18,9 @@
 package io.ballerina.semtype;
 
 /**
- * FunctionAtomicType node.
+ * Interface to indicate Enumerable types.
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public SemType paramType;
-    public SemType retType;
-
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
-    }
+public interface EnumerableType {
 }

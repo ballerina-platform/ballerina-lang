@@ -15,19 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.typeops;
+
+import io.ballerina.semtype.SemType;
+import io.ballerina.semtype.UniformTypeBitSet;
+
+import java.util.Iterator;
 
 /**
- * FunctionAtomicType node.
+ * Ballerina iterator is similar to an iterable in Java.
+ * This class implements the iterable for `SubtypePairIteratorImpl`
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public SemType paramType;
-    public SemType retType;
+public class SubtypePairs implements Iterable<SubtypePair> {
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    private final SemType t1;
+    private final SemType t2;
+    private final UniformTypeBitSet bits;
+
+    public SubtypePairs(SemType t1, SemType t2, UniformTypeBitSet bits) {
+        this.t1 = t1;
+        this.t2 = t2;
+        this.bits = bits;
+    }
+
+    @Override
+    public Iterator<SubtypePair> iterator() {
+        return new SubtypePairIterator(t1, t2, bits);
     }
 }

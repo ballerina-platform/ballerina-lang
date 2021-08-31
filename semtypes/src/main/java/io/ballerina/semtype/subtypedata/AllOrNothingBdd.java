@@ -15,19 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.subtypedata;
+
+import io.ballerina.semtype.Bdd;
 
 /**
- * FunctionAtomicType node.
+ * Represent boolean subtype of Bdd type.
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public SemType paramType;
-    public SemType retType;
-
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
-    }
+public class AllOrNothingBdd implements Bdd {
 }

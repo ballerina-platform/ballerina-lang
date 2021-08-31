@@ -15,36 +15,40 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.subtypedata;
+package io.ballerina.semtype.typeops;
 
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.TypeCheckContext;
+import io.ballerina.semtype.UniformTypeOps;
 
 /**
- * A subtype representing either all subtypes or nothing.
- * This is the Java representation of the `boolean` found in `SubtypeData` type in Ballerina impl.
+ * Uniform subtype ops for string type.
  *
  * @since 2.0.0
  */
-public class AllOrNothingSubtype implements SubtypeData {
-    private final boolean isAll;
-
-    AllOrNothingSubtype(boolean isAll) {
-        this.isAll = isAll;
+public class StringOps implements UniformTypeOps {
+    @Override
+    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
+        throw new AssertionError();
     }
 
-    public static AllOrNothingSubtype createAll() {
-        return new AllOrNothingSubtype(true);
+    @Override
+    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
+        throw new AssertionError();
     }
 
-    public static AllOrNothingSubtype createNothing() {
-        return new AllOrNothingSubtype(false);
+    @Override
+    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
+        throw new AssertionError();
     }
 
-    public boolean isAllSubtype() {
-        return this.isAll;
+    @Override
+    public SubtypeData complement(SubtypeData t) {
+        throw new AssertionError();
     }
 
-    public boolean isNothingSubtype() {
-        return !this.isAll;
+    @Override
+    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+        throw new AssertionError();
     }
 }

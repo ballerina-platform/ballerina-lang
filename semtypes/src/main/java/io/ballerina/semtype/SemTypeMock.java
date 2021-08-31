@@ -30,7 +30,6 @@ public interface SemTypeMock {
 class ComplexSemTypeMock implements SemTypeMock {
     UniformTypeBitSet all;
     UniformTypeBitSet some;
-
 }
 
 /**

@@ -17,9 +17,12 @@
  */
 package io.ballerina.semtype.definition;
 
+import io.ballerina.semtype.ComplexSemType;
 import io.ballerina.semtype.Definition;
 import io.ballerina.semtype.Env;
 import io.ballerina.semtype.SemType;
+
+import java.util.List;
 
 /**
  * Represent list/tuple type desc.
@@ -30,5 +33,9 @@ public class ListDefinition implements Definition {
     @Override
     public SemType getSemType(Env env) {
         throw new AssertionError();
+    }
+
+    public ComplexSemType define(Env env, List<SemType> members, SemType rest) {
+        throw new IllegalStateException();
     }
 }

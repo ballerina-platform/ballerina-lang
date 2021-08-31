@@ -18,16 +18,16 @@
 package io.ballerina.semtype;
 
 /**
- * FunctionAtomicType node.
- *
- * @since 2.0.0
+ * Represent `Value` type.
  */
-public class FunctionAtomicType implements AtomicType {
-    public SemType paramType;
-    public SemType retType;
+public class Value {
+    final Object value;
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    private Value(Object value) {
+        this.value = value;
+    }
+
+    public static Value from(Object value) {
+        return new Value(value);
     }
 }
