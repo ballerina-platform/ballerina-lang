@@ -694,14 +694,14 @@ public class TypeParamAnalyzer {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) expType).eType;
                 BType matchingBoundElementType = getMatchingBoundType(elementType, env, resolvedTypes);
-                if (matchingBoundElementType == elementType) {
+                if (matchingBoundElementType == types.getConstraintFromReferenceType(elementType)) {
                     return expType;
                 }
                 return new BArrayType(matchingBoundElementType);
             case TypeTags.MAP:
                 BType constraint = ((BMapType) expType).constraint;
                 BType matchingBoundMapConstraintType = getMatchingBoundType(constraint, env, resolvedTypes);
-                if (matchingBoundMapConstraintType == constraint) {
+                if (matchingBoundMapConstraintType == types.getConstraintFromReferenceType(constraint)) {
                     return expType;
                 }
                 return new BMapType(TypeTags.MAP, matchingBoundMapConstraintType, symTable.mapType.tsymbol);
@@ -716,7 +716,8 @@ public class TypeParamAnalyzer {
                     completionType = symTable.nilType;
                 }
 
-                if (expStreamConstraint == constraintType && expStreamCompletionType == completionType) {
+                if (types.getConstraintFromReferenceType(expStreamConstraint) == constraintType
+                        && types.getConstraintFromReferenceType(expStreamCompletionType) == completionType) {
                     return expStreamType;
                 }
 
@@ -725,13 +726,14 @@ public class TypeParamAnalyzer {
                 BTableType expTableType = (BTableType) expType;
                 BType expTableConstraint = expTableType.constraint;
                 BType tableConstraint = getMatchingBoundType(expTableConstraint, env, resolvedTypes);
-                boolean differentTypes = expTableConstraint != tableConstraint;
+                boolean differentTypes = types.getConstraintFromReferenceType(expTableConstraint) != tableConstraint;
 
                 BType expTableKeyTypeConstraint = expTableType.keyTypeConstraint;
                 BType keyTypeConstraint = null;
                 if (expTableKeyTypeConstraint != null) {
                     keyTypeConstraint = getMatchingBoundType(expTableKeyTypeConstraint, env, resolvedTypes);
-                    differentTypes = differentTypes || expTableKeyTypeConstraint != keyTypeConstraint;
+                    differentTypes = differentTypes ||
+                            types.getConstraintFromReferenceType(expTableKeyTypeConstraint) != keyTypeConstraint;
                 }
 
                 if (!differentTypes) {
