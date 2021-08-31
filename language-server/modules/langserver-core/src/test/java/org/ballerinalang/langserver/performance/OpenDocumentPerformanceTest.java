@@ -27,7 +27,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -38,7 +37,6 @@ public class OpenDocumentPerformanceTest extends CompletionPerformanceTest {
 
     private Endpoint serviceEndpoint;
     private final Path testRoot = FileUtils.RES_DIR.resolve("performance");
-    private final String configDir = "config";
 
     @BeforeClass
     public void init() {
@@ -46,9 +44,8 @@ public class OpenDocumentPerformanceTest extends CompletionPerformanceTest {
     }
 
     @Test(dataProvider = "performance-data-provider")
-    public void testCompletion(String config, String configPath) throws IOException {
-        String configJsonPath = "performance" + File.separator + configPath
-                + File.separator + configDir + File.separator + config;
+    public void testCompletion(String config) throws IOException {
+        String configJsonPath = getConfigJsonPath(config);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         long actualResponseTime = getResponseTimeCompletion(configJsonObject);
@@ -73,13 +70,9 @@ public class OpenDocumentPerformanceTest extends CompletionPerformanceTest {
     }
 
     @DataProvider(name = "performance-data-provider")
-    @Override
     public Object[][] dataProvider() {
-        return this.getConfigsList();
-    }
-
-    @Override
-    public String getTestResourceDir() {
-        return "performance_completion";
+        return new Object[][]{
+                {"performance_completion.json"},
+        };
     }
 }

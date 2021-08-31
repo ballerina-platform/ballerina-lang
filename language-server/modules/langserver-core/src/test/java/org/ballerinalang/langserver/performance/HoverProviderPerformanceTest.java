@@ -46,10 +46,10 @@ public class HoverProviderPerformanceTest {
     }
 
     @Test(description = "Test Hover provider", dataProvider = "performance-data-provider")
-    public void testHover(String config, String source) throws IOException {
+    public void testHover(String config) throws IOException {
         String configJsonPath = getConfigJsonPath(config);
-        Path sourcePath = testRoot.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         Position position = getPosition(configJsonObject);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
 
@@ -73,12 +73,12 @@ public class HoverProviderPerformanceTest {
     @DataProvider(name = "performance-data-provider")
     protected Object[][] dataProvider() {
         return new Object[][]{
-                {"performance_hover.json", "performance_hover.bal"},
+                {"performance_hover.json"},
         };
     }
 
     private String getConfigJsonPath(String configFilePath) {
-        return "performance" + File.separator + getResourceDir() + File.separator + "config" + File.separator +
+        return "performance" + File.separator + "configs" + File.separator + getResourceDir() + File.separator +
                 configFilePath;
     }
 
