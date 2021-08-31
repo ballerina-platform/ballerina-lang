@@ -3,6 +3,7 @@ package org.ballerinalang.diagramutil.connector.models.connector;
 import com.google.gson.annotations.Expose;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaRecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
@@ -57,6 +58,8 @@ public class Type {
     @Expose
     public String documentation;
 
+    static ArrayList<String> parentSymbols = new ArrayList<String>();
+
     public static Type fromSyntaxNode(Node node, SemanticModel semanticModel) {
         Type type = null;
         if (node instanceof SimpleNameReferenceNode || node instanceof QualifiedNameReferenceNode) {
@@ -68,6 +71,7 @@ public class Type {
             if (optSymbol != null && optSymbol.isPresent()) {
                 Symbol symbol = optSymbol.get();
                 type = fromSemanticSymbol(symbol);
+                parentSymbols.clear();
             }
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
@@ -141,17 +145,7 @@ public class Type {
     }
 
     public static Type fromSemanticSymbol(Symbol symbol) {
-        return fromSemanticSymbol(symbol, 0);
-    }
-
-    public static Type fromSemanticSymbol(Symbol symbol, int depth) {
         Type type = null;
-        final int maximumDepth = 14;
-
-        if (depth > maximumDepth) {
-            // Handle too may recursions
-            return null;
-        }
 
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) symbol;
@@ -159,14 +153,14 @@ public class Type {
                 List<Type> fields = new ArrayList<>();
                 ((UnionTypeSymbol) typeReferenceTypeSymbol.typeDescriptor()).memberTypeDescriptors()
                         .forEach(typeSymbol -> {
-                            Type semanticSymbol = fromSemanticSymbol(typeSymbol, depth + 1);
+                            Type semanticSymbol = fromSemanticSymbol(typeSymbol);
                             if (semanticSymbol != null) {
                                 fields.add(semanticSymbol);
                             }
                         });
                 type = new EnumType(fields);
             } else {
-                type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor(), depth + 1);
+                type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor());
             }
             if (type != null && symbol.getName().isPresent() && symbol.getModule().isPresent()) {
                 ModuleID moduleID = symbol.getModule().get().id();
@@ -177,9 +171,15 @@ public class Type {
             }
         } else if (symbol instanceof RecordTypeSymbol) {
             RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) symbol;
+            String symbolName = ((BallerinaRecordTypeSymbol) recordTypeSymbol).getBType().toString();
+            if (parentSymbols.contains(symbolName)) {
+                return null; // End the recursion if parent record found
+            }
+            parentSymbols.add(symbolName);
+
             List<Type> fields = new ArrayList<>();
             recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
-                Type subType = fromSemanticSymbol(field.typeDescriptor(), depth + 1);
+                Type subType = fromSemanticSymbol(field.typeDescriptor());
                 if (subType != null) {
                     subType.name = name;
                     subType.optional = field.isOptional();
@@ -187,16 +187,16 @@ public class Type {
                 }
             });
             Type restType = recordTypeSymbol.restTypeDescriptor().isPresent() ?
-                    fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get(), depth + 1) : null;
+                    fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get()) : null;
             type = new RecordType(fields, restType);
         } else if (symbol instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
-            type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor(), depth + 1));
+            type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor()));
         } else if (symbol instanceof UnionTypeSymbol) {
             UnionTypeSymbol unionSymbol = (UnionTypeSymbol) symbol;
             UnionType unionType = new UnionType();
             unionSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
-                Type semanticSymbol = fromSemanticSymbol(typeSymbol, depth + 1);
+                Type semanticSymbol = fromSemanticSymbol(typeSymbol);
                 if (semanticSymbol != null) {
                     unionType.members.add(semanticSymbol);
                 }
@@ -213,14 +213,14 @@ public class Type {
             ErrorTypeSymbol errSymbol = (ErrorTypeSymbol) symbol;
             ErrorType errType = new ErrorType();
             if (errSymbol.detailTypeDescriptor() instanceof TypeReferenceTypeSymbol) {
-                errType.detailType = fromSemanticSymbol(errSymbol.detailTypeDescriptor(), depth + 1);
+                errType.detailType = fromSemanticSymbol(errSymbol.detailTypeDescriptor());
             }
             type = errType;
         } else if (symbol instanceof IntersectionTypeSymbol) {
             IntersectionTypeSymbol intersectionTypeSymbol = (IntersectionTypeSymbol) symbol;
             IntersectionType intersectionType = new IntersectionType();
             intersectionTypeSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
-                Type semanticSymbol = fromSemanticSymbol(typeSymbol, depth + 1);
+                Type semanticSymbol = fromSemanticSymbol(typeSymbol);
                 if (semanticSymbol != null) {
                     intersectionType.members.add(semanticSymbol);
                 }
