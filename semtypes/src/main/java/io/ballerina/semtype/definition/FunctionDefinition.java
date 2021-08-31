@@ -19,7 +19,12 @@ package io.ballerina.semtype.definition;
 
 import io.ballerina.semtype.Definition;
 import io.ballerina.semtype.Env;
+import io.ballerina.semtype.FunctionAtomicType;
+import io.ballerina.semtype.PredefinedType;
+import io.ballerina.semtype.RecAtom;
 import io.ballerina.semtype.SemType;
+import io.ballerina.semtype.UniformTypeCode;
+import io.ballerina.semtype.typeops.BddCommonOps;
 
 /**
  * Represent function type desc.
@@ -27,8 +32,24 @@ import io.ballerina.semtype.SemType;
  * @since 2.0.0
  */
 public class FunctionDefinition implements Definition {
+
+    private RecAtom atom;
+    private SemType semType;
+
+    public FunctionDefinition(Env env) {
+        FunctionAtomicType dummy = new FunctionAtomicType(PredefinedType.NEVER, PredefinedType.NEVER);
+        this.atom = env.recFunctionAtom();
+        this.semType = PredefinedType.uniformSubtype(UniformTypeCode.UT_FUNCTION, BddCommonOps.bddAtom(this.atom));
+    }
+
     @Override
     public SemType getSemType(Env env) {
-        throw new AssertionError();
+        return this.semType;
+    }
+
+    public SemType define(Env env, SemType args, SemType ret) {
+        FunctionAtomicType t = new FunctionAtomicType(args, ret);
+        env.setRecFunctionAtomType(this.atom, t);
+        return this.semType;
     }
 }

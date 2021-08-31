@@ -15,19 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.definition;
+
+import io.ballerina.semtype.SemType;
 
 /**
- * FunctionAtomicType node.
- *
- * @since 2.0.0
+ * Represent a record field in a type-descriptor.
  */
-public class FunctionAtomicType implements AtomicType {
-    public final SemType paramType;
-    public final SemType retType;
+public class Field {
+    public final String name;
+    public final SemType type;
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    private Field(String name, SemType type) {
+        this.name = name;
+        this.type = type;
+    }
+
+    public static Field from(String name, SemType type) {
+        return new Field(name, type);
     }
 }

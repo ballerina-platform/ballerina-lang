@@ -17,33 +17,27 @@
  */
 package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.Bdd;
-import io.ballerina.semtype.CommonUniformTypeOps;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformTypeCode;
 
 /**
- * Common methods operate on SubtypeData.
+ * Represent a 3-tuple containing paired-up subtype data.
  *
  * @since 2.0.0
  */
-public abstract class CommonOps implements CommonUniformTypeOps {
-    @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddUnion((Bdd) t1, (Bdd) t2);
+public class SubtypePair {
+    public final UniformTypeCode uniformTypeCode;
+    public final SubtypeData subtypeData1;
+    public final SubtypeData subtypeData2;
+
+    private SubtypePair(UniformTypeCode uniformTypeCode, SubtypeData subtypeData1, SubtypeData subtypeData2) {
+        this.uniformTypeCode = uniformTypeCode;
+        this.subtypeData1 = subtypeData1;
+        this.subtypeData2 = subtypeData2;
     }
 
-    @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddIntersect((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddDiff((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData complement(SubtypeData t) {
-        return BddCommonOps.bddComplement((Bdd) t);
+    public static SubtypePair create(UniformTypeCode uniformTypeCode,
+                                     SubtypeData subtypeData1, SubtypeData subtypeData2) {
+        return new SubtypePair(uniformTypeCode, subtypeData1, subtypeData2);
     }
 }

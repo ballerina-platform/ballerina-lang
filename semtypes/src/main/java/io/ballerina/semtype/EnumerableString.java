@@ -18,16 +18,18 @@
 package io.ballerina.semtype;
 
 /**
- * FunctionAtomicType node.
+ * Enumerable type wrapper for string.
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public final SemType paramType;
-    public final SemType retType;
+public class EnumerableString implements EnumerableType {
+    final String value;
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    private EnumerableString(String value) {
+        this.value = value;
+    }
+
+    public static EnumerableString from(String v) {
+        return new EnumerableString(v);
     }
 }
