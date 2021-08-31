@@ -17,10 +17,15 @@
  */
 package io.ballerina.semtype;
 
+import io.ballerina.semtype.subtypedata.BddBoolean;
+import io.ballerina.semtype.subtypedata.BddNode;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * Code common to implementation of multiple basic types.
@@ -52,38 +57,72 @@ public class Common {
         return Collections.unmodifiableList(types);
     }
 
+    // [from nballerina] A Bdd represents a disjunction of conjunctions of atoms, where each atom is either positive or
+    // negative (negated). Each path from the root to a leaf that is true represents one of the conjunctions
+    // We walk the tree, accumulating the positive and negative conjunctions for a path as we go.
+    // When we get to a leaf that is true, we apply the predicate to the accumulated conjunctions.
+
+    public static boolean bddEvery(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg, Method predicate)
+            throws InvocationTargetException, IllegalAccessException {
+        if (b instanceof BddBoolean) {
+            return !(((BddBoolean) b).leaf) || (boolean) predicate.invoke(tc, pos, neg);
+        } else {
+            BddNode bn = (BddNode) b;
+            return bddEvery(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
+                    && bddEvery(tc, bn.middle, pos, neg, predicate)
+                    && bddEvery(tc, bn.right, pos, Conjunction.and(bn.atom, neg), predicate);
+        }
+    }
+
+    public static boolean bddEveryPositive(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg, Method predicate)
+            throws InvocationTargetException, IllegalAccessException {
+        if (b instanceof BddBoolean) {
+            return !(((BddBoolean) b).leaf) || (boolean) predicate.invoke(tc, pos, neg);
+        } else {
+            BddNode bn = (BddNode) b;
+            return bddEveryPositive(tc, bn.left, Conjunction.and(bn.atom, pos), neg, predicate)
+                    && bddEveryPositive(tc, bn.middle, pos, neg, predicate)
+                    && bddEveryPositive(tc, bn.right, pos, Conjunction.and(bn.atom, neg), predicate);
+        }
+    }
+
     /* [from nballerina] The goal of this is to ensure that mappingFormulaIsEmpty does
     not get an empty posList, because it will interpret that
     as `map<any|error>` rather than `map<readonly>`.
     Similarly, for listFormulaIsEmpty.
-    We want to share BDDs between the RW and RO case so we cannot change how the BDD is interpreted.
+    We want to share BDDs between the RW and RO case, so we cannot change how the BDD is interpreted.
     Instead, we transform the BDD to avoid cases that would give the wrong answer.
     Atom index 0 is LIST_SUBTYPE_RO and MAPPING_SUBTYPE_RO */
+
     public static Bdd bddFixReadOnly(Bdd b) {
-        throw new AssertionError("Not Implemented");
+        return bddPosMaybeEmpty(b) ? BddCommonOps.bddIntersect(b, BddNode.bddAtom(RecAtom.createRecAtom(0))) : b;
     }
 
     public static boolean bddPosMaybeEmpty(Bdd b) {
-        throw new AssertionError("Not Implemented");
+        if (b instanceof BddBoolean) {
+            return ((BddBoolean) b).leaf;
+        } else {
+            BddNode bn = (BddNode) b;
+            return bddPosMaybeEmpty(bn.middle) || bddPosMaybeEmpty(bn.right);
+        }
     }
 
     public static Conjunction andIfPositive(Atom atom, Conjunction next) {
+        if (atom instanceof RecAtom && ((RecAtom) atom).index <0) {
+            return next;
+        }
+        return Conjunction.and(atom, next);
+    }
+
+    public static SemType[] shallowCopyTypes(SemType[] v) {
         throw new AssertionError("Not Implemented");
     }
 
-    public static SubtypeData bddSubtypeUnion(SubtypeData t1, SubtypeData t2) {
+    public static String[] shallowCopyTypes(String[] v) {
         throw new AssertionError("Not Implemented");
     }
 
-    public static SubtypeData bddSubtypeIntersect(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError("Not Implemented");
-    }
-
-    public static SubtypeData bddSubtypeDiff(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError("Not Implemented");
-    }
-
-    public static SubtypeData bddSubtypeComplement(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError("Not Implemented");
+    public static boolean notIsEmpty(TypeCheckContext tc, SubtypeData d) {
+        return false;
     }
 }
