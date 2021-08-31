@@ -27,7 +27,11 @@ import io.ballerina.semtype.Bdd;
 public class BddBoolean implements Bdd {
     public boolean leaf;
 
-    public BddBoolean(boolean leaf) {
+    private BddBoolean(boolean leaf) {
         this.leaf = leaf;
+    }
+
+    public static BddBoolean from(boolean leaf) {
+        return new BddBoolean(leaf);
     }
 }

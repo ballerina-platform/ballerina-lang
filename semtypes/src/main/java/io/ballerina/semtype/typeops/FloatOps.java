@@ -1,5 +1,6 @@
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Common;
 import io.ballerina.semtype.EnumerableFloat;
 import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.SubtypeData;
@@ -42,6 +43,6 @@ public class FloatOps extends CommonOps implements UniformTypeOps {
 
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw  new IllegalStateException();
+        return Common.notIsEmpty(tc, t);
     }
 }
