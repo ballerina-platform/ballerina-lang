@@ -95,13 +95,10 @@ public class TableUtils {
                 }
                 return result;
             } else {
-                return (long) obj.toString().hashCode();
+                return (long) 31 * TypeChecker.getType(obj).getTag() + obj.toString().hashCode();
             }
         } else {
-            if (obj instanceof BmpStringValue) {
-                return (long) (obj.toString().concat(" ")).hashCode();
-            }
-            return (long) obj.toString().hashCode();
+            return (long) 31 * TypeChecker.getType(obj).getTag() + obj.toString().hashCode();
         }
     }
 
