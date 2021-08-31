@@ -20,6 +20,7 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -49,7 +50,7 @@ public class TypeCastExpressionEvaluator extends Evaluator {
     private final TypeCastExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public TypeCastExpressionEvaluator(SuspendedContext context, TypeCastExpressionNode typeCastExpressionNode,
+    public TypeCastExpressionEvaluator(EvaluationContext context, TypeCastExpressionNode typeCastExpressionNode,
                                        Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = typeCastExpressionNode;

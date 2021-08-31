@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -54,7 +54,7 @@ public class NewExpressionEvaluator extends Evaluator {
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
     private static final String OBJECT_INIT_METHOD_NAME = "init";
 
-    public NewExpressionEvaluator(SuspendedContext context, ExpressionNode newExpressionNode, List<Map.Entry<String,
+    public NewExpressionEvaluator(EvaluationContext context, ExpressionNode newExpressionNode, List<Map.Entry<String,
             Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = newExpressionNode;

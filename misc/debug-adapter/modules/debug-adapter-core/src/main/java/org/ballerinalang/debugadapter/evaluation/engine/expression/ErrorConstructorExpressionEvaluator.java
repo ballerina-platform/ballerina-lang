@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -51,7 +52,7 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
     private final ErrorConstructorExpressionNode syntaxNode;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
-    public ErrorConstructorExpressionEvaluator(SuspendedContext context, ErrorConstructorExpressionNode expressionNode,
+    public ErrorConstructorExpressionEvaluator(EvaluationContext context, ErrorConstructorExpressionNode expressionNode,
                                                List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = expressionNode;

@@ -35,11 +35,14 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -369,9 +372,17 @@ public class JDIEventProcessor {
                 }
 
                 SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
-                ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
-                Value evaluatorResult = evaluator.evaluate(expression);
-                String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();
+                EvaluationContext evaluationContext = new EvaluationContext(ctx);
+                DebugExpressionEvaluator evaluator = new DebugExpressionEvaluator(evaluationContext);
+                evaluator.setExpression(expression);
+                BExpressionValue evaluatorResult = evaluator.evaluate();
+                String condition = evaluatorResult.getStringValue();
+                if (evaluatorResult.getType() != BVariableType.BOOLEAN) {
+                    String errorMessage = String.format(EvaluationExceptionKind.TYPE_MISMATCH.getReason(),
+                            BVariableType.BOOLEAN.getString(), evaluatorResult.getType().getString(), expression);
+                    context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional breakpoint " +
+                            "at line: %d, due to: %s%s", lineNumber, System.lineSeparator(), errorMessage));
+                }
                 return condition.equalsIgnoreCase(CONDITION_TRUE);
             } catch (EvaluationException e) {
                 context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional breakpoint " +

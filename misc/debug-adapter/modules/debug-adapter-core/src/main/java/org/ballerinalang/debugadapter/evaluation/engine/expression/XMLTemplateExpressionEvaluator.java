@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -48,7 +49,7 @@ public class XMLTemplateExpressionEvaluator extends Evaluator {
 
     private final TemplateExpressionNode syntaxNode;
 
-    public XMLTemplateExpressionEvaluator(SuspendedContext context, TemplateExpressionNode templateExpressionNode) {
+    public XMLTemplateExpressionEvaluator(EvaluationContext context, TemplateExpressionNode templateExpressionNode) {
         super(context);
         this.syntaxNode = templateExpressionNode;
     }

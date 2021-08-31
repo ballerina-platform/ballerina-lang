@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -41,7 +42,7 @@ public class TypeTestExpressionEvaluator extends Evaluator {
     private final TypeTestExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public TypeTestExpressionEvaluator(SuspendedContext context, TypeTestExpressionNode typetestExpressionNode,
+    public TypeTestExpressionEvaluator(EvaluationContext context, TypeTestExpressionNode typetestExpressionNode,
                                        Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = typetestExpressionNode;

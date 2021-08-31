@@ -16,9 +16,14 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.Value;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+
+import java.util.Map;
 
 /**
  * Base representation of ballerina debug expression evaluator.
@@ -27,10 +32,12 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationException;
  */
 public abstract class Evaluator {
 
-    public SuspendedContext context;
+    protected final SuspendedContext context;
+    protected final Map<String, ModuleSymbol> resolvedImports;
 
-    public Evaluator(SuspendedContext context) {
-        this.context = context;
+    public Evaluator(EvaluationContext context) {
+        this.context = context.getSuspendedContext();
+        this.resolvedImports = context.getResolvedImports();
     }
 
     /**
@@ -46,5 +53,9 @@ public abstract class Evaluator {
      */
     Modifier getModifier() {
         return null;
+    }
+
+    public Map<String, ModuleSymbol> getResolvedImports() {
+        return resolvedImports;
     }
 }
