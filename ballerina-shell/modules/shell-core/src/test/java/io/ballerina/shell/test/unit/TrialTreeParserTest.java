@@ -44,7 +44,8 @@ public class TrialTreeParserTest {
     private static final String EXPRESSION_TESTCASES = "testcases/treeparser.expression.json";
     private static final String MODULE_DCLN_TESTCASES = "testcases/treeparser.moduledcln.json";
     private static final String MISC_TESTCASES = "testcases/treeparser.misc.json";
-    private static final String MODULE_DCLN_NAME_TESTCASES = "testcases/treeparser.dclnname.json";
+    private static final String MODULE_DCLN_MAIN_TESTCASE = "testcases/treeparser.dcln.main.json";
+    private static final String MODULE_DCLN_UNDERSCORE_TESTCASE = "testcases/treeparser.dcln.underscore.json";
 
     @Test
     public void testImportParse() {
@@ -78,8 +79,13 @@ public class TrialTreeParserTest {
     }
 
     @Test(expectedExceptions = TreeParserException.class)
-    public void testModuleDclnNameTest() throws TreeParserException {
-        testModuleDclnName(MODULE_DCLN_NAME_TESTCASES);
+    public void testModuleDclnNameMainTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_MAIN_TESTCASE);
+    }
+
+    @Test(expectedExceptions = TreeParserException.class)
+    public void testModuleDclnNameDoubleUnderscoreTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_UNDERSCORE_TESTCASE);
     }
 
     private void testParse(String fileName, Class<?> parentClazz) {

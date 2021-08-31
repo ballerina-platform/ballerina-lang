@@ -67,7 +67,7 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
         return dclnNode;
     }
 
-    private void validateModuleDeclaration(ModuleMemberDeclarationNode declarationNode) throws InvalidMethodException {
+    private void validateModuleDeclaration(ModuleMemberDeclarationNode declarationNode) {
         if (declarationNode instanceof FunctionDefinitionNode) {
             String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
             if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
