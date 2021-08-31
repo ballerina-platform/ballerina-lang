@@ -246,12 +246,11 @@ public class RemotePackageRepositoryTests {
                 anyString(), anyString(), anyBoolean())).thenReturn(centralResponse);
 
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageNames(anyList()))
+        when(fileSystemRepository.getPackageNames(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileJavaArray, fileCovid, fileUnresolved));
 
-
-        List<ImportModuleResponse> response = this.remotePackageRepository
-                .resolvePackageNames(Arrays.asList(javaArrayReq, covidReq, unknownReq));
+        List<ImportModuleResponse> response = new ArrayList<>(this.remotePackageRepository
+                .getPackageNames(Arrays.asList(javaArrayReq, covidReq, unknownReq), offlineFalseOption));
 
         Assert.assertEquals(response.size(), 3);
         ImportModuleResponse javaArray = response.get(0);

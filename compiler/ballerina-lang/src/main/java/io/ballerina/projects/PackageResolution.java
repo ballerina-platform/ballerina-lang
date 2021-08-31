@@ -80,12 +80,13 @@ public class PackageResolution {
         this.diagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
 
+        ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
-        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
+        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext, resolutionOptions);
 
-        dependencyGraph = buildDependencyGraph(getSticky(rootPackageContext), compilationOptions.offlineBuild());
+        this.dependencyGraph = buildDependencyGraph(resolutionOptions);
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -188,12 +189,12 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(boolean sticky, boolean offline) {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(ResolutionOptions resolutionOptions) {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
-            return resolveBALADependencies(offline);
+            return resolveBALADependencies(resolutionOptions);
         } else {
-            return resolveSourceDependencies(sticky, offline);
+            return resolveSourceDependencies(resolutionOptions);
         }
     }
 
@@ -232,30 +233,29 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies(boolean offline) {
+    private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies(ResolutionOptions resolutionOptions) {
         // 1) Convert package descriptor graph to DependencyNode graph
         DependencyGraph<DependencyNode> dependencyNodeGraph = createDependencyNodeGraph(
                 rootPackageContext.dependencyGraph());
 
         //2 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-                packageResolver, offline);
+                packageResolver, resolutionOptions);
     }
 
-    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies(boolean sticky, boolean offline) {
+    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies(ResolutionOptions resolutionOptions) {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
         // 2) Resolve imports to packages and create the complete dependency graph with package metadata
-        ResolutionOptions options = ResolutionOptions.builder().setOffline(offline).setSticky(sticky).build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPackageContext.descriptor(),
-                blendedManifest, packageResolver, moduleResolver, options);
+                blendedManifest, packageResolver, moduleResolver, resolutionOptions);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
 
         //3 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-                packageResolver, offline);
+                packageResolver, resolutionOptions);
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
@@ -282,7 +282,7 @@ public class PackageResolution {
     private DependencyGraph<ResolvedPackageDependency> buildPackageGraph(DependencyGraph<DependencyNode> depGraph,
                                                                          Package rootPackage,
                                                                          PackageResolver packageResolver,
-                                                                         boolean offline) {
+                                                                         ResolutionOptions resolutionOptions) {
         PackageContainer<ResolvedPackageDependency> resolvedPkgContainer = new PackageContainer<>();
 
         // Add root node to the container
@@ -294,10 +294,10 @@ public class PackageResolution {
         // Resolve rest of the packages in the graph
         List<ResolutionRequest> resolutionRequests = depGraph.getNodes().stream()
                 .filter(depNode -> !depNode.equals(rootNode)) // Remove root node from the requests
-                .map(depNode -> createFromDepNode(depNode, offline))
+                .map(depNode -> createFromDepNode(depNode, resolutionOptions.offline()))
                 .collect(Collectors.toList());
         Collection<ResolutionResponse> resolutionResponses =
-                packageResolver.resolvePackages(resolutionRequests, offline);
+                packageResolver.resolvePackages(resolutionRequests, resolutionOptions.offline());
 
         // Add resolved packages to the container
         for (ResolutionResponse resolutionResp : resolutionResponses) {
@@ -388,13 +388,14 @@ public class PackageResolution {
     }
 
     private ModuleResolver createModuleResolver(PackageContext rootPackageContext,
-                                                ProjectEnvironment projectEnvContext) {
+                                                ProjectEnvironment projectEnvContext,
+                                                ResolutionOptions resolutionOptions) {
         List<ModuleName> moduleNames = rootPackageContext.moduleIds().stream()
                 .map(rootPackageContext::moduleContext)
                 .map(ModuleContext::moduleName)
                 .collect(Collectors.toList());
         return new ModuleResolver(rootPackageContext.descriptor(), moduleNames, blendedManifest,
-                projectEnvContext.getService(PackageResolver.class));
+                projectEnvContext.getService(PackageResolver.class), resolutionOptions);
     }
 
     private BlendedManifest createBlendedManifest(PackageContext rootPackageContext,
@@ -402,6 +403,14 @@ public class PackageResolution {
         return BlendedManifest.from(rootPackageContext.dependencyManifest(),
                 rootPackageContext.packageManifest(),
                 projectEnvContext.getService(LocalPackageRepository.class));
+    }
+
+    private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,
+                                                   CompilationOptions compilationOptions) {
+        return ResolutionOptions.builder()
+                .setOffline(compilationOptions.offlineBuild())
+                .setSticky(getSticky(rootPackageContext))
+                .build();
     }
 
     /**

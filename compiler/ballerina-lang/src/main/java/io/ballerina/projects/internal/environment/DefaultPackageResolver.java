@@ -67,14 +67,15 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        // We will only receive hierarchical imports in importModuleRequests
-        List<ImportModuleResponse> responseListInDist = distributionRepo.resolvePackageNames(importModuleRequests);
-        List<ImportModuleResponse> responseListInCentral =
-                centralRepo.resolvePackageNames(importModuleRequests);
+    public Collection<ImportModuleResponse> resolvePackageNames(Collection<ImportModuleRequest> requests,
+                                                                ResolutionOptions options) {
+        // We will only receive hierarchical imports in requests
+        Collection<ImportModuleResponse> responseListInDist = distributionRepo.getPackageNames(requests, options);
+        Collection<ImportModuleResponse> responseListInCentral = centralRepo.getPackageNames(requests, options);
 
         return new ArrayList<>(
-                Stream.of(responseListInDist, responseListInCentral).flatMap(List::stream).collect(Collectors.toMap(
+                Stream.of(responseListInDist, responseListInCentral)
+                        .flatMap(Collection::stream).collect(Collectors.toMap(
                         ImportModuleResponse::importModuleRequest, Function.identity(),
                         (ImportModuleResponse x, ImportModuleResponse y) -> {
                             if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {

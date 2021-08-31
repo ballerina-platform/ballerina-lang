@@ -54,5 +54,13 @@ public interface PackageRepository {
     Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
                                                            ResolutionOptions options);
 
-    List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
+    /**
+     * Resolve requested import declaration with hierarchical module name to packages.
+     *
+     * @param requests import declaration collection
+     * @param options  resolution options
+     * @return a collection of resolved package metadata
+     */
+    Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                     ResolutionOptions options);
 }

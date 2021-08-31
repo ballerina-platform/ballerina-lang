@@ -156,8 +156,9 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        List<ImportModuleResponse> filesystem = fileSystemRepo.resolvePackageNames(importModuleRequests);
+    public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                            ResolutionOptions options) {
+        Collection<ImportModuleResponse> filesystem = fileSystemRepo.getPackageNames(requests, options);
         List<ImportModuleResponse> unresolved = filesystem.stream()
                 .filter(r -> r.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED))
                 .collect(Collectors.toList());
@@ -179,8 +180,8 @@ public class RemotePackageRepository implements PackageRepository {
         return filesystem;
     }
 
-    private List<ImportModuleResponse> mergeNameResolution(List<ImportModuleResponse> filesystem,
-                                                           List<ImportModuleResponse> remote) {
+    private List<ImportModuleResponse> mergeNameResolution(Collection<ImportModuleResponse> filesystem,
+                                                           Collection<ImportModuleResponse> remote) {
         List<ImportModuleResponse> all = new ArrayList<>();
         // We assume file system responses will have all module requests
         for (ImportModuleResponse fileResponse : filesystem) {

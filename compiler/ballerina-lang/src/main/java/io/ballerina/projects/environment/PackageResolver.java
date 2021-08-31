@@ -21,7 +21,6 @@ import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Defines the interface that will be used by the resolution logic to resolve
@@ -31,7 +30,15 @@ import java.util.List;
  */
 public interface PackageResolver {
 
-    List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests);
+    /**
+     * Resolve requested import declaration with hierarchical module name to packages.
+     *
+     * @param requests import declaration collection
+     * @param options  resolution options
+     * @return a collection of resolved package metadata
+     */
+    Collection<ImportModuleResponse> resolvePackageNames(Collection<ImportModuleRequest> requests,
+                                                         ResolutionOptions options);
 
     /**
      * Loads requested packages metadata such as the availability, dependency graph.

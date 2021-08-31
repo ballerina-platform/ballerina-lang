@@ -65,9 +65,10 @@ public abstract class AbstractPackageRepository implements PackageRepository {
     }
 
     @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+    public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                            ResolutionOptions options) {
         List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
-        for (ImportModuleRequest importModuleRequest : importModuleRequests) {
+        for (ImportModuleRequest importModuleRequest : requests) {
             ImportModuleResponse importModuleLoadResponse = getImportModuleLoadResponse(importModuleRequest);
             importModuleResponseList.add(importModuleLoadResponse);
         }
