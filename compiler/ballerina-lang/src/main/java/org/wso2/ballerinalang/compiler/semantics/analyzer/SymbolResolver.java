@@ -1395,9 +1395,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         // Define user define error type.
-        BErrorTypeSymbol errorTypeSymbol;
-
-        errorTypeSymbol = Symbols
+        BErrorTypeSymbol errorTypeSymbol = Symbols
                 .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, bErrorType.tsymbol.pkgID, null,
                         bErrorType.tsymbol.owner, errorTypeNode.pos, SOURCE);
 
