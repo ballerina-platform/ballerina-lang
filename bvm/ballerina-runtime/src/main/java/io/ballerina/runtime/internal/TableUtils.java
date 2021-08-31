@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
-import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.IteratorValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.RefValue;
