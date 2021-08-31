@@ -24,9 +24,18 @@ package io.ballerina.semtype;
  */
 public class BddMemo {
     Bdd bddNode;
-    MemoStatus isEmpty;
+    public MemoStatus isEmpty;
 
-    enum MemoStatus {
+    public BddMemo(Bdd bddNode) {
+        this.bddNode = bddNode;
+    }
+
+    /**
+     * Represent if BddMemo is null or not.
+     *
+     * @since 2.0.0
+     */
+    public enum MemoStatus {
         NOT_SET, TRUE, FALSE;
     }
 }

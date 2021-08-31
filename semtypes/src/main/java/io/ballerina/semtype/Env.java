@@ -42,5 +42,18 @@ public class Env {
         this.recFunctionAtoms = new ArrayList<>();
     }
 
+    public synchronized RecAtom recFunctionAtom() {
+        int result = this.recFunctionAtoms.size();
+        // represents adding () in nballerina
+        this.recFunctionAtoms.add(null);
+        return new RecAtom(result);
+    }
 
+    public synchronized void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
+        this.recFunctionAtoms.set(ra.index, atomicType);
+    }
+
+    public synchronized FunctionAtomicType getRecFunctionAtomType(RecAtom ra) {
+        return this.recFunctionAtoms.get(ra.index);
+    }
 }

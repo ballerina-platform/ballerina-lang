@@ -30,6 +30,8 @@
             <Class name="io.ballerina.semtype.subtypedata.FloatSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.StringSubtype"/>
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
+            <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
+            <Class name="io.ballerina.semtype.TypeCheckContext"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
@@ -72,7 +74,21 @@
     <Match>
         <Or>
             <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+            <Class name="io.ballerina.semtype.Core"/>
         </Or>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
+    <Match>
+        <Or>
+            <Class name="io.ballerina.semtype.definition.FunctionDefinition"/>
+            <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
+        </Or>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
+    <Match>
+        <Or>
+            <Class name="io.ballerina.semtype.BddMemo"/>
+        </Or>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
 </FindBugsFilter>
