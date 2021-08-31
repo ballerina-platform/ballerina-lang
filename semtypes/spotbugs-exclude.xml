@@ -36,6 +36,7 @@
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
             <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
             <Class name="io.ballerina.semtype.TypeCheckContext"/>
+            <Class name="io.ballerina.semtype.Common"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
