@@ -82,7 +82,7 @@ public function getStream(stream<anydata> value, typedesc<anydata> td) returns s
     paramTypes: ["io.ballerina.runtime.api.values.BStream", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-public function getTable(table<anydata> value, typedesc<anydata> td) returns table<td> = @java:Method {
+public function getTable(table<map<anydata>> value, typedesc<anydata> td) returns table<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTable",
     paramTypes: ["io.ballerina.runtime.internal.values.TableValue", "io.ballerina.runtime.api.values.BTypedesc"]

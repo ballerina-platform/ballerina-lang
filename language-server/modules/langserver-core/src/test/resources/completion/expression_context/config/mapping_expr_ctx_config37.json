@@ -19,7 +19,7 @@
       "kind": "Field",
       "detail": "MyConfig.node",
       "sortText": "G",
-      "insertText": "node: ${1:new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\")}",
+      "insertText": "node: ${1:new ({}, 0, \"\")}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -91,7 +91,7 @@
       "kind": "Field",
       "detail": "MyConfig.myTable",
       "sortText": "G",
-      "insertText": "myTable: ${10:table [{f1: 0}]}",
+      "insertText": "myTable: ${10:table [{}]}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -116,7 +116,7 @@
       "detail": "MyConfig",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "node: new ({ip: \"\", port: 0, username: \"\", files: new ()}, 0, \"\"),\nisAlive: false,\nerr1: error (\"\", message = \"\"),\nmyXML: xml ``,\nkeywords: [[]],\ncredentials: {ip: \"\", port: 0, username: \"\", files: new ()},\nrecord2: {f1: 0},\nrecord1: {},\nmyMap: {},\nmyTable: table [{f1: 0}],\nmyError: error (\"\"),\nrandomNum: error (\"\")",
+      "insertText": "node: new ({}, 0, \"\"),\nisAlive: false,\nerr1: error (\"\", message = \"\"),\nmyXML: xml ``,\nkeywords: [[]],\ncredentials: {ip: \"\", port: 0, username: \"\", files: new ()},\nrecord2: {f1: 0},\nrecord1: {},\nmyMap: {},\nmyTable: table [{}],\nmyError: error (\"\"),\nrandomNum: error (\"\")",
       "insertTextFormat": "Snippet"
     }
   ]

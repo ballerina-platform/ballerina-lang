@@ -19,8 +19,8 @@ package io.ballerina.compiler.syntax.tree;
 
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
-import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
+import io.ballerina.compiler.parser.ParserRuleContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocumentChange;
@@ -65,27 +65,62 @@ public class SyntaxTree {
                 newTextDocument, oldTree.filePath(), false);
     }
 
+    @Deprecated(forRemoval = true)
     public static SyntaxTree asTopLevel(TextDocument textDocument) {
-        return from(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
+        return fromInternal(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
     }
 
+    @Deprecated(forRemoval = true)
     public static SyntaxTree asStatement(TextDocument textDocument) {
-        return from(ParserRuleContext.STATEMENT, textDocument);
+        return fromInternal(ParserRuleContext.STATEMENT, textDocument);
     }
 
+    @Deprecated(forRemoval = true)
     public static SyntaxTree asStatements(TextDocument textDocument) {
-        return from(ParserRuleContext.STATEMENTS, textDocument);
+        return fromInternal(ParserRuleContext.STATEMENTS, textDocument);
     }
 
+    @Deprecated(forRemoval = true)
     public static SyntaxTree asExpression(TextDocument textDocument) {
-        return from(ParserRuleContext.EXPRESSION, textDocument);
+        return fromInternal(ParserRuleContext.EXPRESSION, textDocument);
     }
 
-    private static SyntaxTree from(ParserRuleContext context, TextDocument textDocument) {
-        // TODO: Remove other APIs such as asStatement(), once ParserRuleContext is exposed to outside.
+    @Deprecated(forRemoval = true)
+    private static SyntaxTree fromInternal(ParserRuleContext context, TextDocument textDocument) {
+        BallerinaParser parser = ParserFactory.getParser(textDocument);
+        return new SyntaxTree(parser.parseInternal(context).createUnlinkedFacade(),
+                textDocument, null, false);
+    }
+
+    /**
+     * Obtain the syntax tree from a given context.
+     *
+     * @param context      context to start parsing from. Only following contexts are allowed.
+     *                     <br/>&nbsp;{@link ParserRuleContext#COMP_UNIT},
+     *                     <br/>&nbsp;{@link ParserRuleContext#STATEMENTS},
+     *                     <br/>&nbsp;{@link ParserRuleContext#EXPRESSION}
+     * @param textDocument text document of which the syntax tree is required
+     * @return obtained syntaxTree
+     */
+    public static SyntaxTree from(ParserRuleContext context, TextDocument textDocument) {
+        return from(context, textDocument, null);
+    }
+
+    /**
+     * Obtain the syntax tree from a given context.
+     *
+     * @param context      context to start parsing from. Only following contexts are allowed.
+     *                     <br/>&nbsp;{@link ParserRuleContext#COMP_UNIT},
+     *                     <br/>&nbsp;{@link ParserRuleContext#STATEMENTS},
+     *                     <br/>&nbsp;{@link ParserRuleContext#EXPRESSION}
+     * @param textDocument text document of which the syntax tree is required
+     * @param filePath     file path of the document
+     * @return obtained syntaxTree
+     */
+    public static SyntaxTree from(ParserRuleContext context, TextDocument textDocument, String filePath) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
         return new SyntaxTree(parser.parse(context).createUnlinkedFacade(),
-                textDocument, null, false);
+                textDocument, filePath, false);
     }
 
     public TextDocument textDocument() {
