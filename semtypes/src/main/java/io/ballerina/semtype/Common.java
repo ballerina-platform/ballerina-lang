@@ -23,9 +23,9 @@ import io.ballerina.semtype.subtypedata.BddNode;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 /**
  * Code common to implementation of multiple basic types.
@@ -74,8 +74,8 @@ public class Common {
         }
     }
 
-    public static boolean bddEveryPositive(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg, Method predicate)
-            throws InvocationTargetException, IllegalAccessException {
+    public static boolean bddEveryPositive(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg,
+                                           Method predicate) throws InvocationTargetException, IllegalAccessException {
         if (b instanceof BddBoolean) {
             return !(((BddBoolean) b).leaf) || (boolean) predicate.invoke(tc, pos, neg);
         } else {
@@ -108,18 +108,18 @@ public class Common {
     }
 
     public static Conjunction andIfPositive(Atom atom, Conjunction next) {
-        if (atom instanceof RecAtom && ((RecAtom) atom).index <0) {
+        if (atom instanceof RecAtom && ((RecAtom) atom).index < 0) {
             return next;
         }
         return Conjunction.and(atom, next);
     }
 
     public static SemType[] shallowCopyTypes(SemType[] v) {
-        throw new AssertionError("Not Implemented");
+        return Arrays.copyOf(v, v.length);
     }
 
     public static String[] shallowCopyTypes(String[] v) {
-        throw new AssertionError("Not Implemented");
+        return Arrays.copyOf(v, v.length);
     }
 
     public static boolean notIsEmpty(TypeCheckContext tc, SubtypeData d) {
