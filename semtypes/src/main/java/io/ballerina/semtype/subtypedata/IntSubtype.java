@@ -19,6 +19,7 @@ package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
+import io.ballerina.semtype.Range;
 import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.UniformTypeCode;
@@ -144,18 +145,5 @@ public class IntSubtype implements ProperSubtypeData {
             }
         }
         return false;
-    }
-
-    /**
-     * Int Range node.
-     */
-    static class Range {
-        final long min;
-        final long max;
-
-        public Range(long min, long max) {
-            this.min = min;
-            this.max = max;
-        }
     }
 }
