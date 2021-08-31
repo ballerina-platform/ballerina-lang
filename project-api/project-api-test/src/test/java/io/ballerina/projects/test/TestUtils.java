@@ -25,7 +25,6 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.environment.EnvironmentBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;

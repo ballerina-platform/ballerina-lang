@@ -19,7 +19,6 @@ package io.ballerina.projects.test;
 
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import org.testng.Assert;
 import org.testng.annotations.Test;

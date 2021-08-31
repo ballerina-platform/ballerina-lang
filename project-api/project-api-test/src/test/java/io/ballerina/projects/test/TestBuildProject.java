@@ -50,7 +50,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -433,7 +432,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = TestUtils.loadBuildProject(projectPath);
+            project = BuildProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -454,7 +453,7 @@ public class TestBuildProject extends BaseTest {
         BuildProject project = null;
         BuildOptions buildOptions = new BuildOptionsBuilder().skipTests(false).build();
         try {
-            project = TestUtils.loadBuildProject(projectPath, buildOptions);
+            project = BuildProject.load(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1391,7 +1390,7 @@ public class TestBuildProject extends BaseTest {
         buildProject.documentId(filePath); // get the document ID
     }
 
-    @Test(description = "test passing compilation options to package compilation")
+    @Test(description = "test passing compilation options to package compilation", enabled = false)
     public void testPassCompilationOptionsToPackageCompilation() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 

@@ -30,7 +30,6 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;

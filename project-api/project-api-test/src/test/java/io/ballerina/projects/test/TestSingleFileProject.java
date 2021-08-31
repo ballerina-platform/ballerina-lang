@@ -118,7 +118,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
         try {
-            project = TestUtils.loadSingleFileProject(projectPath);
+            project = SingleFileProject.load(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -150,7 +150,6 @@ public class TestSingleFileProject {
         Assert.assertTrue(project.buildOptions().skipTests());
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
-        Assert.assertFalse(project.buildOptions().offlineBuild());
         Assert.assertFalse(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
