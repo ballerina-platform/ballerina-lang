@@ -28,7 +28,7 @@ public class MappingAtomicType implements AtomicType {
     public final SemType[] types;
     public final SemType rest;
 
-    public static MappingAtomicType MAPPING_SUBTYPE_RO =
+    public static final MappingAtomicType MAPPING_SUBTYPE_RO =
             new MappingAtomicType(new String[]{}, new SemType[]{}, PredefinedType.READONLY);
 
     private MappingAtomicType(String[] names, SemType[] types, SemType rest) {

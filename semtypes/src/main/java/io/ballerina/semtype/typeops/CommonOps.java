@@ -29,7 +29,7 @@ import io.ballerina.semtype.SubtypeData;
 public abstract class CommonOps implements CommonUniformTypeOps {
     @Override
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddUnion((Bdd) t1, (Bdd)t2);
+        return BddCommonOps.bddUnion((Bdd) t1, (Bdd) t2);
     }
 
     @Override

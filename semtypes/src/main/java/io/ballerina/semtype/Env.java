@@ -44,19 +44,25 @@ public class Env {
         this.recFunctionAtoms = new ArrayList<>();
     }
 
-    public synchronized RecAtom recFunctionAtom() {
-        int result = this.recFunctionAtoms.size();
-        // represents adding () in nballerina
-        this.recFunctionAtoms.add(null);
-        return new RecAtom(result);
+    public RecAtom recFunctionAtom() {
+        synchronized (this.recFunctionAtoms) {
+            int result = this.recFunctionAtoms.size();
+            // represents adding () in nballerina
+            this.recFunctionAtoms.add(null);
+            return new RecAtom(result);
+        }
     }
 
-    public synchronized void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
-        this.recFunctionAtoms.set(ra.index, atomicType);
+    public void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
+        synchronized (this.recFunctionAtoms) {
+            this.recFunctionAtoms.set(ra.index, atomicType);
+        }
     }
 
     public FunctionAtomicType getRecFunctionAtomType(RecAtom ra) {
-        return this.recFunctionAtoms.get(ra.index);
+        synchronized (this.recFunctionAtoms) {
+            return this.recFunctionAtoms.get(ra.index);
+        }
     }
 
     public TypeAtom listAtom(ListAtomicType atomicType) {
@@ -68,13 +74,15 @@ public class Env {
     }
 
     private TypeAtom typeAtom(AtomicType atomicType) {
-        TypeAtom ta = this.atomTable.get(atomicType);
-        if (ta != null) {
-            return ta;
-        } else {
-            TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
-            this.atomTable.put(result.atomicType, result);
-            return result;
+        synchronized (this.atomTable) {
+            TypeAtom ta = this.atomTable.get(atomicType);
+            if (ta != null) {
+                return ta;
+            } else {
+                TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
+                this.atomTable.put(result.atomicType, result);
+                return result;
+            }
         }
     }
 
@@ -95,30 +103,42 @@ public class Env {
     }
 
     public RecAtom recListAtom() {
-        int result = this.recListAtoms.size();
-        this.recListAtoms.add(null);
-        return RecAtom.createRecAtom(result);
+        synchronized (this.recListAtoms) {
+            int result = this.recListAtoms.size();
+            this.recListAtoms.add(null);
+            return RecAtom.createRecAtom(result);
+        }
     }
 
     public RecAtom recMappingAtom() {
-        int result = this.recMappingAtoms.size();
-        this.recMappingAtoms.add(null);
-        return RecAtom.createRecAtom(result);
+        synchronized (this.recMappingAtoms) {
+            int result = this.recMappingAtoms.size();
+            this.recMappingAtoms.add(null);
+            return RecAtom.createRecAtom(result);
+        }
     }
 
     public void setRecListAtomType(RecAtom ra, ListAtomicType atomicType) {
-        this.recListAtoms.set(ra.index, atomicType);
+        synchronized (this.recListAtoms) {
+            this.recListAtoms.set(ra.index, atomicType);
+        }
     }
 
     public void setRecMappingAtomType(RecAtom ra, MappingAtomicType atomicType) {
-        this.recMappingAtoms.set(ra.index, atomicType);
+        synchronized (this.recListAtoms) {
+            this.recMappingAtoms.set(ra.index, atomicType);
+        }
     }
 
     public ListAtomicType getRecListAtomType(RecAtom ra) {
-        return (ListAtomicType) this.recListAtoms.get(ra.index);
+        synchronized (this.recListAtoms) {
+            return (ListAtomicType) this.recListAtoms.get(ra.index);
+        }
     }
 
     public MappingAtomicType getRecMappingAtomType(RecAtom ra) {
-        return (MappingAtomicType) this.recMappingAtoms.get(ra.index);
+        synchronized (this.recMappingAtoms) {
+            return (MappingAtomicType) this.recMappingAtoms.get(ra.index);
+        }
     }
 }
