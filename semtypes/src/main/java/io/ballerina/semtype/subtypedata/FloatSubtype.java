@@ -25,9 +25,6 @@ import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.UniformTypeCode;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,17 +35,17 @@ import java.util.Optional;
 public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData {
 
     public final boolean allowed;
-    public final List<EnumerableFloat> values;
+    public final EnumerableFloat[] values;
 
     public FloatSubtype(boolean allowed, EnumerableFloat value) {
         this.allowed = allowed;
-        this.values = new ArrayList<>();
-        values.add(value);
+        this.values = new EnumerableFloat[1];
+        values[0] = value;
     }
 
-    public FloatSubtype(boolean allowed, List<EnumerableFloat> values) {
+    public FloatSubtype(boolean allowed, EnumerableFloat[] values) {
         this.allowed = allowed;
-        this.values = new ArrayList<>(values);
+        this.values = values;
     }
 
     public static SemType floatConst(EnumerableFloat value) {
@@ -65,11 +62,11 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
             return Optional.empty();
         }
 
-        List<EnumerableFloat> values = f.values;
-        if (values.size() != 1) {
+        EnumerableFloat[]values = f.values;
+        if (values.length != 1) {
             return Optional.empty();
         }
-        return Optional.of(values.get(0));
+        return Optional.of(values[0]);
     }
 
     public static boolean floatSubtypeContains(SubtypeData d, EnumerableFloat f) {
@@ -86,11 +83,10 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
         return !v.allowed;
     }
 
-    public static SubtypeData createFloatSubtype(boolean allowed, List<EnumerableFloat> values) {
-        if (values.isEmpty()) {
+    public static SubtypeData createFloatSubtype(boolean allowed, EnumerableFloat[] values) {
+        if (values.length == 0) {
             return new AllOrNothingSubtype(!allowed);
         }
-        List<EnumerableFloat> readOnlyValues = Collections.unmodifiableList(values);
-        return new FloatSubtype(allowed, readOnlyValues);
+        return new FloatSubtype(allowed, values);
     }
 }

@@ -20,14 +20,16 @@ public class FloatOps extends CommonOps implements UniformTypeOps {
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         ArrayList<EnumerableFloat> values = new ArrayList<>();
         boolean allowed = EnumerableSubtype.enumerableSubtypeUnion((FloatSubtype) t1, (FloatSubtype) t2, values);
-        return FloatSubtype.createFloatSubtype(allowed, values);
+        EnumerableFloat[] valueArray = new EnumerableFloat[values.size()];
+        return FloatSubtype.createFloatSubtype(allowed, values.toArray(valueArray));
     }
 
     @Override
     public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
         ArrayList<EnumerableFloat> values = new ArrayList<>();
         boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((FloatSubtype) t1, (FloatSubtype) t1, values);
-        return FloatSubtype.createFloatSubtype(allowed, values);
+        EnumerableFloat[] valueArray = new EnumerableFloat[values.size()];
+        return FloatSubtype.createFloatSubtype(allowed, values.toArray(valueArray));
     }
 
     @Override

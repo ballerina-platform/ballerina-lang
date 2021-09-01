@@ -22,9 +22,6 @@ import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SubtypeData;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Represent StringSubtype.
  *
@@ -32,9 +29,9 @@ import java.util.List;
  */
 public class StringSubtype extends EnumerableSubtype implements ProperSubtypeData {
     public final boolean allowed;
-    public final List<EnumerableString> values;
+    public final EnumerableString[] values;
 
-    private StringSubtype(boolean allowed, List<EnumerableString> values) {
+    private StringSubtype(boolean allowed, EnumerableString[] values) {
         this.allowed = allowed;
         this.values = values;
     }
@@ -56,11 +53,10 @@ public class StringSubtype extends EnumerableSubtype implements ProperSubtypeDat
         return found ? v.allowed : !v.allowed;
     }
 
-    public static SubtypeData createStringSubtype(boolean allowed, List<EnumerableString> values) {
-        if (values.isEmpty()) {
+    public static SubtypeData createStringSubtype(boolean allowed, EnumerableString[] values) {
+        if (values.length == 0) {
             return new AllOrNothingSubtype(!allowed);
         }
-        List<EnumerableString> readOnlyValues = Collections.unmodifiableList(values);
-        return new StringSubtype(allowed, readOnlyValues);
+        return new StringSubtype(allowed, values);
     }
 }
