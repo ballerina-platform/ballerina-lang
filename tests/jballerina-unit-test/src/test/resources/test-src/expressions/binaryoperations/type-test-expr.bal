@@ -1328,18 +1328,20 @@ public function testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
     any x = true;
 
     if c is () {
-
+        assertFalse(c is ());
     } else if g is () {
-
+        assertFalse(g is ());
     } else if x is int {
         c = f;
     } else if (x is float) {
-         g = 4;
+        assertFalse(x is float);
          SomeRecord|int|() s = 5;
          g = s;
     } else if (x is boolean) {
+        assertTrue(x is boolean);
         foo(c);
     } else if (x is string) {
+        assertFalse(x is string);
         goo(g);
     } else {
         SomeRecord|int w = 4;
@@ -1354,10 +1356,11 @@ public function testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
     any x = true;
 
     if c is () {
-
+        assertFalse(c is ());
     } else if g is () {
-
+        assertFalse(g is ());
     } else if x is int {
+        assertFalse(x is int);
         c = f;
         if (f is SomeRecord) {
             hoo(c);
@@ -1370,10 +1373,11 @@ public function testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
             }
         }
     } else if (x is float) {
-         g = 4;
+        assertFalse(x is float);
          SomeRecord|int|() s = 5;
          g = s;
     } else if (x is boolean) {
+        assertTrue(x is boolean);
         foo(c);
     } else if (x is string) {
         goo(g);

@@ -51,16 +51,16 @@ public class TypeTestExprTest {
     @Test
     public void testTypeTestExprTypeNarrowingNegative() {
         CompileResult negativeResult =
-                BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-type-narrowing-negative.bal");
+                BCompileUtil.compile("test-src/expressions/binaryoperations/type_test_type_narrowing_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'SomeRecord', found 'SomeRecord?'", 49, 17);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 52, 21);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected '()', found 'SomeRecord'", 63, 13);
+                "incompatible types: expected '()', found 'SomeRecord'", 62, 13);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 69, 13);
+                "incompatible types: expected '(SomeRecord|int)', found '(SomeRecord|int)?'", 68, 13);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -756,5 +756,20 @@ public class TypeTestExprTest {
     @Test
     public void testIfElseWithTypeTest() {
         BRunUtil.invoke(result, "testIfElseWithTypeTest");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariables() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariables");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInMultipleBlocks");
+    }
+
+    @Test
+    public void testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
+        BRunUtil.invoke(result, "testIfElseWithTypeTestMultipleVariablesInNestedBlocks");
     }
 }

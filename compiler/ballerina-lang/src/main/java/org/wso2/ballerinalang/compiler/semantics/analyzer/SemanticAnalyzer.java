@@ -2366,10 +2366,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (!existingNarrowedTypeInfo.containsKey(key)) {
                     existingNarrowedTypeInfo.put(key, entry.getValue());
                 } else {
-                    BType.NarrowedTypes narrowedTypes = existingNarrowedTypeInfo.get(key);
+                    BType.NarrowedTypes existingNarrowTypes = existingNarrowedTypeInfo.get(key);
                     BUnionType unionType =
-                            BUnionType.create(null, narrowedTypes.falseType, narrowedTypes.trueType);
-                    BType.NarrowedTypes newPair = new BType.NarrowedTypes(narrowedTypes.trueType, unionType);
+                            BUnionType.create(null, existingNarrowTypes.trueType, existingNarrowTypes.falseType);
+                    BType.NarrowedTypes newPair = new BType.NarrowedTypes(existingNarrowTypes.trueType, unionType);
                     narrowedTypes.put(key, newPair);
                 }
             }

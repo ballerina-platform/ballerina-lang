@@ -57,7 +57,6 @@ public function testIfElseNarrowTypesRestting() {
             }
         }
     } else if (x is float) {
-         g = 4;
          SomeRecord|int s = g;
     } else if (x is boolean) {
         foo(c);
