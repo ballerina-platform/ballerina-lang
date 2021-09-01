@@ -15,18 +15,17 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.typeops;
+package io.ballerina.semtype;
 
-import io.ballerina.semtype.Core;
-import io.ballerina.semtype.PredefinedType;
-import io.ballerina.semtype.ProperSubtypeData;
-import io.ballerina.semtype.RecAtom;
-import io.ballerina.semtype.SemType;
-import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.UniformTypeCode;
 import io.ballerina.semtype.subtypedata.AllOrNothingSubtype;
 import io.ballerina.semtype.subtypedata.BddNode;
+import io.ballerina.semtype.typeops.BddCommonOps;
 
+/**
+ * Contain functions found in error.bal file.
+ *
+ * @since 2.0.0
+ */
 public class Error {
     public static SemType errorDetail(SemType detail) {
         SubtypeData sd = Core.subtypeData(detail, UniformTypeCode.UT_MAPPING_RO);
@@ -47,5 +46,4 @@ public class Error {
         BddNode bdd = BddCommonOps.bddAtom(RecAtom.createRecAtom(-distinctId - 1));
         return PredefinedType.uniformSubtype(UniformTypeCode.UT_ERROR, bdd);
     }
-
 }
