@@ -103,19 +103,17 @@ import javax.annotation.Nonnull;
  *
  * @since 2.0.0
  */
-public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
+public class ContextTypeResolver extends NodeTransformer<Optional<ContextTypePair>> {
 
     private final PositionedOperationContext context;
     private final List<Node> visitedNodes = new ArrayList<>();
-    private TypeSymbol broaderTypeSymbol;
-    private boolean isBroaderTypeSymbolSet = false;
 
     public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ListenerDeclarationNode node) {
+    public Optional<ContextTypePair> transform(ListenerDeclarationNode node) {
         Optional<TypeDescriptorNode> typeDesc = node.typeDescriptor();
         if (typeDesc.isEmpty()) {
             return Optional.empty();
@@ -125,7 +123,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
+    public Optional<ContextTypePair> transform(SimpleNameReferenceNode node) {
         /* Here we extract the symbol from the name since we need to capture the type definition for the following
         eg: TypeName xyz = ...
         Otherwise this will capture the TypeReferenceType of TypeName which needs addition processing for handling 
@@ -135,36 +133,42 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+        Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol.get());
+        return typeDescriptor.isEmpty() ? Optional.empty()
+                : Optional.of(ContextTypePair.of(typeDescriptor.get(), typeDescriptor.get()));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(SpecificFieldNode node) {
+    public Optional<ContextTypePair> transform(SpecificFieldNode node) {
         // Support only the identifier nodes
         if (node.fieldName().kind() != SyntaxKind.IDENTIFIER_TOKEN) {
             return Optional.empty();
         }
-        Optional<TypeSymbol> parentType = this.visit(node.parent());
-        if (parentType.isEmpty() || CommonUtil.getRawType(parentType.get()).typeKind() != TypeDescKind.RECORD) {
+        Optional<ContextTypePair> parentType = this.visit(node.parent());
+        if (parentType.isEmpty()
+                || CommonUtil.getRawType(parentType.get().getRawType()).typeKind() != TypeDescKind.RECORD) {
             return Optional.empty();
         }
-        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(parentType.get());
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(parentType.get().getRawType());
         String fieldName = ((IdentifierToken) node.fieldName()).text();
         // Extract the type of the particular field
-        return recordTypeSymbol.fieldDescriptors().entrySet().stream()
+        Optional<TypeSymbol> typeOfField = recordTypeSymbol.fieldDescriptors().entrySet().stream()
                 .filter(entry -> entry.getKey().equals(fieldName))
                 .findFirst()
                 .map(entry -> entry.getValue().typeDescriptor());
+
+        return typeOfField.isEmpty() ? Optional.empty()
+                : Optional.of(ContextTypePair.of(typeOfField.get(), typeOfField.get()));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(AssignmentStatementNode node) {
+    public Optional<ContextTypePair> transform(AssignmentStatementNode node) {
         // Resolves the type of the variable reference
         return this.visit(node.varRef());
     }
 
     @Override
-    public Optional<TypeSymbol> transform(QualifiedNameReferenceNode node) {
+    public Optional<ContextTypePair> transform(QualifiedNameReferenceNode node) {
         // Only handles the Type Definitions.
         Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
                 && (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
@@ -177,18 +181,20 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         Symbol symbol = moduleContent.get(0);
         if (symbol.kind() == SymbolKind.CLASS) {
-            return Optional.of((ClassSymbol) symbol);
+            ClassSymbol classSymbol = (ClassSymbol) symbol;
+            return Optional.of(ContextTypePair.of(classSymbol, classSymbol));
         }
-        return Optional.of(((TypeDefinitionSymbol) symbol).typeDescriptor());
+        TypeSymbol typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
+        return Optional.of(ContextTypePair.of(typeDescriptor, typeDescriptor));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
+    public Optional<ContextTypePair> transform(VariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ObjectFieldNode node) {
+    public Optional<ContextTypePair> transform(ObjectFieldNode node) {
         Optional<Symbol> variableSymbol = this.getSymbolByName(node.fieldName().text());
         Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
         if (typeSymbol.isEmpty()) {
@@ -198,12 +204,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ModuleVariableDeclarationNode node) {
+    public Optional<ContextTypePair> transform(ModuleVariableDeclarationNode node) {
         return this.visit(node.typedBindingPattern().bindingPattern());
     }
 
     @Override
-    public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
+    public Optional<ContextTypePair> transform(IndexedExpressionNode node) {
         Optional<TypeSymbol> containerType =
                 context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
         if (containerType.isEmpty()) {
@@ -213,7 +219,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(CaptureBindingPatternNode node) {
+    public Optional<ContextTypePair> transform(CaptureBindingPatternNode node) {
         Optional<Symbol> variableSymbol = this.getSymbolByName(node.variableName().text());
         Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
         if (typeSymbol.isEmpty()) {
@@ -223,7 +229,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(AnnotationNode node) {
+    public Optional<ContextTypePair> transform(AnnotationNode node) {
         Node annotationRef = node.annotReference();
         Optional<Symbol> annotationSymbol;
         Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent() && symbol.kind() == SymbolKind.ANNOTATION;
@@ -242,11 +248,13 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (annotationSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return ((AnnotationSymbol) annotationSymbol.get()).typeDescriptor();
+        Optional<TypeSymbol> typeDescriptor = ((AnnotationSymbol) annotationSymbol.get()).typeDescriptor();
+        return typeDescriptor.isEmpty() ? Optional.empty()
+                : Optional.of(ContextTypePair.of(typeDescriptor.get(), typeDescriptor.get()));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(FunctionDefinitionNode node) {
+    public Optional<ContextTypePair> transform(FunctionDefinitionNode node) {
         /*
         For the function definition, we consider the return type. In order to support the record-type-descriptor
         and to get the particular symbol, we extract the type symbol from the function symbol. 
@@ -262,11 +270,14 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+        Optional<TypeSymbol> returnType = ((FunctionSymbol) functionSymbol.get())
+                .typeDescriptor().returnTypeDescriptor();
+        return returnType.isEmpty() ? Optional.empty()
+                : Optional.of(ContextTypePair.of(returnType.get(), returnType.get()));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(FieldAccessExpressionNode node) {
+    public Optional<ContextTypePair> transform(FieldAccessExpressionNode node) {
         FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(context);
         List<Symbol> visibleEntries = resolver.getVisibleEntries(node.expression());
         NameReferenceNode nameRef = node.fieldName();
@@ -280,12 +291,13 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (filteredSymbol.isEmpty()) {
             return Optional.empty();
         }
-
-        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+        Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+        return typeDescriptor.isEmpty() ? Optional.empty()
+                : Optional.of(ContextTypePair.of(typeDescriptor.get(), typeDescriptor.get()));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
+    public Optional<ContextTypePair> transform(FunctionCallExpressionNode node) {
         Optional<Symbol> funcSymbol = Optional.empty();
         NameReferenceNode nameRef = node.functionName();
         if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -305,7 +317,9 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         if (!CommonUtil.isInFunctionCallParameterContext(context, node)
                 || !(funcSymbol.get() instanceof FunctionSymbol)) {
-            return SymbolUtil.getTypeDescriptor(funcSymbol.get());
+            Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(funcSymbol.get());
+            return typeDescriptor.isEmpty() ? Optional.empty()
+                    : Optional.of(ContextTypePair.of(typeDescriptor.get(), typeDescriptor.get()));
         }
 
         Optional<ParameterSymbol> paramSymbol =
@@ -315,11 +329,14 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+
+        Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(paramSymbol.get());
+        return typeDescriptor.isEmpty() ? Optional.empty()
+                : Optional.of(ContextTypePair.of(typeDescriptor.get(), typeDescriptor.get()));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
+    public Optional<ContextTypePair> transform(PositionalArgumentNode positionalArgumentNode) {
         // TODO: Add other cases like error constructors here
         switch (positionalArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
@@ -357,7 +374,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(NamedArgumentNode namedArgumentNode) {
+    public Optional<ContextTypePair> transform(NamedArgumentNode namedArgumentNode) {
         switch (namedArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
             case METHOD_CALL:
@@ -376,7 +393,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 for (ParameterSymbol parameterSymbol : parameterSymbols.get()) {
                     if (parameterSymbol.getName().stream()
                             .anyMatch(name -> name.equals(namedArgumentNode.argumentName().name().text()))) {
-                        return Optional.of(parameterSymbol.typeDescriptor());
+                        TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
+                        return Optional.of(ContextTypePair.of(typeDescriptor, typeDescriptor));
                     }
                 }
                 break;
@@ -389,35 +407,38 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ListConstructorExpressionNode node) {
-        Optional<TypeSymbol> typeSymbol = this.visit(node.parent());
+    public Optional<ContextTypePair> transform(ListConstructorExpressionNode node) {
+        Optional<ContextTypePair> typeSymbol = this.visit(node.parent());
         if (typeSymbol.isEmpty()) {
             return Optional.empty();
         }
-        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol.get());
+        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol.get().getRawType());
 
-        if (rawType.typeKind() == TypeDescKind.ARRAY) {
-            return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
+        if (rawType.typeKind() != TypeDescKind.ARRAY) {
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        TypeSymbol memberType = ((ArrayTypeSymbol) rawType).memberTypeDescriptor();
+        return Optional.of(ContextTypePair.of(memberType, memberType));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(DefaultableParameterNode node) {
+    public Optional<ContextTypePair> transform(DefaultableParameterNode node) {
 
         Optional<Symbol> symbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.symbol(node));
 
-        if (symbol.isPresent() && symbol.get().kind() == SymbolKind.PARAMETER) {
-            ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
-            return Optional.of(parameterSymbol.typeDescriptor());
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.PARAMETER) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        ParameterSymbol parameterSymbol = (ParameterSymbol) symbol.get();
+        TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
+        return Optional.of(ContextTypePair.of(typeDescriptor, typeDescriptor));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(ExplicitAnonymousFunctionExpressionNode node) {
+    public Optional<ContextTypePair> transform(ExplicitAnonymousFunctionExpressionNode node) {
         /*
         For the function definition, we consider the return type.
          */
@@ -431,17 +452,18 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (typeSymbol.isEmpty() || typeSymbol.get().kind() != SymbolKind.TYPE) {
             return Optional.empty();
         }
-
-        return Optional.of((TypeSymbol) typeSymbol.get());
+        TypeSymbol symbol = (TypeSymbol) typeSymbol.get();
+        return Optional.of(ContextTypePair.of(symbol, symbol));
     }
 
     @Override
-    public Optional<TypeSymbol> transform(RecordFieldWithDefaultValueNode node) {
+    public Optional<ContextTypePair> transform(RecordFieldWithDefaultValueNode node) {
         Optional<Symbol> variableSymbol = this.getSymbolByName(node.fieldName().text());
         Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
         if (typeSymbol.isEmpty()) {
             return Optional.empty();
         }
+
         return Optional.of(this.getRawContextType(typeSymbol.get()));
     }
 
@@ -451,7 +473,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 //    }
 
     @Override
-    protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
+    protected Optional<ContextTypePair> transformSyntaxNode(Node node) {
         return this.visit(node.parent());
     }
 
@@ -465,7 +487,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         return Optional.ofNullable(moduleContent.get(0));
     }
 
-    private Optional<TypeSymbol> visit(Node node) {
+    private Optional<ContextTypePair> visit(Node node) {
         if (node == null || visitedNodes.contains(node)) {
             return Optional.empty();
         }
@@ -486,20 +508,20 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 .findFirst();
     }
 
-    private TypeSymbol getRawContextType(TypeSymbol typeSymbol) {
+    private ContextTypePair getRawContextType(TypeSymbol typeSymbol) {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
-        if (!this.isBroaderTypeSymbolSet) {
-            broaderTypeSymbol = typeSymbol;
-            isBroaderTypeSymbolSet = true;
-        }
         switch (rawType.typeKind()) {
             case MAP:
-                return ((MapTypeSymbol) rawType).typeParam();
+                rawType = ((MapTypeSymbol) rawType).typeParam();
+                break;
             case TABLE:
-                return ((TableTypeSymbol) rawType).rowTypeParameter();
+                rawType = ((TableTypeSymbol) rawType).rowTypeParameter();
+                break;
             default:
-                return rawType;
+                break;
         }
+
+        return ContextTypePair.of(rawType, typeSymbol);
     }
 
     /**
@@ -507,17 +529,17 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
      * argument nodes; this method returns the type symbol of the argument corresponding to the positional argument
      * provided.
      *
-     * @param positionalArgumentNode   Positional argument node
+     * @param positionalArgNode        Positional argument node
      * @param argumentNodes            Argument nodes of the function/method call expression
      * @param functionOrMethodCallExpr Function/method call expression
-     * @return {@link Optional<TypeSymbol>} Type symbol.
+     * @return {@link Optional<ContextTypePair>} Type symbol.
      */
-    private Optional<TypeSymbol> getPositionalArgumentTypeForFunction(PositionalArgumentNode positionalArgumentNode,
-                                                                      NodeList<FunctionArgumentNode> argumentNodes,
-                                                                      NonTerminalNode functionOrMethodCallExpr) {
+    private Optional<ContextTypePair> getPositionalArgumentTypeForFunction(PositionalArgumentNode positionalArgNode,
+                                                                           NodeList<FunctionArgumentNode> argumentNodes,
+                                                                           NonTerminalNode functionOrMethodCallExpr) {
         int argIndex = -1;
         for (int i = 0; i < argumentNodes.size(); i++) {
-            if (argumentNodes.get(i).equals(positionalArgumentNode)) {
+            if (argumentNodes.get(i).equals(positionalArgNode)) {
                 argIndex = i;
                 break;
             }
@@ -535,7 +557,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
-        return Optional.of(parameterSymbol.typeDescriptor());
+        TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
+        return Optional.of(ContextTypePair.of(typeDescriptor, typeDescriptor));
     }
 
     /**
@@ -547,9 +570,9 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
      * @param newExpressionNode      Implicit/explicit new expression node
      * @return Optiona type symbol of the parameter
      */
-    private Optional<TypeSymbol> getPositionalArgumentTypeForNewExpr(PositionalArgumentNode positionalArgumentNode,
-                                                                     NodeList<FunctionArgumentNode> argumentNodes,
-                                                                     NewExpressionNode newExpressionNode) {
+    private Optional<ContextTypePair> getPositionalArgumentTypeForNewExpr(PositionalArgumentNode positionalArgumentNode,
+                                                                          NodeList<FunctionArgumentNode> argumentNodes,
+                                                                          NewExpressionNode newExpressionNode) {
         int argIndex = -1;
         for (int i = 0; i < argumentNodes.size(); i++) {
             if (argumentNodes.get(i).equals(positionalArgumentNode)) {
@@ -568,20 +591,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (argIndex == -1 || parameterSymbols.isEmpty() || parameterSymbols.get().size() <= argIndex) {
             return Optional.empty();
         }
-
-        return Optional.of(parameterSymbols.get().get(argIndex).typeDescriptor());
-    }
-
-    /**
-     * Returns the broader or original type symbol of the resolved type symbol for a given context.
-     *
-     * @return
-     */
-    public Optional<TypeSymbol> getBroaderTypeSymbol() {
-        if (isBroaderTypeSymbolSet) {
-            return Optional.ofNullable(broaderTypeSymbol);
-        } else {
-            return Optional.empty();
-        }
+        TypeSymbol typeDescriptor = parameterSymbols.get().get(argIndex).typeDescriptor();
+        return Optional.of(ContextTypePair.of(typeDescriptor, typeDescriptor));
     }
 }
