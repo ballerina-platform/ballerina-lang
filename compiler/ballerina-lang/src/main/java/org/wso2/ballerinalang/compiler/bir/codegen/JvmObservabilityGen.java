@@ -466,9 +466,9 @@ class JvmObservabilityGen {
                     BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 3);
                     swapBasicBlockTerminator(currentBB, newCurrentBB);
 
-                    injectCheckErrorCalls(currentBB, errorReportBB, observeEndBB, func.localVars, null,
+                    injectCheckErrorCalls(func, currentBB, errorReportBB, observeEndBB, null,
                             returnValOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
-                    injectReportErrorCall(errorReportBB, func.localVars, null, returnValOperand,
+                    injectReportErrorCall(func, errorReportBB, null, returnValOperand,
                             FUNC_BODY_INSTRUMENTATION_TYPE);
                     injectStopObservationCall(observeEndBB, null);
 
@@ -491,7 +491,7 @@ class JvmObservabilityGen {
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 1);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
 
-                injectStopObservationWithErrorCall(currentBB, func.localVars, newCurrentBB.terminator.pos,
+                injectStopObservationWithErrorCall(func, currentBB, newCurrentBB.terminator.pos,
                         panicCall.errorOp, FUNC_BODY_INSTRUMENTATION_TYPE);
 
                 // Fix the Basic Blocks links
@@ -508,13 +508,10 @@ class JvmObservabilityGen {
             BIRBasicBlock observeEndBB = insertBasicBlock(func, initialBBCount);
             BIRBasicBlock rePanicBB = insertBasicBlock(func, initialBBCount + 1);
 
-            BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
-                    new Name(String.format("$%s$trappedError", functionName.replace(".", "_"))),
-                    VarScope.FUNCTION, VarKind.TEMP);
-            func.localVars.add(trappedErrorVariableDcl);
-            BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
+            BIROperand trappedErrorOperand = generateTempLocalVariable(func, "functionTrappedError",
+                    symbolTable.errorOrNilType);
 
-            injectStopObservationWithErrorCall(observeEndBB, func.localVars, null, trappedErrorOperand,
+            injectStopObservationWithErrorCall(func, observeEndBB, null, trappedErrorOperand,
                     FUNC_BODY_INSTRUMENTATION_TYPE);
             rePanicBB.terminator = new Panic(null, trappedErrorOperand);
 
@@ -572,9 +569,9 @@ class JvmObservabilityGen {
                         injectStartCallableObservationCall(func, observeStartBB, desugaredInsPosition,
                                 isRemote, false, false, objectTypeOperand, action, pkg,
                                 originalInsPos);
-                        injectCheckErrorCalls(errorCheckBB, errorReportBB, observeEndBB, func.localVars,
+                        injectCheckErrorCalls(func, errorCheckBB, errorReportBB, observeEndBB,
                                 desugaredInsPosition, callIns.lhsOp, INVOCATION_INSTRUMENTATION_TYPE);
-                        injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPosition, callIns.lhsOp,
+                        injectReportErrorCall(func, errorReportBB, desugaredInsPosition, callIns.lhsOp,
                                 INVOCATION_INSTRUMENTATION_TYPE);
                         injectStopObservationCall(observeEndBB, desugaredInsPosition);
 
@@ -624,9 +621,9 @@ class JvmObservabilityGen {
 
                         String uniqueId = String.format("%s$%s", INVOCATION_INSTRUMENTATION_TYPE,
                                 newCurrentBB.id.value); // Unique ID to work with EEs covering multiple BBs
-                        injectCheckErrorCalls(errorEntry.targetBB, observeEndBB, newTargetBB, func.localVars,
+                        injectCheckErrorCalls(func, errorEntry.targetBB, observeEndBB, newTargetBB,
                                 desugaredInsPos, errorEntry.errorOp, uniqueId);
-                        injectStopObservationWithErrorCall(observeEndBB, func.localVars, desugaredInsPos,
+                        injectStopObservationWithErrorCall(func, observeEndBB, desugaredInsPos,
                                 errorEntry.errorOp, INVOCATION_INSTRUMENTATION_TYPE);
 
                         // Fix the Basic Blocks links
@@ -637,16 +634,13 @@ class JvmObservabilityGen {
                         BIRBasicBlock observeEndBB = insertBasicBlock(func, newCurrentIndex + 2);
                         BIRBasicBlock rePanicBB = insertBasicBlock(func, newCurrentIndex + 3);
 
-                        BIRVariableDcl trappedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorOrNilType,
-                                new Name(String.format("$%s$trappedError", newCurrentBB.id.value)), VarScope.FUNCTION,
-                                VarKind.TEMP);
-                        func.localVars.add(trappedErrorVariableDcl);
-                        BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
+                        BIROperand trappedErrorOperand = generateTempLocalVariable(func, "trappedError",
+                                symbolTable.errorOrNilType);
 
-                        injectCheckErrorCalls(errorCheckBB, observeEndBB, newCurrentBB.terminator.thenBB,
-                                func.localVars, newCurrentBB.terminator.pos, trappedErrorOperand,
+                        injectCheckErrorCalls(func, errorCheckBB, observeEndBB, newCurrentBB.terminator.thenBB,
+                                newCurrentBB.terminator.pos, trappedErrorOperand,
                                 INVOCATION_INSTRUMENTATION_TYPE);
-                        injectStopObservationWithErrorCall(observeEndBB, func.localVars, newCurrentBB.terminator.pos,
+                        injectStopObservationWithErrorCall(func, observeEndBB, newCurrentBB.terminator.pos,
                                 trappedErrorOperand, INVOCATION_INSTRUMENTATION_TYPE);
                         rePanicBB.terminator = new Panic(newCurrentBB.terminator.pos, trappedErrorOperand);
 
@@ -745,22 +739,19 @@ class JvmObservabilityGen {
     /**
      * Inject branch condition for checking if a value is an error.
      *
+     * @param func The BIR function in which the call is injected
      * @param errorCheckBB The basic block to which the error check should be injected
      * @param isErrorBB The basic block to which errors should go to
      * @param noErrorBB The basic block to which no errors should go to
-     * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param valueOperand Operand for passing the value which should be checked if it is an error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectCheckErrorCalls(BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB, BIRBasicBlock noErrorBB,
-                                       Collection<BIRVariableDcl> scopeVarList, Location pos,
-                                       BIROperand valueOperand, String uniqueId) {
-        BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
-                new Name(String.format("$%s$%s$isError", uniqueId, errorCheckBB.id.value)), VarScope.FUNCTION,
-                VarKind.TEMP);
-        scopeVarList.add(isErrorVariableDcl);
-        BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
+    private void injectCheckErrorCalls(BIRFunction func, BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB,
+                                       BIRBasicBlock noErrorBB, Location pos, BIROperand valueOperand,
+                                       String uniqueId) {
+        BIROperand isErrorOperand = generateTempLocalVariable(func, String.format("$%s$isError", uniqueId),
+                symbolTable.booleanType);
         TypeTest errorTypeTestInstruction = new TypeTest(pos, symbolTable.errorType, isErrorOperand, valueOperand);
         errorCheckBB.instructions.add(errorTypeTestInstruction);
         errorCheckBB.terminator = new Branch(pos, isErrorOperand, isErrorBB, noErrorBB);
@@ -769,19 +760,16 @@ class JvmObservabilityGen {
     /**
      * Inject report error call.
      *
+     * @param func The BIR function in which the call is injected
      * @param errorReportBB The basic block to which the report error call should be injected
-     * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param errorOperand Operand for passing the error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectReportErrorCall(BIRBasicBlock errorReportBB, Collection<BIRVariableDcl> scopeVarList,
-                                       Location pos, BIROperand errorOperand, String uniqueId) {
-        BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                new Name(String.format("$%s$%s$castedError", uniqueId, errorReportBB.id.value)), VarScope.FUNCTION,
-                VarKind.TEMP);
-        scopeVarList.add(castedErrorVariableDcl);
-        BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
+    private void injectReportErrorCall(BIRFunction func, BIRBasicBlock errorReportBB, Location pos,
+                                       BIROperand errorOperand, String uniqueId) {
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("$%s$castedError", uniqueId),
+                symbolTable.errorType);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
         errorReportBB.instructions.add(errorCastInstruction);
@@ -814,20 +802,16 @@ class JvmObservabilityGen {
     /**
      * Inject stop observation with an error call.
      *
+     * @param func The BIR function in which the call is injected
      * @param observeEndBB The basic block to which the stop observation call should be injected
-     * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param errorOperand Operand for passing the error
      * @param uniqueId A unique ID to identify the check error call
      */
-    private void injectStopObservationWithErrorCall(BIRBasicBlock observeEndBB,
-                                                    Collection<BIRVariableDcl> scopeVarList, Location pos,
+    private void injectStopObservationWithErrorCall(BIRFunction func, BIRBasicBlock observeEndBB, Location pos,
                                                     BIROperand errorOperand, String uniqueId) {
-        BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                new Name(String.format("$%s$%s$castedError", uniqueId, observeEndBB.id.value)), VarScope.FUNCTION,
-                VarKind.TEMP);
-        scopeVarList.add(castedErrorVariableDcl);
-        BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("$%s$castedError", uniqueId),
+                symbolTable.errorType);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
         observeEndBB.instructions.add(errorCastInstruction);
@@ -1019,30 +1003,46 @@ class JvmObservabilityGen {
                                                   Location location) {
         String pkgId = generatePackageId(pkg.packageID);
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType, pkgId);
-        Name fileName = new Name("$observabilityFileName" + localVarIndex++);
-        Name startLine = new Name("$observabilityStartLine" + localVarIndex++);
-        Name startCol = new Name("$observabilityStartCol" + localVarIndex++);
-        BIRVariableDcl positionFileVar = new BIRVariableDcl(symbolTable.stringType, fileName, VarScope.FUNCTION,
-                VarKind.TEMP);
-        BIRVariableDcl startLineVar = new BIRVariableDcl(symbolTable.intType, startLine, VarScope.FUNCTION,
-                VarKind.TEMP);
-        BIRVariableDcl startColumnVar = new BIRVariableDcl(symbolTable.intType, startCol, VarScope.FUNCTION,
-                VarKind.TEMP);
-        BIROperand fileNameOperand = new BIROperand(positionFileVar);
-        BIROperand startLineOperand = new BIROperand(startLineVar);
-        BIROperand startColOperand = new BIROperand(startColumnVar);
-        ConstantLoad fileNameIns = new ConstantLoad(location, location.lineRange().filePath(),
-                fileNameOperand.variableDcl.type, fileNameOperand);
-        ConstantLoad startLineIns = new ConstantLoad(location, location.lineRange().startLine().line() + 1,
-                startLineOperand.variableDcl.type, startLineOperand);
-        ConstantLoad startColIns = new ConstantLoad(location, location.lineRange().startLine().offset() + 1,
-                startColOperand.variableDcl.type, startColOperand);
-        currentBB.instructions.add(fileNameIns);
-        currentBB.instructions.add(startLineIns);
-        currentBB.instructions.add(startColIns);
-        func.localVars.add(positionFileVar);
-        func.localVars.add(startLineVar);
-        func.localVars.add(startColumnVar);
+
+        BIROperand fileNameOperand = generateTempLocalVariable(func, "fileName",
+                symbolTable.stringType, location, currentBB, location.lineRange().filePath());
+        BIROperand startLineOperand = generateTempLocalVariable(func, "startLine",
+                symbolTable.intType, location, currentBB, location.lineRange().startLine().line() + 1);
+        BIROperand startColOperand = generateTempLocalVariable(func, "startCol",
+                symbolTable.intType, location, currentBB, location.lineRange().startLine().offset() + 1);
+
         return new ArrayList<>(Arrays.asList(pkgOperand, fileNameOperand, startLineOperand, startColOperand));
+    }
+
+    /**
+     * Generate a temporary function scope variable with an initialized value.
+     *
+     * @param func The BIR function to which the variable should be added
+     * @param name The name of the variable
+     * @param variableType The type of the variable
+     * @return The generated operand for the variable declaration
+     */
+    private BIROperand generateTempLocalVariable(BIRFunction func, String name, BType variableType,
+                                                 Location initInsLocation, BIRBasicBlock initInsBB,
+                                                 Object initValue) {
+        BIROperand variableOperand = generateTempLocalVariable(func, name, variableType);
+        ConstantLoad constantLoadIns = new ConstantLoad(initInsLocation, initValue, variableType, variableOperand);
+        initInsBB.instructions.add(constantLoadIns);
+        return variableOperand;
+    }
+
+    /**
+     * Generate a temporary function scope variable.
+     *
+     * @param func The BIR function to which the variable should be added
+     * @param name The name of the variable
+     * @param variableType The type of the variable
+     * @return The generated operand for the variable declaration
+     */
+    private BIROperand generateTempLocalVariable(BIRFunction func, String name, BType variableType) {
+        Name variableName = new Name(String.format("$observability$%s$%d", name, localVarIndex++));
+        BIRVariableDcl variableDcl = new BIRVariableDcl(variableType, variableName, VarScope.FUNCTION, VarKind.TEMP);
+        func.localVars.add(variableDcl);
+        return new BIROperand(variableDcl);
     }
 }
