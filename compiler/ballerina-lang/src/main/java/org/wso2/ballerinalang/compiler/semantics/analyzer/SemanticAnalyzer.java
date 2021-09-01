@@ -2261,6 +2261,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         Map<BVarSymbol, BType.NarrowedTypes> prevNarrowedTypeInfo = this.narrowedTypeInfo;
+        Map<BVarSymbol, BType.NarrowedTypes> narrowedTypes = new HashMap<>();
 
         SymbolEnv ifEnv = typeNarrower.evaluateTruth(ifNode.expr, ifNode.body, env);
 
@@ -2276,6 +2277,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BVarSymbol key = entry.getKey();
                 if (!existingNarrowedTypeInfo.containsKey(key)) {
                     existingNarrowedTypeInfo.put(key, entry.getValue());
+                } else {
+                    BType.NarrowedTypes narrowedTypes = existingNarrowedTypeInfo.get(key);
+                    BUnionType unionType =
+                            BUnionType.create(null, narrowedTypes.falseType, narrowedTypes.trueType);
+                    BType.NarrowedTypes newPair = new BType.NarrowedTypes(narrowedTypes.trueType, unionType);
+                    narrowedTypes.put(key, newPair);
                 }
             }
         }
@@ -2289,6 +2296,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt(ifNode.elseStmt, elseEnv);
         }
         this.narrowedTypeInfo = prevNarrowedTypeInfo;
+        if (narrowedTypeInfo != null) {
+            narrowedTypeInfo.putAll(narrowedTypes);
+        }
     }
 
     @Override
