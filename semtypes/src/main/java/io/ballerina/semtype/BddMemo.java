@@ -42,7 +42,6 @@ public class BddMemo {
     public boolean isEmpty() {
         return this.isEmpty == MemoStatus.TRUE;
     }
-
     /**
      * Represent if BddMemo is null or not.
      *
