@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypePair;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
@@ -53,14 +54,14 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = expressionNode.apply(resolver);
+        Optional<ContextTypePair> expressionType = expressionNode.apply(resolver);
 
-        if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
+        if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get().getRawType())) {
             /*
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>
              */
-            List<Symbol> clientActions = this.getClientActions(expressionType.get());
+            List<Symbol> clientActions = this.getClientActions(expressionType.get().getRawType());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
         } else {
             /*

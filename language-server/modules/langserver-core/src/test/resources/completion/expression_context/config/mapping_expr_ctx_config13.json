@@ -17,7 +17,7 @@
     {
       "label": "rec2Field1",
       "kind": "Field",
-      "detail": "TestRecord1.rec2Field1",
+      "detail": "module1:TestRecord2.rec2Field1",
       "sortText": "G",
       "insertText": "rec2Field1: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,15 +25,15 @@
     {
       "label": "rec3Field2",
       "kind": "Field",
-      "detail": "TestRecord1.rec3Field2",
+      "detail": "module1:TestRecord2.rec3Field2",
       "sortText": "G",
       "insertText": "rec3Field2: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill TestRecord1 Required Fields",
+      "label": "Fill module1:TestRecord2 Required Fields",
       "kind": "Property",
-      "detail": "TestRecord1",
+      "detail": "module1:TestRecord2",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "rec2Field1: 0,\nrec3Field2: \"\"",
