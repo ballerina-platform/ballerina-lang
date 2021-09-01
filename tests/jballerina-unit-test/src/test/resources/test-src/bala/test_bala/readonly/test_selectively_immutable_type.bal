@@ -481,3 +481,81 @@ function assertEquality(any|error expected, any|error actual) {
             message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
 
+function testIterationWithImportedImmutableType() {
+    se:EmployeeMap empMap = {
+        emp1: {
+            details: {
+                name: "Emma",
+                id: 1234
+            },
+            department: "finance"
+        },
+        emp2: {
+            details: {
+                name: "Tom",
+                id: 5678
+            },
+            department: "HR"
+        }
+    };
+
+    int count = 0;
+    foreach var entry in empMap.cloneReadOnly() {
+        count += 1;
+    }
+    assertEquality(2, count);
+
+    se:EmployeeTable empTable = table [
+            {
+                details: {
+                    name: "Emma",
+                    id: 1234
+                },
+                department: "finance"
+            },
+            {
+                details: {
+                    name: "Tom",
+                    id: 5678
+                },
+                department: "HR"
+            }
+        ];
+    count = 0;
+    foreach var entry in empTable.cloneReadOnly() {
+        count += 1;
+    }
+    assertEquality(2, count);
+
+    se:UnionMap unionMap = {
+        id: {
+            name: "Tom",
+            id: 5678
+        },
+        user: {
+            username : "user1"
+        }
+    };
+
+    count = 0;
+    foreach var entry in unionMap.cloneReadOnly() {
+        count += 1;
+    }
+    assertEquality(2, count);
+
+    se:UnionTable unionTable = table [
+            {
+                name: "Tom",
+                id: 5678
+            },
+            {
+                username: "user1"
+            }
+        ];
+
+    count = 0;
+    foreach var entry in unionTable.cloneReadOnly() {
+        count += 1;
+    }
+    assertEquality(2, count);
+}
