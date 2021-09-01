@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina (Deprecated)",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "1.2.18",
+    "version": "1.2.19",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
