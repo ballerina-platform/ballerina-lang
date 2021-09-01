@@ -52,8 +52,8 @@ public class TestUtils {
 
     static BuildProject loadBuildProject(Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-        options.acceptTheirs(buildOptions);
-        return BuildProject.load(projectPath, options);
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return BuildProject.load(projectPath, mergedOptions);
     }
 
     static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
@@ -64,8 +64,8 @@ public class TestUtils {
     static BuildProject loadBuildProject(
             ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-        options.acceptTheirs(buildOptions);
-        return BuildProject.load(environmentBuilder, projectPath, options);
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return BuildProject.load(environmentBuilder, projectPath, mergedOptions);
     }
 
     public static SingleFileProject loadSingleFileProject(Path projectPath) {
@@ -75,8 +75,8 @@ public class TestUtils {
 
     static SingleFileProject loadSingleFileProject(Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-        options.acceptTheirs(buildOptions);
-        return SingleFileProject.load(projectPath, options);
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return SingleFileProject.load(projectPath, mergedOptions);
     }
 
     static SingleFileProject loadSingleFileProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
@@ -87,8 +87,8 @@ public class TestUtils {
     static SingleFileProject loadSingleFileProject(
             ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-        options.acceptTheirs(buildOptions);
-        return SingleFileProject.load(environmentBuilder, projectPath, options);
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return SingleFileProject.load(environmentBuilder, projectPath, mergedOptions);
     }
 
     static Project loadProject(Path projectPath) {
@@ -98,8 +98,8 @@ public class TestUtils {
 
     static Project loadProject(Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-        options.acceptTheirs(buildOptions);
-        return ProjectLoader.loadProject(projectPath, options);
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return ProjectLoader.loadProject(projectPath, mergedOptions);
     }
 
     static Project loadProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
@@ -109,8 +109,8 @@ public class TestUtils {
 
     static Project loadProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
-        options.acceptTheirs(buildOptions);
-        return ProjectLoader.loadProject(projectPath, environmentBuilder, options);
+        BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
+        return ProjectLoader.loadProject(projectPath, environmentBuilder, mergedOptions);
     }
 
     static void unzip(String fileZipPath, String destinationDirectory) throws IOException {
