@@ -122,12 +122,30 @@ function testDefaultValues() {
     "\"word2\":\"word 2\",\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":\"word 7\"}}]," +
     "\"map2\":[{\"words\":{\"word1\":\"word 10\",\"word2\":\"word 20\",\"word3\":\"word 30\",\"word4\":\"word 40\"," +
     "\"word5\":\"word 50\",\"word6\":\"word 60\"}}]}");
+}
 
+isolated function getWord() returns string {
+    return "word 3";
+}
+
+public function main() {
+    testDefaultValues();
+    testRecordIteration();
+    testArrayIteration();
+    testMapIteration();
+    testTableIteration();
+    
+    util:print("Tests passed");
+}
+
+function testTableIteration() {
     util:testTableIterator(wordTable);
     util:testTableIterator(numberTable);
     util:testTableIterator(symbolTable);
     util:testTableIterator(containerTable);
+}
 
+function testMapIteration() {
     util:testMapIterator(wordMap, 2);
     util:testMapIterator(numberMap, 2);
     util:testMapIterator(symbolMap, 2);
@@ -138,11 +156,16 @@ function testDefaultValues() {
     util:testMapIterator(containerTableMap, 2);
 }
 
-isolated function getWord() returns string {
-    return "word 3";
+function testRecordIteration() {
+    util:testRecordIterator(words, 6);
+    util:testRecordIterator(numbers, 5);
+    util:testRecordIterator(symbols, 4);
+    util:testRecordIterator(container, 1);
 }
 
-public function main() {
-    testDefaultValues();
-    util:print("Tests passed");
+function testArrayIteration() {
+    util:testArrayIterator(wordArr, 2);
+    util:testArrayIterator(numberArr, 2);
+    util:testArrayIterator(symbolArr, 2);
+    util:testArrayIterator(containerArr, 2);
 }

@@ -16,6 +16,7 @@
 
 import configRecordType.type_defs;
 import testOrg/configLib.mod1 as configLib;
+import testOrg/configLib.util;
 import ballerina/test;
 
 public type Doctor record {|
@@ -56,4 +57,16 @@ public function testRecords() {
     test:assertEquals(person.id, 100);
     test:assertEquals(person.address.city, "Kandy");
     test:assertEquals(person.address.country.name, "Sri Lanka");
+}
+
+public function testRecordIteration() {
+    util:testRecordIterator(doctor, 2);
+    util:testRecordIterator(student, 2);
+    util:testRecordIterator(employee, 2);
+    util:testRecordIterator(employee1, 2);
+    util:testRecordIterator(officer, 2);
+    util:testRecordIterator(manager, 2);
+    util:testRecordIterator(teacher, 2);
+    util:testRecordIterator(farmer, 2);
+    util:testRecordIterator(person, 3);
 }
