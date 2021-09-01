@@ -146,14 +146,10 @@ public class PackageResolutionTestCaseBuilder {
             MutableAttributed<MutableNode, ForNode> attrs = node.attrs();
             PackageDependencyScope scope = Utils.getDependencyScope(attrs.get("scope"));
 
-            boolean isTransitive = false;
-            if (attrs.get("transitive") != null) {
-                isTransitive = Boolean.parseBoolean((Objects.requireNonNull(attrs.get("transitive"))).toString());
-            }
-
             PackageDescriptor pkgDesc = Utils.getPkgDescFromNode(node.name().value(), null);
             recordedDeps.add(new DependencyManifest.Package(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(),
-                    scope.getValue(), isTransitive, Collections.emptyList(), Collections.emptyList()));
+                                                            scope.getValue(), Collections.emptyList(),
+                                                            Collections.emptyList()));
         }
         return DependencyManifest.from("2.0.0", recordedDeps);
     }
