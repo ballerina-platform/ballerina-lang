@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.completions.util.ContextTypePair;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.eclipse.lsp4j.CompletionParams;
 
@@ -102,11 +103,11 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
             NonTerminalNode node = getNodeAtCursor();
             do {
                 ContextTypeResolver contextTypeResolver = new ContextTypeResolver(this);
-                Optional<TypeSymbol> typeSymbol = node.apply(contextTypeResolver);
+                Optional<ContextTypePair> typeSymbol = node.apply(contextTypeResolver);
                 if (typeSymbol == null || typeSymbol.isEmpty()) {
                     this.contextType = null;
                 } else {
-                    this.contextType = typeSymbol.get();
+                    this.contextType = typeSymbol.get().getRawType();
                 }
                 node = node.parent();
             } while (this.contextType == null && node != null);
