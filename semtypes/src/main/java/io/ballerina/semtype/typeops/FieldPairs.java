@@ -18,8 +18,6 @@
 package io.ballerina.semtype.typeops;
 
 import io.ballerina.semtype.MappingAtomicType;
-import io.ballerina.semtype.SemType;
-import io.ballerina.semtype.UniformTypeBitSet;
 
 import java.util.Iterator;
 

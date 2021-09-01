@@ -18,8 +18,6 @@
 package io.ballerina.semtype.typeops;
 
 import io.ballerina.semtype.SemType;
-import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.UniformTypeCode;
 
 /**
  * Represent the FieldPair record.

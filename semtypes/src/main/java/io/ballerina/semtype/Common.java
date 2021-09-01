@@ -21,7 +21,6 @@ import io.ballerina.semtype.subtypedata.BddAllOrNothing;
 import io.ballerina.semtype.subtypedata.BddNode;
 import io.ballerina.semtype.typeops.BddCommonOps;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,8 +61,8 @@ public class Common {
     // We walk the tree, accumulating the positive and negative conjunctions for a path as we go.
     // When we get to a leaf that is true, we apply the predicate to the accumulated conjunctions.
 
-    public static boolean bddEvery(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg, BddPredicate predicate)
-            throws InvocationTargetException, IllegalAccessException {
+    public static boolean bddEvery(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg,
+                                   BddPredicate predicate) {
         if (b instanceof BddAllOrNothing) {
             return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
         } else {

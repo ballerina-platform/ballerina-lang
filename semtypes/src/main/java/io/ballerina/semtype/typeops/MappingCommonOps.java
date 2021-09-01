@@ -17,12 +17,15 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Bdd;
+import io.ballerina.semtype.BddMemo;
 import io.ballerina.semtype.Common;
 import io.ballerina.semtype.Conjunction;
 import io.ballerina.semtype.Core;
 import io.ballerina.semtype.MappingAtomicType;
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.SemType;
+import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
 
@@ -127,7 +130,8 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
         SemType[] types = Common.shallowCopyTypes(m.types);
         int i = names.length;
         while (true) {
-            if (i == 0 || name.codePoints() <= names[i - 1].codePoints()) {
+            // TODO change length to comparing codePoints
+            if (i == 0 || name.length() <= names[i - 1].length()) {
                 names[i] = name;
                 types[i] = t;
                 break;
@@ -153,5 +157,30 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
         }
         SemType rest = Core.intersect(m1.rest, m2.rest);
         return MappingAtomicType.from(names.toArray(new String[0]), types.toArray(new SemType[0]), rest);
+    }
+
+    public static boolean mappingSubtypeIsEmpty(TypeCheckContext tc, SubtypeData t) {
+        Bdd b = (Bdd) t;
+        BddMemo mm = tc.mappingMemo.get(b);
+        BddMemo m;
+        if (mm == null) {
+            m = BddMemo.from(b);
+            tc.mappingMemo.put(b, m);
+        } else {
+            m = mm;
+            BddMemo.MemoStatus res = m.isEmpty;
+            switch (res) {
+                case NOT_SET:
+                    // we've got a loop
+                    return true;
+                case TRUE:
+                    return true;
+                case FALSE:
+                    return false;
+            }
+        }
+        boolean isEmpty = Common.bddEvery(tc, b, null, null, MappingCommonOps::mappingFormulaIsEmpty);
+        m.setIsEmpty(isEmpty);
+        return isEmpty;
     }
 }

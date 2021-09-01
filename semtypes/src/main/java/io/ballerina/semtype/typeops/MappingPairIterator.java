@@ -108,10 +108,10 @@ public class MappingPairIterator implements Iterator<FieldPair> {
         } else {
             String name1 = curName1();
             String name2 = curName2();
-            if (name1.codePoints() < name2.codePoints()) {
+            if (name1.length() < name2.length()) { // TODO change length to comparing codePoints
                 p = FieldPair.create(name1, curType1(), this.rest2);
                 this.i1 += 1;
-            } else if (name2.codePoints() < name1.codePoints()) {
+            } else if (name2.length() < name1.length()) { // TODO change length to comparing codePoints
                 p = FieldPair.create(name2, this.rest1, curType2());
                 this.i2 += 1;
             } else {
