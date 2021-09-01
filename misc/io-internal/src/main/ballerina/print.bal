@@ -16,11 +16,70 @@
 
 import ballerina/jballerina.java;
 
-# Prints `any|error` value to the STDOUT.
+public type Printable any|error|PrintableRawTemplate;
+
+public type PrintableRawTemplate object {
+    public string[] & readonly strings;
+    public Printable[] insertions;
+};
+
+# Prints `any`, `error` or string templates(such as `The respective int value is ${val}`) value(s)
+# to the STDOUT followed by a new line.
 #
-# + value - The value to be printed
-public isolated function println(any|error value) {
-    externPrintln(out(), java:fromString(value is error ? value.toString() : value.toString()));
+# + values - The value(s) to be printed
+public isolated function println(Printable... values) {
+    string value = "";
+    foreach Printable printableValue in values {
+        PrintableClassImpl printable = new PrintableClassImpl(printableValue);
+        value = value.concat(printable.toString());
+    }
+
+    externPrintln(out(), java:fromString(value));
+}
+
+class PrintableClassImpl {
+    Printable printable;
+
+    public isolated function init(Printable printable) {
+        self.printable = printable;
+    }
+    public isolated function toString() returns string {
+        Printable printable = self.printable;
+        if printable is PrintableRawTemplate {
+            return new PrintableRawTemplateImpl(printable).toString();
+        } else if printable is error {
+            return printable.toString();
+        } else {
+            return printable.toString();
+        }
+    }
+}
+
+class PrintableRawTemplateImpl {
+    *object:RawTemplate;
+    public Printable[] insertions;
+
+    public isolated function init(PrintableRawTemplate printableRawTemplate) {
+        self.strings = printableRawTemplate.strings;
+        self.insertions = printableRawTemplate.insertions;
+    }
+
+    public isolated function toString() returns string {
+        Printable[] templeteInsertions = self.insertions;
+        string[] templeteStrings = self.strings;
+        string templatedString = templeteStrings[0];
+        foreach int i in 1 ..< (templeteStrings.length()) {
+            Printable templateInsert = templeteInsertions[i - 1];
+            if (templateInsert is PrintableRawTemplate) {
+                templatedString += new PrintableRawTemplateImpl(templateInsert).toString() + templeteStrings[i];
+            } else if (templateInsert is error) {
+                templatedString += templateInsert.toString() + templeteStrings[i];
+            } else {
+                templatedString += templateInsert.toString() + templeteStrings[i];
+            }
+        }
+        return templatedString;
+    }
 }
 
 # Retrieves the current system output stream.

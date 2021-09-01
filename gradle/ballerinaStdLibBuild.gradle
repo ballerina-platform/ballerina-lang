@@ -150,8 +150,7 @@ ext {
         modName = 'observe'
     } else if (project.projectDir.name == 'io-internal') {
         modName = 'io'
-    }
-    else {
+    } else {
         modName = project.projectDir.name
     }
 }
