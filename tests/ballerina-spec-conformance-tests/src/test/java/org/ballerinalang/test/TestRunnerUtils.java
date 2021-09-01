@@ -112,7 +112,8 @@ public class TestRunnerUtils {
                 }
                 outputValues.add(output);
             } else if (Pattern.matches(".*//.*", line)) {
-                throw new IllegalStateException("Incorrect output(comment)");
+                Assert.fail("format of output is incorrect, format of output " +
+                            "should be //@error, //@output and //@panic");
             }
             tempFileWriter.write(line + NEW_LINE_CHARACTER);
         }
@@ -132,8 +133,8 @@ public class TestRunnerUtils {
         if (Pattern.matches(pattern, kindOfTestCase.trim())) {
             return kindOfTestCase.substring(kindOfTestCase.indexOf(COLON) + 1).trim();
         }
-        throw new AssertionError(String.format("Incorrect test type in line %d expected OUTPUT, ERROR, PANIC",
-                absLineNum));
+        throw new AssertionError(String.format("Kind of testcase is incorrect in line %d, expected kind of " +
+                                               "testcases are OUTPUT, ERROR, PANIC", absLineNum));
     }
 
     private static String readHeadersOfTestCase(BufferedReader buffReader, String kindOfTestFile,
@@ -160,8 +161,8 @@ public class TestRunnerUtils {
                 value = header.substring(index + 1).trim();
                 if (key.equals(LABELS)) {
                     String[] labels = value.split("\\s*,\\s*");
-                    areLabelsDefined(labels);
-                    kind = isTestCaseSkipped(selectedLabels, labels, kind);
+                    checkLabelsDefined(labels);
+                    kind = isSkippedTestCase(selectedLabels, labels, kind);
                 }
             } else {
                 value = value + " " + header.trim();
@@ -170,15 +171,15 @@ public class TestRunnerUtils {
         return kind;
     }
 
-    private static void areLabelsDefined(String[] labels) {
+    private static void checkLabelsDefined(String[] labels) {
         for (String label : labels) {
             if (!org.ballerinalang.test.Labels.LABELS.contains(label)) {
-                Assert.fail(String.format("%s is not defined", label));
+                Assert.fail(String.format("Lable %s is not defined", label));
             }
         }
     }
 
-    private static String isTestCaseSkipped(Set<String> selectedLabels, String[] labels, String kind) {
+    private static String isSkippedTestCase(Set<String> selectedLabels, String[] labels, String kind) {
         if (selectedLabels.isEmpty()) {
             return kind;
         }
@@ -206,8 +207,8 @@ public class TestRunnerUtils {
         }
         for (int i = 0; i < outputValues.size(); i++) {
             if (!results[i].equals(outputValues.get(i))) {
-                Assert.fail(String.format("In %s file, Expected %s but found %s", fileName, outputValues.toString(),
-                            Arrays.toString(results)));
+                Assert.fail(String.format("In %s file, Expected %s vlaues but found %s values", fileName,
+                            outputValues.toString(), Arrays.toString(results)));
             }
         }
     }

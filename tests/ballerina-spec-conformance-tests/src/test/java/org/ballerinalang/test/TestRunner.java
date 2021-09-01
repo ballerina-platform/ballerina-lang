@@ -82,7 +82,7 @@ public class TestRunner {
 
 
     public HashSet<String> runSelectedTests() {
-        final String[] setValues = new String[] {Labels.BOOLEAN_TYPE_DESCRIPTOR};
+        final String[] setValues = new String[] {};
         return new HashSet<>(Arrays.asList(setValues));
     }
 
