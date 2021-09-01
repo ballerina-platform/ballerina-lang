@@ -57,8 +57,8 @@ public class QueryExpressionEvaluator extends Evaluator {
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
+        QueryExpressionProcessor queryProcessor = new QueryExpressionProcessor(context, syntaxNode);
         try {
-            QueryExpressionProcessor queryProcessor = new QueryExpressionProcessor(context, syntaxNode);
             Map.Entry<Path, String> execPathAndMainClassName = queryProcessor.generateExecutables();
             Path executablePath = execPathAndMainClassName.getKey();
             String mainClassName = execPathAndMainClassName.getValue();
@@ -84,14 +84,15 @@ public class QueryExpressionEvaluator extends Evaluator {
             loadQueryClasses.invokeSafely();
             Value queryResult = loadQueryClasses.invokeSafely();
 
-            // Need to dispose the query processor, which will clean up temporary resources generated during the
-            // evaluation.
-            queryProcessor.dispose();
             return new BExpressionValue(context, queryResult);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
             throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
+        } finally {
+            // Need to dispose the query processor, which will clean up temporary resources generated during the
+            // evaluation.
+            queryProcessor.dispose();
         }
     }
 }

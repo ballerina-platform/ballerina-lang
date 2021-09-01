@@ -350,19 +350,23 @@ public class QueryExpressionProcessor {
      * @param directoryPath Directory to delete.
      */
     private boolean deleteDirectory(Path directoryPath) {
-        File directory = new File(String.valueOf(directoryPath));
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    boolean success = deleteDirectory(f.toPath());
-                    if (!success) {
-                        return false;
+        try {
+            File directory = new File(String.valueOf(directoryPath));
+            if (directory.isDirectory()) {
+                File[] files = directory.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        boolean success = deleteDirectory(f.toPath());
+                        if (!success) {
+                            return false;
+                        }
                     }
                 }
             }
+            return directory.delete();
+        } catch (Exception ignored) {
+            return false;
         }
-        return directory.delete();
     }
 
     public void dispose() {
