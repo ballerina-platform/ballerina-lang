@@ -58,7 +58,7 @@ public class StringOps implements UniformTypeOps {
     @Override
     public SubtypeData complement(SubtypeData d) {
         StringSubtype s = (StringSubtype) d;
-        return StringSubtype.createStringSubtype(!s.allowed, s.values);
+        return StringSubtype.createStringSubtype(!s.allowed, (EnumerableString[]) s.values);
     }
 
     @Override

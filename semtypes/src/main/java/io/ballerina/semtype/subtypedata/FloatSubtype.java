@@ -19,6 +19,7 @@ package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.EnumerableFloat;
 import io.ballerina.semtype.EnumerableSubtype;
+import io.ballerina.semtype.EnumerableType;
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SemType;
@@ -34,8 +35,6 @@ import java.util.Optional;
  */
 public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData {
 
-    public final boolean allowed;
-    public final EnumerableFloat[] values;
 
     public FloatSubtype(boolean allowed, EnumerableFloat value) {
         this.allowed = allowed;
@@ -62,7 +61,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
             return Optional.empty();
         }
 
-        EnumerableFloat[]values = f.values;
+        EnumerableFloat[] values = (EnumerableFloat[]) f.values;
         if (values.length != 1) {
             return Optional.empty();
         }
@@ -75,7 +74,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
         }
 
         FloatSubtype v = (FloatSubtype) d;
-        for (EnumerableFloat val : v.values) {
+        for (EnumerableType val : v.values) {
             if (val == f) {
                 return v.allowed;
             }
