@@ -70,11 +70,13 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
@@ -398,7 +400,14 @@ public class CodeActionUtil {
             }
             List<String> memberTypes = new ArrayList<>();
             for (TypeSymbol tMember : tMembers) {
-                memberTypes.add(CodeActionUtil.getPossibleType(tMember, edits, context).orElseThrow());
+                String possibleType = CodeActionUtil.getPossibleType(tMember, edits, context).orElseThrow();
+                if (tMember.typeKind() == TypeDescKind.UNION || tMember.typeKind() == TypeDescKind.SINGLETON) {
+                    String[] parts = possibleType.split(Pattern.quote("|"));
+                    possibleType = Arrays.stream(parts)
+                            .map(s -> "\"" + s + "\"")
+                            .collect(Collectors.joining("| "));
+                }
+                memberTypes.add(possibleType);
             }
             if (addErrorTypeAtEnd) {
                 memberTypes.add("error");
