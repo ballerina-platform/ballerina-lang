@@ -57,7 +57,6 @@ dependencies {
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':observability-test-utils')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-    implementation 'io.netty:netty-tcnative-boringssl-static'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
 

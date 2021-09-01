@@ -99,7 +99,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_WITH_ERROR_METHOD;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR desugar to inject observations class.
@@ -987,7 +986,7 @@ class JvmObservabilityGen {
      * @return The generated ID
      */
     private String generatePackageId(PackageID pkg) {
-        return String.format("%s/%s:%s", pkg.orgName.value, pkg.name.value, getMajorVersion(pkg.version.value));
+        return String.format("%s/%s:%s", pkg.orgName.value, pkg.name.value, pkg.version.value);
     }
 
     /**

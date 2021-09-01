@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.wso2.ballerinalang.compiler.bir;
 
 import io.ballerina.tools.diagnostics.Location;
@@ -299,8 +300,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void setEntryPoints(BLangPackage pkgNode) {
         BLangFunction mainFunc = getMainFunction(pkgNode);
-        if (mainFunc != null || listenerDeclarationFound(pkgNode.getGlobalVariables()) ||
-                pkgNode.services.size() != 0) {
+        if (mainFunc != null || listenerDeclarationFound(pkgNode.getGlobalVariables()) || !pkgNode.services.isEmpty()) {
             pkgNode.symbol.entryPointExists = true;
         }
     }
@@ -1713,11 +1713,6 @@ public class BIRGen extends BLangNodeVisitor {
         setScopeAndEmit(instruction);
 
         this.env.targetOperand = toVarRef;
-
-        // Invoke the struct initializer here.
-        if (astStructLiteralExpr.initializer != null) {
-            //TODO
-        }
     }
 
     private List<BIROperand> mapToVarDcls(TreeMap<Integer, BVarSymbol> enclMapSymbols) {
@@ -2427,7 +2422,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(lockedBB);
         this.env.enclBasicBlocks.add(lockedBB);
-        BIRTerminator.Lock lock = new BIRTerminator.Lock(null, lockedBB, this.currentScope);
+        BIRTerminator.Lock lock = new BIRTerminator.Lock(lockStmt.pos, lockedBB, this.currentScope);
         this.env.enclBB.terminator = lock;
         lockStmtMap.put(lockStmt, lock); // Populate the cache.
         this.env.unlockVars.peek().addLock(lock);
@@ -2462,7 +2457,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock unLockedBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(unLockedBB);
         this.env.enclBasicBlocks.add(unLockedBB);
-        this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unLockedBB, this.currentScope);
+        this.env.enclBB.terminator = new BIRTerminator.Unlock(unLockStmt.pos, unLockedBB, this.currentScope);
         ((BIRTerminator.Unlock) this.env.enclBB.terminator).relatedLock = lockStmtMap.get(unLockStmt.relatedLock);
         this.env.enclBB = unLockedBB;
 
