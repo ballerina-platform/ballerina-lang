@@ -58,8 +58,9 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         if (onSuggestionsAfterQualifiers(context, node)) {
             /*
              * Covers the following
-             * type T <qualifier(s)> <cursor>
-             * Currently the qualifier can be isolated/transactional.
+             * isolated <cursor>
+             * parser currently recovers adding the MISSING[function] token. Hence, 
+             * function type descriptor becomes the node at cursor.  
              */
             NodeList<Token> qualifiers = node.qualifierList();
             List<Token> otherQuals = node.leadingInvalidTokens();
