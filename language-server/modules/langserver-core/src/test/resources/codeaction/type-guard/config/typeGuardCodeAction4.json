@@ -1,0 +1,24 @@
+{
+  "line": 8,
+  "character": 8,
+  "expected": [
+    {
+      "title": "Type guard variable",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 28
+            },
+            "end": {
+              "line": 8,
+              "character": 28
+            }
+          },
+          "newText": "\n    if cur is SingleCharDelim {\n\n    } else if cur is CompoundAssignDelim {\n\n    } else if cur is \"\u003c\u003c\"| \"\u003e\u003e\" {\n\n    } else if cur is \"int\" {\n\n    } else if cur is \"string\" {\n\n    } else {\n\n    }\n"
+        }
+      ]
+    }
+  ]
+}
