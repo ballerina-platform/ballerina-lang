@@ -18,8 +18,8 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 
@@ -37,12 +38,15 @@ import io.ballerina.runtime.api.values.BValue;
  */
 public class GetElementType {
 
-    public static BTypedesc getElementType(Object td) {
-        BTypedesc bTypedesc = (BTypedesc) td;
-        return getTypeDescValue(bTypedesc.getDescribingType());
+    private GetElementType() {
     }
 
-    private static BTypedesc getTypeDescValue(Type type) {
+    public static BTypedesc getElementType(Object td) {
+        BTypedesc bTypedesc = (BTypedesc) td;
+        return getElementTypeDescValue(bTypedesc.getDescribingType());
+    }
+
+    private static BTypedesc getElementTypeDescValue(Type type) {
         switch (type.getTag()) {
             case TypeTags.ARRAY_TAG:
                 return ValueCreator.createTypedescValue(((ArrayType) type).getElementType());
@@ -53,13 +57,14 @@ public class GetElementType {
                 return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
             case TypeTags.FINITE_TYPE_TAG:
                 if (((FiniteType) type).getValueSpace().size() == 1) {
-                    return getTypeDescValue(
+                    return getElementTypeDescValue(
                             ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
                 }
                 break;
             default:
                 break;
         }
-        return ValueCreator.createTypedescValue(PredefinedTypes.TYPE_NULL);
+        throw ErrorCreator.createError(StringUtils.fromString("retrieving element type from '" + type +
+                "' is not supported."));
     }
 }
