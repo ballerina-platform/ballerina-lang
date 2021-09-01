@@ -18,16 +18,18 @@
 package io.ballerina.semtype;
 
 /**
- * FunctionAtomicType node.
+ * Enumerable type wrapper for float.
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public final SemType paramType;
-    public final SemType retType;
+public class EnumerableFloat implements EnumerableType {
+    final double value;
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    private EnumerableFloat(double value) {
+        this.value = value;
+    }
+
+    public static EnumerableFloat from(double d) {
+        return new EnumerableFloat(d);
     }
 }

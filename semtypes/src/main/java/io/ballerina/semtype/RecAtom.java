@@ -23,7 +23,7 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class RecAtom implements Atom {
-    int index;
+    public final int index;
 
     public RecAtom(int index) {
         this.index = index;
