@@ -213,9 +213,9 @@ public class BIRTypeWriter implements TypeVisitor {
         }
 
         BVarSymbol restParam = invokableTypeSymbol.restParam;
-        boolean restParamExist = restParam != null;
-        buff.writeBoolean(restParamExist);
-        if (restParamExist) {
+        boolean restParamExists = restParam != null;
+        buff.writeBoolean(restParamExists);
+        if (restParamExists) {
             buff.writeInt(addStringCPEntry(restParam.name.value));
             buff.writeLong(restParam.flags);
             writeMarkdownDocAttachment(buff, restParam.markdownDocumentation);
