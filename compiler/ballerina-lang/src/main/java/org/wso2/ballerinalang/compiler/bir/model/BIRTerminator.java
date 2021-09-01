@@ -432,9 +432,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.unlockBB = unlockBB;
         }
 
-        public Unlock(Location pos,
-                      BIRBasicBlock unlockBB,
-                      BirScope scope) {
+        public Unlock(Location pos, BIRBasicBlock unlockBB, BirScope scope) {
             this(pos, unlockBB);
             this.scope = scope;
         }
