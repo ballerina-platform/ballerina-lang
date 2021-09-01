@@ -62,7 +62,7 @@ public class PackageResolutionTestCase {
     public DependencyGraph<DependencyNode> execute(boolean sticky) {
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
                 packageResolver, moduleResolver, true, sticky);
-        return resolutionEngine.resolveDependenciesFromImports(moduleLoadRequests);
+        return resolutionEngine.resolveDependencies(moduleLoadRequests);
     }
 
     public DependencyGraph<DependencyNode> getExpectedGraph(boolean sticky) {

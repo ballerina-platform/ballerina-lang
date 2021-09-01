@@ -23,21 +23,9 @@ package org.ballerinalang.langserver.commons.capability;
 public interface InitializationOptions {
 
     /**
-     * Initialization option key for pull module support.
-     */
-    String KEY_PULL_MODULE_SUPPORT = "pullModuleSupport";
-
-    /**
      * Semantic tokens initialization option key.
      */
     String KEY_ENABLE_SEMANTIC_TOKENS = "enableSemanticHighlighting";
-
-    /**
-     * Whether pull module command is supported by the client.
-     *
-     * @return True if supported
-     */
-    boolean isPullModuleSupported();
 
     /**
      * Returns if Ballerina semantic tokens is enabled.

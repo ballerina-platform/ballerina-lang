@@ -46,26 +46,26 @@ public class PackageResolutionRequest {
      * Package resolution request package model.
      */
     static class Package {
-        private String orgName;
+        private String org;
         private String name;
 
         @JsonAdapter(EmptyStringTypeAdapter.class)
         private String version;
         Mode mode;
 
-        public Package(String orgName, String name, String version, Mode mode) {
-            this.orgName = orgName;
+        public Package(String org, String name, String version, Mode mode) {
+            this.org = org;
             this.name = name;
             this.version = version;
             this.mode = mode;
         }
 
-        public String getOrgName() {
-            return orgName;
+        public String org() {
+            return org;
         }
 
-        public void setOrgName(String orgName) {
-            this.orgName = orgName;
+        public void setOrg(String org) {
+            this.org = org;
         }
 
         public String getName() {

@@ -14,6 +14,7 @@ import org.ballerinalang.central.client.model.PackageNameResolutionRequest;
 import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
+import org.ballerinalang.central.client.model.PackageResolutionResponse.Dependency;
 import org.ballerinalang.central.client.model.PackageResolutionResponse.Package;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -58,10 +59,11 @@ public class RemotePackageRepositoryTests {
 
     // - Data returned from central client
     // -- dependency package
-    Package io132 = new Package("ballerina", "io", "1.3.2", Arrays.asList());
+    Dependency io132 = new Dependency("ballerina", "io", "1.3.2", Arrays.asList());
+    Dependency http122d = new Dependency("ballerina", "http", "1.2.2", Arrays.asList(io132));
     // -- direct imports
     Package http122 = new Package("ballerina", "http", "1.2.2", Arrays.asList(io132));
-    Package covid154 = new Package("ballerinax", "covid", "1.5.7", Arrays.asList(io132, http122));
+    Package covid154 = new Package("ballerinax", "covid", "1.5.7", Arrays.asList(io132, http122d));
     Package smtp = new Package("ballerinax", "smtp", "1.0.0", Arrays.asList());
     // File system responses
     PackageMetadataResponse fileHttp120 = PackageMetadataResponse

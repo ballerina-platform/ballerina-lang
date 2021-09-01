@@ -56,16 +56,33 @@ public final class ResolutionRequest {
         this.packageLockingMode = packageLockingMode;
     }
 
-    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor, boolean offline) {
+        return new ResolutionRequest(packageDescriptor, PackageDependencyScope.DEFAULT,
+                DependencyResolutionType.SOURCE, offline, PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
                                          boolean offline) {
         return new ResolutionRequest(packageDescriptor, scope, DependencyResolutionType.SOURCE,
                 offline, PackageLockingMode.MEDIUM);
     }
 
-    public static ResolutionRequest from(PackageDescriptor packageDescriptor, PackageDependencyScope scope,
-                                         DependencyResolutionType dependencyResolutionType, boolean offline,
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
+                                         DependencyResolutionType resolutionType,
+                                         boolean offline) {
+        return new ResolutionRequest(packageDescriptor, scope, resolutionType, offline,
+                PackageLockingMode.MEDIUM);
+    }
+
+    public static ResolutionRequest from(PackageDescriptor packageDescriptor,
+                                         PackageDependencyScope scope,
+                                         DependencyResolutionType dependencyResolutionType,
+                                         boolean offline,
                                          PackageLockingMode packageLockingMode) {
-        return new ResolutionRequest(packageDescriptor, scope, dependencyResolutionType, offline, packageLockingMode);
+        return new ResolutionRequest(packageDescriptor, scope, dependencyResolutionType, offline,
+                packageLockingMode);
     }
 
     public PackageOrg orgName() {
@@ -100,7 +117,7 @@ public final class ResolutionRequest {
         return packageLockingMode;
     }
 
-    public DependencyResolutionType dependencyResolutionType() {
+    public DependencyResolutionType resolutionType() {
         return dependencyResolutionType;
     }
 

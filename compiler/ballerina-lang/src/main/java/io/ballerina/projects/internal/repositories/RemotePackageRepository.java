@@ -312,17 +312,17 @@ public class RemotePackageRepository implements PackageRepository {
             // checked in resolved group
             Optional<PackageResolutionResponse.Package> match = packageResolutionResponse.resolved().stream()
                     .filter(p -> p.name().equals(resolutionRequest.packageName().value()) &&
-                            p.orgName().equals(resolutionRequest.orgName().value())).findFirst();
+                            p.org().equals(resolutionRequest.orgName().value())).findFirst();
             // If we found a match we will add it to response
             if (match.isPresent()) {
                 PackageVersion version = PackageVersion.from(match.get().version());
-                DependencyGraph<PackageDescriptor> dependancies = createPackageDependencyGraph(match.get());
+                DependencyGraph<PackageDescriptor> dependencies = createPackageDependencyGraph(match.get());
                 PackageDescriptor packageDescriptor = PackageDescriptor.from(resolutionRequest.orgName(),
                         resolutionRequest.packageName(),
                         version);
                 PackageMetadataResponse responseDescriptor = PackageMetadataResponse.from(resolutionRequest,
                         packageDescriptor,
-                        dependancies);
+                        dependencies);
                 response.add(responseDescriptor);
             } else {
                 // If the package is not in resolved we assume the package is unresolved
@@ -336,12 +336,12 @@ public class RemotePackageRepository implements PackageRepository {
             PackageResolutionResponse.Package aPackage) {
         DependencyGraph.DependencyGraphBuilder<PackageDescriptor> graphBuilder = getBuilder();
 
-        for (PackageResolutionResponse.Package dependency : aPackage.dependencies()) {
-            PackageDescriptor pkg = PackageDescriptor.from(PackageOrg.from(dependency.orgName()),
+        for (PackageResolutionResponse.Dependency dependency : aPackage.dependencyGraph()) {
+            PackageDescriptor pkg = PackageDescriptor.from(PackageOrg.from(dependency.org()),
                     PackageName.from(dependency.name()), PackageVersion.from(dependency.version()));
             Set<PackageDescriptor> dependentPackages = new HashSet<>();
-            for (PackageResolutionResponse.Package dependencyPkg : dependency.dependencies()) {
-                dependentPackages.add(PackageDescriptor.from(PackageOrg.from(dependencyPkg.orgName()),
+            for (PackageResolutionResponse.Dependency dependencyPkg : dependency.dependencies()) {
+                dependentPackages.add(PackageDescriptor.from(PackageOrg.from(dependencyPkg.org()),
                         PackageName.from(dependencyPkg.name()),
                         PackageVersion.from(dependencyPkg.version())));
             }
@@ -350,7 +350,6 @@ public class RemotePackageRepository implements PackageRepository {
 
         return graphBuilder.build();
     }
-
 
     private PackageResolutionRequest toPackageResolutionRequest(List<ResolutionRequest> resolutionRequests) {
         PackageResolutionRequest packageResolutionRequest = new PackageResolutionRequest();
