@@ -24,13 +24,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
+import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.parser.tree.STInvalidNodeMinutiae;
 import io.ballerina.compiler.internal.parser.tree.STMinutiae;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STToken;
-import io.ballerina.compiler.parser.ParserRuleContext;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.io.IOException;
@@ -95,7 +95,7 @@ public class SyntaxTreeJSONGenerator {
 
     private static STNode getParserTree(String source, ParserRuleContext context) {
         BallerinaParser parser = ParserFactory.getParser(source);
-        return parser.parseInternal(context);
+        return parser.parse(context);
     }
 
     private static JsonElement getJSON(STNode treeNode) {
