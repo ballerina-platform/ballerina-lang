@@ -1264,6 +1264,10 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         lookupNode(errorType.detailType);
+
+        if (symbolAtCursor == null) {
+            this.symbolAtCursor = errorType.getBType().tsymbol;
+        }
     }
 
     @Override
