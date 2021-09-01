@@ -24,7 +24,6 @@ import io.ballerina.semtype.typeops.BddCommonOps;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,7 +33,7 @@ import java.util.List;
  */
 public class Common {
 
-    public static boolean typeListIsReadOnly(List<SemType> list) {
+    public static boolean typeListIsReadOnly(SemType[] list) {
         for (SemType t : list) {
             if (!Core.isReadOnly(t)) {
                 return false;
@@ -43,7 +42,7 @@ public class Common {
         return true;
     }
 
-    public static List<SemType> readOnlyTypeList(List<SemType> mt) {
+    public static SemType[] readOnlyTypeList(SemType[] mt) {
         List<SemType> types = new ArrayList<>();
         for (SemType s : mt) {
             SemType t;
@@ -54,7 +53,7 @@ public class Common {
             }
             types.add(t);
         }
-        return Collections.unmodifiableList(types);
+        return types.toArray(new SemType[]{});
     }
 
     // [from nballerina] A Bdd represents a disjunction of conjunctions of atoms, where each atom is either positive or

@@ -17,21 +17,23 @@
  */
 package io.ballerina.semtype;
 
-import java.util.ArrayList;
-
 /**
  * ListAtomicType node.
  *
  * @since 2.0.0
  */
 public class ListAtomicType implements AtomicType {
-    final ArrayList<SemType> members;
-    final SemType rest;
+    public final SemType[] members;
+    public final SemType rest;
 
-    public static final ListAtomicType LIST_SUBTYPE_RO = new ListAtomicType(new ArrayList<>(), PredefinedType.READONLY);
+    public static final ListAtomicType LIST_SUBTYPE_RO = new ListAtomicType(new SemType[]{}, PredefinedType.READONLY);
 
-    public ListAtomicType(ArrayList<SemType> members, SemType rest) {
+    private ListAtomicType(SemType[] members, SemType rest) {
         this.members = members;
         this.rest = rest;
+    }
+
+    public static ListAtomicType from(SemType[] members, SemType rest) {
+        return new ListAtomicType(members, rest);
     }
 }
