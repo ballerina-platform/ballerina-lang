@@ -48,10 +48,13 @@ public class Labels {
     // Boolean
     public static final String BOOLEAN_TYPE_DESCRIPTOR = "boolean-type-descriptor";
     public static final String BOOLEAN_LITERAL = "boolean-literal";
+    public static final String JSON_TYPE_DESCRIPTOR = "json-type-descriptor";
+    public static final String READONLY_TYPE_DESCRIPTOR = "readonly-type-descriptor";
 
     public static final String[] SET_VALUES = new String[] {FLOATING_POINT_TYPE_DESCRIPTOR, INT_TYPE_DESCRIPTOR,
             NIL_TYPE_DESCRIPTOR, STRING_TYPE_DESCRIPTOR, OBJECT_TYPE_DESCRIPTOR, BOOLEAN_LITERAL, INT_LITERAL,
-            NIL_LITERAL, STRING_LITERAL, BOOLEAN_TYPE_DESCRIPTOR, FLOATING_POINT_LITERAL, LIST_CONSTRUCTOR_EXPR
+            NIL_LITERAL, STRING_LITERAL, BOOLEAN_TYPE_DESCRIPTOR, FLOATING_POINT_LITERAL, LIST_CONSTRUCTOR_EXPR,
+            JSON_TYPE_DESCRIPTOR, READONLY_TYPE_DESCRIPTOR
     };
 
     public static final HashSet<String> LABELS = new HashSet<>(Arrays.asList(SET_VALUES));
