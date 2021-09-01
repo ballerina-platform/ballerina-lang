@@ -13,6 +13,7 @@ import io.ballerina.projects.Settings;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
@@ -30,6 +31,7 @@ import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -82,7 +84,7 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     @Override
-    public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+    public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         // Avoid resolving from remote repository for lang repo tests
         String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
         if (langRepoBuild != null) {
@@ -90,19 +92,19 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         // Check if the package is in cache
-        Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(resolutionRequest);
+        Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(request, options);
         if (cachedPackage.isPresent()) {
             return cachedPackage;
         }
 
-        String packageName = resolutionRequest.packageName().value();
-        String orgName = resolutionRequest.orgName().value();
-        String version = resolutionRequest.version().isPresent() ? resolutionRequest.version().get().toString() : null;
+        String packageName = request.packageName().value();
+        String orgName = request.orgName().value();
+        String version = request.version().isPresent() ? request.version().get().toString() : null;
 
         Path packagePathInBalaCache = this.fileSystemRepo.bala.resolve(orgName).resolve(packageName);
 
         // If environment is online pull from central
-        if (!resolutionRequest.offline()) {
+        if (!options.offline()) {
             for (String supportedPlatform : SUPPORTED_PLATFORMS) {
                 try {
                     this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
@@ -113,23 +115,23 @@ public class RemotePackageRepository implements PackageRepository {
             }
         }
 
-        return this.fileSystemRepo.getPackage(resolutionRequest);
+        return this.fileSystemRepo.getPackage(request, options);
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
+    public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
         String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
         if (langRepoBuild != null) {
             return Collections.emptyList();
         }
-        String orgName = resolutionRequest.orgName().value();
-        String packageName = resolutionRequest.packageName().value();
+        String orgName = request.orgName().value();
+        String packageName = request.packageName().value();
 
         // First, Get local versions
-        Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(resolutionRequest));
+        Set<PackageVersion> packageVersions = new HashSet<>(fileSystemRepo.getPackageVersions(request, options));
 
         // If the resolution request specifies to resolve offline, we return the local version
-        if (resolutionRequest.offline()) {
+        if (options.offline()) {
             return new ArrayList<>(packageVersions);
         }
 
@@ -154,8 +156,9 @@ public class RemotePackageRepository implements PackageRepository {
     }
 
     @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        List<ImportModuleResponse> filesystem = fileSystemRepo.resolvePackageNames(importModuleRequests);
+    public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                            ResolutionOptions options) {
+        Collection<ImportModuleResponse> filesystem = fileSystemRepo.getPackageNames(requests, options);
         List<ImportModuleResponse> unresolved = filesystem.stream()
                 .filter(r -> r.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.UNRESOLVED))
                 .collect(Collectors.toList());
@@ -177,8 +180,8 @@ public class RemotePackageRepository implements PackageRepository {
         return filesystem;
     }
 
-    private List<ImportModuleResponse> mergeNameResolution(List<ImportModuleResponse> filesystem,
-                                                           List<ImportModuleResponse> remote) {
+    private List<ImportModuleResponse> mergeNameResolution(Collection<ImportModuleResponse> filesystem,
+                                                           Collection<ImportModuleResponse> remote) {
         List<ImportModuleResponse> all = new ArrayList<>();
         // We assume file system responses will have all module requests
         for (ImportModuleResponse fileResponse : filesystem) {
@@ -228,43 +231,44 @@ public class RemotePackageRepository implements PackageRepository {
         return request;
     }
 
-    public List<PackageMetadataResponse> resolvePackageMetadata(
-            List<ResolutionRequest> resolutionRequests) {
-        // Resolve all the requests locally
-        List<PackageMetadataResponse> filesystem = fileSystemRepo.resolvePackageMetadata(resolutionRequests);
+    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+                                                                  ResolutionOptions options) {
+        if (requests.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        // Filter out the requests that can be resolved online
-        List<ResolutionRequest> online = resolutionRequests.stream()
-                .filter(i -> {
-                    return i.offline() == false;
-                }).collect(Collectors.toList());
+        // Resolve all the requests locally
+        Collection<PackageMetadataResponse> cachedPackages = fileSystemRepo.getPackageMetadata(requests, options);
+        if (options.offline()) {
+            return cachedPackages;
+        }
+
         // Resolve the requests from remote repository
         try {
-            List<PackageMetadataResponse> remoteResolution;
-            if (online.size() > 0) {
-                PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(online);
-                PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
-                        packageResolutionRequest, JvmTarget.JAVA_11.code(),
-                        RepoUtils.getBallerinaVersion(), true);
+            PackageResolutionRequest packageResolutionRequest = toPackageResolutionRequest(requests);
+            PackageResolutionResponse packageResolutionResponse = client.resolveDependencies(
+                    packageResolutionRequest, JvmTarget.JAVA_11.code(),
+                    RepoUtils.getBallerinaVersion(), true);
 
-                remoteResolution = fromPackageResolutionResponse(resolutionRequests, packageResolutionResponse);
-                // Merge central requests and local requests
-                // Here we will pick the latest package from remote or local
-                return mergeResolution(remoteResolution, filesystem);
-            }
+            Collection<PackageMetadataResponse> remotePackages =
+                    fromPackageResolutionResponse(requests, packageResolutionResponse);
+            // Merge central requests and local requests
+            // Here we will pick the latest package from remote or local
+            return mergeResolution(remotePackages, cachedPackages);
+
         } catch (ConnectionErrorException e) {
             // ignore connect to remote repo failure
             // TODO we need to add diagnostics for resolution errors
         } catch (CentralClientException e) {
             throw new ProjectException(e.getMessage());
         }
-        // If any issue we will return filesystem results
-        return filesystem;
+        // If any issue we will return cachedPackages results
+        return cachedPackages;
     }
 
-    private List<PackageMetadataResponse> mergeResolution(
-            List<PackageMetadataResponse> remoteResolution,
-            List<PackageMetadataResponse> filesystem) {
+    private Collection<PackageMetadataResponse> mergeResolution(
+            Collection<PackageMetadataResponse> remoteResolution,
+            Collection<PackageMetadataResponse> filesystem) {
         // accumulate the result to a new list
         List<PackageMetadataResponse> mergedResults = new ArrayList<>();
         // Iterate resolutions in original list
@@ -303,8 +307,8 @@ public class RemotePackageRepository implements PackageRepository {
         return mergedResults;
     }
 
-    private List<PackageMetadataResponse> fromPackageResolutionResponse(
-            List<ResolutionRequest> packageLoadRequests, PackageResolutionResponse packageResolutionResponse) {
+    private Collection<PackageMetadataResponse> fromPackageResolutionResponse(
+            Collection<ResolutionRequest> packageLoadRequests, PackageResolutionResponse packageResolutionResponse) {
         // List<PackageResolutionResponse.Package> resolved = packageResolutionResponse.resolved();
         List<PackageMetadataResponse> response = new ArrayList<>();
         for (ResolutionRequest resolutionRequest : packageLoadRequests) {
@@ -351,7 +355,7 @@ public class RemotePackageRepository implements PackageRepository {
         return graphBuilder.build();
     }
 
-    private PackageResolutionRequest toPackageResolutionRequest(List<ResolutionRequest> resolutionRequests) {
+    private PackageResolutionRequest toPackageResolutionRequest(Collection<ResolutionRequest> resolutionRequests) {
         PackageResolutionRequest packageResolutionRequest = new PackageResolutionRequest();
         for (ResolutionRequest resolutionRequest : resolutionRequests) {
             PackageResolutionRequest.Mode mode = PackageResolutionRequest.Mode.HARD;
