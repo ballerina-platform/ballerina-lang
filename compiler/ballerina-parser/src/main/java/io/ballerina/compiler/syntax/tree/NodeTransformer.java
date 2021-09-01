@@ -440,6 +440,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLComment);
     }
 
+    public T transform(XMLCDATANode xMLCDATANode) {
+        return transformSyntaxNode(xMLCDATANode);
+    }
+
     public T transform(XMLProcessingInstruction xMLProcessingInstruction) {
         return transformSyntaxNode(xMLProcessingInstruction);
     }

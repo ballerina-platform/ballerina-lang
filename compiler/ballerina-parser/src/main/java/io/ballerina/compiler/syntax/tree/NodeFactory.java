@@ -1707,6 +1707,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stXMLComment.createUnlinkedFacade();
     }
 
+    public static XMLCDATANode createXMLCDATANode(
+            Token cDATAStart,
+            NodeList<Node> content,
+            Token cDATAEnd) {
+        Objects.requireNonNull(cDATAStart, "cDATAStart must not be null");
+        Objects.requireNonNull(content, "content must not be null");
+        Objects.requireNonNull(cDATAEnd, "cDATAEnd must not be null");
+
+        STNode stXMLCDATANode = STNodeFactory.createXMLCDATANode(
+                cDATAStart.internalNode(),
+                content.underlyingListNode().internalNode(),
+                cDATAEnd.internalNode());
+        return stXMLCDATANode.createUnlinkedFacade();
+    }
+
     public static XMLProcessingInstruction createXMLProcessingInstruction(
             Token piStart,
             XMLNameNode target,

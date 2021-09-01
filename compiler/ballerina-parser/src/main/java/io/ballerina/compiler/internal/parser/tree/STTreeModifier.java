@@ -1383,6 +1383,18 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STXMLCDATANode transform(
+            STXMLCDATANode xMLCDATANode) {
+        STNode cDATAStart = modifyNode(xMLCDATANode.cDATAStart);
+        STNode content = modifyNode(xMLCDATANode.content);
+        STNode cDATAEnd = modifyNode(xMLCDATANode.cDATAEnd);
+        return xMLCDATANode.modify(
+                cDATAStart,
+                content,
+                cDATAEnd);
+    }
+
+    @Override
     public STXMLProcessingInstruction transform(
             STXMLProcessingInstruction xMLProcessingInstruction) {
         STNode piStart = modifyNode(xMLProcessingInstruction.piStart);

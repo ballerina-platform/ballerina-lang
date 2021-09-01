@@ -850,7 +850,7 @@ public class XMLLexer extends AbstractLexer {
                         reader.peek(2) == LexerTerminals.GT) {
                     reader.advance(3);
                     endMode();
-                    return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_COMMENT_END_TOKEN);
+                    return getXMLSyntaxTokenWithoutTrailingWS(SyntaxKind.XML_CDATA_END_TOKEN);
                 }
                 break;
             default:

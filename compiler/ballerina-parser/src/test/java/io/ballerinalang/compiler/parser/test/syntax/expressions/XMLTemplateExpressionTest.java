@@ -83,6 +83,11 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
         testFile("xml-template/xml_template_source_30.bal", "xml-template/xml_template_assert_30.json");
     }
 
+    @Test
+    public void testXMLCDATASections() {
+        testFile("xml-template/xml_template_source_31.bal", "xml-template/xml_template_assert_31.json");
+    }
+
     // Recovery test
 
     @Test
@@ -178,5 +183,10 @@ public class XMLTemplateExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testInvalidTokensInAttributeValue() {
         testFile("xml-template/xml_template_source_29.bal", "xml-template/xml_template_assert_29.json");
+    }
+
+    @Test
+    public void testXMLCDATASectionRecovery() {
+        testFile("xml-template/xml_template_source_32.bal", "xml-template/xml_template_assert_32.json");
     }
 }

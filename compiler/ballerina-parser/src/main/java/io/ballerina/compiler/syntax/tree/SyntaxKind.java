@@ -481,6 +481,7 @@ public enum SyntaxKind {
     XML_ATTRIBUTE(4009),
     XML_ATTRIBUTE_VALUE(4010),
     INTERPOLATION(4011),
+    XML_CDATA(4012),
 
     // Documentation
     MARKDOWN_DOCUMENTATION(4500),

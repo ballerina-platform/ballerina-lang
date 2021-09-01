@@ -1300,6 +1300,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 commentEnd);
     }
 
+    public static STNode createXMLCDATANode(
+            STNode cDATAStart,
+            STNode content,
+            STNode cDATAEnd) {
+
+        return new STXMLCDATANode(
+                cDATAStart,
+                content,
+                cDATAEnd);
+    }
+
     public static STNode createXMLProcessingInstruction(
             STNode piStart,
             STNode target,

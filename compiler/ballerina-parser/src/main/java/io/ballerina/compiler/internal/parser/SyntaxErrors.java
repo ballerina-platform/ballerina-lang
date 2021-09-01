@@ -324,6 +324,10 @@ public class SyntaxErrors {
             case EXPR_FUNC_BODY_START:
             case RIGHT_DOUBLE_ARROW:
                 return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
+            case XML_CDATA_START:
+                return DiagnosticErrorCode.ERROR_MISSING_XML_CDATA_START_TOKEN;
+            case XML_CDATA_END:
+                return DiagnosticErrorCode.ERROR_MISSING_XML_CDATA_END_TOKEN;
             default:
                 return getKeywordErrorCode(ctx);
         }
