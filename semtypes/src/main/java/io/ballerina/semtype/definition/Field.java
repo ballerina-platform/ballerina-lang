@@ -34,4 +34,12 @@ public class Field {
     public static Field from(String name, SemType type) {
         return new Field(name, type);
     }
+
+    public SplitFieldHolder splitFields(Field[] fields) {
+        throw new AssertionError();
+    }
+
+    synchronized private static String fieldName(Field f) {
+        return f.name;
+    }
 }

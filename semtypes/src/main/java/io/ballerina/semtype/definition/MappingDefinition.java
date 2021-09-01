@@ -17,9 +17,11 @@
  */
 package io.ballerina.semtype.definition;
 
+import io.ballerina.semtype.Atom;
 import io.ballerina.semtype.ComplexSemType;
 import io.ballerina.semtype.Definition;
 import io.ballerina.semtype.Env;
+import io.ballerina.semtype.RecAtom;
 import io.ballerina.semtype.SemType;
 
 import java.util.List;
@@ -31,12 +33,30 @@ import java.util.List;
  */
 public class MappingDefinition implements Definition {
 
+    private RecAtom roRec = null;
+    private RecAtom rwRec = null;
+    private SemType semType = null;
+
     @Override
     public SemType getSemType(Env env) {
-        throw new AssertionError();
+        SemType s = this.semType;
+        if (s == null) {
+            RecAtom ro = env.recMappingAtom();
+            RecAtom rw = env.recMappingAtom();
+            this.roRec = ro;
+            this.rwRec = rw;
+            return createSemType(env, ro, rw);
+        } else {
+            return s;
+        }
     }
 
     public ComplexSemType define(Env env, List<Field> fields, SemType rest) {
+
         throw new IllegalStateException();
+    }
+
+    private SemType createSemType(Env env, Atom ro, Atom rw) {
+        throw new AssertionError();
     }
 }
