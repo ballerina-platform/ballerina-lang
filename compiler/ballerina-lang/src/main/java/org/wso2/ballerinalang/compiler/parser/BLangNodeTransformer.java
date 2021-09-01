@@ -228,6 +228,7 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -470,6 +471,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  * @since 1.3.0
  */
 public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
+    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
@@ -531,11 +533,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LineRange lineRange = node.lineRange();
         LinePosition startPos = lineRange.startLine();
         LinePosition endPos = lineRange.endLine();
+        TextRange textRange = node.textRange();
         return new BLangDiagnosticLocation(currentCompUnitName,
                 startPos.line(),
                 endPos.line(),
                 startPos.offset(),
-                endPos.offset());
+                endPos.offset(),
+                textRange.startOffset(),
+                textRange.length());
     }
 
     private Location getPosition(Node startNode, Node endNode) {
@@ -544,8 +549,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
         LinePosition startPos = startNode.lineRange().startLine();
         LinePosition endPos = endNode.lineRange().endLine();
+        TextRange startNodeTextRange = startNode.textRange();
+        int length = startNodeTextRange.length() + endNode.textRange().length();
         return new BLangDiagnosticLocation(currentCompUnitName, startPos.line(), endPos.line(),
-                                           startPos.offset(), endPos.offset());
+                startPos.offset(), endPos.offset(), startNodeTextRange.startOffset(), length);
     }
 
     private Location getPositionWithoutMetadata(Node node) {
@@ -556,19 +563,29 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
         ChildNodeList children = nonTerminalNode.children();
         // If there's metadata it will be the first child.
-        // Hence set start position from next immediate child.
+        // Hence set start position and startOffSet from next immediate child.
         LinePosition startPos;
-        if (children.get(0).kind() == SyntaxKind.METADATA) {
-            startPos = children.get(1).lineRange().startLine();
+        int startOffSet;
+        int length;
+        Node firstChild = children.get(0);
+        if (firstChild.kind() == SyntaxKind.METADATA) {
+            Node secondChild = children.get(1);
+            startPos = secondChild.lineRange().startLine();
+            startOffSet = secondChild.textRange().startOffset();
+            length = node.textRange().length() - firstChild.textRange().length();
         } else {
             startPos = nodeLineRange.startLine();
+            startOffSet = node.textRange().startOffset();
+            length = node.textRange().length();
         }
         LinePosition endPos = nodeLineRange.endLine();
         return new BLangDiagnosticLocation(currentCompUnitName,
                 startPos.line(),
                 endPos.line(),
                 startPos.offset(),
-                endPos.offset());
+                endPos.offset(),
+                startOffSet,
+                length);
     }
 
     @Override
@@ -590,7 +607,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
-        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().filePath(), 0, 0, 0, 0);
+        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().filePath(), 0, 0, 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
@@ -1034,11 +1051,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             parent = parent.parent();
         }
 
-        errorType.isAnonymous = checkIfAnonymous(parameterizedTypeDescNode);
+        errorType.isAnonymous = this.isInLocalContext || checkIfAnonymous(parameterizedTypeDescNode);
         errorType.isLocal = this.isInLocalContext;
 
         if (parent.kind() != SyntaxKind.TYPE_DEFINITION
-                && (isDistinctError || (!errorType.isLocal && typeParam.isPresent()))) {
+                && (!errorType.isLocal && (isDistinctError || typeParam.isPresent()))) {
+            if (isDistinctError) {
+                errorType.flagSet.add(Flag.DISTINCT);
+            }
             return deSugarTypeAsUserDefType(errorType);
         }
 
@@ -1056,8 +1076,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(DistinctTypeDescriptorNode distinctTypeDesc) {
-        BLangType typeNode = createTypeNode(distinctTypeDesc.typeDescriptor());
-        typeNode.flagSet.add(Flag.DISTINCT);
+        TypeDescriptorNode type = distinctTypeDesc.typeDescriptor();
+        BLangType typeNode = createTypeNode(type);
+
+        // DISTINCT flag is already added to defined error type
+        if (!(type.kind() == SyntaxKind.ERROR_TYPE_DESC && typeNode.getKind() == NodeKind.USER_DEFINED_TYPE)) {
+            typeNode.flagSet.add(Flag.DISTINCT);
+        }
         return typeNode;
     }
 
@@ -3469,12 +3494,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
+                    int length = 0;
+                    long lengthCheck = 0;
                     Token literalToken = ((BasicLiteralNode) keyExpr).literalToken();
-                    if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text()), symTable.intType));
-                    } else {
-                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text(), 16), symTable.intType));
+
+                    try {
+                        if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                            lengthCheck = Long.parseLong(literalToken.text());
+                        } else {
+                            lengthCheck = Long.parseLong(literalToken.text().substring(2), 16);
+                        }
+                    } catch (NumberFormatException e) {
+                        dlog.error(((Node) literalToken).location(), DiagnosticErrorCode.INVALID_ARRAY_LENGTH);
                     }
+
+                    if (lengthCheck > MAX_ARRAY_SIZE) {
+                        dlog.error(((Node) literalToken).location(),
+                                DiagnosticErrorCode.ARRAY_LENGTH_GREATER_THAT_2147483637_NOT_YET_SUPPORTED);
+                    } else {
+                        length = (int) lengthCheck;
+                    }
+                    sizes.add(new BLangLiteral(length, symTable.intType));
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
                     sizes.add(new BLangLiteral(INFERRED_ARRAY_INDICATOR, symTable.intType));
                 } else {
@@ -3639,7 +3679,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         var.setName(this.createIdentifier(onFailClauseNode.failErrorName()));
         var.name.pos = getPosition(onFailClauseNode.failErrorName());
         variableDefinitionNode.setVariable(var);
-        variableDefinitionNode.pos = var.name.pos;
+        variableDefinitionNode.pos = getPosition(onFailClauseNode.typeDescriptor(), onFailClauseNode.failErrorName());
 
 
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();

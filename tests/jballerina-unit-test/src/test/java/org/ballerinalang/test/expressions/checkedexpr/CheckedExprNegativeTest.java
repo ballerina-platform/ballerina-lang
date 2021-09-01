@@ -35,23 +35,24 @@ public class CheckedExprNegativeTest {
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_semantics_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 6, compile.toString());
+        Assert.assertEquals(compile.getErrorCount(), 3, compile.toString());
         BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
-                "operator: no expression type is equivalent to error type", 11, 25);
-        BAssertUtil.validateError(compile, 1, "'check' expression of type 'never' is not allowed", 16, 19);
-        BAssertUtil.validateError(compile, 2, "'check' expression of type 'never' is not allowed", 30, 19);
-        BAssertUtil.validateError(compile, 3, "incompatible types: expected '(string|error)'" +
-                                              ", found '(string|int)'", 39, 25);
-        BAssertUtil.validateError(compile, 4, "invalid expression, expected a call expression", 54, 5);
-        BAssertUtil.validateError(compile, 5, "'check' expression of type 'never' is not allowed", 58, 5);
+                "operator: no expression type is equivalent to error type", 6, 25);
+        BAssertUtil.validateError(compile, 1, "incompatible types: expected '(string|error)'" +
+                                              ", found '(string|int)'", 19, 25);
+        BAssertUtil.validateError(compile, 2, "invalid expression, expected a call expression", 34, 11);
     }
 
     @Test
     public void testErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 1, compile.toString());
+        Assert.assertEquals(compile.getErrorCount(), 3, compile.toString());
         BAssertUtil.validateError(compile, 0, ERROR_MISMATCH_ERR_MSG, 11, 19);
+        BAssertUtil.validateError(compile, 1, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 15, 19);
+        BAssertUtil.validateError(compile, 2, "expression of type 'never' or equivalent to " +
+                "type 'never' not allowed here", 25, 19);
     }
 
     @Test

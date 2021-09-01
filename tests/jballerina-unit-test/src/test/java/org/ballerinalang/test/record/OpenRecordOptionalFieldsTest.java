@@ -44,14 +44,14 @@ public class OpenRecordOptionalFieldsTest {
         compileResult = BCompileUtil.compile("test-src/record/open_record_optional_fields.bal");
     }
 
-    @Test(description = "Test for the compile errors", groups = { "disableOnOldParser" })
+    @Test(description = "Test for the compile errors")
     public void testNegatives() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/record/open_record_optional_fields_negatives.bal");
         int i = 0;
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
-        BAssertUtil.validateError(negativeResult, i++, "invalid token '999'", 22, 19);
-        BAssertUtil.validateError(negativeResult, i++, "invalid token '='", 22, 19);
+        BAssertUtil.validateError(negativeResult, i++, "invalid token '='", 22, 14);
+        BAssertUtil.validateError(negativeResult, i++, "invalid token '999'", 22, 16);
         BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 33, 17);
     }
 

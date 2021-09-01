@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import org.ballerinalang.model.elements.PackageID;
@@ -88,7 +89,11 @@ public class Package {
     }
 
     public PackageManifest manifest() {
-        return packageContext.manifest();
+        return packageContext.packageManifest();
+    }
+
+    public DependencyManifest dependencyManifest() {
+        return packageContext.dependencyManifest();
     }
 
     public Collection<ModuleId> moduleIds() {
@@ -133,6 +138,10 @@ public class Package {
 
     public PackageCompilation getCompilation() {
         return this.packageContext.getPackageCompilation();
+    }
+
+    public PackageCompilation getCompilation(CompilationOptions compilationOptions) {
+        return this.packageContext.getPackageCompilation(compilationOptions);
     }
 
     public PackageResolution getResolution() {
@@ -230,6 +239,7 @@ public class Package {
     public static class Modifier {
         private PackageId packageId;
         private PackageManifest packageManifest;
+        private DependencyManifest dependencyManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
         private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
@@ -243,6 +253,7 @@ public class Package {
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
             this.packageManifest = oldPackage.manifest();
+            this.dependencyManifest = oldPackage.dependencyManifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
             this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
@@ -305,7 +316,7 @@ public class Package {
         public Modifier addCloudToml(DocumentConfig documentConfig) {
             TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
             this.cloudTomlContext = tomlDocumentContext;
-            updateManifest();
+            updatePackageManifest();
             return this;
         }
 
@@ -328,7 +339,7 @@ public class Package {
         public Modifier addCompilerPluginToml(DocumentConfig documentConfig) {
             TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
             this.compilerPluginTomlContext = tomlDocumentContext;
-            updateManifest();
+            updatePackageManifest();
             return this;
         }
 
@@ -368,14 +379,14 @@ public class Package {
 
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
-            updateManifest();
+            updatePackageManifest();
             updateModules();
             return this;
         }
 
         Modifier updateDependenciesToml(DependenciesToml dependenciesToml) {
             this.dependenciesTomlContext = dependenciesToml.dependenciesTomlContext();
-            updateManifest();
+            updateDependencyManifest();
             updateModules();
             return this;
         }
@@ -414,9 +425,9 @@ public class Package {
 
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
-                    this.ballerinaTomlContext, this.dependenciesTomlContext, this.cloudTomlContext,
-                    this.compilerPluginTomlContext, this.packageMdContext,  this.compilationOptions,
-                    this.moduleContextMap, DependencyGraph.emptyGraph());
+                    this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
+                    this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
+                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
@@ -445,9 +456,8 @@ public class Package {
             return this.project.currentPackage();
         }
 
-        private void updateManifest() {
+        private void updatePackageManifest() {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
-                    Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     Optional.ofNullable(this.compilerPluginTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
@@ -457,7 +467,14 @@ public class Package {
             } else {
                 newBuildOptions = manifestBuilder.buildOptions();
             }
-            this.project.setBuildOptions(this.project.buildOptions().acceptTheirs(newBuildOptions));
+            // The build options passed during project loading takes priority.
+            this.project.setBuildOptions(newBuildOptions.acceptTheirs(this.project.buildOptions()));
+        }
+
+        private void updateDependencyManifest() {
+            DependencyManifestBuilder manifestBuilder = DependencyManifestBuilder.from(
+                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null));
+            this.dependencyManifest = manifestBuilder.dependencyManifest();
         }
 
         private void updateModules() {

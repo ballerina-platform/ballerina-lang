@@ -17,7 +17,7 @@ function foo () {
         error typeref(namedarg1 = mathchpattren, simpleMatchPattern, [], a, _, error()) => {}
         typeref(... var e, namedarg = a, simpleMatchPattern, [], {[a, _ ]}) => {}
         error(... e, simpleMatchPattern, [], {[a, _ ]}) => {}
-        typeref(a, namedarg1 = 55 error({a:b, c: var a}, d), ... var varname, a = {a:_}) => {}
+        typeref(a, namedarg1 = 55 error({a:b, c: var a}, d), ... var varname, a = {a:_}) => {}}
         error(error typeref(a))) => {}
         error(a, b, c) => {}
     }

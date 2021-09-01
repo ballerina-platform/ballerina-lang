@@ -21,6 +21,7 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -60,7 +61,37 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 41, 37);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 46, 48);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 48, 14);
-        BAssertUtil.validateError(negativeResult, i, "too many arguments in call to 'new()'", 57, 37);
+        BAssertUtil.validateError(negativeResult, i++, "too many arguments in call to 'new()'", 57, 37);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 's'", 61, 35);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a'", 62, 47);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'n'", 63, 47);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'x1'", 64, 33);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'y1'", 65, 43);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 65, 55);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'y2'", 65, 55);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'y2'", 65, 73);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'z1'", 66, 39);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'v3'", 67, 64);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a1'", 69, 61);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a4'", 70, 61);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a3'", 70, 76);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a5'", 71, 60);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a3'", 71, 75);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '[string,string]'",
+                72, 54);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a2'", 72, 54);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a7'", 73, 39);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a7'", 73, 56);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'map<string>'",
+                74, 44);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a8'", 74, 44);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a9'", 74, 62);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a10'", 75, 55);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'map<string>'",
+                76, 55);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a8'", 76, 55);
+        BAssertUtil.validateError(negativeResult, i++, "self referenced variable 'a11'", 76, 74);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(description = "Test cases for scenarios where let expression is not yet supported")

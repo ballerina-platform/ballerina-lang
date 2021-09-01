@@ -1,39 +1,39 @@
 function foo1() {
-    final 
+    final
 }
 
 function foo2() {
-    if 
+    if
     }
 
 function foo3() {
-    do 
+    do
     }
 
 function foo4() {
     do {
 
-    } on 
+    } on
     }
 
 function foo5() {
-    var 
+    var
 }
 
 function foo6() {
-    foreach 
+    foreach
     }
 
 function foo7() {
-    while 
+    while
     }
 
 function foo8() {
-    lock 
+    lock
     }
 
 function foo9() {
-    retry 
+    retry
     }
 
 function foo10() {
@@ -41,19 +41,19 @@ function foo10() {
     }
 
 function foo11() {
-    transaction 
+    transaction
     }
 
 function foo12() {
-    rollback 
+    rollback
 }
 
 function foo13() {
-    return 
+    return
 }
 
 function foo14() {
-    xmlns 
+    xmlns
 }
 
 function foo14() {

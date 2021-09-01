@@ -39,6 +39,10 @@ public class Main {
 
     public static void startServer(InputStream in, OutputStream out)
             throws InterruptedException, ExecutionException {
+        // Disable writing ballerina central calls to stdout to avoid conflicting with LS client communicating
+        // over stdout with the LS
+        System.getProperty("enableOutputStream", "false");
+
         BallerinaLanguageServer server = new BallerinaLanguageServer();
         Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(server,
                 ExtendedLanguageClient.class, in, out);

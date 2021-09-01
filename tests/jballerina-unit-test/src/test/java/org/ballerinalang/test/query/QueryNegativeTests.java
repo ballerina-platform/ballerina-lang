@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 31);
+        Assert.assertEquals(compileResult.getErrorCount(), 39);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -66,7 +66,11 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "redeclared symbol 'age'", 364, 21);
         validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 401, 11);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
                 "but found 'int'", 401, 22);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
+                "but found 'int'", 411, 11);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
                 "but found 'int'", 411, 22);
         validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection",
@@ -76,7 +80,19 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
         validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
         validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);
-        validateError(compileResult, index, "undefined symbol 'k'", 433, 25);
+        validateError(compileResult, index++, "undefined symbol 'k'", 433, 25);
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
+                        "table constraint type 'record {| User user; |}'", 451, 28);
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 456, 24);
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 469, 28);
+        validateError(compileResult, index++, "field name 'firstName' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 469, 32);
+        validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 474, 24);
+        validateError(compileResult, index, "field name 'firstName' used in key specifier is not found in " +
+                "table constraint type 'record {| User user; |}'", 474, 28);
     }
 
     @Test

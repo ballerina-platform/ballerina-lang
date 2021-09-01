@@ -79,6 +79,19 @@ public abstract class AbstractTokenReader {
     public abstract void endMode();
 
     /**
+     * Start the given keyword operation mode in the token reader.
+     *
+     * @param keywordMode mode to add
+     */
+    public abstract void startKeywordMode(KeywordMode keywordMode);
+
+    /**
+     * End the current keyword mode in the token reader.
+     *
+     */
+    public abstract void endKeywordMode();
+
+    /**
      * Get the current mode of the token reader.
      *
      * @return Current mode

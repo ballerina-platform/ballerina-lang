@@ -64,8 +64,10 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
     private List<ImportDeclarationNode> currentDocImports;
 
     private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
-    
+
     private Module currentModule;
+
+    private SemanticModel currentSemanticModel;
 
     private final LanguageServerContext languageServerContext;
 
@@ -119,8 +121,8 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
             }
 
             visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(),
-                                                                LinePosition.from(position.getLine(),
-                                                                                  position.getCharacter()));
+                    LinePosition.from(position.getLine(),
+                            position.getCharacter()));
         }
 
         return visibleSymbols;
@@ -144,6 +146,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
         return this.currentDocImports;
     }
+
     @Override
     public Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap() {
         if (this.currentDocImportsMap == null) {
@@ -180,13 +183,18 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
             Optional<Module> module = this.workspaceManager.module(this.filePath);
             module.ifPresent(value -> this.currentModule = value);
         }
-        
+
         return Optional.ofNullable(this.currentModule);
     }
 
     @Override
     public Optional<SemanticModel> currentSemanticModel() {
-        return this.currentModule().map(module -> module.getCompilation().getSemanticModel());
+        if (this.currentSemanticModel == null) {
+            Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(this.filePath);
+            semanticModel.ifPresent(value -> this.currentSemanticModel = value);
+        }
+
+        return Optional.ofNullable(this.currentSemanticModel);
     }
 
     @Override

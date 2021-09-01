@@ -3624,8 +3624,7 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
-
-        if (!isPureType(lhsType) || !isPureType(rhsType)) {
+        if (!isAnydata(lhsType) && !isAnydata(rhsType)) {
             return false;
         }
 
@@ -4427,6 +4426,9 @@ public class Types {
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env,
                                                   LinkedHashSet<BType> visitedTypes) {
+        if (!visitedTypes.add(tupleType)) {
+            return tupleType;
+        }
         List<BType> tupleTypes = tupleType.tupleTypes;
         if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
             if (tupleTypes.size() > arrayType.size) {
@@ -4514,7 +4516,7 @@ public class Types {
 
         BErrorType intersectionErrorType = createErrorType(lhsType, rhsType, detailIntersectionType, env);
 
-        if (!intersectionContext.compilerInternalIntersectionTest) {
+        if (intersectionContext.createTypeDefs) {
             BTypeSymbol errorTSymbol = intersectionErrorType.tsymbol;
             BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(symTable.builtinPos,
                     intersectionErrorType, env, anonymousModelHelper);
@@ -4571,7 +4573,7 @@ public class Types {
             newTypeSymbol.flags |= Flags.READONLY;
         }
 
-        if (!intersectionContext.compilerInternalIntersectionTest) {
+        if (intersectionContext.createTypeDefs) {
             BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(
                     newType, env.enclPkg.packageID, symTable, symTable.builtinPos);
             BLangTypeDefinition recordTypeDef = TypeDefBuilderHelper.addTypeDefinition(
@@ -4819,7 +4821,7 @@ public class Types {
 
     private boolean validateRecordFieldDefaultValueForIntersection(IntersectionContext diagnosticContext,
                                                                    BField field, BRecordType recordType) {
-        if (field.symbol != null && field.symbol.isDefaultable && !diagnosticContext.compilerInternalIntersectionTest) {
+        if (field.symbol != null && field.symbol.isDefaultable && !diagnosticContext.ignoreDefaultValues) {
             diagnosticContext.logError(DiagnosticErrorCode.INTERSECTION_NOT_ALLOWED_WITH_TYPE, recordType, field.name);
             return false;
         }
@@ -5587,7 +5589,10 @@ public class Types {
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
     }
 
-    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+    public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        if (type == null) {
+            return false;
+        }
         Set<BType> visitedTypeSet = new HashSet<>();
         visitedTypeSet.add(type);
         return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
@@ -5777,7 +5782,9 @@ public class Types {
         BLangDiagnosticLog dlog;
         ContextOption contextOption;
         // Intersection test only care about intersection of types (ignoring default values).
-        boolean compilerInternalIntersectionTest;
+        boolean ignoreDefaultValues;
+        // Whether type definitions should be defined for newly-created types.
+        boolean createTypeDefs;
         // Try to avoid creating new intersection types.
         boolean preferNonGenerativeIntersection;
 
@@ -5786,7 +5793,8 @@ public class Types {
             this.lhsPos = left;
             this.rhsPos = right;
             this.contextOption = ContextOption.NON;
-            this.compilerInternalIntersectionTest = false;
+            this.ignoreDefaultValues = false;
+            this.createTypeDefs = true;
             this.preferNonGenerativeIntersection = false;
         }
 
@@ -5811,14 +5819,15 @@ public class Types {
          * @return a {@link IntersectionContext}
          */
         public static IntersectionContext compilerInternalIntersectionTestContext() {
-            IntersectionContext diagnosticContext = new IntersectionContext(null, null, null);
-            diagnosticContext.compilerInternalIntersectionTest = true;
-            return diagnosticContext;
+            IntersectionContext intersectionContext = new IntersectionContext(null, null, null);
+            intersectionContext.ignoreDefaultValues = true;
+            intersectionContext.createTypeDefs = false;
+            return intersectionContext;
         }
 
         /**
          * Create {@link IntersectionContext} used for calculating the intersection type.
-         * This does not emit error messages explaning why there is no intersection between two types.
+         * This does not emit error messages explaining why there is no intersection between two types.
          *
          * @return a {@link IntersectionContext}
          */
@@ -5828,17 +5837,34 @@ public class Types {
         }
 
         /**
-         * Create {@link IntersectionContext} used for calculating the intersection type, that try not to generate
-         * new types when possible.
-         * This is to preserve the previous type-narrowing semantic of intersection calculation.
-         * This does not emit error messages explaning why there is no intersection between two types.
+         * Create {@link IntersectionContext} used for checking the existence of a valid intersection, irrespective
+         * of default values.
+         * Type definitions are not created.
+         * This does not emit error messages explaining why there is no intersection between two types.
          *
          * @return a {@link IntersectionContext}
          */
-        public static IntersectionContext compilerInternalNonGenerativeIntersectionContext() {
+        public static IntersectionContext typeTestIntersectionExistenceContext() {
             IntersectionContext intersectionContext = new IntersectionContext(null, null, null);
+            intersectionContext.ignoreDefaultValues = true;
             intersectionContext.preferNonGenerativeIntersection = true;
-            intersectionContext.compilerInternalIntersectionTest = true;
+            intersectionContext.createTypeDefs = false;
+            return intersectionContext;
+        }
+
+        /**
+         * Create {@link IntersectionContext} used for creating effective types for the intersection of types,
+         * irrespective of default values.
+         * Type definitions are created.
+         * This does not emit error messages explaining why there is no intersection between two types.
+         *
+         * @return a {@link IntersectionContext}
+         */
+        public static IntersectionContext typeTestIntersectionCalculationContext() {
+            IntersectionContext intersectionContext = new IntersectionContext(null, null, null);
+            intersectionContext.ignoreDefaultValues = true;
+            intersectionContext.preferNonGenerativeIntersection = true;
+            intersectionContext.createTypeDefs = true;
             return intersectionContext;
         }
 

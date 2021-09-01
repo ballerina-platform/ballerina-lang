@@ -214,10 +214,8 @@ public abstract class AbstractParser {
                                                        Object... args) {
         int lastIndex = nodeList.size() - 1;
         STNode prevNode = nodeList.remove(lastIndex);
-        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
-        if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
-        }
+        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam, diagnosticCode,
+                args);
         nodeList.add(newNode);
     }
 
@@ -251,10 +249,7 @@ public abstract class AbstractParser {
                                                            DiagnosticCode diagnosticCode,
                                                            Object... args) {
         STNode node = nodeList.get(indexOfTheNode);
-        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam);
-        if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode, args);
-        }
+        STNode newNode = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, invalidParam, diagnosticCode, args);
         nodeList.set(indexOfTheNode, newNode);
     }
 

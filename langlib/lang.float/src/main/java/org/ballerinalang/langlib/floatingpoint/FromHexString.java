@@ -18,7 +18,13 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.float:fromHexString(string).
@@ -28,7 +34,11 @@ import io.ballerina.runtime.api.values.BString;
 public class FromHexString {
 
     public static Object fromHexString(BString s) {
-        // TODO: 6/20/19 Implement this
-        return null;
+        try {
+            return Double.parseDouble(s.getValue());
+        } catch (NumberFormatException e) {
+            return ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
+                    StringUtils.fromString(e.getMessage()));
+        }
     }
 }

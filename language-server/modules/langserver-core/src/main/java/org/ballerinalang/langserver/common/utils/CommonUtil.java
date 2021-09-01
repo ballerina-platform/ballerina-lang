@@ -154,6 +154,8 @@ public class CommonUtil {
     private static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
+    
+    private static final int MAX_DEPTH = 1;
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -246,10 +248,15 @@ public class CommonUtil {
      * @param bType Type descriptor to get the default value
      * @return {@link String}   Default value as a String
      */
-    public static String getDefaultValueForType(TypeSymbol bType) {
+    public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
+        return getDefaultValueForType(bType, 1);
+    }
+    
+    private static Optional<String> getDefaultValueForType(TypeSymbol bType, int depth) {
         String typeString;
+        
         if (bType == null) {
-            return "()";
+            return Optional.empty();
         }
 
         TypeSymbol rawType = getRawType(bType);
@@ -264,7 +271,7 @@ public class CommonUtil {
             case TUPLE:
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 String memberTypes = tupleType.memberTypeDescriptors().stream()
-                        .map(CommonUtil::getDefaultValueForType)
+                        .map(member -> getDefaultValueForType(member, depth + 1).orElse(""))
                         .collect(Collectors.joining(", "));
                 typeString = "[" + memberTypes + "]";
                 break;
@@ -272,19 +279,23 @@ public class CommonUtil {
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor()) + "]";
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("") 
+                            + "]";
                 } else {
                     typeString = "[]";
                 }
                 break;
             case RECORD:
+                if (depth > MAX_DEPTH) {
+                    return Optional.of("{}");
+                }
                 // TODO: Here we have disregarded the formatting of the record fields. Need to consider that in future
                 RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rawType;
                 typeString = "{";
                 typeString += getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
                         .map(recordFieldSymbol -> recordFieldSymbol.getName().get() + ": " +
-                                getDefaultValueForType(recordFieldSymbol.typeDescriptor()))
+                                getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse(""))
                         .collect(Collectors.joining(", "));
                 typeString += "}";
                 break;
@@ -292,13 +303,16 @@ public class CommonUtil {
                 typeString = "{}";
                 break;
             case OBJECT:
+                if (depth > MAX_DEPTH) {
+                    return Optional.of("");
+                }
                 ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
                 if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
                     ClassSymbol classSymbol = (ClassSymbol) objectTypeSymbol;
                     if (classSymbol.initMethod().isPresent()) {
                         List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().params().get();
                         String text = params.stream()
-                                .map(param -> getDefaultValueForType(param.typeDescriptor()))
+                                .map(param -> getDefaultValueForType(param.typeDescriptor(), depth + 1).orElse(""))
                                 .collect(Collectors.joining(", "));
                         typeString = "new (" + text + ")";
                     } else {
@@ -309,9 +323,18 @@ public class CommonUtil {
                 }
                 break;
             case UNION:
+                if (depth > MAX_DEPTH) {
+                    return Optional.of("");
+                }
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
-                typeString = getDefaultValueForType(members.get(0));
+                List<TypeSymbol> nilMembers = members.stream()
+                        .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
+                if (nilMembers.isEmpty()) {
+                    typeString = getDefaultValueForType(members.get(0), depth + 1).orElse("");
+                } else {
+                    return Optional.of("()");
+                }
                 break;
             case INTERSECTION:
                 TypeSymbol effectiveType = ((IntersectionTypeSymbol) rawType).effectiveTypeDescriptor();
@@ -326,15 +349,15 @@ public class CommonUtil {
                             .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
                             .findAny();
                     if (memberType.isPresent()) {
-                        typeString = getDefaultValueForType(memberType.get());
+                        typeString = getDefaultValueForType(memberType.get(), depth + 1).orElse("");
                     }
                 } else {
-                    typeString = getDefaultValueForType(effectiveType);
+                    typeString = getDefaultValueForType(effectiveType, depth + 1).orElse("");
                 }
                 break;
             case TABLE:
                 TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
-                typeString = "table [" + getDefaultValueForType(rowType) + "]";
+                typeString = "table [" + getDefaultValueForType(rowType, depth + 1).orElse("") + "]";
                 break;
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
@@ -343,7 +366,8 @@ public class CommonUtil {
                     errorString.append(", ");
                     errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
                             .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor()))
+                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
+                                    .orElse(""))
                             .collect(Collectors.joining(", ")));
                 }
                 errorString.append(")");
@@ -354,6 +378,9 @@ public class CommonUtil {
                 break;
             case XML:
                 typeString = "xml ``";
+                break;
+            case DECIMAL:
+                typeString = Integer.toString(0);
                 break;
             default:
                 if (typeKind.isIntegerType()) {
@@ -366,10 +393,9 @@ public class CommonUtil {
                     break;
                 }
 
-                typeString = "()";
-                break;
+                return Optional.empty();
         }
-        return typeString;
+        return Optional.ofNullable(typeString);
     }
 
     /**
@@ -445,7 +471,7 @@ public class CommonUtil {
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
                 fieldEntries.add(fieldEntry);
             }
         } else {
@@ -453,7 +479,7 @@ public class CommonUtil {
             for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor());
+                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
                 fieldEntries.add(fieldEntry);
             }
         }
@@ -596,6 +622,8 @@ public class CommonUtil {
                     String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
                             getRecordFieldCompletionInsertText(field, newParentsList, tabOffset + 1, i + 1);
                     requiredFieldInsertTexts.add(fieldText);
+                } else {
+                    return bField.getName().get() + ": {}";
                 }
             }
             insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
@@ -608,7 +636,7 @@ public class CommonUtil {
             insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
         } else {
             insertText.append("${").append(fieldId).append(":")
-                    .append(getDefaultValueForType(bField.typeDescriptor())).append("}");
+                    .append(getDefaultValueForType(bField.typeDescriptor()).orElse(" ")).append("}");
         }
 
         return insertText.toString();
@@ -628,6 +656,26 @@ public class CommonUtil {
             }
             return true;
         };
+    }
+
+    /**
+     * Generates a variable name.
+     *
+     * @param name {@link BLangNode}
+     * @return random argument name
+     */
+    public static String generateVariableName(String name, Set<String> names) {
+        return generateVariableName(1, name, names);
+    }
+
+    /**
+     * Generates a variable name.
+     *
+     * @param symbol {@link Symbol}
+     * @return random argument name
+     */
+    public static String generateVariableName(Symbol symbol, Set<String> names) {
+        return generateVariableName(1, symbol.kind().name(), names);
     }
 
     /**
@@ -667,26 +715,6 @@ public class CommonUtil {
     /**
      * Generates a variable name.
      *
-     * @param name {@link BLangNode}
-     * @return random argument name
-     */
-    public static String generateVariableName(String name, Set<String> names) {
-        return generateVariableName(1, name, names);
-    }
-
-    /**
-     * Generates a variable name.
-     *
-     * @param symbol {@link Symbol}
-     * @return random argument name
-     */
-    public static String generateVariableName(Symbol symbol, Set<String> names) {
-        return generateVariableName(1, symbol.kind().name(), names);
-    }
-
-    /**
-     * Generates a variable name.
-     *
      * @param symbol {@link Symbol}
      * @return random argument name
      */
@@ -720,20 +748,6 @@ public class CommonUtil {
         } else {
             return generateName(1, names);
         }
-    }
-
-    /**
-     * Whether the given module is a langlib module.
-     *
-     * @param moduleID Module ID to evaluate
-     * @return {@link Boolean} whether langlib or not
-     */
-    public static boolean isLangLib(ModuleID moduleID) {
-        return isLangLib(moduleID.orgName(), moduleID.moduleName());
-    }
-
-    public static boolean isLangLib(String orgName, String moduleName) {
-        return orgName.equals("ballerina") && moduleName.startsWith("lang.");
     }
 
     private static String generateVariableName(int suffix, String name, Set<String> names) {
@@ -810,6 +824,137 @@ public class CommonUtil {
             newName = generateName(++suffix, names);
         }
         return newName;
+    }
+
+    /**
+     * Generates a parameter name.
+     *
+     * @param arg          Argument name.
+     * @param position     Argument position.
+     * @param type         Type symbol of the argument.
+     * @param visibleNames Visible symbol names.
+     * @return
+     */
+    public static String generateParameterName(String arg, int position, TypeSymbol type, Set<String> visibleNames) {
+        String newName;
+        if (arg.isEmpty() || !isValidIdentifier(arg)) {
+            String typeName = type != null ? type.typeKind().getName() : "";
+            if (!typeName.isEmpty()) {
+                newName = typeName.substring(0, 1).toLowerCase(Locale.getDefault());
+                return toCamelCase(getValidatedSymbolName(visibleNames, newName));
+            } else {
+                return generateName(position, visibleNames);
+            }
+        } else {
+            return toCamelCase(getValidatedSymbolName(visibleNames, arg));
+        }
+    }
+
+    /**
+     * Get a validated symbol name against the visible symbols.
+     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
+     *
+     * @param visibleNames visible symbol names in the context.
+     * @param symbolName   raw symbol name to modify with the numbered suffix
+     * @return {@link String} modified symbol name
+     */
+    public static String getValidatedSymbolName(Set<String> visibleNames, String symbolName) {
+        if (!visibleNames.contains(symbolName)) {
+            return symbolName;
+        }
+        List<Integer> suffixList = visibleNames.parallelStream().map(sName -> {
+            if (sName == null) {
+                return -2;
+            }
+            if (sName.equals(symbolName)) {
+                return 0;
+            }
+            String modifiedName = sName.replaceFirst(symbolName, "");
+
+            if (!modifiedName.isEmpty() && modifiedName.chars().allMatch(Character::isDigit)) {
+                return Integer.parseInt(modifiedName);
+            }
+
+            return -3;
+        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
+
+        for (int i = 0; i < suffixList.size(); i++) {
+            Integer suffix = suffixList.get(i);
+            if (i == suffixList.size() - 1 || (suffix + 1) != suffixList.get(i + 1)) {
+                return symbolName + (suffix + 1);
+            }
+        }
+        return symbolName;
+    }
+
+    /**
+     * Get the validated symbol name against the visible symbols.
+     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
+     *
+     * @param context    completion context
+     * @param symbolName raw symbol name to modify with the numbered suffix
+     * @return {@link String} modified symbol name
+     */
+    public static String getValidatedSymbolName(PositionedOperationContext context, String symbolName) {
+        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
+        Set<String> visibleSymbolNames = symbols.stream()
+                .map(Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+        return getValidatedSymbolName(visibleSymbolNames, symbolName);
+    }
+
+    /**
+     * Coverts a given text to camel case.
+     *
+     * @param text text to be converted.
+     * @return {@link String} converted string.
+     */
+    private static String toCamelCase(String text) {
+        String[] words = text.split("[\\W_]+");
+        StringBuilder result = new StringBuilder();
+        if (words.length == 1) {
+            if (!StringUtils.isAllUpperCase(words[0])) {
+                String word = words[0];
+                word = Character.toLowerCase(word.charAt(0)) + word.substring(1);
+                return word;
+            }
+            return words[0];
+        }
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+            if (word.isEmpty()) {
+                continue;
+            }
+            if (i == 0) {
+                word = word.toLowerCase();
+            } else {
+                word = Character.toUpperCase(word.charAt(0)) + word.substring(1).toLowerCase();
+            }
+            result.append(word);
+        }
+        return result.toString();
+    }
+
+    /**
+     * Whether the given module is a langlib module.
+     * public static String generateParameterName(String arg, Set<String> visibleNames) {
+     * visibleNames.addAll(BALLERINA_KEYWORDS);
+     * String newName = arg.replaceAll(".+[\\:\\.]", "");
+     * <p>
+     * <p>
+     * }
+     *
+     * @param moduleID Module ID to evaluate
+     * @return {@link Boolean} whether langlib or not
+     */
+    public static boolean isLangLib(ModuleID moduleID) {
+        return isLangLib(moduleID.orgName(), moduleID.moduleName());
+    }
+
+    public static boolean isLangLib(String orgName, String moduleName) {
+        return orgName.equals("ballerina") && moduleName.startsWith("lang.");
     }
 
     /**
@@ -1121,43 +1266,6 @@ public class CommonUtil {
         return modNameComponents[modNameComponents.length - 1];
     }
 
-    /**
-     * Get the validated symbol name against the visible symbols.
-     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
-     *
-     * @param context    completion context
-     * @param symbolName raw symbol name to modify with the numbered suffix
-     * @return {@link String} modified symbol name
-     */
-    public static String getValidatedSymbolName(PositionedOperationContext context, String symbolName) {
-        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
-        List<Integer> variableNumbers = symbols.parallelStream().map(symbol -> {
-            if (symbol.getName().isEmpty()) {
-                return -2;
-            }
-            String sName = symbol.getName().get();
-            if (sName.equals(symbolName)) {
-                return 0;
-            }
-            String modifiedName = sName.replaceFirst(symbolName, "");
-
-            if (!modifiedName.isEmpty() && modifiedName.chars().allMatch(Character::isDigit)) {
-                return Integer.parseInt(modifiedName);
-            }
-
-            return -3;
-        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
-
-        for (int i = 0; i < variableNumbers.size(); i++) {
-            Integer intVal = variableNumbers.get(i);
-            if (i == variableNumbers.size() - 1 || (intVal + 1) != variableNumbers.get(i + 1)) {
-                return symbolName + (intVal + 1);
-            }
-        }
-
-        return symbolName;
-    }
-
     public static boolean isKeyword(String token) {
         return CommonUtil.BALLERINA_KEYWORDS.contains(token);
     }
@@ -1182,7 +1290,7 @@ public class CommonUtil {
      * (1) any variable defined
      * (2) Function Parameters
      * (3) Service/ resource path parameters
-     * 
+     *
      * @return {@link Predicate<Symbol>}
      */
     public static Predicate<Symbol> getVariableFilterPredicate() {

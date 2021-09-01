@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
+import ballerina/test;
+
 type OpenEmployee record {
     string|json name = "";
     int id = 0;
@@ -861,7 +864,14 @@ function testSimpleXmlPositive() returns boolean {
     xml x6 = xml `<?target data?>`;
     xml x7 = xml `<!-- I'm a comment -->`;
     xml x8 = xml `<!-- I'm a comment -->`;
-    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8);
+    xml x11 = xml `<book>The Lost World</book><!-- I'm a comment -->`;
+    boolean x9 = x11 == xml `<book>The Lost World</book><!-- I'm a comment -->`;
+    boolean x10 = x1 == xml `<book>The Lost World</book>`;
+    boolean x12 = x3 == xml `Hello, world!`;
+    boolean x13 = x5 == xml `<?target data?>`;
+    boolean x14 = x7 == xml `<!-- I'm a comment -->`;
+    return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8) &&
+    x9 && x10 && x12 && x13 && x14 && x11 != x8 && x3 != x5 && x7 != x1 && x6 != x7;
 }
 
 function testReferenceEqualityXml() {
@@ -1334,7 +1344,7 @@ function testTableEquality() {
         {name: "John", id: 4567}
     ];
     var ids = checkpanic table key(id) from var {id} in tbl1 select {id};
-    table<record {| int id; |}> key(id) tbl6 = ids;
+    table<record {| readonly int id; |}> key(id) tbl6 = ids;
     StudentTable tbl7 = table key(name) [
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
@@ -1426,6 +1436,160 @@ function testIntersectingUnionEquality() {
     assert("abc" != a, true);
 }
 
+class MyObj2 {}
+type MyObject1 object {};
+
+function testEqualityWithNonAnydataType() {
+    map<int|string> a = { one: 1, two: "two" };
+    map<any> b = { one: 1, two: "two" };
+    assert(a == b, true);
+    assert(a != b, false);
+
+    any c = 5;
+    int d = 5;
+    assert(c == d, true);
+    assert(c != d, false);
+
+    MyObject1? obj1 = ();
+    assert(obj1 == (), true);
+    assert(obj1 != (), false);
+
+    MyObj2? obj2 = new;
+    assert(obj2 == (), false);
+    assert(obj2 != (), true);
+}
+
+type FloatOrInt float|int;
+
+FloatOrInt n1 = 0.0;
+FloatOrInt n2 = -0.0;
+FloatOrInt n3 = 0.0/0.0;
+FloatOrInt n4 = -0.0/0.0;
+FloatOrInt n5 = 2.0;
+FloatOrInt n6 = 2.00;
+FloatOrInt n7 = 2;
+
+function testEqualityWithFloatUnion() {
+    test:assertTrue(n1 == n2);
+    test:assertTrue(n3 == n4);
+    test:assertTrue(n5 == n6);
+    test:assertFalse(n5 == n7);
+}
+
+function testNotEqualityWithFloatUnion() {
+    test:assertFalse(n1 != n2);
+    test:assertFalse(n3 != n4);
+    test:assertFalse(n5 != n6);
+    test:assertTrue(n5 != n7);
+}
+
+function testExactEqualityWithFloatUnion() {
+    test:assertFalse(n1 === n2);
+    test:assertTrue(n3 === n4);
+    test:assertTrue(n5 === n6);
+    test:assertFalse(n5 === n7);
+}
+
+function testNotExactEqualityWithFloatUnion() {
+    test:assertTrue(n1 !== n2);
+    test:assertFalse(n3 !== n4);
+    test:assertFalse(n5 !== n6);
+    test:assertTrue(n5 !== n7);
+}
+
+type DecimalOrInt decimal|int;
+
+DecimalOrInt m1 = 0.0;
+DecimalOrInt m2 = -0.0;
+DecimalOrInt m3 = 2.0;
+DecimalOrInt m4 = 2.00;
+DecimalOrInt m5 = 2;
+
+function testEqualityWithDecimalUnion() {
+    test:assertTrue(m1 == m2);
+    test:assertTrue(m3 == m4);
+    test:assertFalse(m3 == m5);
+}
+
+function testNotEqualityWithDecimalUnion() {
+    test:assertFalse(m1 != m2);
+    test:assertFalse(m3 != m4);
+    test:assertTrue(m3 != m5);
+}
+
+function testExactEqualityWithDecimalUnion() {
+    test:assertTrue(m1 === m2);
+    test:assertFalse(m3 === m4);
+    test:assertFalse(m3 === m5);
+}
+
+function testNotExactEqualityWithDecimalUnion() {
+    test:assertFalse(m1 !== m2);
+    test:assertTrue(m3 !== m4);
+    test:assertTrue(m3 !== m5);
+}
+
+type VALUE_TYPE int|byte|float|boolean|string;
+
+function testEqualityWithUnionOfSimpleTypes() {
+    VALUE_TYPE a = "abc";
+    VALUE_TYPE b = "abc";
+    VALUE_TYPE c = "bcd";
+    VALUE_TYPE d = true;
+    VALUE_TYPE e = true;
+    VALUE_TYPE f = false;
+
+    VALUE_TYPE g = <byte> 1;
+    VALUE_TYPE h = <byte> 1;
+    VALUE_TYPE i = <byte> 2;
+
+    VALUE_TYPE j = 2;
+    VALUE_TYPE k = 2;
+    VALUE_TYPE l = 1;
+    VALUE_TYPE m = 2.0;
+
+    test:assertTrue(a == b);
+    test:assertFalse(b == c);
+    test:assertTrue(a === b);
+    test:assertFalse(b === c);
+
+    test:assertTrue(d == e);
+    test:assertFalse(e == f);
+    test:assertTrue(d === e);
+    test:assertFalse(e === f);
+
+    test:assertTrue(g == h);
+    test:assertFalse(h == i);
+    test:assertTrue(g === h);
+    test:assertFalse(h === i);
+
+    test:assertTrue(j == k);
+    test:assertFalse(j == l);
+    test:assertTrue(j === k);
+    test:assertFalse(j === l);
+
+    test:assertTrue(i == j);
+    test:assertFalse(i == m);
+    test:assertTrue(j === i);
+    test:assertFalse(i === m);
+}
+
+type T xml|handle|string;
+
+function testExactEqualityWithUnionOfNonSimpleTypes() {
+    T h1 = java:fromString("abc");
+    T h2 = java:fromString("abc");
+    T h3 = java:fromString("bcd");
+    T x1 = xml `<book>Book One</book>`;
+    T x2 = xml`abc`;
+
+    test:assertTrue(h1 === h2);
+    test:assertFalse(h1 === h3);
+    test:assertFalse(h1 === x1);
+    test:assertFalse(x1 === x2);
+    test:assertFalse(x2 === h1);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
@@ -1436,4 +1600,3 @@ function assert(anydata actual, anydata expected) {
         panic e;
     }
 }
-

@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.ExecuteCommandOptions;
 import org.eclipse.lsp4j.Registration;
 import org.eclipse.lsp4j.RegistrationParams;
 import org.eclipse.lsp4j.ServerCapabilities;
+import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.Unregistration;
 import org.eclipse.lsp4j.UnregistrationParams;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -100,7 +101,8 @@ public class LSClientUtil {
      */
     public static boolean isDynamicCommandRegistrationSupported(LanguageServerContext serverContext) {
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        return Boolean.TRUE.equals(clientCapabilities.getWorkspaceCapabilities().getExecuteCommand()
+        return clientCapabilities.getWorkspaceCapabilities().getExecuteCommand() != null
+                && Boolean.TRUE.equals(clientCapabilities.getWorkspaceCapabilities().getExecuteCommand()
                 .getDynamicRegistration());
     }
 
@@ -111,7 +113,19 @@ public class LSClientUtil {
      * @return True if dynamic command registration is supported
      */
     public static boolean isDynamicCommandRegistrationSupported(ClientCapabilities clientCapabilities) {
-        return Boolean.TRUE.equals(clientCapabilities.getWorkspace().getExecuteCommand().getDynamicRegistration());
+        return clientCapabilities.getWorkspace().getExecuteCommand() != null &&
+                Boolean.TRUE.equals(clientCapabilities.getWorkspace().getExecuteCommand().getDynamicRegistration());
+    }
+
+    /**
+     * Check if the LS client supports semanticTokens' dynamic registration.
+     *
+     * @param capabilities LS text document client capabilities
+     * @return True if dynamic registration is supported, otherwise false
+     */
+    public static boolean isDynamicSemanticTokensRegistrationSupported(TextDocumentClientCapabilities capabilities) {
+        return capabilities.getSemanticTokens() != null &&
+                Boolean.TRUE.equals(capabilities.getSemanticTokens().getDynamicRegistration());
     }
 
     /**

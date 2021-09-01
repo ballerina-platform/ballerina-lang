@@ -77,6 +77,10 @@ public class BTable extends IndexedCompoundVariable {
             if (!(jvmValue instanceof ObjectReference)) {
                 return Either.forRight(new ArrayList<>());
             }
+            // If count is missing or 0, all variables should be returned as defined in debug adapter protocol.
+            if (count == 0) {
+                count = getChildrenCount();
+            }
             populateTableValues(start, count);
             return Either.forRight(getChildVariables(start, count));
         } catch (Exception ignored) {
@@ -166,12 +170,12 @@ public class BTable extends IndexedCompoundVariable {
 
     private Value getIterator() throws Exception {
         Optional<Method> getIteratorMethod =
-            VariableUtils.getMethod(jvmValue, METHOD_GET_ITERATOR, ITERATOR_VALUE_PATTERN);
+                VariableUtils.getMethod(jvmValue, METHOD_GET_ITERATOR, ITERATOR_VALUE_PATTERN);
         if (getIteratorMethod.isEmpty()) {
             return null;
         }
         return ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread().getThreadReference(),
-            getIteratorMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                getIteratorMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
     }
 
     private boolean hasNext(Value iterator) throws Exception {
@@ -180,7 +184,7 @@ public class BTable extends IndexedCompoundVariable {
             return false;
         }
         Value hasNext = ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
-            hasNextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                hasNextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
         return Boolean.parseBoolean(hasNext.toString());
     }
 
@@ -190,7 +194,7 @@ public class BTable extends IndexedCompoundVariable {
             return null;
         }
         return ((ObjectReference) iterator).invokeMethod(getContext().getOwningThread().getThreadReference(),
-            nextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                nextMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
     }
 
     private Value getValues(Value next) throws Exception {
@@ -199,6 +203,6 @@ public class BTable extends IndexedCompoundVariable {
             return null;
         }
         return ((ObjectReference) next).invokeMethod(getContext().getOwningThread().getThreadReference(),
-            getValuesMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                getValuesMethod.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
     }
 }

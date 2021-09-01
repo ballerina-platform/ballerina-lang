@@ -167,7 +167,8 @@ function testAssertTuples() {
     [int, string] b = [12, "John"];
     error? err = trap test:assertEquals(a, b);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '12 John'\nactual\t: '10 John'");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '[12,\"John\"]'\nactual\t: " +
+    "'[10,\"John\"]'");
 }
 
 @test:Config {}

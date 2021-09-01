@@ -306,4 +306,19 @@ public class LangLibDecimalTest {
     public void testLangLibCallOnFiniteType() {
         BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
     }
+
+    @Test(dataProvider = "functionsWithDecimalEqualityChecks")
+    public void testFunctionsWithDecimalEqualityChecks(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsWithDecimalEqualityChecks() {
+        return new String[] {
+                "testDecimalEquality",
+                "testDecimalNotEquality",
+                "testDecimalExactEquality",
+                "testDecimalNotExactEquality"
+        };
+    }
 }

@@ -1,0 +1,5 @@
+[package]
+org = "symbolowner"
+name = "testprojmodules"
+version = "0.1.0"
+export = ["testprojmodules", "testprojmodules.module1"]
