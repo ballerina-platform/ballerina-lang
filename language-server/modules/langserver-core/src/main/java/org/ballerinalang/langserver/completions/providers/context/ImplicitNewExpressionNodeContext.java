@@ -17,22 +17,30 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +68,7 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
             Covers
             lhs = new(<cursor>)
              */
-            completionItems.addAll(this.getCompletionsWithinArgs(context));
+            completionItems.addAll(this.getCompletionsWithinArgs(context, node));
         } else {
             /*
             Supports the following
@@ -102,13 +110,52 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
                 && cursor < parenthesizedArgList.closeParenToken().textRange().endOffset();
     }
 
-    private List<LSCompletionItem> getCompletionsWithinArgs(BallerinaCompletionContext ctx) {
+    private List<LSCompletionItem> getCompletionsWithinArgs(BallerinaCompletionContext ctx,
+                                                            ImplicitNewExpressionNode node) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        completionItems.addAll(this.expressionCompletions(ctx));
+        if (!withInNamedArgAssignmentContext(ctx)) {
+            completionItems.addAll(getNamedArgExpressionCompletionItems(ctx, node));
+        }
+        return completionItems;
+    }
 
-        return this.expressionCompletions(ctx);
+    private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,
+                                                                        ImplicitNewExpressionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        ContextTypeResolver resolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> type = node.parent().apply(resolver);
+        if (type.isEmpty()) {
+            return completionItems;
+        }
+        TypeSymbol typeSymbol = CommonUtil.getRawType(type.get());
+        if (typeSymbol.kind() != SymbolKind.CLASS) {
+            return completionItems;
+        }
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) typeSymbol).initMethod();
+        if (methodSymbol.isEmpty()) {
+            return completionItems;
+        }
+
+        FunctionTypeSymbol functionTypeSymbol = methodSymbol.get().typeDescriptor();
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty()) {
+            return completionItems;
+        }
+        List<String> existingNamedArgs;
+        if (node.parenthesizedArgList().isEmpty()) {
+            return completionItems;
+        }
+
+        existingNamedArgs = node.parenthesizedArgList().get().arguments().stream()
+                .filter(arg -> arg.kind() == SyntaxKind.NAMED_ARG)
+                .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).collect(Collectors.toList());
+        getNamedArgCompletionItems(context, params.get(), existingNamedArgs);
+        return completionItems;
     }
 }

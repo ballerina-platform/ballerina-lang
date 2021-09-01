@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
@@ -30,11 +32,13 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
@@ -262,6 +266,27 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         return ((AnnotationSymbol) annotationSymbol.get()).typeDescriptor();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode errorConstructorExpressionNode) {
+        /*
+         * For error constructor node we return the detailed type descriptor of the error type desc.
+         */
+        Optional<TypeDescriptorNode> typeRef = errorConstructorExpressionNode.typeReference();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (typeRef.isEmpty() || semanticModel.isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(typeRef.get());
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.TYPE) {
+            return Optional.empty();
+        }
+        TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
+        if (typeSymbol.typeKind() != TypeDescKind.ERROR) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(CommonUtil.getRawType(((ErrorTypeSymbol) typeSymbol).detailTypeDescriptor()));
     }
 
     @Override

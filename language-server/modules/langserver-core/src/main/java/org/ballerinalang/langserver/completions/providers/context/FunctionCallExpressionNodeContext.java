@@ -15,9 +15,17 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -31,6 +39,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Completion Provider for {@link FunctionCallExpressionNode} context.
@@ -54,6 +63,9 @@ public class FunctionCallExpressionNodeContext extends AbstractCompletionProvide
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(ctx));
         completionItems.addAll(this.expressionCompletions(ctx));
+        if (!withInNamedArgAssignmentContext(ctx)) {
+            completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
+        }
         this.sort(ctx, node, completionItems);
         return completionItems;
     }
@@ -81,5 +93,29 @@ public class FunctionCallExpressionNodeContext extends AbstractCompletionProvide
             completionItem.getCompletionItem()
                     .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
+    }
+
+    private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,
+                                                                        FunctionCallExpressionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return completionItems;
+        }
+        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(node);
+        if (symbol.isEmpty() || !(symbol.get().kind() == SymbolKind.FUNCTION
+                || symbol.get().kind() == SymbolKind.METHOD
+                || symbol.get().kind() == SymbolKind.RESOURCE_METHOD)) {
+            return completionItems;
+        }
+        FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
+        FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty()) {
+            return completionItems;
+        }
+        List<String> existingNamedArgs = node.arguments().stream().filter(arg -> arg.kind() == SyntaxKind.NAMED_ARG)
+                .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).collect(Collectors.toList());
+        return getNamedArgCompletionItems(context, params.get(), existingNamedArgs);
     }
 }

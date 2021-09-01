@@ -41,7 +41,16 @@ public class ExpressionContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return this.getConfigsList();
+        return new Object[][]{
+                {"function_call_expression_ctx_config15.json", "expression_context"},
+                {"function_call_expression_ctx_config16.json", "expression_context"},
+                {"error_constructor_expr_ctx_config9.json", "expression_context"},
+                {"error_constructor_expr_ctx_config10.json", "expression_context"},
+                {"new_expr_ctx_config22.json", "expression_context"},
+                {"new_expr_ctx_config23.json", "expression_context"},
+                {"new_expr_ctx_config24.json", "expression_context"}
+        };
+        //return this.getConfigsList();
     }
 
     @Override
