@@ -39,6 +39,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BOOLEAN;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.BYTE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.HANDLE;
@@ -106,9 +107,10 @@ public class TypeSymbolTest {
                 {40, 4, INT, "int"},
                 {42, 5, INT, "int"},
                 {42, 10, STRING, "string"},
-//                {46, 4, ERROR, "error<ErrorData>"},
+                {46, 4, ERROR, "error<ErrorData>"},
                 {47, 4, HANDLE, "handle"},
                 {48, 4, STREAM, "stream<Person, error>"},
+                {52, 4, SINGLETON, "10"},
                 {54, 4, ANY, "any"},
                 {55, 4, NEVER, "never"},
                 {56, 4, READONLY, "readonly"},
@@ -119,7 +121,7 @@ public class TypeSymbolTest {
                 {60, 4, ANYDATA, "anydata"},
                 {61, 4, JSON, "json"},
                 {62, 4, BYTE, "byte"},
-//                {63, 13, ERROR, "error"},
+                {63, 13, ERROR, "error"},
         };
     }
 
@@ -138,7 +140,7 @@ public class TypeSymbolTest {
                 {31, 13, ANYDATA, "anydata"},
                 {34, 22, INT, "int"},
                 {35, 11, STRING, "string"},
-//                {48, 19, ERROR, "error"},
+                {48, 19, ERROR, "error"},
         };
     }
 
@@ -187,7 +189,7 @@ public class TypeSymbolTest {
         assertEquals(constant.typeKind(), SINGLETON);
         assertEquals(constant.typeDescriptor().typeKind(), SINGLETON);
         assertEquals(constant.broaderTypeDescriptor().typeKind(), STRING);
-//        assertEquals(constant.signature(), expName);
+        assertEquals(constant.signature(), "FOO");
     }
 
     // private utils

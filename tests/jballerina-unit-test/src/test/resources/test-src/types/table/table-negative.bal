@@ -193,3 +193,13 @@ readonly & string[] stringArr = ["foo", "bar"];
 table<Row2> key(k, m) t3 = table [
     { k: 20, m: stringArr, value: 17, "b":12}
 ];
+
+function someFunc(table<any> p) {
+}
+
+type T table<any>;
+
+function testInvalidTableKeys() {
+    table<Person> key(id, name) tableVar;
+    table<Person> key(invalidField) tableVar2;
+}
