@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -749,7 +748,7 @@ class JvmObservabilityGen {
     private void injectCheckErrorCalls(BIRFunction func, BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB,
                                        BIRBasicBlock noErrorBB, Location pos, BIROperand valueOperand,
                                        String uniqueId) {
-        BIROperand isErrorOperand = generateTempLocalVariable(func, String.format("$%s$isError", uniqueId),
+        BIROperand isErrorOperand = generateTempLocalVariable(func, String.format("%s$isError", uniqueId),
                 symbolTable.booleanType);
         TypeTest errorTypeTestInstruction = new TypeTest(pos, symbolTable.errorType, isErrorOperand, valueOperand);
         errorCheckBB.instructions.add(errorTypeTestInstruction);
@@ -767,7 +766,7 @@ class JvmObservabilityGen {
      */
     private void injectReportErrorCall(BIRFunction func, BIRBasicBlock errorReportBB, Location pos,
                                        BIROperand errorOperand, String uniqueId) {
-        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("$%s$castedError", uniqueId),
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("%s$castedError", uniqueId),
                 symbolTable.errorType);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
@@ -809,7 +808,7 @@ class JvmObservabilityGen {
      */
     private void injectStopObservationWithErrorCall(BIRFunction func, BIRBasicBlock observeEndBB, Location pos,
                                                     BIROperand errorOperand, String uniqueId) {
-        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("$%s$castedError", uniqueId),
+        BIROperand castedErrorOperand = generateTempLocalVariable(func, String.format("%s$castedError", uniqueId),
                 symbolTable.errorType);
         TypeCast errorCastInstruction = new TypeCast(pos, castedErrorOperand, errorOperand, symbolTable.errorType,
                 false);
