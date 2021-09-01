@@ -124,6 +124,7 @@ public class ContextBuilder {
      * @param capabilities     signature help capabilities
      * @param serverContext    language server context
      * @param position         cursor position
+     * @param cancelChecker    cancellation checker
      * @return {@link SignatureContext} generated signature context
      */
     public static SignatureContext buildSignatureContext(String uri,
@@ -148,6 +149,7 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
      * @param position         cursor position
+     * @param cancelChecker    cancellation checker
      * @return {@link SignatureContext} generated signature context
      */
     public static ReferencesContext buildReferencesContext(String uri,
@@ -169,6 +171,7 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
      * @param position         cursor position
+     * @param cancelChecker    cancellation checker
      * @return {@link SignatureContext} generated signature context
      */
     public static PrepareRenameContext buildPrepareRenameContext(String uri,
@@ -187,8 +190,11 @@ public class ContextBuilder {
     /**
      * Build the rename context.
      *
-     * @param workspaceManager workspace manager instance
-     * @param serverContext    language server context
+     * @param params             Rename parameters
+     * @param workspaceManager   workspace manager instance
+     * @param serverContext      language server context
+     * @param clientCapabilities lang server client capabilities
+     * @param cancelChecker      cancellation checker
      * @return {@link SignatureContext} generated signature context
      */
     public static RenameContext buildRenameContext(RenameParams params,
@@ -211,6 +217,7 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
      * @param params           code action parameters
+     * @param cancelChecker    cancellation checker
      * @return {@link CodeActionContext} generated signature context
      */
     public static CodeActionContext buildCodeActionContext(String uri,
@@ -232,6 +239,7 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
      * @param position         cursor position where the hover request executed
+     * @param cancelChecker    cancellation checker
      * @return {@link HoverContext} generated hover context
      */
     public static HoverContext buildHoverContext(String uri,
@@ -250,8 +258,11 @@ public class ContextBuilder {
     /**
      * Build the command execution context.
      *
-     * @param workspaceManager workspace manager instance
-     * @param arguments
+     * @param workspaceManager   workspace manager instance
+     * @param serverContext      language server context
+     * @param arguments          list of command arguments
+     * @param clientCapabilities language server client capabilities
+     * @param languageServer     language server instance
      * @return {@link ExecuteCommandContext} generated command execution context
      */
     public static ExecuteCommandContext buildExecuteCommandContext(WorkspaceManager workspaceManager,
@@ -272,6 +283,7 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
      * @param lineFoldingOnly  if line folding only or not
+     * @param cancelChecker    cancellation checker
      * @return {@link FoldingRangeContext} generated folding range context
      */
     public static FoldingRangeContext buildFoldingRangeContext(String uri, WorkspaceManager workspaceManager,
@@ -292,6 +304,7 @@ public class ContextBuilder {
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
      * @param position         position where the definition operation invoked
+     * @param cancelChecker    cancellation checker
      * @return {@link BallerinaDefinitionContext}
      */
     public static BallerinaDefinitionContext buildDefinitionContext(String uri,
@@ -313,6 +326,7 @@ public class ContextBuilder {
      * @param uri              file uri
      * @param workspaceManager workspace manager instance
      * @param serverContext    language server context
+     * @param cancelChecker    cancellation checker
      * @return {@link SemanticTokensContext} generated semantic tokens context
      */
     public static SemanticTokensContext buildSemanticTokensContext(String uri,
