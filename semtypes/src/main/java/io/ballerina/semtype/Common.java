@@ -117,7 +117,7 @@ public class Common {
         return Arrays.copyOf(v, v.length);
     }
 
-    public static String[] shallowCopyTypes(String[] v) {
+    public static String[] shallowCopyStrings(String[] v) {
         return Arrays.copyOf(v, v.length);
     }
 
