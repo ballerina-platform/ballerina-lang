@@ -56,18 +56,16 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
             if (onSuggestionsAfterQualifiers(context, initializer)) {
                 /*
                     Covers the following
-                    x = <qualifier(s)> <cursor>
-                    x = <qualifier(s)>  x<cursor>
+                    type x = <qualifier(s)> <cursor>
+                    type x = <qualifier(s)>  x<cursor>
                     currently the qualifier can be isolated/transactional.
                  */
-                List<Token> qualifiers = initializer.leadingInvalidTokens();
-                Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-                Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-                completionItems.addAll(getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context));
-            } else {
-                completionItems.addAll(this.initializerContextCompletions(context,
-                        node.typedBindingPattern().typeDescriptor()));
+                completionItems.addAll(getCompletionsAfterQualifiers(context, initializer));
+                this.sort(context, node, completionItems);
+                return completionItems;
             }
+            completionItems.addAll(this.initializerContextCompletions(context,
+                    node.typedBindingPattern().typeDescriptor()));
             this.sort(context, node, completionItems);
             return completionItems;
         } else if (onSuggestionsAfterQualifiers(context, node)) {
@@ -77,10 +75,7 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
                 (2) <qualifier(s)> x<cursor>
                 currently the qualifier can be isolated/transactional.
             */
-            List<Token> qualifiers = node.leadingInvalidTokens();
-            Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-            Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-            completionItems.addAll(getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context));
+            completionItems.addAll(getCompletionsAfterQualifiers(context, node));
             this.sort(context, node, completionItems);
             return completionItems;
         } else if (onVariableNameContext(context, node)) {
@@ -117,5 +112,12 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
         }
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         return cursor > lastQualifier.textRange().endOffset();
+    }
+
+    private List<LSCompletionItem> getCompletionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = node.leadingInvalidTokens();
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+        return getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context);
     }
 }
