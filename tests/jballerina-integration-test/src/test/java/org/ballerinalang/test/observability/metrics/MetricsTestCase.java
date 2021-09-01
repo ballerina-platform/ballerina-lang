@@ -325,18 +325,18 @@ public class MetricsTestCase extends ObservabilityBaseTest {
         testFunctionMetrics(metrics, fileName + ":19:1", 1,
                 Tag.of("src.function.name", "main"),
                 Tag.of("src.main", "true"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
+                Tag.of("entrypoint.function.module", TEST_SRC_MODULE_ID),
                 Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":24:24", 1,
                 Tag.of("src.object.name", OBSERVABLE_ADDER_OBJECT_NAME),
                 Tag.of("src.function.name", "getSum"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
+                Tag.of("entrypoint.function.module", TEST_SRC_MODULE_ID),
                 Tag.of("entrypoint.function.name", "main")
         );
         testFunctionMetrics(metrics, fileName + ":38:12", 3,
                 Tag.of("src.function.name", "calculateSumWithObservability"),
-                Tag.of("entrypoint.function.module", "intg_tests/metrics_tests:0"),
+                Tag.of("entrypoint.function.module", TEST_SRC_MODULE_ID),
                 Tag.of("entrypoint.function.name", "main")
         );
     }
