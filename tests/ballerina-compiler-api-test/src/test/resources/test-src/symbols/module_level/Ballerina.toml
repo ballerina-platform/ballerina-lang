@@ -1,0 +1,5 @@
+[package]
+org="testorg"
+name="module_level"
+version="1.0.0"
+exported=["module_level", "module_level.foo", "module_level.bar", "module_level.baz"]
