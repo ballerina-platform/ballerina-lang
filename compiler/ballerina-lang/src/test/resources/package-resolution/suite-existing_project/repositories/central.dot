@@ -53,9 +53,11 @@ digraph central {
     }
 
     subgraph "ballerinai/transaction:1.0.1" {
+    // this is added to avoid the exception thrown from the test framework
     }
 
     subgraph "ballerinai/foo:0.1.0" {
+    // this is added to avoid the exception thrown from the test framework
     }
 }
 

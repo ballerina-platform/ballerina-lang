@@ -94,7 +94,7 @@ public class BallerinaTomlTests {
         PackageDescriptor descriptor = packageManifest.descriptor();
         Assert.assertEquals(descriptor.name().value(), "lang.annotations");
         Assert.assertEquals(descriptor.org().value(), "ballerina");
-        Assert.assertEquals(descriptor.version().value().toString(), "1.0.0");
+        Assert.assertEquals(descriptor.version().value().toString(), "0.0.0");
     }
 
     @Test
