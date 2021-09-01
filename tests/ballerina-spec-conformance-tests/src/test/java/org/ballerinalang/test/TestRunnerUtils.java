@@ -24,6 +24,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class TestRunnerUtils {
     private static final String BAL_EXTENSION = ".bal";
     public static final String RESOURCE_DIR = "src/test/resources/";
     public static final String TEMP_DIR = "test-src/TempFiles/";
-    private static final String IMPORT_BALLERINAI = "import ballerinai/io";
+    private static final String IMPORT_BALLERINAI = "import ballerinai/io;";
     private static int fileCount = 0;
     private static int absLineNum;
 
@@ -76,21 +77,21 @@ public class TestRunnerUtils {
         buffReader.close();
     }
 
-    private static String createTestFile(String fileName, String typeOfTestFile, BufferedReader buffReader,
+    private static String createTestFile(String fileName, String kindOfTestFile, BufferedReader buffReader,
                                          List<Object[]>  testCases, Set<String> labels) throws IOException {
         String tempFileName = fileName.substring(0, fileName.indexOf(".")) + fileCount++;
         String tempDir = TEMP_DIR + tempFileName + BAL_EXTENSION;
         File tempBalFile = new File(RESOURCE_DIR + tempDir);
-        String type = readHeadersOfTestCase(buffReader, typeOfTestFile, labels);
-        if (type.equals(SKIPPED_TEST)) {
+        String kindOfTestCase = readHeadersOfTestCase(buffReader, kindOfTestFile, labels);
+        if (kindOfTestCase.equals(SKIPPED_TEST)) {
             return EMPTY_STRING;
         }
         List<String> outputValues = new ArrayList<>();
         List<Integer> errLines = new ArrayList<>();
         Object[] testCase = new Object[6];
-        testCase[0] = type;
+        testCase[0] = kindOfTestCase;
         FileWriter tempFileWriter = new FileWriter(tempBalFile);
-        boolean isOutputTest = type.equals(OUTPUT);
+        boolean isOutputTest = kindOfTestCase.equals(OUTPUT);
         if (isOutputTest) {
             tempFileWriter.write(IMPORT_BALLERINAI + NEW_LINE_CHARACTER);
         }
@@ -103,10 +104,10 @@ public class TestRunnerUtils {
             if (line.startsWith(START_TEST_CASE)) {
                 break;
             }
-            String pattern = String.format(".*//\\s*@\\s*(%s)\\s*.*", type);
+            String pattern = String.format(".*//\\s*@\\s*(%s)\\s*.*", kindOfTestCase);
             if (Pattern.matches(pattern, line)) {
-                String output = line.substring(line.indexOf(type) + type.length()).trim();
-                if (!type.equals(OUTPUT)) {
+                String output = line.substring(line.indexOf(kindOfTestCase) + kindOfTestCase.length()).trim();
+                if (!kindOfTestCase.equals(OUTPUT)) {
                     errLines.add(relativeLineNum);
                 }
                 outputValues.add(output);
@@ -126,24 +127,22 @@ public class TestRunnerUtils {
         return line;
     }
 
-
-
-    private static String checkTypeOfTestCase(String typeOfTestFile) {
+    private static String getKindOfTestCase(String kindOfTestCase) {
         String pattern = String.format(".*:\\s*(%s|%s|%s)$", OUTPUT, ERROR, PANIC);
-        if (Pattern.matches(pattern, typeOfTestFile.trim())) {
-            return typeOfTestFile.substring(typeOfTestFile.indexOf(COLON) + 1).trim();
+        if (Pattern.matches(pattern, kindOfTestCase.trim())) {
+            return kindOfTestCase.substring(kindOfTestCase.indexOf(COLON) + 1).trim();
         }
         throw new AssertionError(String.format("Incorrect test type in line %d expected OUTPUT, ERROR, PANIC",
                 absLineNum));
     }
 
-    private static String readHeadersOfTestCase(BufferedReader buffReader, String typeOfTestFile,
+    private static String readHeadersOfTestCase(BufferedReader buffReader, String kindOfTestFile,
                                                 Set<String> selectedLabels) throws IOException {
         Map<String, String> headers = new HashMap<>();
         String line;
 
         String pattern = String.format("^(%s|%s|%s|%s)\\s*:\\s*.*", DESCRIPTION, AUTHOR, FAIL_ISSUE, LABELS);
-        String type = checkTypeOfTestCase(typeOfTestFile);
+        String kind = getKindOfTestCase(kindOfTestFile);
         String key = null;
         String value = null;
         while ((line = buffReader.readLine()) != null) {
@@ -162,13 +161,13 @@ public class TestRunnerUtils {
                 if (key.equals(LABELS)) {
                     String[] labels = value.split("\\s*,\\s*");
                     areLabelsDefined(labels);
-                    type = isTestCaseSkipped(selectedLabels, labels, type);
+                    kind = isTestCaseSkipped(selectedLabels, labels, kind);
                 }
             } else {
                 value = value + " " + header.trim();
             }
         }
-        return type;
+        return kind;
     }
 
     private static void areLabelsDefined(String[] labels) {
@@ -179,16 +178,16 @@ public class TestRunnerUtils {
         }
     }
 
-    private static String isTestCaseSkipped(Set<String> selectedLabels, String[] labels, String type) {
+    private static String isTestCaseSkipped(Set<String> selectedLabels, String[] labels, String kind) {
         if (selectedLabels.isEmpty()) {
-            return type;
+            return kind;
         }
         for (String label : labels) {
             if (selectedLabels.contains(label)) {
                 return SKIPPED_TEST;
             }
         }
-        return type;
+        return kind;
     }
 
     public static void validateError(CompileResult result, List<Integer> errLines, String filename, int absLineNum) {
@@ -198,5 +197,22 @@ public class TestRunnerUtils {
             Assert.assertEquals(diagnostic.location().lineRange().startLine().line() + 1 + absLineNum,
                     expectedErrLine + absLineNum, String.format("In %s, incorrect line number:", filename));
         }
+    }
+
+    public static void validateOutput(String fileName, List<String> outputValues, String[] results) {
+        if (outputValues.size() != results.length) {
+            Assert.fail(String.format("In %s file, Expected %s but found %s", fileName, outputValues.toString(),
+                        Arrays.toString(results)));
+        }
+        for (int i = 0; i < outputValues.size(); i++) {
+            if (!results[i].equals(outputValues.get(i))) {
+                Assert.fail(String.format("In %s file, Expected %s but found %s", fileName, outputValues.toString(),
+                            Arrays.toString(results)));
+            }
+        }
+    }
+
+    public static void validatePanic(int result, int expectedErrLine, String fileName) {
+        Assert.assertEquals(result, expectedErrLine, String.format("In %s, incorrect line number:", fileName));
     }
 }

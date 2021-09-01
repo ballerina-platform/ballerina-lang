@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Test runner for run spec conformance tests through compiler phases.
@@ -55,12 +57,18 @@ public class TestRunner {
         }
 
         if (!type.equals(TestRunnerUtils.ERROR)) {
-            BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult, new String[]{});
+            BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
             if (exitDetails.exitCode != 0) {
-                String errOutput = exitDetails.errorOutput;
-                // TODO: handle panic state
+                Matcher matcher = Pattern.compile(":(\\d+)\\)").matcher(exitDetails.errorOutput);
+                if (matcher.find()) {
+                    TestRunnerUtils.validatePanic(Integer.parseInt(matcher.group(1)) + absLineNum,
+                                                  errLines.get(0) + absLineNum, fileName);
+                    return;
+                }
             }
-            // TODO: handle output state
+            String consoleOutput = exitDetails.consoleOutput;
+            String[] result = consoleOutput.split("\r\n|\r|\n");
+            TestRunnerUtils.validateOutput(fileName, outputValues, result);
         } else {
             TestRunnerUtils.validateError(compileResult, errLines, fileName, absLineNum);
         }
@@ -96,7 +104,7 @@ public class TestRunner {
                         try {
                             TestRunnerUtils.readTestFile((String) object[0], (String) object[1], testCases, labels);
                         } catch (IOException e) {
-                            Assert.fail("Can't resolve spec conformance tests", e);
+                            Assert.fail("failed to read spec conformance test: \"" + object[0] + "\"", e);
                         }
                     });
             return testCases.iterator();
