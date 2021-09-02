@@ -26,16 +26,16 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class SplitFieldHolder {
-    public List<String> names;
-    public List<SemType> types;
+public class SplitField {
+    public final List<String> names;
+    public final List<SemType> types;
 
-    public SplitFieldHolder(List<String> strings, List<SemType> semTypes) {
+    private SplitField(List<String> strings, List<SemType> semTypes) {
         this.names = strings;
         this.types = semTypes;
     }
 
-    public static SplitFieldHolder from(List<String> strings, List<SemType> semTypes) {
-        return new SplitFieldHolder(strings, semTypes);
+    public static SplitField from(List<String> strings, List<SemType> semTypes) {
+        return new SplitField(strings, semTypes);
     }
 }

@@ -32,6 +32,9 @@ import io.ballerina.semtype.UniformTypeCode;
 import io.ballerina.semtype.subtypedata.BddNode;
 import io.ballerina.semtype.typeops.BddCommonOps;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -60,7 +63,7 @@ public class MappingDefinition implements Definition {
     }
 
     public SemType define(Env env, List<Field> fields, SemType rest) {
-        SplitFieldHolder sfh = Field.splitFields(fields);
+        SplitField sfh = splitFields(fields);
         String[] nameArray = new String[sfh.names.size()];
         SemType[] typeArray = new SemType[sfh.types.size()];
         MappingAtomicType rwType = MappingAtomicType.from(sfh.names.toArray(nameArray),
@@ -108,5 +111,21 @@ public class MappingDefinition implements Definition {
                 UniformSubtype.from(UniformTypeCode.UT_MAPPING_RW, rwBdd));
         this.semType = s;
         return s;
+    }
+
+    private SplitField splitFields(List<Field> fields) {
+        Field[] sortedFields = fields.toArray(new Field[0]);
+        Arrays.sort(sortedFields, Comparator.comparing(MappingDefinition::fieldName));
+        List<String> names = new ArrayList<>();
+        List<SemType> types = new ArrayList<>();
+        for (Field field : sortedFields) {
+            names.add(field.name);
+            types.add(field.type);
+        }
+        return SplitField.from(names, types);
+    }
+
+    private static String fieldName(Field f) {
+        return f.name;
     }
 }

@@ -41,7 +41,6 @@ public class Common {
         return true;
     }
 
-
     public static SemType[] readOnlyTypeList(SemType[] mt) {
         List<SemType> types = new ArrayList<>();
         for (SemType s : mt) {

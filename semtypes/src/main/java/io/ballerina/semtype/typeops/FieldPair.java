@@ -35,7 +35,6 @@ public class FieldPair {
         this.type2 = type2;
     }
 
-
     public static FieldPair create(String name, SemType type1, SemType type2) {
         return new FieldPair(name, type1, type2);
     }

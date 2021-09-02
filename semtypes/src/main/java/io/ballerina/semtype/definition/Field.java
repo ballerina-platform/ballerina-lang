@@ -19,11 +19,6 @@ package io.ballerina.semtype.definition;
 
 import io.ballerina.semtype.SemType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
 /**
  * Represent a record field in a type-descriptor.
  */
@@ -38,21 +33,5 @@ public class Field {
 
     public static Field from(String name, SemType type) {
         return new Field(name, type);
-    }
-
-    public static SplitFieldHolder splitFields(List<Field> fields) {
-        Field[] sortedFields = fields.toArray(new Field[0]);
-        Arrays.sort(sortedFields, Comparator.comparing(Field::fieldName));
-        List<String> names = new ArrayList<>();
-        List<SemType> types = new ArrayList<>();
-        for (Field field : sortedFields) {
-            names.add(field.name);
-            types.add(field.type);
-        }
-        return SplitFieldHolder.from(names, types);
-    }
-
-     private static synchronized String fieldName(Field f) {
-        return f.name;
     }
 }
