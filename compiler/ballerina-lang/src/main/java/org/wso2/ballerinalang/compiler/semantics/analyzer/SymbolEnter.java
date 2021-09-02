@@ -227,6 +227,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
+    private final boolean semtypeEnabled;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
@@ -260,6 +261,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
                 options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
+        semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -382,6 +384,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
         defineTypeNodes(typeAndClassDefs, pkgEnv);
+        if (semtypeEnabled) {
+            defineSemTypes(typeAndClassDefs);
+        }
 
         for (BLangVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
@@ -441,6 +446,10 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
+    }
+
+    private void defineSemTypes(List<BLangNode> typeAndClassDefs) {
+
     }
 
     private void defineIntersectionTypes(SymbolEnv env) {

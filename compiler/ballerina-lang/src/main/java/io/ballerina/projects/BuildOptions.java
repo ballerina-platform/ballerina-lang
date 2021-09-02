@@ -76,6 +76,10 @@ public class BuildOptions {
         return this.compilationOptions.getCloud();
     }
 
+    public boolean semtype() {
+        return this.compilationOptions.semtype();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }

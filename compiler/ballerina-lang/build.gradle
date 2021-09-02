@@ -22,6 +22,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
     implementation project(':toml-parser')
+    implementation project(':semtypes')
     implementation project(':central-client')
     implementation project(':maven-resolver')
     implementation 'com.moandjiezana.toml:toml4j'

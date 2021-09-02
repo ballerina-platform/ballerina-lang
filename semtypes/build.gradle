@@ -1,6 +1,8 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
+    implementation project(':ballerina-tools-api')
+    implementation project(':ballerina-parser')
     testImplementation 'org.testng:testng'
 }
 

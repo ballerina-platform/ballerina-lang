@@ -13,6 +13,7 @@ module io.ballerina.lang {
     requires org.apache.commons.io;
     requires io.ballerina.toml;
     requires io.ballerina.central.client;
+    requires io.ballerina.semtype;
     requires java.semver;
     exports io.ballerina.compiler.api;
     exports io.ballerina.compiler.api.symbols;
