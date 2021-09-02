@@ -1499,10 +1499,9 @@ public class TestBuildProject extends BaseTest {
     @Test(description = "test build package without dependencies")
     public void testPackageWithoutDependencies() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_wo_deps");
-        // Delete Dependencies.toml if already exists
-        if (projectPath.resolve(DEPENDENCIES_TOML).toFile().exists()) {
-            Files.delete(projectPath.resolve(DEPENDENCIES_TOML));
-        }
+        // Delete Dependencies.toml and build file if already exists
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
 
         // 1) Initialize the project instance
         BuildProject project = null;
@@ -1515,12 +1514,12 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(project.currentPackage().packageName().toString(), "project_wo_deps");
         // Dependencies.toml should not be created when there is no package dependencies
         // build file should be deleted, since if not we are not trying to update Dependencies.toml
+        // Since we are adding root package to the Dependencies.toml, it will be created anyway
         Path dependenciesTomlPath = project.sourceRoot().resolve(DEPENDENCIES_TOML);
         Path buildFilePath = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
-        Assert.assertFalse(dependenciesTomlPath.toFile().exists());
+        Assert.assertTrue(dependenciesTomlPath.toFile().exists());
 
-        // 2) Add an Dependencies.toml to the project load and save project again
-        Files.createFile(dependenciesTomlPath);
+        // 2) load and save project again
         Files.deleteIfExists(buildFilePath);
         Assert.assertFalse(buildFilePath.toFile().exists());
         try {
@@ -1536,6 +1535,10 @@ public class TestBuildProject extends BaseTest {
                 + "dependencies-toml-version = \"2\"";
         String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
         Assert.assertTrue(actual.contains(expected));
+
+        // Clean Dependencies.toml and build file if already exists
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
     }
 
     @Test(description = "tests Dependencies.toml creation and its content")

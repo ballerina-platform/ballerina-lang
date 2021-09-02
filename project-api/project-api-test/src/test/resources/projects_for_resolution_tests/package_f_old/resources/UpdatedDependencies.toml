@@ -10,7 +10,6 @@ dependencies-toml-version = "2"
 org = "samjs"
 name = "package_b"
 version = "0.1.0"
-transitive = false
 dependencies = [
 	{org = "samjs", name = "package_c"}
 ]
@@ -24,13 +23,11 @@ modules = [
 org = "samjs"
 name = "package_c"
 version = "0.1.0"
-transitive = true
 
 [[package]]
 org = "samjs"
 name = "package_d"
 version = "0.1.0"
-transitive = false
 dependencies = [
 	{org = "samjs", name = "package_b"},
 	{org = "samjs", name = "package_e"}
@@ -43,9 +40,21 @@ modules = [
 org = "samjs"
 name = "package_e"
 version = "0.1.0"
-transitive = false
 modules = [
 	{org = "samjs", packageName = "package_e", moduleName = "package_e"}
+]
+
+[[package]]
+org = "samjs"
+name = "package_f"
+version = "0.1.0"
+dependencies = [
+	{org = "samjs", name = "package_b"},
+	{org = "samjs", name = "package_d"},
+	{org = "samjs", name = "package_e"}
+]
+modules = [
+	{org = "samjs", packageName = "package_f", moduleName = "package_f"}
 ]
 
 
