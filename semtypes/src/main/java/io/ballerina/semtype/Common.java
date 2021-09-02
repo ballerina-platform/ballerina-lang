@@ -132,6 +132,30 @@ public class Common {
         return false;
     }
 
+    // Returns whether s1.codePoints < s2.codePoints
+    public static boolean codePointCompare(String s1, String s2) {
+        int cplen1 = s1.codePointCount(0, s1.length());
+        int cplen2 = s1.codePointCount(0, s2.length());
+        if (cplen1 < cplen2) {
+            return true;
+        } else if (cplen1 > cplen2) {
+            return false;
+        }
+        int len1 = s1.length();
+        for (int offset1 = 0, offset2 = 0; offset1 < len1; ) {
+            int codepoint1 = s1.codePointAt(offset1);
+            int codepoint2 = s2.codePointAt(offset2);
+            if (codepoint1 > codepoint2) {
+                return false;
+            } else if (codepoint1 < codepoint2) {
+                return true;
+            }
+            offset1 += Character.charCount(codepoint1);
+            offset2 += Character.charCount(codepoint2);
+        }
+        return false;
+    }
+
     /**
      * Function interface used for method references.
      *

@@ -17,6 +17,7 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Common;
 import io.ballerina.semtype.MappingAtomicType;
 import io.ballerina.semtype.SemType;
 
@@ -108,10 +109,10 @@ public class MappingPairIterator implements Iterator<FieldPair> {
         } else {
             String name1 = curName1();
             String name2 = curName2();
-            if (name1.length() < name2.length()) { // TODO change length to comparing codePoints
+            if (Common.codePointCompare(name1, name2)) {
                 p = FieldPair.create(name1, curType1(), this.rest2);
                 this.i1 += 1;
-            } else if (name2.length() < name1.length()) { // TODO change length to comparing codePoints
+            } else if (Common.codePointCompare(name2, name1)) {
                 p = FieldPair.create(name2, this.rest1, curType2());
                 this.i2 += 1;
             } else {
