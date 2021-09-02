@@ -559,14 +559,6 @@ public class SymbolFactory {
     }
 
     // Private methods
-    private static boolean anyFlagOn(long mask, long... flags) {
-        for (long flag : flags) {
-            if (Symbols.isFlagOn(mask, flag)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private String getMethodName(BInvokableSymbol method, BObjectTypeSymbol owner) {
         List<BAttachedFunction> methods = new ArrayList<>(owner.attachedFuncs);
