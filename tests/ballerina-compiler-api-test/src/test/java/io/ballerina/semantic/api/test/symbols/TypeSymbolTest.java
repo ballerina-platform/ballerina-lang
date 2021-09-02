@@ -110,6 +110,7 @@ public class TypeSymbolTest {
                 {46, 4, ERROR, "error<ErrorData>"},
                 {47, 4, HANDLE, "handle"},
                 {48, 4, STREAM, "stream<Person, error>"},
+                {52, 4, SINGLETON, "10"},
                 {54, 4, ANY, "any"},
                 {55, 4, NEVER, "never"},
                 {56, 4, READONLY, "readonly"},
@@ -188,7 +189,7 @@ public class TypeSymbolTest {
         assertEquals(constant.typeKind(), SINGLETON);
         assertEquals(constant.typeDescriptor().typeKind(), SINGLETON);
         assertEquals(constant.broaderTypeDescriptor().typeKind(), STRING);
-//        assertEquals(constant.signature(), expName);
+        assertEquals(constant.signature(), "FOO");
     }
 
     // private utils
