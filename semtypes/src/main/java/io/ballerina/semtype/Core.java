@@ -423,6 +423,18 @@ public class Core {
         return Optional.empty();
     }
 
+    public static SubtypeData subtypeData(SemType s, UniformTypeCode code) {
+        if (s instanceof UniformTypeBitSet) {
+            int bitset = ((UniformTypeBitSet) s).bitset;
+            if ((bitset & (1 << code.code)) != 0) {
+                return AllOrNothingSubtype.createAll();
+            }
+            return AllOrNothingSubtype.createNothing();
+        } else {
+            return getComplexSubtypeData((ComplexSemType) s, code);
+        }
+    }
+
     public static TypeCheckContext typeCheckContext(Env env) {
         return new TypeCheckContext(env);
     }

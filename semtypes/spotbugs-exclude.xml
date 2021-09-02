@@ -34,10 +34,12 @@
             <Class name="io.ballerina.semtype.typeops.CommonOps"/>
             <Class name="io.ballerina.semtype.typeops.ErrorOps"/>
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
+            <Class name="io.ballerina.semtype.typeops.IntOps"/>
             <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
             <Class name="io.ballerina.semtype.typeops.ListTypeRoOps"/>
             <Class name="io.ballerina.semtype.typeops.StringOps"/>
             <Class name="io.ballerina.semtype.typeops.ListTypeRoOps"/>
+            <Class name="io.ballerina.semtype.typeops.BooleanOps"/>
             <Class name="io.ballerina.semtype.TypeCheckContext"/>
             <Class name="io.ballerina.semtype.Common"/>
         </Or>
