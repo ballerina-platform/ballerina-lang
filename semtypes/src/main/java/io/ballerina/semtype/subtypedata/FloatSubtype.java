@@ -34,7 +34,8 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData {
-
+    public boolean allowed;
+    public EnumerableFloat[] values;
 
     public FloatSubtype(boolean allowed, EnumerableFloat value) {
         this.allowed = allowed;
@@ -87,5 +88,15 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
             return new AllOrNothingSubtype(!allowed);
         }
         return new FloatSubtype(allowed, values);
+    }
+
+    @Override
+    public boolean allowed() {
+        return allowed;
+    }
+
+    @Override
+    public EnumerableType[] values() {
+        return values;
     }
 }

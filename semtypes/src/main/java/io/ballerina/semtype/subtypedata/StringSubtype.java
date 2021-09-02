@@ -30,6 +30,9 @@ import io.ballerina.semtype.SubtypeData;
  */
 public class StringSubtype extends EnumerableSubtype implements ProperSubtypeData {
 
+    public boolean allowed;
+    public EnumerableString[] values;
+
     private StringSubtype(boolean allowed, EnumerableString[] values) {
         this.allowed = allowed;
         this.values = values;
@@ -57,5 +60,15 @@ public class StringSubtype extends EnumerableSubtype implements ProperSubtypeDat
             return new AllOrNothingSubtype(!allowed);
         }
         return new StringSubtype(allowed, values);
+    }
+
+    @Override
+    public boolean allowed() {
+        return allowed;
+    }
+
+    @Override
+    public EnumerableType[] values() {
+        return values;
     }
 }
