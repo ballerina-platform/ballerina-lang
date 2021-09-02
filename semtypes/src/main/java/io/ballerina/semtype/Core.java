@@ -20,6 +20,8 @@ package io.ballerina.semtype;
 import io.ballerina.semtype.definition.ListDefinition;
 import io.ballerina.semtype.definition.MappingDefinition;
 import io.ballerina.semtype.subtypedata.AllOrNothingSubtype;
+import io.ballerina.semtype.subtypedata.BddAllOrNothing;
+import io.ballerina.semtype.subtypedata.BddNode;
 import io.ballerina.semtype.subtypedata.BooleanSubtype;
 import io.ballerina.semtype.subtypedata.FloatSubtype;
 import io.ballerina.semtype.subtypedata.IntSubtype;
@@ -298,34 +300,182 @@ public class Core {
     }
 
     public static boolean isSubtypeSimple(SemType t1, UniformTypeBitSet t2) {
-
-        throw new AssertionError("Not Implemented");
+        int bits;
+        if (t1 instanceof UniformTypeBitSet) {
+            bits = ((UniformTypeBitSet) t1).bitset;
+        } else {
+            ComplexSemType complexT1 = (ComplexSemType) t1;
+            bits = complexT1.all.bitset | complexT1.some.bitset;
+        }
+        return (bits & ~t2.bitset) == 0;
     }
 
     // If t is a non-empty subtype of a built-in unsigned int subtype (Unsigned8/16/32),
     // then return the smallest such subtype. Otherwise, return t.
     public static SemType wideUnsigned(SemType t) {
-
-        throw new AssertionError("Not Implemented");
+        if (t instanceof UniformTypeBitSet) {
+            return t;
+        } else {
+            if (!isSubtypeSimple(t, PredefinedType.INT)) {
+                return t;
+            }
+            SubtypeData data = IntSubtype.intSubtypeWidenUnsigned(subtypeData(t, UniformTypeCode.UT_INT));
+            if (data instanceof AllOrNothingSubtype) {
+                return PredefinedType.INT;
+            } else {
+                return PredefinedType.uniformSubtype(UniformTypeCode.UT_INT, (ProperSubtypeData) data);
+            }
+        }
     }
 
     // This is a temporary API that identifies when a SemType corresponds to a type T[]
     // where T is a union of complete basic types.
     public static Optional<UniformTypeBitSet> simpleArrayMemberType(Env env, SemType t) {
-
-        throw new AssertionError("Not Implemented");
+        if (t instanceof UniformTypeBitSet) {
+            return t == PredefinedType.LIST ? Optional.of(PredefinedType.TOP) : Optional.empty();
+        } else {
+            if (!isSubtypeSimple(t, PredefinedType.LIST)) {
+                return Optional.empty();
+            }
+            ComplexSemType complexT = (ComplexSemType) t;
+            Bdd[] bdds = {(Bdd) getComplexSubtypeData(complexT, UniformTypeCode.UT_LIST_RO),
+                    (Bdd) getComplexSubtypeData(complexT, UniformTypeCode.UT_LIST_RW)};
+            List<UniformTypeBitSet> memberTypes = new ArrayList<>();
+            for (Bdd bdd : bdds) {
+                if (bdd instanceof BddAllOrNothing) {
+                    if (((BddAllOrNothing) bdd).isAll()) {
+                        memberTypes.add(PredefinedType.TOP);
+                    } else {
+                        return Optional.empty();
+                    }
+                } else {
+                    BddNode bddNode = (BddNode) bdd;
+                    if (bddNode.left instanceof BddNode) {
+                        return Optional.empty();
+                    } else {
+                        if (!((BddAllOrNothing) bddNode.left).isAll()) {
+                            return Optional.empty();
+                        }
+                    }
+                    if (bddNode.middle instanceof BddNode) {
+                        return Optional.empty();
+                    } else {
+                        if (((BddAllOrNothing) bddNode.middle).isAll()) {
+                            return Optional.empty();
+                        }
+                    }
+                    if (bddNode.right instanceof BddNode) {
+                        return Optional.empty();
+                    } else {
+                        if (((BddAllOrNothing) bddNode.right).isAll()) {
+                            return Optional.empty();
+                        }
+                    }
+                    ListAtomicType atomic = env.listAtomType(bddNode.atom);
+                    if (atomic.members.length > 0) {
+                        return Optional.empty();
+                    }
+                    SemType memberType = atomic.rest;
+                    if (memberType instanceof UniformTypeBitSet) {
+                        memberTypes.add((UniformTypeBitSet) memberType);
+                    } else {
+                        return Optional.empty();
+                    }
+                }
+            }
+            if (memberTypes.get(0).bitset != (memberTypes.get(1).bitset & UniformTypeCode.UT_READONLY)) {
+                return Optional.empty();
+            }
+            return Optional.of(memberTypes.get(1));
+        }
     }
 
     // This is a temporary API that identifies when a SemType corresponds to a type T[]
     // where T is a union of complete basic types.
     public static Optional<UniformTypeBitSet> simpleMapMemberType(Env env, SemType t) {
-
-        throw new AssertionError("Not Implemented");
+        if (t instanceof UniformTypeBitSet) {
+            return t == PredefinedType.MAPPING ? Optional.of(PredefinedType.TOP) : Optional.empty();
+        } else {
+            if (!isSubtypeSimple(t, PredefinedType.MAPPING)) {
+                return Optional.empty();
+            }
+            ComplexSemType complexT = (ComplexSemType) t;
+            Bdd[] bdds = {(Bdd) getComplexSubtypeData(complexT, UniformTypeCode.UT_MAPPING_RO),
+                    (Bdd) getComplexSubtypeData(complexT, UniformTypeCode.UT_MAPPING_RW)};
+            List<UniformTypeBitSet> memberTypes = new ArrayList<>();
+            for (Bdd bdd : bdds) {
+                if (bdd instanceof BddAllOrNothing) {
+                    if (((BddAllOrNothing) bdd).isAll()) {
+                        memberTypes.add(PredefinedType.TOP);
+                    } else {
+                        return Optional.empty();
+                    }
+                } else {
+                    BddNode bddNode = (BddNode) bdd;
+                    if (bddNode.left instanceof BddNode) {
+                        return Optional.empty();
+                    } else {
+                        if (!((BddAllOrNothing) bddNode.left).isAll()) {
+                            return Optional.empty();
+                        }
+                    }
+                    if (bddNode.middle instanceof BddNode) {
+                        return Optional.empty();
+                    } else {
+                        if (((BddAllOrNothing) bddNode.middle).isAll()) {
+                            return Optional.empty();
+                        }
+                    }
+                    if (bddNode.right instanceof BddNode) {
+                        return Optional.empty();
+                    } else {
+                        if (((BddAllOrNothing) bddNode.right).isAll()) {
+                            return Optional.empty();
+                        }
+                    }
+                    MappingAtomicType atomic = env.mappingAtomType(bddNode.atom);
+                    if (atomic.names.length > 0) {
+                        return Optional.empty();
+                    }
+                    SemType memberType = atomic.rest;
+                    if (memberType instanceof UniformTypeBitSet) {
+                        memberTypes.add((UniformTypeBitSet) memberType);
+                    } else {
+                        return Optional.empty();
+                    }
+                }
+            }
+            if (memberTypes.get(0).bitset != (memberTypes.get(1).bitset & UniformTypeCode.UT_READONLY)) {
+                return Optional.empty();
+            }
+            return Optional.of(memberTypes.get(1));
+        }
     }
 
     public static Optional<Value> singleShape(SemType t) {
+        if (t == PredefinedType.NIL) {
+            return Optional.of(Value.from(null));
+        } else if (t instanceof UniformTypeBitSet) {
+            return Optional.empty();
+        } else if (isSubtypeSimple(t, PredefinedType.INT)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_INT);
+             Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+        } else if (isSubtypeSimple(t, PredefinedType.FLOAT)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_FLOAT);
+             Optional<EnumerableFloat> value = FloatSubtype.floatSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get().value));
+        } else if (isSubtypeSimple(t, PredefinedType.STRING)) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_STRING);
+            Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+        } else if isSubtypeSimple(t, PredefinedType.BOOLEAN) {
+            SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_BOOLEAN);
+            Optional<BooleanSubtype> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
+        }
+        return Optional.empty();
 
-        throw new AssertionError("Not Implemented");
     }
 
     public static SemType singleton(Object v) {
