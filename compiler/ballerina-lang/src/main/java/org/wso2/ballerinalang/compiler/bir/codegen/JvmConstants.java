@@ -344,6 +344,7 @@ public class JvmConstants {
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";
     public static final String START_RESOURCE_OBSERVATION_METHOD = "startResourceObservation";
     public static final String START_CALLABLE_OBSERVATION_METHOD = "startCallableObservation";
+    public static final String STOP_OBSERVATION_WITH_ERROR_METHOD = "stopObservationWithError";
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
