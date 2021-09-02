@@ -113,13 +113,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "a",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "value": "a"
                             },
                             {
                               "kind": "COLON_TOKEN",
@@ -147,7 +141,7 @@
                                 },
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "value": "  "
                                 }
                               ]
                             },
