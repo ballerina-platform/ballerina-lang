@@ -181,8 +181,11 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
 
             List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
-            if (connectors.size() > 0) {
-                connector = connectors.get(0);
+            for (Connector conn : connectors) {
+                if (conn.name.equals(request.getName())) {
+                    connector = conn;
+                    break;
+                }
             }
 
         } catch (Exception e) {
