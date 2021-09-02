@@ -23,8 +23,8 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class TypeAtom implements Atom {
-    long index;
-    AtomicType atomicType;
+    public final long index;
+    public final AtomicType atomicType;
 
     public TypeAtom(long index, AtomicType atomicType) {
         this.index = index;
