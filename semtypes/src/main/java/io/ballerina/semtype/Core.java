@@ -463,15 +463,15 @@ public class Core {
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         } else if (isSubtypeSimple(t, PredefinedType.FLOAT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_FLOAT);
-             Optional<EnumerableFloat> value = FloatSubtype.floatSubtypeSingleValue(sd);
-            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get().value));
+             Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
+            return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.STRING)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_STRING);
-            Optional<String> value = StringSubtype.stringSubtypeSingleValue(sd);
+            Optional<String> value = StringSubtype.stringSubtypeSingleValues(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
-        } else if isSubtypeSimple(t, PredefinedType.BOOLEAN) {
+        } else if (isSubtypeSimple(t, PredefinedType.BOOLEAN)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_BOOLEAN);
-            Optional<BooleanSubtype> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
+            Optional<Boolean> value = BooleanSubtype.booleanSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         }
         return Optional.empty();
@@ -486,11 +486,11 @@ public class Core {
         if (v instanceof Long) {
             return IntSubtype.intConst((Long) v);
         } else if (v instanceof Double) {
-            throw new AssertionError("Not Implemented");
+            return FloatSubtype.floatConst((Double) v);
         } else if (v instanceof String) {
-            throw new AssertionError("Not Implemented");
+            return StringSubtype.stringConst((String) v);
         } else if (v instanceof Boolean) {
-            throw new AssertionError("Not Implemented");
+            return BooleanSubtype.booleanConst((Boolean) v);
         } else {
             throw new IllegalStateException("Unsupported type: " + v.getClass().getName());
         }
@@ -507,9 +507,18 @@ public class Core {
     }
 
     public static boolean containsConst(SemType t, Object v) {
-        throw new AssertionError("Not Implemented");
+        if (v == null) {
+            return containsNil(t);
+        } else if (v instanceof Long) {
+            return containsConstInt(t, (Long) v);
+        } else if (v instanceof Double) {
+            return containsConstFloat(t, (Double) v);
+        } else if (v instanceof String) {
+            return containsConstString(t, (String) v);
+        } else {
+            return containsConstBoolean(t, (Boolean) v);
+        }
     }
-
 
     public static boolean containsNil(SemType t) {
         if (t instanceof UniformTypeBitSet) {
@@ -532,7 +541,7 @@ public class Core {
         }
     }
 
-    public static boolean containsConstInt(SemType t, int n) {
+    public static boolean containsConstInt(SemType t, Long n) {
         if (t instanceof UniformTypeBitSet) {
             return (((UniformTypeBitSet) t).bitset & (1 << UniformTypeCode.UT_INT.code)) != 0;
         } else {
