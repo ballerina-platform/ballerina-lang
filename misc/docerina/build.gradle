@@ -44,8 +44,10 @@ dependencies {
     implementation project(':ballerina-config')
     implementation 'info.picocli:picocli'
     implementation 'commons-io:commons-io'
-    implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.slf4j:slf4j-api'
+    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation 'org.apache.commons:commons-lang3'
+
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 
     testImplementation 'org.testng:testng'
