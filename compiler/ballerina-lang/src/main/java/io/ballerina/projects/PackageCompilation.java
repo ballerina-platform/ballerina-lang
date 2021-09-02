@@ -192,8 +192,10 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         // add resolution diagnostics
         diagnostics.addAll(packageResolution.diagnosticResult().allDiagnostics);
-        // add manifest diagnostics
+        // add package manifest diagnostics
         diagnostics.addAll(packageContext().packageManifest().diagnostics().allDiagnostics);
+        // add dependency manifest diagnostics
+        diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);

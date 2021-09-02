@@ -21,6 +21,7 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine;
@@ -60,8 +61,9 @@ public class PackageResolutionTestCase {
     }
 
     public DependencyGraph<DependencyNode> execute(boolean sticky) {
+        ResolutionOptions options = ResolutionOptions.builder().setOffline(true).setSticky(sticky).build();
         ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
-                packageResolver, moduleResolver, true, sticky);
+                packageResolver, moduleResolver, options);
         return resolutionEngine.resolveDependencies(moduleLoadRequests);
     }
 

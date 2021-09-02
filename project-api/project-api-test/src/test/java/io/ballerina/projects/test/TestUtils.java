@@ -28,6 +28,8 @@ import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.ballerina.cli.utils.OsUtils.isWindows;
+
 /**
  * Contains utils to test the bala writer.
  *

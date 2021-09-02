@@ -30,6 +30,7 @@ import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.BlendedManifest;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
@@ -55,7 +56,7 @@ public class PackageResolutionTestCaseBuilder {
     private PackageResolutionTestCaseBuilder() {
     }
 
-    public static PackageResolutionTestCase build(TestCaseFilePaths filePaths) {
+    public static PackageResolutionTestCase build(TestCaseFilePaths filePaths, boolean sticky) {
         // Create PackageResolver
         DotGraphBasedPackageResolver packageResolver = buildPackageResolver(filePaths);
 
@@ -86,7 +87,7 @@ public class PackageResolutionTestCaseBuilder {
                 packageManifest, packageResolver.localRepo());
         ModuleResolver moduleResolver = new ModuleResolver(rootPkgDes,
                 getModulesInRootPackage(rootPkgDescWrapper, rootPkgDes),
-                blendedManifest, packageResolver);
+                blendedManifest, packageResolver, ResolutionOptions.builder().setSticky(sticky).build());
         return new PackageResolutionTestCase(rootPkgDes, blendedManifest,
                 packageResolver, moduleResolver, moduleLoadRequests,
                 expectedGraphSticky, expectedGraphNoSticky);

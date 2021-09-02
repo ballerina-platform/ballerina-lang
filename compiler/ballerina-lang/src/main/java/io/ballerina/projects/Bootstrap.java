@@ -18,6 +18,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import org.ballerinalang.model.elements.PackageID;
@@ -187,7 +188,8 @@ public class Bootstrap {
 
     private void loadLangLibFromBala(ResolutionRequest resolutionRequest) {
         Collection<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-                Collections.singletonList(resolutionRequest), true);
+                Collections.singletonList(resolutionRequest),
+                ResolutionOptions.builder().setOffline(true).build());
         resolutionResponses.forEach(resolutionResponse -> {
             Package pkg = resolutionResponse.resolvedPackage();
             PackageCompilation compilation = pkg.getCompilation();
@@ -203,7 +205,7 @@ public class Bootstrap {
         PackageName pkgName = PackageName.from(packageID.name.getValue());
         PackageVersion pkgVersion = PackageVersion.from(packageID.getPackageVersion().toString());
         PackageDescriptor pkgDesc = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
-        return ResolutionRequest.from(pkgDesc, false);
+        return ResolutionRequest.from(pkgDesc);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

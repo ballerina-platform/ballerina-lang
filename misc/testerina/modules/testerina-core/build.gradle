@@ -32,7 +32,6 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang:jballerina.java')
     implementation 'org.testng:testng'
-    implementation 'com.google.guava:guava:23.0'
 
     interopImports 'io.github.java-diff-utils:java-diff-utils:4.5'
 

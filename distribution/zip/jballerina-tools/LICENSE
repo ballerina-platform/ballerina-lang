@@ -26,7 +26,6 @@ ballerina-lang.decimal-1.0.0-java.jar                                           
 ballerina-email-0.6.0-java.jar                                                                      jar            apache2
 ballerina-crypto-1.0.0-java.jar                                                                     jar            apache2
 metrics-core-3.1.0.jar                                                                              bundle         apache2
-bcpkix-jdk15on-1.61.jar                                                                             bundle         bouncy
 ballerina-io-0.5.0-java.jar                                                                         jar            apache2
 ballerina-stringutils-0.5.0-java.jar                                                                jar            apache2
 org.wso2.carbon.metrics.core-2.3.7.jar                                                              bundle         apache2
@@ -46,7 +45,6 @@ ballerina-lang.string-1.1.0.jar                                                 
 ballerina-lang.transaction-0.0.1.jar                                                                jar            apache2
 proto-google-common-protos-1.17.0.jar                                                               jar            apache2
 woodstox-core-asl-4.2.0.jar                                                                         bundle         apache2
-bcprov-jdk15on-1.61.jar                                                                             bundle         bouncy
 ballerina-openapi-0.5.0-java.jar                                                                    jar            apache2
 broker-rest-runner-0.970.0.jar                                                                      bundle         apache2
 ballerina-metrics-extension-2.0.0-Preview1.jar                                                      jar            apache2
