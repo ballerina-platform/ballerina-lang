@@ -19,7 +19,6 @@ package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
-import io.ballerina.semtype.Range;
 import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.UniformTypeCode;

@@ -15,16 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.subtypedata;
 
 /**
- * Wraps the range union / intersect.
- * Returns a range if there is a single range representing the union of r1 and r1.
- * -1 means union/intersect is empty because r1 is before r2, with no overlap
- * 1 means union/intersect is empty because r2 is before r1 with no overlap
+ * Int Range node.
  *
  * @since 2.0.0
  */
-public interface RangeHolder {
+public class Range {
+    public final long min;
+    public final long max;
 
+    public Range(long min, long max) {
+        this.min = min;
+        this.max = max;
+    }
 }
