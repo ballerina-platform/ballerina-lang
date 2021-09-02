@@ -17,6 +17,9 @@
  */
 package io.ballerina.semtype.subtypedata;
 
+import io.ballerina.semtype.EnumerableString;
+import io.ballerina.semtype.EnumerableSubtype;
+import io.ballerina.semtype.EnumerableType;
 import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SubtypeData;
 
@@ -25,11 +28,12 @@ import io.ballerina.semtype.SubtypeData;
  *
  * @since 2.0.0
  */
-public class StringSubtype implements ProperSubtypeData {
-    public final boolean allowed;
-    public final String[] values;
+public class StringSubtype extends EnumerableSubtype implements ProperSubtypeData {
 
-    private StringSubtype(boolean allowed, String[] values) {
+    public boolean allowed;
+    public EnumerableString[] values;
+
+    private StringSubtype(boolean allowed, EnumerableString[] values) {
         this.allowed = allowed;
         this.values = values;
     }
@@ -41,13 +45,30 @@ public class StringSubtype implements ProperSubtypeData {
         StringSubtype v = (StringSubtype) d;
 
         boolean found = false;
-        for (String value : v.values) {
-            if (value.equals(s)) {
+        for (EnumerableType value : v.values) {
+            if (((EnumerableString) value).value.equals(s)) {
                 found = true;
                 break;
             }
         }
 
         return found ? v.allowed : !v.allowed;
+    }
+
+    public static SubtypeData createStringSubtype(boolean allowed, EnumerableString[] values) {
+        if (values.length == 0) {
+            return new AllOrNothingSubtype(!allowed);
+        }
+        return new StringSubtype(allowed, values);
+    }
+
+    @Override
+    public boolean allowed() {
+        return allowed;
+    }
+
+    @Override
+    public EnumerableType[] values() {
+        return values;
     }
 }
