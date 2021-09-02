@@ -25,8 +25,11 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
@@ -54,6 +57,8 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
+import org.eclipse.lsp4j.debug.CompletionsArguments;
+import org.eclipse.lsp4j.debug.CompletionsResponse;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.ContinueResponse;
@@ -170,7 +175,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsConditionalBreakpoints(true);
         capabilities.setSupportsLogPoints(true);
         // Todo - Implement
-        capabilities.setSupportsCompletionsRequest(false);
+        capabilities.setSupportsCompletionsRequest(true);
         capabilities.setSupportsRestartRequest(false);
         // unsupported capabilities
         capabilities.setSupportsHitConditionalBreakpoints(false);
@@ -463,6 +468,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "internal error");
             return CompletableFuture.completedFuture(response);
         }
+    }
+
+    @Override
+    public CompletableFuture<CompletionsResponse> completions(CompletionsArguments args) {
+        SemanticModel semanticContext = suspendedContext.getDebugCompiler().getSemanticInfo();
+
+        List<Symbol> symbolList = semanticContext
+                .visibleSymbols(suspendedContext.getDocument(), LinePosition.from(suspendedContext.getLineNumber() - 1, 0));
+
+        return CompletableFuture.completedFuture(null);
     }
 
     @Override
