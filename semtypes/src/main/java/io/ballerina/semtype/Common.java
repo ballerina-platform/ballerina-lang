@@ -133,24 +133,23 @@ public class Common {
 
     // Returns whether s1.codePoints < s2.codePoints
     public static boolean codePointCompare(String s1, String s2) {
-        int cplen1 = s1.codePointCount(0, s1.length());
-        int cplen2 = s1.codePointCount(0, s2.length());
-        if (cplen1 < cplen2) {
-            return true;
-        } else if (cplen1 > cplen2) {
+        if (s1.equals(s2)) {
             return false;
         }
         int len1 = s1.length();
-        for (int offset1 = 0, offset2 = 0; offset1 < len1; ) {
-            int codepoint1 = s1.codePointAt(offset1);
-            int codepoint2 = s2.codePointAt(offset2);
-            if (codepoint1 > codepoint2) {
-                return false;
-            } else if (codepoint1 < codepoint2) {
-                return true;
+        int len2 = s2.length();
+        if (len1 < len2 && s2.substring(0, len1).equals(s1)) {
+            return true;
+        }
+
+        for (int index = 0; index < len1 && index < len2; ) {
+            if (s1.charAt(index) == s2.charAt(index)) {
+                index++;
+                continue;
             }
-            offset1 += Character.charCount(codepoint1);
-            offset2 += Character.charCount(codepoint2);
+            int codepoint1 = s1.codePointAt(index);
+            int codepoint2 = s2.codePointAt(index);
+            return codepoint1 < codepoint2;
         }
         return false;
     }
