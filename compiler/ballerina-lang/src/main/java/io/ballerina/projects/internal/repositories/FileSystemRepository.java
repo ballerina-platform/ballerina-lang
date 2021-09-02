@@ -175,6 +175,11 @@ public class FileSystemRepository extends AbstractPackageRepository {
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
 
+        versions.removeAll(getIncompatibleVer(versions, org, name));
+        return pathToVersions(versions);
+    }
+
+    protected List<Path> getIncompatibleVer(List<Path> versions, PackageOrg org, PackageName name) {
         List<Path> incompatibleVersions = new ArrayList<>();
 
         if (!versions.isEmpty()) {
@@ -187,12 +192,13 @@ public class FileSystemRepository extends AbstractPackageRepository {
                     if (!isCompatible(packageVer, packVer)) {
                         incompatibleVersions.add(ver);
                     }
+                } else {
+                    incompatibleVersions.add(ver);
                 }
             }
         }
 
-        versions.removeAll(incompatibleVersions);
-        return pathToVersions(versions);
+        return incompatibleVersions;
     }
 
     private boolean isCompatible(String pkgBalVer, String distBalVer) {
