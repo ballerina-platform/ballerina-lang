@@ -196,17 +196,20 @@ public class ResolutionEngine {
                             PackageDependencyGraphBuilder graphBuilder) {
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
         for (PackageDescriptor directDep : directDependencies) {
+            DependencyGraph<PackageDescriptor> dependencyGraphFinal;
             if (directDep.isBuiltInPackage()) {
                 // a built-in dependency will have the same version (0.0.0) across Ballerina distributions
                 // but their dependencies may change. Therefore,
                 // we need to always get the dependency graph of built-in packages from the current distribution
-                dependencyGraph = getBuiltInPkgDescDepGraph(scope, directDep);
+                dependencyGraphFinal = getBuiltInPkgDescDepGraph(scope, directDep);
+            } else {
+                dependencyGraphFinal = dependencyGraph;
             }
 
             // Merge the dependency graph only if the node is accepted by the graphBuilder
             NodeStatus nodeStatus = graphBuilder.addDependency(rootNode, directDep, scope, resolutionType);
             if (nodeStatus == NodeStatus.ACCEPTED) {
-                mergeGraph(directDep, dependencyGraph, scope, resolutionType, graphBuilder);
+                mergeGraph(directDep, dependencyGraphFinal, scope, resolutionType, graphBuilder);
             }
         }
     }
