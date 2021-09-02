@@ -29,7 +29,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import javax.annotation.Nonnull;
 
 /**
- * Language server context implementation.
+ * Hover context implementation.
  *
  * @since 1.2.0
  */

@@ -51,6 +51,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.SignatureContext;
+import org.ballerinalang.langserver.completions.util.ContextTypePair;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.ParameterInformation;
@@ -489,7 +490,9 @@ public class SignatureHelpUtil {
         } else if (nodeAtCursor.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION
                 || nodeAtCursor.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
             ContextTypeResolver resolver = new ContextTypeResolver(context);
-            typeDesc = nodeAtCursor.apply(resolver);
+            Optional<ContextTypePair> resolvedContextType = nodeAtCursor.apply(resolver);
+            typeDesc = resolvedContextType.isEmpty() ? Optional.empty()
+                    : Optional.of(resolvedContextType.get().getRawType());
             methodName = Names.USER_DEFINED_INIT_SUFFIX.getValue();
         } else {
             return Optional.empty();
