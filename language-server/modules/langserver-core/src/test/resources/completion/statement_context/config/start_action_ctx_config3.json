@@ -434,23 +434,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "anonFunction(string, string)",
-      "kind": "Function",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string`  \n- `string`  \n  \n**Return** `string`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "anonFunction",
-      "insertText": "anonFunction(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "label": "anonFunction",
+      "kind": "Variable",
+      "detail": "function (string, string) returns string",
+      "sortText": "B",
+      "insertText": "anonFunction",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
