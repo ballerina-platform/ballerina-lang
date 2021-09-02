@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class Common {
 
-    public static boolean typeListIsReadOnly(List<SemType> list) {
+    public static boolean typeListIsReadOnly(SemType[] list) {
         for (SemType t : list) {
             if (!Core.isReadOnly(t)) {
                 return false;
@@ -41,7 +41,8 @@ public class Common {
         return true;
     }
 
-    public static SemType[] readOnlyTypeList(List<SemType> mt) {
+
+    public static SemType[] readOnlyTypeList(SemType[] mt) {
         List<SemType> types = new ArrayList<>();
         for (SemType s : mt) {
             SemType t;
@@ -52,8 +53,8 @@ public class Common {
             }
             types.add(t);
         }
-        SemType[] typeArray = new SemType[types.size()];
-        return types.toArray(typeArray);
+
+        return types.toArray(new SemType[]{});
     }
 
     // [from nballerina] A Bdd represents a disjunction of conjunctions of atoms, where each atom is either positive or
@@ -61,7 +62,10 @@ public class Common {
     // We walk the tree, accumulating the positive and negative conjunctions for a path as we go.
     // When we get to a leaf that is true, we apply the predicate to the accumulated conjunctions.
 
-    public static boolean bddEvery(TypeCheckContext tc, Bdd b, Conjunction pos, Conjunction neg,
+    public static boolean bddEvery(TypeCheckContext tc,
+                                   Bdd b,
+                                   Conjunction pos,
+                                   Conjunction neg,
                                    BddPredicate predicate) {
         if (b instanceof BddAllOrNothing) {
             return !((BddAllOrNothing) b).isAll() || predicate.apply(tc, pos, neg);
@@ -112,8 +116,12 @@ public class Common {
         return Conjunction.and(atom, next);
     }
 
-    public static SemType[] shallowCopyTypes(SemType[] v) {
-        return Arrays.copyOf(v, v.length);
+    public static List<SemType> shallowCopyTypes(SemType[] v) {
+        return Arrays.asList(v);
+    }
+
+    public static List<SemType> shallowCopyTypes(List<SemType> v) {
+        return new ArrayList<>(v);
     }
 
     public static String[] shallowCopyStrings(String[] v) {

@@ -37,6 +37,7 @@
             <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
             <Class name="io.ballerina.semtype.typeops.MappingCommonOps"/>
             <Class name="io.ballerina.semtype.typeops.MappingRoOps"/>
+            <Class name="io.ballerina.semtype.typeops.ListTypeRoOps"/>
             <Class name="io.ballerina.semtype.TypeCheckContext"/>
             <Class name="io.ballerina.semtype.Common"/>
         </Or>

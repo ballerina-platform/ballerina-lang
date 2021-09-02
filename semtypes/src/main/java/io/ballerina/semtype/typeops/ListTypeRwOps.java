@@ -29,6 +29,6 @@ import io.ballerina.semtype.UniformTypeOps;
 public class ListTypeRwOps extends CommonOps implements UniformTypeOps {
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+        return ListCommonOps.listSubtypeIsEmpty(tc, t);
     }
 }
