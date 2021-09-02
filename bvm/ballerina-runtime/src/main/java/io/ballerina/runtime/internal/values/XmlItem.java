@@ -55,7 +55,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.types.XmlNodeType.ELEMENT;
 import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.
@@ -630,7 +629,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.children.freezeDirect();
         this.attributes.freezeDirect();
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {

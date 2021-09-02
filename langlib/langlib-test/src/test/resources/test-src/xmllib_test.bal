@@ -16,6 +16,7 @@
 
 import ballerina/lang.'xml;
 import ballerina/lang.'int as langint;
+import ballerina/lang.test;
 
 'xml:Element catalog = xml `<CATALOG>
                        <CD>
@@ -880,4 +881,51 @@ function fromStringTest() {
     if !(d[3] is xml:Comment) {
         panic error("Assertion error: not a comment");
     }
+}
+
+function testXmlIteratorNextInvocations() {
+
+    'xml:Text x1 = xml `foo`;
+
+    xml<'xml:Element|'xml:Text> x2 = <xml<'xml:Element|'xml:Text>> x1.concat(xml `<bar/>`);
+
+    var iterator = x2.iterator();
+    record {| 'xml:Element|'xml:Text value; |}? next = iterator.next();
+
+    test:assertValueEqual(next.toString(), "{\"value\":`foo`}");
+    test:assertTrue(next is record {| 'xml:Element|'xml:Text value; |});
+    test:assertFalse(next is record {| 'xml:Element value; |});
+    test:assertFalse(next is record {| 'xml:Text value; |});
+
+    record {| 'xml:Element|'xml:Text value; |}? nextNext = iterator.next();
+
+    test:assertValueEqual(nextNext.toString(), "{\"value\":`<bar/>`}");
+    test:assertTrue(nextNext is record {| 'xml:Element|'xml:Text value; |});
+    test:assertFalse(nextNext is record {| 'xml:Element value; |});
+    test:assertFalse(nextNext is record {| 'xml:Text value; |});
+
+    xml seq = xml `<?PI ?><!--Comment1-->foo<bar/>`;
+    var itr = seq.iterator();
+
+    record {| xml value; |}? itrNext = itr.next();
+    test:assertValueEqual(itrNext.toString(), "{\"value\":`<?PI ?>`}");
+    test:assertTrue(itrNext is record {| xml value; |});
+    test:assertTrue(itrNext is record {| 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction value; |});
+    test:assertFalse(itrNext is record {| 'xml:Element|'xml:Comment|'xml:ProcessingInstruction value; |});
+    test:assertFalse(itrNext is record {| 'xml:Element|'xml:ProcessingInstruction value; |});
+    test:assertFalse(itrNext is record {| 'xml:ProcessingInstruction value; |});
+
+    record {| xml value; |}? itrNextNext = itr.next();
+    test:assertValueEqual(itrNextNext.toString(), "{\"value\":`<!--Comment1-->`}");
+    test:assertTrue(itrNextNext is record {| 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction value; |});
+    test:assertFalse(itrNextNext is record {| 'xml:Element|'xml:Comment|'xml:ProcessingInstruction value; |});
+    test:assertFalse(itrNextNext is record {| 'xml:Element|'xml:Comment value; |});
+    test:assertFalse(itrNextNext is record {| 'xml:Comment value; |});
+
+    record {| xml value; |}? itrNextNextNext = itr.next();
+    test:assertValueEqual(itrNextNextNext.toString(), "{\"value\":`foo`}");
+    test:assertTrue(itrNextNextNext is record {| xml value; |});
+    test:assertFalse(itrNextNextNext is record {| 'xml:Element|'xml:Text|'xml:ProcessingInstruction value; |});
+    test:assertFalse(itrNextNextNext is record {| 'xml:Element|'xml:Text value; |});
+    test:assertFalse(itrNextNextNext is record {| 'xml:Text value; |});
 }

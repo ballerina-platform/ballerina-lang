@@ -46,8 +46,6 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -111,7 +109,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
         this.minSize = memTypes.size();
         this.size = refValues.length;
-        this.typedesc = getTypedescValue(tupleType, this);
+        this.typedesc = new TypedescValueImpl(tupleType);
     }
 
     public TupleValueImpl(TupleType type) {
@@ -137,7 +135,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             }
             this.refValues[i] = memType.getZeroValue();
         }
-        this.typedesc = getTypedescValue(tupleType, this);
+        this.typedesc = new TypedescValueImpl(tupleType);
     }
 
     public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
@@ -162,7 +160,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (size >= memCount) {
-            this.typedesc = getTypedescValue(tupleType, this);
+            this.typedesc = new TypedescValueImpl(tupleType);
             return;
         }
 
@@ -174,7 +172,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
             this.refValues[i] = memType.getZeroValue();
         }
-        this.typedesc = getTypedescValue(tupleType, this);
+        this.typedesc = new TypedescValueImpl(tupleType);
     }
 
     @Override
@@ -566,7 +564,7 @@ public class TupleValueImpl extends AbstractArrayValue {
                 ((RefValue) value).freezeDirect();
             }
         }
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = new TypedescValueImpl(tupleType);
     }
 
     /**
