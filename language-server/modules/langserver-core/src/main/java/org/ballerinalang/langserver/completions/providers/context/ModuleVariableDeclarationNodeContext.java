@@ -19,11 +19,14 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -55,9 +58,12 @@ public class ModuleVariableDeclarationNodeContext extends
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ResolvedContext resolvedContext;
         TypeDescriptorNode tDescNode = node.typedBindingPattern().typeDescriptor();
-        if (this.withinInitializerContext(ctx, node)) {
-            completionItems.addAll(this.initializerContextCompletions(ctx, tDescNode));
+        if (node.initializer().isPresent() && this.withinInitializerContext(ctx, node)) {
+            completionItems.addAll(this.initializerContextCompletions(ctx, node.typedBindingPattern().typeDescriptor(),
+                    node.initializer().get()));
             resolvedContext = ResolvedContext.INITIALIZER;
+            this.sort(ctx, node, completionItems, resolvedContext);
+            return completionItems;
         } else if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && ModulePartNodeContextUtil.onServiceTypeDescContext(((SimpleNameReferenceNode) tDescNode).name(),
                 ctx)) {
@@ -77,16 +83,35 @@ public class ModuleVariableDeclarationNodeContext extends
             completionItems.addAll(this.getModuleCompletionItems(ctx));
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
+            this.sort(ctx, node, completionItems, resolvedContext);
+            return completionItems;
         } else if (withinServiceOnKeywordContext(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
-        } else {
-            // Type descriptor completions and the keyword completions are suggested via the ModulePartNodeContext.
-            return CompletionUtil.route(ctx, node.parent());
+            this.sort(ctx, node, completionItems, resolvedContext);
+            return completionItems;
+        } else if (onSuggestionsAfterQualifiers(ctx, node) &&
+                !QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
+            /*
+                Covers following
+                (1) <qualifier(s)> <cursor>
+                currently the qualifier can be isolated/transactional/client/service/
+                (2) <qualifier(s)> x<cursor>
+                currently the qualifier can be isolated/transactional/client.
+            */
+            List<Token> qualifiers = CommonUtil.getQualifiersOfNode(node);
+            Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+            completionItems.addAll(getCompletionItemsOnQualifiers(node, ctx));
+            if (lastQualifier.kind() == SyntaxKind.SERVICE_KEYWORD ||
+                    lastQualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+                completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_CLASS.get()));
+                completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_CLASS.get()));
+            }
+            this.sort(ctx, node, completionItems);
+            return completionItems;
         }
-        this.sort(ctx, node, completionItems, resolvedContext);
-
-        return completionItems;
+        // Type descriptor completions are suggested via the ModulePartNodeContext.
+        return CompletionUtil.route(ctx, node.parent());
     }
 
     @Override

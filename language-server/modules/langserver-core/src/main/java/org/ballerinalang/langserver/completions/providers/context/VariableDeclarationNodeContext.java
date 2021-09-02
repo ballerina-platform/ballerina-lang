@@ -15,9 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
@@ -30,10 +27,9 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link VariableDeclarationNode} context.
@@ -52,20 +48,8 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node.initializer().isPresent() && onExpressionContext(context, node)) {
-            ExpressionNode initializer = node.initializer().get();
-            if (onSuggestionsAfterQualifiers(context, initializer)) {
-                /*
-                    Covers the following
-                    type x = <qualifier(s)> <cursor>
-                    type x = <qualifier(s)>  x<cursor>
-                    currently the qualifier can be isolated/transactional.
-                 */
-                completionItems.addAll(getCompletionsAfterQualifiers(context, initializer));
-                this.sort(context, node, completionItems);
-                return completionItems;
-            }
             completionItems.addAll(this.initializerContextCompletions(context,
-                    node.typedBindingPattern().typeDescriptor()));
+                    node.typedBindingPattern().typeDescriptor(), node.initializer().get()));
             this.sort(context, node, completionItems);
             return completionItems;
         } else if (onSuggestionsAfterQualifiers(context, node)) {
@@ -75,11 +59,12 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
                 (2) <qualifier(s)> x<cursor>
                 currently the qualifier can be isolated/transactional.
             */
-            completionItems.addAll(getCompletionsAfterQualifiers(context, node));
+            completionItems.addAll(getCompletionItemsOnQualifiers(node, context));
             this.sort(context, node, completionItems);
+
             return completionItems;
-        } else if (onVariableNameContext(context, node)) {
-            return completionItems;
+        } else if (this.onVariableNameContext(context, node)) {
+            return Collections.emptyList();
         }
         return CompletionUtil.route(context, node.parent());
     }
@@ -102,22 +87,5 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
 
         return cursor > typeDescriptorNode.textRange().endOffset()
                 && (equalsToken.isEmpty() || cursor < equalsToken.get().textRange().startOffset());
-    }
-
-    private boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
-        int cursor = context.getCursorPositionInTree();
-        List<Token> qualifiers = node.leadingInvalidTokens();
-        if (qualifiers.isEmpty()) {
-            return false;
-        }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        return cursor > lastQualifier.textRange().endOffset();
-    }
-
-    private List<LSCompletionItem> getCompletionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
-        List<Token> qualifiers = node.leadingInvalidTokens();
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-        return getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context);
     }
 }

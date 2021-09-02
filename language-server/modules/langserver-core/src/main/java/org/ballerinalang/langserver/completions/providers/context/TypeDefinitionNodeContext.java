@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.TextRange;
@@ -35,8 +34,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Completion Provider for {@link TypeDefinitionNode} context.
@@ -45,7 +42,6 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDefinitionNode> {
-
     public TypeDefinitionNodeContext() {
         super(TypeDefinitionNode.class);
     }
@@ -58,7 +54,7 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
         }
         List<LSCompletionItem> completionItems = typeDescriptorCItems(context, node);
         this.sort(context, node, completionItems);
-
+        
         return completionItems;
     }
 
@@ -69,16 +65,14 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
             return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, nameRef), context);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (this.onSuggestionsAfterQualifiers(context, node)) {
+        if (onSuggestionsAfterQualifiers(context, node.typeDescriptor())) {
             /*
              * Covers the following
              * type T <qualifier(s)> x<cursor>
              * Currently the qualifier can be isolated/transactional.
              */
-            List<Token> qualifiers = node.typeDescriptor().leadingInvalidTokens();
-            Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-            Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
-            completionItems.addAll(getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context));
+            completionItems.addAll(getCompletionItemsOnQualifiers(node.typeDescriptor(), context));
+            return completionItems;
         } else {
             completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.addAll(this.getTypeQualifierItems(context));
@@ -125,16 +119,4 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
             completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
         }
     }
-
-    private boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, TypeDefinitionNode node) {
-        int cursor = context.getCursorPositionInTree();
-        List<Token> qualifiers = node.typeDescriptor().leadingInvalidTokens();
-        if (qualifiers.isEmpty()) {
-            return false;
-        }
-        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        return cursor > lastQualifier.textRange().endOffset()
-                && node.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE;
-    }
-
 }

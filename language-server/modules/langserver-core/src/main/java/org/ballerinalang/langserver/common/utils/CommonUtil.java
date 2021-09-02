@@ -37,11 +37,13 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -1454,5 +1456,31 @@ public class CommonUtil {
                 symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
                 || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
                 && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
+    }
+
+    /**
+     * Provided a node, returns the list of possible qualifiers of that node.
+     *
+     * @param node node.
+     * @return {@link List<Token>} qualifiers list.s
+     */
+    public static List<Token> getQualifiersOfNode(Node node) {
+        List<Token> qualifiers;
+        switch (node.kind()) {
+            case FUNCTION_TYPE_DESC:
+                qualifiers = ((FunctionTypeDescriptorNode) node).qualifierList()
+                        .stream().collect(Collectors.toList());
+                break;
+            case MODULE_VAR_DECL:
+                qualifiers = ((ModuleVariableDeclarationNode) node).qualifiers()
+                        .stream().collect(Collectors.toList());
+                break;
+            default:
+                qualifiers = new ArrayList<>();
+        }
+        if (qualifiers.isEmpty()) {
+            qualifiers.addAll(node.leadingInvalidTokens());
+        }
+        return qualifiers;
     }
 }

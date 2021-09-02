@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 5,
-    "character": 13
+    "line": 2,
+    "character": 10
   },
-  "source": "typedesc_context/source/function_typedesc16.bal",
+  "source": "module_var_context/source/source10.bal",
   "items": [
     {
       "label": "function",
@@ -21,6 +21,15 @@
       "sortText": "Q",
       "filterText": "object",
       "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "object",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -48,15 +57,6 @@
       "sortText": "Q",
       "filterText": "transactional",
       "insertText": "transactional",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object {}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "object",
-      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -18,11 +18,10 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -36,8 +35,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link FunctionTypeDescriptorNode} context.
@@ -58,21 +55,9 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
         if (onSuggestionsAfterQualifiers(context, node)) {
             /*
              * Covers the following
-             * isolated <cursor>
-             * parser currently recovers adding the MISSING[function] token. Hence, 
-             * function type descriptor becomes the node at cursor.  
+             * isolated <cursor> function
              */
-            NodeList<Token> qualifiers = node.qualifierList();
-            List<Token> otherQuals = node.leadingInvalidTokens();
-            Token lastQualifier;
-            if (qualifiers.size() > 0) {
-                lastQualifier = qualifiers.get(qualifiers.size() - 1);
-            } else {
-                lastQualifier = otherQuals.get(otherQuals.size() - 1);
-            }
-            Set<SyntaxKind> qualKinds = qualifiers.stream().map(Token::kind).collect(Collectors.toSet());
-            qualKinds.addAll(otherQuals.stream().map(Token::kind).collect(Collectors.toSet()));
-            completionItems.addAll(getCompletionItemsOnQualifiers(qualKinds, lastQualifier, context));
+            completionItems.addAll(getCompletionItemsOnQualifiers(node, context));
         } else if (this.withinParameterContext(context, node)) {
             /*
             Covers the completions when the cursor is within the parameter context
@@ -117,23 +102,17 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
                 || returnTypeDescNode.get().returnsKeyword().isMissing());
     }
 
-    private boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
+    @Override
+    protected boolean onSuggestionsAfterQualifiers(BallerinaCompletionContext context, Node node) {
         int cursor = context.getCursorPositionInTree();
-        NodeList<Token> qualifiers = node.qualifierList();
-        Token functionKeyword = node.functionKeyword();
+        Token functionKeyword = ((FunctionTypeDescriptorNode) node).functionKeyword();
+        return super.onSuggestionsAfterQualifiers(context, node) &&
+                cursor < functionKeyword.textRange().startOffset();
+    }
 
-        Token lastQualifier;
-        if (qualifiers.isEmpty()) {
-            List<Token> otherQuals = node.leadingInvalidTokens();
-            if (otherQuals.size() > 0) {
-                lastQualifier = otherQuals.get(otherQuals.size() - 1);
-            } else {
-                return false;
-            }
-        } else {
-            lastQualifier = qualifiers.get(qualifiers.size() - 1);
-        }
-        return cursor > lastQualifier.textRange().endOffset()
-                && (functionKeyword.isMissing() || cursor < functionKeyword.textRange().startOffset());
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
+        return !node.functionKeyword().isMissing() &&
+                context.getCursorPositionInTree() > node.functionKeyword().textRange().startOffset();
     }
 }
