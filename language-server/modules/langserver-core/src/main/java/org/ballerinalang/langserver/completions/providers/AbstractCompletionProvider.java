@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
-import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -48,7 +46,6 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -487,10 +484,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     }
 
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context) {
-        SemanticModel semanticModel = context.currentSemanticModel().get();
-        List<Symbol> visibleSymbols = semanticModel.visibleSymbols(context.currentDocument().get(),
-                LinePosition.from(context.getCursorPosition().getLine(),
-                        context.getCursorPosition().getCharacter()), DiagnosticState.VALID);
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         /*
         check and check panic expression starts with check and check panic keywords, Which has been added with actions.
         query pipeline starts with from keyword and also being added with the actions

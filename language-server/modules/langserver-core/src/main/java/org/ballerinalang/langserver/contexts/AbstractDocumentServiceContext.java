@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -122,7 +123,7 @@ public class AbstractDocumentServiceContext implements DocumentServiceContext {
 
             visibleSymbols = semanticModel.get().visibleSymbols(srcFile.get(),
                     LinePosition.from(position.getLine(),
-                            position.getCharacter()));
+                            position.getCharacter()), DiagnosticState.VALID, DiagnosticState.REDECLARED);
         }
 
         return visibleSymbols;
