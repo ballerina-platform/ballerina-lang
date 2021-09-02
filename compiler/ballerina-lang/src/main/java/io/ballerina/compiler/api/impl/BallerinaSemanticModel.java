@@ -188,7 +188,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Collections.emptyList();
         }
         Location symbolLocation = symbolAtCursor.getPosition();
-        BLangNode node = findEnclosingContainerNode(symbolLocation.lineRange(), null);
+        BLangNode node = new NodeFinder(false).lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
         return getReferences(symbolAtCursor, node, true);
     }
 
@@ -196,10 +196,11 @@ public class BallerinaSemanticModel implements SemanticModel {
     public List<Location> references(Symbol symbol, boolean withDefinition) {
         BSymbol symbolAtCursor = getInternalSymbol(symbol);
         Optional<Location> symbolLocation = symbol.getLocation();
-        if (symbolAtCursor == null || symbolLocation.isEmpty()) {
+        if (symbolLocation.isEmpty()) {
             return Collections.emptyList();
         }
-        BLangNode node = findEnclosingContainerNode(symbolLocation.get().lineRange(), null);
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(this.bLangPackage, symbolLocation.get().lineRange());
 
         return getReferences(symbolAtCursor, node, withDefinition);
     }
@@ -211,7 +212,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Collections.emptyList();
         }
         Location symbolLocation = symbolAtCursor.getPosition();
-        BLangNode node = findEnclosingContainerNode(symbolLocation.lineRange(), null);
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
 
         return getReferences(symbolAtCursor, node, withDefinition);
     }
@@ -220,10 +222,11 @@ public class BallerinaSemanticModel implements SemanticModel {
     public List<Location> references(Symbol symbol, Document targetDocument, boolean withDefinition) {
         BSymbol symbolAtCursor = getInternalSymbol(symbol);
         Optional<Location> symbolLocation = symbol.getLocation();
-        if (symbolAtCursor == null || symbolLocation.isEmpty()) {
+        if (symbolLocation.isEmpty()) {
             return Collections.emptyList();
         }
-        BLangNode node = findEnclosingContainerNode(symbolLocation.get().lineRange(), targetDocument);
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(getCompilationUnit(targetDocument), symbolLocation.get().lineRange());
 
         return getReferences(symbolAtCursor, node, withDefinition);
     }
@@ -239,7 +242,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Collections.emptyList();
         }
         Location symbolLocation = symbolAtCursor.getPosition();
-        BLangNode node = findEnclosingContainerNode(symbolLocation.lineRange(), targetDocument);
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(getCompilationUnit(targetDocument), symbolLocation.lineRange());
 
         return getReferences(symbolAtCursor, node, withDefinition);
     }
@@ -248,14 +252,6 @@ public class BallerinaSemanticModel implements SemanticModel {
         BLangCompilationUnit sourceCompilationUnit = getCompilationUnit(sourceDocument);
         SymbolFinder symbolFinder = new SymbolFinder();
         return symbolFinder.lookup(sourceCompilationUnit, linePosition);
-    }
-
-    private BLangNode findEnclosingContainerNode(LineRange lineRange, Document targetDocument) {
-        return targetDocument == null ?
-                new NodeFinder(false)
-                        .lookupEnclosingContainer(this.bLangPackage, lineRange) :
-                new NodeFinder(false)
-                        .lookupEnclosingContainer(getCompilationUnit(targetDocument), lineRange);
     }
 
     private List<Location> getReferences(BSymbol symbol, BLangNode node, boolean withDefinition) {
