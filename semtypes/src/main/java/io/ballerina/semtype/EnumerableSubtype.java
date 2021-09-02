@@ -26,31 +26,31 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class EnumerableSubtype {
+public abstract class EnumerableSubtype {
     static final int LT = -1;
     static final int EQ = 0;
     static final int GT = 1;
 
-    public boolean allowed;
-    public EnumerableType[] values;
+    public abstract boolean allowed();
+    public abstract EnumerableType[] values();
 
     public static boolean enumerableSubtypeUnion(EnumerableSubtype t1, EnumerableSubtype t2,
                                                  List<? extends EnumerableType> result) {
-        boolean b1 = t1.allowed;
-        boolean b2 = t2.allowed;
+        boolean b1 = t1.allowed();
+        boolean b2 = t2.allowed();
         boolean allowed;
         if (b1 && b2) {
-            enumerableListUnion(t1.values, t2.values, result);
+            enumerableListUnion(t1.values(), t2.values(), result);
             allowed = true;
         } else if (!b1 && !b2) {
-            enumerableListIntersect(t1.values, t2.values, result);
+            enumerableListIntersect(t1.values(), t2.values(), result);
             allowed = false;
         } else if (b1 && !b2) {
-            enumerableListDiff(t2.values, t1.values, result);
+            enumerableListDiff(t2.values(), t1.values(), result);
             allowed = false;
         } else {
             // !b1 && b2
-            enumerableListDiff(t1.values, t2.values, result);
+            enumerableListDiff(t1.values(), t2.values(), result);
             allowed = false;
         }
         return allowed;
@@ -58,21 +58,21 @@ public class EnumerableSubtype {
 
     public static boolean enumerableSubtypeIntersect(EnumerableSubtype t1, EnumerableSubtype t2,
                                                      List<? extends EnumerableType> result) {
-        boolean b1 = t1.allowed;
-        boolean b2 = t2.allowed;
+        boolean b1 = t1.allowed();
+        boolean b2 = t2.allowed();
         boolean allowed;
         if (b1 && b2) {
-            enumerableListIntersect(t1.values, t2.values, result);
+            enumerableListIntersect(t1.values(), t2.values(), result);
             allowed = true;
         } else if (!b1 && !b2) {
-            enumerableListUnion(t1.values, t2.values, result);
+            enumerableListUnion(t1.values(), t2.values(), result);
             allowed = false;
         } else if (b1 && !b2) {
-            enumerableListDiff(t1.values, t2.values, result);
+            enumerableListDiff(t1.values(), t2.values(), result);
             allowed = false;
         } else {
             // !b1 && b2
-            enumerableListDiff(t2.values, t1.values, result);
+            enumerableListDiff(t2.values(), t1.values(), result);
             allowed = false;
         }
         return allowed;
