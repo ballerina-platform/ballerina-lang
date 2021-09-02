@@ -116,8 +116,8 @@ public class Common {
         return Conjunction.and(atom, next);
     }
 
-    public static List<SemType> shallowCopyTypes(SemType[] v) {
-        return Arrays.asList(v);
+    public static SemType[] shallowCopyTypes(SemType[] v) {
+        return Arrays.copyOf(v, v.length);
     }
 
     public static List<SemType> shallowCopyTypes(List<SemType> v) {

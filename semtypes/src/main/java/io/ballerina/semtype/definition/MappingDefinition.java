@@ -74,7 +74,7 @@ public class MappingDefinition implements Definition {
             rw = env.mappingAtom(rwType);
         }
         Atom ro;
-        if (Common.typeListIsReadOnly(List.of(rwType.types)) && Core.isReadOnly(rest)) {
+        if (Common.typeListIsReadOnly(rwType.types) && Core.isReadOnly(rest)) {
             RecAtom roRec = this.roRec;
             if (roRec == null) {
                 ro = rw;
@@ -84,7 +84,7 @@ public class MappingDefinition implements Definition {
             }
         } else {
             MappingAtomicType roType = MappingAtomicType.from(rwType.names,
-                    (Common.readOnlyTypeList(List.of(rwType.types))),
+                    (Common.readOnlyTypeList(rwType.types)),
                     Core.intersect(rest, PredefinedType.READONLY));
             ro = env.mappingAtom(roType);
             RecAtom roRec = this.roRec;
