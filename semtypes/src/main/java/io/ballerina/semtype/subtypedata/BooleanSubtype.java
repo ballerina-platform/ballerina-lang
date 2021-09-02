@@ -17,8 +17,13 @@
  */
 package io.ballerina.semtype.subtypedata;
 
+import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
+import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformTypeCode;
+
+import java.util.Optional;
 
 /**
  * Represent BooleanSubtype.
@@ -42,5 +47,18 @@ public class BooleanSubtype implements ProperSubtypeData {
         }
         BooleanSubtype r = (BooleanSubtype) d;
         return r.value == b;
+    }
+
+    public static SemType booleanConst(boolean value)  {
+        BooleanSubtype t = BooleanSubtype.from(value);
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_BOOLEAN, t);
+    }
+
+    public static Optional<Boolean> booleanSubtypeSingleValue(SubtypeData d) {
+        if (d instanceof AllOrNothingSubtype) {
+            return Optional.empty();
+        }
+        BooleanSubtype b = (BooleanSubtype) d;
+        return Optional.of(b.value);
     }
 }

@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class IntSubtype implements ProperSubtypeData {
 
-    private final Range[] ranges;
+    public final Range[] ranges;
 
     public IntSubtype(Range[] ranges) {
         this.ranges = Arrays.copyOf(ranges, ranges.length);
@@ -144,18 +144,5 @@ public class IntSubtype implements ProperSubtypeData {
             }
         }
         return false;
-    }
-
-    /**
-     * Int Range node.
-     */
-    static class Range {
-        final long min;
-        final long max;
-
-        public Range(long min, long max) {
-            this.min = min;
-            this.max = max;
-        }
     }
 }

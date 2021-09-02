@@ -15,21 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.subtypedata;
 
 /**
- * Enumerable type wrapper for string.
+ * Int Range node.
  *
  * @since 2.0.0
  */
-public class EnumerableString implements EnumerableType {
-    public final String value;
+public class Range {
+    public final long min;
+    public final long max;
 
-    private EnumerableString(String value) {
-        this.value = value;
-    }
-
-    public static EnumerableString from(String v) {
-        return new EnumerableString(v);
+    public Range(long min, long max) {
+        this.min = min;
+        this.max = max;
     }
 }

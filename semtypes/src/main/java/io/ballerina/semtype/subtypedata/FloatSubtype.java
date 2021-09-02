@@ -19,14 +19,13 @@ package io.ballerina.semtype.subtypedata;
 
 import io.ballerina.semtype.EnumerableFloat;
 import io.ballerina.semtype.EnumerableSubtype;
+import io.ballerina.semtype.EnumerableType;
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
 import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.UniformTypeCode;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -35,19 +34,18 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData {
-
-    public final boolean allowed;
-    public final List<EnumerableFloat> values;
+    public boolean allowed;
+    public EnumerableFloat[] values;
 
     public FloatSubtype(boolean allowed, EnumerableFloat value) {
         this.allowed = allowed;
-        this.values = new ArrayList<>();
-        values.add(value);
+        this.values = new EnumerableFloat[1];
+        values[0] = value;
     }
 
-    public FloatSubtype(boolean allowed, List<EnumerableFloat> values) {
+    public FloatSubtype(boolean allowed, EnumerableFloat[] values) {
         this.allowed = allowed;
-        this.values = new ArrayList<>(values);
+        this.values = values;
     }
 
     public static SemType floatConst(EnumerableFloat value) {
@@ -64,11 +62,11 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
             return Optional.empty();
         }
 
-        List<EnumerableFloat> values = f.values;
-        if (values.size() != 1) {
+        EnumerableFloat[] values = (EnumerableFloat[]) f.values;
+        if (values.length != 1) {
             return Optional.empty();
         }
-        return Optional.of(values.get(0));
+        return Optional.of(values[0]);
     }
 
     public static boolean floatSubtypeContains(SubtypeData d, EnumerableFloat f) {
@@ -77,7 +75,7 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
         }
 
         FloatSubtype v = (FloatSubtype) d;
-        for (EnumerableFloat val : v.values) {
+        for (EnumerableType val : v.values) {
             if (val == f) {
                 return v.allowed;
             }
@@ -85,10 +83,20 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
         return !v.allowed;
     }
 
-    public static SubtypeData createFloatSubtype(boolean allowed, List<EnumerableFloat> values) {
-        if (values.isEmpty()) {
+    public static SubtypeData createFloatSubtype(boolean allowed, EnumerableFloat[] values) {
+        if (values.length == 0) {
             return new AllOrNothingSubtype(!allowed);
         }
         return new FloatSubtype(allowed, values);
+    }
+
+    @Override
+    public boolean allowed() {
+        return allowed;
+    }
+
+    @Override
+    public EnumerableType[] values() {
+        return values;
     }
 }
