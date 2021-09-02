@@ -420,14 +420,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "test",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "test",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "customerList",
       "kind": "Variable",
       "detail": "Customer[]",
@@ -480,14 +472,6 @@
       "sortText": "C",
       "filterText": "testIterableOperation",
       "insertText": "testIterableOperation()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "test",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "test",
       "insertTextFormat": "Snippet"
     },
     {

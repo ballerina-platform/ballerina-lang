@@ -447,22 +447,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "test",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "test",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "item",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "item",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",

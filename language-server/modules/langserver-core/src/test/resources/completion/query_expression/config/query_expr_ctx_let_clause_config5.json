@@ -475,14 +475,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "test",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "test",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "personList",
       "kind": "Variable",
       "detail": "Person[]",
