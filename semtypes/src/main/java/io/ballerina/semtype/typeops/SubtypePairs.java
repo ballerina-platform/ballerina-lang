@@ -17,33 +17,31 @@
  */
 package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.Bdd;
-import io.ballerina.semtype.CommonUniformTypeOps;
-import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.SemType;
+import io.ballerina.semtype.UniformTypeBitSet;
+
+import java.util.Iterator;
 
 /**
- * Common methods operate on SubtypeData.
+ * Ballerina iterator is similar to an iterable in Java.
+ * This class implements the iterable for `SubtypePairIteratorImpl`
  *
  * @since 2.0.0
  */
-public abstract class CommonOps implements CommonUniformTypeOps {
-    @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddUnion((Bdd) t1, (Bdd) t2);
+public class SubtypePairs implements Iterable<SubtypePair> {
+
+    private final SemType t1;
+    private final SemType t2;
+    private final UniformTypeBitSet bits;
+
+    public SubtypePairs(SemType t1, SemType t2, UniformTypeBitSet bits) {
+        this.t1 = t1;
+        this.t2 = t2;
+        this.bits = bits;
     }
 
     @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddIntersect((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddDiff((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData complement(SubtypeData t) {
-        return BddCommonOps.bddComplement((Bdd) t);
+    public Iterator<SubtypePair> iterator() {
+        return new SubtypePairIterator(t1, t2, bits);
     }
 }

@@ -133,6 +133,19 @@ public class IntSubtype implements ProperSubtypeData {
         return Optional.of(min);
     }
 
+    public static boolean intSubtypeContains(SubtypeData d, long n) {
+        if (d instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d).isAllSubtype();
+        }
+        IntSubtype v = (IntSubtype) d;
+        for (Range r : v.ranges) {
+            if (r.min <= n && n <= r.max) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Int Range node.
      */

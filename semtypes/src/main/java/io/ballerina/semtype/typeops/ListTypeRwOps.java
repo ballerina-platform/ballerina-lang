@@ -17,33 +17,18 @@
  */
 package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.Bdd;
-import io.ballerina.semtype.CommonUniformTypeOps;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.TypeCheckContext;
+import io.ballerina.semtype.UniformTypeOps;
 
 /**
- * Common methods operate on SubtypeData.
+ * List read/write specific methods operate on SubtypeData.
  *
  * @since 2.0.0
  */
-public abstract class CommonOps implements CommonUniformTypeOps {
+public class ListTypeRwOps extends CommonOps implements UniformTypeOps {
     @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddUnion((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddIntersect((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddDiff((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData complement(SubtypeData t) {
-        return BddCommonOps.bddComplement((Bdd) t);
+    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
+        return ListCommonOps.listSubtypeIsEmpty(tc, t);
     }
 }

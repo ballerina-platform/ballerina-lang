@@ -23,10 +23,31 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class BddMemo {
-    Bdd bddNode;
-    MemoStatus isEmpty;
+    public final Bdd bdd;
+    public MemoStatus isEmpty;
 
-    enum MemoStatus {
+    public BddMemo(Bdd bdd) {
+        this.bdd = bdd;
+        this.isEmpty = MemoStatus.NOT_SET;
+    }
+
+    public static BddMemo from(Bdd bdd) {
+        return new BddMemo(bdd);
+    }
+
+    public void setIsEmpty(boolean isEmpty) {
+        this.isEmpty = isEmpty ? MemoStatus.TRUE : MemoStatus.FALSE;
+    }
+
+    public boolean isEmpty() {
+        return this.isEmpty == MemoStatus.TRUE;
+    }
+    /**
+     * Represent if BddMemo is null or not.
+     *
+     * @since 2.0.0
+     */
+    public enum MemoStatus {
         NOT_SET, TRUE, FALSE;
     }
 }

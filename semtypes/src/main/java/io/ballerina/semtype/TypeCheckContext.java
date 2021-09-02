@@ -17,6 +17,8 @@
  */
 package io.ballerina.semtype;
 
+import java.util.Hashtable;
+
 /**
  * TypeCheckContext node.
  *
@@ -24,35 +26,31 @@ package io.ballerina.semtype;
  */
 public class TypeCheckContext {
     private final Env env;
-    // todo: Normal hash tables should do here
-    //    BddMemoTable listMemo = table [];
-    //    BddMemoTable mappingMemo = table [];
-    //    BddMemoTable functionMemo = table [];
+    public final Hashtable<Bdd, BddMemo> functionMemo = new Hashtable<>();
+    public final Hashtable<Bdd, BddMemo> listMemo = new Hashtable<>();
+    public final Hashtable<Bdd, BddMemo> mappingMemo = new Hashtable<>();
 
     public TypeCheckContext(Env env) {
         this.env = env;
     }
 
+    public ListAtomicType listAtomType(Atom atom) {
+        if (atom instanceof RecAtom) {
+            return this.env.getRecListAtomType((RecAtom) atom);
+        } else {
+            return (ListAtomicType) ((TypeAtom) atom).atomicType;
+        }
+    }
 
-//    function listAtomType(Atom atom) returns ListAtomicType {
-//        if atom is RecAtom {
-//            return self.env.getRecListAtomType(atom);
-//        }
-//        else {
-//            return <ListAtomicType>atom.atomicType;
-//        }
-//    }
-//
-//    function mappingAtomType(Atom atom) returns MappingAtomicType {
-//        if atom is RecAtom {
-//            return self.env.getRecMappingAtomType(atom);
-//        }
-//        else {
-//            return <MappingAtomicType>atom.atomicType;
-//        }
-//    }
-//
-//    function functionAtomType(Atom atom) returns FunctionAtomicType {
-//        return self.env.getRecFunctionAtomType(<RecAtom>atom);
-//    }
+    public MappingAtomicType mappingAtomType(Atom atom) {
+        if (atom instanceof RecAtom) {
+            return this.env.getRecMappingAtomType((RecAtom) atom);
+        } else {
+            return (MappingAtomicType) ((TypeAtom) atom).atomicType;
+        }
+    }
+
+    public FunctionAtomicType functionAtomType(Atom atom) {
+        return this.env.getRecFunctionAtomType((RecAtom) atom);
+    }
 }
