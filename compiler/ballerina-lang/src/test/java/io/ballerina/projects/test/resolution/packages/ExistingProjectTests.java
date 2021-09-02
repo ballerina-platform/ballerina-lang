@@ -29,14 +29,16 @@ public class ExistingProjectTests extends AbstractPackageResolutionTest {
                 // 4. Package contains a built-in transitive dependency with a non-zero version
                 {"suite-existing_project", "case-0004", true},
                 {"suite-existing_project", "case-0004", false},
-                // 5. Package contains a built-in transitive dependency
-                // which has its dependencies changed in the current dist
+                // 5. Package contains a built-in transitive dependency which has its dependencies changed
+                //    in the current dist
                 {"suite-existing_project", "case-0005", true},
                 {"suite-existing_project", "case-0005", false},
+                // 6. Remove existing import which also is a dependency of a newer patch version of another import
+                {"suite-existing_project", "case-0006", true},
+                {"suite-existing_project", "case-0006", false},
+                // 8. package contains dependencies with pre-release versions
+                // 9. use a module added in the new version of a dependency
 
-                // 6. package contains dependencies with pre-release versions
-                // 7. package contains ballerina/observe
-                // 8. use a module added in the new version of a dependency
         };
     }
 }
