@@ -352,8 +352,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String GENERATED_ERROR_VAR = "$error$";
     private static final String HAS_KEY = "hasKey";
     private static final String CREATE_RECORD_VALUE = "createRecordFromMap";
-    private static final String CLOSURE_FOR_DEFAULT_VALUE = "$closure_for_default_value$";
-    private int closureCount = 0;
 
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
@@ -1407,7 +1405,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangExpression bLangExpression;
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
-            String closureName = CLOSURE_FOR_DEFAULT_VALUE + UNDERSCORE + closureCount++;
+            String closureName = generateName(varNode.symbol.name.value);
             bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode,
                     (BInvokableTypeSymbol) env.node.getBType().tsymbol, env, varNode.symbol.owner);
         } else {
@@ -5912,7 +5910,8 @@ public class Desugar extends BLangNodeVisitor {
             if (varSymbol.originalSymbol != null) {
                 varRefExpr.symbol = varSymbol.originalSymbol;
             }
-            if (!varSymbol.closure && encInvokable != null && encInvokable.flagSet.contains(Flag.ClOSURE_LAMBDA)) {
+            if (!varSymbol.closure && encInvokable != null && !encInvokable.flagSet.contains(Flag.QUERY_LAMBDA) &&
+                                                                encInvokable.flagSet.contains(Flag.LAMBDA)) {
                 SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
                 BSymbol resolvedSymbol =
                         symResolver.lookupClosureVarSymbol(encInvokableEnv, varRefExpr.symbol.name, SymTag.VARIABLE);
@@ -5984,6 +5983,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
         result = expression.impConversionExpr != null ? expression.impConversionExpr : expression;
     }
+
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
         if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
             return env.enclEnv;
@@ -6039,7 +6039,6 @@ public class Desugar extends BLangNodeVisitor {
         functionSymbol.scope = new Scope(functionSymbol);
         function.symbol = functionSymbol;
         function.flagSet.add(Flag.PUBLIC);
-        function.flagSet.add(Flag.ClOSURE_LAMBDA);
         return function;
     }
 
@@ -6060,6 +6059,16 @@ public class Desugar extends BLangNodeVisitor {
                 null);
         function.symbol = functionSymbol;
         return functionSymbol;
+    }
+
+    private String generateName(String name) {
+        if (env.node.getKind() == NodeKind.FUNCTION) {
+            return ((BLangFunction) env.node).symbol.name.value + name;
+        } else if (env.node.getKind() == NodeKind.RESOURCE_FUNC) {
+            return ((BLangResourceFunction) env.node).symbol.name.value + name;
+        } else {
+            return ((BLangFunctionTypeNode) env.node).symbol.name.value + name;
+        }
     }
 
     @Override

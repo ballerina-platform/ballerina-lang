@@ -193,6 +193,8 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 218, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 223, 81);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 223, 94);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 227, 45);
+        validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 227, 73);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 253, 27);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 254, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 271, 14);

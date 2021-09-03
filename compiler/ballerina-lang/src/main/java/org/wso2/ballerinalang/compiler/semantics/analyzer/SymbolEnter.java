@@ -442,9 +442,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Update globalVar for endpoints.
         for (BLangVariable var : pkgNode.globalVars) {
             if (var.getKind() == NodeKind.VARIABLE) {
-                if (var.typeNode != null && var.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
-                    defineNode(var.typeNode, pkgEnv);
-                }
                 BVarSymbol varSymbol = var.symbol;
                 if (varSymbol != null) {
                     BTypeSymbol tSymbol = varSymbol.type.tsymbol;
@@ -4128,6 +4125,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
+        if (errorType.detailType != null) {
+            defineNode(errorType.detailType, env);
+        }
     }
 
     @Override
@@ -4149,12 +4149,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstrainedType constrainedType) {
+        defineNode(constrainedType.type, env);
         defineNode(constrainedType.constraint, env);
     }
 
     @Override
     public void visit(BLangStreamType streamType) {
         defineNode(streamType.constraint, env);
+        defineNode(streamType.type, env);
+        if (streamType.error != null) {
+            defineNode(streamType.error, env);
+        }
     }
 
     @Override
@@ -4162,11 +4167,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (BLangType memType : tupleTypeNode.memberTypeNodes) {
             defineNode(memType, env);
         }
+        if (tupleTypeNode.restParamType != null) {
+            defineNode(tupleTypeNode.restParamType, env);
+        }
     }
 
     @Override
     public void visit(BLangTableTypeNode tableTypeNode) {
         defineNode(tableTypeNode.constraint, env);
+        defineNode(tableTypeNode.type, env);
         if (tableTypeNode.tableKeyTypeConstraint != null) {
             defineNode(tableTypeNode.tableKeyTypeConstraint, env);
         }

@@ -330,7 +330,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
                                                 ((BInvokableTypeSymbol) funcNode.getBType().tsymbol).defaultValues;
             BLangLambdaFunction lambdaExpr = defaultValues.get(bLangSimpleVariable.symbol.name.value);
             rewriteExpr(lambdaExpr, funcEnv);
-            bLangSimpleVariable.expr = rewrite(bLangSimpleVariable.expr, funcEnv);
         }
         if (funcNode.restParam != null) {
             funcNode.restParam = rewrite(funcNode.restParam, funcEnv);
@@ -694,7 +693,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
         SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(functionTypeNode, functionTypeNode.symbol.scope, env);
-        Map<String, BLangLambdaFunction> defaultValues = ((BInvokableTypeSymbol) functionTypeNode.symbol).defaultValues;
+        Map<String, BLangLambdaFunction> defaultValues = (functionTypeNode.symbol).defaultValues;
         for (BLangVariable bLangSimpleVariable : functionTypeNode.params) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
             if (!bLangSimpleVariable.symbol.isDefaultable) {
@@ -702,7 +701,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
             BLangLambdaFunction lambdaExpr = defaultValues.get(bLangSimpleVariable.symbol.name.value);
             rewriteExpr(lambdaExpr, typeDefEnv);
-            bLangSimpleVariable.expr = rewrite(bLangSimpleVariable.expr, typeDefEnv);
         }
         if (functionTypeNode.restParam != null) {
             functionTypeNode.restParam.typeNode = rewrite(functionTypeNode.restParam.typeNode, env);
@@ -1286,18 +1284,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         BSymbol varRefSym = localVarRef.symbol;
-        if (!varRefSym.closure || localVarRef.closureDesugared || env.enclInvokable == null) {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        if (!varRefSym.closure || localVarRef.closureDesugared || enclInvokable == null) {
             result = localVarRef;
             return;
         }
 
-        boolean isMemberOfFunction = (Symbols.isFlagOn(varRefSym.flags, Flags.REQUIRED_PARAM) ||
-                                      Symbols.isFlagOn(varRefSym.flags, Flags.DEFAULTABLE_PARAM));
-
-        if (env.enclInvokable.flagSet.contains(Flag.ClOSURE_LAMBDA) &&
-                (varRefSym.owner.getKind() == SymbolKind.INVOKABLE_TYPE ||
-                        varRefSym.owner == env.enclInvokable.symbol.owner)) {
-            TreeMap<Integer, BVarSymbol> paramClosureMap = ((BLangFunction) env.enclInvokable).paramClosureMap;
+        if (enclInvokable.flagSet.contains(Flag.LAMBDA) && !enclInvokable.flagSet.contains(Flag.QUERY_LAMBDA) &&
+                !enclInvokable.flagSet.contains(Flag.ANONYMOUS) && (varRefSym.owner == enclInvokable.symbol.owner)) {
+            TreeMap<Integer, BVarSymbol> paramClosureMap = ((BLangFunction) enclInvokable).paramClosureMap;
             if (paramClosureMap.containsValue(varRefSym)) {
                 result = localVarRef;
                 return;
@@ -1317,17 +1312,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
 
-        if (isMemberOfFunction) {
-            if (env.enclInvokable.flagSet.contains(Flag.LAMBDA)) {
-                if (varRefSym.owner.getKind() == SymbolKind.INVOKABLE_TYPE ||
-                        env.enclInvokable.name.value.equals(varRefSym.owner.name.value)) {
-                    result = localVarRef;
-                    return;
-                }
-            } else {
-                result = localVarRef;
-                return;
-            }
+        boolean isMemberOfFunction = Symbols.isFlagOn(varRefSym.flags, Flags.REQUIRED_PARAM) ||
+                                     Symbols.isFlagOn(varRefSym.flags, Flags.DEFAULTABLE_PARAM);
+
+        if (isMemberOfFunction && !enclInvokable.flagSet.contains(Flag.LAMBDA)) {
+            result = localVarRef;
+            return;
         }
 
         // If it is marked as a closure variable then the following calculations are carried out.
