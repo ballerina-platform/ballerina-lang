@@ -352,11 +352,9 @@ public class Core {
                     BddNode bddNode = (BddNode) bdd;
                     if (bddNode.left instanceof BddNode || (!((BddAllOrNothing) bddNode.left).isAll())) {
                         return Optional.empty();
-                    }
-                    else if (bddNode.middle instanceof BddNode || (((BddAllOrNothing) bddNode.middle).isAll())) {
+                    } else if (bddNode.middle instanceof BddNode || (((BddAllOrNothing) bddNode.middle).isAll())) {
                         return Optional.empty();
-                    }
-                    else if (bddNode.right instanceof BddNode || (((BddAllOrNothing) bddNode.right).isAll())) {
+                    } else if (bddNode.right instanceof BddNode || (((BddAllOrNothing) bddNode.right).isAll())) {
                         return Optional.empty();
                     }
                     ListAtomicType atomic = env.listAtomType(bddNode.atom);
@@ -402,11 +400,9 @@ public class Core {
                     BddNode bddNode = (BddNode) bdd;
                     if (bddNode.left instanceof BddNode || (!((BddAllOrNothing) bddNode.left).isAll())) {
                         return Optional.empty();
-                    }
-                    else if (bddNode.middle instanceof BddNode || (((BddAllOrNothing) bddNode.middle).isAll())) {
+                    } else if (bddNode.middle instanceof BddNode || (((BddAllOrNothing) bddNode.middle).isAll())) {
                         return Optional.empty();
-                    }
-                    else if (bddNode.right instanceof BddNode || (((BddAllOrNothing) bddNode.right).isAll())) {
+                    } else if (bddNode.right instanceof BddNode || (((BddAllOrNothing) bddNode.right).isAll())) {
                         return Optional.empty();
                     }
                     MappingAtomicType atomic = env.mappingAtomType(bddNode.atom);
