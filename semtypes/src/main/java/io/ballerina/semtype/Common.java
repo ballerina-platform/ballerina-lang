@@ -141,14 +141,15 @@ public class Common {
         if (len1 < len2 && s2.substring(0, len1).equals(s1)) {
             return true;
         }
-
-        for (int index = 0; index < len1 && index < len2; ) {
-            if (s1.charAt(index) == s2.charAt(index)) {
-                index++;
+        int cpCount1 = s1.codePointCount(0, len1);
+        int cpCount2 = s2.codePointCount(0, len2);
+        for (int cp = 0; cp < cpCount1 && cp < cpCount2;) {
+            if (s1.codePointAt(cp) == s2.codePointAt(cp)) {
+                cp++;
                 continue;
             }
-            int codepoint1 = s1.codePointAt(index);
-            int codepoint2 = s2.codePointAt(index);
+            int codepoint1 = s1.codePointAt(cp);
+            int codepoint2 = s2.codePointAt(cp);
             return codepoint1 < codepoint2;
         }
         return false;
