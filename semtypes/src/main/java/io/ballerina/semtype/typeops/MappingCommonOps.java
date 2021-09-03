@@ -156,7 +156,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
             types.add(t);
         }
         SemType rest = Core.intersect(m1.rest, m2.rest);
-        return MappingAtomicType.from(names.toArray(new String[0]), types.toArray(new SemType[0]), rest);
+        return MappingAtomicType.from(names.toArray(new String[]{}), types.toArray(new SemType[]{}), rest);
     }
 
     public static boolean mappingSubtypeIsEmpty(TypeCheckContext tc, SubtypeData t) {
