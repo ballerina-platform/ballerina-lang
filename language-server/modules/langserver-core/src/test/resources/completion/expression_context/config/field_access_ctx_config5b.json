@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 4,
-    "character": 21
+    "line": 5,
+    "character": 9
   },
-  "source": "expression_context/source/field_access_ctx_source5.bal",
+  "source": "expression_context/source/field_access_ctx_source5b.bal",
   "items": [
     {
       "label": "testField",

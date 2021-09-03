@@ -66,29 +66,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testOptional",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "?.testOptional",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 24
-            },
-            "end": {
-              "line": 3,
-              "character": 25
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
       "label": "reduce(function () func, any|error initial)",
       "kind": "Function",
       "detail": "any|error",
@@ -472,6 +449,14 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "testOptional",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "testOptional",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

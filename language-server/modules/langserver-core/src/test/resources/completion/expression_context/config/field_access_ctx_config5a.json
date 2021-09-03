@@ -1,9 +1,9 @@
 {
   "position": {
     "line": 4,
-    "character": 21
+    "character": 31
   },
-  "source": "expression_context/source/field_access_ctx_source5.bal",
+  "source": "expression_context/source/field_access_ctx_source5a.bal",
   "items": [
     {
       "label": "testField",
@@ -403,8 +403,23 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "A",
-      "insertText": "testOptional",
-      "insertTextFormat": "Snippet"
+      "insertText": "?.testOptional",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 30
+            },
+            "end": {
+              "line": 4,
+              "character": 31
+            }
+          },
+          "newText": ""
+        }
+      ]
     }
   ]
 }

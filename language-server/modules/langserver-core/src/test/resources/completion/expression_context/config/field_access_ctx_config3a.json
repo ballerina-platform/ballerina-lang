@@ -1,16 +1,24 @@
 {
   "position": {
-    "line": 4,
-    "character": 21
+    "line": 3,
+    "character": 43
   },
-  "source": "expression_context/source/field_access_ctx_source5.bal",
+  "source": "expression_context/source/field_access_ctx_source3a.bal",
   "items": [
     {
-      "label": "testField",
+      "label": "rec1Field1",
       "kind": "Field",
-      "detail": "module1:TestRecord1",
+      "detail": "int",
       "sortText": "A",
-      "insertText": "testField",
+      "insertText": "rec1Field1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field2",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "A",
+      "insertText": "rec1Field2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -399,12 +407,27 @@
       }
     },
     {
-      "label": "testOptional",
+      "label": "optionalInt",
       "kind": "Field",
       "detail": "int",
       "sortText": "A",
-      "insertText": "testOptional",
-      "insertTextFormat": "Snippet"
+      "insertText": "?.optionalInt",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 42
+            },
+            "end": {
+              "line": 3,
+              "character": 43
+            }
+          },
+          "newText": ""
+        }
+      ]
     }
   ]
 }
