@@ -799,6 +799,9 @@ public class JvmPackageGen {
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
         JvmBStringConstantsGen stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         JvmUnionTypeConstantsGen unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, unionTypeConstantsGen, module.packageID);
+        JvmCreateTypeGen jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, module.packageID);
+        unionTypeConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, stringConstantsGen,
                                              unionTypeConstantsGen, jarEntries);
 
@@ -811,8 +814,6 @@ public class JvmPackageGen {
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
         valueGen.generateValueClasses(jarEntries, stringConstantsGen, unionTypeConstantsGen);
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(stringConstantsGen, unionTypeConstantsGen, module.packageID);
-        JvmCreateTypeGen jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, module.packageID);
         JvmAnnotationsGen jvmAnnotationsGen = new JvmAnnotationsGen(module, this, jvmTypeGen);
         valueGen.generateValueClasses(jarEntries, stringConstantsGen, unionTypeConstantsGen);
 
