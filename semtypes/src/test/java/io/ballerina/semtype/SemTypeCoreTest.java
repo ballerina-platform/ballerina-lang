@@ -19,11 +19,16 @@ package io.ballerina.semtype;
 
 import io.ballerina.semtype.definition.FunctionDefinition;
 import io.ballerina.semtype.definition.ListDefinition;
+import io.ballerina.semtype.subtypedata.AllOrNothingSubtype;
+import io.ballerina.semtype.subtypedata.IntSubtype;
+import io.ballerina.semtype.subtypedata.Range;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -217,5 +222,86 @@ public class SemTypeCoreTest {
                 Core.union(PredefinedType.NIL, PredefinedType.INT));
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), s, t));
         Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
+    }
+
+    @Test
+    public void stringTest() {
+        List<EnumerableString> result = new ArrayList<>();
+        // TODO may have to assert lists by converting the output to a string list
+        EnumerableSubtype.enumerableListUnion(new EnumerableString[]{EnumerableString.from("a"),
+                        EnumerableString.from("b"), EnumerableString.from("d")},
+                new EnumerableString[]{EnumerableString.from("c")}, result);
+        Assert.assertEquals(result, Arrays.asList(EnumerableString.from("a"), EnumerableString.from("b"),
+                EnumerableString.from("c"), EnumerableString.from("d")));
+
+        result = new ArrayList<>();
+        EnumerableSubtype.enumerableListIntersect(new EnumerableString[]{EnumerableString.from("a"),
+                        EnumerableString.from("b"), EnumerableString.from("d")},
+                new EnumerableString[]{EnumerableString.from("d")}, result);
+        Assert.assertEquals(result, List.of(EnumerableString.from("d")));
+
+        result = new ArrayList<>();
+        EnumerableSubtype.enumerableListDiff(new EnumerableString[]{EnumerableString.from("a"),
+                        EnumerableString.from("b"), EnumerableString.from("c"), EnumerableString.from("d")},
+                new EnumerableString[]{EnumerableString.from("a"), EnumerableString.from("c")}, result);
+        Assert.assertEquals(result, Arrays.asList(EnumerableString.from("b"), EnumerableString.from("d")));
+    }
+
+    @Test
+    public void roTest() {
+        SemType t1 = PredefinedType.uniformType(UniformTypeCode.UT_LIST_RO);
+        Env env = new Env();
+        ListDefinition ld = new ListDefinition();
+        SemType t2 = ld.define(env, new ArrayList<>(), PredefinedType.TOP);
+        SemType t = Core.diff(t1, t2);
+        TypeCheckContext tc = Core.typeCheckContext(env);
+        boolean b = Core.isEmpty(tc, t);
+        Assert.assertTrue(b);
+    }
+
+    @Test
+    public void simpleArrayMemberTypeTest() {
+        Env env = new Env();
+        testArrayMemberTypeOk(env, PredefinedType.ANY);
+        testArrayMemberTypeOk(env, PredefinedType.STRING);
+        testArrayMemberTypeOk(env, PredefinedType.INT);
+        testArrayMemberTypeOk(env, PredefinedType.TOP);
+        testArrayMemberTypeOk(env, PredefinedType.BOOLEAN);
+        testArrayMemberTypeFail(env, (UniformTypeBitSet) Core.createJson(env));
+        testArrayMemberTypeFail(env, (UniformTypeBitSet) IntSubtype.intWidthUnsigned(8));
+        Assert.assertEquals(Core.simpleArrayMemberType(new Env(), PredefinedType.INT), Optional.empty());
+        Assert.assertEquals(Core.simpleArrayMemberType(new Env(),
+                PredefinedType.uniformTypeUnion((1 << UniformTypeCode.UT_LIST_RO.code)
+                        | (1 << UniformTypeCode.UT_LIST_RW.code))).get(), PredefinedType.TOP);
+    }
+
+    private void testArrayMemberTypeOk(Env env, UniformTypeBitSet memberType) {
+        ListDefinition def = new ListDefinition();
+        SemType t = def.define(env, new ArrayList<>(), memberType);
+        Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t);
+        Assert.assertEquals(bits.get(), memberType);
+    }
+
+    private void testArrayMemberTypeFail(Env env, UniformTypeBitSet memberType) {
+        ListDefinition def = new ListDefinition();
+        SemType t = def.define(env, new ArrayList<>(), memberType);
+        Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t);
+        Assert.assertEquals(bits, Optional.empty());
+    }
+
+    @Test
+    public void testIntSubtypeWidenUnsigned() {
+        Assert.assertTrue(((AllOrNothingSubtype) IntSubtype.intSubtypeWidenUnsigned(AllOrNothingSubtype.createAll()))
+                .isAllSubtype());
+        Assert.assertTrue(((AllOrNothingSubtype) IntSubtype.intSubtypeWidenUnsigned(
+                IntSubtype.createIntSubtype(new Range(-1, 10)))).isAllSubtype());
+        IntSubtype intType1 = (IntSubtype) IntSubtype.intSubtypeWidenUnsigned(
+                IntSubtype.createIntSubtype(new Range(0, 0)));
+        Assert.assertEquals(intType1.ranges[0].min, 0);
+        Assert.assertEquals(intType1.ranges[0].max, 255);
+        IntSubtype intType2 = (IntSubtype) IntSubtype.intSubtypeWidenUnsigned(
+                IntSubtype.createIntSubtype(new Range(0, 257)));
+        Assert.assertEquals(intType2.ranges[0].min, 0);
+        Assert.assertEquals(intType2.ranges[0].max, 65535);
     }
 }

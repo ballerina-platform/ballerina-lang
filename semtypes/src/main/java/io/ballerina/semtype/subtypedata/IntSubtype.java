@@ -94,7 +94,7 @@ public class IntSubtype implements ProperSubtypeData {
     }
 
     // Widen to UnsignedN
-    public SubtypeData intSubtypeWidenUnsigned(SubtypeData d) {
+    public static SubtypeData intSubtypeWidenUnsigned(SubtypeData d) {
         if (d instanceof AllOrNothingSubtype) {
             return d;
         }
