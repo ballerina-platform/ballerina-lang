@@ -2385,14 +2385,5 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 keywordToken,
                 typeParamNode);
     }
-
-    public static STNode createBalPartNode(
-            STNode constructs,
-            STNode eofToken) {
-
-        return new STBalPartNode(
-                constructs,
-                eofToken);
-    }
 }
 

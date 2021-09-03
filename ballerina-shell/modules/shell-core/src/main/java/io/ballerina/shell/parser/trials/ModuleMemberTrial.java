@@ -18,6 +18,7 @@
 
 package io.ballerina.shell.parser.trials;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -26,6 +27,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+
+import java.util.Set;
 
 /**
  * Attempts to capture a module member declaration.
@@ -36,6 +39,9 @@ import io.ballerina.tools.text.TextDocuments;
  * @since 2.0.0
  */
 public class ModuleMemberTrial extends DualTreeParserTrial {
+
+    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init");
+
     public ModuleMemberTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
@@ -48,7 +54,7 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
         ModulePartNode node = tree.rootNode();
         assertIf(!node.members().isEmpty(), "expected at least one member");
         ModuleMemberDeclarationNode dclnNode = node.members().get(0);
-
+        validateModuleDeclaration(dclnNode);
         if (dclnNode instanceof ModuleVariableDeclarationNode) {
             // If there are no qualifiers or metadata then this can be also a statement/expression.
             // eg: `mp[a] = f()` (mp is a map) is also valid as `mp [a] = f()` (mp is a type) which is a var-dcln.
@@ -59,5 +65,19 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
                     "meta data nor qualifiers not present - not accepted as module-dcln");
         }
         return dclnNode;
+    }
+
+    private void validateModuleDeclaration(ModuleMemberDeclarationNode declarationNode) {
+        if (declarationNode instanceof FunctionDefinitionNode) {
+            String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
+            if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
+                String message = "Function name " + "'" + functionName + "'" + " not allowed in Ballerina Shell.\n";
+                throw new InvalidMethodException(message);
+            }
+            if (functionName.startsWith("__")) {
+                String message = "Functions starting with" + " '__' " + "not allowed in Ballerina Shell.\n";
+                throw new InvalidMethodException(message);
+            }
+        }
     }
 }

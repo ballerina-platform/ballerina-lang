@@ -1,0 +1,6 @@
+[
+  {
+    "name": "Input invalid function name.",
+    "input": "function init(string value) { };"
+  }
+]

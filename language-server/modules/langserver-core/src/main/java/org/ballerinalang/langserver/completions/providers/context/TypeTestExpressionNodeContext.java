@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -44,17 +45,36 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeTestExpressionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.typeDescriptor())) {
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.typeDescriptor();
+        if (this.onExpressionContext(context, node)) {
+            completionItems.addAll(this.expressionCompletions(context, node));
+        } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
-
-            return completionItems;
+        } else {
+            completionItems.addAll(this.getTypeDescContextItems(context));
         }
-
-        completionItems.addAll(this.getTypeDescContextItems(context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+    
+    private boolean onExpressionContext(BallerinaCompletionContext context, TypeTestExpressionNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token isKeyword = node.isKeyword();
+        
+        return cursor < isKeyword.textRange().startOffset();
+    }
+    
+    protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context,
+                                                                   TypeTestExpressionNode node) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
+            List<Symbol> typesInModule = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            return this.getCompletionItemList(typesInModule, context);
+        }
+        
+        return this.expressionCompletions(context);
     }
 
     @Override

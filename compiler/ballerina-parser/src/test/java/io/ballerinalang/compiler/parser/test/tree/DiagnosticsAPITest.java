@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.compiler.parser.diagnostics.DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
+import static io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
 
 /**
  * Contains cases to test the diagnostic API.
