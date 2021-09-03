@@ -28,6 +28,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
@@ -40,6 +41,7 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +65,7 @@ public class HierarchicalPackageNameTests {
     @Test(description = "tests a project with hierarchical package name")
     public void testProjectWithHierarchicalName() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_x.y.z");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
         // Check whether there are any diagnostics
@@ -79,7 +81,7 @@ public class HierarchicalPackageNameTests {
     @Test(description = "tests a project with dependencies to packages with hierarchical names")
     public void testDependenciesWithHierarchicalNames() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_app1");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
         // Check whether there are any diagnostics
@@ -97,7 +99,7 @@ public class HierarchicalPackageNameTests {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_x.y.z");
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);
         ImportModuleRequest request1 = new ImportModuleRequest(
                 PackageOrg.from("samjs"), "a.c", Collections.emptyList());
@@ -122,7 +124,8 @@ public class HierarchicalPackageNameTests {
         importModuleRequests.add(request2);
         importModuleRequests.add(request3);
         importModuleRequests.add(request4);
-        List<ImportModuleResponse> importModuleResponseList = packageResolver.resolvePackageNames(importModuleRequests);
+        Collection<ImportModuleResponse> importModuleResponseList =
+                packageResolver.resolvePackageNames(importModuleRequests, ResolutionOptions.builder().build());
         Assert.assertEquals(importModuleResponseList.size(), 4);
 
         for (ImportModuleResponse importModuleResponse : importModuleResponseList) {
@@ -147,7 +150,7 @@ public class HierarchicalPackageNameTests {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_x.y.z");
         Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
-        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);
 
         ImportModuleRequest request1 = new ImportModuleRequest(
@@ -158,7 +161,8 @@ public class HierarchicalPackageNameTests {
         importModuleRequests.add(request1);
         importModuleRequests.add(request2);
 
-        List<ImportModuleResponse> importModuleResponseList = packageResolver.resolvePackageNames(importModuleRequests);
+        Collection<ImportModuleResponse> importModuleResponseList =
+                packageResolver.resolvePackageNames(importModuleRequests, ResolutionOptions.builder().build());
         Assert.assertEquals(importModuleResponseList.size(), 2);
         for (ImportModuleResponse importModuleResponse : importModuleResponseList) {
             if (importModuleResponse.importModuleRequest().moduleName().equals("a.c")) {

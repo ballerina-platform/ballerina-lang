@@ -153,7 +153,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
@@ -421,7 +420,6 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.setJvmTypeGen(this);
                         String varName = jvmConstantsGen.getUnionConstantVar((BUnionType) bType);
                         jvmConstantsGen.generateGetBUnionType(mv, varName);
                     }
@@ -689,49 +687,6 @@ public class JvmTypeGen {
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPE));
     }
 
-    /**
-     * Generate code to load an instance of the given union type to the top of the stack.
-     *
-     * @param mv        method visitor
-     * @param unionType union type to load
-     */
-    void loadUnionType(MethodVisitor mv, BUnionType unionType) {
-        // Create the union type
-        mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
-        mv.visitInsn(DUP);
-
-        createUnionMembersArray(mv, unionType.getMemberTypes());
-        createUnionMembersArray(mv, unionType.getOriginalMemberTypes());
-
-        boolean nameLoaded = loadUnionName(mv, unionType);
-
-        if (nameLoaded) {
-            BTypeSymbol tsymbol = unionType.tsymbol;
-            if (tsymbol == null) {
-                mv.visitInsn(ACONST_NULL);
-            } else {
-                String varName = jvmConstantsGen.getModuleConstantVar(tsymbol.pkgID);
-                mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
-                                  String.format("L%s;", MODULE));
-            }
-        }
-
-        mv.visitLdcInsn(typeFlag(unionType));
-
-        loadCyclicFlag(mv, unionType);
-
-        mv.visitLdcInsn(unionType.flags);
-
-        // initialize the union type using the members array
-        if (nameLoaded) {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
-                               String.format("([L%s;[L%s;L%s;L%s;IZJ)V", TYPE, TYPE, STRING_VALUE, MODULE), false);
-        } else {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;[L%s;IZJ)V",
-                    TYPE, TYPE), false);
-        }
-    }
-
     public boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {
         if ((unionType.tsymbol != null) && (unionType.tsymbol.name != null)) {
             mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(unionType.tsymbol.name.getValue()));
@@ -913,12 +868,12 @@ public class JvmTypeGen {
     private void loadUserDefinedType(MethodVisitor mv, BType bType) {
         BTypeSymbol typeSymbol = bType.tsymbol.isTypeParamResolved ? bType.tsymbol.typeParamTSymbol : bType.tsymbol;
         BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
-        PackageID packageID = typeSymbol.pkgID;
-        String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
+        PackageID pkgID = typeSymbol.pkgID;
+        String typeOwner = JvmCodeGenUtil.getPackageName(pkgID) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(typeToLoad));
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (!this.packageID.equals(packageID) &&
+        if (!this.packageID.equals(pkgID) &&
                 (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
                         || Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
             Integer hash = typeHashVisitor.visit(typeToLoad);

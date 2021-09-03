@@ -784,6 +784,7 @@ public class JvmPackageGen {
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass);
+        JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
                                              jarEntries);
 
@@ -804,8 +805,6 @@ public class JvmPackageGen {
         // generate module classes
         generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
-        JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module,
-                                                                       moduleInitClass);
         jvmMethodsSplitter.generateMethods(jarEntries);
         jvmConstantsGen.generateConstants(jarEntries);
 

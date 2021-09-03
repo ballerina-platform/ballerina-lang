@@ -37,8 +37,22 @@ function testOpenRecords() {
 
 public function main() {
     testOpenRecords();
+    testRecordIteration();
+
     testMaps();
+    testMapIteration();
+
     testRecordCollection();
+    testArrayIteration();
+    testTableIteration();
+
     rest_fields:testRestFields();
     util:print("Tests passed");
+}
+
+function testRecordIteration() {
+    util:testRecordIterator(product, 6);
+    util:testRecordIterator(owner, 7);
+    util:testRecordIterator(member, 7);
+    util:testRecordIterator(anonRecord, 7);  
 }

@@ -23,12 +23,11 @@ import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder.NodeStatus;
@@ -49,8 +48,7 @@ public class ResolutionEngine {
     private final BlendedManifest blendedManifest;
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
-    private final boolean offline;
-    private final boolean sticky;
+    private final ResolutionOptions resolutionOptions;
 
     private final DependencyManifest dependencyManifest;
     private final PackageDependencyGraphBuilder graphBuilder;
@@ -59,49 +57,38 @@ public class ResolutionEngine {
                             BlendedManifest blendedManifest,
                             PackageResolver packageResolver,
                             ModuleResolver moduleResolver,
-                            boolean offline, // TODO Can we combine these two options into buildOptions
-                            boolean sticky) {
+                            ResolutionOptions resolutionOptions) {
         this.rootPkgDesc = rootPkgDesc;
         this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
         this.moduleResolver = moduleResolver;
-        this.offline = offline;
-        this.sticky = sticky;
+        this.resolutionOptions = resolutionOptions;
 
         this.dependencyManifest = blendedManifest.dependencyManifest();
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc);
     }
 
-    public DependencyGraph<DependencyNode> resolveDependenciesFromImports(
-            Collection<ModuleLoadRequest> moduleLoadRequests) {
-        // Resolve import declarations into Packages.
+    public DependencyGraph<DependencyNode> resolveDependencies(Collection<ModuleLoadRequest> moduleLoadRequests) {
+        // 1) Resolve import declarations into Packages.
         Collection<DependencyNode> directDependencies = resolvePackages(moduleLoadRequests);
-        return resolveDependencies(directDependencies);
-    }
 
-    public DependencyGraph<DependencyNode> resolveDependencies(Collection<DependencyNode> directDependencies) {
-        // 1) Pre-populate the graphBuilder with dependencies recorded in Dependencies.toml
+        // 2) Pre-populate the graphBuilder with dependencies recorded in Dependencies.toml
         populateGraphWithPreviousCompilationDependencies(dependencyManifest, graphBuilder);
 
-        // 2) TODO Should we add the dependencies specified in Ballerina.toml here
+        // 3) TODO Should we add the dependencies specified in Ballerina.toml here
 
-        // 3) Create the static/initial dependency graph.
+        // 4) Create the static/initial dependency graph.
         //    This graph contains direct dependencies and their transitives,
         //     but we don't update versions.
-        populateInitialDependencyGraph(directDependencies, graphBuilder);
+        populateStaticDependencyGraph(directDependencies, graphBuilder);
 
-        // 4) Update the dependency versions if required
+        // 5) Update the dependency versions if required
         //    This method traverse through the graph as many time as time until the graph is completed.
         //    Graph is complete when it contains latest compatible versions of all dependencies.
-        completeDependencyGraph(graphBuilder);
+        updateDependencyVersions(graphBuilder);
 
-        // 5) Build final the dependency graph.
+        // 6) Build final the dependency graph.
         return graphBuilder.buildGraph();
-    }
-
-    // TODO Move this method to the PackageResolution class.
-    public DependencyGraph<ResolvedPackageDependency> getPackageDependencyGraph(Project currentProject) {
-        return graphBuilder.buildPackageDependencyGraph(packageResolver, currentProject, offline);
     }
 
     private Collection<DependencyNode> resolvePackages(Collection<ModuleLoadRequest> moduleLoadRequests) {
@@ -151,9 +138,9 @@ public class ResolutionEngine {
         return directDeps;
     }
 
-    private void populateInitialDependencyGraph(Collection<DependencyNode> directDependencies,
-                                                PackageDependencyGraphBuilder graphBuilder) {
-        List<PackageMetadataResponse> pkgMetadataResponses = resolveDirectDependencies(directDependencies);
+    private void populateStaticDependencyGraph(Collection<DependencyNode> directDependencies,
+                                               PackageDependencyGraphBuilder graphBuilder) {
+        Collection<PackageMetadataResponse> pkgMetadataResponses = resolveDirectDependencies(directDependencies);
         for (PackageMetadataResponse resolutionResp : pkgMetadataResponses) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
@@ -162,7 +149,7 @@ public class ResolutionEngine {
 
             ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
             PackageDescriptor resolvedPkgDesc = resolutionResp.resolvedDescriptor();
-            DependencyResolutionType resolutionType = resolutionReq.dependencyResolutionType();
+            DependencyResolutionType resolutionType = resolutionReq.resolutionType();
             PackageDependencyScope scope = resolutionReq.scope();
 
             // Merge the dependency graph only if the node is accepted by the graphBuilder
@@ -177,11 +164,12 @@ public class ResolutionEngine {
         }
     }
 
-    private List<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDependencies) {
+    private Collection<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDeps) {
         // Set the default locking mode based on the sticky build option.
-        PackageLockingMode lockingMode = sticky ? PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+        PackageLockingMode lockingMode = resolutionOptions.sticky() ?
+                PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
-        for (DependencyNode directDependency : directDependencies) {
+        for (DependencyNode directDependency : directDeps) {
             PackageDescriptor pkgDesc = directDependency.pkgDesc();
             Optional<DependencyManifest.Package> dependency = dependencyManifest.dependency(
                     pkgDesc.org(), pkgDesc.name());
@@ -193,11 +181,11 @@ public class ResolutionEngine {
                 lockingMode = PackageLockingMode.SOFT;
             }
 
-            resolutionRequests.add(ResolutionRequest.from(pkgDesc,
-                    directDependency.scope(), directDependency.resolutionType(), offline, lockingMode));
+            resolutionRequests.add(ResolutionRequest.from(pkgDesc, directDependency.scope(),
+                    directDependency.resolutionType(), lockingMode));
         }
 
-        return packageResolver.resolvePackageMetadata(resolutionRequests);
+        return packageResolver.resolvePackageMetadata(resolutionRequests, resolutionOptions);
     }
 
     private void mergeGraph(PackageDescriptor rootNode,
@@ -215,34 +203,34 @@ public class ResolutionEngine {
         }
     }
 
-    private void completeDependencyGraph(PackageDependencyGraphBuilder graphBuilder) {
+    private void updateDependencyVersions(PackageDependencyGraphBuilder graphBuilder) {
         Collection<DependencyNode> unresolvedNodes = graphBuilder.cleanUnresolvedNodes();
-        if (!sticky) {
+        if (!resolutionOptions.sticky()) {
             // Discard the previous unresolved nodes,
             // Since sticky = false, we have to update all dependency nodes.
             unresolvedNodes = graphBuilder.getAllDependencies();
         }
-        completeDependencyGraph(graphBuilder, unresolvedNodes);
+        updateDependencyVersions(graphBuilder, unresolvedNodes);
     }
 
-    private void completeDependencyGraph(PackageDependencyGraphBuilder graphBuilder,
-                                         Collection<DependencyNode> unresolvedNodes) {
+    private void updateDependencyVersions(PackageDependencyGraphBuilder graphBuilder,
+                                          Collection<DependencyNode> unresolvedNodes) {
         PackageLockingMode lockingMode = PackageLockingMode.MEDIUM;
         while (!unresolvedNodes.isEmpty()) {
             List<ResolutionRequest> resRequests = new ArrayList<>(unresolvedNodes.size());
             for (DependencyNode unresolvedNode : unresolvedNodes) {
                 resRequests.add(ResolutionRequest.from(unresolvedNode.pkgDesc(),
-                        unresolvedNode.scope(), unresolvedNode.resolutionType(), offline, lockingMode));
+                        unresolvedNode.scope(), unresolvedNode.resolutionType(), lockingMode));
             }
 
-            List<PackageMetadataResponse> pkgMetadataResponses =
-                    packageResolver.resolvePackageMetadata(resRequests);
+            Collection<PackageMetadataResponse> pkgMetadataResponses =
+                    packageResolver.resolvePackageMetadata(resRequests, resolutionOptions);
             resolvePackageMetadata(pkgMetadataResponses, graphBuilder);
             unresolvedNodes = graphBuilder.cleanUnresolvedNodes();
         }
     }
 
-    private void resolvePackageMetadata(List<PackageMetadataResponse> pkgMetadataResponses,
+    private void resolvePackageMetadata(Collection<PackageMetadataResponse> pkgMetadataResponses,
                                         PackageDependencyGraphBuilder graphBuilder) {
         for (PackageMetadataResponse resolutionResp : pkgMetadataResponses) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
@@ -261,7 +249,7 @@ public class ResolutionEngine {
         ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
         PackageDescriptor pkgDesc = resolutionResp.resolvedDescriptor();
         PackageDependencyScope scope = resolutionReq.scope();
-        DependencyResolutionType resolvedType = resolutionReq.dependencyResolutionType();
+        DependencyResolutionType resolvedType = resolutionReq.resolutionType();
 
         // Merge the dependency graph only if the node is accepted by the graphBuilder
         NodeStatus nodeStatus = graphBuilder.addResolvedNode(pkgDesc, scope, resolvedType);
@@ -296,6 +284,10 @@ public class ResolutionEngine {
             this.pkgDesc = Objects.requireNonNull(pkgDesc);
             this.scope = Objects.requireNonNull(scope);
             this.resolutionType = Objects.requireNonNull(resolutionType);
+        }
+
+        public DependencyNode(PackageDescriptor pkgDesc) {
+            this(pkgDesc, PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
         }
 
         public PackageDescriptor pkgDesc() {

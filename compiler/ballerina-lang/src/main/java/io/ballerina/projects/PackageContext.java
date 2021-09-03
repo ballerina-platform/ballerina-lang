@@ -226,8 +226,8 @@ class PackageContext {
                 .dumpBirFile(this.compilationOptions.getBirDumpFile())
                 .listConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .build();
-        options.acceptTheirs(compilationOptions);
-        return PackageCompilation.from(this, options);
+        CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
+        return PackageCompilation.from(this, mergedOptions);
     }
 
     PackageResolution getResolution() {

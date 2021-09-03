@@ -45,6 +45,7 @@ public class JvmMethodsSplitter {
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
         this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID);
         this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
+        jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
     public void generateMethods(Map<String, byte[]> jarEntries) {

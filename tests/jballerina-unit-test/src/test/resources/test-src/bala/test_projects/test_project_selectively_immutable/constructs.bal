@@ -241,3 +241,16 @@ public type Versioning record {|
     boolean allow = true;
     boolean matchMajor = false;
 |};
+
+public type EmployeeMap map<Employee>;
+
+public type EmployeeTable table<Employee>;
+
+public type User record {|
+    int id = 1;
+    string username = "admin";
+|};
+
+public type UnionMap map<User|Identifier>;
+
+public type UnionTable table<User|Identifier>;

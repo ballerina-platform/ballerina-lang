@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -50,16 +51,19 @@ public class ModuleResolver {
     private final BlendedManifest blendedManifest;
     private final DependencyManifest dependencyManifest;
     private final PackageResolver packageResolver;
+    private final ResolutionOptions resolutionOptions;
 
     public ModuleResolver(PackageDescriptor rootPkgDesc,
                           Collection<ModuleName> moduleNames,
                           BlendedManifest blendedManifest,
-                          PackageResolver packageResolver) {
+                          PackageResolver packageResolver,
+                          ResolutionOptions resolutionOptions) {
         this.rootPkgDesc = rootPkgDesc;
         this.moduleNames = moduleNames;
         this.blendedManifest = blendedManifest;
         this.dependencyManifest = blendedManifest.dependencyManifest();
         this.packageResolver = packageResolver;
+        this.resolutionOptions = resolutionOptions;
     }
 
     public ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest) {
@@ -80,8 +84,8 @@ public class ModuleResolver {
         }
 
         // Resolve unresolved import module declarations
-        List<ImportModuleResponse> importModResponses =
-                packageResolver.resolvePackageNames(unresolvedModuleRequests);
+        Collection<ImportModuleResponse> importModResponses =
+                packageResolver.resolvePackageNames(unresolvedModuleRequests, resolutionOptions);
         for (ImportModuleResponse importModResp : importModResponses) {
             if (importModResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics

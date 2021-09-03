@@ -110,10 +110,7 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * @return Initialization options.
      */
     private InitializationOptions parseInitializationOptions(Map<String, Object> initOptions) {
-        Object pullModuleSupport = initOptions.get(InitializationOptions.KEY_PULL_MODULE_SUPPORT);
-        boolean pullModuleSupported = Boolean.parseBoolean(String.valueOf(pullModuleSupport));
         InitializationOptionsImpl initializationOptions = new InitializationOptionsImpl();
-        initializationOptions.setPullModuleSupported(pullModuleSupported);
 
         Object semanticTokensSupport = initOptions.get(InitializationOptions.KEY_ENABLE_SEMANTIC_TOKENS);
         boolean enableSemanticTokens = semanticTokensSupport == null ||
@@ -163,18 +160,8 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
      * Represents the initialization options the LS client will be sending.
      */
     public static class InitializationOptionsImpl implements InitializationOptions {
-        private boolean isPullModuleSupported = false;
         private boolean enableSemanticTokens = false;
         
-        @Override
-        public boolean isPullModuleSupported() {
-            return isPullModuleSupported;
-        }
-
-        public void setPullModuleSupported(boolean pullModuleSupported) {
-            isPullModuleSupported = pullModuleSupported;
-        }
-
         public boolean isEnableSemanticTokens() {
             return enableSemanticTokens;
         }

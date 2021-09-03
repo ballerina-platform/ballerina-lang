@@ -30,6 +30,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.repos.FileSystemCache;
@@ -89,12 +90,12 @@ public class FileSystemRepository extends AbstractPackageRepository {
     }
 
     @Override
-    public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+    public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        String packageName = resolutionRequest.packageName().value();
-        String orgName = resolutionRequest.orgName().value();
-        String version = resolutionRequest.version().isPresent() ?
-                resolutionRequest.version().get().toString() : "0.0.0";
+        String packageName = request.packageName().value();
+        String orgName = request.orgName().value();
+        String version = request.version().isPresent() ?
+                request.version().get().toString() : "0.0.0";
 
         Path balaPath = getPackagePath(orgName, packageName, version);
         if (!Files.exists(balaPath)) {
@@ -109,10 +110,10 @@ public class FileSystemRepository extends AbstractPackageRepository {
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
+    public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        return getPackageVersions(resolutionRequest.orgName(), resolutionRequest.packageName(),
-                resolutionRequest.version().orElse(null));
+        return getPackageVersions(request.orgName(), request.packageName(),
+                request.version().orElse(null));
     }
 
     /**

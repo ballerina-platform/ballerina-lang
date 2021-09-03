@@ -78,6 +78,7 @@ configurable table<map<configLib:Manager & readonly>> & readonly readonlyManager
 public function testMaps() {
     testDirectMaps();
     testArrayOfMaps();
+    testArrayIteration();
     testTableOfMaps();
     testMapIteration();
     testTableIteration();    
@@ -125,6 +126,12 @@ function testArrayOfMaps() {
     "\"p2\":{\"name\":\"Jim\",\"id\":77}}]");
 }
 
+function testArrayIteration() {
+    util:testArrayIterator(intMapArr, 2);
+    util:testArrayIterator(stringMapArr, 2);
+    util:testArrayIterator(doctorMapArr, 2);
+}
+
 function testTableOfMaps() {
     test:assertEquals(stringMapTable.toString(), "[{\"name\":\"Tom\",\"occupation\":\"Software Engineer\"," + 
     "\"city\":\"Colombo\"},{\"name\":\"Harry\",\"occupation\":\"Student\",\"city\":\"Kandy\"}]");
@@ -170,9 +177,8 @@ function testMapIteration() {
     util:testMapIterator(libIntMap, 3);
     util:testMapIterator(managerMap, 2);
     util:testMapIterator(readonlyManagerMap, 2);
-// These lines should be enabled after fixing #30566
-// util:testMapIterator(studentMap, 3);
-// util:testMapIterator(readonlyStudentMap, 3); 
+    util:testMapIterator(studentMap, 3);
+    util:testMapIterator(readonlyStudentMap, 3);
 }
 
 function testTableIteration() {

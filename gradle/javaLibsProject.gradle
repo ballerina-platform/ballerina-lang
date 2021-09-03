@@ -37,9 +37,6 @@ dependencies {
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
     dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.11'
-    dist 'org.bouncycastle:bcprov-jdk15on:1.61'
-    dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
-
     dist 'info.picocli:picocli:4.0.1'
     dist 'io.ballerina.messaging:broker-auth:0.970.0'
     dist 'io.ballerina.messaging:broker-common:0.970.0'
@@ -60,7 +57,6 @@ dependencies {
     dist 'io.netty:netty-handler-proxy:4.1.39.Final'
     dist 'io.netty:netty-handler:4.1.46.Final'
     dist 'io.netty:netty-resolver:4.1.39.Final'
-    dist 'io.netty:netty-tcnative-boringssl-static:2.0.25.Final'
     dist 'io.netty:netty-transport:4.1.39.Final'
     dist 'commons-pool.wso2:commons-pool:1.5.6.wso2v1'
     dist 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'

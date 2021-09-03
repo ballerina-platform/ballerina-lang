@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.split;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmUnionTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -60,8 +59,8 @@ public class JvmConstantsGen {
         return unionTypeConstantsGen.add(unionType);
     }
 
-    public void setJvmTypeGen(JvmTypeGen jvmTypeGen) {
-        unionTypeConstantsGen.setJvmTypeGen(jvmTypeGen);
+    public void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {
+        unionTypeConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
     public void generateConstants(Map<String, byte[]> jarEntries) {
