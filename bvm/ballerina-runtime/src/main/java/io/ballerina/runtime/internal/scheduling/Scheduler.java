@@ -54,7 +54,6 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private PrintStream err = System.err;
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
      */
@@ -84,18 +83,7 @@ public class Scheduler {
     private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
 
     public Scheduler(boolean immortal) {
-        try {
-            if (poolSizeConf != null) {
-                poolSize = Integer.parseInt(poolSizeConf);
-            }
-        } catch (Throwable t) {
-            // Log and continue with default
-            err.println("ballerina: error occurred in scheduler while reading system variable:" +
-                                RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
-        }
-        this.numThreads = poolSize;
-        this.immortal = immortal;
-        listenerRegistry = new ListenerRegistry();
+        this(getPoolSize(), immortal);
     }
 
     public Scheduler(int numThreads, boolean immortal) {
@@ -107,7 +95,7 @@ public class Scheduler {
     public static Strand getStrand() {
         Strand strand = strandHolder.get().strand;
         if (strand == null) {
-            throw new IllegalStateException("strand is not accessible form non-strand-worker threads");
+            throw new IllegalStateException("strand is not accessible from non-strand-worker threads");
         }
         return strand;
     }
@@ -326,6 +314,7 @@ public class Scheduler {
 
                 item = group.get();
 
+                Strand previousStrand = numThreads == 1 ?  strandHolder.get().strand : null;
                 try {
                     strandHolder.get().strand = item.future.strand;
                     result = item.execute();
@@ -342,7 +331,7 @@ public class Scheduler {
                         RuntimeUtils.printCrashLog(panic);
                     }
                 } finally {
-                    strandHolder.get().strand = null;
+                    strandHolder.get().strand = previousStrand;
                 }
                 postProcess(item, result, panic);
                 if (group.items.empty()) {
@@ -401,7 +390,6 @@ public class Scheduler {
                 assert !justCompleted.getState().equals(State.DONE) : "Can't be completed twice";
 
                 justCompleted.setState(State.DONE);
-
 
                 for (WaitContext ctx : justCompleted.waitingContexts) {
                     ctx.lock();
@@ -476,7 +464,7 @@ public class Scheduler {
     private void notifyChannels(SchedulerItem item, Throwable panic) {
         Set<ChannelDetails> channels = item.future.strand.channelDetails;
 
-        for (ChannelDetails details: channels) {
+        for (ChannelDetails details : channels) {
             WorkerDataChannel wdChannel;
 
             if (details.channelInSameStrand) {
@@ -547,6 +535,23 @@ public class Scheduler {
 
     public ListenerRegistry getListenerRegistry() {
         return listenerRegistry;
+    }
+
+    private static int getPoolSize() {
+        try {
+            if (poolSizeConf != null) {
+                poolSize = Integer.parseInt(poolSizeConf);
+            }
+        } catch (Throwable t) {
+            // Log and continue with default
+            getErrorStream().println("ballerina: error occurred in scheduler while reading system variable:" +
+                    RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
+        }
+        return poolSize;
+    }
+
+    private static PrintStream getErrorStream() {
+        return System.err;
     }
 
     /**
