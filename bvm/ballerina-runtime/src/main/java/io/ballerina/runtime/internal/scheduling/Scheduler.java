@@ -54,6 +54,8 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
+    private static PrintStream err = System.err;
+
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
      */
@@ -65,6 +67,7 @@ public class Scheduler {
     private BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
+    private final Strand previousStrand;
 
     private AtomicInteger totalStrands = new AtomicInteger();
 
@@ -89,7 +92,8 @@ public class Scheduler {
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
-        listenerRegistry = new ListenerRegistry();
+        this.listenerRegistry = new ListenerRegistry();
+        this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
     }
 
     public static Strand getStrand() {
@@ -314,7 +318,6 @@ public class Scheduler {
 
                 item = group.get();
 
-                Strand previousStrand = numThreads == 1 ?  strandHolder.get().strand : null;
                 try {
                     strandHolder.get().strand = item.future.strand;
                     result = item.execute();
@@ -544,14 +547,10 @@ public class Scheduler {
             }
         } catch (Throwable t) {
             // Log and continue with default
-            getErrorStream().println("ballerina: error occurred in scheduler while reading system variable:" +
+            err.println("ballerina: error occurred in scheduler while reading system variable:" +
                     RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         return poolSize;
-    }
-
-    private static PrintStream getErrorStream() {
-        return System.err;
     }
 
     /**
