@@ -882,11 +882,6 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangLetVariable letVariable) {
-        find((BLangNode) letVariable.definitionNode);
-    }
-
-    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         find(listConstructorExpr.exprs);
     }

@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -280,17 +279,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 Symbols.isFlagOn(classDefinition.symbol.flags, Flags.DEPRECATED), classDefinition.pos);
         validateDeprecatedParametersDocumentation(classDefinition.markdownDocumentationAttachment, classDefinition.pos);
 
-    }
-
-    @Override
-    public void visit(BLangResource resourceNode) {
-        validateParameters(resourceNode, resourceNode.getParameters(),
-                resourceNode.restParam, DiagnosticWarningCode.UNDOCUMENTED_PARAMETER,
-                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER,
-                DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED);
-
-        validateReturnParameter(resourceNode, null, false);
-        validateReferences(resourceNode);
     }
 
     private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
