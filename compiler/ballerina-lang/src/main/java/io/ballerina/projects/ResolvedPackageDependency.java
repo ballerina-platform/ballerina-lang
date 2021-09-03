@@ -48,8 +48,8 @@ public class ResolvedPackageDependency extends PackageDependency {
         return dependencyResolvedType;
     }
 
-    public boolean injected() {
-        return dependencyResolvedType == DependencyResolutionType.INJECTED;
+    public boolean isPlatformProvided() {
+        return dependencyResolvedType == DependencyResolutionType.PLATFORM_PROVIDED;
     }
 
     @Override

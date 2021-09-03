@@ -19,6 +19,7 @@ package org.ballerinalang.test.jvm;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -59,5 +60,11 @@ public class CodegenErrorsTest {
     public void testTooLargeStringConstants() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/too-large-string-constants.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+    }
+
+    @Test
+    public void testTooLargeProject() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/largePackage");
+        BRunUtil.invoke(result, "main");
     }
 }

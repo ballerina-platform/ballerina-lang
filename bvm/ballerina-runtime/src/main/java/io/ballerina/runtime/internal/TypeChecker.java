@@ -467,16 +467,36 @@ public class TypeChecker {
         Type lhsType = getType(lhsValue);
         Type rhsType = getType(rhsValue);
 
-        if (isSimpleBasicType(lhsType) && isSimpleBasicType(rhsType)) {
-            return isEqual(lhsValue, rhsValue);
-        }
-
-        if (TypeTags.isXMLTypeTag(lhsType.getTag()) && TypeTags.isXMLTypeTag(rhsType.getTag())) {
-            return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
-        }
-
-        if (isHandleType(lhsType) && isHandleType(rhsType)) {
-            return isHandleValueRefEqual(lhsValue, rhsValue);
+        switch (lhsType.getTag()) {
+            case TypeTags.FLOAT_TAG:
+                if (rhsType.getTag() != TypeTags.FLOAT_TAG) {
+                    return false;
+                }
+                return lhsValue.equals(((Number) rhsValue).doubleValue());
+            case TypeTags.DECIMAL_TAG:
+                if (rhsType.getTag() != TypeTags.DECIMAL_TAG) {
+                    return false;
+                }
+                return checkDecimalExactEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.STRING_TAG:
+                return isEqual(lhsValue, rhsValue);
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
+                if (!TypeTags.isXMLTypeTag(rhsType.getTag())) {
+                    return false;
+                }
+                return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
+            case TypeTags.HANDLE_TAG:
+                if (rhsType.getTag() != TypeTags.HANDLE_TAG) {
+                    return false;
+                }
+                return isHandleValueRefEqual(lhsValue, rhsValue);
         }
 
         return false;
@@ -524,11 +544,11 @@ public class TypeChecker {
         if (type == null) {
             return null;
         }
-        if (value instanceof MapValue) {
-            TypedescValue typedesc = (TypedescValue) ((MapValue) value).getTypedesc();
-            if (typedesc != null) {
-                return typedesc;
-            }
+        if (isSimpleBasicType(type)) {
+            return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
+        }
+        if (value instanceof RefValue) {
+            return (TypedescValue) ((RefValue) value).getTypedesc();
         }
         return new TypedescValueImpl(type);
     }
@@ -1757,12 +1777,12 @@ public class TypeChecker {
             return false;
         }
 
-        if (source.getParameterTypes().length != target.getParameterTypes().length) {
+        if (source.getParameters().length != target.getParameters().length) {
             return false;
         }
 
-        for (int i = 0; i < source.getParameterTypes().length; i++) {
-            if (!checkIsType(target.getParameterTypes()[i], source.getParameterTypes()[i], unresolvedTypes)) {
+        for (int i = 0; i < source.getParameters().length; i++) {
+            if (!checkIsType(target.getParameters()[i].type, source.getParameters()[i].type, unresolvedTypes)) {
                 return false;
             }
         }
@@ -1790,12 +1810,12 @@ public class TypeChecker {
             return true;
         }
 
-        if (source.paramTypes.length != targetType.paramTypes.length) {
+        if (source.parameters.length != targetType.parameters.length) {
             return false;
         }
 
-        for (int i = 0; i < source.paramTypes.length; i++) {
-            if (!checkIsType(targetType.paramTypes[i], source.paramTypes[i], new ArrayList<>())) {
+        for (int i = 0; i < source.parameters.length; i++) {
+            if (!checkIsType(targetType.parameters[i].type, source.parameters[i].type, new ArrayList<>())) {
                 return false;
             }
         }
@@ -2708,8 +2728,6 @@ public class TypeChecker {
 
         switch (lhsValTypeTag) {
             case TypeTags.STRING_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
             case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
@@ -2722,6 +2740,19 @@ public class TypeChecker {
                     return false;
                 }
                 return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
+            case TypeTags.FLOAT_TAG:
+                if (rhsValTypeTag != TypeTags.FLOAT_TAG) {
+                    return false;
+                }
+                if (Double.isNaN((Double) lhsValue) && Double.isNaN((Double) rhsValue)) {
+                    return true;
+                }
+                return ((Number) lhsValue).doubleValue() == ((Number) rhsValue).doubleValue();
+            case TypeTags.DECIMAL_TAG:
+                if (rhsValTypeTag != TypeTags.DECIMAL_TAG) {
+                    return false;
+                }
+                return checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue);
             case TypeTags.XML_TAG:
                 // Instance of xml never
                 if (lhsValue instanceof XmlText) {
@@ -3170,7 +3201,7 @@ public class TypeChecker {
             }
             FunctionType initFuncType = generatedInitializer.getType();
             // Todo: check defaultable params of the init func as well
-            boolean noParams = initFuncType.getParameterTypes().length == 0;
+            boolean noParams = initFuncType.getParameters().length == 0;
             boolean nilReturn = initFuncType.getReturnType().getTag() == TypeTags.NULL_TAG;
             return noParams && nilReturn;
         }

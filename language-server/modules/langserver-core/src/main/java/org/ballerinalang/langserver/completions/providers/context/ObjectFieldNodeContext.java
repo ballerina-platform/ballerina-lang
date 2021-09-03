@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -82,9 +83,10 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         }
         List<LSCompletionItem> completionItems = new ArrayList<>(this.expressionCompletions(ctx));
         Optional<TypeSymbol> contextType = ctx.getContextType();
-        if (contextType.isPresent() && contextType.get().kind() == SymbolKind.CLASS) {
+        Optional<TypeSymbol> rawContextType = contextType.map(CommonUtil::getRawType);
+        if (rawContextType.isPresent() && rawContextType.get().kind() == SymbolKind.CLASS) {
             LSCompletionItem implicitNewCompletionItem =
-                    this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), ctx);
+                    this.getImplicitNewCItemForClass((ClassSymbol) rawContextType.get(), ctx);
             completionItems.add(implicitNewCompletionItem);
         }
 

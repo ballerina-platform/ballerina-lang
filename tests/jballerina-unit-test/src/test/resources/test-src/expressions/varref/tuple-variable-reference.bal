@@ -216,7 +216,7 @@ function testRestVarRefType1() {
     [string, int, float...] t1 = ["A", 100, 200.5, 300.5];
 
     var [a1, ...a2] = t1;
-    assertEqual("typedesc string", (typeof a1).toString());
+    assertEqual("typedesc A", (typeof a1).toString());
     assertEqual("typedesc [int,float...]", (typeof a2).toString());
 
     [int, float...] x1;
@@ -227,8 +227,8 @@ function testRestVarRefType1() {
     assertEqual(300.5, x1[2]);
 
     var [b1, b2, ...b3] = t1;
-    assertEqual("typedesc string", (typeof b1).toString());
-    assertEqual("typedesc int", (typeof b2).toString());
+    assertEqual("typedesc A", (typeof b1).toString());
+    assertEqual("typedesc 100", (typeof b2).toString());
     assertEqual("typedesc float[]", (typeof b3).toString());
 
     float[] x2;
@@ -307,7 +307,7 @@ function testRestVarRefType6() {
                 {firstName: "John", lastName: "Damon"}, 12, fooObj1, barObj1], {id: 34, flag: true}, 10.5, 20], "A",
                 true, false];
     var [[g1, [g2, ...g3], ...g4], ...g5] = t5;
-    assertEqual("typedesc string", (typeof g1).toString());
+    assertEqual("typedesc Ballerina", (typeof g1).toString());
     assertEqual("typedesc error", (typeof g2).toString());
     assertEqual("typedesc [map<string>,int,(FooObj|BarObj)...]", (typeof g3).toString());
     assertEqual("typedesc [Bar,(byte|float)...]", (typeof g4).toString());
@@ -372,8 +372,8 @@ function testRestVarRefType6() {
 function testRestVarRefType7() {
     int[5] t6 = [10, 20, 30, 40, 50];
     var [h1, h2, ...h3] = t6;
-    assertEqual("typedesc int", (typeof h1).toString());
-    assertEqual("typedesc int", (typeof h2).toString());
+    assertEqual("typedesc 10", (typeof h1).toString());
+    assertEqual("typedesc 20", (typeof h2).toString());
     assertEqual("typedesc [int,int,int]", (typeof h3).toString());
     assertEqual(10, h1);
     assertEqual(20, h2);
@@ -404,7 +404,7 @@ function testRestVarRefType9() {
     [[string, [FooObj, Bar...], int, float...], boolean[3], string...] [[i1, [...i2], ...i3], ...i4] =
                 [["Ballerina", [fooObj1, {id: 34, flag: true}, {id: 35, flag: false}], 453, 10.5, 20.5],
                 [false, true, true], "Ballerina", "Hello"];
-    assertEqual("typedesc string", (typeof i1).toString());
+    assertEqual("typedesc Ballerina", (typeof i1).toString());
     assertEqual("typedesc [FooObj,Bar...]", (typeof i2).toString());
     assertEqual("typedesc [int,float...]", (typeof i3).toString());
     assertEqual("typedesc [boolean[3],string...]", (typeof i4).toString());

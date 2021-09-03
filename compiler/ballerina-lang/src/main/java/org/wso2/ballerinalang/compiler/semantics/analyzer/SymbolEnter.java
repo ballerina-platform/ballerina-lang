@@ -1162,16 +1162,27 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             defineAllUnresolvedCyclicTypesInScope(env);
 
-            Set<BLangIdentifier> alreadyDefinedTypeDefNames = new HashSet<>();
-            for (BLangNode unresolvedTypeNode : unresolvedTypes) {
-                if (unresolvedTypeNode.getKind() != NodeKind.TYPE_DEFINITION) {
-                    defineNode(unresolvedTypeNode, env);
-                    continue;
-                }
-                // Prevent defining re-declared nodes
-                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) unresolvedTypeNode;
-                if (alreadyDefinedTypeDefNames.add(typeDefNode.name)) {
-                    defineNode(unresolvedTypeNode, env);
+            Set<String> alreadyDefinedTypeDefNames = new HashSet<>();
+            int unresolvedTypeCount = unresolvedTypes.size();
+            for (int i = 0; i < unresolvedTypeCount; i++) {
+                for (BLangNode node : this.unresolvedTypes) {
+                    String name = getTypeOrClassName(node);
+                    boolean symbolNotFound = false;
+                    boolean isTypeOrClassDefinition =
+                            node.getKind() == NodeKind.TYPE_DEFINITION || node.getKind() == NodeKind.CLASS_DEFN;
+                    // Skip the type resolving in the first iteration (i == 0)
+                    // as we want to define the type before trying to resolve it.
+                    if (isTypeOrClassDefinition && i != 0) { // Do not skip the first iteration
+                        BSymbol bSymbol = symResolver.lookupSymbolInMainSpace(env, names.fromString(name));
+                        symbolNotFound = (bSymbol == symTable.notFoundSymbol);
+                    }
+
+                    boolean notFoundInList = alreadyDefinedTypeDefNames.add(name);
+
+                    // Prevent defining already defined type names.
+                    if (notFoundInList || symbolNotFound) {
+                        defineNode(node, env);
+                    }
                 }
             }
             return;
@@ -1477,11 +1488,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        // check for unresolved fields if there are type inclusions. This record may be referencing another record
-        if (hasTypeInclusions && !this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
+        // check for unresolved fields. This record may be referencing another record
+        if (!this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
-                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
+                Scope scope = new Scope(structureTypeNode.symbol);
+                structureTypeNode.symbol.scope = scope;
+                SymbolEnv typeEnv = SymbolEnv.createTypeEnv(structureTypeNode, scope, env);
+                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, typeEnv);
                 if (referencedType == symTable.noType) {
                     if (this.unresolvedRecordDueToFields.add(typeDefinition) &&
                             !this.unresolvedTypes.contains(typeDefinition)) {
@@ -1529,6 +1543,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
+
+        if (typeDefSymbol instanceof BErrorTypeSymbol) {
+            typeDefSymbol.owner = env.scope.owner;
+        }
 
         if (isNonLabelIntersectionType) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;

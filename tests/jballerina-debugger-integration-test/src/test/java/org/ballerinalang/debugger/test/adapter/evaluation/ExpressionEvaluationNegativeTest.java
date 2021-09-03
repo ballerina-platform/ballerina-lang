@@ -120,13 +120,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
         // strings
-        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
-                "string index out of range: index=-1, size=5");
-        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[100]", EvaluationExceptionKind.PREFIX +
-                "string index out of range: index=100, size=5");
-        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[\"undefined\"]",
-                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
-                        "'stringVar[\"undefined\"]'");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[100]", "{ballerina/lang.string}IndexOutOfRange");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[\"undefined\"]", EvaluationExceptionKind.PREFIX +
+                "expected key type 'int'; found 'string' in 'stringVar[\"undefined\"]'");
         // lists
         debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
                 "array index out of range: index=-1, size=4");

@@ -696,7 +696,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (constraint.tag == TypeTags.MAP) {
-            typeChecker.validateMapConstraintTable(null, tableTypeNode.tableType);
+            typeChecker.validateMapConstraintTable(tableTypeNode.tableType);
             return;
         }
 
@@ -707,10 +707,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             ((BIntersectionType) constraint).effectiveType,
                     tableTypeNode.tableKeySpecifier.pos);
         }
+
+        analyzeDef(tableTypeNode.constraint, env);
     }
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
+        if (recordTypeNode.analyzed) {
+            return;
+        }
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
 
         BType type = recordTypeNode.getBType();
@@ -833,6 +838,79 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(errorType.detailType.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_TYPE, errorType.detailType,
                     symTable.detailType);
         }
+        analyzeDef(errorType.detailType, env);
+    }
+
+    @Override
+    public void visit(BLangConstrainedType constrainedType) {
+        analyzeDef(constrainedType.constraint, env);
+    }
+
+    @Override
+    public void visit(BLangFunctionTypeNode functionTypeNode) {
+        List<BLangVariable> params = functionTypeNode.params;
+        for (BLangVariable param : params) {
+            analyzeDef(param.typeNode, env);
+        }
+        if (functionTypeNode.restParam != null) {
+            analyzeDef(functionTypeNode.restParam.typeNode, env);
+        }
+        if (functionTypeNode.returnTypeNode != null) {
+            analyzeDef(functionTypeNode.returnTypeNode, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangUnionTypeNode unionTypeNode) {
+        for (BLangType memberType : unionTypeNode.memberTypeNodes) {
+            analyzeDef(memberType, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangStreamType streamType) {
+        analyzeNode(streamType.constraint, env);
+        if (streamType.error != null) {
+            analyzeDef(streamType.error, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+        for (BLangType constituentTypeNode : intersectionTypeNode.constituentTypeNodes) {
+            analyzeDef(constituentTypeNode, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangTupleTypeNode tupleTypeNode) {
+        List<BLangType> memberTypeNodes = tupleTypeNode.memberTypeNodes;
+        for (BLangType memType : memberTypeNodes) {
+            analyzeDef(memType, env);
+        }
+        if (tupleTypeNode.restParamType != null) {
+            analyzeDef(tupleTypeNode.restParamType, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangArrayType arrayType) {
+        analyzeDef(arrayType.elemtype, env);
+    }
+
+    @Override
+    public void visit(BLangUserDefinedType userDefinedType) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangValueType valueType) {
+        /* ignore */
+    }
+
+    @Override
+    public void visit(BLangBuiltInRefTypeNode builtInRefType) {
+        /* ignore */
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -942,7 +1020,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (varNode.typeNode != null) {
-            analyzeTypeNode(varNode.typeNode, env);
+            analyzeDef(varNode.typeNode, env);
         }
 
         // Analyze the init expression
@@ -1111,66 +1189,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
         return fieldMap;
-    }
-
-    private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
-        switch (typeNode.getKind()) {
-            case USER_DEFINED_TYPE:
-                return;
-            case RECORD_TYPE:
-                if (((BLangRecordTypeNode) typeNode).analyzed) {
-                    return;
-                }
-                analyzeDef(typeNode, env);
-                break;
-            case ARRAY_TYPE:
-                analyzeTypeNode(((BLangArrayType) typeNode).elemtype, env);
-                break;
-            case TUPLE_TYPE_NODE:
-                BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) typeNode;
-                List<BLangType> memberTypeNodes = tupleTypeNode.memberTypeNodes;
-                for (BLangType memType : memberTypeNodes) {
-                    analyzeTypeNode(memType, env);
-                }
-                if (tupleTypeNode.restParamType != null) {
-                    analyzeTypeNode(tupleTypeNode.restParamType, env);
-                }
-                break;
-            case TABLE_TYPE:
-                analyzeTypeNode(((BLangTableTypeNode) typeNode).constraint, env);
-                break;
-            case INTERSECTION_TYPE_NODE:
-                List<BLangType> constituentTypeNodes = ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes;
-                for (BLangType constType : constituentTypeNodes) {
-                    analyzeTypeNode(constType, env);
-                }
-                break;
-            case STREAM_TYPE:
-                analyzeTypeNode(((BLangStreamType) typeNode).constraint, env);
-                break;
-            case UNION_TYPE_NODE:
-                List<BLangType> unionMemberTypes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
-                for (BLangType memType : unionMemberTypes) {
-                    analyzeTypeNode(memType, env);
-                }
-                break;
-            case ERROR_TYPE:
-                BLangErrorType errorType = (BLangErrorType) typeNode;
-                if (errorType.detailType != null) {
-                    analyzeTypeNode(errorType.detailType, env);
-                }
-                analyzeDef(errorType, env);
-                break;
-            case FUNCTION_TYPE:
-                if (((BLangFunctionTypeNode) typeNode).analyzed) {
-                    return;
-                }
-                analyzeDef(typeNode, env);
-                break;
-            case CONSTRAINED_TYPE:
-                analyzeTypeNode(((BLangConstrainedType) typeNode).constraint, env);
-                break;
-        }
     }
 
     private void validateListenerCompatibility(BLangSimpleVariable varNode, BType rhsType) {
@@ -1920,7 +1938,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        resetTypeNarrowing(compoundAssignment.varRef, compoundAssignment.expr.getBType());
+        resetTypeNarrowing(compoundAssignment.varRef);
     }
 
     public void visit(BLangAssignment assignNode) {
@@ -1940,7 +1958,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateWorkerAnnAttachments(assignNode.expr);
 
-        resetTypeNarrowing(varRef, assignNode.expr.getBType());
+        resetTypeNarrowing(varRef);
     }
 
     @Override
@@ -2110,7 +2128,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                resetTypeNarrowing(variableReference, rhsField.type);
+                resetTypeNarrowing(variableReference);
                 types.checkType(variableReference.pos, rhsField.type,
                                 variableReference.getBType(), DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             } else {
@@ -2173,7 +2191,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
 
-                resetTypeNarrowing(simpleVarRef, souceElementType);
+                resetTypeNarrowing(simpleVarRef);
 
                 BType targetType = simpleVarRef.getBType();
                 if (!types.isAssignable(souceElementType, targetType)) {
@@ -2240,7 +2258,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
 
                 BType targetType;
-                resetTypeNarrowing(simpleVarRef, sourceType);
+                resetTypeNarrowing(simpleVarRef);
                 // Check if this is the rest param and get the type of rest param.
                 if ((target.expressions.size() > i)) {
                     targetType = varRefExpr.getBType();
@@ -2303,7 +2321,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType);
-            resetTypeNarrowing(detailItem.expr, matchedType);
+            resetTypeNarrowing(detailItem.expr);
             if (!types.isAssignable(matchedType, detailItem.expr.getBType())) {
                 dlog.error(detailItem.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                            detailItem.expr.getBType(), matchedType);
@@ -2319,7 +2337,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                            expRestType);
                 return;
             }
-            resetTypeNarrowing(lhsRef.restVar, expRestType);
+            resetTypeNarrowing(lhsRef.restVar);
             typeChecker.checkExpr(lhsRef.restVar, env);
         }
     }
@@ -4425,7 +4443,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return (((BLangSimpleVarRef) expr).symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE;
     }
 
-    private void resetTypeNarrowing(BLangExpression lhsExpr, BType rhsType) {
+    private void resetTypeNarrowing(BLangExpression lhsExpr) {
         if (!isSimpleVarRef(lhsExpr)) {
             return;
         }
@@ -4435,20 +4453,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        // If the rhs's type is not assignable to the variable's narrowed type,
-        // then the type narrowing will no longer hold. Thus define the original
-        // symbol in all the scopes that are affected by this assignment.
-        if (!types.isAssignable(rhsType, varSymbol.type)) {
-            if (this.narrowedTypeInfo != null) {
-                // Record the vars for which type narrowing was unset, to define relevant shadowed symbols in branches.
-                BType currentType = ((BLangSimpleVarRef) lhsExpr).symbol.type;
-                this.narrowedTypeInfo.put(typeNarrower.getOriginalVarSymbol(varSymbol),
-                                          new BType.NarrowedTypes(currentType, currentType));
-            }
-
-            defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), env);
-            env = prevEnvs.pop();
+        if (this.narrowedTypeInfo != null) {
+            // Record the vars for which type narrowing was unset, to define relevant shadowed symbols in branches.
+            BType currentType = ((BLangSimpleVarRef) lhsExpr).symbol.type;
+            this.narrowedTypeInfo.put(typeNarrower.getOriginalVarSymbol(varSymbol),
+                                      new BType.NarrowedTypes(currentType, currentType));
         }
+
+        defineOriginalSymbol(lhsExpr, typeNarrower.getOriginalVarSymbol(varSymbol), env);
+        env = prevEnvs.pop();
     }
 
     private void defineOriginalSymbol(BLangExpression lhsExpr, BVarSymbol varSymbol, SymbolEnv env) {

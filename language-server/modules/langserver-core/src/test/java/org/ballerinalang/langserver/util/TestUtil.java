@@ -50,6 +50,7 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
+import org.eclipse.lsp4j.DocumentSymbolCapabilities;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.ExecuteCommandCapabilities;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -65,9 +66,13 @@ import org.eclipse.lsp4j.ReferenceContext;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RenameCapabilities;
 import org.eclipse.lsp4j.RenameParams;
+import org.eclipse.lsp4j.SemanticTokensCapabilities;
+import org.eclipse.lsp4j.SemanticTokensParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
 import org.eclipse.lsp4j.SignatureHelpParams;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
+import org.eclipse.lsp4j.SymbolTag;
+import org.eclipse.lsp4j.SymbolTagSupportCapabilities;
 import org.eclipse.lsp4j.TextDocumentClientCapabilities;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentItem;
@@ -142,6 +147,8 @@ public class TestUtil {
     private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
 
     private static final String DOCUMENT_EXEC_POSITIONS = "ballerinaDocument/executorPositions";
+
+    private static final String SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full";
 
     private static final Gson GSON = new Gson();
 
@@ -431,6 +438,18 @@ public class TestUtil {
     }
 
     /**
+     * Returns semanticTokensFull API response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate semantic tokens
+     * @return {@link String} Document semantic tokens response
+     */
+    public static String getSemanticTokensResponse(Endpoint serviceEndpoint, String filePath) {
+        SemanticTokensParams semanticTokensParams = new SemanticTokensParams(getTextDocumentIdentifier(filePath));
+        return getResponseString(serviceEndpoint.request(SEMANTIC_TOKENS_FULL, semanticTokensParams));
+    }
+
+    /**
      * Open a document.
      *
      * @param serviceEndpoint Language Server Service Endpoint
@@ -474,7 +493,7 @@ public class TestUtil {
                 ExtendedLanguageClient.class, System.in, OutputStream.nullOutputStream());
         ExtendedLanguageClient client = launcher.getRemoteProxy();
         languageServer.connect(client);
-        
+
         return initializeLanguageSever(languageServer);
     }
 
@@ -617,7 +636,12 @@ public class TestUtil {
         renameCapabilities.setPrepareSupport(true);
         renameCapabilities.setHonorsChangeAnnotations(true);
         textDocumentClientCapabilities.setRename(renameCapabilities);
+        textDocumentClientCapabilities.setSemanticTokens(new SemanticTokensCapabilities(true));
 
+        DocumentSymbolCapabilities documentSymbolCapabilities = new DocumentSymbolCapabilities();
+        documentSymbolCapabilities.setHierarchicalDocumentSymbolSupport(true);
+        documentSymbolCapabilities.setTagSupport(new SymbolTagSupportCapabilities(Arrays.asList(SymbolTag.Deprecated)));
+        textDocumentClientCapabilities.setDocumentSymbol(documentSymbolCapabilities);
         capabilities.setTextDocument(textDocumentClientCapabilities);
 
         WorkspaceClientCapabilities workspaceCapabilities = new WorkspaceClientCapabilities();

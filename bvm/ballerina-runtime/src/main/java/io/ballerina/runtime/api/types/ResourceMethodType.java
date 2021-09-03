@@ -17,19 +17,22 @@
  */
 package io.ballerina.runtime.api.types;
 
-import io.ballerina.runtime.api.Parameter;
-
 /**
  * {@code ResourceFunctionType} represents a resource function in Ballerina.
  *
  * @since 2.0
  */
 public interface ResourceMethodType extends MethodType {
+    /*
+     * @deprecated use {@link #getParameters()} instead.
+     */
     @Deprecated
     String[] getParamNames();
     String getAccessor();
     String[] getResourcePath();
+    /*
+     * @deprecated use {@link #getParameters()} instead.
+     */
     @Deprecated
     Boolean[] getParamDefaultability();
-    Parameter[] getParameters();
 }

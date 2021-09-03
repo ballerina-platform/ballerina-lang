@@ -203,7 +203,7 @@ public class StringUtils {
             BObject objectValue = (BObject) value;
             ObjectType objectType = objectValue.getType();
             for (MethodType func : objectType.getMethods()) {
-                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
@@ -274,7 +274,7 @@ public class StringUtils {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             ObjectType objectType = objectValue.getType();
             for (MethodType func : objectType.getMethods()) {
-                if (func.getName().equals(TO_STRING) && func.getParameterTypes().length == 0 &&
+                if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
                     return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
@@ -338,9 +338,6 @@ public class StringUtils {
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
         }
-        if (exprValue.indexOf(' ') != -1) {
-            return BalStringUtils.parseTupleExpressionStringValue(exprValue, parent);
-        }
         throw new BallerinaException("invalid expression style string value");
     }
 
@@ -387,7 +384,7 @@ public class StringUtils {
         } catch (IOException e) {
             throw new BallerinaException("Error in converting string value to a json string: " + e.getMessage(), e);
         }
-        return new String(byteOut.toByteArray());
+        return byteOut.toString();
     }
 
     private StringUtils() {
