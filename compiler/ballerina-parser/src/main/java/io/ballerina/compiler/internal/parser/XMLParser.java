@@ -97,6 +97,7 @@ public class XMLParser extends AbstractParser {
      * <li>XML CharData</li>
      * <li>XML Comment</li>
      * <li>XML PI</li>
+     * <li>XML CDATA</li>
      * <li>Interpolated expression</li>
      * </ul>
      * 

@@ -419,4 +419,9 @@ public class XMLLiteralTest {
     public void testXMLTextValueAssignment() {
         BRunUtil.invoke(result, "testXMLTextValueAssignment");
     }
+
+    @Test
+    public void testXMLCDATASection() {
+        BRunUtil.invoke(result, "testXMLCDATASection");
+    }
 }
