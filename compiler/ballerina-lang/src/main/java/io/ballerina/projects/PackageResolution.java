@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects;
 
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
@@ -43,6 +44,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -162,10 +164,15 @@ public class PackageResolution {
             Path buildFilePath = this.rootPackageContext.project().sourceRoot().resolve(TARGET_DIR_NAME)
                     .resolve(BUILD_FILE);
             if (buildFilePath.toFile().exists()) {
-                BuildJson buildJson = readBuildJson(buildFilePath);
-                if (!buildJson.isExpiredLastUpdateTime()) {
-                    this.autoUpdate = false;
-                    return true;
+                try {
+                    BuildJson buildJson = readBuildJson(buildFilePath);
+                    if (!buildJson.isExpiredLastUpdateTime()) {
+                        this.autoUpdate = false;
+                        return true;
+                    }
+                } catch (IOException | JsonSyntaxException e) {
+                    this.autoUpdate = true;
+                    return false;
                 }
             }
             this.autoUpdate = true;

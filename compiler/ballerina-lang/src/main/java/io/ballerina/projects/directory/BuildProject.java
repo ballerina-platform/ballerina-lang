@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.directory;
 
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
@@ -207,18 +208,24 @@ public class BuildProject extends Project {
             writeBuildFile(buildFilePath);
             writeDependencies();
         } else {
-            // build file exists
-            BuildJson buildJson = readBuildJson(buildFilePath);
-            // need to update Dependencies toml
-            writeDependencies();
-            // check whether last updated time is expired
-            if (shouldUpdate) {
-                // update build json file
-                writeBuildFile(buildFilePath);
-            } else {
-                // only update build time
-                buildJson.setLastBuildTime(System.currentTimeMillis());
-                ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+            try {
+                // build file exists
+                BuildJson buildJson = readBuildJson(buildFilePath);
+                // need to update Dependencies toml
+                writeDependencies();
+                // check whether last updated time is expired
+                if (shouldUpdate) {
+                    // update build json file
+                    writeBuildFile(buildFilePath);
+                } else {
+                    // only update build time
+                    buildJson.setLastBuildTime(System.currentTimeMillis());
+                    ProjectUtils.writeBuildFile(buildFilePath, buildJson);
+                }
+            } catch (JsonSyntaxException e) {
+                throw new ProjectException("Invalid '" + BUILD_FILE + "' file format");
+            } catch (IOException e) {
+                throw new ProjectException("Failed to read the '" + BUILD_FILE + "' file");
             }
         }
     }
