@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static org.apache.commons.io.FilenameUtils.indexOfExtension;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_TOML_FILE_NAME;
@@ -246,8 +245,7 @@ public class QueryExpressionProcessor {
      * @return File name without extension
      */
     private static String getFileNameWithoutExtension(String fileName) {
-        int index = indexOfExtension(fileName);
-        return index == -1 ? fileName : fileName.substring(0, index);
+        return fileName.endsWith(BAL_FILE_EXT) ? fileName.replaceAll(BAL_FILE_EXT + "$", "") : fileName;
     }
 
     /**

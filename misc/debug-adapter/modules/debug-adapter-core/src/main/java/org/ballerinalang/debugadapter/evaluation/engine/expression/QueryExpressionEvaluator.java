@@ -34,7 +34,6 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationException.crea
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.engine.QueryExpressionProcessor.QUERY_FUNCTION_NAME;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRAND_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
@@ -67,7 +66,6 @@ public class QueryExpressionEvaluator extends Evaluator {
             argTypes.add(JAVA_STRING_CLASS);
             argTypes.add(JAVA_STRING_CLASS);
             argTypes.add(JAVA_STRING_CLASS);
-            argTypes.add(B_STRAND_CLASS);
             argTypes.add(JAVA_OBJECT_ARRAY_CLASS);
             RuntimeStaticMethod loadQueryClasses = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
                     CLASSLOAD_AND_INVOKE_METHOD, argTypes);
@@ -76,7 +74,6 @@ public class QueryExpressionEvaluator extends Evaluator {
             argList.add(getAsJString(context, executablePath.toAbsolutePath().toString()));
             argList.add(getAsJString(context, mainClassName));
             argList.add(getAsJString(context, QUERY_FUNCTION_NAME));
-            argList.add(loadQueryClasses.getCurrentStrand());
 
             // adds all the captured variable values as rest arguments.
             argList.addAll(queryProcessor.getExternalVariableValues());
