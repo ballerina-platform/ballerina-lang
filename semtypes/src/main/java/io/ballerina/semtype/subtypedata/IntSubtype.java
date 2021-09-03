@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class IntSubtype implements ProperSubtypeData {
 
-    private final Range[] ranges;
+    public final Range[] ranges;
 
     public IntSubtype(Range[] ranges) {
         this.ranges = Arrays.copyOf(ranges, ranges.length);
@@ -133,16 +133,16 @@ public class IntSubtype implements ProperSubtypeData {
         return Optional.of(min);
     }
 
-    /**
-     * Int Range node.
-     */
-    static class Range {
-        final long min;
-        final long max;
-
-        public Range(long min, long max) {
-            this.min = min;
-            this.max = max;
+    public static boolean intSubtypeContains(SubtypeData d, long n) {
+        if (d instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d).isAllSubtype();
         }
+        IntSubtype v = (IntSubtype) d;
+        for (Range r : v.ranges) {
+            if (r.min <= n && n <= r.max) {
+                return true;
+            }
+        }
+        return false;
     }
 }

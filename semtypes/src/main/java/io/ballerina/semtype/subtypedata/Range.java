@@ -15,19 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.semtype.subtypedata;
 
 /**
- * FunctionAtomicType node.
+ * Int Range node.
  *
  * @since 2.0.0
  */
-public class FunctionAtomicType implements AtomicType {
-    public final SemType paramType;
-    public final SemType retType;
+public class Range {
+    public final long min;
+    public final long max;
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
-        this.paramType = paramType;
-        this.retType = retType;
+    public Range(long min, long max) {
+        this.min = min;
+        this.max = max;
     }
 }

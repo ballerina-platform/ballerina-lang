@@ -17,13 +17,86 @@
  */
 package io.ballerina.semtype.subtypedata;
 
+import io.ballerina.semtype.EnumerableFloat;
+import io.ballerina.semtype.EnumerableSubtype;
+import io.ballerina.semtype.EnumerableType;
+import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
+import io.ballerina.semtype.SemType;
+import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformTypeCode;
+
+import java.util.Optional;
 
 /**
  * Represent FloatSubtype.
  *
  * @since 2.0.0
  */
-public class FloatSubtype implements ProperSubtypeData {
+public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData {
+    public boolean allowed;
+    public EnumerableFloat[] values;
 
+    public FloatSubtype(boolean allowed, EnumerableFloat value) {
+        this.allowed = allowed;
+        this.values = new EnumerableFloat[1];
+        values[0] = value;
+    }
+
+    public FloatSubtype(boolean allowed, EnumerableFloat[] values) {
+        this.allowed = allowed;
+        this.values = values;
+    }
+
+    public static SemType floatConst(EnumerableFloat value) {
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_FLOAT, new FloatSubtype(true, value));
+    }
+
+    public static Optional<EnumerableFloat> floatSubtypeSingleValue(SubtypeData d) {
+        if (d instanceof AllOrNothingSubtype) {
+            return Optional.empty();
+        }
+
+        FloatSubtype f = (FloatSubtype) d;
+        if (f.allowed) {
+            return Optional.empty();
+        }
+
+        EnumerableFloat[] values = (EnumerableFloat[]) f.values;
+        if (values.length != 1) {
+            return Optional.empty();
+        }
+        return Optional.of(values[0]);
+    }
+
+    public static boolean floatSubtypeContains(SubtypeData d, EnumerableFloat f) {
+        if (d instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d).isAllSubtype();
+        }
+
+        FloatSubtype v = (FloatSubtype) d;
+        for (EnumerableType val : v.values) {
+            if (val == f) {
+                return v.allowed;
+            }
+        }
+        return !v.allowed;
+    }
+
+    public static SubtypeData createFloatSubtype(boolean allowed, EnumerableFloat[] values) {
+        if (values.length == 0) {
+            return new AllOrNothingSubtype(!allowed);
+        }
+        return new FloatSubtype(allowed, values);
+    }
+
+    @Override
+    public boolean allowed() {
+        return allowed;
+    }
+
+    @Override
+    public EnumerableType[] values() {
+        return values;
+    }
 }

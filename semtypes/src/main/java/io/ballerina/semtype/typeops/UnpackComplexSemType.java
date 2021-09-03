@@ -17,33 +17,31 @@
  */
 package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.Bdd;
-import io.ballerina.semtype.CommonUniformTypeOps;
+import io.ballerina.semtype.ComplexSemType;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformSubtype;
+import io.ballerina.semtype.UniformTypeCode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Common methods operate on SubtypeData.
+ * Represent `unpackComplexSemType` function.
  *
  * @since 2.0.0
  */
-public abstract class CommonOps implements CommonUniformTypeOps {
-    @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddUnion((Bdd) t1, (Bdd) t2);
+public class UnpackComplexSemType {
+    private UnpackComplexSemType() {
     }
 
-    @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddIntersect((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        return BddCommonOps.bddDiff((Bdd) t1, (Bdd) t2);
-    }
-
-    @Override
-    public SubtypeData complement(SubtypeData t) {
-        return BddCommonOps.bddComplement((Bdd) t);
+    public static List<UniformSubtype> unpack(ComplexSemType t) {
+        int some = t.some.bitset;
+        List<UniformSubtype> subtypeList = new ArrayList<>();
+        for (SubtypeData data : t.subtypeDataList) {
+            int code = Integer.numberOfTrailingZeros(some);
+            subtypeList.add(UniformSubtype.from(UniformTypeCode.from(code), data));
+            some ^= (1 << code);
+        }
+        return subtypeList;
     }
 }

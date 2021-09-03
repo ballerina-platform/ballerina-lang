@@ -17,34 +17,28 @@
  */
 package io.ballerina.semtype.subtypedata;
 
-import io.ballerina.semtype.SubtypeData;
-
 /**
- * A subtype representing either all subtypes or nothing.
- * This is the Java representation of the `boolean` found in `SubtypeData` type in Ballerina impl.
+ * Holds a range if there is a single range representing the union/intersect of r1 and r1.
+ * status -1 means union/intersect is empty because r1 is before r2, with no overlap
+ * status 1 means union/intersect is empty because r2 is before r1 with no overlap
+ * Precondition r1 and r2 are non-empty.
  *
  * @since 2.0.0
  */
-public class AllOrNothingSubtype implements SubtypeData {
-    private final boolean isAll;
+public class RangeUnion {
+    public final int status; // -1, 1, default to zero when there is a range
+    public final Range range;
 
-    AllOrNothingSubtype(boolean isAll) {
-        this.isAll = isAll;
+    private RangeUnion(int status, Range range) {
+        this.status = status;
+        this.range = range;
     }
 
-    public static AllOrNothingSubtype createAll() {
-        return new AllOrNothingSubtype(true);
+    public static RangeUnion from(int status) {
+        return new RangeUnion(status, null);
     }
 
-    public static AllOrNothingSubtype createNothing() {
-        return new AllOrNothingSubtype(false);
-    }
-
-    public boolean isAllSubtype() {
-        return this.isAll;
-    }
-
-    public boolean isNothingSubtype() {
-        return !this.isAll;
+    public static RangeUnion from(Range range) {
+        return new RangeUnion(0, range);
     }
 }
