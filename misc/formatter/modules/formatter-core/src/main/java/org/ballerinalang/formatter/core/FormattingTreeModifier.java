@@ -219,6 +219,7 @@ import io.ballerina.compiler.syntax.tree.WildcardBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.XMLAtomicNamePatternNode;
 import io.ballerina.compiler.syntax.tree.XMLAttributeNode;
 import io.ballerina.compiler.syntax.tree.XMLAttributeValue;
+import io.ballerina.compiler.syntax.tree.XMLCDATANode;
 import io.ballerina.compiler.syntax.tree.XMLComment;
 import io.ballerina.compiler.syntax.tree.XMLElementNode;
 import io.ballerina.compiler.syntax.tree.XMLEmptyElementNode;
@@ -1972,6 +1973,19 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withCommentStart(commentStart)
                 .withContent(content)
                 .withCommentEnd(commentEnd)
+                .apply();
+    }
+
+    @Override
+    public XMLCDATANode transform(XMLCDATANode xmlcdataNode) {
+        Token cDATAStart = formatToken(xmlcdataNode.cDATAStart(), 0, 0);
+        NodeList<Node> content = formatNodeList(xmlcdataNode.content(), 0, 0, 0, 0);
+        Token cDATAEnd = formatToken(xmlcdataNode.cDATAEnd(), env.trailingWS, env.trailingNL);
+
+        return xmlcdataNode.modify()
+                .withCDATAStart(cDATAStart)
+                .withContent(content)
+                .withCDATAEnd(cDATAEnd)
                 .apply();
     }
 
