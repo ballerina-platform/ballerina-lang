@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -140,7 +141,7 @@ public class LangLibrary {
 
     private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib) {
         for (BInvokableSymbol symbol : langLib.values()) {
-            if (Symbols.isFlagOn(symbol.flags, Flags.CLOSURE_LAMBDA)) {
+            if (symbol.origin == SymbolOrigin.VIRTUAL) {
                 continue;
             }
             String name = symbol.getOriginalName().getValue();
