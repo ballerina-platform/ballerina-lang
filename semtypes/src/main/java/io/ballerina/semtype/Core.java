@@ -431,11 +431,11 @@ public class Core {
             return Optional.empty();
         } else if (isSubtypeSimple(t, PredefinedType.INT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_INT);
-             Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
+            Optional<Long> value = IntSubtype.intSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         } else if (isSubtypeSimple(t, PredefinedType.FLOAT)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_FLOAT);
-             Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
+            Optional<Double> value = FloatSubtype.floatSubtypeSingleValue(sd);
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value.get()));
         } else if (isSubtypeSimple(t, PredefinedType.STRING)) {
             SubtypeData sd = getComplexSubtypeData((ComplexSemType) t, UniformTypeCode.UT_STRING);
@@ -447,7 +447,6 @@ public class Core {
             return value.isEmpty() ? Optional.empty() : Optional.of(Value.from(value));
         }
         return Optional.empty();
-
     }
 
     public static SemType singleton(Object v) {
@@ -513,7 +512,7 @@ public class Core {
         }
     }
 
-    public static boolean containsConstInt(SemType t, Long n) {
+    public static boolean containsConstInt(SemType t, long n) {
         if (t instanceof UniformTypeBitSet) {
             return (((UniformTypeBitSet) t).bitset & (1 << UniformTypeCode.UT_INT.code)) != 0;
         } else {

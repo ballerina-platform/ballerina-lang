@@ -44,9 +44,7 @@ public class StringSubtype extends EnumerableSubtype implements ProperSubtypeDat
     }
 
     private StringSubtype(boolean allowed, EnumerableString value) {
-        this.allowed = allowed;
-        this.values = new EnumerableString[1];
-        this.values[0] = value;
+        this(allowed, new EnumerableString[]{value});
     }
 
     public static boolean stringSubtypeContains(SubtypeData d, String s) {

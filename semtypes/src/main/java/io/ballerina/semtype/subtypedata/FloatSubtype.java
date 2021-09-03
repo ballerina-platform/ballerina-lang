@@ -37,18 +37,16 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
     public boolean allowed;
     public EnumerableFloat[] values;
 
-    public FloatSubtype(boolean allowed, EnumerableFloat value) {
-        this.allowed = allowed;
-        this.values = new EnumerableFloat[1];
-        this.values[0] = value;
+    private FloatSubtype(boolean allowed, EnumerableFloat value) {
+        this(allowed, new EnumerableFloat[]{value});
     }
 
-    public FloatSubtype(boolean allowed, EnumerableFloat[] values) {
+    private FloatSubtype(boolean allowed, EnumerableFloat[] values) {
         this.allowed = allowed;
         this.values = values;
     }
 
-    public static SemType floatConst(Double value) {
+    public static SemType floatConst(double value) {
         return PredefinedType.uniformSubtype(UniformTypeCode.UT_FLOAT, new FloatSubtype(true,
                 EnumerableFloat.from(value)));
     }
