@@ -1499,11 +1499,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangLetVariable letVariable) {
-        analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), env);
-    }
-
-    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
             analyzeNode(expr, env);

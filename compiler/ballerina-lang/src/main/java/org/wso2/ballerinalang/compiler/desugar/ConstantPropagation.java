@@ -281,7 +281,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangFunction funcNode) {
         rewrite(funcNode.requiredParams);
-        rewrite(funcNode.workers);
         funcNode.body = rewrite(funcNode.body);
         rewrite(funcNode.annAttachments);
 

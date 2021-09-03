@@ -97,7 +97,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -105,7 +104,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -1542,10 +1540,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
 
-        if (typeDefSymbol instanceof BErrorTypeSymbol) {
-            typeDefSymbol.owner = env.scope.owner;
-        }
-
         if (isNonLabelIntersectionType) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.name = typeDefSymbol.name;
@@ -1947,19 +1941,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangWorker workerNode) {
-        BInvokableSymbol workerSymbol = Symbols.createWorkerSymbol(Flags.asMask(workerNode.flagSet),
-                                                                   names.fromIdNode(workerNode.name),
-                                                                   names.originalNameFromIdNode(workerNode.name),
-                                                                   env.enclPkg.symbol.pkgID, null, env.scope.owner,
-                                                                   workerNode.pos, SOURCE);
-        workerSymbol.markdownDocumentation = getMarkdownDocAttachment(workerNode.markdownDocumentationAttachment);
-        workerSymbol.originalName = names.originalNameFromIdNode(workerNode.name);
-        workerNode.symbol = workerSymbol;
-        defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
-    }
-
-    @Override
     public void visit(BLangService serviceNode) {
         defineNode(serviceNode.serviceVariable, env);
 
@@ -2070,10 +2051,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         return false;
-    }
-
-    @Override
-    public void visit(BLangResource resourceNode) {
     }
 
     @Override

@@ -138,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -159,9 +158,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -1660,11 +1657,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangLetVariable letVariable) {
-        //do nothing
-    }
-
-    @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         listConstructorExpr.exprs.forEach(this::acceptNode);
     }
@@ -1966,11 +1958,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangThrow throwNode) {
-        this.acceptNode(throwNode.expr);
-    }
-
-    @Override
     public void visit(BLangPanic panicNode) {
         this.acceptNode(panicNode.expr);
     }
@@ -2089,13 +2076,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTryCatchFinally tryNode) {
-        this.acceptNode(tryNode.tryBody);
-        tryNode.catchBlocks.forEach(block -> this.acceptNode(block));
-        this.acceptNode(tryNode.finallyBody);
-    }
-
-    @Override
     public void visit(BLangTupleDestructure stmt) {
         this.acceptNode(stmt.varRef);
         this.acceptNode(stmt.expr);
@@ -2111,12 +2091,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangErrorDestructure stmt) {
         this.acceptNode(stmt.expr);
         this.acceptNode(stmt.varRef);
-    }
-
-    @Override
-    public void visit(BLangCatch catchNode) {
-        this.acceptNode(catchNode.param);
-        this.acceptNode(catchNode.body);
     }
 
     @Override

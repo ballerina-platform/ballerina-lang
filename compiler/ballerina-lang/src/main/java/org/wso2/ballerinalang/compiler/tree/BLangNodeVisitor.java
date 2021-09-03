@@ -155,7 +155,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -181,9 +180,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
@@ -196,7 +193,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -251,10 +247,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangResource resourceNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangTypeDefinition typeDefinition) {
         throw new AssertionError();
     }
@@ -264,10 +256,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangSimpleVariable varNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangWorker workerNode) {
         throw new AssertionError();
     }
 
@@ -337,10 +325,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangReturn returnNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangThrow throwNode) {
         throw new AssertionError();
     }
 
@@ -556,10 +540,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangTryCatchFinally tryNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangTupleDestructure stmt) {
         throw new AssertionError();
     }
@@ -569,10 +549,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangErrorDestructure stmt) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangCatch catchNode) {
         throw new AssertionError();
     }
 
@@ -671,10 +647,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangLetExpression letExpr) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangLetVariable letVariable) {
         throw new AssertionError();
     }
 
