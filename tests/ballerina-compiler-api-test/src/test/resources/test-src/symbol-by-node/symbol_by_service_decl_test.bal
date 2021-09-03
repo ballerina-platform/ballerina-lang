@@ -21,7 +21,7 @@ type HelloWorld service object {
 @v1 {
     foo: "annot on service"
 }
-isolated service HelloWorld /foo/bar on new Listener({
+service HelloWorld /foo/bar on new Listener({
                                                 host: "pop.example.com",
                                                 username: "abc@example.com",
                                                 password: "pass123",
@@ -31,8 +31,7 @@ isolated service HelloWorld /foo/bar on new Listener({
 
     public string greeting = "Hello World!";
 
-    isolated resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self
-    .greeting };
+    resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self.greeting };
 
     resource function delete pets () returns record{|Error body;|} {
         return {body:{id: 10, code: "FailedToDelete"}};
