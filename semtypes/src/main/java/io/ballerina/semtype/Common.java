@@ -150,7 +150,6 @@ public class Common {
                 cp++;
                 continue;
             }
-
             return codepoint1 < codepoint2;
         }
         return false;
