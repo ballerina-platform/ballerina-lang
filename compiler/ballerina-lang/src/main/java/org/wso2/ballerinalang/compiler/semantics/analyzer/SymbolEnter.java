@@ -18,6 +18,10 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
+import io.ballerina.semtype.Core;
+import io.ballerina.semtype.Env;
+import io.ballerina.semtype.PredefinedType;
+import io.ballerina.semtype.SemType;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -134,6 +138,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -227,7 +232,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
-    private final boolean semtypeEnabled;
+    private boolean semtypeEnabled;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
@@ -238,6 +243,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbolEnter = new SymbolEnter(context);
         }
 
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        symbolEnter.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return symbolEnter;
     }
 
@@ -261,7 +268,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
                 options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
-        semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -384,8 +390,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
         defineTypeNodes(typeAndClassDefs, pkgEnv);
-        if (semtypeEnabled) {
-            defineSemTypes(typeAndClassDefs);
+        if (this.semtypeEnabled) {
+            defineSemTypes(typeAndClassDefs, pkgEnv);
         }
 
         for (BLangVariable variable : pkgNode.globalVars) {
@@ -448,7 +454,138 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void defineSemTypes(List<BLangNode> typeAndClassDefs) {
+    private void defineSemTypes(List<BLangNode> typeAndClassDefs, SymbolEnv pkgEnv) {
+        // note: Let's start mimicking what James do as it is easy to populate the types and use in testing.
+        // Eventually this should be moved to SymbolResolver and should integrate wtih existing type-symbols.
+
+        Map<String, BLangNode> modTable = new LinkedHashMap<>();
+        for (BLangNode typeAndClassDef : typeAndClassDefs) {
+            modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
+        }
+
+        for (BLangNode typeAndClassDef : typeAndClassDefs) {
+            if (typeAndClassDef.getKind() == NodeKind.CLASS_DEFN) {
+                throw new IllegalStateException("Semtype are not supported for class definitions yet");
+            }
+            BLangTypeDefinition typeDefinition = (BLangTypeDefinition) typeAndClassDef;
+            resolveTypeDefn(pkgEnv.enclPkg.semtypeEnv, modTable, typeDefinition, 0);
+        }
+    }
+
+    private SemType resolveTypeDefn(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                    int depth) {
+        if (defn.semType != null) {
+            return defn.semType;
+        }
+
+        if (depth == defn.cycleDepth) {
+            dlog.error(defn.pos, DiagnosticErrorCode.INVALID_TYPE_CYCLE, defn.name);
+            return null;
+        }
+        defn.cycleDepth = depth;
+        SemType s = resolveTypeDesc(semtypeEnv, mod, defn, depth, defn.typeNode);
+        if (s == null) {
+            defn.semType = s;
+            defn.cycleDepth = -1;
+            return s;
+        } else {
+            return s;
+        }
+    }
+
+    private SemType resolveTypeDesc(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+                                    BLangType td) {
+        switch (td.getKind()) {
+            case VALUE_TYPE:
+                return resolveTypeDesc((BLangValueType) td, semtypeEnv);
+            case CONSTRAINED_TYPE: // map<?> and typedesc<?>
+                return resolveTypeDesc((BLangConstrainedType) td, semtypeEnv);
+            case ARRAY_TYPE:
+                return resolveTypeDesc(((BLangArrayType) td), semtypeEnv);
+            case TUPLE_TYPE_NODE:
+                return resolveTypeDesc((BLangTupleTypeNode) td, semtypeEnv);
+            case RECORD_TYPE:
+                return resolveTypeDesc(((BLangRecordTypeNode) td), semtypeEnv);
+            case FUNCTION_TYPE:
+                return resolveTypeDesc(((BLangFunctionTypeNode) td), semtypeEnv);
+            case ERROR_TYPE:
+                return resolveTypeDesc(((BLangErrorType) td), semtypeEnv);
+            case UNION_TYPE_NODE:
+                return resolveTypeDesc(((BLangUnionTypeNode) td), semtypeEnv);
+            case INTERSECTION_TYPE_NODE:
+                return resolveTypeDesc(((BLangIntersectionTypeNode) td), semtypeEnv);
+            default:
+                throw new AssertionError("not implemented");
+        }
+
+    }
+
+    private SemType resolveTypeDesc(BLangConstrainedType td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
+    }
+
+    private SemType resolveTypeDesc(BLangRecordTypeNode td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
+    }
+
+    private SemType resolveTypeDesc(BLangFunctionTypeNode td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
+    }
+
+    private SemType resolveTypeDesc(BLangErrorType td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
+    }
+
+    private SemType resolveTypeDesc(BLangUnionTypeNode td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
+    }
+
+    private SemType resolveTypeDesc(BLangIntersectionTypeNode td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
+    }
+
+    private SemType resolveTypeDesc(BLangValueType td, Env semtypeEnv) {
+        switch (td.typeKind) {
+            case ANY:
+                return PredefinedType.ANY;
+            case BOOLEAN:
+                return PredefinedType.BOOLEAN;
+            case DECIMAL:
+                return PredefinedType.DECIMAL;
+            case ERROR:
+                return PredefinedType.ERROR;
+            case FLOAT:
+                return PredefinedType.FLOAT;
+            case HANDLE:
+                return PredefinedType.HANDLE;
+            case INT:
+                return PredefinedType.INT;
+            case NEVER:
+                return PredefinedType.NEVER;
+            case READONLY:
+                return PredefinedType.READONLY;
+            case STRING:
+                return PredefinedType.STRING;
+            case TYPEDESC:
+                return PredefinedType.TYPEDESC;
+            case XML:
+                return PredefinedType.XML;
+            case JSON:
+                return Core.createJson(semtypeEnv);
+            case NIL:
+                return PredefinedType.NIL;
+            default:
+                throw new IllegalStateException("Unknown type: " + td.toString());
+        }
+    }
+
+    private SemType resolveTypeDesc(BLangArrayType td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
+
+    }
+
+    private SemType resolveTypeDesc(BLangTupleTypeNode td, Env semtypeEnv) {
+        throw new AssertionError("not implemented");
 
     }
 
