@@ -144,12 +144,13 @@ public class Common {
         int cpCount1 = s1.codePointCount(0, len1);
         int cpCount2 = s2.codePointCount(0, len2);
         for (int cp = 0; cp < cpCount1 && cp < cpCount2;) {
-            if (s1.codePointAt(cp) == s2.codePointAt(cp)) {
+            int codepoint1 = s1.codePointAt(cp);
+            int codepoint2 = s2.codePointAt(cp);
+            if (codepoint1 == codepoint2) {
                 cp++;
                 continue;
             }
-            int codepoint1 = s1.codePointAt(cp);
-            int codepoint2 = s2.codePointAt(cp);
+
             return codepoint1 < codepoint2;
         }
         return false;
