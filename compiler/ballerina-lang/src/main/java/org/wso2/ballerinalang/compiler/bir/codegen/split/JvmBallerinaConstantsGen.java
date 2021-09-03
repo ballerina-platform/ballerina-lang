@@ -48,7 +48,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
  *
  * @since 2.0.0
  */
-public class JvmConstantsGen {
+public class JvmBallerinaConstantsGen {
 
     private final String constantClass;
 
@@ -60,7 +60,7 @@ public class JvmConstantsGen {
 
     private static final int MAX_CONSTANTS_PER_METHOD = 100;
 
-    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, ConstantVariables constantVariables) {
+    public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, ConstantVariables constantVariables) {
         this.moduleInitClass = moduleInitClass;
         this.constantClass = getModuleLevelClassName(module.packageID, CONSTANTS_CLASS_NAME);
         this.constantVariables = constantVariables;

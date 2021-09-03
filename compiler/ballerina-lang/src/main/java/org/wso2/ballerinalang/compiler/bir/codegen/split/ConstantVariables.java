@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ConstantVariables {
 
-    private final JvmConstantsGen constantsGen;
+    private final JvmBallerinaConstantsGen jvmBallerinaConstantsGen;
 
     private final JvmUnionTypeConstantsGen unionTypeConstantsGen;
 
@@ -44,7 +44,7 @@ public class ConstantVariables {
     public ConstantVariables(BIRNode.BIRPackage module, String moduleInitClass) {
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
-        this.constantsGen = new JvmConstantsGen(module, moduleInitClass, this);
+        this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID);
     }
 
@@ -65,7 +65,7 @@ public class ConstantVariables {
     }
 
     public void generateConstants(Map<String, byte[]> jarEntries) {
-        constantsGen.generateConstantInit(jarEntries);
+        jvmBallerinaConstantsGen.generateConstantInit(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);
         moduleConstantsGen.generateConstantInit(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
@@ -84,6 +84,6 @@ public class ConstantVariables {
     }
 
     public String getConstantClass() {
-        return constantsGen.getConstantClass();
+        return jvmBallerinaConstantsGen.getConstantClass();
     }
 }
