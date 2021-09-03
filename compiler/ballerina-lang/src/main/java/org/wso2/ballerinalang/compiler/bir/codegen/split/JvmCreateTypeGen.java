@@ -169,7 +169,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
 public class JvmCreateTypeGen {
 
     private final JvmTypeGen jvmTypeGen;
-    private final ConstantVariables constantVariables;
+    private final JvmConstantsGen jvmConstantsGen;
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     private final TypeHashVisitor typeHashVisitor;
     private static final int MAX_TYPES_PER_METHOD = 100;
@@ -179,9 +179,9 @@ public class JvmCreateTypeGen {
     private final String objectsClass;
     private final String errorsClass;
 
-    public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, ConstantVariables constantVariables, PackageID packageID) {
+    public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen, PackageID packageID) {
         this.jvmTypeGen = jvmTypeGen;
-        this.constantVariables = constantVariables;
+        this.jvmConstantsGen = jvmConstantsGen;
         typeHashVisitor = new TypeHashVisitor();
         this.typesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
@@ -456,8 +456,8 @@ public class JvmCreateTypeGen {
     private void addTypeId(MethodVisitor mv, BTypeIdSet.BTypeId typeId, boolean isPrimaryTypeId) {
         mv.visitInsn(DUP);
         // Load package
-        String varName = constantVariables.getModuleConstantVar(typeId.packageID);
-        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+        String varName = jvmConstantsGen.getModuleConstantVar(typeId.packageID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
                           String.format("L%s;", MODULE));
 
         mv.visitLdcInsn(typeId.name);
@@ -1116,8 +1116,8 @@ public class JvmCreateTypeGen {
 
         // Load package path
         // TODO: get it from the type
-        String varName = constantVariables.getModuleConstantVar(recordType.tsymbol.pkgID);
-        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+        String varName = jvmConstantsGen.getModuleConstantVar(recordType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
                           String.format("L%s;", MODULE));
         // Load flags
         mv.visitLdcInsn(recordType.tsymbol.flags);
@@ -1239,8 +1239,8 @@ public class JvmCreateTypeGen {
         mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
-        String varName = constantVariables.getModuleConstantVar(objectType.tsymbol.pkgID);
-        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+        String varName = jvmConstantsGen.getModuleConstantVar(objectType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
                           String.format("L%s;", MODULE));
         // Load flags
         mv.visitLdcInsn(typeSymbol.flags);
@@ -1262,8 +1262,8 @@ public class JvmCreateTypeGen {
 
         jvmTypeGen.loadUnionName(mv, unionType);
 
-        String varName = constantVariables.getModuleConstantVar(unionType.tsymbol.pkgID);
-        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+        String varName = jvmConstantsGen.getModuleConstantVar(unionType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
                           String.format("L%s;", MODULE));
         mv.visitLdcInsn(jvmTypeGen.typeFlag(unionType));
 
@@ -1290,8 +1290,8 @@ public class JvmCreateTypeGen {
         BTypeSymbol typeSymbol = tupleType.tsymbol;
         mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
-        String varName = constantVariables.getModuleConstantVar(tupleType.tsymbol.pkgID);
-        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+        String varName = jvmConstantsGen.getModuleConstantVar(tupleType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
                           String.format("L%s;", MODULE));
         mv.visitLdcInsn(jvmTypeGen.typeFlag(tupleType));
         jvmTypeGen.loadCyclicFlag(mv, tupleType);
@@ -1744,8 +1744,8 @@ public class JvmCreateTypeGen {
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package
-        String varName = constantVariables.getModuleConstantVar(errorType.tsymbol.pkgID);
-        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+        String varName = jvmConstantsGen.getModuleConstantVar(errorType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
                           String.format("L%s;", MODULE));
         // initialize the error type
         mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE_IMPL, JVM_INIT_METHOD,

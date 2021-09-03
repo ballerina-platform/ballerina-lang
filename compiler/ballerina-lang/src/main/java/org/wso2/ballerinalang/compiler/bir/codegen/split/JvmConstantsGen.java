@@ -31,7 +31,7 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ConstantVariables {
+public class JvmConstantsGen {
 
     private final JvmBallerinaConstantsGen jvmBallerinaConstantsGen;
 
@@ -41,7 +41,7 @@ public class ConstantVariables {
 
     private final JvmModuleConstantsGen moduleConstantsGen;
 
-    public ConstantVariables(BIRNode.BIRPackage module, String moduleInitClass) {
+    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass) {
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
         this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);

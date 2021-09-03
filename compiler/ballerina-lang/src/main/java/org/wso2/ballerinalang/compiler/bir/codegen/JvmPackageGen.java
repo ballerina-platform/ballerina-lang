@@ -41,7 +41,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MainMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.ModuleStopMethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.ConstantVariables;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmMethodsSplitter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -248,17 +248,17 @@ public class JvmPackageGen {
     private static void generateStaticInitializer(ClassWriter cw, String className, BIRPackage birPackage,
                                                   boolean isInitClass, boolean serviceEPAvailable,
                                                   AsyncDataCollector asyncDataCollector,
-                                                  ConstantVariables constantVariables) {
+                                                  JvmConstantsGen jvmConstantsGen) {
         if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
         if (isInitClass) {
-            setConstantFields(mv, birPackage, constantVariables);
+            setConstantFields(mv, birPackage, jvmConstantsGen);
             setLockStoreField(mv, className);
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
-            setCurrentModuleField(cw, mv, constantVariables, birPackage.packageID, className);
+            setCurrentModuleField(cw, mv, jvmConstantsGen, birPackage.packageID, className);
         }
         JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
@@ -267,11 +267,11 @@ public class JvmPackageGen {
     }
 
     private static void setConstantFields(MethodVisitor mv, BIRPackage birPackage,
-                                          ConstantVariables constantVariables) {
+                                          JvmConstantsGen jvmConstantsGen) {
         if (birPackage.constants.isEmpty()) {
             return;
         }
-        mv.visitMethodInsn(INVOKESTATIC, constantVariables.getConstantClass(), CONSTANT_INIT_METHOD_PREFIX, "()V",
+        mv.visitMethodInsn(INVOKESTATIC, jvmConstantsGen.getConstantClass(), CONSTANT_INIT_METHOD_PREFIX, "()V",
                            false);
     }
 
@@ -311,13 +311,13 @@ public class JvmPackageGen {
         mv.visitFieldInsn(PUTSTATIC, initClass, MODULE_STARTED, "Z");
     }
 
-    private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, ConstantVariables constantVariables,
+    private static void setCurrentModuleField(ClassWriter cw, MethodVisitor mv, JvmConstantsGen jvmConstantsGen,
                                               PackageID packageID, String moduleInitClass) {
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, CURRENT_MODULE_VAR_NAME,
                                         String.format("L%s;", MODULE), null, null);
         fv.visitEnd();
-        String varName = constantVariables.getModuleConstantVar(packageID);
-        mv.visitFieldInsn(GETSTATIC, constantVariables.getModuleConstantClass(), varName,
+        String varName = jvmConstantsGen.getModuleConstantVar(packageID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
                           String.format("L%s;", MODULE));
         mv.visitFieldInsn(PUTSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
     }
@@ -399,7 +399,7 @@ public class JvmPackageGen {
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries,
                                        String moduleInitClass, String typesClass,
-                                       ConstantVariables constantVariables,
+                                       JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable) {
         jvmClassMapping.entrySet().parallelStream().forEach(entry -> {
@@ -408,7 +408,7 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
-            JvmTypeGen jvmTypeGen = new JvmTypeGen(constantVariables, module.packageID);
+            JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
             JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
@@ -452,7 +452,7 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : javaClass.functions) {
                 methodGen.generateMethod(func, cw, module, null, moduleClass, jvmTypeGen, jvmCastGen,
-                                         constantVariables, asyncDataCollector);
+                        jvmConstantsGen, asyncDataCollector);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> lambda : asyncDataCollector.getLambdas().entrySet()) {
@@ -462,7 +462,7 @@ public class JvmPackageGen {
             }
             JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
-                    asyncDataCollector, constantVariables);
+                    asyncDataCollector, jvmConstantsGen);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
@@ -783,8 +783,8 @@ public class JvmPackageGen {
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(jvmClassMapping, moduleInitClass, module, flattenedModuleImports);
-        ConstantVariables constantVariables = new ConstantVariables(module, moduleInitClass);
-        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, constantVariables,
+        JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass);
+        configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
                                              jarEntries);
 
         // generate the shutdown listener class.
@@ -795,19 +795,19 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen);
-        valueGen.generateValueClasses(jarEntries, constantVariables);
+        valueGen.generateValueClasses(jarEntries, jvmConstantsGen);
 
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
 
         // generate module classes
-        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, constantVariables,
+        generateModuleClasses(module, jarEntries, moduleInitClass, typesClass, jvmConstantsGen,
                 jvmClassMapping, flattenedModuleImports, serviceEPAvailable);
-        JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, constantVariables, module,
+        JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module,
                                                                        moduleInitClass);
         jvmMethodsSplitter.generateMethods(jarEntries);
-        constantVariables.generateConstants(jarEntries);
+        jvmConstantsGen.generateConstants(jarEntries);
 
         // clear class name mappings
         clearPackageGenInfo();

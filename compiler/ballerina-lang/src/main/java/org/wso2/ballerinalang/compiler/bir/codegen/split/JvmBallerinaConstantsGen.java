@@ -54,16 +54,17 @@ public class JvmBallerinaConstantsGen {
 
     private final String moduleInitClass;
 
-    private final ConstantVariables constantVariables;
+    private final JvmConstantsGen jvmConstantsGen;
 
     private final BIRNode.BIRPackage module;
 
     private static final int MAX_CONSTANTS_PER_METHOD = 100;
 
-    public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, ConstantVariables constantVariables) {
+    public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, String moduleInitClass,
+                                    JvmConstantsGen jvmConstantsGen) {
         this.moduleInitClass = moduleInitClass;
         this.constantClass = getModuleLevelClassName(module.packageID, CONSTANTS_CLASS_NAME);
-        this.constantVariables = constantVariables;
+        this.jvmConstantsGen = jvmConstantsGen;
         this.module = module;
     }
 
@@ -100,7 +101,7 @@ public class JvmBallerinaConstantsGen {
             if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
                 mv = cw.visitMethod(ACC_STATIC, CONSTANT_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
             }
-            setConstantField(mv, constant, moduleInitClass, constantVariables);
+            setConstantField(mv, constant, moduleInitClass, jvmConstantsGen);
             moduleCount++;
             if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
                 if (moduleCount != module.constants.size()) {
@@ -129,11 +130,11 @@ public class JvmBallerinaConstantsGen {
     }
 
     private static void setConstantField(MethodVisitor mv, BIRNode.BIRConstant constant, String className,
-                                         ConstantVariables constantVariables) {
+                                         JvmConstantsGen jvmConstantsGen) {
         BIRNode.ConstValue constValue = constant.constValue;
         if (JvmCodeGenUtil.isSimpleBasicType(constValue.type)) {
             String descriptor = JvmCodeGenUtil.getFieldTypeSignature(constValue.type);
-            JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, constantVariables);
+            JvmCodeGenUtil.loadConstantValue(constValue.type, constValue.value, mv, jvmConstantsGen);
             mv.visitFieldInsn(PUTSTATIC, className, constant.name.value, descriptor);
         }
     }

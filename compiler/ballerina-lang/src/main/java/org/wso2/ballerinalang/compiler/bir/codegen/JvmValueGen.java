@@ -34,7 +34,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunct
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.LambdaGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.ConstantVariables;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmObjectGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -275,14 +275,14 @@ public class JvmValueGen {
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
                                      BObjectType currentObjectType, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                     ConstantVariables constantVariables, AsyncDataCollector asyncDataCollector) {
+                                     JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
             methodGen.generateMethod(func, cw, module, currentObjectType, moduleClassName,
-                                     jvmTypeGen, jvmCastGen, constantVariables, asyncDataCollector);
+                                     jvmTypeGen, jvmCastGen, jvmConstantsGen, asyncDataCollector);
         }
     }
 
@@ -561,7 +561,7 @@ public class JvmValueGen {
     }
 
     private byte[] createRecordValueClass(BRecordType recordType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          ConstantVariables constantVariables, AsyncDataCollector asyncDataCollector) {
+                                          JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         if (typeDef.pos != null) {
@@ -569,7 +569,7 @@ public class JvmValueGen {
         } else {
             cw.visitSource(className, null);
         }
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(constantVariables, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
@@ -578,7 +578,7 @@ public class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs, className, jvmTypeGen, jvmCastGen, constantVariables,
+            this.createRecordMethods(cw, attachedFuncs, className, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                      asyncDataCollector);
         }
 
@@ -608,14 +608,14 @@ public class JvmValueGen {
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, String moduleClassName,
                                      JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                     ConstantVariables constantVariables, AsyncDataCollector asyncDataCollector) {
+                                     JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
             methodGen.generateMethod(func, cw, this.module, null, moduleClassName, jvmTypeGen, jvmCastGen,
-                                    constantVariables, asyncDataCollector);
+                    jvmConstantsGen, asyncDataCollector);
         }
     }
 
@@ -1253,7 +1253,7 @@ public class JvmValueGen {
         mv.visitEnd();
     }
 
-    void generateValueClasses(Map<String, byte[]> jarEntries, ConstantVariables constantVariables) {
+    void generateValueClasses(Map<String, byte[]> jarEntries, JvmConstantsGen jvmConstantsGen) {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
@@ -1261,12 +1261,12 @@ public class JvmValueGen {
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
-                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, constantVariables
+                byte[] bytes = this.createObjectValueClass(objectType, className, optionalTypeDef, jvmConstantsGen
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.RECORD) {
                 BRecordType recordType = (BRecordType) bType;
-                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, constantVariables
+                byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, jvmConstantsGen
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
                 String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
@@ -1277,11 +1277,11 @@ public class JvmValueGen {
     }
 
     private byte[] createObjectValueClass(BObjectType objectType, String className, BIRNode.BIRTypeDefinition typeDef,
-                                          ConstantVariables constantVariables, AsyncDataCollector asyncDataCollector) {
+                                          JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(constantVariables, module.packageID);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID);
         JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
@@ -1292,7 +1292,7 @@ public class JvmValueGen {
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
             this.createObjectMethods(cw, attachedFuncs, className, objectType, jvmTypeGen, jvmCastGen,
-                                     constantVariables, asyncDataCollector);
+                    jvmConstantsGen, asyncDataCollector);
         }
 
         this.createObjectInit(cw, fields, className);
