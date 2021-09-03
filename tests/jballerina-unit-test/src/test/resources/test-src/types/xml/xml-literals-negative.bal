@@ -123,3 +123,7 @@ function testXMLIncompatibleValueAssignment() {
     xml<xml> x2 = xml `<elem/>`;
     xml:Text t2 = x2;
 }
+
+function testSyntaxErrorsInXMLCDATASections() {
+    xml x1 = xml `<![CDATA[ some text -->< { } &`;
+}

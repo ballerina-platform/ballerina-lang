@@ -3361,7 +3361,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createExpression(xmlTextNode.content());
     }
 
-    private BLangNode createXMLEmptyLiteral(TemplateExpressionNode expressionNode) {
+    private BLangNode createXMLEmptyLiteral(Node expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.pos = getPosition(expressionNode);
         xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
@@ -3370,7 +3370,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangNode createXMLTextLiteral(List<Node> expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        xmlTextLiteral.pos = getPosition(expressionNode.get(0));
+        xmlTextLiteral.pos = getPosition(expressionNode.get(0), expressionNode.get(expressionNode.size() - 1));
         for (Node node : expressionNode) {
             xmlTextLiteral.textFragments.add(createExpression(node));
         }
@@ -4200,8 +4200,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case XML_EMPTY_ELEMENT:
                 return createExpression(xmlTypeNode);
             case XML_CDATA:
+                NodeList<Node> cdataContent = ((XMLCDATANode) xmlTypeNode).content();
+                if (cdataContent.size() == 0) {
+                    return (BLangExpression) createXMLEmptyLiteral(xmlTypeNode);
+                }
+
                 List<Node> characterDataList = new ArrayList<>();
-                for (Node item : ((XMLCDATANode) xmlTypeNode).content()) {
+                for (Node item : cdataContent) {
                     characterDataList.add(item);
                 }
                 return (BLangExpression) createXMLTextLiteral(characterDataList);

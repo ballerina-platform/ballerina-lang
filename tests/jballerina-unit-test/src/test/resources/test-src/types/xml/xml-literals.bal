@@ -276,6 +276,10 @@ function testXMLCDATASection() {
 
     xml x5 = x4/*;
     assert(x5.toString(), "some text example of a flaot 3.2 some other text");
+
+    xml x6 = xml `<![CDATA[]]>`;
+    assert(x6.toString(), "");
+    assert(x6 is xml:Text, true);
 }
 
 function assert(anydata actual, anydata expected) {

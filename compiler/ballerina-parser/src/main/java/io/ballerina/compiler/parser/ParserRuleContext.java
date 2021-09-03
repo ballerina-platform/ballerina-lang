@@ -673,6 +673,7 @@ public enum ParserRuleContext {
     XML_QUOTE_START("xml-quote-start"),
     XML_QUOTE_END("xml-quote-end"),
     XML_CDATA_START("xml-cdata-start"),
+    XML_OPTIONAL_CDATA_CONTENT("xml-optional-cdata-content"),
     XML_CDATA_CONTENT("xml-cdata-content"),
     XML_CDATA_END("xml-cdata-end"),
 
