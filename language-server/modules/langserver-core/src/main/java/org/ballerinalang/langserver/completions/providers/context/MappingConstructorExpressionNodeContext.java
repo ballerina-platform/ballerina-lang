@@ -159,12 +159,7 @@ public class MappingConstructorExpressionNodeContext extends
         }
         TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get());
         if (rawType.typeKind() == TypeDescKind.RECORD) {
-            Optional<TypeSymbol> broaderType = typeResolver.getBroaderTypeSymbol();
-            if (broaderType.isPresent()) {
-                return Collections.singletonList(Pair.of(rawType, broaderType.get()));
-            } else {
-                return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
-            }
+            return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
         }
         if (rawType.typeKind() == TypeDescKind.UNION) {
             return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()

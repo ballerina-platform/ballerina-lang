@@ -102,4 +102,9 @@ public class VarDeclarationTest extends AbstractStatementTest {
     public void testLocalVarDeclAtEOF() {
         testFile("var-decl-stmt/local_var_decl_source_15.bal", "var-decl-stmt/local_var_decl_assert_15.json");
     }
+
+    @Test
+    public void testLocalVarDeclWithQualifiersOnly() {
+        testFile("var-decl-stmt/local_var_decl_source_16.bal", "var-decl-stmt/local_var_decl_assert_16.json");
+    }
 }

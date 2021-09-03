@@ -27,6 +27,8 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -43,8 +45,17 @@ public class ObjectTest {
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
 
-    private final CompileResult checkInInitializerResult = BCompileUtil.compile(
-            "test-src/object/object_field_initializer_with_check.bal");
+    private CompileResult checkInInitializerResult;
+
+    @BeforeClass
+    public void setUp() {
+        checkInInitializerResult =  BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
+    }
+    
+    @AfterClass
+    public void tearDown() {
+        checkInInitializerResult = null;
+    }
 
     @Test(description = "Test Basic object as struct")
     public void testBasicStructAsObject() {
