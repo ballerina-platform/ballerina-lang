@@ -35,7 +35,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -126,7 +126,7 @@ public class InteropMethodGen {
 
     static void genJFieldForInteropField(JFieldBIRFunction birFunc, ClassWriter classWriter, PackageID birModule,
                                          JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                         JvmBStringConstantsGen stringConstantsGen, String moduleClassName,
+                                         JvmConstantsGen jvmConstantsGen, String moduleClassName,
                                          AsyncDataCollector asyncDataCollector, CompilerContext compilerContext) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
@@ -143,7 +143,7 @@ public class InteropMethodGen {
         int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen, jvmTypeGen,
-                                                          jvmCastGen, stringConstantsGen, asyncDataCollector,
+                                                          jvmCastGen, jvmConstantsGen, asyncDataCollector,
                                                           compilerContext);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         LabelGenerator labelGen = new LabelGenerator();

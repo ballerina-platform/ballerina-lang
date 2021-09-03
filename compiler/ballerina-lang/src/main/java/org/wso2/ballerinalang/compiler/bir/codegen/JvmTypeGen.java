@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
@@ -157,7 +157,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -168,23 +167,20 @@ public class JvmTypeGen {
 
     private final IsPureTypeUniqueVisitor isPureTypeUniqueVisitor;
     private final IsAnydataUniqueVisitor isAnydataUniqueVisitor;
-    private final JvmBStringConstantsGen stringConstantsGen;
+    private final JvmConstantsGen jvmConstantsGen;
     private final TypeHashVisitor typeHashVisitor;
     private final PackageID packageID;
-    private final JvmUnionTypeConstantsGen unionTypeConstantsGen;
     private final String anonTypesClass;
     private final String recordsClass;
     private final String objectsClass;
     private final String errorsClass;
 
-    public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen, JvmUnionTypeConstantsGen unionTypeConstantsGen,
-                      PackageID packageID) {
-        this.stringConstantsGen = stringConstantsGen;
+    public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID) {
+        this.jvmConstantsGen = jvmConstantsGen;
         this.packageID = packageID;
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         typeHashVisitor = new TypeHashVisitor();
-        this.unionTypeConstantsGen = unionTypeConstantsGen;
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CLASS_NAME);
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CLASS_NAME);
@@ -424,8 +420,8 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        String varName = unionTypeConstantsGen.add((BUnionType) bType);
-                        unionTypeConstantsGen.generateGetBUnionType(mv, varName);
+                        String varName = jvmConstantsGen.getUnionConstantVar((BUnionType) bType);
+                        jvmConstantsGen.generateGetBUnionType(mv, varName);
                     }
                     return;
                 case TypeTags.INTERSECTION:
@@ -779,17 +775,9 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, INTERSECTION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-
-        PackageID pkgID = bType.tsymbol.pkgID;
-
-        mv.visitLdcInsn(pkgID.orgName.value);
-        mv.visitLdcInsn(pkgID.name.value);
-        mv.visitLdcInsn(getMajorVersion(pkgID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-
+        String varName = jvmConstantsGen.getModuleConstantVar(bType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                          String.format("L%s;", MODULE));
         // Create the constituent types array.
         Set<BType> constituentTypes = bType.getConstituentTypes();
         generateCreateNewArray(mv, constituentTypes);
@@ -1107,7 +1095,7 @@ public class JvmTypeGen {
             BType valueType = valueTypePair.getBType();
             mv.visitInsn(DUP);
 
-            JvmCodeGenUtil.loadConstantValue(valueType, value, mv, stringConstantsGen);
+            JvmCodeGenUtil.loadConstantValue(valueType, value, mv, jvmConstantsGen);
 
             if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE),
