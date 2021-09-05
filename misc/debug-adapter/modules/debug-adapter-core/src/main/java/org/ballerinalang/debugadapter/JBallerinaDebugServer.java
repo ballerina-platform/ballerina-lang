@@ -27,6 +27,7 @@ import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.tools.text.LinePosition;
@@ -57,6 +58,7 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
+import org.eclipse.lsp4j.debug.CompletionItem;
 import org.eclipse.lsp4j.debug.CompletionsArguments;
 import org.eclipse.lsp4j.debug.CompletionsResponse;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -472,12 +474,34 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<CompletionsResponse> completions(CompletionsArguments args) {
-        SemanticModel semanticContext = suspendedContext.getDebugCompiler().getSemanticInfo();
+        return CompletableFuture.completedFuture(getVariableCompletion(args));
+    }
 
+    public CompletionsResponse getVariableCompletion(CompletionsArguments args) {
+        CompletionsResponse completionsResponse = new CompletionsResponse();
+        List<CompletionItem> compItems = new ArrayList<>();
+
+        SemanticModel semanticContext = suspendedContext.getDebugCompiler().getSemanticInfo();
         List<Symbol> symbolList = semanticContext
                 .visibleSymbols(suspendedContext.getDocument(), LinePosition.from(suspendedContext.getLineNumber() - 1, 0));
 
-        return CompletableFuture.completedFuture(null);
+        for (Symbol symbol:symbolList) {
+            if (symbol.getName().isPresent()
+                    && symbol.getName().get().startsWith(args.getText())
+                    && symbol.kind() == SymbolKind.VARIABLE) {
+                CompletionItem completionItem = new CompletionItem();
+                completionItem.setLabel(symbol.getName().get());
+                completionItem.setText(symbol.getName().get());
+                compItems.add(completionItem);
+            }
+        }
+
+        CompletionItem[] compItemArr = new CompletionItem[compItems.size()];
+        for (int i = 0; i < compItems.size(); i++) {
+            compItemArr[i] = compItems.get(i);
+        }
+        completionsResponse.setTargets(compItemArr);
+        return completionsResponse;
     }
 
     @Override
