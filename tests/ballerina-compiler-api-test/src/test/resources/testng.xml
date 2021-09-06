@@ -23,7 +23,6 @@
         <classes>
             <class name="io.ballerina.semantic.api.test.AnnotationsTest" />
             <class name="io.ballerina.semantic.api.test.BindingPatternTest" />
-            <class name="io.ballerina.semantic.api.test.ClassSymbolTest" />
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
             <class name="io.ballerina.semantic.api.test.DocumentationTest" />
             <class name="io.ballerina.semantic.api.test.ExpressionTypeTest" />
@@ -105,6 +104,7 @@
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
 
             <!--Symbols-->
+            <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.FunctionSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.FunctionTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ObjectTypeSymbolTest" />
