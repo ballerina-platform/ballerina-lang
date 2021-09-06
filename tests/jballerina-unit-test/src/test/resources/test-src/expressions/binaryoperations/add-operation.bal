@@ -140,11 +140,15 @@ function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
     float a2 = 5 + 3 + 10.0;
     decimal a3 = 5 + 15.0;
     decimal a4 = 5.0 + 10.0 + 10;
+    float? a5 = 10 + 5;
+    decimal? a6 = 5 + 3;
 
     assertEqual(a1, 15.0);
     assertEqual(a2, 18.0);
     assertEqual(a3, 20.0d);
     assertEqual(a4, 25.0d);
+    assertEqual(a5, 15.0);
+    assertEqual(a6, 8.0d);
 }
 
 function testAddNullable() {

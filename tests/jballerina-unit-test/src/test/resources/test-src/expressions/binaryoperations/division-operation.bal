@@ -90,11 +90,15 @@ function testContextuallyExpectedTypeOfNumericLiteralInDivision() {
     float a2 = (10 / 5) / 2.0;
     decimal a3 = 30.0 / 15;
     decimal a4 = 9.0 / 3.0;
+    float? a5 = 10 / 2;
+    decimal a6 = 20 / 2.0;
 
     assertEqual(a1, 5.0);
     assertEqual(a2, 1.0);
     assertEqual(a3, 2.0d);
     assertEqual(a4, 3.0d);
+    assertEqual(a5, 5.0);
+    assertEqual(a6, 10.0d);
 }
 
 function testDivisionNullable() {

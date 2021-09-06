@@ -106,11 +106,15 @@ function testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
     float a2 = 10 - 2;
     decimal a3 = 30 - 15.0;
     decimal a4 = 20.0 - 10.0 - 5;
+    float? a5 = 20 - 10.0;
+    decimal? a6 = 20 - 5.0;
 
     assertEqual(a1, 3.0);
     assertEqual(a2, 8.0);
     assertEqual(a3, 15.0d);
     assertEqual(a4, 5.0d);
+    assertEqual(a5, 10.0);
+    assertEqual(a6, 15.0d);
 }
 
 function assertEqual(any actual, any expected) {
