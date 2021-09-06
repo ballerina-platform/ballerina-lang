@@ -37,22 +37,21 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
     public boolean allowed;
     public EnumerableFloat[] values;
 
-    public FloatSubtype(boolean allowed, EnumerableFloat value) {
-        this.allowed = allowed;
-        this.values = new EnumerableFloat[1];
-        values[0] = value;
+    private FloatSubtype(boolean allowed, EnumerableFloat value) {
+        this(allowed, new EnumerableFloat[]{value});
     }
 
-    public FloatSubtype(boolean allowed, EnumerableFloat[] values) {
+    private FloatSubtype(boolean allowed, EnumerableFloat[] values) {
         this.allowed = allowed;
         this.values = values;
     }
 
-    public static SemType floatConst(EnumerableFloat value) {
-        return PredefinedType.uniformSubtype(UniformTypeCode.UT_FLOAT, new FloatSubtype(true, value));
+    public static SemType floatConst(double value) {
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_FLOAT, new FloatSubtype(true,
+                EnumerableFloat.from(value)));
     }
 
-    public static Optional<EnumerableFloat> floatSubtypeSingleValue(SubtypeData d) {
+    public static Optional<Double> floatSubtypeSingleValue(SubtypeData d) {
         if (d instanceof AllOrNothingSubtype) {
             return Optional.empty();
         }
@@ -62,11 +61,11 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
             return Optional.empty();
         }
 
-        EnumerableFloat[] values = (EnumerableFloat[]) f.values;
+        EnumerableFloat[] values = f.values;
         if (values.length != 1) {
             return Optional.empty();
         }
-        return Optional.of(values[0]);
+        return Optional.of(values[0].value);
     }
 
     public static boolean floatSubtypeContains(SubtypeData d, EnumerableFloat f) {

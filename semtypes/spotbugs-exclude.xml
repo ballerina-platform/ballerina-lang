@@ -36,6 +36,8 @@
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
             <Class name="io.ballerina.semtype.typeops.IntOps"/>
             <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
+            <Class name="io.ballerina.semtype.typeops.MappingCommonOps"/>
+            <Class name="io.ballerina.semtype.typeops.MappingRoOps"/>
             <Class name="io.ballerina.semtype.typeops.ListTypeRoOps"/>
             <Class name="io.ballerina.semtype.typeops.StringOps"/>
             <Class name="io.ballerina.semtype.typeops.ListTypeRoOps"/>
@@ -101,6 +103,7 @@
     <Match>
         <Or>
             <Class name="io.ballerina.semtype.BddMemo"/>
+            <Class name="io.ballerina.semtype.typeops.FieldPairs"/>
         </Or>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>

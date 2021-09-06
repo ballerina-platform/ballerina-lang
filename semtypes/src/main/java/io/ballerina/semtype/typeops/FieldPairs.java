@@ -17,19 +17,30 @@
  */
 package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.Bdd;
-import io.ballerina.semtype.Common;
-import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.TypeCheckContext;
+import io.ballerina.semtype.MappingAtomicType;
+
+import java.util.Iterator;
 
 /**
- * Mapping readonly specific methods operate on SubtypeData.
+ * Ballerina iterator is similar to an iterable in Java.
+ * This class implements the iterable for `MappingPairing`
  *
  * @since 2.0.0
  */
-public class MappingRoOps extends MappingCommonOps {
+public class FieldPairs implements Iterable<FieldPair> {
+
+    MappingAtomicType m1;
+    MappingAtomicType m2;
+    public MappingPairIterator itr;
+
+    public FieldPairs(MappingAtomicType m1, MappingAtomicType m2) {
+        this.m1 = m1;
+        this.m2 = m2;
+    }
+
     @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        return mappingSubtypeIsEmpty(tc, Common.bddFixReadOnly((Bdd) t));
+    public Iterator<FieldPair> iterator() {
+        itr = new MappingPairIterator(m1, m2);
+        return itr;
     }
 }
