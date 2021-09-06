@@ -74,7 +74,7 @@ public class BallerinaConstantSymbol extends BallerinaVariableSymbol implements 
 
     @Override
     public String signature() {
-        return this.typeDescriptor().signature();
+        return this.getInternalSymbol().name.value;
     }
 
     @Override
