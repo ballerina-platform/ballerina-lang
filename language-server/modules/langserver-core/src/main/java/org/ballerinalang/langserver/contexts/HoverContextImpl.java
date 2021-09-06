@@ -28,7 +28,7 @@ import org.eclipse.lsp4j.Position;
 import javax.annotation.Nonnull;
 
 /**
- * Language server context implementation.
+ * Hover context implementation.
  *
  * @since 1.2.0
  */

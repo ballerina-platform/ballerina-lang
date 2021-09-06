@@ -20,7 +20,10 @@ package org.ballerinalang.test.bala.types;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 /**
  * Tests for types with names that have special characters that may be encoded.
@@ -31,7 +34,12 @@ public class TypeNameWithSpecialCharsBalaTest {
 
     @Test
     public void testTypeNameWithSpecialChars() {
-        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/type-name-with-special-chars");
+        CompileResult compileResult =
+                BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/type-name-with-special-chars");
+        if (compileResult.getErrorCount() != 0) {
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains error");
+        }
         CompileResult result = BCompileUtil.compile(
                 "test-src/bala/test_bala/types/test_type_name_with_special_chars.bal");
         BRunUtil.invoke(result, "testTypeNameWithSpecialChars");
