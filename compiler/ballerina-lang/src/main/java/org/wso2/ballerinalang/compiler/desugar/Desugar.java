@@ -6714,6 +6714,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         });
         BLangExpression expr = new BLangWaitForAllExpr.BLangWaitLiteral(waitExpr.keyValuePairs, waitExpr.getBType());
+        expr.pos = waitExpr.pos;
         result = rewriteExpr(expr);
     }
 

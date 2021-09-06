@@ -157,6 +157,8 @@ public class JvmConstants {
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
     public static final String UNION_TYPE_VAR_PREFIX = "$unionType";
+    public static final String MODULE_VAR_PREFIX = "$module";
+
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
@@ -264,8 +266,10 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
-    public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "$_string_constants";
-    public static final String BUNION_TYPE_CONSTANT_CLASS_NAME = "$_bunion_type_constants";
+    public static final String BUNION_TYPE_CONSTANT_CLASS_NAME = "constants/$_bunion_type_constants";
+    public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
+    public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
+    public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
     public static final String MODULE_RECORDS_CLASS_NAME = "types/$_records";
@@ -274,6 +278,8 @@ public class JvmConstants {
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
     public static final String B_UNION_TYPE_INIT_METHOD_PREFIX = "$union_type_init";
+    public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
+    public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
@@ -296,6 +302,7 @@ public class JvmConstants {
     public static final String DESUGARED_BB_ID_NAME = "desugaredBB";
     public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
     public static final String JVM_INIT_METHOD = "<init>";
+    public static final String JVM_STATIC_INIT_METHOD = "<clinit>";
     public static final String JVM_TO_STRING_METHOD = "toString";
     public static final String JVM_TO_UNSIGNED_INT_METHOD = "toUnsignedInt";
     public static final String GET_VALUE_METHOD = "getValue";
@@ -344,6 +351,7 @@ public class JvmConstants {
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";
     public static final String START_RESOURCE_OBSERVATION_METHOD = "startResourceObservation";
     public static final String START_CALLABLE_OBSERVATION_METHOD = "startCallableObservation";
+    public static final String STOP_OBSERVATION_WITH_ERROR_METHOD = "stopObservationWithError";
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";

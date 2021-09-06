@@ -27,13 +27,13 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,14 +66,15 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        // We will only receive hierarchical imports in importModuleRequests
-        List<ImportModuleResponse> responseListInDist = distributionRepo.resolvePackageNames(importModuleRequests);
-        List<ImportModuleResponse> responseListInCentral =
-                centralRepo.resolvePackageNames(importModuleRequests);
+    public Collection<ImportModuleResponse> resolvePackageNames(Collection<ImportModuleRequest> requests,
+                                                                ResolutionOptions options) {
+        // We will only receive hierarchical imports in requests
+        Collection<ImportModuleResponse> responseListInDist = distributionRepo.getPackageNames(requests, options);
+        Collection<ImportModuleResponse> responseListInCentral = centralRepo.getPackageNames(requests, options);
 
         return new ArrayList<>(
-                Stream.of(responseListInDist, responseListInCentral).flatMap(List::stream).collect(Collectors.toMap(
+                Stream.of(responseListInDist, responseListInCentral)
+                        .flatMap(Collection::stream).collect(Collectors.toMap(
                         ImportModuleResponse::importModuleRequest, Function.identity(),
                         (ImportModuleResponse x, ImportModuleResponse y) -> {
                             if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
@@ -84,9 +85,9 @@ public class DefaultPackageResolver implements PackageResolver {
                             }
                             if (!x.packageDescriptor().name().equals(y.packageDescriptor().name())) {
                                 ResolutionRequest resolutionRequest = ResolutionRequest
-                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT, true);
-                                List<PackageVersion> packageVersions =
-                                        distributionRepo.getPackageVersions(resolutionRequest);
+                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT);
+                                Collection<PackageVersion> packageVersions =
+                                        distributionRepo.getPackageVersions(resolutionRequest, options);
                                 // If module exists in both repos, then we check if a newer version of
                                 // y (package in central) in dist repo.
                                 // If yes, we assume that the latest version of y does not contain the
@@ -102,41 +103,41 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests) {
-        List<ResolutionRequest> localRepoPkgLoadRequest = new ArrayList<>();
-        for (ResolutionRequest pkgLoadRequest : resolutionRequests) {
-            Optional<String> repository = pkgLoadRequest.packageDescriptor().repository();
+    public Collection<PackageMetadataResponse> resolvePackageMetadata(Collection<ResolutionRequest> requests,
+                                                                      ResolutionOptions options) {
+        Collection<ResolutionRequest> localRepoRequests = new ArrayList<>();
+        for (ResolutionRequest request : requests) {
+            Optional<String> repository = request.packageDescriptor().repository();
             if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                localRepoPkgLoadRequest.add(pkgLoadRequest);
+                localRepoRequests.add(request);
             }
         }
 
-        List<PackageMetadataResponse> responseFrmLocalRepo;
-        if (!localRepoPkgLoadRequest.isEmpty()) {
-            responseFrmLocalRepo = localRepo.resolvePackageMetadata(localRepoPkgLoadRequest);
-        } else {
-            responseFrmLocalRepo = Collections.emptyList();
-        }
+        Collection<PackageMetadataResponse> localRepoPackages = localRepoRequests.isEmpty() ?
+                Collections.emptyList() :
+                localRepo.getPackageMetadata(localRepoRequests, options);
 
         // TODO Send ballerina* org names to dist repo
-        List<PackageMetadataResponse> latestVersionsInDist = distributionRepo
-                .resolvePackageMetadata(resolutionRequests);
-
+        Collection<PackageMetadataResponse> latestVersionsInDist =
+                distributionRepo.getPackageMetadata(requests, options);
 
         // Send non built in packages to central
-        List<ResolutionRequest> centralLoadRequests = resolutionRequests.stream()
-                .filter(r -> !ProjectUtils.isBuiltInPackage(r.orgName(), r.packageName().value()))
+        Collection<ResolutionRequest> centralLoadRequests = requests.stream()
+                .filter(r -> !r.packageDescriptor().isBuiltInPackage())
                 .collect(Collectors.toList());
-        List<PackageMetadataResponse> latestVersionsInCentral = centralRepo
-                .resolvePackageMetadata(centralLoadRequests);
+        Collection<PackageMetadataResponse> latestVersionsInCentral =
+                centralRepo.getPackageMetadata(centralLoadRequests, options);
 
-        // TODO Local package should get priority over the same version in central or dist repo
         // TODO Unit test following merge
         List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
-                Stream.of(latestVersionsInDist, latestVersionsInCentral, responseFrmLocalRepo)
-                        .flatMap(List::stream).collect(Collectors.toMap(
+                // Since packages can be resolved from multiple repos
+                // the repos should be provided to the stream in the order of priority.
+                Stream.of(localRepoPackages, latestVersionsInDist, latestVersionsInCentral)
+                        .flatMap(Collection::stream).collect(Collectors.toMap(
                         PackageMetadataResponse::packageLoadRequest, Function.identity(),
                         (PackageMetadataResponse x, PackageMetadataResponse y) -> {
+                            // There will be 2 iterations (number of repos-1) and the returned
+                            // value of the first iteration will be the 'x' for the next iteration.
                             if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
                                 return x;
                             }
@@ -155,23 +156,23 @@ public class DefaultPackageResolver implements PackageResolver {
     }
 
     @Override
-    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> resolutionRequests,
-                                                          boolean offline) {
-        if (resolutionRequests.isEmpty()) {
+    public Collection<ResolutionResponse> resolvePackages(Collection<ResolutionRequest> requests,
+                                                          ResolutionOptions options) {
+        if (requests.isEmpty()) {
             return Collections.emptyList();
         }
 
-        return resolutionRequests.stream()
-                .map(request -> resolvePackage(request, offline))
+        return requests.stream()
+                .map(request -> resolvePackage(request, options))
                 .collect(Collectors.toList());
     }
 
-    private ResolutionResponse resolvePackage(ResolutionRequest resolutionReq, boolean offline) {
+    private ResolutionResponse resolvePackage(ResolutionRequest resolutionReq, ResolutionOptions options) {
         // 1) Load the package from the cache
         Optional<Package> resolvedPackage = loadFromCache(resolutionReq);
         if (resolvedPackage.isEmpty()) {
             // 2) If not try to resolve from local, dist and central repositories
-            resolvedPackage = resolveFromRepository(resolutionReq, offline);
+            resolvedPackage = resolveFromRepository(resolutionReq, options);
             resolvedPackage.ifPresent(packageCache::cache);
         }
 
@@ -186,12 +187,12 @@ public class DefaultPackageResolver implements PackageResolver {
         return packageCache.getPackage(pkgDesc.org(), pkgDesc.name(), pkgDesc.version());
     }
 
-    private Optional<Package> resolveFromRepository(ResolutionRequest resolutionReq, boolean offline) {
+    private Optional<Package> resolveFromRepository(ResolutionRequest resolutionReq, ResolutionOptions options) {
         PackageDescriptor pkgDesc = resolutionReq.packageDescriptor();
 
         // 1) Try to load from the distribution repo, if the requested package is a built-in package.
         if (pkgDesc.isBuiltInPackage()) {
-            return distributionRepo.getPackage(resolutionReq);
+            return distributionRepo.getPackage(resolutionReq, options);
         }
 
         // 2) Try to load from the local repo, if it is requested from the local repo.
@@ -200,16 +201,16 @@ public class DefaultPackageResolver implements PackageResolver {
             if (!ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repository)) {
                 return Optional.empty();
             }
-            return localRepo.getPackage(resolutionReq);
+            return localRepo.getPackage(resolutionReq, options);
         }
 
         // 3) Try to load from the dist repo
         // TODO update this route only ballerina/* and Ballerinax/* stuff to dist repo
-        Optional<Package> resolvedPackage = distributionRepo.getPackage(resolutionReq);
+        Optional<Package> resolvedPackage = distributionRepo.getPackage(resolutionReq, options);
 
         // 4) Load from the central repo as the last attempt
         if (resolvedPackage.isEmpty()) {
-            resolvedPackage = centralRepo.getPackage(resolutionReq);
+            resolvedPackage = centralRepo.getPackage(resolutionReq, options);
         }
 
         return resolvedPackage;

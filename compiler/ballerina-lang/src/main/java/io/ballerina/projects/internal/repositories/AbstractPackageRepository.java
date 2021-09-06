@@ -27,6 +27,7 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
@@ -47,25 +48,27 @@ import java.util.stream.Collectors;
 public abstract class AbstractPackageRepository implements PackageRepository {
 
     @Override
-    public List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests) {
+    public Collection<PackageMetadataResponse> getPackageMetadata(Collection<ResolutionRequest> requests,
+                                                                  ResolutionOptions options) {
         List<PackageMetadataResponse> descriptorSet = new ArrayList<>();
-        for (ResolutionRequest resolutionRequest : resolutionRequests) {
+        for (ResolutionRequest request : requests) {
             List<PackageVersion> versions = getCompatiblePackageVersions(
-                    resolutionRequest.packageDescriptor(), resolutionRequest.packageLockingMode());
+                    request.packageDescriptor(), request.packageLockingMode());
             PackageVersion latest = findLatest(versions);
             if (latest != null) {
-                descriptorSet.add(createMetadataResponse(resolutionRequest, latest));
+                descriptorSet.add(createMetadataResponse(request, latest));
             } else {
-                descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(resolutionRequest));
+                descriptorSet.add(PackageMetadataResponse.createUnresolvedResponse(request));
             }
         }
         return descriptorSet;
     }
 
     @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+    public Collection<ImportModuleResponse> getPackageNames(Collection<ImportModuleRequest> requests,
+                                                            ResolutionOptions options) {
         List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
-        for (ImportModuleRequest importModuleRequest : importModuleRequests) {
+        for (ImportModuleRequest importModuleRequest : requests) {
             ImportModuleResponse importModuleLoadResponse = getImportModuleLoadResponse(importModuleRequest);
             importModuleResponseList.add(importModuleLoadResponse);
         }

@@ -1,6 +1,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.PackageMetadataResponse;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.ImportModuleRequest;
@@ -20,6 +21,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,9 +55,12 @@ public class RemotePackageRepositoryTests {
     PackageDescriptor smtp130 = PackageDescriptor.from(
             PackageOrg.from("ballerinax"), PackageName.from("smtp"), PackageVersion.from("1.3.0"));
     // - Resolution requests
-    ResolutionRequest resHttp120 = ResolutionRequest.from(http120 , PackageDependencyScope.DEFAULT, false);
-    ResolutionRequest resCovid156 = ResolutionRequest.from(covid156 , PackageDependencyScope.DEFAULT, false);
-    ResolutionRequest resSmtp130 = ResolutionRequest.from(smtp130 , PackageDependencyScope.DEFAULT, false);
+    ResolutionRequest resHttp120 = ResolutionRequest.from(http120, PackageDependencyScope.DEFAULT);
+    ResolutionRequest resCovid156 = ResolutionRequest.from(covid156, PackageDependencyScope.DEFAULT);
+    ResolutionRequest resSmtp130 = ResolutionRequest.from(smtp130, PackageDependencyScope.DEFAULT);
+
+    ResolutionOptions offlineTrueOption = ResolutionOptions.builder().setOffline(true).build();
+    ResolutionOptions offlineFalseOption = ResolutionOptions.builder().setOffline(false).build();
 
     // - Data returned from central client
     // -- dependency package
@@ -87,18 +92,19 @@ public class RemotePackageRepositoryTests {
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
                 anyString(), anyString(), anyBoolean())).thenReturn(response);
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList()))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
 
         // Test call to remote repository
-        List<PackageMetadataResponse> resolutionResponseDescriptors =
-                remotePackageRepository.resolvePackageMetadata(Arrays.asList(resHttp120, resCovid156));
+        List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
+                remotePackageRepository.getPackageMetadata(
+                        Arrays.asList(resHttp120, resCovid156), offlineFalseOption));
 
         // response should return resolution for same number of requests
         Assert.assertEquals(resolutionResponseDescriptors.size(), 2);
 
         // If the remote repository version is higher than filesystem it should return remote version
-        PackageMetadataResponse httpResult =  resolutionResponseDescriptors.get(0);
+        PackageMetadataResponse httpResult = resolutionResponseDescriptors.get(0);
         Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.2");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
@@ -121,19 +127,20 @@ public class RemotePackageRepositoryTests {
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
                 anyString(), anyString(), anyBoolean())).thenReturn(response);
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList()))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(PackageMetadataResponse.createUnresolvedResponse(resHttp120),
                         fileCovid159, fileSmtp130));
 
         // Test call to remote repository
-        List<PackageMetadataResponse> resolutionResponseDescriptors =
-                remotePackageRepository.resolvePackageMetadata(Arrays.asList(resHttp120, resCovid156, resSmtp130));
+        List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
+                remotePackageRepository.getPackageMetadata(
+                        Arrays.asList(resHttp120, resCovid156, resSmtp130), offlineFalseOption));
 
         // response should return resolution for same number of requests
         Assert.assertEquals(resolutionResponseDescriptors.size(), 3);
 
         // if local is unresolved it should return remote
-        PackageMetadataResponse httpResult =  resolutionResponseDescriptors.get(0);
+        PackageMetadataResponse httpResult = resolutionResponseDescriptors.get(0);
         Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.2");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
@@ -158,20 +165,21 @@ public class RemotePackageRepositoryTests {
                 anyString(), anyString(), anyBoolean()))
                 .thenThrow(new AssertionError("Client get called in offline mode"));
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList()))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
 
         // Test call to remote repository
-        ResolutionRequest resHttp120Offline = ResolutionRequest.from(http120 , PackageDependencyScope.DEFAULT, true);
-        ResolutionRequest resCovid156Offline = ResolutionRequest.from(covid156 , PackageDependencyScope.DEFAULT, true);
-        List<PackageMetadataResponse> resolutionResponseDescriptors =
-                remotePackageRepository.resolvePackageMetadata(Arrays.asList(resHttp120Offline, resCovid156Offline));
+        ResolutionRequest resHttp120Offline = ResolutionRequest.from(http120, PackageDependencyScope.DEFAULT);
+        ResolutionRequest resCovid156Offline = ResolutionRequest.from(covid156, PackageDependencyScope.DEFAULT);
+        List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
+                remotePackageRepository.getPackageMetadata(
+                        Arrays.asList(resHttp120Offline, resCovid156Offline), offlineTrueOption));
 
         // response should return resolution for same number of requests
         Assert.assertEquals(resolutionResponseDescriptors.size(), 2);
 
         // If the remote repository version is higher than filesystem it should return remote version
-        PackageMetadataResponse httpResult =  resolutionResponseDescriptors.get(0);
+        PackageMetadataResponse httpResult = resolutionResponseDescriptors.get(0);
         Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.1");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
@@ -190,18 +198,19 @@ public class RemotePackageRepositoryTests {
         when(centralAPIClient.resolveDependencies(any(PackageResolutionRequest.class),
                 anyString(), anyString(), anyBoolean())).thenThrow(new ConnectionErrorException("500 Error"));
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageMetadata(anyList()))
+        when(fileSystemRepository.getPackageMetadata(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileHttp120, fileCovid159));
 
         // Test call to remote repository
-        List<PackageMetadataResponse> resolutionResponseDescriptors =
-                remotePackageRepository.resolvePackageMetadata(Arrays.asList(resHttp120, resCovid156));
+        List<PackageMetadataResponse> resolutionResponseDescriptors = new ArrayList<>(
+                remotePackageRepository.getPackageMetadata(
+                        Arrays.asList(resHttp120, resCovid156), offlineFalseOption));
 
         // response should return resolution for same number of requests
         Assert.assertEquals(resolutionResponseDescriptors.size(), 2);
 
         // If the remote repository version is higher than filesystem it should return remote version
-        PackageMetadataResponse httpResult =  resolutionResponseDescriptors.get(0);
+        PackageMetadataResponse httpResult = resolutionResponseDescriptors.get(0);
         Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.1");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
@@ -237,12 +246,11 @@ public class RemotePackageRepositoryTests {
                 anyString(), anyString(), anyBoolean())).thenReturn(centralResponse);
 
         // Mock response from file system
-        when(fileSystemRepository.resolvePackageNames(anyList()))
+        when(fileSystemRepository.getPackageNames(anyList(), any(ResolutionOptions.class)))
                 .thenReturn(Arrays.asList(fileJavaArray, fileCovid, fileUnresolved));
 
-
-        List<ImportModuleResponse> response = this.remotePackageRepository
-                .resolvePackageNames(Arrays.asList(javaArrayReq, covidReq, unknownReq));
+        List<ImportModuleResponse> response = new ArrayList<>(this.remotePackageRepository
+                .getPackageNames(Arrays.asList(javaArrayReq, covidReq, unknownReq), offlineFalseOption));
 
         Assert.assertEquals(response.size(), 3);
         ImportModuleResponse javaArray = response.get(0);

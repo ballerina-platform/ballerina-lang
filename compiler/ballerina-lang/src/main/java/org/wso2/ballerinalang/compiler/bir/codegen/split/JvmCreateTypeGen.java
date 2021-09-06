@@ -121,6 +121,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
@@ -159,7 +160,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFiel
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
-import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
  * BIR types to JVM byte code generation class.
@@ -169,6 +169,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 public class JvmCreateTypeGen {
 
     private final JvmTypeGen jvmTypeGen;
+    private final JvmConstantsGen jvmConstantsGen;
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
     private final TypeHashVisitor typeHashVisitor;
     private static final int MAX_TYPES_PER_METHOD = 100;
@@ -178,9 +179,9 @@ public class JvmCreateTypeGen {
     private final String objectsClass;
     private final String errorsClass;
 
-
-    public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, PackageID packageID) {
+    public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen, PackageID packageID) {
         this.jvmTypeGen = jvmTypeGen;
+        this.jvmConstantsGen = jvmConstantsGen;
         typeHashVisitor = new TypeHashVisitor();
         this.typesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
@@ -337,7 +338,7 @@ public class JvmCreateTypeGen {
                     populateError(mv, (BErrorType) bType);
                     break;
                 case TypeTags.UNION:
-                    populateUnion(cw, mv, (BUnionType) bType, fieldName);
+                    populateUnion(cw, mv, (BUnionType) bType, typesClass, fieldName);
                     break;
                 case TypeTags.TUPLE:
                     populateTuple(mv, (BTupleType) bType);
@@ -363,15 +364,13 @@ public class JvmCreateTypeGen {
         addImmutableType(mv, bType);
     }
 
-    private void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String name) {
+    public void populateUnion(ClassWriter cw, MethodVisitor mv, BUnionType bType, String className, String name) {
         mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
-        mv.visitInsn(DUP);
 
-        addCyclicFlag(mv, bType);
         // populate member fields
-        addUnionMembers(cw, mv, bType, name);
+        addUnionMembers(cw, mv, bType, className, name);
         addImmutableType(mv, bType);
     }
 
@@ -427,14 +426,15 @@ public class JvmCreateTypeGen {
 
     private void addImmutableType(MethodVisitor mv, BType type) {
         BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
-        if (immutableType == null || !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))) {
+        if (immutableType == null || type.tsymbol == null || immutableType.tsymbol == null ||
+                !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))) {
             return;
         }
 
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, immutableType);
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, String.format("(L%s;)V",
-                                                                                         INTERSECTION_TYPE), true);
+                                                                                           INTERSECTION_TYPE), true);
     }
 
     private void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {
@@ -455,13 +455,9 @@ public class JvmCreateTypeGen {
     private void addTypeId(MethodVisitor mv, BTypeIdSet.BTypeId typeId, boolean isPrimaryTypeId) {
         mv.visitInsn(DUP);
         // Load package
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-        mv.visitLdcInsn(typeId.packageID.orgName.value);
-        mv.visitLdcInsn(typeId.packageID.name.value);
-        mv.visitLdcInsn(getMajorVersion(typeId.packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+        String varName = jvmConstantsGen.getModuleConstantVar(typeId.packageID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                          String.format("L%s;", MODULE));
 
         mv.visitLdcInsn(typeId.name);
         mv.visitInsn(isPrimaryTypeId ? ICONST_1 : ICONST_0);
@@ -737,7 +733,7 @@ public class JvmCreateTypeGen {
         FieldVisitor fv = cw.visitField(Opcodes.ACC_STATIC, metaDataVarName, String.format("L%s;", STRAND_METADATA),
                 null, null);
         fv.visitEnd();
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
         mv.visitCode();
         JvmCodeGenUtil.genStrandMetadataField(mv, typeOwnerClass, module.packageID, metaDataVarName,
                 new ScheduleFunctionInfo(varName));
@@ -1119,17 +1115,9 @@ public class JvmCreateTypeGen {
 
         // Load package path
         // TODO: get it from the type
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-
-        PackageID packageID = recordType.tsymbol.pkgID;
-
-        mv.visitLdcInsn(packageID.orgName.value);
-        mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-
+        String varName = jvmConstantsGen.getModuleConstantVar(recordType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                          String.format("L%s;", MODULE));
         // Load flags
         mv.visitLdcInsn(recordType.tsymbol.flags);
 
@@ -1250,17 +1238,9 @@ public class JvmCreateTypeGen {
         mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
         // Load package path
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-
-        PackageID packageID = objectType.tsymbol.pkgID;
-
-        mv.visitLdcInsn(packageID.orgName.value);
-        mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-
+        String varName = jvmConstantsGen.getModuleConstantVar(objectType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                          String.format("L%s;", MODULE));
         // Load flags
         mv.visitLdcInsn(typeSymbol.flags);
 
@@ -1275,32 +1255,34 @@ public class JvmCreateTypeGen {
      * @param mv        method visitor
      * @param unionType union type
      */
-    private void createUnionType(MethodVisitor mv, BUnionType unionType) {
+    public void createUnionType(MethodVisitor mv, BUnionType unionType) {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        jvmTypeGen.loadUnionName(mv, unionType);
-
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-
-        PackageID packageID = unionType.tsymbol.pkgID;
-
-        mv.visitLdcInsn(packageID.orgName.value);
-        mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+        boolean nameLoaded = jvmTypeGen.loadUnionName(mv, unionType);
+        if (nameLoaded) {
+            BTypeSymbol tsymbol = unionType.tsymbol;
+            if (tsymbol == null) {
+                mv.visitInsn(ACONST_NULL);
+            } else {
+                String varName = jvmConstantsGen.getModuleConstantVar(unionType.tsymbol.pkgID);
+                mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                        String.format("L%s;", MODULE));
+            }
+        }
 
         mv.visitLdcInsn(jvmTypeGen.typeFlag(unionType));
 
         jvmTypeGen.loadCyclicFlag(mv, unionType);
 
         mv.visitLdcInsn(unionType.flags);
-
         // initialize the union type without the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;IZJ)V", STRING_VALUE, MODULE), false);
+        if (nameLoaded) {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
+                               String.format("(L%s;L%s;IZJ)V", STRING_VALUE, MODULE), false);
+        } else {
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, "(IZJ)V", false);
+        }
     }
 
     /**
@@ -1317,15 +1299,9 @@ public class JvmCreateTypeGen {
         BTypeSymbol typeSymbol = tupleType.tsymbol;
         mv.visitLdcInsn(decodeIdentifier(typeSymbol.name.getValue()));
 
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-        PackageID packageID = tupleType.tsymbol.pkgID;
-        mv.visitLdcInsn(packageID.orgName.value);
-        mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-
+        String varName = jvmConstantsGen.getModuleConstantVar(tupleType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                          String.format("L%s;", MODULE));
         mv.visitLdcInsn(jvmTypeGen.typeFlag(tupleType));
         jvmTypeGen.loadCyclicFlag(mv, tupleType);
         jvmTypeGen.loadReadonlyFlag(mv, tupleType);
@@ -1361,12 +1337,13 @@ public class JvmCreateTypeGen {
      * @param mv        method visitor
      * @param unionType unionType
      */
-    private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String name) {
-        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), typesClass, name);
+    private void addUnionMembers(ClassWriter cw, MethodVisitor mv, BUnionType unionType, String className,
+                                 String name) {
+        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getMemberTypes(), className, name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
                            String.format("([L%s;)V", TYPE), false);
 
-        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), typesClass, "original" + name);
+        jvmTypeGen.createUnionMembersArray(cw, mv, unionType.getOriginalMemberTypes(), className, "original" + name);
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD,
                            String.format("([L%s;)V", TYPE), false);
     }
@@ -1379,11 +1356,7 @@ public class JvmCreateTypeGen {
      */
     private void addCyclicFlag(MethodVisitor mv, BType userDefinedType) {
         jvmTypeGen.loadCyclicFlag(mv, userDefinedType);
-        if (userDefinedType.tag == TypeTags.TUPLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-        } else if (userDefinedType.tag == TypeTags.UNION) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
-        }
+        mv.visitMethodInsn(INVOKEVIRTUAL, TUPLE_TYPE_IMPL, SET_CYCLIC_METHOD, "(Z)V", false);
     }
 
     /**
@@ -1777,15 +1750,9 @@ public class JvmCreateTypeGen {
         mv.visitLdcInsn(IdentifierUtils.decodeIdentifier(name));
 
         // Load package
-        mv.visitTypeInsn(NEW, MODULE);
-        mv.visitInsn(DUP);
-        PackageID packageID = errorType.tsymbol.pkgID;
-        mv.visitLdcInsn(packageID.orgName.value);
-        mv.visitLdcInsn(packageID.name.value);
-        mv.visitLdcInsn(getMajorVersion(packageID.version.value));
-        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
-
+        String varName = jvmConstantsGen.getModuleConstantVar(errorType.tsymbol.pkgID);
+        mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName,
+                          String.format("L%s;", MODULE));
         // initialize the error type
         mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE_IMPL, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;)V", STRING_VALUE, MODULE), false);

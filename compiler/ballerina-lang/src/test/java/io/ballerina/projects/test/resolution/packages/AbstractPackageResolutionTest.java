@@ -48,7 +48,7 @@ public abstract class AbstractPackageResolutionTest {
         Path testSuitePath = RESOURCE_DIRECTORY.resolve(testSuiteDirName);
         TestCaseFilePaths filePaths = TestCaseFilePathsBuilder.build(testSuitePath,
                 testSuitePath.resolve(testCaseDirName));
-        PackageResolutionTestCase resolutionTestCase = PackageResolutionTestCaseBuilder.build(filePaths);
+        PackageResolutionTestCase resolutionTestCase = PackageResolutionTestCaseBuilder.build(filePaths, sticky);
         DependencyGraph<DependencyNode> actualGraph = resolutionTestCase.execute(sticky);
         DependencyGraph<DependencyNode> expectedGraph = resolutionTestCase.getExpectedGraph(sticky);
         GraphComparisonResult compResult = GraphUtils.compareGraph(actualGraph, expectedGraph);

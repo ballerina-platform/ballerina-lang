@@ -60,8 +60,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
@@ -111,7 +109,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         } else {
             this.valueHolder = new ValueHolder();
         }
-        this.typedesc = getTypedescValue(type, this);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public TableValueImpl(TableType type, ArrayValue data, ArrayValue fieldNames) {
@@ -121,9 +119,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         addData(data);
-        if (type.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
-        }
     }
 
     private void addData(ArrayValue data) {
@@ -333,7 +328,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     public String stringValue(BLink parent) {

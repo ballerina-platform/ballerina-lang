@@ -29,19 +29,22 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * <p>
@@ -589,7 +592,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         for (BXml elem : children) {
             elem.freezeDirect();
         }
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -636,5 +639,27 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
                 // Since 'xml:Text is same as xml<'xml:Text>
                 return PredefinedTypes.TYPE_TEXT;
         }
+    }
+
+    private void initializeIteratorNextReturnType() {
+        Type childrenType;
+        if (children.size() == 1) {
+            childrenType = children.get(0).getType();
+        } else {
+            Set<Type> types = new HashSet<>();
+            for (int i = 0; i < children.size(); i++) {
+                types.add(children.get(i).getType());
+            }
+            childrenType = new BUnionType(new ArrayList<>(types));
+        }
+        iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(childrenType);
+    }
+
+    @Override
+    public Type getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            initializeIteratorNextReturnType();
+        }
+        return iteratorNextReturnType;
     }
 }
