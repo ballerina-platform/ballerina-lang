@@ -27,6 +27,7 @@ import io.ballerina.shell.parser.trials.EmptyExpressionTrial;
 import io.ballerina.shell.parser.trials.ExpressionTrial;
 import io.ballerina.shell.parser.trials.GetErrorMessageTrial;
 import io.ballerina.shell.parser.trials.ImportDeclarationTrial;
+import io.ballerina.shell.parser.trials.InvalidMethodException;
 import io.ballerina.shell.parser.trials.ModuleMemberTrial;
 import io.ballerina.shell.parser.trials.ModulePartTrial;
 import io.ballerina.shell.parser.trials.ParserRejectedException;
@@ -75,6 +76,9 @@ public class SerialTreeParser extends TrialTreeParser {
             } catch (ParserRejectedException e) {
                 errorMessage = "Invalid statement: " + e.getMessage();
                 break;
+            } catch (InvalidMethodException e) {
+                errorMessage = e.getMessage();
+                addErrorDiagnostic(errorMessage);
             } catch (Throwable e) {
                 errorMessage = "Code contains syntax error(s).";
             }

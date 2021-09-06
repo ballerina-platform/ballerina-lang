@@ -90,7 +90,10 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
             return this.signature;
         }
 
-        String definitionName = getBType().tsymbol.name.value;
+        String definitionName = "error";
+        if (!isDefaultDetailTypeDesc()) {
+            definitionName += "<" + detailTypeDescriptor().signature() + ">";
+        }
 
         if (this.getModule().isEmpty()) {
             this.signature = definitionName;
@@ -106,5 +109,30 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         }
 
         return this.signature;
+    }
+
+    private boolean isDefaultDetailTypeDesc() {
+
+        if (detailTypeDescriptor().typeKind() == TypeDescKind.MAP) {
+
+            BallerinaMapTypeSymbol mapTypeSymbol = (BallerinaMapTypeSymbol) detailTypeDescriptor();
+            Optional<String> name = mapTypeSymbol.typeParam().getName();
+
+            if (name.isPresent()) {
+
+                if (name.get().equals("Cloneable")) {
+                    if (mapTypeSymbol.typeParam().getModule().isPresent()) {
+
+                        ModuleID moduleID = mapTypeSymbol.typeParam().getModule().get().id();
+
+                        return moduleID.orgName().equals("ballerina") && moduleID.packageName().equals("lang.value");
+                    }
+                }
+
+                return name.get().equals("__Cloneable");
+            }
+        }
+
+        return false;
     }
 }

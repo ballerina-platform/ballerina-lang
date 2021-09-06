@@ -4618,7 +4618,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
-        for (STNode qualifier : qualifiers) {
+        for (int i = qualifiers.size() - 1; i >= 0; i--) {
+            STNode qualifier = qualifiers.get(i);
             node = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, qualifier);
         }
         return node;
