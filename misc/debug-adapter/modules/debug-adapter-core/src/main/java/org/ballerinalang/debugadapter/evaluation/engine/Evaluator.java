@@ -32,12 +32,14 @@ import java.util.Map;
  */
 public abstract class Evaluator {
 
+    protected final EvaluationContext evaluationContext;
     protected final SuspendedContext context;
     protected final Map<String, ModuleSymbol> resolvedImports;
 
-    public Evaluator(EvaluationContext context) {
-        this.context = context.getSuspendedContext();
-        this.resolvedImports = context.getResolvedImports();
+    public Evaluator(EvaluationContext evaluationContext) {
+        this.context = evaluationContext.getSuspendedContext();
+        this.evaluationContext = evaluationContext;
+        this.resolvedImports = evaluationContext.getResolvedImports();
     }
 
     /**
