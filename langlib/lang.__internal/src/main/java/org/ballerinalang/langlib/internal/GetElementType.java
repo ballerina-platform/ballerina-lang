@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -27,7 +26,6 @@ import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 
@@ -53,18 +51,12 @@ public class GetElementType {
             case TypeTags.TUPLE_TAG:
                 return ValueCreator.createTypedescValue(
                         TypeCreator.createUnionType(((TupleType) type).getTupleTypes()));
-            case TypeTags.STREAM_TAG:
-                return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
             case TypeTags.FINITE_TYPE_TAG:
-                if (((FiniteType) type).getValueSpace().size() == 1) {
-                    return getElementTypeDescValue(
-                            ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
-                }
-                break;
+                // this is reached only for immutable values
+                return getElementTypeDescValue(
+                        ((BValue) (((FiniteType) type).getValueSpace().iterator().next())).getType());
             default:
-                break;
+                return ValueCreator.createTypedescValue(((StreamType) type).getConstrainedType());
         }
-        throw ErrorCreator.createError(StringUtils.fromString("retrieving element type from '" + type +
-                "' is not supported."));
     }
 }
