@@ -43,14 +43,15 @@ public class SemTypeCoreTest {
         Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.NIL, PredefinedType.ANY));
         Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.INT, PredefinedType.TOP));
         Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.ANY, PredefinedType.TOP));
-        Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.INT, PredefinedType.BOOLEAN));
-        Assert.assertTrue(Core.isSubtypeSimple(PredefinedType.ERROR, PredefinedType.ANY));
+        Assert.assertFalse(Core.isSubtypeSimple(PredefinedType.INT, PredefinedType.BOOLEAN));
+        Assert.assertFalse(Core.isSubtypeSimple(PredefinedType.ERROR, PredefinedType.ANY));
     }
 
     @Test
     public void testSingleNumericType() {
         Assert.assertEquals(Core.singleNumericType(PredefinedType.INT), Optional.of(PredefinedType.INT));
         Assert.assertEquals(Core.singleNumericType(PredefinedType.BOOLEAN), Optional.empty());
+        //Core.singleNumericType(Core.singleton(1L));
         Assert.assertEquals(Core.singleNumericType(Core.singleton(1L)), Optional.of(PredefinedType.INT));
         Assert.assertEquals(Core.singleNumericType(Core.union(PredefinedType.INT, PredefinedType.FLOAT)),
                Optional.empty());
@@ -82,7 +83,7 @@ public class SemTypeCoreTest {
     private void disjoint(TypeCheckContext tc, UniformTypeBitSet t1, UniformTypeBitSet t2) {
         Assert.assertFalse(Core.isSubtype(tc, t1, t2));
         Assert.assertFalse(Core.isSubtype(tc, t2, t1));
-        Assert.assertFalse(Core.isEmpty(tc, Core.intersect(t1, t2)));
+        Assert.assertTrue(Core.isEmpty(tc, Core.intersect(t1, t2)));
     }
 
     @Test
