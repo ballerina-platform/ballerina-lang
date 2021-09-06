@@ -20,8 +20,13 @@ package io.ballerina.semtype.subtypedata;
 import io.ballerina.semtype.EnumerableString;
 import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.EnumerableType;
+import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.ProperSubtypeData;
+import io.ballerina.semtype.SemType;
 import io.ballerina.semtype.SubtypeData;
+import io.ballerina.semtype.UniformTypeCode;
+
+import java.util.Optional;
 
 /**
  * Represent StringSubtype.
@@ -38,6 +43,10 @@ public class StringSubtype extends EnumerableSubtype implements ProperSubtypeDat
         this.values = values;
     }
 
+    private StringSubtype(boolean allowed, EnumerableString value) {
+        this(allowed, new EnumerableString[]{value});
+    }
+
     public static boolean stringSubtypeContains(SubtypeData d, String s) {
         if (d instanceof AllOrNothingSubtype) {
             return ((AllOrNothingSubtype) d).isAllSubtype();
@@ -45,8 +54,8 @@ public class StringSubtype extends EnumerableSubtype implements ProperSubtypeDat
         StringSubtype v = (StringSubtype) d;
 
         boolean found = false;
-        for (EnumerableType value : v.values) {
-            if (((EnumerableString) value).value.equals(s)) {
+        for (EnumerableString value : v.values) {
+            if (value.value.equals(s)) {
                 found = true;
                 break;
             }
@@ -60,6 +69,26 @@ public class StringSubtype extends EnumerableSubtype implements ProperSubtypeDat
             return new AllOrNothingSubtype(!allowed);
         }
         return new StringSubtype(allowed, values);
+    }
+
+    public static Optional<String> stringSubtypeSingleValues(SubtypeData d) {
+        if (d instanceof AllOrNothingSubtype) {
+            return Optional.empty();
+        }
+        StringSubtype s = (StringSubtype) d;
+        if (!s.allowed) {
+            return Optional.empty();
+        }
+        EnumerableString[] values = s.values;
+        if (values.length != 1) {
+            return Optional.empty();
+        }
+        return Optional.of(values[0].value);
+    }
+
+    public static SemType stringConst(String value) {
+        return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, new StringSubtype(true,
+                EnumerableString.from(value)));
     }
 
     @Override
