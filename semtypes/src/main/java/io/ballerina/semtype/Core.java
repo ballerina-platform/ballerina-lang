@@ -541,9 +541,10 @@ public class Core {
 
     public static Optional<UniformTypeBitSet> singleNumericType(SemType semType) {
         SemType numType = intersect(semType, PredefinedType.NUMBER);
-        if (numType instanceof UniformTypeBitSet &
-                ((UniformTypeBitSet) numType).bitset == PredefinedType.NEVER.bitset) {
-            return Optional.empty();
+        if (numType instanceof UniformTypeBitSet) {
+            if (((UniformTypeBitSet) numType).bitset == PredefinedType.NEVER.bitset) {
+                return Optional.empty();
+            }
         }
         if (isSubtypeSimple(numType, PredefinedType.INT)) {
             return Optional.of(PredefinedType.INT);
