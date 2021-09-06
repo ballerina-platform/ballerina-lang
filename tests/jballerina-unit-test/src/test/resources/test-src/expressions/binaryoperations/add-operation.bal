@@ -151,6 +151,8 @@ function testContextuallyExpectedTypeOfNumericLiteralInAdd() {
     assertEqual(a6, 8.0d);
 }
 
+type Ints 1|2;
+
 function testAddNullable() {
     int? a1 = 5;
     int? a2 = 6;
@@ -169,12 +171,17 @@ function testAddNullable() {
     float? a14 = a6 + a9;
     float? a15 = a6 + a8;
 
+    Ints a16 = 2;
+    int? a17 = 1;
+    int? a18 = a16 + a17;
+
     assertEqual(a10, 33);
     assertEqual(a11, 22);
     assertEqual(a12, ());
     assertEqual(a13, 15.5);
     assertEqual(a14, 10.5);
     assertEqual(a15, ());
+    assertEqual(a18, 3);
 }
 
 function assertEqual(any actual, any expected) {

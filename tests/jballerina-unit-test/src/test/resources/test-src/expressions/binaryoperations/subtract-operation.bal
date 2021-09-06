@@ -75,6 +75,8 @@ function testSubtractSingleton() {
     assertEqual(a1 - a7, 8);
 }
 
+type Ints 1|2;
+
 function testSubNullable() {
     int? a1 = 5;
     int? a2 = 6;
@@ -93,12 +95,17 @@ function testSubNullable() {
     float? a14 = a6 - a9;
     float? a15 = a6 - a8;
 
+    Ints a16 = 2;
+    int? a17 = 1;
+    int? a18 = a16 - a17;
+
     assertEqual(a10, 1);
     assertEqual(a11, 2);
     assertEqual(a12, ());
     assertEqual(a13, 4.5);
     assertEqual(a14, 0.5);
     assertEqual(a15, ());
+    assertEqual(a18, 1);
 }
 
 function testContextuallyExpectedTypeOfNumericLiteralInSubtract() {
