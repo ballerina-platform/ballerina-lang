@@ -6062,11 +6062,11 @@ public class Desugar extends BLangNodeVisitor {
 
     private String generateName(String name) {
         if (env.node.getKind() == NodeKind.FUNCTION) {
-            return ((BLangFunction) env.node).symbol.name.value + name;
+            return ((BLangFunction) env.node).symbol.name.value + UNDERSCORE + name;
         } else if (env.node.getKind() == NodeKind.RESOURCE_FUNC) {
-            return ((BLangResourceFunction) env.node).symbol.name.value + name;
+            return ((BLangResourceFunction) env.node).symbol.name.value + UNDERSCORE + name;
         } else {
-            return ((BLangFunctionTypeNode) env.node).symbol.name.value + name;
+            return ((BLangFunctionTypeNode) env.node).symbol.name.value  + UNDERSCORE + name;
         }
     }
 

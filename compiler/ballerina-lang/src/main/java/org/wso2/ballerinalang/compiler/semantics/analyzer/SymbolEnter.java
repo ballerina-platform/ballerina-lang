@@ -420,6 +420,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define function nodes.
         for (BLangFunction bLangFunction : pkgNode.functions) {
+            // Define the lambda functions when visit lambda exprs because the lambda function is an expr.
             if (!bLangFunction.flagSet.contains(Flag.LAMBDA)) {
                 defineNode(bLangFunction, pkgEnv);
             }
