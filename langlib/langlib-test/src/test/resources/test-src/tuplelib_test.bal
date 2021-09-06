@@ -158,3 +158,15 @@ function testToStream() {
     test:assertValueEqual({value:true}, stream4.next());
     test:assertValueEqual((), stream4.next());
 }
+
+type castedStreamType stream<([int, string] & readonly)|([boolean, float] & readonly)>;
+
+function testToStreamOnImmutableTuple() {
+    [[int, string], [boolean, float]] & readonly immutableTuple = [[1, "two"], [true, 12.4]];
+    var strm = immutableTuple.toStream();
+
+    castedStreamType castedstrm = <castedStreamType> strm;
+    test:assertValueEqual([1, "two"], castedstrm.next()?.value);
+    test:assertValueEqual([true, 12.4], castedstrm.next()?.value);
+    test:assertValueEqual((), castedstrm.next()?.value);
+}

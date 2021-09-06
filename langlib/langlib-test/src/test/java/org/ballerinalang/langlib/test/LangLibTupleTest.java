@@ -29,6 +29,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -145,9 +146,9 @@ public class LangLibTupleTest {
         assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test
-    public void testToStream() {
-        BRunUtil.invoke(compileResult, "testToStream");
+    @Test(dataProvider = "testToStreamFunctionList")
+    public void testToStream(String funcName) {
+        BRunUtil.invoke(compileResult, funcName);
     }
 
     @Test
@@ -155,5 +156,13 @@ public class LangLibTupleTest {
         assertEquals(negativeResult.getErrorCount(), 1);
         validateError(negativeResult, 0, "incompatible types: expected '[int,string][]', " +
                 "found '[int,(string|int)][]'", 20, 25);
+    }
+
+    @DataProvider(name = "testToStreamFunctionList")
+    public Object[] testToStreamFunctions() {
+        return new Object[]{
+                "testToStream",
+                "testToStreamOnImmutableTuple"
+        };
     }
 }
