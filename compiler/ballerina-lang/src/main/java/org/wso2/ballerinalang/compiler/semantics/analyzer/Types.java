@@ -3667,8 +3667,8 @@ public class Types {
 
     boolean validNumericTypeExists(BType type) {
 
-        if (type.isNullable() && type.tag!=TypeTags.ANY && type.tag != TypeTags.NIL) {
-            BType nilLiftType = ((BUnionType)type).getMemberTypes().iterator().next();
+        if (type.isNullable() && type.tag != TypeTags.ANY && type.tag != TypeTags.NIL) {
+            BType nilLiftType = ((BUnionType) type).getMemberTypes().iterator().next();
             if (isBasicNumericType(nilLiftType)) {
                 return true;
             }
