@@ -771,63 +771,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangUserDefinedType userDefinedType) {
-        if (userDefinedType.getBType() == null) {
-            userDefinedType.setBType(symResolver.resolveTypeNode(userDefinedType, env));
-        }
-    }
-
-    @Override
-    public void visit(BLangValueType valueType) {
-        if (valueType.getBType() == null) {
-            valueType.setBType(symResolver.resolveTypeNode(valueType, env));
-        }
-    }
-
-    @Override
-    public void visit(BLangBuiltInRefTypeNode builtInRefTypeNode) {
-    }
-
-    @Override
-    public void visit(BLangStreamType streamType) {
-        analyzeDef(streamType.constraint, env);
-    }
-
-    @Override
-    public void visit(BLangArrayType arrayType) {
-        analyzeDef(arrayType.elemtype, env);
-    }
-
-    @Override
-    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
-        for (BLangType langType : intersectionTypeNode.constituentTypeNodes) {
-            analyzeDef(langType, env);
-        }
-    }
-    @Override
-    public void visit(BLangConstrainedType constrainedType) {
-        analyzeDef(constrainedType.constraint, env);
-    }
-
-    @Override
-    public void visit(BLangUnionTypeNode unionTypeNode) {
-        List<BLangType> unionMemberTypes = unionTypeNode.memberTypeNodes;
-        for (BLangType memType : unionMemberTypes) {
-            analyzeDef(memType, env);
-        }
-    }
-
-    @Override
-    public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangType memType : tupleTypeNode.memberTypeNodes) {
-            analyzeDef(memType, env);
-        }
-        if (tupleTypeNode.restParamType != null) {
-            analyzeDef(tupleTypeNode.restParamType, env);
-        }
-    }
-
-    @Override
     public void visit(BLangErrorType errorType) {
         if (errorType.detailType == null) {
             return;
@@ -844,20 +787,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangConstrainedType constrainedType) {
         analyzeDef(constrainedType.constraint, env);
-    }
-
-    @Override
-    public void visit(BLangFunctionTypeNode functionTypeNode) {
-        List<BLangVariable> params = functionTypeNode.params;
-        for (BLangVariable param : params) {
-            analyzeDef(param.typeNode, env);
-        }
-        if (functionTypeNode.restParam != null) {
-            analyzeDef(functionTypeNode.restParam.typeNode, env);
-        }
-        if (functionTypeNode.returnTypeNode != null) {
-            analyzeDef(functionTypeNode.returnTypeNode, env);
-        }
     }
 
     @Override

@@ -1492,6 +1492,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!this.resolveRecordsUnresolvedDueToFields && typeNodeKind == NodeKind.RECORD_TYPE) {
             BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
             for (BLangSimpleVariable variable : structureTypeNode.fields) {
+                if (variable.typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
+                    continue;
+                }
                 Scope scope = new Scope(structureTypeNode.symbol);
                 structureTypeNode.symbol.scope = scope;
                 SymbolEnv typeEnv = SymbolEnv.createTypeEnv(structureTypeNode, scope, env);
