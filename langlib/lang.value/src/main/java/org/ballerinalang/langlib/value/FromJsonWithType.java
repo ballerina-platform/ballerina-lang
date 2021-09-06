@@ -97,9 +97,19 @@ public class FromJsonWithType {
 
         unresolvedValues.add(typeValuePair);
 
-        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType, new ArrayList<>());
+        List<String> errors = new ArrayList<>();
+        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType, new ArrayList<>(),
+                errors);
         if (convertibleTypes.isEmpty()) {
-            throw createConversionError(value, targetType);
+            if (errors.isEmpty()) {
+                throw createConversionError(value, targetType);
+            } else {
+                StringBuilder errorMsg = new StringBuilder();
+                for (String error : errors) {
+                    errorMsg.append("\n\t\t").append(error);
+                }
+                throw createConversionError(value, targetType, errorMsg.toString());
+            }
         } else if (convertibleTypes.size() > 1) {
             throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
         }

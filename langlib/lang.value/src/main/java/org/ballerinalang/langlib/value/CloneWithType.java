@@ -109,7 +109,7 @@ public class CloneWithType {
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
         Set<Type> convertibleTypes;
-        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
+        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, false, new ArrayList<>());
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
