@@ -1841,6 +1841,12 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (compatibleType1.tag < compatibleType2.tag) {
                 return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
             }
+            if (lhsType.isNullable()) {
+                return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+            }
+            if (rhsType.isNullable()) {
+                return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
+            }
             return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
         }
         return symTable.notFoundSymbol;
