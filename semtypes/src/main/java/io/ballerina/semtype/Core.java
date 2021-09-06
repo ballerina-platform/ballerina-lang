@@ -436,7 +436,7 @@ public class Core {
     }
 
     public static TypeCheckContext typeCheckContext(Env env) {
-        return new TypeCheckContext(env);
+        return TypeCheckContext.from(env);
     }
 
     public static SemType createJson(Env env) {

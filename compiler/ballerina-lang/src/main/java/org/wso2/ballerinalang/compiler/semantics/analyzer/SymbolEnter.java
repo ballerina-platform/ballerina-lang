@@ -484,9 +484,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         defn.cycleDepth = depth;
         SemType s = resolveTypeDesc(semtypeEnv, mod, defn, depth, defn.typeNode);
-        if (s == null) {
+        if (defn.semType == null) {
             defn.semType = s;
             defn.cycleDepth = -1;
+            semtypeEnv.addTypeDef(defn.name.value, s);
             return s;
         } else {
             return s;

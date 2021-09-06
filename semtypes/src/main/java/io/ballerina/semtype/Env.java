@@ -19,7 +19,9 @@ package io.ballerina.semtype;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Env node.
@@ -27,10 +29,12 @@ import java.util.List;
  * @since 2.0.0
  */
 public class Env {
-    private final HashMap<AtomicType, TypeAtom> atomTable;
+    private final Map<AtomicType, TypeAtom> atomTable;
     private final List<ListAtomicType> recListAtoms;
     private final List<MappingAtomicType> recMappingAtoms;
     private final List<FunctionAtomicType> recFunctionAtoms;
+
+    private final LinkedHashMap<String, SemType> types;
 
     public Env() {
         this.atomTable = new HashMap<>();
@@ -42,6 +46,7 @@ public class Env {
         this.recMappingAtoms.add(MappingAtomicType.MAPPING_SUBTYPE_RO);
 
         this.recFunctionAtoms = new ArrayList<>();
+        types = new LinkedHashMap<>();
     }
 
     public RecAtom recFunctionAtom() {
@@ -140,5 +145,13 @@ public class Env {
         synchronized (this.recMappingAtoms) {
             return (MappingAtomicType) this.recMappingAtoms.get(ra.index);
         }
+    }
+
+    public void addTypeDef(String typeName, SemType semType) {
+        this.types.put(typeName, semType);
+    }
+
+    public Map<String, SemType> geTypeNameSemTypeMap() {
+        return this.types;
     }
 }

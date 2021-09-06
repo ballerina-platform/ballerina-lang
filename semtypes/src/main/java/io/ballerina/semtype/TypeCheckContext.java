@@ -17,7 +17,8 @@
  */
 package io.ballerina.semtype;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TypeCheckContext node.
@@ -26,12 +27,16 @@ import java.util.Hashtable;
  */
 public class TypeCheckContext {
     private final Env env;
-    public final Hashtable<Bdd, BddMemo> functionMemo = new Hashtable<>();
-    public final Hashtable<Bdd, BddMemo> listMemo = new Hashtable<>();
-    public final Hashtable<Bdd, BddMemo> mappingMemo = new Hashtable<>();
+    public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
+    public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
+    public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
 
-    public TypeCheckContext(Env env) {
+    private TypeCheckContext(Env env) {
         this.env = env;
+    }
+
+    static TypeCheckContext from(Env env) {
+        return new TypeCheckContext(env);
     }
 
     public ListAtomicType listAtomType(Atom atom) {

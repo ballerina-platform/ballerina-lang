@@ -32,4 +32,9 @@ public class UniformTypeBitSet implements SemType {
     public static UniformTypeBitSet from(int bitset) {
         return new UniformTypeBitSet(bitset);
     }
+
+    @Override
+    public String toString() {
+        return PredefinedType.toString(this);
+    }
 }

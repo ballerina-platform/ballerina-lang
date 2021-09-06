@@ -19,6 +19,8 @@ package io.ballerina.semtype;
 
 import io.ballerina.semtype.subtypedata.IntSubtype;
 
+import java.util.StringJoiner;
+
 /**
  * Contain predefined types used for constructing other types.
  *
@@ -69,6 +71,9 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
 
+    private PredefinedType() {
+    }
+
     // Union of complete uniform types
     // bits is bit vecor indexed by UniformTypeCode
     // I would like to make the arg int:Unsigned32
@@ -83,5 +88,50 @@ public class PredefinedType {
 
     public static SemType uniformSubtype(UniformTypeCode code, ProperSubtypeData data) {
         return ComplexSemType.createComplexSemType(0, UniformSubtype.from(code, data));
+    }
+
+    static String toString(UniformTypeBitSet ut) {
+        StringJoiner sb = new StringJoiner("|", Integer.toBinaryString(ut.bitset) + "[", "]");
+        if ((ut.bitset & NEVER.bitset) != 0) {
+            sb.add("never");
+        }
+        if ((ut.bitset & NIL.bitset) != 0) {
+            sb.add("nil");
+        }
+        if ((ut.bitset & BOOLEAN.bitset) != 0) {
+            sb.add("boolean");
+        }
+        if ((ut.bitset & INT.bitset) != 0) {
+            sb.add("int");
+        }
+        if ((ut.bitset & FLOAT.bitset) != 0) {
+            sb.add("float");
+        }
+        if ((ut.bitset & DECIMAL.bitset) != 0) {
+            sb.add("decimal");
+        }
+        if ((ut.bitset & STRING.bitset) != 0) {
+            sb.add("string");
+        }
+        if ((ut.bitset & ERROR.bitset) != 0) {
+            sb.add("error");
+        }
+        if ((ut.bitset & LIST_RW.bitset) != 0) {
+            sb.add("list_rw");
+        }
+        if ((ut.bitset & UniformTypeCode.UT_LIST_RO.code) != 0) {
+            sb.add("list_ro");
+        }
+        if ((ut.bitset & FUNCTION.bitset) != 0) {
+            sb.add("function");
+        }
+        if ((ut.bitset & TYPEDESC.bitset) != 0) {
+            sb.add("typedesc");
+        }
+        if ((ut.bitset & HANDLE.bitset) != 0) {
+            sb.add("handle");
+        }
+
+        return sb.toString();
     }
 }
