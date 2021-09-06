@@ -36,4 +36,8 @@ public class MappingAtomicType implements AtomicType {
         this.types = types;
         this.rest = rest;
     }
+
+    public static MappingAtomicType from(String[] names, SemType[] types, SemType rest) {
+        return new MappingAtomicType(names, types, rest);
+    }
 }

@@ -52,6 +52,7 @@ public class Common {
             }
             types.add(t);
         }
+
         return types.toArray(new SemType[]{});
     }
 
@@ -114,19 +115,43 @@ public class Common {
         return Conjunction.and(atom, next);
     }
 
-    public static List<SemType> shallowCopyTypes(SemType[] v) {
-        return Arrays.asList(v);
+    public static SemType[] shallowCopyTypes(SemType[] v) {
+        return Arrays.copyOf(v, v.length);
     }
 
     public static List<SemType> shallowCopyTypes(List<SemType> v) {
         return new ArrayList<>(v);
     }
 
-    public static String[] shallowCopyTypes(String[] v) {
+    public static String[] shallowCopyStrings(String[] v) {
         return Arrays.copyOf(v, v.length);
     }
 
     public static boolean notIsEmpty(TypeCheckContext tc, SubtypeData d) {
+        return false;
+    }
+
+    // Returns whether s1.codePoints < s2.codePoints
+    public static boolean codePointCompare(String s1, String s2) {
+        if (s1.equals(s2)) {
+            return false;
+        }
+        int len1 = s1.length();
+        int len2 = s2.length();
+        if (len1 < len2 && s2.substring(0, len1).equals(s1)) {
+            return true;
+        }
+        int cpCount1 = s1.codePointCount(0, len1);
+        int cpCount2 = s2.codePointCount(0, len2);
+        for (int cp = 0; cp < cpCount1 && cp < cpCount2;) {
+            int codepoint1 = s1.codePointAt(cp);
+            int codepoint2 = s2.codePointAt(cp);
+            if (codepoint1 == codepoint2) {
+                cp++;
+                continue;
+            }
+            return codepoint1 < codepoint2;
+        }
         return false;
     }
 
