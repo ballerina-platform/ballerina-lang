@@ -56,7 +56,7 @@ public class OldPackageMigrationTests extends BaseTest {
         // package_d --> package_b --> package_c
         // package_d --> package_e
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_d");
-        Path packagePath = RESOURCE_DIRECTORY.resolve("package_f_old");
+        Path packagePath = RESOURCE_DIRECTORY.resolve("package_f");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(packagePath));
 
         // Delete build file if exists

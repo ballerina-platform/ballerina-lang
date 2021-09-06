@@ -52,7 +52,7 @@ public class SubsequentBuildTests extends BaseTest {
 
     @BeforeClass
     public void setUp() throws IOException {
-        packagePath = RESOURCE_DIRECTORY.resolve("package_f_old");
+        packagePath = RESOURCE_DIRECTORY.resolve("package_f");
         // Delete build file if exists
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         // Delete Dependencies.toml file if exists
