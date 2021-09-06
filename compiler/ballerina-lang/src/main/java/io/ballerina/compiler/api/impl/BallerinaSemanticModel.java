@@ -185,40 +185,80 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public List<Location> references(Document sourceDocument, LinePosition position) {
-        return references(sourceDocument, position, true);
+        BSymbol symbolAtCursor = findSymbolAtCursorPosition(sourceDocument, position);
+        if (symbolAtCursor == null) {
+            return Collections.emptyList();
+        }
+        Location symbolLocation = symbolAtCursor.getPosition();
+        BLangNode node = new NodeFinder(false).lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
+        return getReferences(symbolAtCursor, node, true);
     }
 
     @Override
     public List<Location> references(Symbol symbol, boolean withDefinition) {
+        BSymbol symbolAtCursor = getInternalSymbol(symbol);
         Optional<Location> symbolLocation = symbol.getLocation();
-
-        // Assumption is that the location will be null for regular type symbols
         if (symbolLocation.isEmpty()) {
             return Collections.emptyList();
         }
-
         BLangNode node = new NodeFinder(false)
                 .lookupEnclosingContainer(this.bLangPackage, symbolLocation.get().lineRange());
 
-        ReferenceFinder refFinder = new ReferenceFinder(withDefinition);
-        return refFinder.findReferences(node, getInternalSymbol(symbol));
+        return getReferences(symbolAtCursor, node, withDefinition);
     }
 
     @Override
     public List<Location> references(Document sourceDocument, LinePosition position, boolean withDefinition) {
-        BLangCompilationUnit compilationUnit = getCompilationUnit(sourceDocument);
-        SymbolFinder symbolFinder = new SymbolFinder();
-        BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
-
+        BSymbol symbolAtCursor = findSymbolAtCursorPosition(sourceDocument, position);
         if (symbolAtCursor == null) {
             return Collections.emptyList();
         }
-
+        Location symbolLocation = symbolAtCursor.getPosition();
         BLangNode node = new NodeFinder(false)
-                .lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());
+                .lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
 
+        return getReferences(symbolAtCursor, node, withDefinition);
+    }
+
+    @Override
+    public List<Location> references(Symbol symbol, Document targetDocument, boolean withDefinition) {
+        BSymbol symbolAtCursor = getInternalSymbol(symbol);
+        Optional<Location> symbolLocation = symbol.getLocation();
+        if (symbolLocation.isEmpty()) {
+            return Collections.emptyList();
+        }
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(getCompilationUnit(targetDocument), symbolLocation.get().lineRange());
+
+        return getReferences(symbolAtCursor, node, withDefinition);
+    }
+
+    @Override
+    public List<Location> references(Document sourceDocument,
+                                     Document targetDocument,
+                                     LinePosition position,
+                                     boolean withDefinition) {
+
+        BSymbol symbolAtCursor = findSymbolAtCursorPosition(sourceDocument, position);
+        if (symbolAtCursor == null) {
+            return Collections.emptyList();
+        }
+        Location symbolLocation = symbolAtCursor.getPosition();
+        BLangNode node = new NodeFinder(false)
+                .lookupEnclosingContainer(getCompilationUnit(targetDocument), symbolLocation.lineRange());
+
+        return getReferences(symbolAtCursor, node, withDefinition);
+    }
+
+    private BSymbol findSymbolAtCursorPosition(Document sourceDocument, LinePosition linePosition) {
+        BLangCompilationUnit sourceCompilationUnit = getCompilationUnit(sourceDocument);
+        SymbolFinder symbolFinder = new SymbolFinder();
+        return symbolFinder.lookup(sourceCompilationUnit, linePosition);
+    }
+
+    private List<Location> getReferences(BSymbol symbol, BLangNode node, boolean withDefinition) {
         ReferenceFinder refFinder = new ReferenceFinder(withDefinition);
-        return refFinder.findReferences(node, symbolAtCursor);
+        return refFinder.findReferences(node, symbol);
     }
 
     /**
