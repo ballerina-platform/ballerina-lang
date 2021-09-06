@@ -1,12 +1,6 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation project(':ballerina-tools-api')
-    implementation project(':ballerina-parser')
-//    implementation project(':ballerina-core')
-//    implementation project(':ballerina-lang')
-//    implementation project(':ballerina-lang-test')
-//    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation 'org.testng:testng'
 }
 
