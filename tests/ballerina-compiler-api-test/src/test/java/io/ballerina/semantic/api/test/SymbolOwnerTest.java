@@ -25,7 +25,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -33,6 +32,8 @@ import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for validating the module symbol info of a symbol.
@@ -53,10 +54,12 @@ public class SymbolOwnerTest {
     @Test
     public void testLangLibSymbols() {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(19, 10));
+        assertTrue(symbol.isPresent());
+
         Optional<ModuleSymbol> module = symbol.get().getModule();
 
-        Assert.assertTrue(module.isPresent());
-        Assert.assertEquals(module.get().id().orgName(), "ballerina");
-        Assert.assertEquals(module.get().id().moduleName(), "lang.value");
+        assertTrue(module.isPresent());
+        assertEquals(module.get().id().orgName(), "ballerina");
+        assertEquals(module.get().id().moduleName(), "lang.value");
     }
 }
