@@ -117,11 +117,11 @@ public abstract class FindAllReferencesTest {
         return new BLangDiagnosticLocation(getFileName(), line, line, startCol, endCol);
     }
 
-    protected Location location(int line, int startCol, int endCol, String fileName) {
+    protected static Location location(int line, int startCol, int endCol, String fileName) {
         return new BLangDiagnosticLocation(fileName, line, line, startCol, endCol);
     }
 
-    private void assertLocations(List<Location> locations, List<Location> expLocations) {
+    protected static void assertLocations(List<Location> locations, List<Location> expLocations) {
         assertEquals(locations.size(), expLocations.size());
 
         List<LineRange> lineRanges = new ArrayList<>();
