@@ -71,6 +71,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,6 +94,8 @@ import java.util.concurrent.CompletableFuture;
 public class BallerinaConnectorServiceImpl implements BallerinaConnectorService {
 
     public static final String DEFAULT_CONNECTOR_FILE_KEY = "DEFAULT_CONNECTOR_FILE";
+    // TODO: need to replace central url with system.env
+    public static final String BALLERINA_CENTRAL_URL = "https://api.staging-central.ballerina.io/2.0/registry";
     private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME)
             .resolve("repo")
             .resolve("bala");
@@ -109,9 +115,24 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     @Override
     public CompletableFuture<BallerinaConnectorsResponse> connectors() {
         try {
-            BallerinaConnectorsResponse response = getConnectorConfig();
-            return CompletableFuture.supplyAsync(() -> response);
-        } catch (IOException e) {
+            HttpClient client = HttpClient.newHttpClient();
+
+            HttpRequest request = HttpRequest.newBuilder(
+                    URI.create(BALLERINA_CENTRAL_URL + "/connectors"))
+                    .header("accept", "application/json")
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                BallerinaConnectorInfo[] connectorInfos = new Gson().fromJson(response.body(),
+                        BallerinaConnectorInfo[].class);
+                BallerinaConnectorsResponse connectorsResponse = new BallerinaConnectorsResponse(
+                        Arrays.asList(connectorInfos));
+                return CompletableFuture.supplyAsync(() -> connectorsResponse);
+            }
+
+        } catch (Exception e) {
             String msg = "Operation 'ballerinaConnector/connectors' failed!";
             this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
         }

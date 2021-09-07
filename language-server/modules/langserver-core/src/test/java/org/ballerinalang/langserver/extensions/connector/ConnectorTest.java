@@ -52,9 +52,7 @@ public class ConnectorTest {
     public void getConnectors() {
         BallerinaConnectorsResponse connectorsResponse = LSExtensionTestUtil
                 .getConnectors(this.serviceEndpoint);
-        Assert.assertEquals(connectorsResponse.getConnectors().size(), 4);
-        Assert.assertEquals(connectorsResponse.getConnectors().get(0).getModule(), "nats");
-        Assert.assertEquals(connectorsResponse.getConnectors().get(0).getName(), "Producer");
+        Assert.assertNotEquals(connectorsResponse.getConnectors().size(), 0);
     }
 
 //    @Test(description = "Test getting HTTP connectors.")

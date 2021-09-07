@@ -30,4 +30,5 @@ module io.ballerina.language.server.core {
     requires gson;
     requires io.ballerina.diagram.util;
     requires io.ballerina.syntaxapicallsgen;
+    requires java.net.http;
 }
