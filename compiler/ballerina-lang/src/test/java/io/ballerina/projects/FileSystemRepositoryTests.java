@@ -28,7 +28,9 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Test file system repository.
@@ -36,13 +38,26 @@ import java.util.Collection;
  * @since 2.0.0
  */
 public class FileSystemRepositoryTests {
+
+    class MockFileSystemRepository extends FileSystemRepository {
+
+        public MockFileSystemRepository(Environment environment, Path cacheDirectory) {
+            super(environment, cacheDirectory);
+        }
+
+        @Override
+        protected List<Path> getIncompatibleVer(List<Path> versions, PackageOrg org, PackageName name) {
+            return new ArrayList<>();
+        }
+    }
+
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
     private static final Path TEST_REPO = RESOURCE_DIRECTORY.resolve("test-repo");
     private FileSystemRepository fileSystemRepository;
 
     @BeforeSuite
     public void setup() {
-        fileSystemRepository = new FileSystemRepository(new Environment() {
+        fileSystemRepository = new MockFileSystemRepository(new Environment() {
             @Override
             public <T> T getService(Class<T> clazz) {
                 return null;
