@@ -122,13 +122,34 @@
                   "hasDiagnostics": true,
                   "diagnostics": [
                     "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ],
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
+                        "children": [
+                          {
+                            "kind": "EQUAL_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_INVALID_TOKEN"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
                   ]
                 }
               ]
             },
             {
               "kind": "LOCAL_VAR_DECL",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -136,36 +157,13 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "INT_TYPE_DESC",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "INT_KEYWORD",
-                          "hasDiagnostics": true,
                           "leadingMinutiae": [
-                            {
-                              "kind": "INVALID_NODE_MINUTIAE",
-                              "invalidNode": {
-                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                "hasDiagnostics": true,
-                                "children": [
-                                  {
-                                    "kind": "EQUAL_TOKEN",
-                                    "hasDiagnostics": true,
-                                    "diagnostics": [
-                                      "ERROR_INVALID_TOKEN"
-                                    ]
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            },
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": "    "

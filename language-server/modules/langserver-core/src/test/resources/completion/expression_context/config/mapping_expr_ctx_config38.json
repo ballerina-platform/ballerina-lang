@@ -17,7 +17,7 @@
     {
       "label": "fField2",
       "kind": "Field",
-      "detail": "(record {| int fField1; int fField2; anydata...; |}).fField2",
+      "detail": "Internal.fField2",
       "sortText": "G",
       "insertText": "fField2: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -25,15 +25,15 @@
     {
       "label": "fField1",
       "kind": "Field",
-      "detail": "(record {| int fField1; int fField2; anydata...; |}).fField1",
+      "detail": "Internal.fField1",
       "sortText": "G",
       "insertText": "fField1: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int fField1; int fField2; anydata...; |} Required Fields",
+      "label": "Fill Internal Required Fields",
       "kind": "Property",
-      "detail": "record {| int fField1; int fField2; anydata...; |}",
+      "detail": "Internal",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "fField2: 0,\nfField1: 0",

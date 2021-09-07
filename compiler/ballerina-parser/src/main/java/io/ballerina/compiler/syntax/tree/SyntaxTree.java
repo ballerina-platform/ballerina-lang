@@ -65,22 +65,27 @@ public class SyntaxTree {
                 newTextDocument, oldTree.filePath(), false);
     }
 
+    @Deprecated
     public static SyntaxTree asTopLevel(TextDocument textDocument) {
         return from(ParserRuleContext.TOP_LEVEL_NODE, textDocument);
     }
 
+    @Deprecated
     public static SyntaxTree asStatement(TextDocument textDocument) {
         return from(ParserRuleContext.STATEMENT, textDocument);
     }
 
+    @Deprecated
     public static SyntaxTree asStatements(TextDocument textDocument) {
         return from(ParserRuleContext.STATEMENTS, textDocument);
     }
 
+    @Deprecated
     public static SyntaxTree asExpression(TextDocument textDocument) {
         return from(ParserRuleContext.EXPRESSION, textDocument);
     }
 
+    @Deprecated
     private static SyntaxTree from(ParserRuleContext context, TextDocument textDocument) {
         // TODO: Remove other APIs such as asStatement(), once ParserRuleContext is exposed to outside.
         BallerinaParser parser = ParserFactory.getParser(textDocument);

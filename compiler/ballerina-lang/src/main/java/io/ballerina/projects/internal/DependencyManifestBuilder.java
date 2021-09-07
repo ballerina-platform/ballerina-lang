@@ -64,6 +64,8 @@ public class DependencyManifestBuilder {
     private final List<Diagnostic> diagnosticList;
     private final DependencyManifest dependencyManifest;
 
+    private static final String LATEST_DEPS_TOML_VERSION = "2";
+
     private DependencyManifestBuilder(TomlDocument dependenciesToml) {
         this.dependenciesToml = Optional.ofNullable(dependenciesToml);
         this.diagnosticList = new ArrayList<>();
@@ -142,7 +144,8 @@ public class DependencyManifestBuilder {
 
     private String getDependenciesTomlVersion() {
         if (dependenciesToml.isEmpty()) {
-            return null;
+            // When Dependencies.toml does not exists, we consider it is in the latest toml version
+            return LATEST_DEPS_TOML_VERSION;
         }
 
         TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();

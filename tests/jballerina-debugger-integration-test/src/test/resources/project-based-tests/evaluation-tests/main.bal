@@ -16,6 +16,25 @@
 
 import ballerina/lang.'int;
 
+type GradStudent record {
+    string firstName;
+    string lastName;
+    int intakeYear;
+    int deptId;
+};
+
+type Department record {
+    int deptId;
+    string deptName;
+};
+
+type StudentReport record {
+    string name;
+    string deptName;
+    string degree;
+    int intakeYear;
+};
+
 type Customer record {|
     readonly int id;
     readonly string name;
@@ -291,6 +310,16 @@ public function main() {
     Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
     Customer[] customerList = [c1, c2, c3];
     Customer[] conflictedCustomerList = [c1, c2, c1];
+
+    GradStudent gs1 = {firstName: "Michelle", lastName: "Sadler", intakeYear: 1990, deptId: 1};
+    GradStudent gs2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2001, deptId: 3};
+    GradStudent gs3 = {firstName: "Martin", lastName: "Guthrie", intakeYear: 2002, deptId: 1};
+    GradStudent gs4 = {firstName: "George", lastName: "Fernando", intakeYear: 2005, deptId: 2};
+    Department d1 = {deptId: 1, deptName: "Physics"};
+    Department d2 = {deptId: 2, deptName: "Mathematics"};
+    Department d3 = {deptId: 3, deptName: "Chemistry"};
+    GradStudent[] gradStudentList = [gs1, gs2, gs3, gs4];
+    Department[] departmentList = [d1, d2, d3];
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {

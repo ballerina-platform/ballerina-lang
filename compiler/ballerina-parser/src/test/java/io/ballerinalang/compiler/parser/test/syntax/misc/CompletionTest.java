@@ -62,4 +62,9 @@ public class CompletionTest extends AbstractMiscTest {
     public void testTypeCompletion() {
         testFile("completion/completion_source_10.bal", "completion/completion_assert_10.json");
     }
+
+    @Test
+    public void testAssignmentStmtWithQualifiersCompletion() {
+        testFile("completion/completion_source_11.bal", "completion/completion_assert_11.json");
+    }
 }

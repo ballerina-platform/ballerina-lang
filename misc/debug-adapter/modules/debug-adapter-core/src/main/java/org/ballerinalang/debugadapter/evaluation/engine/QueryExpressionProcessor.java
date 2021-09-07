@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static org.apache.commons.io.FilenameUtils.indexOfExtension;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_TOML_FILE_NAME;
@@ -69,7 +68,6 @@ public class QueryExpressionProcessor {
     private final QueryExpressionNode syntaxNode;
     private final List<String> externalVariableNames = new ArrayList<>();
     private final List<Value> externalVariableValues = new ArrayList<>();
-
     private Path tempProjectDir;
 
     private static final String TEMP_DIR_PREFIX = "query-executable-dir-";
@@ -81,7 +79,7 @@ public class QueryExpressionProcessor {
 
     // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
     // return non-public types.
-    private static final String QUERY_FUNCTION_TEMPLATE = "%s function %s(%s) returns any|error { return %s; }";
+    private static final String QUERY_SNIPPET_TEMPLATE = "%s function %s(%s) returns any|error { return %s; }";
 
     public QueryExpressionProcessor(SuspendedContext context, QueryExpressionNode syntaxNode) {
         this.context = context;
@@ -120,18 +118,25 @@ public class QueryExpressionProcessor {
      */
     private String generateQuerySnippet() throws EvaluationException {
         // Generates top level declarations snippet
-        String topLevelDeclarations = generateModuleLevelDeclarations();
+        String declarations = generateModuleLevelDeclarations();
 
-        // Generates function signature (parameter definitions) for the snippet.
+        // Generates function signature (parameter definitions) for the query function template.
         processSnippetFunctionParameters();
         StringJoiner parameters = new StringJoiner(",");
         externalVariableNames.forEach(parameters::add);
 
-        return String.format(QUERY_FUNCTION_TEMPLATE,
-                topLevelDeclarations,
-                QUERY_FUNCTION_NAME,
-                parameters,
-                syntaxNode.toSourceCode());
+        // Constructs the query expression string to be injected.
+        String queryExpression;
+        if (syntaxNode.parent() != null && syntaxNode.parent().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
+            // Since Ballerina query expression return type might depend on the contextual type, we need to inject
+            // any existing type castings o top of the query expressions (expression will results in semantic errors
+            // otherwise.)
+            queryExpression = syntaxNode.parent().toSourceCode();
+        } else {
+            queryExpression = syntaxNode.toSourceCode();
+        }
+
+        return String.format(QUERY_SNIPPET_TEMPLATE, declarations, QUERY_FUNCTION_NAME, parameters, queryExpression);
     }
 
     /**
@@ -202,7 +207,7 @@ public class QueryExpressionProcessor {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             if (pkgCompilation.diagnosticResult().hasErrors()) {
                 StringJoiner errors = new StringJoiner(System.lineSeparator());
-                errors.add("compilation failed while creating executables for the query evaluation: ");
+                errors.add("compilation error(s) found while creating executables for the query evaluation: ");
                 pkgCompilation.diagnosticResult().errors().forEach(error -> {
                     if (error.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                         errors.add(error.message());
@@ -240,8 +245,7 @@ public class QueryExpressionProcessor {
      * @return File name without extension
      */
     private static String getFileNameWithoutExtension(String fileName) {
-        int index = indexOfExtension(fileName);
-        return index == -1 ? fileName : fileName.substring(0, index);
+        return fileName.endsWith(BAL_FILE_EXT) ? fileName.replaceAll(BAL_FILE_EXT + "$", "") : fileName;
     }
 
     /**
@@ -344,19 +348,23 @@ public class QueryExpressionProcessor {
      * @param directoryPath Directory to delete.
      */
     private boolean deleteDirectory(Path directoryPath) {
-        File directory = new File(String.valueOf(directoryPath));
-        if (directory.isDirectory()) {
-            File[] files = directory.listFiles();
-            if (files != null) {
-                for (File f : files) {
-                    boolean success = deleteDirectory(f.toPath());
-                    if (!success) {
-                        return false;
+        try {
+            File directory = new File(String.valueOf(directoryPath));
+            if (directory.isDirectory()) {
+                File[] files = directory.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        boolean success = deleteDirectory(f.toPath());
+                        if (!success) {
+                            return false;
+                        }
                     }
                 }
             }
+            return directory.delete();
+        } catch (Exception ignored) {
+            return false;
         }
-        return directory.delete();
     }
 
     public void dispose() {

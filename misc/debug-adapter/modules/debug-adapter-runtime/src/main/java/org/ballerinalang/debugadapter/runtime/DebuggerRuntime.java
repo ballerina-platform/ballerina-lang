@@ -380,19 +380,18 @@ public class DebuggerRuntime {
      * @param executablePath path of the jar to be classloaded
      * @param mainClass      main class name
      * @param functionName   name of the function to be executed
-     * @param strand         parent strand instance
      * @param argValues      argument values
      * @return result of the function invocation
      */
     public static Object classloadAndInvokeFunction(String executablePath, String mainClass, String functionName,
-                                                    Strand strand, Object... argValues) {
+                                                    Object... argValues) {
         try {
             URL pathUrl = Paths.get(executablePath).toUri().toURL();
             URLClassLoader classLoader = AccessController.doPrivileged((PrivilegedAction<URLClassLoader>) () ->
                     new URLClassLoader(new URL[]{pathUrl}, ClassLoader.getSystemClassLoader()));
 
             List<Object> generatedArgs = new ArrayList<>();
-            generatedArgs.add(strand);
+            generatedArgs.add(null);
             for (Object arg : argValues) {
                 generatedArgs.add(arg);
                 // since the generated functions will contain an additional boolean flag for each parameter (to indicate
