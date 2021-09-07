@@ -1532,7 +1532,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangRecordLiteral.BLangRecordKey recordKey) {
-        if (setEnclosingNode(recordKey.fieldSymbol, recordKey.pos)) {
+        if (recordKey.fieldSymbol != null && setEnclosingNode(recordKey.fieldSymbol, recordKey.pos)) {
             return;
         }
 
