@@ -87,14 +87,15 @@ public class SubsequentBuildTests extends BaseTest {
         // package_d --> package_b --> package_c
         // package_d --> package_e
 
-        // update package_d version and push to local repo
+        // update package_c version and push to local repo
         String pkgDBallerinaTomlContent = "[package]\n"
                 + "org = \"samjs\"\n"
-                + "name = \"package_d\"\n"
-                + "version = \"0.2.0\"\n";
-        Files.write(RESOURCE_DIRECTORY.resolve("package_d").resolve(BALLERINA_TOML),
+                + "name = \"package_c\"\n"
+                + "version = \"0.2.0\"\n"
+                + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
+        Files.write(RESOURCE_DIRECTORY.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
-        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_d"));
+        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_c"));
 
         // Build the project
         BuildProject buildProject = BuildProject.load(packagePath);
@@ -115,14 +116,15 @@ public class SubsequentBuildTests extends BaseTest {
         // Delete Dependencies.toml and build file
         Files.deleteIfExists(packagePath.resolve(DEPENDENCIES_TOML));
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
-        // revert package_d version
+        // revert package_c version
         String pkgDBallerinaTomlContent = "[package]\n"
                 + "org = \"samjs\"\n"
-                + "name = \"package_d\"\n"
-                + "version = \"0.1.0\"\n";
-        Files.write(RESOURCE_DIRECTORY.resolve("package_d").resolve(BALLERINA_TOML),
+                + "name = \"package_c\"\n"
+                + "version = \"0.1.0\"\n"
+                + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
+        Files.write(RESOURCE_DIRECTORY.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
-        // Delete package_d build file
-        Files.deleteIfExists(RESOURCE_DIRECTORY.resolve("package_d").resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        // Delete package_c build file
+        Files.deleteIfExists(RESOURCE_DIRECTORY.resolve("package_c").resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
     }
 }
