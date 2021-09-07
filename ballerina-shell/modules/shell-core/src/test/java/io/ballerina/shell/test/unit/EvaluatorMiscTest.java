@@ -68,9 +68,9 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("import ballerina/lang.'float as prefix2");
         Assert.assertEquals(new HashSet<>(evaluator.availableImports()),
                 Set.of(
-                        "('java) import ballerina/'jballerina.'java as 'java;",
-                        "('prefix) import ballerina/'lang.'int as 'prefix;",
-                        "('prefix2) import ballerina/'lang.'float as 'prefix2;"
+                        "('java) import ballerina/jballerina.'java as 'java;",
+                        "(prefix) import ballerina/lang.'int as prefix;",
+                        "(prefix2) import ballerina/lang.'float as prefix2;"
                 )
         );
         Assert.assertTrue(evaluator.availableVariables().isEmpty());
@@ -91,12 +91,12 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("int a = 1; string b = \"World\"");
         Assert.assertEquals(new HashSet<>(evaluator.availableVariables()),
                 Set.of(
-                        "('a) int 'a = 1",
-                        "('k) string? 'k = ()",
-                        "('t) string 't = \"Hello\"",
-                        "('f) function () returns int 'f = function isolated function () returns (int)",
-                        "('i) int 'i = 23",
-                        "('b) string 'b = \"World\""
+                        "(a) int a = 1",
+                        "(k) string? k = ()",
+                        "(t) string t = \"Hello\"",
+                        "(f) function () returns int f = function isolated function () returns (int)",
+                        "(i) int i = 23",
+                        "(b) string b = \"World\""
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 0);
@@ -115,10 +115,10 @@ public class EvaluatorMiscTest {
         evaluator.evaluate("enum B{C, D}");
         Assert.assertEquals(new HashSet<>(evaluator.availableModuleDeclarations()),
                 Set.of(
-                        "('a) function a() {}",
-                        "('t) const t = 100;",
-                        "('A) class A{}",
-                        "('B) enum B{C, D}"
+                        "(a) function a() {}",
+                        "(t) const t = 100;",
+                        "(A) class A{}",
+                        "(B) enum B{C, D}"
                 )
         );
         Assert.assertEquals(evaluator.availableImports().size(), 0);
