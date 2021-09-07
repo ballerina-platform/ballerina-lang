@@ -64,7 +64,7 @@ public class SingletonTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testInValidModuleLevelSingletonType() {
+    public void testInvalidModuleLevelSingletonType() {
         test("+ % a;",
                 "singleton-type/singleton_type_assert_07.json");
     }
