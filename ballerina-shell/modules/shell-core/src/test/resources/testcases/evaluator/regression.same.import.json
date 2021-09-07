@@ -21,6 +21,10 @@
   },
   {
     "description": "Use java lib II.",
+    "code": "var x = 'java:fromString(\"Hello\")"
+  },
+  {
+    "description": "Use java lib III.",
     "code": "java:toString(x)",
     "expr": "\"Hello\""
   }
