@@ -203,15 +203,15 @@ public class FileSystemRepository extends AbstractPackageRepository {
 
     private boolean isCompatible(String pkgBalVer, String distBalVer) {
         if (!pkgBalVer.equals(distBalVer)) {
-            String packageStage = pkgBalVer.substring(0, pkgBalVer.length() - 1);
-            String packStage = distBalVer.substring(0, distBalVer.length() - 1);
+            String pkgBalVerPrefix = pkgBalVer.substring(0, pkgBalVer.length() - 1);
+            String distBalVerPerfix = distBalVer.substring(0, distBalVer.length() - 1);
 
-            // If the stages are equal, we need to check the versions
-            if (packageStage.equals(packStage)) {
-                String packageVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
-                String packVerValue = distBalVer.substring(distBalVer.length() - 1);
-                // If package_ver is greater than pack version
-                if (Integer.parseInt(packageVerValue) > Integer.parseInt(packVerValue)) {
+            // If the prefixes are equal, we need to check the versions
+            if (pkgBalVerPrefix.equals(distBalVerPerfix)) {
+                String pkgBalVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
+                String distBalVerValue = distBalVer.substring(distBalVer.length() - 1);
+                // If package version is greater than distribution version
+                if (Integer.parseInt(pkgBalVerValue) > Integer.parseInt(distBalVerValue)) {
                     return false;
                 }
             } else {
