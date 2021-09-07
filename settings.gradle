@@ -223,5 +223,3 @@ buildCache {
         push = true
     }
 }
-include 'java'
-

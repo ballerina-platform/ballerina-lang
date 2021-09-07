@@ -17,6 +17,8 @@ package org.ballerinalang.test;
 
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -46,9 +48,15 @@ public class TestRunner {
     private final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     CompileResult compileResult;
 
+    @BeforeClass
+    public void cleanAndCreateDir() {
+        TestRunnerUtils.deleteFilesWithinDirectory(new File(ReportGenerator.REPORT_DIR.toString()));
+    }
+
     @Test(dataProvider = "spec-conformance-test-file-provider")
-    public void test(String type, String path, List<String> outputValues, List<Integer> errLines, String fileName,
-                                                                                                       int absLineNum) {
+    public void test(String kind, String path, List<String> outputValues, List<Integer> errLines, String fileName,
+                     int absLineNum) {
+        String detailsOfErrorKindTests = "";
         try {
             compileResult = BCompileUtil.compile(path);
             Files.delete(testSourcesDirectory.resolve((new File(path)).toPath()));
@@ -56,21 +64,42 @@ public class TestRunner {
             Assert.fail("failed to run spec conformance test: \"" + fileName + "\"", e);
         }
 
-        if (!type.equals(TestRunnerUtils.ERROR)) {
+        if (!kind.equals(TestRunnerUtils.ERROR)) {
             BRunUtil.ExitDetails exitDetails = BRunUtil.run(compileResult);
             if (exitDetails.exitCode != 0) {
                 Matcher matcher = Pattern.compile(":(\\d+)\\)").matcher(exitDetails.errorOutput);
+                // Todo: filter error message
+                String error = "";
                 if (matcher.find()) {
-                    TestRunnerUtils.validatePanic(Integer.parseInt(matcher.group(1)) + absLineNum,
-                                                  errLines.get(0) + absLineNum, fileName);
-                    return;
+                    detailsOfErrorKindTests =
+                            TestRunnerUtils.validatePanic(Integer.parseInt(matcher.group(1)) + absLineNum, kind, error,
+                                            errLines.get(0) + absLineNum, fileName, detailsOfErrorKindTests);
                 }
+            } else {
+                String consoleOutput = exitDetails.consoleOutput;
+                String[] result = consoleOutput.split("\r\n|\r|\n");
+                TestRunnerUtils.validateOutput(fileName, outputValues, result);
             }
-            String consoleOutput = exitDetails.consoleOutput;
-            String[] result = consoleOutput.split("\r\n|\r|\n");
-            TestRunnerUtils.validateOutput(fileName, outputValues, result);
         } else {
-            TestRunnerUtils.validateError(compileResult, errLines, fileName, absLineNum);
+            detailsOfErrorKindTests = TestRunnerUtils.validateError(compileResult, outputValues, kind, errLines,
+                                                                    fileName, absLineNum, detailsOfErrorKindTests);
+        }
+
+        try {
+            ReportGenerator.generateReport(ReportGenerator.ERROR_REPORT,
+                                           fileName.substring(0, fileName.indexOf(".")), detailsOfErrorKindTests);
+        } catch (Exception e) {
+            Assert.fail("failed to generate spec conformance test report: \"" + fileName + "\"", e);
+        }
+    }
+
+    @AfterClass
+    public void generateReports() {
+        try {
+            ReportGenerator.generateReport(ReportGenerator.TESTS_REPORT,
+                                           "test_summary", TestRunnerUtils.detailsOfTests);
+        } catch (Exception e) {
+            Assert.fail("failed to generate spec conformance test report: ", e);
         }
     }
 
@@ -79,7 +108,6 @@ public class TestRunner {
         HashSet<String> hashSet = new HashSet<>();
         return hashSet;
     }
-
 
     public HashSet<String> runSelectedTests() {
         final String[] setValues = new String[] {};

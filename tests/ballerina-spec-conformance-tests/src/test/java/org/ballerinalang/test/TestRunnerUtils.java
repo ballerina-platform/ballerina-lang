@@ -56,6 +56,9 @@ public class TestRunnerUtils {
     private static final String IMPORT_BALLERINAI = "import ballerinai/io;";
     private static int fileCount = 0;
     private static int absLineNum;
+    public static String detailsOfTests = "";
+    public static int totalTest = 0;
+    public static int totalTestPassed = 0;
 
 
     public static void readTestFile(String fileName, String path, List<Object[]> testCases, Set<String> labels)
@@ -191,13 +194,23 @@ public class TestRunnerUtils {
         return kind;
     }
 
-    public static void validateError(CompileResult result, List<Integer> errLines, String filename, int absLineNum) {
+    public static String validateError(CompileResult result, List<String> outputValues, String kind,
+                                       List<Integer> errLines, String fileName, int absLineNum, String details) {
         for (int i = 0; i < result.getDiagnostics().length; i++) {
+            totalTest = totalTest + 1;
             Diagnostic diagnostic = result.getDiagnostics()[i];
-            int expectedErrLine = errLines.get(i);
-            Assert.assertEquals(diagnostic.location().lineRange().startLine().line() + 1 + absLineNum,
-                    expectedErrLine + absLineNum, String.format("In %s, incorrect line number:", filename));
+            int actualLineNum = diagnostic.location().lineRange().startLine().line() + 1 + absLineNum;
+            int expLineNum = errLines.get(i) + absLineNum;
+            boolean output = actualLineNum == expLineNum;
+            if (output) {
+                totalTestPassed = totalTestPassed + 1;
+            }
+            details = details + ReportGenerator.generateErrorDetails(fileName, kind, String.valueOf(actualLineNum),
+                                                          outputValues.get(i), diagnostic.message(), getResult(output));
+            detailsOfTests = detailsOfTests + ReportGenerator.generateTestDetails(fileName, kind,
+                                                                         String.valueOf(expLineNum), getResult(output));
         }
+        return details;
     }
 
     public static void validateOutput(String fileName, List<String> outputValues, String[] results) {
@@ -213,7 +226,36 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void validatePanic(int result, int expectedErrLine, String fileName) {
+    public static String validatePanic(int result, String kind, String errorMessage, int expectedErrLine,
+                                       String fileName, String detailsOfErrors) {
+        boolean output = result == expectedErrLine;
+        String lineNum = String.valueOf(expectedErrLine + absLineNum);
+        detailsOfErrors = detailsOfErrors + ReportGenerator.generateErrorDetails(fileName, kind, errorMessage, lineNum,
+                                                                            String.valueOf(result), getResult(output));
+        detailsOfTests = detailsOfTests + ReportGenerator.generateTestDetails(fileName, kind, lineNum,
+                                                                                    getResult(output));
+
         Assert.assertEquals(result, expectedErrLine, String.format("In %s, incorrect line number:", fileName));
+        return detailsOfErrors;
+    }
+
+    public static void deleteFilesWithinDirectory(File directory) {
+        File[] files = directory.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            if (!file.isDirectory()) {
+                file.delete();
+            }
+        }
+    }
+
+    public static String getResult(boolean output) {
+        if (output) {
+            return "Pass";
+        } else {
+            return "Fail";
+        }
     }
 }
