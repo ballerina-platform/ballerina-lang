@@ -62,8 +62,7 @@ public class SemanticTokensUtils {
         if (docOptional.isEmpty()) {
             return new SemanticTokens(new ArrayList<>());
         }
-        return new SemanticTokensVisitor(semanticTokensContext).getSemanticTokens(docOptional.get().syntaxTree()
-                .rootNode());
+        return new SemanticTokensVisitor(semanticTokensContext).getSemanticTokens(docOptional.get());
     }
 
     /**
