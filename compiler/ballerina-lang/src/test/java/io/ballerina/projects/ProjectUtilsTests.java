@@ -18,6 +18,7 @@
 
 package io.ballerina.projects;
 
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -30,8 +31,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 
 /**
  * Test {@code ProjectUtils}.
@@ -63,26 +62,20 @@ public class ProjectUtilsTests {
         }
     }
 
-    @Test(expectedExceptions = ProjectException.class,
-            expectedExceptionsMessageRegExp = "Failed to read the 'build' file", enabled = false)
+    @Test()
     public void testReadBuildJsonForNonExistingBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("xyz").resolve(ProjectConstants.BUILD_FILE);
-        try {
+        Assert.assertThrows(IOException.class, () -> {
             ProjectUtils.readBuildJson(buildFilePath);
-        } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "Failed to read the '" + BUILD_FILE + "' file");
-        }
+        });
     }
 
-    @Test(expectedExceptions = ProjectException.class,
-            expectedExceptionsMessageRegExp = "Invalid 'build' file format", enabled = false)
+    @Test()
     public void testReadBuildJsonForInvalidBuildFile() {
         Path buildFilePath = PROJECT_UTILS_RESOURCES.resolve("invalid-build");
-        try {
+        Assert.assertThrows(JsonSyntaxException.class, () -> {
             ProjectUtils.readBuildJson(buildFilePath);
-        } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "Invalid '" + BUILD_FILE + "' file format");
-        }
+        });
     }
 
     @Test
