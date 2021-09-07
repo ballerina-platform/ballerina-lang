@@ -98,17 +98,7 @@
               "hasDiagnostics": true,
               "diagnostics": [
                 "ERROR_MISSING_SEMICOLON_TOKEN"
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "IMPORT_DECLARATION",
-          "hasDiagnostics": true,
-          "children": [
-            {
-              "kind": "IMPORT_KEYWORD",
-              "hasDiagnostics": true,
+              ],
               "leadingMinutiae": [
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
@@ -157,7 +147,16 @@
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
                 }
-              ],
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "IMPORT_DECLARATION",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IMPORT_KEYWORD",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",

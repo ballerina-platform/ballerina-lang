@@ -109,6 +109,29 @@
                   "hasDiagnostics": true,
                   "diagnostics": [
                     "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ],
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "hasDiagnostics": true,
+                        "children": [
+                          {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "hasDiagnostics": true,
+                            "diagnostics": [
+                              "ERROR_INVALID_TOKEN"
+                            ],
+                            "value": "name"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
                   ]
                 }
               ]
@@ -116,31 +139,7 @@
           ]
         },
         {
-          "kind": "CLOSE_BRACE_PIPE_TOKEN",
-          "hasDiagnostics": true,
-          "leadingMinutiae": [
-            {
-              "kind": "INVALID_NODE_MINUTIAE",
-              "invalidNode": {
-                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                "hasDiagnostics": true,
-                "children": [
-                  {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "hasDiagnostics": true,
-                    "diagnostics": [
-                      "ERROR_INVALID_TOKEN"
-                    ],
-                    "value": "name"
-                  }
-                ]
-              }
-            },
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
+          "kind": "CLOSE_BRACE_PIPE_TOKEN"
         }
       ]
     },

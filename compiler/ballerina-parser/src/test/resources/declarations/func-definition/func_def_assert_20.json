@@ -187,11 +187,7 @@
                                   "hasDiagnostics": true,
                                   "diagnostics": [
                                     "ERROR_MISSING_IDENTIFIER"
-                                  ]
-                                },
-                                {
-                                  "kind": "COLON_TOKEN",
-                                  "hasDiagnostics": true,
+                                  ],
                                   "leadingMinutiae": [
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
@@ -213,7 +209,10 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
                                     }
-                                  ],
+                                  ]
+                                },
+                                {
+                                  "kind": "COLON_TOKEN",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
