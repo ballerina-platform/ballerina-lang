@@ -34,11 +34,11 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -53,7 +53,8 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class ErrorConstructorExpressionNodeContext extends AbstractCompletionProvider<ErrorConstructorExpressionNode> {
+public class ErrorConstructorExpressionNodeContext extends
+        InvocationNodeContextProvider<ErrorConstructorExpressionNode> {
 
     public ErrorConstructorExpressionNodeContext() {
         super(ErrorConstructorExpressionNode.class);
@@ -105,9 +106,8 @@ public class ErrorConstructorExpressionNodeContext extends AbstractCompletionPro
         }
 
         completionItems.addAll(this.expressionCompletions(ctx));
-        if (!withInNamedArgAssignmentContext(ctx)) {
-            completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
-        }
+        completionItems.addAll(this.getNamedArgExpressionCompletionItems(ctx, node));
+
         return completionItems;
     }
 
@@ -161,17 +161,15 @@ public class ErrorConstructorExpressionNodeContext extends AbstractCompletionPro
         List<String> existingNamedArgs = node.arguments().stream().filter(arg -> arg.kind() == SyntaxKind.NAMED_ARG)
                 .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).collect(Collectors.toList());
 
-        fields.entrySet().stream().forEach(field -> {
+        fields.entrySet().forEach(field -> {
             Optional<String> fieldName = field.getValue().getName();
             TypeSymbol fieldType = field.getValue().typeDescriptor();
             String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("\"\"");
             if (fieldName.isEmpty() || fieldName.get().isEmpty() || existingNamedArgs.contains(fieldName.get())) {
                 return;
             }
-            String label = fieldName.get();
-            String insertText = fieldName.get() + " = ${1:" + defaultValue + "}";
-            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(field.getValue(), label, insertText);
-            completionItems.add(new SymbolCompletionItem(context, field.getValue(), completionItem));
+            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), defaultValue);
+            completionItems.add(new NamedArgCompletionItem(context, completionItem, Either.forRight(field.getValue())));
         });
 
         return completionItems;

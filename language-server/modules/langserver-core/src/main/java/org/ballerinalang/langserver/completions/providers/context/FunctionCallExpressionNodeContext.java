@@ -18,14 +18,15 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -33,13 +34,16 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
+import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 /**
  * Completion Provider for {@link FunctionCallExpressionNode} context.
@@ -47,7 +51,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class FunctionCallExpressionNodeContext extends AbstractCompletionProvider<FunctionCallExpressionNode> {
+public class FunctionCallExpressionNodeContext extends InvocationNodeContextProvider<FunctionCallExpressionNode> {
 
     public FunctionCallExpressionNodeContext() {
         super(FunctionCallExpressionNode.class);
@@ -79,22 +83,6 @@ public class FunctionCallExpressionNodeContext extends AbstractCompletionProvide
         return cursor > openParen.textRange().startOffset() && cursor < closeParen.textRange().endOffset();
     }
 
-    @Override
-    public void sort(BallerinaCompletionContext context,
-                     FunctionCallExpressionNode node,
-                     List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> parameterSymbol = context.getContextType();
-        if (parameterSymbol.isEmpty() || !CommonUtil.isInFunctionCallParameterContext(context, node)) {
-            super.sort(context, node, completionItems);
-            return;
-        }
-        TypeSymbol symbol = parameterSymbol.get();
-        for (LSCompletionItem completionItem : completionItems) {
-            completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
-        }
-    }
-
     private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,
                                                                         FunctionCallExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -102,20 +90,43 @@ public class FunctionCallExpressionNodeContext extends AbstractCompletionProvide
         if (semanticModel.isEmpty()) {
             return completionItems;
         }
-        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(node);
+        Optional<Symbol> symbol = semanticModel.get().symbol(node);
         if (symbol.isEmpty() || !(symbol.get().kind() == SymbolKind.FUNCTION
                 || symbol.get().kind() == SymbolKind.METHOD
                 || symbol.get().kind() == SymbolKind.RESOURCE_METHOD)) {
             return completionItems;
         }
         FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
+        return getNamedArgCompletionItems(context, functionSymbol, node.arguments());
+    }
+
+    protected List<LSCompletionItem> getNamedArgCompletionItems(BallerinaCompletionContext context,
+                                                            FunctionSymbol functionSymbol,
+                                                            SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (!CommonUtil.isValidNamedArgContext(context, argumentNodeList)) {
+            return completionItems;
+        }
+
         FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
         Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
         if (params.isEmpty()) {
-            return completionItems;
+            return Collections.emptyList();
         }
-        List<String> existingNamedArgs = node.arguments().stream().filter(arg -> arg.kind() == SyntaxKind.NAMED_ARG)
-                .map(arg -> ((NamedArgumentNode) arg).argumentName().name().text()).collect(Collectors.toList());
-        return getNamedArgCompletionItems(context, params.get(), existingNamedArgs);
+
+        List<String> existingNamedArgs = CommonUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
+        Predicate<ParameterSymbol> predicate = parameter -> parameter.paramKind() == ParameterKind.REQUIRED
+                || parameter.paramKind() == ParameterKind.DEFAULTABLE;
+        params.get().stream().filter(predicate).forEach(parameterSymbol -> {
+            Optional<String> paramName = parameterSymbol.getName();
+            TypeSymbol paramType = parameterSymbol.typeDescriptor();
+            String defaultValue = CommonUtil.getDefaultValueForType(paramType).orElse("");
+            if (paramName.isEmpty() || paramName.get().isEmpty() || existingNamedArgs.contains(paramName.get())) {
+                return;
+            }
+            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(paramName.get(), defaultValue);
+            completionItems.add(new NamedArgCompletionItem(context, completionItem, Either.forLeft(parameterSymbol)));
+        });
+        return completionItems;
     }
 }

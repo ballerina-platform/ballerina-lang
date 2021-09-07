@@ -9,6 +9,6 @@ class MyClass {
     }
 }
 
-function myFunc(){
-    MyClass c1 = new MyClass(arg1=10,arg2 = )
+function myFunc() {
+    MyClass c1 = new MyClass(arg1 = 10,arg2 = )
 }

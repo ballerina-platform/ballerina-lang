@@ -17,12 +17,13 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
-import io.ballerina.compiler.api.symbols.Symbol;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
 /**
  * This class is used to build named arg completion item.
+ *
+ * @since 2.0.0
  */
 public class NamedArgCompletionItemBuilder {
 
@@ -33,28 +34,20 @@ public class NamedArgCompletionItemBuilder {
     /**
      * Creates and returns a completion item.
      *
-     * @param symbol symbol.
-     * @param label           label.
-     * @param insertText      text to be inserted.
+     * @param argName      argument name.
+     * @param defaultValue default value for the argument.
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(Symbol symbol, String label,
-                                       String insertText) {
+    public static CompletionItem build(String argName, String defaultValue) {
+        String label = argName + " = ...";
+        String insertText = argName + " = ${1:" + defaultValue + "}";
+        String detail = argName + " = " + defaultValue;
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);
-        item.setDetail(insertText);
-        setMeta(item, symbol);
+        item.setDetail(detail);
+        item.setKind(CompletionItemKind.Snippet);
+        item.setFilterText(argName);
         return item;
-    }
-
-    private static void setMeta(CompletionItem item, Symbol symbol) {
-        item.setKind(CompletionItemKind.Variable);
-//        if (varSymbol == null) {
-//            return;
-//        }
-//        if (varSymbol.documentation().isPresent() && varSymbol.documentation().get().description().isPresent()) {
-//            item.setDocumentation(parameterSymbol.documentation().get().description().get());
-//        }
     }
 }

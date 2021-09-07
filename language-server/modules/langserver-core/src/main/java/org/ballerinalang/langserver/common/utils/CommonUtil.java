@@ -47,6 +47,7 @@ import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
@@ -1508,6 +1509,37 @@ public class CommonUtil {
     }
 
     /**
+     * Provided a set of arguments and parameters, returns the list of argument names that has been already defined.
+     *
+     * @param context
+     * @param params
+     * @param argumentNodeList
+     * @return
+     */
+    public static List<String> getDefinedArgumentNames(BallerinaCompletionContext context,
+                                                       List<ParameterSymbol> params,
+                                                       SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        List<String> existingArgNames = new ArrayList<>();
+        int cursorPosition = context.getCursorPositionInTree();
+        int index = 1;
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            int endOffset = textRange.endOffset();
+            if ((startOffset > cursorPosition || endOffset < cursorPosition)) {
+                if (child.kind() == SyntaxKind.NAMED_ARG) {
+                    existingArgNames.add(((NamedArgumentNode) child).argumentName().name().text());
+                } else if (child.kind() == SyntaxKind.POSITIONAL_ARG && index - 1 < params.size()) {
+                    ParameterSymbol parameterSymbol = params.get(index - 1);
+                    existingArgNames.add(parameterSymbol.getName().orElse(""));
+                }
+            }
+            index++;
+        }
+        return existingArgNames;
+    }
+
+    /**
      * Provided a node, returns the list of possible qualifiers of that node.
      *
      * @param node node.
@@ -1616,5 +1648,27 @@ public class CommonUtil {
             return Optional.empty();
         }
         return Optional.of(params.get().get(argIndex + 1));
+    }
+
+    /**
+     * Check if the cursor is positioned in call expression context so that named arg
+     * completions can be suggested.
+     *
+     * @param context          completion context.
+     * @param argumentNodeList argument node list.
+     * @return
+     */
+    public static boolean isValidNamedArgContext(BallerinaCompletionContext context,
+                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            if (startOffset > cursorPosition
+                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
+                return false;
+            }
+        }
+        return true;
     }
 }

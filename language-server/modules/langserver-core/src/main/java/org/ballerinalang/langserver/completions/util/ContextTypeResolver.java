@@ -324,7 +324,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (filteredSymbol.isEmpty()) {
             return Optional.empty();
         }
-
+        
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
 
@@ -639,7 +639,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
-
+        
         return Optional.of(typeDescriptor);
     }
 

@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 8,
-    "character": 55
+    "character": 57
   },
   "source": "expression_context/source/error_constructor_expr_ctx_source9.bal",
   "items": [
@@ -541,10 +541,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stack",
-      "kind": "Variable",
-      "detail": "stack = ${1:\"\"}",
-      "sortText": "B",
+      "label": "stack = ...",
+      "kind": "Snippet",
+      "detail": "stack = \"\"",
+      "sortText": "R",
+      "filterText": "stack",
       "insertText": "stack = ${1:\"\"}",
       "insertTextFormat": "Snippet"
     }
