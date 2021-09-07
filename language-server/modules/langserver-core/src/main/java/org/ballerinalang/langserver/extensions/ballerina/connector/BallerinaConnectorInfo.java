@@ -24,87 +24,81 @@ package org.ballerinalang.langserver.extensions.ballerina.connector;
  * @since 2.0.0
  */
 public class BallerinaConnectorInfo {
-    private String org;
-    private String module;
-    private String name;
+    private String id;
+    private String orgName;
+    private String packageName;
     private String version;
-    private String cacheVersion;
+    private String name;
+    private String platform;
+    private String ballerinaVersion;
     private String displayName;
-    private String logoBase64Encoded;
-    private Boolean beta;
-    private String category;
 
-    public BallerinaConnectorInfo(String org, String module, String name, String version, String cacheVersion,
-                                  String displayName, Boolean beta, String category) {
-        this.org = org;
-        this.module = module;
-        this.name = name;
+    public BallerinaConnectorInfo(String id, String orgName, String packageName, String version,
+                                  String name, String platform, String ballerinaVersion) {
+        this.id = id;
+        this.orgName = orgName;
+        this.packageName = packageName;
         this.version = version;
-        this.cacheVersion = cacheVersion;
-        this.displayName = displayName;
-        this.beta = beta;
-        this.category = category;
-    }
-
-    public BallerinaConnectorInfo(String org, String module, String name, String version, String cacheVersion,
-                                  String displayName, String logoBase64Encoded, Boolean beta, String category) {
-        this.org = org;
-        this.module = module;
         this.name = name;
+        this.platform = platform;
+        this.ballerinaVersion = ballerinaVersion;
+    }
+
+    public BallerinaConnectorInfo(String id, String orgName, String packageName, String version,
+                                  String name, String platform, String ballerinaVersion, String displayName) {
+        this.id = id;
+        this.orgName = orgName;
+        this.packageName = packageName;
         this.version = version;
-        this.cacheVersion = cacheVersion;
+        this.name = name;
+        this.platform = platform;
+        this.ballerinaVersion = ballerinaVersion;
         this.displayName = displayName;
-        this.logoBase64Encoded = logoBase64Encoded;
-        this.beta = beta;
-        this.category = category;
     }
 
-    public String getOrg() {
-        return org;
+    public String getId() {
+        return id;
     }
 
-    public String getModule() {
-        return module;
+    public String getOrgName() {
+        return orgName;
     }
 
-    public String getName() {
-        return name;
+    public String getPackageName() {
+        return packageName;
     }
 
     public String getVersion() {
         return version;
     }
 
-    public String getCacheVersion() {
-        return cacheVersion;
+    public String getName() {
+        return name;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public String getBallerinaVersion() {
+        return ballerinaVersion;
     }
 
     public String getDisplayName() {
         return displayName;
     }
 
-    public String getLogoBase64Encoded() {
-        return logoBase64Encoded;
-    }
-
-    public Boolean getBeta() {
-        return beta;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
     @Override
     public String toString() {
         return "BallerinaConnectorInfo{" +
-                "organization='" + org + '\'' +
-                ", module='" + module + '\'' +
+                "connectorId='" + id + '\'' +
+                ", organization='" + orgName + '\'' +
+                ", package='" + packageName + '\'' +
                 ", name='" + name + '\'' +
                 ", version='" + version + '\'' +
                 ", displayName='" + displayName + '\'' +
-                ", logoBase64Encoded='" + logoBase64Encoded + '\'' +
-                ", beta=" + beta +
+                ", platform='" + platform + '\'' +
+                ", ballerinaVersion=" + ballerinaVersion +
                 '}';
     }
 }
