@@ -156,10 +156,10 @@ public class TypeDefinitionsTest {
         BRunUtil.invoke(compileResult, "testTypeDefReferringToTypeDefDefinedAfter");
     }
 
-    @Test
-    public void testRecordTypeResolving() {
-        BRunUtil.invoke(recordFieldRes, "testRecordTypeResolving");
-    }
+//    @Test
+//    public void testRecordTypeResolving() {
+//        BRunUtil.invoke(recordFieldRes, "testRecordTypeResolving");
+//    }
 
     @Test
     public void testRecordTypeResolvingWithTypeInclusion() {
