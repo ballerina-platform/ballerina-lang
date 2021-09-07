@@ -77,7 +77,8 @@ public class FieldCompletionItemBuilder {
         Boolean readableContext = context.getNodeAtCursor().apply(resolver);
 
         String insertText = recordFieldName;
-        if (readableContext) {
+        // Here we added null check since the value is null for ExternalTreeNodeList.
+        if (readableContext != null && readableContext) {
             Optional<TextEdit> recordFieldAdditionalTextEdit = getRecordFieldAdditionalTextEdit(symbol, context);
             if (recordFieldAdditionalTextEdit.isPresent()) {
                 insertText = "?." + recordFieldName;
