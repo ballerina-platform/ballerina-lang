@@ -24,7 +24,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class ModuleLevelSymbolTest {
+public class ImportDeclSymbolTest {
     private SemanticModel model;
     private Document srcFile;
 
