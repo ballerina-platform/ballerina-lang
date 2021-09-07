@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
@@ -25,11 +26,15 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_ACCESS_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 
 /**
  * Ballerina qualified name reference evaluator implementation.
@@ -54,8 +59,20 @@ public class QualifiedNameReferenceEvaluator extends Evaluator {
             if (!resolvedImports.containsKey(modulePrefix)) {
                 throw createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix);
             }
-
             ModuleSymbol moduleSymbol = resolvedImports.get(modulePrefix);
+            List<ConstantSymbol> constSymbol = moduleSymbol.constants().stream()
+                    .filter(constantSymbol -> constantSymbol.getName().isPresent()
+                            && constantSymbol.getName().get().equals(nameReference))
+                    .collect(Collectors.toList());
+
+            // Validates whether the given module has a public constant using semantic API
+            if (constSymbol.isEmpty()) {
+                throw createEvaluationException(String.format("Undefined constant '%s' in module '%s'", nameReference,
+                        modulePrefix));
+            } else if (!isPublicSymbol(constSymbol.get(0))) {
+                throw createEvaluationException(NON_PUBLIC_ACCESS_ERROR, nameReference);
+            }
+
             Optional<BExpressionValue> moduleVariable = VariableUtils.searchModuleVariables(context, moduleSymbol,
                     nameReference);
             if (moduleVariable.isEmpty()) {
