@@ -116,6 +116,7 @@ public class SymbolAtCursorTest {
                 {122, 56, "myStr"},
                 {135, 5, "Atype"},
                 {150, 12, "ParseError"},
+                {163, 9, "foo"},
         };
     }
 
