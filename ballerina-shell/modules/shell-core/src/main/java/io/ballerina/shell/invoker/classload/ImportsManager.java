@@ -23,13 +23,15 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.snippet.types.ImportDeclarationSnippet;
-import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,15 +42,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Imports that were stored to be able to search with the prefix.
- * The prefixes used will always be quoted identifiers.
+ * The prefixes used will always be identifiers.
  *
  * @since 2.0.0
  */
 public class ImportsManager {
-    private static final QuotedIdentifier ANON_SOURCE = new QuotedIdentifier("$");
+    private static final Identifier ANON_SOURCE = new Identifier("$");
     private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)/([\\w.]+):([^:]+):([\\w]+)[|]?");
     // Special imports
@@ -57,7 +60,9 @@ public class ImportsManager {
     private static final ImportDeclarationSnippet JAVA_IMPORT;
 
     // Special prefixes
-    private static final String JAVA_PREFIX = "\'java";
+    private static final String JAVA_PREFIX = "java";
+
+    public static final String QUOTE = "'";
 
     private final AtomicBoolean initialized;
 
@@ -68,6 +73,8 @@ public class ImportsManager {
      */
     private static final AtomicInteger implicitImportPrefixIndex = new AtomicInteger(0);
 
+    private static final List<String> BALLERINA_KEYWORDS;
+
     static {
         // Set the java import snippet
         TextDocument importText = TextDocuments.from(JAVA_IMPORT_SOURCE);
@@ -76,28 +83,29 @@ public class ImportsManager {
         ModulePartNode modulePartNode = syntaxTree.rootNode();
         ImportDeclarationNode importDeclaration = modulePartNode.imports().get(0);
         JAVA_IMPORT = new ImportDeclarationSnippet(importDeclaration);
+        BALLERINA_KEYWORDS = getBallerinaKeywords();
     }
 
     /**
      * This is a map of import prefix to the import statement used.
-     * Import prefix must be a quoted identifier.
+     * Import prefix must be an identifier.
      */
-    private final HashMap<QuotedIdentifier, QuotedImport> imports;
+    private final HashMap<Identifier, QuotedImport> imports;
     /**
      * Hashmap to store user imports.
      */
-    private final HashMap<QuotedIdentifier, QuotedImport> userImports;
+    private final HashMap<Identifier, QuotedImport> userImports;
     /**
      * Reverse map to search the imported module.
      */
-    private final HashMap<QuotedImport, QuotedIdentifier> reverseImports;
+    private final HashMap<QuotedImport, Identifier> reverseImports;
     /**
      * Import prefixes that are used in each module declaration/var declaration.
-     * Key is the name of the module/var declaration. (quoted name)
-     * Value is the prefixes used by that name. (quoted prefix)
+     * Key is the name of the module/var declaration. (name)
+     * Value is the prefixes used by that name. (prefix)
      * All the implicit imports should be included under ANON_SOURCE name.
      */
-    private final Map<QuotedIdentifier, Set<QuotedIdentifier>> usedPrefixes;
+    private final Map<Identifier, Set<Identifier>> usedPrefixes;
 
     public ImportsManager() {
         this.initialized = new AtomicBoolean(false);
@@ -126,7 +134,7 @@ public class ImportsManager {
      * @param prefix Prefix to search.
      * @return The import statement of the prefix.
      */
-    public String getImport(QuotedIdentifier prefix) {
+    public String getImport(Identifier prefix) {
         QuotedImport quotedImport = this.imports.get(prefix);
         if (quotedImport == null) {
             return null;
@@ -140,8 +148,8 @@ public class ImportsManager {
      * @param prefix Prefix to search.
      * @return If prefix was added by the user.
      */
-    public boolean containsPrefix(QuotedIdentifier prefix) {
-        return this.userImports.containsKey(prefix);
+    public boolean containsPrefix(Identifier prefix) {
+        return this.userImports.containsKey(prefix) || this.userImports.containsKey(new Identifier("'" + prefix));
     }
 
     /**
@@ -161,7 +169,7 @@ public class ImportsManager {
      * @param moduleName Module name to check in 'orgName/module' format.
      * @return Prefix of the import.
      */
-    public QuotedIdentifier prefix(QuotedImport moduleName) {
+    public Identifier prefix(QuotedImport moduleName) {
         return this.reverseImports.get(moduleName);
     }
 
@@ -171,7 +179,7 @@ public class ImportsManager {
      * @param snippet Import snippet to add.
      */
     public void storeImport(ImportDeclarationSnippet snippet) {
-        QuotedIdentifier quotedPrefix = snippet.getPrefix();
+        Identifier quotedPrefix = snippet.getPrefix();
         QuotedImport importedModule = snippet.getImportedModule();
         storeImport(quotedPrefix, importedModule);
     }
@@ -183,34 +191,35 @@ public class ImportsManager {
      * @param name     Usage source declaration name of the import.
      * @param prefixes Used prefixes.
      */
-    public void storeImportUsages(QuotedIdentifier name, Collection<QuotedIdentifier> prefixes) {
+    public void storeImportUsages(Identifier name, Collection<Identifier> prefixes) {
         // Get the prefixes previously used by this name and add prefix this to it.
-        Set<QuotedIdentifier> sourcePrefixes = this.usedPrefixes.getOrDefault(name, new HashSet<>());
+        Set<Identifier> sourcePrefixes = this.usedPrefixes.getOrDefault(name, new HashSet<>());
         sourcePrefixes.addAll(prefixes);
         this.usedPrefixes.put(name, sourcePrefixes);
     }
 
     /**
-     * All the prefixes that were added by the user. Prefixes will be quoted.
+     * All the prefixes that were added by the user.
+     * Prefixes will be quoted if it is a Ballerina reserved keyword.
      * These are essentially all the imports that are managed.
      *
      * @return Set of prefixes.
      */
-    public Set<QuotedIdentifier> prefixes() {
+    public Set<Identifier> prefixes() {
         return this.userImports.keySet();
     }
 
     /**
      * All the import statements that were used by the given names.
      * This will also contain all the default imports. eg: ballerina/jballerina.java
-     * Names should be quoted identifiers of module dclns and var dclns.
+     * Names should be quoted if it is a Ballerina reserved keyword.
      *
      * @param names Names to search the used prefixes for.
      * @return Set of import statements used in given names.
      */
-    public Set<String> getUsedImports(Collection<QuotedIdentifier> names) {
+    public Set<String> getUsedImports(Collection<Identifier> names) {
         // Start with all default imports
-        Set<QuotedIdentifier> allUsedImportPrefixes = new HashSet<>(usedPrefixes.get(ANON_SOURCE));
+        Set<Identifier> allUsedImportPrefixes = new HashSet<>(usedPrefixes.get(ANON_SOURCE));
 
         // Add the imports used by names
         names.stream()
@@ -242,7 +251,7 @@ public class ImportsManager {
      * @param imports    Imports set to store imports.
      * @return Type signature after parsing.
      */
-    protected String extractImportsFromType(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
+    protected String extractImportsFromType(TypeSymbol typeSymbol, Set<Identifier> imports) {
         String text = typeSymbol.signature();
         StringBuilder newText = new StringBuilder();
         Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(text);
@@ -256,10 +265,15 @@ public class ImportsManager {
             // Identify org name and module names
             String orgName = matcher.group(1);
             List<String> moduleNames = Arrays.asList(matcher.group(2).split("\\."));
+            for (int i = 1; i < moduleNames.size(); i++) {
+                if (BALLERINA_KEYWORDS.contains(moduleNames.get(i))) {
+                    moduleNames.set(i, QUOTE + moduleNames.get(i));
+                }
+            }
             QuotedImport quotedImport = new QuotedImport(orgName, moduleNames);
 
             // Add the import required
-            QuotedIdentifier quotedPrefix = addImport(quotedImport);
+            Identifier quotedPrefix = addImport(quotedImport);
             imports.add(quotedPrefix);
 
             // Update next-start position
@@ -281,19 +295,17 @@ public class ImportsManager {
      * @param moduleName Module to import in 'orgName/module.name' format
      * @return Prefix imported.
      */
-    private QuotedIdentifier addImport(QuotedImport moduleName) {
+    private Identifier addImport(QuotedImport moduleName) {
         // If this module is already imported, use a previous prefix.
         if (moduleImported(moduleName)) {
             return prefix(moduleName);
         }
 
         // Try to find an available prefix (starting from default prefix and iterate over _I imports)
-        QuotedIdentifier quotedPrefix = moduleName.getDefaultPrefix();
+        Identifier quotedPrefix = moduleName.getDefaultPrefix();
         while (containsPrefix(quotedPrefix)) {
-            quotedPrefix = new QuotedIdentifier("_" + implicitImportPrefixIndex.incrementAndGet());
+            quotedPrefix = new Identifier("_" + implicitImportPrefixIndex.incrementAndGet());
         }
-
-        storeImport(quotedPrefix, moduleName);
         return quotedPrefix;
     }
 
@@ -314,7 +326,7 @@ public class ImportsManager {
      * @param quotedPrefix Prefix of import.
      * @param moduleName   Module name to add.
      */
-    private void storeImport(QuotedIdentifier quotedPrefix, QuotedImport moduleName) {
+    private void storeImport(Identifier quotedPrefix, QuotedImport moduleName) {
         this.imports.put(quotedPrefix, moduleName);
         this.reverseImports.put(moduleName, quotedPrefix);
         if (!quotedPrefix.toString().equals(JAVA_PREFIX)) {
@@ -323,6 +335,34 @@ public class ImportsManager {
             if (this.initialized.get()) {
                 this.userImports.put(quotedPrefix, moduleName);
             }
+        }
+    }
+
+    /**
+     * get Ballerina reserved keywords.
+     *
+     * @return list contains Ballerina reserved keywords.
+     */
+    private static List<String> getBallerinaKeywords() {
+        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we come up with an appropriate API.
+        // The same implementation can be found in the language server common utils.
+        // Related discussion can be found in https://github.com/ballerina-platform/ballerina-lang/discussions/28827
+        try {
+            Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");
+            return Arrays.stream(aClass.getDeclaredFields())
+                    .filter(field -> field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)
+                            && (field.getType() == String.class))
+                    .map(field -> {
+                        try {
+                            return field.get(null).toString();
+                        } catch (IllegalAccessException e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (ClassNotFoundException e) {
+            return Collections.emptyList();
         }
     }
 }
