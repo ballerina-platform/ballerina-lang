@@ -44,7 +44,9 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_ACCESS_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
@@ -90,7 +92,6 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     private FunctionSymbol resolveFunctionDefinitionSymbol() throws EvaluationException {
         List<FunctionSymbol> functionMatches;
-
         // If the function name is a qualified name reference, need to resolve the imported module symbol first.
         if (syntaxNode.functionName().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             String modulePrefix = ((QualifiedNameReferenceNode) syntaxNode.functionName()).modulePrefix().text();
@@ -101,6 +102,10 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                     .filter(symbol -> symbol.getName().isPresent() &&
                             modifyName(symbol.getName().get()).equals(functionName))
                     .collect(Collectors.toList());
+
+            if (functionMatches.size() == 1 && !isPublicSymbol(functionMatches.get(0))) {
+                throw createEvaluationException(NON_PUBLIC_ACCESS_ERROR, functionName);
+            }
         } else {
             SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
             functionMatches = semanticContext.moduleSymbols()
@@ -110,8 +115,9 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                     .map(symbol -> (FunctionSymbol) symbol)
                     .collect(Collectors.toList());
         }
+
         if (functionMatches.isEmpty()) {
-            throw createEvaluationException(FUNCTION_NOT_FOUND, functionName);
+            throw createEvaluationException(FUNCTION_NOT_FOUND, syntaxNode.functionName().toSourceCode().trim());
         } else if (functionMatches.size() > 1) {
             throw createEvaluationException("Multiple function definitions found with name: '" + functionName + "'");
         }

@@ -22,6 +22,8 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Qualifiable;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerinalang.debugadapter.EvaluationContext;
@@ -40,6 +42,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_ACCESS_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
@@ -150,6 +153,8 @@ public abstract class EvaluationTypeResolver<T> {
         Optional<Symbol> typeDefinition = getQualifiedTypeDefinitionSymbol(modulePrefix, typeName);
         if (typeDefinition.isEmpty()) {
             throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+        } else if (!isPublicSymbol(typeDefinition.get())) {
+            throw createEvaluationException(NON_PUBLIC_ACCESS_ERROR, typeName);
         }
 
         String packageInitClass = constructInitClassNameFrom(typeDefinition.get());
@@ -163,5 +168,18 @@ public abstract class EvaluationTypeResolver<T> {
             throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
         }
         return Optional.ofNullable(classRef.get(0).getValue(typeField));
+    }
+
+    /**
+     * Checks whether the given semantic API symbol contains 'public' qualifier.
+     *
+     * @param symbol semantic API symbol
+     * @return true if the given semantic API symbol has 'public' qualifier
+     */
+    public static boolean isPublicSymbol(Symbol symbol) {
+        if (symbol instanceof Qualifiable) {
+            return ((Qualifiable) symbol).qualifiers().stream().anyMatch(qualifier -> qualifier == Qualifier.PUBLIC);
+        }
+        return true;
     }
 }
