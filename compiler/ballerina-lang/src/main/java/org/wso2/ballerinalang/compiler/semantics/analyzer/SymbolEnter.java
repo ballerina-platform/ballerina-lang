@@ -1535,6 +1535,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             definedType.tsymbol.flags |= typeDefSymbol.flags;
             definedType.tsymbol.pos = typeDefSymbol.pos;
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
+            definedType.tsymbol.pkgID = env.enclPkg.packageID;
+            if (definedType.tsymbol instanceof BErrorTypeSymbol) {
+                definedType.tsymbol.owner = env.scope.owner;
+            }
         }
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             typeDefSymbol = definedType.tsymbol;
@@ -1557,10 +1561,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.pkgID = env.enclPkg.packageID;
         typeDefSymbol.pos = typeDefinition.name.pos;
         typeDefSymbol.origin = getOrigin(typeDefSymbol.name);
-
-        if (typeDefSymbol instanceof BErrorTypeSymbol) {
-            typeDefSymbol.owner = env.scope.owner;
-        }
 
         if (isIntersectionType) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;

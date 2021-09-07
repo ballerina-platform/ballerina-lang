@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -55,7 +54,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -355,9 +353,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             return Optional.empty();
         }
 
-        if (isTypeSymbol(symbolAtCursor) &&
-                ((isInlineSingletonType((BTypeSymbol) symbolAtCursor))
-                        || isCursorPosAtDefinition(compilationUnit, symbolAtCursor, position))) {
+        if (isTypeSymbol(symbolAtCursor) && ((isInlineSingletonType(symbolAtCursor))
+                || isCursorPosAtDefinition(compilationUnit, symbolAtCursor, position))) {
             return Optional.ofNullable(
                     typesFactory.getTypeDescriptor(symbolAtCursor.type, symbolAtCursor));
         }
@@ -423,11 +420,10 @@ public class BallerinaSemanticModel implements SemanticModel {
                 && PositionUtil.withinBlock(cursorPos, symbolAtCursor.pos));
     }
 
-
-    private boolean isInlineSingletonType(BTypeSymbol symbol) {
-        // !symbol.isLabel is checked to exclude type defs
-        return symbol.type.tag == TypeTags.FINITE && !symbol.isLabel
-                && ((BFiniteType) symbol.type).getValueSpace().size() == 1;
+    private boolean isInlineSingletonType(BSymbol symbol) {
+        // !(symbol instanceof BTypeDefinitionSymbol) is checked to exclude type defs
+        return !(symbol instanceof BTypeDefinitionSymbol) && symbol.type.tag == TypeTags.FINITE &&
+                ((BFiniteType) symbol.type).getValueSpace().size() == 1;
     }
 
     private boolean isTypeSymbol(BSymbol tSymbol) {
