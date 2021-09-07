@@ -107,7 +107,6 @@ public class PackageDependencyGraphBuilder {
         if (dependencyNode == null) {
             return false;
         }
-
         return dependencyNode.pkgDesc().version().equals(node.version());
     }
 

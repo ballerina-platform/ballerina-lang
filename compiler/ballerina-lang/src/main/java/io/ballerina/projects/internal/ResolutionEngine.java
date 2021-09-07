@@ -34,6 +34,7 @@ import io.ballerina.projects.internal.PackageDependencyGraphBuilder.NodeStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -195,12 +196,37 @@ public class ResolutionEngine {
                             PackageDependencyGraphBuilder graphBuilder) {
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
         for (PackageDescriptor directDep : directDependencies) {
+            DependencyGraph<PackageDescriptor> dependencyGraphFinal;
+            if (directDep.isBuiltInPackage()) {
+                // a built-in dependency will have the same version (0.0.0) across Ballerina distributions
+                // but their dependencies may change. Therefore,
+                // we need to always get the dependency graph of built-in packages from the current distribution
+                dependencyGraphFinal = getBuiltInPkgDescDepGraph(scope, directDep);
+            } else {
+                dependencyGraphFinal = dependencyGraph;
+            }
+
             // Merge the dependency graph only if the node is accepted by the graphBuilder
             NodeStatus nodeStatus = graphBuilder.addDependency(rootNode, directDep, scope, resolutionType);
             if (nodeStatus == NodeStatus.ACCEPTED) {
-                mergeGraph(directDep, dependencyGraph, scope, resolutionType, graphBuilder);
+                mergeGraph(directDep, dependencyGraphFinal, scope, resolutionType, graphBuilder);
             }
         }
+    }
+    private DependencyGraph<PackageDescriptor> getBuiltInPkgDescDepGraph(
+            PackageDependencyScope scope, PackageDescriptor directDep) {
+        Collection<PackageMetadataResponse> packageMetadataResponses = packageResolver.resolvePackageMetadata(
+                Collections.singletonList(ResolutionRequest.from(directDep, scope)), resolutionOptions);
+        if (packageMetadataResponses.isEmpty()) {
+            // This condition cannot be met since a built-in package is always expected to be available in the dist
+            throw new IllegalStateException("built-in package not found in distribution: " + directDep.toString());
+        }
+        PackageMetadataResponse packageMetadataResponse = packageMetadataResponses.iterator().next();
+        Optional<DependencyGraph<PackageDescriptor>> packageDescriptorDependencyGraph =
+                packageMetadataResponse.dependencyGraph();
+
+        return packageDescriptorDependencyGraph
+                .orElseThrow(() -> new IllegalStateException("Graph cannot be null in a built-in package"));
     }
 
     private void updateDependencyVersions(PackageDependencyGraphBuilder graphBuilder) {

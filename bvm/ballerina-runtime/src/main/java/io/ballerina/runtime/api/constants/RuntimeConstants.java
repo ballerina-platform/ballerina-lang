@@ -60,7 +60,7 @@ public class RuntimeConstants {
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
 
     public static final Module BALLERINA_LANG_ERROR_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
-                                                                        "lang.error", "1");
+                                                                        "lang.error", "0");
 
     // Lang libs
     public static final String STRING_LANG_LIB = "lang.string";

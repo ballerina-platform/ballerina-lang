@@ -152,13 +152,13 @@ public class DependencyFilePathsTest extends BaseTest {
         }
 
         assert filepath != null;
-        Path expectedPath = Paths.get("build/repo/bala/ballerina/lang.float/1.0.0/any/modules/lang.float")
+        Path expectedPath = Paths.get("build/repo/bala/ballerina/lang.float/0.0.0/any/modules/lang.float")
                 .resolve("float.bal").toAbsolutePath();
         Assert.assertEquals(filepath.toString(), expectedPath.toString());
 
         // get document id of dependency filepath
         Project balaProject = TestUtils.loadProject(
-                Paths.get("build/repo/bala/ballerina/lang.float/1.0.0/any"));
+                Paths.get("build/repo/bala/ballerina/lang.float/0.0.0/any"));
         DocumentId documentId1 = balaProject.documentId(filepath);
         Assert.assertEquals(documentId1,
                 balaProject.currentPackage().getDefaultModule().documentIds().stream().findFirst().get());

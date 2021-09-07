@@ -40,8 +40,12 @@ public class PackageDescriptor {
                               String repository) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
-        this.packageVersion = packageVersion;
         this.repository = repository;
+        if (isBuiltInPackage()) {
+            this.packageVersion = PackageVersion.from("0.0.0");
+        } else {
+            this.packageVersion = packageVersion;
+        }
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName) {

@@ -1,0 +1,5 @@
+digraph "samejs/app:0.1.0" {
+    "ballerina/http"
+    "samtest/io"
+    "samjs/foo" [scope = "testOnly"]
+}

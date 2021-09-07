@@ -87,7 +87,7 @@ public class DisplayAnnotationTest {
 
     @Test void testDisplayAnnotationNegative() {
         BAssertUtil.validateError(negative, 0, "cannot specify more than one annotation value " +
-                "for annotation 'ballerina/lang.annotations:1.0.0:display'", 17, 1);
+                "for annotation 'ballerina/lang.annotations:0.0.0:display'", 17, 1);
         Assert.assertEquals(negative.getErrorCount(), 1);
     }
 
