@@ -3,7 +3,7 @@
 
 # See: https://help.github.com/articles/about-codeowners/
 
-# API definitions
+# Components
 /compiler/ @sameerajayasoma @hasithaa 
 /langlib/ @sameerajayasoma @hasithaa 
 /semtypes/ @sameerajayasoma @hasithaa 
