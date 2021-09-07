@@ -332,7 +332,8 @@ public class Core {
     // where T is a union of complete basic types.
     public static Optional<UniformTypeBitSet> simpleArrayMemberType(Env env, SemType t) {
         if (t instanceof UniformTypeBitSet) {
-            return t == PredefinedType.LIST ? Optional.of(PredefinedType.TOP) : Optional.empty();
+            return ((UniformTypeBitSet) t).bitset == PredefinedType.LIST.bitset ?
+                    Optional.of(PredefinedType.TOP) : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, PredefinedType.LIST)) {
                 return Optional.empty();

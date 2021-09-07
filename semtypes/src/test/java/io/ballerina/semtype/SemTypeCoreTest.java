@@ -52,9 +52,9 @@ public class SemTypeCoreTest {
         Assert.assertEquals(Core.singleNumericType(PredefinedType.INT), Optional.of(PredefinedType.INT));
         Assert.assertEquals(Core.singleNumericType(PredefinedType.BOOLEAN), Optional.empty());
         Core.singleNumericType(Core.singleton(1L));
-        //Assert.assertEquals(Core.singleNumericType(Core.singleton(1L)), Optional.of(PredefinedType.INT));
-        //Assert.assertEquals(Core.singleNumericType(Core.union(PredefinedType.INT, PredefinedType.FLOAT)),
-        //       Optional.empty());
+        Assert.assertEquals(Core.singleNumericType(Core.singleton(1L)), Optional.of(PredefinedType.INT));
+        Assert.assertEquals(Core.singleNumericType(Core.union(PredefinedType.INT, PredefinedType.FLOAT)),
+               Optional.empty());
     }
 
     @Test
@@ -229,23 +229,27 @@ public class SemTypeCoreTest {
     public void stringTest() {
         List<EnumerableString> result = new ArrayList<>();
         // TODO may have to assert lists by converting the output to a string list
+
         EnumerableSubtype.enumerableListUnion(new EnumerableString[]{EnumerableString.from("a"),
                         EnumerableString.from("b"), EnumerableString.from("d")},
                 new EnumerableString[]{EnumerableString.from("c")}, result);
-        Assert.assertEquals(result, Arrays.asList(EnumerableString.from("a"), EnumerableString.from("b"),
-                EnumerableString.from("c"), EnumerableString.from("d")));
+        Assert.assertEquals(result.get(0).value, "a");
+        Assert.assertEquals(result.get(1).value, "b");
+        Assert.assertEquals(result.get(2).value, "c");
+        Assert.assertEquals(result.get(3).value, "d");
 
         result = new ArrayList<>();
         EnumerableSubtype.enumerableListIntersect(new EnumerableString[]{EnumerableString.from("a"),
                         EnumerableString.from("b"), EnumerableString.from("d")},
                 new EnumerableString[]{EnumerableString.from("d")}, result);
-        Assert.assertEquals(result, List.of(EnumerableString.from("d")));
+        Assert.assertEquals(result.get(0).value, "d");
 
         result = new ArrayList<>();
         EnumerableSubtype.enumerableListDiff(new EnumerableString[]{EnumerableString.from("a"),
                         EnumerableString.from("b"), EnumerableString.from("c"), EnumerableString.from("d")},
                 new EnumerableString[]{EnumerableString.from("a"), EnumerableString.from("c")}, result);
-        Assert.assertEquals(result, Arrays.asList(EnumerableString.from("b"), EnumerableString.from("d")));
+        Assert.assertEquals(result.get(0).value, "b");
+        Assert.assertEquals(result.get(1).value, "d");
     }
 
     @Test
