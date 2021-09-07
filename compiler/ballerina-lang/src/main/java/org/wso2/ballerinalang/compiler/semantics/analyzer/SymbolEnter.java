@@ -506,19 +506,36 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TUPLE_TYPE_NODE:
                 return resolveTypeDesc((BLangTupleTypeNode) td, semtypeEnv);
             case RECORD_TYPE:
-                return resolveTypeDesc(((BLangRecordTypeNode) td), semtypeEnv);
+                return resolveTypeDesc((BLangRecordTypeNode) td, semtypeEnv);
             case FUNCTION_TYPE:
-                return resolveTypeDesc(((BLangFunctionTypeNode) td), semtypeEnv);
+                return resolveTypeDesc((BLangFunctionTypeNode) td, semtypeEnv);
             case ERROR_TYPE:
-                return resolveTypeDesc(((BLangErrorType) td), semtypeEnv);
+                return resolveTypeDesc((BLangErrorType) td, semtypeEnv);
             case UNION_TYPE_NODE:
-                return resolveTypeDesc(((BLangUnionTypeNode) td), semtypeEnv);
+                return resolveTypeDesc((BLangUnionTypeNode) td, semtypeEnv);
             case INTERSECTION_TYPE_NODE:
-                return resolveTypeDesc(((BLangIntersectionTypeNode) td), semtypeEnv);
+                return resolveTypeDesc((BLangIntersectionTypeNode) td, semtypeEnv);
+            case USER_DEFINED_TYPE:
+                return resolveTypeDesc((BLangUserDefinedType) td, semtypeEnv, mod, depth);
             default:
                 throw new AssertionError("not implemented");
         }
 
+    }
+
+    private SemType resolveTypeDesc(BLangUserDefinedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
+        BLangNode typeOrClass = mod.get(td.typeName.value);
+        if (typeOrClass == null) {
+            dlog.error(td.pos, DiagnosticErrorCode.REFERENCE_TO_UNDEFINED_TYPE, td.typeName);
+            return null;
+        }
+
+        if (typeOrClass.getKind() == NodeKind.TYPE_DEFINITION) {
+            // todo: Test with a const
+            return resolveTypeDefn(semtypeEnv, mod, (BLangTypeDefinition) typeOrClass, depth);
+        } else {
+            throw new AssertionError();
+        }
     }
 
     private SemType resolveTypeDesc(BLangConstrainedType td, Env semtypeEnv) {

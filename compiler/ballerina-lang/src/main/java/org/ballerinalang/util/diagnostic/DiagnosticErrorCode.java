@@ -745,7 +745,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch"),
     NO_CLASS_DEF_FOUND("BCE4013", "no.class.def.found"),
 
-    INVALID_TYPE_CYCLE("BCE5000", "invalid.type.cycle");
+    INVALID_TYPE_CYCLE("BCE5000", "invalid.type.cycle"),
+    REFERENCE_TO_UNDEFINED_TYPE("BCE5001", "reference.to.undefined.type");
 
     private String diagnosticId;
     private String messageKey;
