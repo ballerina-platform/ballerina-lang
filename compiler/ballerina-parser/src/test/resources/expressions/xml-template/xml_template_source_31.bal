@@ -17,4 +17,6 @@ function foo() {
 
     xml i = xml `<![CDATA[>>
                 hellow!]]>`;
+
+    xml j = xml `<![CDATA[<greeting>Hello, world!</greeting>]]>`;
 }

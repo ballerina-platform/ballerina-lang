@@ -114,7 +114,7 @@ public class XMLParser extends AbstractParser {
             case INTERPOLATION_START_TOKEN:
                 return parseInterpolation();
             case XML_CDATA_START_TOKEN:
-                return parseXMLCDATASection();
+                return parseXMLCdataSection();
             default:
                 return parseXMLText();
         }
@@ -561,22 +561,22 @@ public class XMLParser extends AbstractParser {
      *
      * @return XML comment node
      */
-    private STNode parseXMLCDATASection() {
-        STNode cDATAStart = consume();
+    private STNode parseXMLCdataSection() {
+        STNode cdataStart = consume();
         List<STNode> items = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfXMLCDATA(nextToken.kind)) {
+        while (!isEndOfXMLCdata(nextToken.kind)) {
             STNode contentItem = parseXMLCharacterSet();
             items.add(contentItem);
             nextToken = peek();
         }
 
         STNode content = STNodeFactory.createNodeList(items);
-        STNode cDATAEnd = parseXMLCDATAEnd();
-        return STNodeFactory.createXMLCDATANode(cDATAStart, content, cDATAEnd);
+        STNode cdataEnd = parseXMLCdataEnd();
+        return STNodeFactory.createXMLCDATANode(cdataStart, content, cdataEnd);
     }
 
-    private boolean isEndOfXMLCDATA(SyntaxKind nextTokenKind) {
+    private boolean isEndOfXMLCdata(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
@@ -592,13 +592,13 @@ public class XMLParser extends AbstractParser {
      *
      * @return XML CDATA end
      */
-    private STNode parseXMLCDATAEnd() {
+    private STNode parseXMLCdataEnd() {
         STToken token = peek();
         if (token.kind == SyntaxKind.XML_CDATA_END_TOKEN) {
             return consume();
         } else {
             recover(token, ParserRuleContext.XML_CDATA_END);
-            return parseXMLCDATAEnd();
+            return parseXMLCdataEnd();
         }
     }
 

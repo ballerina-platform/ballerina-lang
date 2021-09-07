@@ -1977,15 +1977,15 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public XMLCDATANode transform(XMLCDATANode xmlcdataNode) {
-        Token cDATAStart = formatToken(xmlcdataNode.cDATAStart(), 0, 0);
-        NodeList<Node> content = formatNodeList(xmlcdataNode.content(), 0, 0, 0, 0);
-        Token cDATAEnd = formatToken(xmlcdataNode.cDATAEnd(), env.trailingWS, env.trailingNL);
+    public XMLCDATANode transform(XMLCDATANode xmlCdataNode) {
+        Token cdataStart = formatToken(xmlCdataNode.cdataStart(), 0, 0);
+        NodeList<Node> content = formatNodeList(xmlCdataNode.content(), 0, 0, 0, 0);
+        Token cdataEnd = formatToken(xmlCdataNode.cdataEnd(), env.trailingWS, env.trailingNL);
 
-        return xmlcdataNode.modify()
-                .withCDATAStart(cDATAStart)
+        return xmlCdataNode.modify()
+                .withCdataStart(cdataStart)
                 .withContent(content)
-                .withCDATAEnd(cDATAEnd)
+                .withCdataEnd(cdataEnd)
                 .apply();
     }
 

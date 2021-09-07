@@ -31,60 +31,60 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STXMLCDATANode extends STXMLItemNode {
-    public final STNode cDATAStart;
+    public final STNode cdataStart;
     public final STNode content;
-    public final STNode cDATAEnd;
+    public final STNode cdataEnd;
 
     STXMLCDATANode(
-            STNode cDATAStart,
+            STNode cdataStart,
             STNode content,
-            STNode cDATAEnd) {
+            STNode cdataEnd) {
         this(
-                cDATAStart,
+                cdataStart,
                 content,
-                cDATAEnd,
+                cdataEnd,
                 Collections.emptyList());
     }
 
     STXMLCDATANode(
-            STNode cDATAStart,
+            STNode cdataStart,
             STNode content,
-            STNode cDATAEnd,
+            STNode cdataEnd,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.XML_CDATA, diagnostics);
-        this.cDATAStart = cDATAStart;
+        this.cdataStart = cdataStart;
         this.content = content;
-        this.cDATAEnd = cDATAEnd;
+        this.cdataEnd = cdataEnd;
 
         addChildren(
-                cDATAStart,
+                cdataStart,
                 content,
-                cDATAEnd);
+                cdataEnd);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STXMLCDATANode(
-                this.cDATAStart,
+                this.cdataStart,
                 this.content,
-                this.cDATAEnd,
+                this.cdataEnd,
                 diagnostics);
     }
 
     public STXMLCDATANode modify(
-            STNode cDATAStart,
+            STNode cdataStart,
             STNode content,
-            STNode cDATAEnd) {
+            STNode cdataEnd) {
         if (checkForReferenceEquality(
-                cDATAStart,
+                cdataStart,
                 content,
-                cDATAEnd)) {
+                cdataEnd)) {
             return this;
         }
 
         return new STXMLCDATANode(
-                cDATAStart,
+                cdataStart,
                 content,
-                cDATAEnd,
+                cdataEnd,
                 diagnostics);
     }
 

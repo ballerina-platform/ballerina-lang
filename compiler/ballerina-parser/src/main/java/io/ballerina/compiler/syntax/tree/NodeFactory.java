@@ -1708,17 +1708,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static XMLCDATANode createXMLCDATANode(
-            Token cDATAStart,
+            Token cdataStart,
             NodeList<Node> content,
-            Token cDATAEnd) {
-        Objects.requireNonNull(cDATAStart, "cDATAStart must not be null");
+            Token cdataEnd) {
+        Objects.requireNonNull(cdataStart, "cdataStart must not be null");
         Objects.requireNonNull(content, "content must not be null");
-        Objects.requireNonNull(cDATAEnd, "cDATAEnd must not be null");
+        Objects.requireNonNull(cdataEnd, "cdataEnd must not be null");
 
         STNode stXMLCDATANode = STNodeFactory.createXMLCDATANode(
-                cDATAStart.internalNode(),
+                cdataStart.internalNode(),
                 content.underlyingListNode().internalNode(),
-                cDATAEnd.internalNode());
+                cdataEnd.internalNode());
         return stXMLCDATANode.createUnlinkedFacade();
     }
 

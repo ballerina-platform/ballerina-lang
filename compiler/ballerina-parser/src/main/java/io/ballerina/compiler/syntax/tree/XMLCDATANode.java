@@ -32,7 +32,7 @@ public class XMLCDATANode extends XMLItemNode {
         super(internalNode, position, parent);
     }
 
-    public Token cDATAStart() {
+    public Token cdataStart() {
         return childInBucket(0);
     }
 
@@ -40,7 +40,7 @@ public class XMLCDATANode extends XMLItemNode {
         return new NodeList<>(childInBucket(1));
     }
 
-    public Token cDATAEnd() {
+    public Token cdataEnd() {
         return childInBucket(2);
     }
 
@@ -57,26 +57,26 @@ public class XMLCDATANode extends XMLItemNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "cDATAStart",
+                "cdataStart",
                 "content",
-                "cDATAEnd"};
+                "cdataEnd"};
     }
 
     public XMLCDATANode modify(
-            Token cDATAStart,
+            Token cdataStart,
             NodeList<Node> content,
-            Token cDATAEnd) {
+            Token cdataEnd) {
         if (checkForReferenceEquality(
-                cDATAStart,
+                cdataStart,
                 content.underlyingListNode(),
-                cDATAEnd)) {
+                cdataEnd)) {
             return this;
         }
 
         return NodeFactory.createXMLCDATANode(
-                cDATAStart,
+                cdataStart,
                 content,
-                cDATAEnd);
+                cdataEnd);
     }
 
     public XMLCDATANodeModifier modify() {
@@ -90,21 +90,21 @@ public class XMLCDATANode extends XMLItemNode {
      */
     public static class XMLCDATANodeModifier {
         private final XMLCDATANode oldNode;
-        private Token cDATAStart;
+        private Token cdataStart;
         private NodeList<Node> content;
-        private Token cDATAEnd;
+        private Token cdataEnd;
 
         public XMLCDATANodeModifier(XMLCDATANode oldNode) {
             this.oldNode = oldNode;
-            this.cDATAStart = oldNode.cDATAStart();
+            this.cdataStart = oldNode.cdataStart();
             this.content = oldNode.content();
-            this.cDATAEnd = oldNode.cDATAEnd();
+            this.cdataEnd = oldNode.cdataEnd();
         }
 
-        public XMLCDATANodeModifier withCDATAStart(
-                Token cDATAStart) {
-            Objects.requireNonNull(cDATAStart, "cDATAStart must not be null");
-            this.cDATAStart = cDATAStart;
+        public XMLCDATANodeModifier withCdataStart(
+                Token cdataStart) {
+            Objects.requireNonNull(cdataStart, "cdataStart must not be null");
+            this.cdataStart = cdataStart;
             return this;
         }
 
@@ -115,18 +115,18 @@ public class XMLCDATANode extends XMLItemNode {
             return this;
         }
 
-        public XMLCDATANodeModifier withCDATAEnd(
-                Token cDATAEnd) {
-            Objects.requireNonNull(cDATAEnd, "cDATAEnd must not be null");
-            this.cDATAEnd = cDATAEnd;
+        public XMLCDATANodeModifier withCdataEnd(
+                Token cdataEnd) {
+            Objects.requireNonNull(cdataEnd, "cdataEnd must not be null");
+            this.cdataEnd = cdataEnd;
             return this;
         }
 
         public XMLCDATANode apply() {
             return oldNode.modify(
-                    cDATAStart,
+                    cdataStart,
                     content,
-                    cDATAEnd);
+                    cdataEnd);
         }
     }
 }

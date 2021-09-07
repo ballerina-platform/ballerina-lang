@@ -1762,16 +1762,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public XMLCDATANode transform(
             XMLCDATANode xMLCDATANode) {
-        Token cDATAStart =
-                modifyToken(xMLCDATANode.cDATAStart());
+        Token cdataStart =
+                modifyToken(xMLCDATANode.cdataStart());
         NodeList<Node> content =
                 modifyNodeList(xMLCDATANode.content());
-        Token cDATAEnd =
-                modifyToken(xMLCDATANode.cDATAEnd());
+        Token cdataEnd =
+                modifyToken(xMLCDATANode.cdataEnd());
         return xMLCDATANode.modify(
-                cDATAStart,
+                cdataStart,
                 content,
-                cDATAEnd);
+                cdataEnd);
     }
 
     @Override

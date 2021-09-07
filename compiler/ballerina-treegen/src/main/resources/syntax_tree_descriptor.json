@@ -2376,7 +2376,7 @@
             "kind": "XML_CDATA",
             "attributes": [
                 {
-                    "name": "cDATAStart",
+                    "name": "cdataStart",
                     "type": "Token"
                 },
                 {
@@ -2385,7 +2385,7 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "cDATAEnd",
+                    "name": "cdataEnd",
                     "type": "Token"
                 }
             ]

@@ -1301,14 +1301,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createXMLCDATANode(
-            STNode cDATAStart,
+            STNode cdataStart,
             STNode content,
-            STNode cDATAEnd) {
+            STNode cdataEnd) {
 
         return new STXMLCDATANode(
-                cDATAStart,
+                cdataStart,
                 content,
-                cDATAEnd);
+                cdataEnd);
     }
 
     public static STNode createXMLProcessingInstruction(

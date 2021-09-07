@@ -1322,6 +1322,122 @@
                   ]
                 }
               ]
+            },
+            {
+              "kind": "LOCAL_VAR_DECL",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "TYPED_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "j",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "XML_TEMPLATE_EXPRESSION",
+                  "children": [
+                    {
+                      "kind": "XML_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "XML_CDATA",
+                          "children": [
+                            {
+                              "kind": "XML_CDATA_START_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "XML_TEXT_CONTENT",
+                                  "value": "\u003cgreeting\u003eHello, world!\u003c/greeting\u003e"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "XML_CDATA_END_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
