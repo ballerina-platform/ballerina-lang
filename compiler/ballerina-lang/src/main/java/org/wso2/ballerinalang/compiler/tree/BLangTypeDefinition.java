@@ -18,7 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.tree;
 
-import io.ballerina.semtype.SemType;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;

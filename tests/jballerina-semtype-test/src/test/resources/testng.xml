@@ -24,7 +24,7 @@
     <test name="jballerina-semtype-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
-            <package name="io.ballerina.semtype.*"/>
+            <package name="io.ballerina.types.*"/>
         </packages>
     </test>
 </suite>

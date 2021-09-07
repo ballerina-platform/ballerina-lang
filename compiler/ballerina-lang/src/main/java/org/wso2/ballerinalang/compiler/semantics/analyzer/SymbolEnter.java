@@ -18,11 +18,11 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
-import io.ballerina.semtype.Core;
-import io.ballerina.semtype.Env;
-import io.ballerina.semtype.PredefinedType;
-import io.ballerina.semtype.SemType;
-import io.ballerina.semtype.definition.ListDefinition;
+import io.ballerina.types.Core;
+import io.ballerina.types.Env;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemType;
+import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
