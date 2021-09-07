@@ -109,7 +109,7 @@ public class Core {
 
             SubtypeData data;
             if (data1 == null) {
-                data = (SubtypeData) data2; // // [from original impl] if they are both null, something's gone wrong
+                data = data2; // // [from original impl] if they are both null, something's gone wrong
             } else if (data2 == null) {
                 data = data1;
             } else {
@@ -260,7 +260,7 @@ public class Core {
             } else {
                 data = OpsTable.OPS[code.code].diff(data1, data2);
             }
-            if (!(data instanceof AllOrNothingSubtype) || ((AllOrNothingSubtype) data).isAllSubtype()) {
+            if (!(data instanceof BddAllOrNothing) || ((BddAllOrNothing) data).isAll()) {
                 subtypes.add(UniformSubtype.from(code, data));
             }
         }
