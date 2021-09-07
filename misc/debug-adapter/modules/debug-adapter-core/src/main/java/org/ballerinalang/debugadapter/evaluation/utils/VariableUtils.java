@@ -135,25 +135,24 @@ public class VariableUtils {
      */
     public static Optional<BExpressionValue> searchModuleVariables(SuspendedContext context, ModuleSymbol moduleSymbol,
                                                                    String nameReference) {
-        String classQName = getQualifiedClassName(moduleSymbol, INIT_CLASS_NAME);
+        String classQName = getInitClassName(moduleSymbol);
         return getFieldValue(context, classQName, nameReference);
     }
 
     /**
-     * Returns full-qualified class name for a given ballerina module symbol and a generated class name.
+     * Returns full-qualified name of the init class, for a given Ballerina module.
      *
      * @param moduleSymbol module symbol retrieved from the semantic API
-     * @param className    class name
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(ModuleSymbol moduleSymbol, String className) {
+    private static String getInitClassName(ModuleSymbol moduleSymbol) {
 
         moduleSymbol.id();
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(moduleSymbol.id().orgName())
                 .add(encodeModuleName(moduleSymbol.id().moduleName()))
                 .add(moduleSymbol.id().version().split("\\.")[0])
-                .add(className);
+                .add(INIT_CLASS_NAME);
         return classNameJoiner.toString();
     }
 

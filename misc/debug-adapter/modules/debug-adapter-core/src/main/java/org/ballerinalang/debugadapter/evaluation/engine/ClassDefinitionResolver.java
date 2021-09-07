@@ -51,6 +51,12 @@ public class ClassDefinitionResolver {
                 .map(symbol -> (ClassSymbol) symbol);
     }
 
+    public Optional<ClassSymbol> findBalClassDefWithinModule(ModuleSymbol moduleSymbol, String className) {
+        return moduleSymbol.classes().stream()
+                .filter(symbol -> modifyName(symbol.getName().orElse("")).equals(className))
+                .findFirst();
+    }
+
     public Optional<ClassSymbol> findBalClassDefWithinDependencies(String orgName, String packageName,
                                                                    String className) {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();

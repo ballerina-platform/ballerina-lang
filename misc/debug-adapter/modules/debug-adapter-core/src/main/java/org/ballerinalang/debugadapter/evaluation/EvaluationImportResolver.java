@@ -55,6 +55,12 @@ public class EvaluationImportResolver extends NodeVisitor {
         this.context = context;
     }
 
+    /**
+     * Returns a map of detected module symbols within the given expression node, against their module prefixes.
+     *
+     * @param expressionNode syntax node of the expression
+     * @return a map of detected module symbols within the given expression node, against their module prefixes
+     */
     public Map<String, ModuleSymbol> getImportedModuleMap(ExpressionNode expressionNode) throws EvaluationException {
         loadImportAliasesMap();
         expressionNode.accept(this);
