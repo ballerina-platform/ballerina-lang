@@ -62,7 +62,7 @@ public class LangLibValueTest {
         CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'any', found " +
-                "'ballerina/lang.value:1.0.0:Cloneable'", 21, 13);
+                "'ballerina/lang.value:0.0.0:Cloneable'", 21, 13);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
