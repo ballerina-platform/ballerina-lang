@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
@@ -60,6 +61,17 @@ class OptionalFieldAccessWriteAmbiguityResolver extends NodeTransformer<Boolean>
         Eg: testField.<cursor> = ...
          */
         return !equalsToken.isMissing() && cursor > equalsToken.textRange().startOffset();
+    }
+
+    @Override
+    public Boolean transform(CompoundAssignmentStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token binaryOperator = node.binaryOperator();
+        /*
+        Returns false (write ambiguous) if the cursor is before the binary operator
+        Eg: testField.<cursor> += ...
+         */
+        return !binaryOperator.isMissing() && cursor > binaryOperator.textRange().startOffset();
     }
 
     @Override
