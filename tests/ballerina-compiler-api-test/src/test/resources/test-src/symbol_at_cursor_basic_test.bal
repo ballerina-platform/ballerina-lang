@@ -161,7 +161,6 @@ function test(string name, int age) {
     Person p = {
         name: name,
         age,
-        [foo()]: "FOO",
-        ...adrs
+        [foo()]: "FOO"
     };
 }
