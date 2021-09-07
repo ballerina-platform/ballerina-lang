@@ -710,8 +710,8 @@ public class TypedescriptorTest {
     @DataProvider(name = "ConstantPosProvider")
     public Object[][] getConstPos() {
         return new Object[][]{
-                {16, 6, "3.14"},
-                {210, 6, "()"},
+                {16, 6, "PI"},
+                {210, 6, "NIL"},
         };
     }
 

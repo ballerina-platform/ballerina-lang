@@ -4324,22 +4324,6 @@
                     "isOptional": true
                 }
             ]
-        },
-        {
-            "name": "BalPartNode",
-            "base": "Node",
-            "kind": "BAL_PART",
-            "attributes": [
-                {
-                    "name": "constructs",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "eofToken",
-                    "type": "Token"
-                }
-            ]
         }
     ]
 }

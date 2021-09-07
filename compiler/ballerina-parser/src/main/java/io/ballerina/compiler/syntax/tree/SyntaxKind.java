@@ -492,7 +492,6 @@ public enum SyntaxKind {
     MARKDOWN_CODE_BLOCK(4508),
     INLINE_CODE_REFERENCE(4509),
 
-    BAL_PART(5),
     INVALID(4),
     MODULE_PART(3),
     EOF_TOKEN(2),

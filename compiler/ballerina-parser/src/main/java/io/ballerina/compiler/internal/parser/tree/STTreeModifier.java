@@ -2547,16 +2547,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 typeParamNode);
     }
 
-    @Override
-    public STBalPartNode transform(
-            STBalPartNode balPartNode) {
-        STNode constructs = modifyNode(balPartNode.constructs);
-        STNode eofToken = modifyNode(balPartNode.eofToken);
-        return balPartNode.modify(
-                constructs,
-                eofToken);
-    }
-
     // Tokens
 
     public STToken transform(STToken token) {
