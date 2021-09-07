@@ -22,6 +22,7 @@ import io.ballerina.semtype.Core;
 import io.ballerina.semtype.Env;
 import io.ballerina.semtype.PredefinedType;
 import io.ballerina.semtype.SemType;
+import io.ballerina.semtype.definition.ListDefinition;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -472,8 +473,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private SemType resolveTypeDefn(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn,
-                                    int depth) {
+    private SemType resolveTypeDefn(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth) {
         if (defn.semType != null) {
             return defn.semType;
         }
@@ -502,9 +502,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             case CONSTRAINED_TYPE: // map<?> and typedesc<?>
                 return resolveTypeDesc((BLangConstrainedType) td, semtypeEnv);
             case ARRAY_TYPE:
-                return resolveTypeDesc(((BLangArrayType) td), semtypeEnv);
+                return resolveTypeDesc(((BLangArrayType) td), semtypeEnv, mod, depth, defn);
             case TUPLE_TYPE_NODE:
-                return resolveTypeDesc((BLangTupleTypeNode) td, semtypeEnv);
+                return resolveTypeDesc((BLangTupleTypeNode) td, semtypeEnv, mod, depth, defn);
             case RECORD_TYPE:
                 return resolveTypeDesc((BLangRecordTypeNode) td, semtypeEnv);
             case FUNCTION_TYPE:
@@ -597,14 +597,31 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private SemType resolveTypeDesc(BLangArrayType td, Env semtypeEnv) {
-        throw new AssertionError("not implemented");
-
+    private SemType resolveTypeDesc(BLangArrayType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                    BLangTypeDefinition moduleDefn) {
+        SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
+        return createListSemType(td, semtypeEnv, Collections.emptyList(), elementType);
     }
 
-    private SemType resolveTypeDesc(BLangTupleTypeNode td, Env semtypeEnv) {
-        throw new AssertionError("not implemented");
+    private SemType resolveTypeDesc(BLangTupleTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                    BLangTypeDefinition moduleDefn) {
+        List<SemType> members = new ArrayList<>();
+        for (BLangType memberTypeNode : td.memberTypeNodes) {
+            members.add(resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, memberTypeNode));
+        }
+        SemType restType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.restParamType);
 
+        return createListSemType(td, semtypeEnv, members, restType);
+    }
+
+    private SemType createListSemType(BLangType td, Env semtypeEnv, List<SemType> members, SemType restType) {
+        ListDefinition defn = td.defn;
+        if (defn != null) {
+            return defn.getSemType(semtypeEnv);
+        }
+        ListDefinition d = new ListDefinition();
+        td.defn = d;
+        return d.define(semtypeEnv, members, restType);
     }
 
     private void defineIntersectionTypes(SymbolEnv env) {

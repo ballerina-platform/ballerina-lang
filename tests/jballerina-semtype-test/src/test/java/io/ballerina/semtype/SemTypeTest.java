@@ -44,7 +44,8 @@ public class SemTypeTest {
     @DataProvider(name = "fileNameProvider")
     public Object[] fileNameProvider() {
         return new Object[]{
-                "test-src/simple-type/type-test.bal"
+                "test-src/simple-type/type-test.bal",
+                "test-src/simple-type/list-type-test.bal"
         };
     }
 
