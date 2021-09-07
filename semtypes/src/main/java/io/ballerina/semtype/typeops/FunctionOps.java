@@ -106,8 +106,8 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
             FunctionAtomicType s = tc.functionAtomType(pos.atom);
             SemType s0 = s.paramType;
             SemType s1 = s.retType;
-            return Core.isSubtype(tc, t0, s0) || functionTheta(tc, Core.diff(s0, t0), s1, pos.next)
-                    && (Core.isSubtype(tc, t1, Core.complement(s1))
+            return Core.isSubtype(tc, t0, s0) ||
+                    functionTheta(tc, Core.diff(s0, t0), s1, pos.next) && (Core.isSubtype(tc, t1, Core.complement(s1))
                     || functionTheta(tc, s0, Core.intersect(s1, t1), pos.next));
         }
     }
