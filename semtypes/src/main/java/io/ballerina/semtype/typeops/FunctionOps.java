@@ -74,7 +74,7 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
 
     private boolean functionBddIsEmpty(TypeCheckContext tc, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
         if (b instanceof BddAllOrNothing) {
-            if (((BddAllOrNothing) b).isAll()) {
+            if (!((BddAllOrNothing) b).isAll()) {
                 return true;
             }
             if (neg == null) {
