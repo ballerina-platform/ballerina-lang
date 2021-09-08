@@ -1,7 +1,7 @@
 {
   "position": {
-    "line": 98,
-    "character": 15
+    "line": 248,
+    "character": 9
   },
   "source": {
     "file": "hover.bal"
@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Test Listener  \n  \n---  \n  \n`Listener` lst"
+        "value": "`int|string|boolean[]?` testVar"
       }
     },
     "id": {

@@ -242,3 +242,16 @@ public type NodeCredential record {|
     # Optfield
     string optField ?;
 |};
+
+function testVarType() {
+    int testInt;
+    var testVar = testFunction3();
+    if !(testVar is string) {
+        return;
+    }
+    testInt = 10;
+}
+
+public function testFunction3() returns int|string|boolean[]?{
+    return 2;
+}
