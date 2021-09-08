@@ -1529,7 +1529,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.markdownDocumentation
                 = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
 
+        boolean isLabel = true;
         if (definedType.tsymbol.name == Names.EMPTY) {
+            isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.flags |= typeDefSymbol.flags;
@@ -1551,7 +1553,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType referenceConstraintType = types.getConstraintFromReferenceType(definedType);
-        boolean isIntersectionType = types.referenceTypeMatchesTag(referenceConstraintType, TypeTags.INTERSECTION);
+        boolean isIntersectionType = types.referenceTypeMatchesTag(referenceConstraintType, TypeTags.INTERSECTION)
+                && !isLabel;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
