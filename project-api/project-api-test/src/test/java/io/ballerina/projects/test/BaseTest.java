@@ -19,6 +19,7 @@ package io.ballerina.projects.test;
 
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
@@ -68,6 +69,33 @@ public class BaseTest {
                     .resolve(repo).resolve(ProjectConstants.BALA_DIR_NAME);
             Path localRepoBalaCache = localRepoPath
                     .resolve("samjs").resolve("package_c").resolve("0.1.0").resolve("any");
+            Files.createDirectories(localRepoBalaCache);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
+            Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();
+            ProjectUtils.extractBala(balaPath, localRepoBalaCache);
+            try {
+                Files.delete(balaPath);
+            } catch (IOException e) {
+                // ignore the delete operation since we can continue
+            }
+        }
+    }
+
+    protected void cacheDependencyToLocalRepository(Path dependency) throws IOException {
+        BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
+        Package currentPackage = dependencyProject.currentPackage();
+        PackageCompilation compilation = currentPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+
+        List<String> repoNames = Lists.of("local", "stdlib.local");
+        for (String repo : repoNames) {
+            Path localRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
+                    .resolve(repo).resolve(ProjectConstants.BALA_DIR_NAME);
+            Path localRepoBalaCache = localRepoPath
+                    .resolve(currentPackage.packageOrg().value())
+                    .resolve(currentPackage.packageName().value())
+                    .resolve(currentPackage.packageVersion().value().toString())
+                    .resolve(jBallerinaBackend.targetPlatform().code());
             Files.createDirectories(localRepoBalaCache);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
             Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();

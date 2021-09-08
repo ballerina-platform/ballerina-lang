@@ -95,7 +95,7 @@ public class SubsequentBuildTests extends BaseTest {
                 + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
         Files.write(RESOURCE_DIRECTORY.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
-        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_c"));
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_c"));
 
         // Build the project
         BuildProject buildProject = BuildProject.load(packagePath);
