@@ -109,7 +109,7 @@ public class Core {
 
             SubtypeData data;
             if (data1 == null) {
-                data = (SubtypeData) data2; // // [from original impl] if they are both null, something's gone wrong
+                data = data2; // // [from original impl] if they are both null, something's gone wrong
             } else if (data2 == null) {
                 data = data1;
             } else {
@@ -367,7 +367,8 @@ public class Core {
     // When `strict`, require ro and rw to be consistent; otherwise just consider rw.
     public static Optional<UniformTypeBitSet> simpleArrayMemberType(Env env, SemType t, boolean strict) {
         if (t instanceof UniformTypeBitSet) {
-            return (t == PredefinedType.LIST || (t == PredefinedType.LIST_RW && !strict)) ?
+            return (((UniformTypeBitSet) t).bitset == PredefinedType.LIST.bitset ||
+                    (((UniformTypeBitSet) t).bitset == PredefinedType.LIST_RW.bitset && !strict)) ?
                     Optional.of(PredefinedType.TOP) : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, PredefinedType.LIST)) {
@@ -416,7 +417,8 @@ public class Core {
     // where T is a union of complete basic types.
     public static Optional<UniformTypeBitSet> simpleMapMemberType(Env env, SemType t, boolean strict) {
         if (t instanceof UniformTypeBitSet) {
-            return (t == PredefinedType.MAPPING || (t == PredefinedType.MAPPING_RW && !strict)) ?
+            return (((UniformTypeBitSet) t).bitset == PredefinedType.MAPPING.bitset ||
+                    (((UniformTypeBitSet) t).bitset == PredefinedType.MAPPING_RW.bitset && !strict)) ?
                     Optional.of(PredefinedType.TOP) : Optional.empty();
         } else {
             if (!isSubtypeSimple(t, PredefinedType.MAPPING)) {
@@ -574,6 +576,11 @@ public class Core {
 
     public static Optional<UniformTypeBitSet> singleNumericType(SemType semType) {
         SemType numType = intersect(semType, PredefinedType.NUMBER);
+        if (numType instanceof UniformTypeBitSet) {
+            if (((UniformTypeBitSet) numType).bitset == PredefinedType.NEVER.bitset) {
+                return Optional.empty();
+            }
+        }
         if (isSubtypeSimple(numType, PredefinedType.INT)) {
             return Optional.of(PredefinedType.INT);
         }
