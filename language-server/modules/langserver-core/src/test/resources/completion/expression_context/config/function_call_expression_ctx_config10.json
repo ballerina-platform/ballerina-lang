@@ -532,25 +532,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "addFunction(int num1, int num2)",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "AC",
-      "filterText": "addFunction",
-      "insertText": "addFunction(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "total",
       "kind": "Variable",
       "detail": "int",
@@ -639,6 +620,14 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "addFunction",
+      "kind": "Variable",
+      "detail": "function (int num1, int num2) returns int",
+      "sortText": "D",
+      "insertText": "addFunction",
       "insertTextFormat": "Snippet"
     }
   ]

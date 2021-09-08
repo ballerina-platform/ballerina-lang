@@ -127,6 +127,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testTypeNarrowingInMatchStmt() {
+        BRunUtil.invoke(result, "testTypeNarrowingInMatchStmt");
+    }
+
+    @Test
     public void testMappingBindingPatternWithRest1() {
         BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest1");
     }
