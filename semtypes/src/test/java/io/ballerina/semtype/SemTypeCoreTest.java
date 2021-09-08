@@ -269,20 +269,20 @@ public class SemTypeCoreTest {
         Assert.assertEquals(Core.simpleArrayMemberType(new Env(), PredefinedType.INT), Optional.empty());
         Assert.assertEquals(Core.simpleArrayMemberType(new Env(),
                 PredefinedType.uniformTypeUnion((1 << UniformTypeCode.UT_LIST_RO.code)
-                        | (1 << UniformTypeCode.UT_LIST_RW.code))).get(), PredefinedType.TOP);
+                        | (1 << UniformTypeCode.UT_LIST_RW.code)), true).get(), PredefinedType.TOP);
     }
 
     private void testArrayMemberTypeOk(Env env, UniformTypeBitSet memberType) {
         ListDefinition def = new ListDefinition();
         SemType t = def.define(env, new ArrayList<>(), memberType);
-        Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t);
+        Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t, true);
         Assert.assertEquals(bits.get(), memberType);
     }
 
     private void testArrayMemberTypeFail(Env env, SemType memberType) {
         ListDefinition def = new ListDefinition();
         SemType t = def.define(env, new ArrayList<>(), memberType);
-        Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t);
+        Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t, true);
         Assert.assertEquals(bits, Optional.empty());
     }
 
