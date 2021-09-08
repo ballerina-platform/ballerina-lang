@@ -16,6 +16,7 @@
 
 import ballerina/lang.'int;
 import evaluation_tests.other;
+import ballerina/lang.'float as langFloat;
 
 type GradStudent record {
     string firstName;
@@ -324,7 +325,8 @@ public function main() {
 
     // Helper statements for qualified name/function/type evaluation tests
     string constValue = other:publicConstant;
-    var location = new other:Place("","");
+    var location = new other:Place("", "");
+    var pi = langFloat:PI;
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
