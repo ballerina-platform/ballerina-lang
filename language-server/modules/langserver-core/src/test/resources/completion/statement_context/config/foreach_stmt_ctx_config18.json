@@ -77,13 +77,13 @@
       }
     },
     {
-      "label": "reduce(function () func, any|error initial)",
+      "label": "reduce(function () func, table:Type initial)",
       "kind": "Function",
-      "detail": "any|error",
+      "detail": "table:Type",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `any|error`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using function `func`  \n  \n"
         }
       },
       "sortText": "D",
@@ -181,11 +181,11 @@
     {
       "label": "toArray()",
       "kind": "Function",
-      "detail": "map<any|error>[]",
+      "detail": "table:MapType[]",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns a list of all the members of a table.\n  \n  \n  \n**Return** `map<any|error>[]`   \n- an array whose members are the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nReturns a list of all the members of a table.\n  \n  \n  \n**Return** `table:MapType[]`   \n- an array whose members are the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "D",
@@ -339,11 +339,11 @@
     {
       "label": "map(function () func)",
       "kind": "Function",
-      "detail": "table<any|error> key<never>",
+      "detail": "table<table:Type> key<never>",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<any|error> key<never>`   \n- new table containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.4.0_  \n  \nApplies a function each member of a table and returns a table of the result.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `table<table:Type> key<never>`   \n- new table containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "D",
