@@ -564,24 +564,35 @@ public class BTestRunner {
             } else {
                 if (valueSets instanceof BMap) {
                     // Handle map data sets
-                    List<String> keyValues = getKeyValues((BMap) valueSets);
-                    Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
-                    List<Object[]> argList = extractArguments((BMap) valueSets);
-                    int i = 0;
-                    for (Object[] arg : argList) {
-                        invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
-                                classLoader, scheduler, shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
-                        i++;
+                    if (((BMap) valueSets).isEmpty()) {
+                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                                new Error("The provided data set is empty."));
+                    } else {
+                        List<String> keyValues = getKeyValues((BMap) valueSets);
+                        Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
+                        List<Object[]> argList = extractArguments((BMap) valueSets);
+                        int i = 0;
+                        for (Object[] arg : argList) {
+                            invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
+                                    classLoader, scheduler, shouldSkip, packageName, arg, argTypes,
+                                    failedOrSkippedTests);
+                            i++;
+                        }
                     }
                 } else if (valueSets instanceof BArray) {
-                    // Handle array data sets
-                    Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
-                    List<Object[]> argList = extractArguments((BArray) valueSets);
-                    int i = 0;
-                    for (Object[] arg : argList) {
-                        invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
-                                shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
-                        i++;
+                    if (((BArray) valueSets).isEmpty()) {
+                        computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
+                                new Error("The provided data set is empty."));
+                    } else {
+                        // Handle array data sets
+                        Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
+                        List<Object[]> argList = extractArguments((BArray) valueSets);
+                        int i = 0;
+                        for (Object[] arg : argList) {
+                            invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
+                                    shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
+                            i++;
+                        }
                     }
                 } else if (valueSets instanceof BError || valueSets instanceof Error ||
                         valueSets instanceof Exception) {
