@@ -1,10 +1,40 @@
 {
   "position": {
-    "line": 2,
-    "character": 11
+    "line": 8,
+    "character": 7
   },
-  "source": "expression_context/source/field_access_ctx_source4.bal",
+  "source": "expression_context/source/xml_attribute_access_expr_ctx_source1.bal",
   "items": [
+    {
+      "label": "ns0",
+      "kind": "Variable",
+      "detail": "xmlns",
+      "documentation": {
+        "left": "http://ballerina.com/ns0"
+      },
+      "sortText": "B",
+      "insertText": "ns0",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ns1",
+      "kind": "Variable",
+      "detail": "xmlns",
+      "documentation": {
+        "left": "http://ballerina.com/ns1"
+      },
+      "sortText": "B",
+      "insertText": "ns1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet"
+    },
     {
       "label": "ballerina/lang.test",
       "kind": "Module",
@@ -94,29 +124,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "R",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -260,21 +267,21 @@
       "kind": "Snippet",
       "detail": "foreach var item in expr",
       "documentation": {
-        "left": "foreach statement for iterable variable - xmlVal"
+        "left": "foreach statement for iterable variable - x2"
       },
       "sortText": "R",
-      "insertText": "foreach xml item in xmlVal {\n\t${1}\n}",
+      "insertText": "foreach xml item in x2 {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 8,
               "character": 4
             },
             "end": {
-              "line": 2,
-              "character": 11
+              "line": 8,
+              "character": 7
             }
           },
           "newText": ""
@@ -286,21 +293,21 @@
       "kind": "Snippet",
       "detail": "foreach int i in 0...expr",
       "documentation": {
-        "left": "foreach i statement for iterable variable - xmlVal"
+        "left": "foreach i statement for iterable variable - x2"
       },
       "sortText": "R",
-      "insertText": "foreach int i in ${1:0}...xmlVal.length() {\n\t${2}\n}",
+      "insertText": "foreach int i in ${1:0}...x2.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 8,
               "character": 4
             },
             "end": {
-              "line": 2,
-              "character": 11
+              "line": 8,
+              "character": 7
             }
           },
           "newText": ""

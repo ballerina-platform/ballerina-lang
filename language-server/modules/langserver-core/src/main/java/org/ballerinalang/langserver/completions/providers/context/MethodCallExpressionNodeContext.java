@@ -42,7 +42,7 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MethodCallExpressionNode node)
             throws LSCompletionException {
         ExpressionNode expression = node.expression();
-        List<LSCompletionItem> completionItems = getEntries(context, expression, false);
+        List<LSCompletionItem> completionItems = getEntries(context, expression);
         this.sort(context, node, completionItems);
 
         return completionItems;

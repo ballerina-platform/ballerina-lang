@@ -21,6 +21,8 @@ import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
+import java.util.Locale;
+
 /**
  * Completion item builder for the {@link XMLNamespaceSymbol}.
  *
@@ -40,8 +42,9 @@ public class XMLNSCompletionItemBuilder {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(namespaceSymbol.getName().orElse(""));
         completionItem.setInsertText(namespaceSymbol.getName().orElse(""));
-        completionItem.setDetail(namespaceSymbol.namespaceUri());
-        completionItem.setKind(CompletionItemKind.Unit);
+        completionItem.setDetail(namespaceSymbol.kind().name().toLowerCase(Locale.ROOT));
+        completionItem.setDocumentation(namespaceSymbol.namespaceUri());
+        completionItem.setKind(CompletionItemKind.Variable);
 
         return completionItem;
     }

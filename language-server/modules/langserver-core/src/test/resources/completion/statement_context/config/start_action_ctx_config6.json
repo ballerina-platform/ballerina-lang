@@ -15,7 +15,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "getStringResult",
       "insertText": "getStringResult()",
       "insertTextFormat": "Snippet"
@@ -30,7 +30,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "main",
       "insertText": "main()",
       "insertTextFormat": "Snippet"
