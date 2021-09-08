@@ -51,7 +51,6 @@ public class PackageDependencyGraphBuilder {
     // TODO how about a multi-level map here Map<PackageOrg, Map<PackageName, StaticPackageDependency>>
     private final Map<Vertex, DependencyNode> vertices = new HashMap<>();
     private final Map<Vertex, Set<Vertex>> depGraph = new HashMap<>();
-    private final Map<Vertex, Set<Vertex>> parents = new HashMap<>();
 
     private Set<Vertex> unresolvedVertices = new HashSet<>();
 
