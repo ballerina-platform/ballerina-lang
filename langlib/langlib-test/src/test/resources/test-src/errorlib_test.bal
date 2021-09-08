@@ -125,3 +125,40 @@ public function testRetriableTest() {
     }
     test:assertValueEqual("Custom error", s);
 }
+
+public type tempErrorDetail1 record {
+    string? functionName;
+};
+public type tempErrorDetail3 record {
+    string? functionName;
+    string? codeName;
+};
+public type tempErrorDetail2 record {
+    string? codeName;
+};
+
+public type Any A|B;
+type Diff D|C;
+
+public type A error<tempErrorDetail1> & distinct error;
+public type B error<tempErrorDetail1> & distinct error;
+public type C error<tempErrorDetail2> & distinct error;
+public type D error<tempErrorDetail3> & distinct error;
+
+function testErrorUnionDetailType() {
+    Any? err1 = error A("ERROR", functionName="testFunction");
+    test:assertValueEqual(false, err1 is B);
+    if err1 is Any {
+        tempErrorDetail1 detailRecord1 = err1.detail();
+        string? stringFuncName= err1.detail().functionName;
+        test:assertValueEqual("testFunction", detailRecord1.functionName);
+    }
+
+    Diff err2 = error C("ERROR", codeName="WTC_68");
+    test:assertValueEqual(true, err2 is C);
+    if err2 is Diff {
+        tempErrorDetail2 detailRecord2 = err2.detail();
+        string? stringCodeName =  err2.detail().codeName;
+        test:assertValueEqual("WTC_68", detailRecord2.codeName);
+    }
+}
