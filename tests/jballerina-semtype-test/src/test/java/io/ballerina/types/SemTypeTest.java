@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,8 +54,16 @@ public class SemTypeTest {
     public void initialTest(String fileName) {
         List<String> subtypeRels = getSubtypeRels(fileName);
         List<String> expectedRels = extractSubtypeRelations(fileName);
-
+        // String text = toText(subtypeRels);
         Assert.assertEquals(subtypeRels, expectedRels);
+    }
+
+    private String toText(List<String> expectedRels) {
+        StringJoiner joiner = new StringJoiner("\n// ", "// ", "");
+        for (String rel : expectedRels) {
+            joiner.add(rel);
+        }
+        return joiner.toString();
     }
 
     private List<String> getSubtypeRels(String sourceFilePath) {

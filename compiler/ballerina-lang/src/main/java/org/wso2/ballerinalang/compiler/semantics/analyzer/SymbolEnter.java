@@ -504,6 +504,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType resolveTypeDesc(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
                                     BLangType td) {
+        if (td == null) {
+            return null;
+        }
         switch (td.getKind()) {
             case VALUE_TYPE:
                 return resolveTypeDesc((BLangValueType) td, semtypeEnv);
@@ -618,6 +621,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             members.add(resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, memberTypeNode));
         }
         SemType restType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.restParamType);
+        if (restType == null) {
+            restType = PredefinedType.NEVER;
+        }
 
         return createListSemType(td, semtypeEnv, members, restType);
     }
