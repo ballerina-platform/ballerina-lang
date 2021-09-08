@@ -1407,6 +1407,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr = letExpression.expr;
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(letExpression.pos);
         blockStmt.scope = letExpression.env.scope;
+        blockStmt.isLetExprStmt = true;
 
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
             BLangNode node  = rewrite((BLangNode) letVariable.definitionNode, env);
