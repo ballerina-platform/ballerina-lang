@@ -25,20 +25,24 @@ import org.testng.annotations.Test;
  *
  * @since 2.0.0
  */
-public class LocalRepoAndDirectDependencyTest extends AbstractPackageResolutionTest {
+public class LocalRepoDependencyTest extends AbstractPackageResolutionTest {
 
-    @Test(dataProvider = "resolutionTestCaseProvider")
-    public void testcase(String testSuite, String testCase, boolean sticky) {
+    @Test(dataProvider = "unpublishedNewPackagesTestCaseProvider")
+    public void testUnpublishedNewPackages(String testSuite, String testCase, boolean sticky) {
         runTestCase(testSuite, testCase, sticky);
     }
 
-    @DataProvider(name = "resolutionTestCaseProvider")
-    public static Object[][] testCaseProvider() {
+    @DataProvider(name = "unpublishedNewPackagesTestCaseProvider")
+    public static Object[][] unpublishedNewPackagesTestCaseProvider() {
         return new Object[][]{
-                {"suite-all_in_one", "case-0001", true},
-                {"suite-all_in_one", "case-0001", false},
-//                {"suite-all_in_one", "case-0002", true},
-//                {"suite-all_in_one", "case-0002", false}
+                {"suite-local_deps", "case-0001", true},
+                {"suite-local_deps", "case-0001", false},
+                {"suite-local_deps", "case-0002", true},
+                {"suite-local_deps", "case-0002", false},
+                {"suite-local_deps", "case-0003", true},
+                {"suite-local_deps", "case-0003", false},
+                {"suite-local_deps", "case-0004", true},
+                {"suite-local_deps", "case-0004", false},
         };
     }
 }
