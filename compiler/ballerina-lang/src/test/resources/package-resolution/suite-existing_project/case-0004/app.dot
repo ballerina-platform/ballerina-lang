@@ -1,0 +1,6 @@
+digraph "samejs/app:0.1.0" {
+    "ballerinax/mysql"
+    "ballerina/http"
+    "samtest/io"
+    "samjs/foo" [scope = "testOnly"]
+}

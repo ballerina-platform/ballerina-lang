@@ -515,8 +515,15 @@ public class TestBuildProject extends BaseTest {
         Module oldModule = buildProject.currentPackage().module(oldDocumentId.moduleId());
         Document oldDocument = oldModule.document(oldDocumentId);
 
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+
         // Update the document
         Document updatedDoc = oldDocument.modify().withContent(dummyContent).apply();
+
+        compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+
 
         Assert.assertEquals(oldDocument.module().documentIds().size(), updatedDoc.module().documentIds().size());
         Assert.assertEquals(oldDocument.module().testDocumentIds().size(),
