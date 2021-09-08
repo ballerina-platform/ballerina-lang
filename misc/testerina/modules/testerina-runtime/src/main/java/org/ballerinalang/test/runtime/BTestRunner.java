@@ -571,12 +571,10 @@ public class BTestRunner {
                         List<String> keyValues = getKeyValues((BMap) valueSets);
                         Class<?>[] argTypes = extractArgumentTypes((BMap) valueSets);
                         List<Object[]> argList = extractArguments((BMap) valueSets);
-                        int i = 0;
-                        for (Object[] arg : argList) {
+                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
                             invokeDataDrivenTest(suite, test.getTestName(), escapeSpecialCharacters(keyValues.get(i)),
-                                    classLoader, scheduler, shouldSkip, packageName, arg, argTypes,
+                                    classLoader, scheduler, shouldSkip, packageName, argList.get(i), argTypes,
                                     failedOrSkippedTests);
-                            i++;
                         }
                     }
                 } else if (valueSets instanceof BArray) {
@@ -587,11 +585,9 @@ public class BTestRunner {
                         // Handle array data sets
                         Class<?>[] argTypes = extractArgumentTypes((BArray) valueSets);
                         List<Object[]> argList = extractArguments((BArray) valueSets);
-                        int i = 0;
-                        for (Object[] arg : argList) {
+                        for (int i = 0, argListSize = argList.size(); i < argListSize; i++) {
                             invokeDataDrivenTest(suite, test.getTestName(), String.valueOf(i), classLoader, scheduler,
-                                    shouldSkip, packageName, arg, argTypes, failedOrSkippedTests);
-                            i++;
+                                    shouldSkip, packageName, argList.get(i), argTypes, failedOrSkippedTests);
                         }
                     }
                 } else if (valueSets instanceof BError || valueSets instanceof Error ||
