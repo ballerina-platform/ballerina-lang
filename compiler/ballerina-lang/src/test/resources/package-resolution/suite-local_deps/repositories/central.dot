@@ -66,6 +66,10 @@ digraph central {
     "samjs/c:0.5.0" -> "samjs/t:4.6.0"
     }
 
+    subgraph "samjs/c:0.5.1" {
+    "samjs/c:0.5.1" -> "samjs/t:4.6.1"
+    }
+
     subgraph "ballerinax/github:1.0.0" {
         "ballerinax/github:1.0.0" -> "samjs/c:0.4.5"
     }

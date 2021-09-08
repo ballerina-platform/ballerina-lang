@@ -43,6 +43,14 @@ public class LocalRepoDependencyTest extends AbstractPackageResolutionTest {
                 {"suite-local_deps", "case-0003", false},
                 {"suite-local_deps", "case-0004", true},
                 {"suite-local_deps", "case-0004", false},
+                {"suite-local_deps", "case-0005", true},
+                {"suite-local_deps", "case-0005", false},
+                {"suite-local_deps", "case-0006", true},
+                {"suite-local_deps", "case-0006", false},
+                {"suite-local_deps", "case-0007", true},
+                {"suite-local_deps", "case-0007", false},
+                {"suite-local_deps", "case-0008", true},
+                {"suite-local_deps", "case-0008", false},
         };
     }
 }
