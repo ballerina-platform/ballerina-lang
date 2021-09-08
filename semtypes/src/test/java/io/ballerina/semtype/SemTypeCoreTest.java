@@ -301,8 +301,6 @@ public class SemTypeCoreTest {
         Assert.assertEquals(intType2.ranges[0].max, 65535L);
     }
 
-
-
     public SemType recursiveTuple(Env env, LambdaHolder f) {
         ListDefinition def = new ListDefinition();
         SemType t = def.getSemType(env);
