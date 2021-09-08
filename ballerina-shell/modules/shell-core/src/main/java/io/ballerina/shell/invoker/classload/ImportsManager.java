@@ -139,9 +139,6 @@ public class ImportsManager {
         if (quotedImport == null) {
             return null;
         }
-        if (BALLERINA_KEYWORDS.contains(prefix.getName())) {
-            return String.format("import %s;", quotedImport);
-        }
         return String.format("import %s as %s;", quotedImport, prefix);
     }
 
