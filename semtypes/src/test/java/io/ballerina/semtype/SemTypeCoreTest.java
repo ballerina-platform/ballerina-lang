@@ -25,8 +25,6 @@ import io.ballerina.semtype.subtypedata.Range;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -128,13 +126,6 @@ public class SemTypeCoreTest {
                 Core.union(ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.NIL),
                         ListDefinition.tuple(env, PredefinedType.INT, PredefinedType.STRING)));
         equiv(env, s, t);
-    }
-
-    public SemType recursiveTuple(Env env, Method f) throws InvocationTargetException, IllegalAccessException {
-        ListDefinition def = new ListDefinition();
-        SemType t = def.getSemType(env);
-        SemType[] members = (SemType[]) f.invoke(env, t);
-        return def.define(env, List.of(members), PredefinedType.NEVER);
     }
 
     @Test
