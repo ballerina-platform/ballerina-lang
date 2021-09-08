@@ -1,0 +1,20 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+
+# See: https://help.github.com/articles/about-codeowners/
+
+# Components
+/compiler/ @sameerajayasoma @hasithaa 
+/langlib/ @sameerajayasoma @hasithaa 
+/semtypes/ @sameerajayasoma @hasithaa 
+/language-server/ @mohanvive @nadeeshaan
+/ballerina-shell/ @mohanvive
+/bvm/ @warunalakshitha
+/observelib/ @nadundesilva
+/cli/ @hevayo
+/distribution/ @hevayo
+/misc/ @hevayo
+/project-api/ @hevayo @sameerajayasoma
+
+# CODEOWNERS file
+/.github/CODEOWNERS @sameerajayasoma @hasithaa @anupama-pathirage @warunalakshitha @mohanvive @manuranga @hevayo

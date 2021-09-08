@@ -6,13 +6,13 @@
   "source": "action_node_context/source/remote_action_source1.bal",
   "items": [
     {
-      "label": "post(string path, RequestMessage message, string targetType)",
+      "label": "post(string path, module1:RequestMessage message, string targetType)",
       "kind": "Function",
       "detail": "module1:Response",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `RequestMessage` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`  \n- `string` targetType: Specifies the target type(Defaultable)  \n  \n**Return** `module1:Response`   \n- The response for the request  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThe `Client.post()` function can be used to send HTTP POST requests to HTTP endpoints.\n  \n**Params**  \n- `string` path: Resource path  \n- `module1:RequestMessage` message: An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`  \n- `string` targetType: Specifies the target type(Defaultable)  \n  \n**Return** `module1:Response`   \n- The response for the request  \n  \n"
         }
       },
       "sortText": "C",

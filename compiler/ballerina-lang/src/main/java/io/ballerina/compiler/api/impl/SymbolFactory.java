@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSy
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
@@ -129,8 +130,7 @@ public class SymbolFactory {
         }
 
         if (symbol instanceof BVarSymbol) {
-            if (symbol.kind == SymbolKind.FUNCTION &&
-                    !anyFlagOn(symbol.flags, Flags.REQUIRED_PARAM, Flags.DEFAULTABLE_PARAM, Flags.REST_PARAM)) {
+            if (symbol.kind == SymbolKind.FUNCTION && !isFunctionPointer(symbol)) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
                     if (Symbols.isFlagOn(symbol.flags, Flags.RESOURCE)) {
                         return createResourceMethodSymbol((BInvokableSymbol) symbol);
@@ -565,14 +565,6 @@ public class SymbolFactory {
     }
 
     // Private methods
-    private static boolean anyFlagOn(long mask, long... flags) {
-        for (long flag : flags) {
-            if (Symbols.isFlagOn(mask, flag)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private String getMethodName(BInvokableSymbol method, BObjectTypeSymbol owner) {
         List<BAttachedFunction> methods = new ArrayList<>(owner.attachedFuncs);
@@ -589,6 +581,10 @@ public class SymbolFactory {
 
         throw new IllegalStateException(
                 format("Method symbol for '%s' not found in owner symbol '%s'", method.name, owner.name));
+    }
+
+    private boolean isFunctionPointer(BSymbol symbol) {
+        return Symbols.isTagOn(symbol, SymTag.VARIABLE) && !Symbols.isTagOn(symbol, SymTag.FUNCTION);
     }
 
     private void addIfFlagSet(BallerinaClassSymbol.ClassSymbolBuilder symbolBuilder, final long mask, final long flag,

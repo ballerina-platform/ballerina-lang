@@ -20,13 +20,14 @@ package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -63,12 +64,12 @@ public class FunctionTypeSymbolTest {
     public void testFunctionType() {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(17, 100));
         assertTrue(symbol.isPresent());
-//        assertEquals(symbol.get().kind(), SymbolKind.VARIABLE);
+        assertEquals(symbol.get().kind(), SymbolKind.VARIABLE);
 
-        TypeSymbol typeSymbol = ((FunctionSymbol) symbol.get()).typeDescriptor();
-        assertEquals(typeSymbol.typeKind(), TypeDescKind.FUNCTION);
+        TypeSymbol varType = ((VariableSymbol) symbol.get()).typeDescriptor();
+        assertEquals(varType.typeKind(), TypeDescKind.FUNCTION);
 
-        FunctionTypeSymbol fnType = (FunctionTypeSymbol) typeSymbol;
+        FunctionTypeSymbol fnType = (FunctionTypeSymbol) varType;
         Optional<List<ParameterSymbol>> params = fnType.params();
 
         assertTrue(params.isPresent());
@@ -108,9 +109,12 @@ public class FunctionTypeSymbolTest {
     public void testAnyFunctionType() {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(18, 13));
         assertTrue(symbol.isPresent());
-//        assertEquals(symbol.get().kind(), SymbolKind.VARIABLE);
+        assertEquals(symbol.get().kind(), SymbolKind.VARIABLE);
 
-        FunctionTypeSymbol fnType = ((FunctionSymbol) symbol.get()).typeDescriptor();
+        TypeSymbol varType = ((VariableSymbol) symbol.get()).typeDescriptor();
+        assertEquals(varType.typeKind(), TypeDescKind.FUNCTION);
+
+        FunctionTypeSymbol fnType = (FunctionTypeSymbol) varType;
         assertTrue(fnType.params().isEmpty());
         assertTrue(fnType.restParam().isEmpty());
         assertTrue(fnType.returnTypeDescriptor().isEmpty());

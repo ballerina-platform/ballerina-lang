@@ -645,27 +645,20 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "age()",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "age",
-      "insertText": "age()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "worker",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Variable",
+      "detail": "function () returns int",
+      "sortText": "B",
+      "insertText": "age",
       "insertTextFormat": "Snippet"
     }
   ]
