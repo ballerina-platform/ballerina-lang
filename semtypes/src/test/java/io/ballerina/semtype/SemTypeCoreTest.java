@@ -26,6 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -298,5 +299,50 @@ public class SemTypeCoreTest {
                 IntSubtype.createIntSubtype(new Range(0L, 257L)));
         Assert.assertEquals(intType2.ranges[0].min, 0L);
         Assert.assertEquals(intType2.ranges[0].max, 65535L);
+    }
+
+
+
+    public SemType recursiveTuple(Env env, LambdaHolder f) {
+        ListDefinition def = new ListDefinition();
+        SemType t = def.getSemType(env);
+        List<SemType> members = f.op(env, t);
+        return def.define(env, members, PredefinedType.NEVER);
+    }
+
+    @Test
+    public void recTest() {
+        Env env = new Env();
+        LambdaHolder f1 = (e, t) -> Arrays.asList(PredefinedType.INT, Core.union(t, PredefinedType.NIL));
+        LambdaHolder f2 = (e, t) -> Arrays.asList(Core.union(PredefinedType.INT, PredefinedType.STRING),
+                Core.union(t, PredefinedType.NIL));
+        SemType t1 = recursiveTuple(env, f1);
+        SemType t2 = recursiveTuple(env, f2);
+        Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), t1, t2));
+        Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t2, t1));
+    }
+
+    @Test
+    public void recTest2() {
+        Env env = new Env();
+        LambdaHolder f1 = (e, t) -> Arrays.asList(PredefinedType.INT, Core.union(t, PredefinedType.NIL));
+        SemType t1 = Core.union(PredefinedType.NIL, recursiveTuple(env, f1));
+        SemType t2 = recursiveTuple(env, f1);
+        Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), t2, t1));
+    }
+
+    @Test
+    public void recTest3() {
+        Env env = new Env();
+        LambdaHolder f1 = (e, t) -> Arrays.asList(PredefinedType.INT, Core.union(t, PredefinedType.NIL));
+        LambdaHolder f2 = (e, t) -> Arrays.asList(PredefinedType.INT, Core.union(PredefinedType.NIL,
+                ListDefinition.tuple(e, PredefinedType.INT, Core.union(PredefinedType.NIL, t))));
+        SemType t1 = recursiveTuple(env, f1);
+        SemType t2 = recursiveTuple(env, f2);
+        Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), t1, t2));
+    }
+
+    interface LambdaHolder {
+        List<SemType> op(Env env, SemType semType);
     }
 }
