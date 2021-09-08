@@ -76,8 +76,12 @@ public class EvaluationImportResolver extends NodeVisitor {
     @Override
     public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
         String modulePrefix = qualifiedNameReferenceNode.modulePrefix().text().trim();
-        BImport bImport = visibleImports.get(modulePrefix);
+        if (!visibleImports.containsKey(modulePrefix)) {
+            capturedErrors.add(createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix));
+            return;
+        }
 
+        BImport bImport = visibleImports.get(modulePrefix);
         List<ModuleSymbol> matchingModuleSymbols = visibleModuleSymbols.stream().filter(moduleSymbol ->
                 moduleSymbol.id().orgName().equals(bImport.orgName())
                         && moduleSymbol.id().moduleName().equals(bImport.moduleName()))
