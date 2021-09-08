@@ -87,7 +87,7 @@ public class SymbolByImportTest extends SymbolByNodeTest {
                     assertSymbol(positionalArgumentNode, model, CONSTANT, "PI");
                 }
 
-                if (positionalArgumentNode.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE){
+                if (positionalArgumentNode.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                     assertSymbol(positionalArgumentNode, model, VARIABLE, "abc");
                 }
             }
