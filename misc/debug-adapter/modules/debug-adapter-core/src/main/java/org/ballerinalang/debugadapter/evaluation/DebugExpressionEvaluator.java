@@ -55,7 +55,7 @@ public class DebugExpressionEvaluator extends Evaluator {
 
             // Validates the import prefixes (qualified name references) in the expression.
             EvaluationImportResolver importResolver = new EvaluationImportResolver(context);
-            Map<String, ModuleSymbol> resolvedImports = importResolver.getImportedModuleMap(parsedExpression);
+            Map<String, ModuleSymbol> resolvedImports = importResolver.detectImportedModules(parsedExpression);
             evaluationContext.setResolvedImports(resolvedImports);
 
             // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
