@@ -501,6 +501,30 @@ function testListBindingPattern22() {
     assertEquals((), listBindingPattern22(1));
 }
 
+type IntInt [int, int];
+type IntString [int, string];
+type Expr IntString|IntInt;
+
+function listBindingPattern23(Expr v) returns anydata {
+    match v {
+        [1, 2] => {
+            IntInt d =  v;
+            return d;
+        }
+        [1, "s"] => {
+            IntString s = v;
+            return s;
+        }
+    }
+
+    return "No match";
+}
+
+function testListBindingPattern23() {
+    assertEquals([1, 2], listBindingPattern23([1, 2]));
+    assertEquals([1, "s"], listBindingPattern23([1, "s"]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
