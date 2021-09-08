@@ -31,6 +31,7 @@ import io.ballerina.types.UniformTypeOps;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 // todo: use this to place common things between Ro and RW, if there are non; delete this.
@@ -130,8 +131,7 @@ public abstract class MappingCommonOps extends CommonOps implements UniformTypeO
         SemType[] types = Common.shallowCopyTypes(m.types);
         int i = names.length;
         while (true) {
-            // TODO change length to comparing codePoints
-            if (i == 0 || name.length() <= names[i - 1].length()) {
+            if (i == 0 || Objects.equals(name, names[i - 1]) || Common.codePointCompare(name, names[i - 1])) {
                 names[i] = name;
                 types[i] = t;
                 break;

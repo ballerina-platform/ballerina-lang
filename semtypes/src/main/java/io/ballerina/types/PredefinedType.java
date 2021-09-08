@@ -82,7 +82,7 @@ public class PredefinedType {
         return UniformTypeBitSet.from(bitset);
     }
 
-    private static UniformTypeBitSet uniformType(UniformTypeCode code) {
+    public static UniformTypeBitSet uniformType(UniformTypeCode code) {
         return UniformTypeBitSet.from(1 << code.code);
     }
 

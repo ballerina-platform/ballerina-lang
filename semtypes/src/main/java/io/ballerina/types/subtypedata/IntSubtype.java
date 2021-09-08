@@ -105,10 +105,10 @@ public class IntSubtype implements ProperSubtypeData {
         }
 
         Range r = v.ranges[v.ranges.length - 1];
-        int i = 8;
-        while (i <= 32) {
+        long i = 8L;
+        while (i <= 32L) {
             if (r.max < (1L << i)) {
-                IntSubtype w = createSingleRangeSubtype(0L, i);
+                IntSubtype w = createSingleRangeSubtype(0L, (1L << i) - 1);
                 return w;
             }
             i = i * 2;

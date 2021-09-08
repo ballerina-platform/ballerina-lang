@@ -114,4 +114,9 @@ public class ListDefinition implements Definition {
         this.semType = s;
         return s;
     }
+
+    public static SemType tuple(Env env, SemType... members) {
+        ListDefinition def = new ListDefinition();
+        return def.define(env, List.of(members), PredefinedType.NEVER);
+    }
 }

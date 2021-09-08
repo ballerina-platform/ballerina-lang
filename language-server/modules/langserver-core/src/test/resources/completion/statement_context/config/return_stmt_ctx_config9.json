@@ -647,31 +647,9 @@
     {
       "label": "test",
       "kind": "Variable",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
+      "detail": "function () returns ()",
       "sortText": "B",
-      "filterText": "test",
       "insertText": "test",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "test()",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "test",
-      "insertText": "test()",
       "insertTextFormat": "Snippet"
     },
     {

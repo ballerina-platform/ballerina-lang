@@ -188,7 +188,7 @@ public abstract class EnumerableSubtype {
         if (v1 instanceof EnumerableString) {
             String s2 = ((EnumerableString) v2).value;
             String s1 = ((EnumerableString) v1).value;
-            return Objects.equals(s1, s2) ? EQ : s1.length() < s2.length() ? LT : GT;
+            return Objects.equals(s1, s2) ? EQ : (Common.codePointCompare(s1, s2) ? LT : GT);
         } else {
             double f1 = ((EnumerableFloat) v2).value;
             double f2 = ((EnumerableFloat) v2).value;
