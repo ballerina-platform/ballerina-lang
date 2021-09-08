@@ -1,0 +1,7 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "ballerinax/github:1.0.0"
+    "ballerinax/github:1.0.0" -> "samjs/c:0.5.1"
+    "samjs/c:0.5.1" -> "samjs/t:4.6.1"
+
+    "ballerinax/github:1.0.0" [repo = "local"]
+}

@@ -53,4 +53,21 @@ public class LocalRepoDependencyTest extends AbstractPackageResolutionTest {
                 {"suite-local_deps", "case-0008", false},
         };
     }
+
+    @Test(dataProvider = "patchedExistingPackagesTestCaseProvider")
+    public void testPatchedExistingPackages(String testSuite, String testCase, boolean sticky) {
+        runTestCase(testSuite, testCase, sticky);
+    }
+
+    @DataProvider(name = "patchedExistingPackagesTestCaseProvider")
+    public static Object[][] patchedExistingPackagesTestCaseProvider() {
+        return new Object[][]{
+                {"suite-local_deps", "case-0101", true},
+                {"suite-local_deps", "case-0101", true},
+                {"suite-local_deps", "case-0102", true},
+                {"suite-local_deps", "case-0102", true},
+                {"suite-local_deps", "case-0103", true},
+                {"suite-local_deps", "case-0103", true},
+        };
+    }
 }
