@@ -21,7 +21,6 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -60,13 +59,12 @@ public class NodeBasedTypeResolver extends EvaluationTypeResolver<Node> {
     @Override
     public List<Value> resolve(Node typeDescriptor) throws EvaluationException {
         List<Value> resolvedTypes = new ArrayList<>();
-        SyntaxKind kind = typeDescriptor.kind();
-        if (kind == SyntaxKind.UNION_TYPE_DESC) {
+        if (typeDescriptor instanceof UnionTypeDescriptorNode) {
             // If the type is a union, resolves sub types recursively.
             UnionTypeDescriptorNode unionTypeDesc = (UnionTypeDescriptorNode) typeDescriptor;
             resolvedTypes.addAll(resolve(unionTypeDesc.leftTypeDesc()));
             resolvedTypes.addAll(resolve(unionTypeDesc.rightTypeDesc()));
-        } else if (kind == SyntaxKind.ARRAY_TYPE_DESC) {
+        } else if (typeDescriptor instanceof ArrayTypeDescriptorNode) {
             Value elementType = resolveSingleType(((ArrayTypeDescriptorNode) typeDescriptor).memberTypeDesc());
             resolvedTypes.add(createBArrayType(elementType));
         } else {
@@ -77,15 +75,16 @@ public class NodeBasedTypeResolver extends EvaluationTypeResolver<Node> {
     }
 
     private Value resolveSingleType(Node type) throws EvaluationException {
-        if (type instanceof BuiltinSimpleNameReferenceNode || type.kind() == SyntaxKind.NIL_TYPE_DESC) {
+        if (type.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return resolveUserDefinedType((SimpleNameReferenceNode) type);
+        } else if (type.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return resolveQualifiedType((QualifiedNameReferenceNode) type);
+        } else {
+            // If the type is not related to above named type, tries to get the type by assuming as a in-built type.
             Optional<Value> result = resolveInbuiltType(type.toSourceCode().trim());
             if (result.isPresent()) {
                 return result.get();
             }
-        } else if (type.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return resolveUserDefinedType((SimpleNameReferenceNode) type);
-        } else if (type.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            return resolveQualifiedType((QualifiedNameReferenceNode) type);
         }
 
         throw createEvaluationException(TYPE_RESOLVING_ERROR, type.toSourceCode().trim());
@@ -116,7 +115,7 @@ public class NodeBasedTypeResolver extends EvaluationTypeResolver<Node> {
         String typeName = qualifiedNameRef.identifier().text().trim();
         Optional<Value> qualifiedType = resolveQualifiedType(modulePrefix, typeName);
         if (qualifiedType.isEmpty()) {
-            throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+            throw createEvaluationException(TYPE_RESOLVING_ERROR, qualifiedNameRef.toSourceCode().trim());
         }
 
         return qualifiedType.get();

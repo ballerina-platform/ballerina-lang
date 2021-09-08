@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
 
 /**
  * Import resolver implementation to capture imported modules within a given user expression (syntax node).
@@ -83,7 +84,7 @@ public class EvaluationImportResolver extends NodeVisitor {
                 .collect(Collectors.toList());
 
         if (matchingModuleSymbols.isEmpty()) {
-            capturedErrors.add(createEvaluationException("Failed to resolve the import for '" + moduleName + "'"));
+            capturedErrors.add(createEvaluationException(IMPORT_RESOLVING_ERROR, moduleName));
             return;
         } else if (matchingModuleSymbols.size() > 1) {
             capturedErrors.add(createEvaluationException("Multiple modules were resolved for the import'" + moduleName

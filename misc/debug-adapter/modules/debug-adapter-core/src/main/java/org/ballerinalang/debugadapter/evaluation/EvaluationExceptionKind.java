@@ -24,7 +24,9 @@ package org.ballerinalang.debugadapter.evaluation;
 public enum EvaluationExceptionKind {
 
     FUNCTION_NOT_FOUND("Undefined function '%s'"),
-    CLASS_NOT_FOUND("Undefined class: %s"),
+    NON_PUBLIC_OR_UNDEFINED_FUNCTION("Undefined/non-accessible function '%s' in module '%s'"),
+    CLASS_NOT_FOUND("Undefined class: '%s'"),
+    NON_PUBLIC_OR_UNDEFINED_CLASS("Undefined/non-accessible class '%s' in module '%s'"),
     OBJECT_METHOD_NOT_FOUND("Undefined method '%s' in object `%s`"),
     REMOTE_METHOD_NOT_FOUND("Undefined remote method '%s' in object `%s`"),
     LANG_LIB_METHOD_NOT_FOUND("Undefined function '%s' in type '%s'"),
@@ -46,7 +48,7 @@ public enum EvaluationExceptionKind {
     REST_ARG_IN_ERROR("Rest args are not allowed in error constructor"),
     ADDITIONAL_ARG_IN_ERROR("Additional positional arg in error constructor"),
     VARIABLE_EXECUTION_ERROR("Internal error occurred when processing variable: '%s'"),
-    NON_PUBLIC_ACCESS_ERROR("attempt to refer to non-accessible symbol '%s'"),
+    NON_PUBLIC_OR_UNDEFINED_ACCESS("attempt to refer to undefined/non-accessible symbol '%s'"),
     BLOCK_EVALUATION("Block expressions/statements are not supported"),
     EMPTY("Empty expressions cannot be evaluated."),
     INVALID("Invalid expression: '%s'"),

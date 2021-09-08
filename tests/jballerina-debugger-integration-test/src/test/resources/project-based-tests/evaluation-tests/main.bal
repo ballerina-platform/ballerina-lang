@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'int;
+import evaluation_tests.other;
 
 type GradStudent record {
     string firstName;
@@ -320,6 +321,10 @@ public function main() {
     Department d3 = {deptId: 3, deptName: "Chemistry"};
     GradStudent[] gradStudentList = [gs1, gs2, gs3, gs4];
     Department[] departmentList = [d1, d2, d3];
+
+    // Helper statements for qualified name/function/type evaluation tests
+    string constValue = other:publicConstant;
+    var location = new other:Place("","");
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {

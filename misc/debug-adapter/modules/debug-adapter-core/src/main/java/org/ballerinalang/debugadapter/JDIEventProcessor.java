@@ -21,7 +21,6 @@ import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
-import com.sun.jdi.Value;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
 import com.sun.jdi.event.Event;
@@ -36,14 +35,13 @@ import com.sun.jdi.request.StepRequest;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
-import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
@@ -380,8 +378,8 @@ public class JDIEventProcessor {
                 if (evaluatorResult.getType() != BVariableType.BOOLEAN) {
                     String errorMessage = String.format(EvaluationExceptionKind.TYPE_MISMATCH.getReason(),
                             BVariableType.BOOLEAN.getString(), evaluatorResult.getType().getString(), expression);
-                    context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional breakpoint " +
-                            "at line: %d, due to: %s%s", lineNumber, System.lineSeparator(), errorMessage));
+                    context.getOutputLogger().sendErrorOutput(String.format("Warning: Skipping conditional " +
+                            "breakpoint at line: %d, due to: %s%s", lineNumber, System.lineSeparator(), errorMessage));
                 }
                 return condition.equalsIgnoreCase(CONDITION_TRUE);
             } catch (EvaluationException e) {

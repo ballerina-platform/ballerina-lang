@@ -37,6 +37,7 @@ import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,8 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_ACCESS_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
@@ -91,22 +93,25 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
     }
 
     private FunctionSymbol resolveFunctionDefinitionSymbol() throws EvaluationException {
+
         List<FunctionSymbol> functionMatches;
+        Optional<String> modulePrefix;
         // If the function name is a qualified name reference, need to resolve the imported module symbol first.
         if (syntaxNode.functionName().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            String modulePrefix = ((QualifiedNameReferenceNode) syntaxNode.functionName()).modulePrefix().text();
-            if (!resolvedImports.containsKey(modulePrefix)) {
-                throw createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix);
+            modulePrefix = Optional.of(((QualifiedNameReferenceNode) syntaxNode.functionName()).modulePrefix().text());
+            if (!resolvedImports.containsKey(modulePrefix.get())) {
+                throw createEvaluationException(IMPORT_RESOLVING_ERROR, modulePrefix.get());
             }
-            functionMatches = resolvedImports.get(modulePrefix).functions().stream()
+            functionMatches = resolvedImports.get(modulePrefix.get()).functions().stream()
                     .filter(symbol -> symbol.getName().isPresent() &&
                             modifyName(symbol.getName().get()).equals(functionName))
                     .collect(Collectors.toList());
 
             if (functionMatches.size() == 1 && !isPublicSymbol(functionMatches.get(0))) {
-                throw createEvaluationException(NON_PUBLIC_ACCESS_ERROR, functionName);
+                throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, functionName);
             }
         } else {
+            modulePrefix = Optional.empty();
             SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
             functionMatches = semanticContext.moduleSymbols()
                     .stream()
@@ -117,7 +122,11 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         }
 
         if (functionMatches.isEmpty()) {
-            throw createEvaluationException(FUNCTION_NOT_FOUND, syntaxNode.functionName().toSourceCode().trim());
+            if (modulePrefix.isPresent()) {
+                throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_FUNCTION, functionName, modulePrefix.get());
+            } else {
+                throw createEvaluationException(FUNCTION_NOT_FOUND, syntaxNode.functionName().toSourceCode().trim());
+            }
         } else if (functionMatches.size() > 1) {
             throw createEvaluationException("Multiple function definitions found with name: '" + functionName + "'");
         }

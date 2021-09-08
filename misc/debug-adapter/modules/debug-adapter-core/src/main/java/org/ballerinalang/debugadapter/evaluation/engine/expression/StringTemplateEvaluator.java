@@ -20,7 +20,6 @@ import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import org.ballerinalang.debugadapter.EvaluationContext;
-import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
