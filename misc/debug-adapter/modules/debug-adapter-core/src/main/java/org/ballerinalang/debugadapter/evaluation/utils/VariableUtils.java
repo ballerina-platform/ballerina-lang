@@ -146,8 +146,6 @@ public class VariableUtils {
      * @return full-qualified class name
      */
     private static String getInitClassName(ModuleSymbol moduleSymbol) {
-
-        moduleSymbol.id();
         StringJoiner classNameJoiner = new StringJoiner(".");
         classNameJoiner.add(moduleSymbol.id().orgName())
                 .add(encodeModuleName(moduleSymbol.id().moduleName()))
