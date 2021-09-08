@@ -36,6 +36,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
@@ -82,14 +83,12 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
-                node.name().text());
+        return getTypeDescriptor(node.name().text());
+    }
 
-        if (symbol.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+    @Override
+    public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode node) {
+        return getTypeDescriptor(node.errorKeyword().text());
     }
 
     @Override
@@ -326,5 +325,15 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         ModuleID objModuleId = symbolModule.get().id();
         return isPublic || (!isPrivate && objModuleId.moduleName().equals(currentModule.moduleName())
                 && objModuleId.orgName().equals(currentPackage.packageOrg().value()));
+    }
+
+    private Optional<TypeSymbol> getTypeDescriptor(String name) {
+        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()), name);
+
+        if (symbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(symbol.get());
     }
 }
