@@ -265,7 +265,7 @@ public class Core {
                 // normal diff or read-only uniform type
                 if (data1 == null) {
                     data = OpsTable.OPS[code.code].complement(data2);
-                }else if (data2 == null) {
+                } else if (data2 == null) {
                     data = data1;
                 } else {
                     data = OpsTable.OPS[code.code].diff(data1, data2);
@@ -275,11 +275,11 @@ public class Core {
                 if (data1 == null) {
                     // data1 was all
                     data = AllOrNothingSubtype.createAll();
-                }else if (data2 == null) {
+                } else if (data2 == null) {
                     // data was none
                     data = data1;
                 } else {
-                    if (OpsTable.OPS[code.code].isEmpty(tc, OpsTable.OPS[code.code].diff(data1, data2))){
+                    if (OpsTable.OPS[code.code].isEmpty(tc, OpsTable.OPS[code.code].diff(data1, data2))) {
                         data = AllOrNothingSubtype.createNothing();
                     } else {
                         data = data1;
