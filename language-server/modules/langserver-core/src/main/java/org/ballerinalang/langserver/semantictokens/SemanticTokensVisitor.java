@@ -590,17 +590,15 @@ public class SemanticTokensVisitor extends NodeVisitor {
             return;
         }
         // Add the symbol's semantic token if it is in the same file
-        if (declarationType != -1) {
-            if (symbolLineRange.filePath().equals(path) && symbol.get().getModule().isPresent() &&
-                    symbol.get().getModule().get().getName().isPresent() && this.semanticTokensContext
-                    .currentModule().isPresent() && symbol.get().getModule().get().getName().get()
-                    .equals(this.semanticTokensContext.currentModule().get().moduleId().moduleName())) {
+        if (declarationType != -1 && symbolLineRange.filePath().equals(path) && symbol.get().getModule().isPresent() &&
+                symbol.get().getModule().get().getName().isPresent() && this.semanticTokensContext.currentModule()
+                .isPresent() && symbol.get().getModule().get().getName().get().equals(this.semanticTokensContext
+                .currentModule().get().moduleId().moduleName())) {
                 SemanticToken semanticToken = new SemanticToken(linePosition.line(), linePosition.offset());
-                if (!semanticTokens.contains(semanticToken)) {
-                    semanticToken.setProperties(node.textRange().length(), declarationType,
-                            declarationModifiers == -1 ? 0 : declarationModifiers);
-                    semanticTokens.add(semanticToken);
-                }
+            if (!semanticTokens.contains(semanticToken)) {
+                semanticToken.setProperties(node.textRange().length(), declarationType, declarationModifiers == -1 ?
+                        0 : declarationModifiers);
+                semanticTokens.add(semanticToken);
             }
         }
 
@@ -609,8 +607,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
             final int type = referenceType;
             final int modifiers = referenceModifiers == -1 ? 0 : referenceModifiers;
 
-            List<Location> ls = semanticModel.references(symbol.get(), false);
-            ls.stream().filter(location ->
+            List<Location> locations = semanticModel.references(symbol.get(), this.document, false);
+            locations.stream().filter(location ->
                     location != null && location.lineRange().filePath().equals(path))
                     .forEach(location -> {
                         LinePosition position = location.lineRange().startLine();
@@ -660,7 +658,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
             return;
         }
 
-        List<Location> locations = semanticModel.references(this.document, linePosition);
+        List<Location> locations = semanticModel.references(this.document, this.document, linePosition, false);
         locations.stream().filter(location ->
                 location.lineRange().filePath().equals(path)).forEach(location -> {
             LinePosition position = location.lineRange().startLine();
