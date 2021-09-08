@@ -149,7 +149,8 @@ public class ImportsManager {
      * @return If prefix was added by the user.
      */
     public boolean containsPrefix(Identifier prefix) {
-        return this.userImports.containsKey(prefix) || this.userImports.containsKey(new Identifier("'" + prefix));
+        return this.userImports.containsKey(prefix) ||
+                this.userImports.containsKey(new Identifier(QUOTE + prefix));
     }
 
     /**
