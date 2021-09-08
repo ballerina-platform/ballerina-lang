@@ -42,7 +42,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_ACCESS_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
@@ -60,6 +60,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_TYPE_INSTAN
 /**
  * Ballerina type resolver implementation for resolving ballerina runtime types using type descriptors.
  *
+ * @param <T> Type descriptor type (e.g. syntax tree node, string)
  * @since 2.0.0
  */
 public abstract class EvaluationTypeResolver<T> {
@@ -152,9 +153,9 @@ public abstract class EvaluationTypeResolver<T> {
             throws EvaluationException {
         Optional<Symbol> typeDefinition = getQualifiedTypeDefinitionSymbol(modulePrefix, typeName);
         if (typeDefinition.isEmpty()) {
-            throw createEvaluationException(TYPE_RESOLVING_ERROR, typeName);
+            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix + ":" + typeName);
         } else if (!isPublicSymbol(typeDefinition.get())) {
-            throw createEvaluationException(NON_PUBLIC_ACCESS_ERROR, typeName);
+            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix + ":" + typeName);
         }
 
         String packageInitClass = constructInitClassNameFrom(typeDefinition.get());

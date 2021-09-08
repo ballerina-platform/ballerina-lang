@@ -36,11 +36,11 @@ public class ConditionalExpressionEvaluator extends Evaluator {
     private final Evaluator middleEvaluator;
     private final Evaluator endEvaluator;
 
-    public ConditionalExpressionEvaluator(EvaluationContext context, ConditionalExpressionNode conditionalExpressionNode,
+    public ConditionalExpressionEvaluator(EvaluationContext context, ConditionalExpressionNode expressionNode,
                                           Evaluator lhsExprEvaluator, Evaluator middleExprEvaluator,
                                           Evaluator endExprEvaluator) {
         super(context);
-        this.syntaxNode = conditionalExpressionNode;
+        this.syntaxNode = expressionNode;
         this.lhsEvaluator = lhsExprEvaluator;
         this.middleEvaluator = middleExprEvaluator;
         this.endEvaluator = endExprEvaluator;

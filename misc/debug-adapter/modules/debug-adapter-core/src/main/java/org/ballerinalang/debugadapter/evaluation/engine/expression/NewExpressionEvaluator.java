@@ -44,8 +44,8 @@ import java.util.Optional;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
-import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_ACCESS_ERROR;
-import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
@@ -123,9 +123,13 @@ public class NewExpressionEvaluator extends Evaluator {
         }
 
         if (classSymbol.isEmpty()) {
-            throw createEvaluationException(CLASS_NOT_FOUND, classType.toSourceCode().trim());
+            if (modulePrefix.isPresent()) {
+                throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_CLASS, className, modulePrefix.get());
+            } else {
+                throw createEvaluationException(CLASS_NOT_FOUND, classType.toSourceCode().trim());
+            }
         } else if (!isPublicSymbol(classSymbol.get())) {
-            throw createEvaluationException(NON_PUBLIC_ACCESS_ERROR, classType.toSourceCode().trim());
+            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, classType.toSourceCode().trim());
         }
 
         ModuleID moduleId = classSymbol.get().getModule().get().id();

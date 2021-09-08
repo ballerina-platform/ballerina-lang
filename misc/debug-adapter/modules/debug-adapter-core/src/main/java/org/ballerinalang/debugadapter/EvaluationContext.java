@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter;
 
-import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 
 import java.util.HashMap;
