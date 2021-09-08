@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public client class Student {
+public client class Child {
 
     remote function getName(string firstName, string lastName = "") returns string|error {
         return firstName + lastName;
@@ -31,6 +31,39 @@ public client class Student {
     }
 }
 
+type Annot record {
+    string foo;
+    int bar?;
+};
+
+public annotation Annot v1 on type, class;
+
+string strValue = "v1 value";
+
+@v1 {
+    foo: strValue,
+    bar: 1
+}
+public type T1 record {
+    string name;
+};
+
+T1 a = { name: "John" };
+
 function sum(int a, int b) returns int {
     return a + b;
+}
+
+function getName(string name) returns string {
+    return "Name: " + name;
+}
+
+public function getSum(int a, int b) returns int {
+    future<int> futureSum = @strand {thread: "any"} start addition(a, b);
+    int|error result = wait futureSum;
+    if result is int {
+        return result;
+    } else {
+        return -1;
+    }
 }
