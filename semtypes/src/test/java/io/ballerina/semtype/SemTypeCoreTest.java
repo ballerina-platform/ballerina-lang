@@ -182,8 +182,7 @@ public class SemTypeCoreTest {
         SemType s = func(env, PredefinedType.INT, PredefinedType.INT);
         SemType t = func(env, PredefinedType.INT, Core.union(PredefinedType.NIL, PredefinedType.INT));
         Assert.assertTrue(Core.isSubtype(Core.typeCheckContext(env), s, t));
-        // TODO debug and fix
-        //Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
+        Assert.assertFalse(Core.isSubtype(Core.typeCheckContext(env), t, s));
     }
 
     @Test

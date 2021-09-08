@@ -47,8 +47,8 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
         BddMemo mm = tc.functionMemo.get(b);
         BddMemo m;
         if (mm == null) {
-          m = new BddMemo(b);
-          tc.functionMemo.put(b, m);
+            m = new BddMemo(b);
+            tc.functionMemo.put(b, m);
         } else {
             m = mm;
             BddMemo.MemoStatus res = m.isEmpty;
@@ -66,10 +66,10 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
         boolean isEmpty = functionBddIsEmpty(tc, b, PredefinedType.NEVER, null, null);
         if (isEmpty) {
             m.isEmpty = BddMemo.MemoStatus.TRUE;
-         } else {
+        } else {
             m.isEmpty = BddMemo.MemoStatus.FALSE;
         }
-         return isEmpty;
+        return isEmpty;
     }
 
     private boolean functionBddIsEmpty(TypeCheckContext tc, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
@@ -106,8 +106,8 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
             FunctionAtomicType s = tc.functionAtomType(pos.atom);
             SemType s0 = s.paramType;
             SemType s1 = s.retType;
-            return Core.isSubtype(tc, t0, s0) ||
-                    functionTheta(tc, Core.diff(s0, t0), s1, pos.next) && (Core.isSubtype(tc, t1, Core.complement(s1))
+            return (Core.isSubtype(tc, t0, s0) || functionTheta(tc, Core.diff(s0, t0), s1, pos.next))
+                    && (Core.isSubtype(tc, t1, Core.complement(s1))
                     || functionTheta(tc, s0, Core.intersect(s1, t1), pos.next));
         }
     }
