@@ -222,6 +222,12 @@ class NodeFinder extends BaseVisitor {
         return this.enclosingContainer;
     }
 
+    BLangNode lookupEnclosingContainer(BLangCompilationUnit compilationUnit, LineRange range) {
+        this.enclosingContainer = compilationUnit;
+        lookup(compilationUnit, range);
+        return this.enclosingContainer;
+    }
+
     private BLangNode lookupTopLevelNodes(List<TopLevelNode> nodes, LineRange range) {
         this.range = range;
         this.enclosingNode = null;

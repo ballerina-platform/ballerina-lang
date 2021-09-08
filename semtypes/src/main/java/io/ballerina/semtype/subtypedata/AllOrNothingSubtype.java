@@ -28,7 +28,7 @@ import io.ballerina.semtype.SubtypeData;
 public class AllOrNothingSubtype implements SubtypeData {
     private final boolean isAll;
 
-    private AllOrNothingSubtype(boolean isAll) {
+    AllOrNothingSubtype(boolean isAll) {
         this.isAll = isAll;
     }
 
