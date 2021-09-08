@@ -47,8 +47,8 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
         BddMemo mm = tc.functionMemo.get(b);
         BddMemo m;
         if (mm == null) {
-          m = new BddMemo(b);
-          tc.functionMemo.put(b, m);
+            m = new BddMemo(b);
+            tc.functionMemo.put(b, m);
         } else {
             m = mm;
             BddMemo.MemoStatus res = m.isEmpty;
@@ -64,17 +64,17 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
             }
         }
         boolean isEmpty = functionBddIsEmpty(tc, b, PredefinedType.NEVER, null, null);
-       if (isEmpty) {
-           m.isEmpty = BddMemo.MemoStatus.TRUE;
-       } else {
-           m.isEmpty = BddMemo.MemoStatus.FALSE;
-       }
-       return isEmpty;
+        if (isEmpty) {
+            m.isEmpty = BddMemo.MemoStatus.TRUE;
+        } else {
+            m.isEmpty = BddMemo.MemoStatus.FALSE;
+        }
+        return isEmpty;
     }
 
     private boolean functionBddIsEmpty(TypeCheckContext tc, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
         if (b instanceof BddAllOrNothing) {
-            if (((BddAllOrNothing) b).isAll()) {
+            if (!((BddAllOrNothing) b).isAll()) {
                 return true;
             }
             if (neg == null) {
@@ -92,7 +92,6 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
             FunctionAtomicType st = tc.functionAtomType(bn.atom);
             SemType sd = st.paramType;
             SemType sr = st.retType;
-            // TODO implement union in Core class
             return functionBddIsEmpty(tc, bn.left, Core.union(s, sd), Conjunction.and(bn.atom, pos), neg)
                     && functionBddIsEmpty(tc, bn.middle, s, pos, neg)
                     && functionBddIsEmpty(tc, bn.right, s, pos, Conjunction.and(bn.atom, neg));
@@ -101,15 +100,13 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
 
     private boolean functionTheta(TypeCheckContext tc, SemType t0, SemType t1, Conjunction pos) {
         if (pos == null) {
-            // TODO implement isEmpty in Core class
             return Core.isEmpty(tc, t0) || Core.isEmpty(tc, t1);
         } else {
             // replaces the SemType[2] [s0, s1] in nballerina where s0 = paramType, s1 = retType
             FunctionAtomicType s = tc.functionAtomType(pos.atom);
             SemType s0 = s.paramType;
             SemType s1 = s.retType;
-            // TODO implement diff, intersect, isSubtype in Core class
-            return Core.isSubtype(tc, t0, s0) || functionTheta(tc, Core.diff(s0, t0), s1, pos.next)
+            return (Core.isSubtype(tc, t0, s0) || functionTheta(tc, Core.diff(s0, t0), s1, pos.next))
                     && (Core.isSubtype(tc, t1, Core.complement(s1))
                     || functionTheta(tc, s0, Core.intersect(s1, t1), pos.next));
         }
