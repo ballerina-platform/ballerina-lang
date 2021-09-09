@@ -133,35 +133,34 @@ function compareTypeOfValues() {
 }
 
 function typeOfImmutableStructuralValues() {
-    // TODO: need to change the return value after fixing #13189
     // xml Value
     xml & readonly xmlValue = xml `<data>test</data>`;
     test:assertTrue(typeof xmlValue === typeof xmlValue);
-    test:assertEquals((typeof xmlValue).toString(), "typedesc lang.xml:Element & readonly");
+    test:assertEquals((typeof xmlValue).toString(), "typedesc <data></data>");
 
     // Structural types - Array, Tuple
     int[] & readonly arr = [1, 2, 3];
     test:assertTrue(typeof arr === typeof arr);
-    test:assertEquals((typeof arr).toString(), "typedesc int[] & readonly");
+    test:assertEquals((typeof arr).toString(), "typedesc [1,2,3]");
 
     [string, int] & readonly tuple = ["ballerina", 123];
     test:assertTrue(typeof tuple === typeof tuple);
-    test:assertEquals((typeof tuple).toString(), "typedesc [string,int] & readonly");
+    test:assertEquals((typeof tuple).toString(), "typedesc [\"ballerina\",123]");
 
     // Structural types - Records, Maps
     RecType0 & readonly rec = {name: "test"};
     test:assertTrue(typeof rec === typeof rec);
     test:assertTrue(typeof rec !== RecType0);
-    test:assertEquals((typeof rec).toString(), "typedesc (RecType0 & readonly)");
+    test:assertEquals((typeof rec).toString(), "typedesc {\"name\":\"test\"}");
 
     map<string> & readonly mapVal = {s: "test"};
     test:assertTrue(typeof mapVal === typeof mapVal);
-    test:assertEquals((typeof mapVal).toString(), "typedesc map<string> & readonly");
+    test:assertEquals((typeof mapVal).toString(), "typedesc {\"s\":\"test\"}");
 
     // Structural types -tables 
     table<map<string>> & readonly tableVal = table [{s: "test"}];
     test:assertTrue(typeof tableVal === typeof tableVal);
-    test:assertEquals((typeof tableVal).toString(), "typedesc table<map<string> & readonly> & readonly");
+    test:assertEquals((typeof tableVal).toString(), "typedesc [{\"s\":\"test\"}]");
 }
 
 function typeOfWithCloneReadOnly() {
@@ -170,34 +169,35 @@ function typeOfWithCloneReadOnly() {
     xml & readonly xmlValue = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
     any val = xmlValue.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
-    test:assertEquals((typeof val).toString(), "typedesc lang.xml:ProcessingInstruction & readonly");
+    test:assertEquals((typeof val).toString(), "typedesc <?xml-stylesheet href=\"mystyle.css\" " +
+    "type=\"text/css\"?>");
 
     // Structural types - Array, Tuple
     int[] arr = [1, 2, 3];
     val = arr.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
-    test:assertEquals((typeof val).toString(), "typedesc int[] & readonly");
+    test:assertEquals((typeof val).toString(), "typedesc [1,2,3]");
 
     [string, int] tuple = ["ballerina", 123];
     val = tuple.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
-    test:assertEquals((typeof val).toString(), "typedesc [string,int] & readonly");
+    test:assertEquals((typeof val).toString(), "typedesc [\"ballerina\",123]");
 
     // Structural types - Records, Maps
     RecType0 rec = {name: "test"};
     val = rec.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
     test:assertTrue(typeof val !== RecType0);
-    test:assertEquals((typeof val).toString(), "typedesc (RecType0 & readonly)");
+    test:assertEquals((typeof val).toString(), "typedesc {\"name\":\"test\"}");
 
     map<string> mapVal = {s: "test"};
     val = mapVal.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
-    test:assertEquals((typeof val).toString(), "typedesc map<string> & readonly");
+    test:assertEquals((typeof val).toString(), "typedesc {\"s\":\"test\"}");
 
     // Structural types - Tables
     table<map<string>> tableVal = table [{s: "test"}];
     val = tableVal.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
-    test:assertEquals((typeof val).toString(), "typedesc table<(map<string> & readonly)> & readonly");
+    test:assertEquals((typeof val).toString(), "typedesc [{\"s\":\"test\"}]");
 }
