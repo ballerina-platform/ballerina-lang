@@ -368,7 +368,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangTestablePackage testablePkg : pkgNode.testablePkgs) {
-            analyze(testablePkg);
+            visit((BLangPackage) testablePkg);
         }
 
         pkgNode.completedPhases.add(CompilerPhase.ISOLATION_ANALYZE);
