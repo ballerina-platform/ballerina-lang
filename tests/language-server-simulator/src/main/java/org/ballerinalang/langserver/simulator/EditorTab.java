@@ -43,6 +43,9 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Represents a tab in the {@link Editor}. Simulates the behavior of cursor and current text in the document.
+ */
 public class EditorTab {
 
     private static final Logger logger = LoggerFactory.getLogger(EditorTab.class);
@@ -54,7 +57,7 @@ public class EditorTab {
     private TextDocument textDocument;
     private Position cursor;
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public EditorTab(Path filePath, Endpoint endpoint, BallerinaLanguageServer languageServer) {
         this.filePath = filePath;
@@ -63,6 +66,8 @@ public class EditorTab {
         try {
             String content = Files.readString(filePath);
             this.textDocument = TextDocuments.from(content);
+            logger.info("Opening document: {}", filePath);
+            TestUtil.openDocument(endpoint, filePath);
             LinePosition linePosition = textDocument.linePositionFrom(content.length() - 1);
             cursor(linePosition.line(), linePosition.offset());
         } catch (IOException e) {
@@ -70,6 +75,12 @@ public class EditorTab {
         }
     }
 
+    /**
+     * Simulates a user typing the provided content in the editor. Content is typed character by character similarly to
+     * how a user does it.
+     *
+     * @param content Text content to be typed in the editor.
+     */
     public void type(String content) {
         int missCount = 0;
         for (int i = 0; i < content.length(); i++) {
@@ -88,6 +99,11 @@ public class EditorTab {
             }
             cursor(newLinePos.line(), newLinePos.offset());
             // logger.info("Added char: {} and cursor advanced to: {}", typedChar, newLinePos);
+
+            if (i % 10 == 0) {
+                float completionPercentage = ((float) i / (float) content.length()) * 100;
+                System.out.printf("%.1f%%\r", completionPercentage);
+            }
 
             // Get completions in the background
             if (i % 3 == 0) {
@@ -120,6 +136,11 @@ public class EditorTab {
         }
     }
 
+    /**
+     * Check if the document in this instance is similar to that is in the language server.
+     *
+     * @return
+     */
     private boolean isDocumentInSync() {
         Optional<Document> document = languageServer.getWorkspaceManager().document(filePath);
         if (document.isPresent()) {
@@ -131,6 +152,9 @@ public class EditorTab {
         return false;
     }
 
+    /**
+     * Get completions for the current cursor position.
+     */
     public void completions() {
         String completionResponse = TestUtil.getCompletionResponse(filePath.toString(), cursor, endpoint, "");
         JsonObject json = JsonParser.parseString(completionResponse).getAsJsonObject();
@@ -149,11 +173,13 @@ public class EditorTab {
         }
     }
 
+    /**
+     * Get code actions for the current cursor position.
+     */
     public void codeActions() {
         CodeActionContext codeActionContext = new CodeActionContext(Collections.emptyList());
         Range range = new Range(cursor, cursor);
-        String completionResponse = TestUtil.getCodeActionResponse(endpoint, filePath.toString(), range,
-                codeActionContext);
+        TestUtil.getCodeActionResponse(endpoint, filePath.toString(), range, codeActionContext);
     }
 
     public void cursor(int line, int offset) {
@@ -177,6 +203,8 @@ public class EditorTab {
     }
 
     public void close() {
+        logger.info("Closing document: {}", filePath());
+        TestUtil.closeDocument(endpoint, filePath());
     }
 
     @Override
@@ -189,8 +217,12 @@ public class EditorTab {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         EditorTab editorTab = (EditorTab) o;
         return Objects.equals(filePath, editorTab.filePath);
     }

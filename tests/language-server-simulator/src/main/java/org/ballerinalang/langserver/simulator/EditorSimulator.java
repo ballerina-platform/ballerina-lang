@@ -34,11 +34,18 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * The main class to simulate the behavior of language server. Similarly to how vscode client use LSP to send different
+ * updates, this sends similar messages via JSON RPC to the language server.
+ *
+ * @since 2.0.0
+ */
 public class EditorSimulator {
 
     private static final Logger logger = LoggerFactory.getLogger(EditorSimulator.class);
 
-    private static final int DURATION_SECONDS = 60 * 60;
+    private static final String PROP_DURATION = "ls.simulation.duration";
+    private static final String PROP_SOURCE_DIR = "ls.simulation.src";
 
     private static final Random random = new Random();
 
@@ -51,14 +58,17 @@ public class EditorSimulator {
     }
 
     public static void run() throws IOException {
-        String projectPath = "/home/imesha/Documents/WSO2/Ballerina/nballerina/compiler";
+        int durationSeconds = Integer.parseInt(System.getProperty(PROP_DURATION, "60")) * 60;
+        String projectPath = System.getProperty(PROP_SOURCE_DIR);
+        if (projectPath == null) {
+            throw new IllegalArgumentException("No ballerina project path provided");
+        }
+
         Path path = Paths.get(projectPath);
         logger.info("Using project: {}", path.toString());
 
         List<Path> balFiles = Files.list(path)
-                .filter(p -> {
-                    return Files.isRegularFile(p) && p.getFileName().toString().endsWith(".bal");
-                })
+                .filter(p -> Files.isRegularFile(p) && p.getFileName().toString().endsWith(".bal"))
                 .collect(Collectors.toList());
 
         if (balFiles.isEmpty()) {
@@ -68,7 +78,7 @@ public class EditorSimulator {
         Path modulesPath = path.resolve("modules");
         if (Files.exists(modulesPath)) {
             Files.list(modulesPath)
-                    .filter(modPath -> Files.isDirectory(modPath))
+                    .filter(Files::isDirectory)
                     .flatMap(modPath -> {
                         try {
                             return Files.list(modPath)
@@ -84,9 +94,9 @@ public class EditorSimulator {
         logger.info("Found bal files in project: {}", balFiles.stream().map(Path::toString).collect(Collectors.joining("\n")));
 
         Editor editor = Editor.open();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> editor.close()));
+        Runtime.getRuntime().addShutdownHook(new Thread(editor::close));
 
-        long endTime = Instant.now().getEpochSecond() + DURATION_SECONDS;
+        long endTime = Instant.now().getEpochSecond() + durationSeconds;
         while (Instant.now().getEpochSecond() < endTime) {
             int i = random.nextInt(balFiles.size());
             Path balFile = balFiles.get(i);
@@ -120,6 +130,11 @@ public class EditorSimulator {
         editor.close();
     }
 
+    /**
+     * Generate a random syntax tree node (top level) to be inserted to the source document.
+     *
+     * @return Source for a random top level node.
+     */
     public static String getRandomNode() {
         List<Generators.Type> types = Arrays.stream(Generators.Type.values())
                 .filter(Generators.Type::isTopLevelNode)

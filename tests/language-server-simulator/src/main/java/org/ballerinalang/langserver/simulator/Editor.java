@@ -21,11 +21,15 @@ import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the editor used by the end user. An  editor consists of a set of open tabs.
+ *
+ * @since 2.0.0
+ */
 public class Editor {
 
     private static final Logger logger = LoggerFactory.getLogger(Editor.class);
@@ -41,7 +45,12 @@ public class Editor {
         this.endpoint = endpoint;
     }
 
-    public static Editor open() throws IOException {
+    /**
+     * Simulates opening the editor. Here we initialize the language server.
+     *
+     * @return Editor instance
+     */
+    public static Editor open() {
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
 
         EditorOutputStream outputStream = new EditorOutputStream();

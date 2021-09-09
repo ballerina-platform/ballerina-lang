@@ -17,6 +17,9 @@ package org.ballerinalang.langserver.simulator.generators;
 
 import org.ballerinalang.annotation.JavaSPIService;
 
+/**
+ * Statement code snippet generator.
+ */
 @JavaSPIService("org.ballerinalang.langserver.simulator.generators.CodeSnippetGenerator")
 public class StatementGenerator extends CodeSnippetGenerator {
 

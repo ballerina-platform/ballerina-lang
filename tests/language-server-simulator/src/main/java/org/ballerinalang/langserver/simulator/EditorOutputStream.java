@@ -18,18 +18,31 @@ package org.ballerinalang.langserver.simulator;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.eclipse.lsp4j.jsonrpc.RemoteEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/**
+ * A custom output stream to consume messages sent from LS to the LS client side.
+ *
+ * @since 2.0.0
+ */
 class EditorOutputStream extends ByteArrayOutputStream {
 
     private static final Logger logger = LoggerFactory.getLogger(EditorOutputStream.class);
 
     private Editor editor;
 
+    /**
+     * LSP4J invokes this method after writing a message to the stream. At that point, we should have the complete
+     * message in the byte array. Here we consume that and reset the array.
+     *
+     * @throws IOException IO errors
+     * @see RemoteEndpoint#request(java.lang.String, java.lang.Object)
+     */
     @Override
     public void flush() throws IOException {
         String message = this.toString();
@@ -41,6 +54,12 @@ class EditorOutputStream extends ByteArrayOutputStream {
         }
     }
 
+    /**
+     * Process a received message. We are interested in log message events and telemetry events to identify errors
+     * occurred.
+     *
+     * @param message JSON RPC message received
+     */
     void process(String message) {
         String[] parts = message.replace("\r\n", "\n").split("\n");
         if (parts.length > 1) {
@@ -59,8 +78,10 @@ class EditorOutputStream extends ByteArrayOutputStream {
                             logger.info("Current file content: \n{}\n========================",
                                     editor.activeTab().textDocument().toString());
                         }
+                        break;
                     case "window/logMessage":
                         logger.info("Received log message event: {}", obj);
+                        break;
                     case "textDocument/publishDiagnostics":
                         // pass
                     default:
