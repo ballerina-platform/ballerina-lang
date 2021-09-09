@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -114,8 +115,9 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(OptionalFieldAccessExpressionNode node) {
         // First capture the expression and the respective symbols
-        // In future we should use the following approach and get rid of this resolver. 
-        Optional<TypeSymbol> resolvedType = this.context.currentSemanticModel().get().type(node);
+        // In future we should use the following approach and get rid of this resolver.
+        Optional<TypeSymbol> resolvedType = this.context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node));
         if (resolvedType.isPresent() && resolvedType.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
             return SymbolUtil.getTypeDescriptor(resolvedType.get());
         }
@@ -201,12 +203,12 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(AnnotAccessExpressionNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
     public Optional<TypeSymbol> transform(BasicLiteralNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
