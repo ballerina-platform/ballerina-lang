@@ -83,12 +83,12 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        return getTypeDescriptor(node.name().text());
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
     public Optional<TypeSymbol> transform(ErrorConstructorExpressionNode node) {
-        return getTypeDescriptor(node.errorKeyword().text());
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
     }
 
     @Override
@@ -325,15 +325,5 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         ModuleID objModuleId = symbolModule.get().id();
         return isPublic || (!isPrivate && objModuleId.moduleName().equals(currentModule.moduleName())
                 && objModuleId.orgName().equals(currentPackage.packageOrg().value()));
-    }
-
-    private Optional<TypeSymbol> getTypeDescriptor(String name) {
-        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()), name);
-
-        if (symbol.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return SymbolUtil.getTypeDescriptor(symbol.get());
     }
 }
