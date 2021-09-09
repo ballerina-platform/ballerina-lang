@@ -27,7 +27,8 @@ public class VarDeclarationStatementGenerator extends CodeSnippetGenerator {
 
     public String generate() {
         varCount++;
-        return String.format("\n%s %s = createVar();\n", primitiveTypes.get(random.nextInt(primitiveTypes.size())), "myVar" + varCount);
+        return String.format("\n%s %s = createVar();\n",
+                primitiveTypes.get(random.nextInt(primitiveTypes.size())), "myVar" + varCount);
     }
 
     @Override

@@ -53,7 +53,8 @@ public class TypeDefinitionGenerator extends CodeSnippetGenerator {
             if (random.nextBoolean() || generatedTypeDefNames.isEmpty()) {
                 field = String.format("\t%s field%d;", primitiveTypes.get(random.nextInt(primitiveTypes.size())), i);
             } else {
-                field = String.format("\t%s field%d;", generatedTypeDefNames.get(random.nextInt(generatedTypeDefNames.size())), i);
+                field = String.format("\t%s field%d;",
+                        generatedTypeDefNames.get(random.nextInt(generatedTypeDefNames.size())), i);
             }
             fields.add(field);
         }

@@ -49,11 +49,12 @@ public class EditorSimulator {
 
     private static final Random random = new Random();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         try {
             run();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error occurred while running the simulator", e);
+            throw e;
         }
     }
 
@@ -91,7 +92,8 @@ public class EditorSimulator {
                     .forEach(balFiles::add);
         }
 
-        logger.info("Found bal files in project: {}", balFiles.stream().map(Path::toString).collect(Collectors.joining("\n")));
+        logger.info("Found bal files in project: {}", balFiles.stream()
+                .map(Path::toString).collect(Collectors.joining("\n")));
 
         Editor editor = Editor.open();
         Runtime.getRuntime().addShutdownHook(new Thread(editor::close));

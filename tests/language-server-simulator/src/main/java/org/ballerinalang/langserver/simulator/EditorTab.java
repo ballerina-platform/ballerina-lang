@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -58,6 +59,7 @@ public class EditorTab {
     private Position cursor;
 
     private final Random random = new Random();
+    private final PrintWriter writer = new PrintWriter(System.out);
 
     public EditorTab(Path filePath, Endpoint endpoint, BallerinaLanguageServer languageServer) {
         this.filePath = filePath;
@@ -102,7 +104,8 @@ public class EditorTab {
 
             if (i % 10 == 0) {
                 float completionPercentage = ((float) i / (float) content.length()) * 100;
-                System.out.printf("%.1f%%\r", completionPercentage);
+                writer.printf("%.1f%%\r", completionPercentage);
+                writer.flush();
             }
 
             // Get completions in the background
@@ -122,7 +125,8 @@ public class EditorTab {
                 break;
             }
         }
-        logger.info("Typed provided content in file: {} -> \n{}", filePath, content.substring(0, Math.min(20, content.length())));
+        logger.info("Typed provided content in file: {} -> \n{}",
+                filePath, content.substring(0, Math.min(20, content.length())));
         logger.info("Typed {} characters with {} out of sync scenarios", content.length(), missCount);
 
         while (!isDocumentInSync()) {
