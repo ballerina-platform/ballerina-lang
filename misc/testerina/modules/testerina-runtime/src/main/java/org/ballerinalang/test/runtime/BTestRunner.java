@@ -590,8 +590,7 @@ public class BTestRunner {
                                     shouldSkip, packageName, argList.get(i), argTypes, failedOrSkippedTests);
                         }
                     }
-                } else if (valueSets instanceof BError || valueSets instanceof Error ||
-                        valueSets instanceof Exception) {
+                } else if (valueSets instanceof Error || valueSets instanceof Exception) {
                     computeFunctionResult(test.getTestName(), packageName, shouldSkip, failedOrSkippedTests,
                             valueSets);
                 } else {
