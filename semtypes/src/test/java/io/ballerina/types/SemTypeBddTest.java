@@ -15,10 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.types;
 
-import io.ballerina.semtype.subtypedata.BddAllOrNothing;
-import io.ballerina.semtype.typeops.BddCommonOps;
+import io.ballerina.types.subtypedata.BddAllOrNothing;
+import io.ballerina.types.typeops.BddCommonOps;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

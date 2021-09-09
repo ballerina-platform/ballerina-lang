@@ -15,13 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype;
+package io.ballerina.types;
 
-import io.ballerina.semtype.definition.FunctionDefinition;
-import io.ballerina.semtype.definition.ListDefinition;
-import io.ballerina.semtype.subtypedata.AllOrNothingSubtype;
-import io.ballerina.semtype.subtypedata.IntSubtype;
-import io.ballerina.semtype.subtypedata.Range;
+import io.ballerina.types.definition.FunctionDefinition;
+import io.ballerina.types.definition.ListDefinition;
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.Range;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
