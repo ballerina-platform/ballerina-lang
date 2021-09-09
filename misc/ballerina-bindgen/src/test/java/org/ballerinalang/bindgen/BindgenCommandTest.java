@@ -47,6 +47,7 @@ import java.util.Objects;
 public class BindgenCommandTest extends CommandTest {
 
     private Path testResources;
+    private String newLine = System.lineSeparator();
 
     @BeforeClass
     public void setup() throws IOException {
@@ -301,6 +302,26 @@ public class BindgenCommandTest extends CommandTest {
         String balFileContent2 = Files.readString(Paths.get(projectDir, "File.bal"));
         Assert.assertTrue(balFileContent2.contains("The function that maps to the `compareTo` method " +
                 "of `java.io.File`."));
+    }
+
+    @Test(description = "Test whether the bindgen tool generates the complete implementation of super classes")
+    public void testGenerationOfSuperClasses() throws IOException {
+        String projectDir = Paths.get(testResources.toString(), "balProject").toString();
+        System.setProperty("user.dir", projectDir);
+        String[] args = {"java.util.HashMap", "java.util.ArrayList"};
+
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
+        new CommandLine(bindgenCommand).parseArgs(args);
+
+        bindgenCommand.execute();
+        String output = readOutput(true);
+        Assert.assertTrue(output.contains("Generating bindings for: " + newLine +
+                                                  "\tjava.util.HashMap" + newLine +
+                                                  "\tjava.util.ArrayList" + newLine +
+                                                  "\tjava.util.AbstractMap" + newLine +
+                                                  "\tjava.util.AbstractCollection" + newLine +
+                                                  "\tjava.util.AbstractList" + newLine +
+                                                  "\tjava.lang.Object"));
     }
 
     @AfterClass
