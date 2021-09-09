@@ -333,7 +333,7 @@ public class BTestRunner {
             response = testStart.invoke();
             if (response instanceof BError || response instanceof Throwable || response instanceof Error) {
                 throw new BallerinaTestException("Test module invocation for test suite failed due to " +
-                        response.toString(), (Throwable) response);
+                        formatErrorMessage((Throwable) response), (Throwable) response);
             }
         }
         // Once the start function finish we will re start the scheduler with immortal true
