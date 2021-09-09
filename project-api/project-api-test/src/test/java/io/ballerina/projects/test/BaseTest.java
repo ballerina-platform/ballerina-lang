@@ -35,6 +35,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
+
 /**
  * Parent test class for all project api test cases. This will provide basic functionality for tests.
  *
@@ -87,24 +89,21 @@ public class BaseTest {
         PackageCompilation compilation = currentPackage.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
 
-        List<String> repoNames = Lists.of("local", "stdlib.local");
-        for (String repo : repoNames) {
-            Path localRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
-                    .resolve(repo).resolve(ProjectConstants.BALA_DIR_NAME);
-            Path localRepoBalaCache = localRepoPath
-                    .resolve(currentPackage.packageOrg().value())
-                    .resolve(currentPackage.packageName().value())
-                    .resolve(currentPackage.packageVersion().value().toString())
-                    .resolve(jBallerinaBackend.targetPlatform().code());
-            Files.createDirectories(localRepoBalaCache);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
-            Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();
-            ProjectUtils.extractBala(balaPath, localRepoBalaCache);
-            try {
-                Files.delete(balaPath);
-            } catch (IOException e) {
-                // ignore the delete operation since we can continue
-            }
+        Path localRepoPath = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(LOCAL_REPOSITORY_NAME).resolve(ProjectConstants.BALA_DIR_NAME);
+        Path localRepoBalaCache = localRepoPath
+                .resolve(currentPackage.packageOrg().value())
+                .resolve(currentPackage.packageName().value())
+                .resolve(currentPackage.packageVersion().value().toString())
+                .resolve(jBallerinaBackend.targetPlatform().code());
+        Files.createDirectories(localRepoBalaCache);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, localRepoBalaCache);
+        Path balaPath = Files.list(localRepoBalaCache).findAny().orElseThrow();
+        ProjectUtils.extractBala(balaPath, localRepoBalaCache);
+        try {
+            Files.delete(balaPath);
+        } catch (IOException e) {
+            // ignore the delete operation since we can continue
         }
     }
 
