@@ -52,6 +52,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_ARRAY_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_UNION_TYPE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.VALUE_FROM_STRING_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
@@ -133,7 +134,7 @@ public abstract class EvaluationTypeResolver<T> {
         return new StringJoiner(".")
                 .add(encodeModuleName(moduleMeta.orgName()))
                 .add(encodeModuleName(moduleMeta.moduleName()))
-                .add(moduleMeta.version().split("\\.")[0])
+                .add(moduleMeta.version().split(MODULE_VERSION_SEPARATOR)[0])
                 .add(INIT_CLASS_NAME)
                 .toString();
     }

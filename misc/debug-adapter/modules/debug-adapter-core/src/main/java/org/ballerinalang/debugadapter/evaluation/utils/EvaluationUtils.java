@@ -162,6 +162,7 @@ public class EvaluationUtils {
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
+    public static final String MODULE_VERSION_SEPARATOR = "\\.";
 
     private EvaluationUtils() {
     }
