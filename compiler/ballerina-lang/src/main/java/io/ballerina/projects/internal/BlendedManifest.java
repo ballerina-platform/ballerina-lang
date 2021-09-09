@@ -27,10 +27,13 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static io.ballerina.projects.PackageVersion.BUILTIN_PACKAGE_VERSION;
 
 /**
  * Blends dependencies in Dependencies.toml with dependencies specified
@@ -50,11 +53,13 @@ public class BlendedManifest {
                                        AbstractPackageRepository localPackageRepository) {
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
         for (DependencyManifest.Package pkgInDepManifest : dependencyManifest.packages()) {
-            depContainer.add(pkgInDepManifest.org(), pkgInDepManifest.name(),
-                    new Dependency(pkgInDepManifest.org(),
-                            pkgInDepManifest.name(), pkgInDepManifest.version(),
-                            getRelation(pkgInDepManifest.isTransitive()),
-                            Repository.NOT_SPECIFIED, moduleNames(pkgInDepManifest), DependencyOrigin.LOCKED));
+            PackageOrg pkgOrg = pkgInDepManifest.org();
+            PackageName pkgName = pkgInDepManifest.name();
+            PackageVersion pkgVersion = ProjectUtils.isBuiltInPackage(pkgOrg, pkgName.toString()) ?
+                    BUILTIN_PACKAGE_VERSION : pkgInDepManifest.version();
+            depContainer.add(pkgOrg, pkgName, new Dependency(pkgOrg, pkgName, pkgVersion,
+                    getRelation(pkgInDepManifest.isTransitive()),
+                    Repository.NOT_SPECIFIED, moduleNames(pkgInDepManifest), DependencyOrigin.LOCKED));
         }
 
         for (PackageManifest.Dependency depInPkgManifest : packageManifest.dependencies()) {
@@ -206,6 +211,10 @@ public class BlendedManifest {
             return relation;
         }
 
+        public DependencyOrigin origin() {
+            return origin;
+        }
+
         public Collection<String> moduleNames() {
             return modules;
         }
@@ -225,7 +234,7 @@ public class BlendedManifest {
     /**
      * Indicates the origin of a dependency.
      */
-    enum DependencyOrigin {
+    public enum DependencyOrigin {
         /**
          * Dependencies specified in Ballerina.toml file.
          */
