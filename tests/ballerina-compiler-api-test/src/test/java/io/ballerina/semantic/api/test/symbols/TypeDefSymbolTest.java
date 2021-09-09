@@ -69,6 +69,7 @@ public class TypeDefSymbolTest {
         assertFalse(symbol.qualifiers().isEmpty());
         assertEquals(symbol.qualifiers().get(0), Qualifier.PUBLIC);
 
+        // Todo: Fix https://github.com/ballerina-platform/ballerina-lang/issues/32662
 //        assertFalse(symbol.annotations().isEmpty());
 //        assertEquals(symbol.annotations().get(0).getName().get(), "v1");
     }

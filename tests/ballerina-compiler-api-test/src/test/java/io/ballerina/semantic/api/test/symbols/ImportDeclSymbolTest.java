@@ -38,9 +38,10 @@ public class ImportDeclSymbolTest {
     @Test(dataProvider = "ImportDeclarationPosProvider")
     public void testImports(int line, int offset, String name, String org, String prefix) {
         BallerinaModule symbol = (BallerinaModule) assertBasicsAndGetSymbol(line, offset, name, SymbolKind.MODULE);
-//        assertEquals(symbol.id().modulePrefix(), prefix);
         assertEquals(symbol.id().orgName(), org);
         assertEquals(symbol.id().version(), "1.0.0");
+        // TODO: Fix https://github.com/ballerina-platform/ballerina-lang/issues/32660
+        // assertEquals(symbol.id().modulePrefix(), prefix);
     }
 
     @DataProvider(name = "ImportDeclarationPosProvider")

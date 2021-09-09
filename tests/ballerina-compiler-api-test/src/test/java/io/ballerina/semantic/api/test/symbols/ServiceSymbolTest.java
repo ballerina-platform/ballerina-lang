@@ -88,6 +88,7 @@ public class ServiceSymbolTest {
 
         // check qualifier
         List<Qualifier> qualifiers = serviceDeclSymbol.qualifiers();
+        // TODO: Fix https://github.com/ballerina-platform/ballerina-lang/issues/32661
 //        assertEquals(qualifiers.size(), 1);
 //        assertEquals(qualifiers.get(0), Qualifier.ISOLATED);
 
