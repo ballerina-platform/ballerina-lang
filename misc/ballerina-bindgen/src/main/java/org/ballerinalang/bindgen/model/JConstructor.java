@@ -18,6 +18,7 @@
 package org.ballerinalang.bindgen.model;
 
 import org.ballerinalang.bindgen.utils.BindgenEnv;
+import org.ballerinalang.bindgen.utils.BindgenUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -65,7 +66,7 @@ public class JConstructor extends BFunction  {
         for (Parameter param : c.getParameters()) {
             JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);
-            importedPackages.add(param.getType().getPackageName());
+            BindgenUtils.addImportedPackage(param.getType(), importedPackages);
             paramTypes.append(getAlias(param.getType(), env.getAliases()).toLowerCase(Locale.ENGLISH));
             if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
                 javaArraysModule = true;
