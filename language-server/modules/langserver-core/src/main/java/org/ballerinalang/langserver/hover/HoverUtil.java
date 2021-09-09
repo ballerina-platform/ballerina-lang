@@ -350,18 +350,15 @@ public class HoverUtil {
 
     private static Hover getVariableHoverMarkupContent(VariableSymbol symbol) {
         Optional<Documentation> documentation = symbol.documentation();
-        if (documentation.isEmpty()) {
-            return getDefaultHoverObject();
-        }
-
         List<String> hoverContent = new ArrayList<>();
-        if (documentation.get().description().isPresent()) {
+        if (documentation.isPresent() && documentation.get().description().isPresent()) {
             hoverContent.add(documentation.get().description().get());
         }
-        TypeSymbol varTypeSymbol = CommonUtil.getRawType(symbol.typeDescriptor());
+
+        TypeSymbol varTypeSymbol = symbol.typeDescriptor();
         String type = varTypeSymbol.signature();
-        String varName = symbol.getName().isPresent() ? symbol.getName().get() : "";
-        String modifiedVariable = quotedString(type) + " " + varName;
+        String varName = symbol.getName().isPresent() ? " " + symbol.getName().get() : "";
+        String modifiedVariable = quotedString(type) + varName;
         hoverContent.add(modifiedVariable);
 
         Hover hover = new Hover();
