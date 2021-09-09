@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Verifies behaviour of the @BeforeGroups and @AfterGroups functions with other test
-// configurations when there are multiple test groups.
+// Verifies the test execution behavior when an @AfterGroups function
+// fails. The expected behavior is that none of the subsequent functions should be
+// affected.
 
 import ballerina/test;
 
@@ -31,9 +32,14 @@ function beforeGroupsFunc2() {
     a += "4";
 }
 
-@test:AfterGroups { value : ["g1", "g2"] }
+@test:AfterGroups { value : ["g1"] }
 function afterGroupsFunc1() {
-    a += "7";
+    int b = 2/0;
+}
+
+@test:AfterGroups { value : ["g2"] }
+function afterGroupsFunc2() {
+    a += "9";
 }
 
 # Test function
@@ -42,34 +48,22 @@ function testFunction() {
     a += "1";
 }
 
-@test:Config {
-    groups: ["g1"],
-    dependsOn: [testFunction]
-}
+@test:Config {groups: ["g1"]}
 function testFunction2() {
     a += "3";
 }
 
-@test:Config {
-    groups : ["g2"],
-    dependsOn: [testFunction2]
-}
+@test:Config {groups : ["g2"]}
 function testFunction3() {
     a += "5";
 }
 
-@test:Config {
-    groups : ["g1", "g2"],
-    dependsOn: [testFunction]
-}
+@test:Config {groups : ["g1", "g2"]}
 function testFunction4() {
     a += "6";
 }
 
-@test:Config {
-    groups : ["g2"],
-    dependsOn: [testFunction4]
-}
+@test:Config {groups : ["g2"]}
 function testFunction5() {
     a += "8";
 }
@@ -77,5 +71,5 @@ function testFunction5() {
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    test:assertEquals(a, "123456787");
+    test:assertEquals(a, "12345689");
 }
