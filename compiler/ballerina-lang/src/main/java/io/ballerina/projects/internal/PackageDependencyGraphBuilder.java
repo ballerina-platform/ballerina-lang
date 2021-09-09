@@ -52,7 +52,7 @@ public class PackageDependencyGraphBuilder {
     private final Map<Vertex, DependencyNode> vertices = new HashMap<>();
     private final Map<Vertex, Set<Vertex>> depGraph = new HashMap<>();
 
-    private Set<Vertex> dirtyVertices = new HashSet<>();
+    private Set<Vertex> unresolvedVertices = new HashSet<>();
 
     private final DependencyNode rootDepNode;
     private final Vertex rootNodeVertex;
@@ -66,9 +66,9 @@ public class PackageDependencyGraphBuilder {
         addNewVertex(dependentVertex, rootDepNode, false);
     }
 
-    public NodeStatus addNode(PackageDescriptor node,
-                              PackageDependencyScope scope,
-                              DependencyResolutionType dependencyResolvedType) {
+    public NodeStatus addUnresolvedNode(PackageDescriptor node,
+                                        PackageDependencyScope scope,
+                                        DependencyResolutionType dependencyResolvedType) {
         // Add the correct version of the dependent to the graph.
         Vertex dependentVertex = new Vertex(node.org(), node.name());
         return addNewVertex(dependentVertex,
@@ -84,10 +84,10 @@ public class PackageDependencyGraphBuilder {
                 new DependencyNode(node, scope, dependencyResolvedType), false);
     }
 
-    public NodeStatus addDependency(PackageDescriptor dependent,
-                                    PackageDescriptor dependency,
-                                    PackageDependencyScope dependencyScope,
-                                    DependencyResolutionType dependencyResolvedType) {
+    public NodeStatus addUnresolvedDependency(PackageDescriptor dependent,
+                                              PackageDescriptor dependency,
+                                              PackageDependencyScope dependencyScope,
+                                              DependencyResolutionType dependencyResolvedType) {
         return addDependencyInternal(dependent,
                 new DependencyNode(dependency, dependencyScope, dependencyResolvedType),
                 true);
@@ -141,20 +141,17 @@ public class PackageDependencyGraphBuilder {
         return graphBuilder.build();
     }
 
-    public Collection<DependencyNode> cleanUnresolvedNodes() {
-        // Remove dangling nodes in the graph
-        removeDanglingNodes();
-
-        Collection<DependencyNode> unresolvedNodes = dirtyVertices.stream()
+    public Collection<DependencyNode> getUnresolvedNodes() {
+        Collection<DependencyNode> unresolvedNodes = unresolvedVertices.stream()
                 .map(vertices::get)
                 .collect(Collectors.toList());
-        this.dirtyVertices = new HashSet<>();
+        this.unresolvedVertices = new HashSet<>();
         return unresolvedNodes;
     }
 
     private NodeStatus addDependencyInternal(PackageDescriptor dependent,
                                              DependencyNode dependencyNode,
-                                             boolean markAsDirty) {
+                                             boolean unresolved) {
         // Add the correct version of the dependent to the graph.
         Vertex dependentVertex = new Vertex(dependent.org(), dependent.name());
         if (!depGraph.containsKey(dependentVertex)) {
@@ -162,7 +159,7 @@ public class PackageDependencyGraphBuilder {
         }
 
         Vertex dependencyVertex = new Vertex(dependencyNode.pkgDesc().org(), dependencyNode.pkgDesc().name());
-        NodeStatus nodeStatus = addNewVertex(dependencyVertex, dependencyNode, markAsDirty);
+        NodeStatus nodeStatus = addNewVertex(dependencyVertex, dependencyNode, unresolved);
         depGraph.get(dependentVertex).add(dependencyVertex);
         return nodeStatus;
     }
@@ -170,14 +167,14 @@ public class PackageDependencyGraphBuilder {
     /**
      * Clean up the dependency graph by cleaning up dangling dependencies.
      */
-    private void removeDanglingNodes() {
+    public void removeDanglingNodes() {
         Set<Vertex> danglingVertices = new HashSet<>(vertices.keySet());
         removeDanglingNodes(rootNodeVertex, danglingVertices);
 
         for (Vertex danglingVertex : danglingVertices) {
             vertices.remove(danglingVertex);
             depGraph.remove(danglingVertex);
-            dirtyVertices.remove(danglingVertex);
+            unresolvedVertices.remove(danglingVertex);
         }
     }
 
@@ -192,12 +189,14 @@ public class PackageDependencyGraphBuilder {
         }
     }
 
-    private NodeStatus addNewVertex(Vertex vertex, DependencyNode newPkgDep, boolean markAsDirty) {
+    private NodeStatus addNewVertex(Vertex vertex, DependencyNode newPkgDep, boolean unresolved) {
         if (!vertices.containsKey(vertex)) {
             vertices.put(vertex, newPkgDep);
             depGraph.put(vertex, new HashSet<>());
-            if (markAsDirty) {
-                dirtyVertices.add(vertex);
+
+            // TODO Re think about the unresolved Property
+            if (unresolved) {
+                unresolvedVertices.add(vertex);
             }
             return NodeStatus.ACCEPTED;
         }
@@ -219,43 +218,52 @@ public class PackageDependencyGraphBuilder {
                         newPkgDep.resolutionType();
 
         DependencyNode resolvedPkgDep = new DependencyNode(resolvedPkgDesc, depScope, resolutionType);
-        NodeStatus nodeStatus = addNewVertex(vertex, existingPkgDep, resolvedPkgDep);
+        NodeStatus nodeStatus = getNodeStatus(vertex, existingPkgDep, newPkgDep, unresolved);
         if (nodeStatus == NodeStatus.ACCEPTED) {
             // Update the vertex with the new version
             vertices.put(vertex, resolvedPkgDep);
             // The dependencies of the current version is no longer valid.
             depGraph.put(vertex, new HashSet<>());
+        } else {
+            // Update the vertex anyway
+            // This step will update the correct scope, resolution type and repository
+            vertices.put(vertex, resolvedPkgDep);
         }
         return nodeStatus;
     }
 
-    private NodeStatus addNewVertex(Vertex vertex, DependencyNode existingPkgDep, DependencyNode resolvedPkgDep) {
-        if (resolvedPkgDep.equals(existingPkgDep)) {
+    private NodeStatus getNodeStatus(Vertex vertex,
+                                     DependencyNode existingPkgDep,
+                                     DependencyNode newPkgDep,
+                                     boolean unresolved) {
+        if (newPkgDep.equals(existingPkgDep)) {
             return NodeStatus.ACCEPTED;
         }
 
-        SemanticVersion resolvedSemVer = resolvedPkgDep.pkgDesc().version().value();
+        SemanticVersion newSemVer = newPkgDep.pkgDesc().version().value();
         SemanticVersion existingSemVer = existingPkgDep.pkgDesc().version().value();
-        if (resolvedSemVer.greaterThan(existingSemVer)) {
-            // Mark it as dirty because there is version change
-            dirtyVertices.add(vertex);
+        if (newSemVer.greaterThan(existingSemVer)) {
+            if (unresolved) {
+                // Mark it as unresolved because there is version change
+                unresolvedVertices.add(vertex);
+            }
             return NodeStatus.ACCEPTED;
-        } else if (resolvedSemVer.lessThan(existingSemVer)) {
+        } else if (newSemVer.lessThan(existingSemVer)) {
             return NodeStatus.REJECTED;
         } else {
             // We have the same package version in existing dependency and in the resolved dependency
             // Let's compare the package repository
-            Optional<String> resolvedRepoOptional = resolvedPkgDep.pkgDesc().repository();
+            Optional<String> newRepoOptional = newPkgDep.pkgDesc().repository();
             Optional<String> existingRepoOptional = existingPkgDep.pkgDesc().repository();
-            if (resolvedRepoOptional.isPresent() &&
-                    resolvedRepoOptional.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                // Resolved package is coming from the local repository. Accept the new one
+            if (newRepoOptional.isPresent() &&
+                    newRepoOptional.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                // New package is coming from the local repository. Accept the new one
                 return NodeStatus.ACCEPTED;
             }
 
             if (existingRepoOptional.isPresent() &&
                     existingRepoOptional.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                // Resolved package is not coming from the local repository and the
+                // New package is not coming from the local repository and the
                 //  existing package is coming from the local repository. Reject the new one
                 return NodeStatus.REJECTED;
             }
