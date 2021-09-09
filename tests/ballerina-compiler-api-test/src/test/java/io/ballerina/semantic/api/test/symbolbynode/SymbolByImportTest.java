@@ -23,7 +23,9 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -33,8 +35,11 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for looking up a symbol given a module import/prefix.
@@ -75,18 +80,34 @@ public class SymbolByImportTest extends SymbolByNodeTest {
             public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
                 assertSymbol(qualifiedNameReferenceNode.modulePrefix(), model, MODULE, "testproject");
             }
+
+            @Override
+            public void visit(PositionalArgumentNode positionalArgumentNode) {
+                if (positionalArgumentNode.expression().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                    assertSymbol(positionalArgumentNode, model, CONSTANT, "PI");
+                }
+
+                if (positionalArgumentNode.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    assertSymbol(positionalArgumentNode, model, VARIABLE, "abc");
+                }
+            }
         };
     }
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 3);
+        assertEquals(getAssertCount(), 5);
     }
 
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
         Optional<Symbol> symbol = model.symbol(node);
+
+        assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), kind);
+
+        assertTrue(symbol.get().getName().isPresent());
         assertEquals(symbol.get().getName().get(), name);
+
         incrementAssertCount();
     }
 }

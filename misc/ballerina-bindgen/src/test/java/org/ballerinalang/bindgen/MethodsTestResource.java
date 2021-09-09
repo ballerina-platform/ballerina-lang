@@ -297,4 +297,9 @@ public class MethodsTestResource extends RestrictedTestResource implements Inter
     public int testMethod(int x) {
         return 0;
     }
+
+    @Override
+    public String[] returnStringArray() {
+        return new String[0];
+    }
 }
