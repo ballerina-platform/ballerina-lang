@@ -1913,9 +1913,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangRecordKeyValueField bLRecordKeyValueField =
                         (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
                 bLRecordKeyValueField.valueExpr = createExpression(computedNameField.valueExpr());
+                bLRecordKeyValueField.pos = getPosition(computedNameField);
+
                 bLRecordKeyValueField.key =
                         new BLangRecordLiteral.BLangRecordKey(createExpression(computedNameField.fieldNameExpr()));
                 bLRecordKeyValueField.key.computedKey = true;
+                bLRecordKeyValueField.key.pos = getPosition(computedNameField.fieldNameExpr());
+
                 bLiteralNode.fields.add(bLRecordKeyValueField);
             } else {
                 SpecificFieldNode specificField = (SpecificFieldNode) field;
