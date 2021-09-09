@@ -16,8 +16,10 @@
 
 import ballerina/jballerina.java;
 
+// Replicated from https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/print.bal#L23
 public type Printable any|error|PrintableRawTemplate;
 
+// Replicated from https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/print.bal#L34
 public type PrintableRawTemplate object {
     public string[] & readonly strings;
     public Printable[] insertions;
@@ -37,6 +39,7 @@ public isolated function println(Printable... values) {
     externPrintln(out(), java:fromString(value));
 }
 
+// Replicated from https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/print.bal#L98
 class PrintableClassImpl {
     Printable printable;
 
@@ -55,6 +58,7 @@ class PrintableClassImpl {
     }
 }
 
+// Replicated from https://github.com/ballerina-platform/module-ballerina-io/blob/master/ballerina/print.bal#L116
 class PrintableRawTemplateImpl {
     *object:RawTemplate;
     public Printable[] insertions;
