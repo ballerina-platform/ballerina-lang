@@ -20,7 +20,7 @@ type RecType0 record {
 };
 
 function typeDescOfARecord() {
-    RecType0 i = { name: "theName"};
+    RecType0 i = {name: "theName"};
     typedesc<any> td0 = typeof i;
     test:assertEquals(td0.toString(), "typedesc RecType0");
 }
@@ -36,7 +36,7 @@ class Obj0 {
 }
 
 function typeDescOrAObject() {
-    Obj0 o = new("name", 42);
+    Obj0 o = new ("name", 42);
     test:assertEquals((typeof o).toString(), "typedesc Obj0");
 }
 
@@ -47,7 +47,7 @@ function typeDescOfLiterals() {
     checkTypeDescLiteral("str-literal", "str-literal");
     checkTypeDescLiteral(true, "true");
     checkTypeDescLiteral(false, "false");
-    checkTypeDescLiteral((), "()");    
+    checkTypeDescLiteral((), "()");
 }
 
 function checkTypeDescLiteral(any value, string expected) {
@@ -101,7 +101,7 @@ function compareTypeOfValues() {
     test:assertFalse(typeof i === typeof i);
 
     // xml Value
-    xml xmlValue = xml`<data>test</data>`;
+    xml xmlValue = xml `<data>test</data>`;
     test:assertTrue(typeof xmlValue === typeof xmlValue);
 
     // Structural types - Array, Tuple
@@ -199,5 +199,168 @@ function typeOfWithCloneReadOnly() {
     table<map<string>> tableVal = table [{s: "test"}];
     val = tableVal.cloneReadOnly();
     test:assertTrue(typeof val === typeof val);
+    test:assertEquals((typeof val).toString(), "typedesc [{\"s\":\"test\"}]");
+}
+
+function typeOfWithCloneWithTypeOnSameValue() returns error? {
+
+    // xml Value
+    xml:ProcessingInstruction & readonly xmlValue = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml & readonly clonableXml = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+
+    anydata val = check clonableXml.cloneWithType(typeof xmlValue);
+    test:assertTrue(val is xml:ProcessingInstruction);
+    test:assertTrue(val == xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`);
+    test:assertEquals((typeof val).toString(), "typedesc <?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>");
+
+    // Structural types - Array, Tuple
+    int[] & readonly arr = [1, 2, 3];
+    int[] clonableArray = [1, 2, 3]; // [finite 1, ]
+    val = check clonableArray.cloneWithType(typeof arr);
+    test:assertTrue(val is int[]);
+    test:assertTrue(val == [1, 2, 3]);
+    test:assertEquals((typeof val).toString(), "typedesc [1,2,3]");
+
+    [string, int] & readonly tuple = ["ballerina", 123];
+    [string, int] clonableTuple = ["ballerina", 123];
+
+    val = check clonableTuple.cloneWithType(typeof tuple);
+    test:assertTrue(val is [string, int]);
+    test:assertTrue(val == ["ballerina", 123]);
+    test:assertEquals((typeof val).toString(), "typedesc [\"ballerina\",123]");
+
+    // Structural types - Records, Maps
+    RecType0 & readonly rec = {name: "test"};
+    map<anydata> clonableRec = {name: "test"};
+    val = check clonableRec.cloneWithType(typeof rec);
+    test:assertTrue(val is RecType0);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == {name: "test"});
+    test:assertEquals((typeof val).toString(), "typedesc {\"name\":\"test\"}");
+
+    map<string> & readonly mapVal = {s: "test"};
+    map<anydata> clonableMap = {s: "test"};
+    val = check clonableMap.cloneWithType(typeof mapVal);
+    test:assertTrue(val is map<string>);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == {s: "test"});
+    test:assertEquals((typeof val).toString(), "typedesc {\"s\":\"test\"}");
+
+    // Structural types -tables 
+    table<map<string>> & readonly tableVal = table [{s: "test"}];
+    table<map<anydata>> clonableTable = table [{s: "test"}];
+
+    val = check clonableTable.cloneWithType(typeof tableVal);
+    test:assertTrue(val is table<map<string>>);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == table [{s: "test"}]);
+    test:assertEquals((typeof val).toString(), "typedesc [{\"s\":\"test\"}]");
+}
+
+// TODO: This test need to be modified after fixing issue #13189
+function typeOfWithCloneWithTypeOnDifferentValue() returns error? {
+    // xml Value
+    xml & readonly xmlValue = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml clonableXml = xml `<data>test</data>`;
+
+    var val1 = clonableXml.cloneWithType(typeof xmlValue);
+    test:assertTrue(val1 is error);
+    error err = <error>val1;
+    test:assertEquals(err.detail().toString(), "{\"message\":\"'lang.xml:Element' value cannot be converted to " +
+    "'<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>'\"}");
+
+    // Structural types - Array, Tuple
+    int[] & readonly arr = [1, 2, 3];
+    anydata[] clonableArray = [1, 2, 3, 23];
+    anydata val = check clonableArray.cloneWithType(typeof arr);
+    test:assertTrue(val is int[]);
+    test:assertTrue(val == [1, 2, 3, 23]);
+    test:assertEquals((typeof val).toString(), "typedesc [1,2,3,23]");
+
+    [string, int] & readonly tuple = ["ballerina", 123];
+    [string, int] clonableTuple = ["ballerina-lang", 324];
+
+    val = check clonableTuple.cloneWithType(typeof tuple);
+    test:assertTrue(val is [string, int]);
+    test:assertTrue(val == ["ballerina-lang", 324]);
+    test:assertEquals((typeof val).toString(), "typedesc [\"ballerina-lang\",324]");
+
+    // Structural types - Records, Maps
+    RecType0 & readonly rec = {name: "test"};
+    map<anydata> clonableRec = {name: "Hinduja"};
+    val = check clonableRec.cloneWithType(typeof rec);
+    test:assertTrue(val is RecType0);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == {name: "Hinduja"});
+    test:assertEquals((typeof val).toString(), "typedesc {\"name\":\"Hinduja\"}");
+
+    map<string> & readonly mapVal = {s: "test"};
+    map<anydata> clonableMap = {s: "Jane Doe"};
+    val = check clonableMap.cloneWithType(typeof mapVal);
+    test:assertTrue(val is map<string>);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == {s: "Jane Doe"});
+    test:assertEquals((typeof val).toString(), "typedesc {\"s\":\"Jane Doe\"}");
+
+    // Structural types -tables 
+    table<map<string>> & readonly tableVal = table [{s: "test"}];
+    table<map<anydata>> clonableTable = table [{s: "test", a: "test 2"}];
+
+    val = check clonableTable.cloneWithType(typeof tableVal);
+    test:assertTrue(val is table<map<string>>);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == table [{s: "test", a: "test 2"}]);
+    test:assertEquals((typeof val).toString(), "typedesc [{\"s\":\"test\",\"a\":\"test 2\"}]");
+}
+
+function typeOfWithEnsureTypeOnSameValue() returns error? {
+
+    // xml Value
+    xml:ProcessingInstruction & readonly xmlValue = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml & readonly clonableXml = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    anydata val = check clonableXml.ensureType(typeof xmlValue);
+    test:assertTrue(val is xml:ProcessingInstruction);
+    test:assertTrue(val == xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`);
+    test:assertEquals((typeof val).toString(), "typedesc '<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>'");
+
+    // Structural types - Array, Tuple
+    byte[] & readonly arr = [1, 2, 3];
+    int[] & readonly clonableArray = [1, 2, 3];
+    val = check clonableArray.ensureType(typeof arr);
+    test:assertTrue(val is int[]);
+    test:assertTrue(val == [1, 2, 3]);
+    test:assertEquals((typeof val).toString(), "typedesc [1,2,3]");
+
+    [string, int] & readonly tuple = ["ballerina", 123];
+    anydata[] & readonly clonableTuple = ["ballerina", 123];
+    val = check clonableTuple.ensureType(typeof tuple);
+    test:assertTrue(val is [string, int]);
+    test:assertTrue(val == ["ballerina", 123]);
+    test:assertEquals((typeof val).toString(), "typedesc [\"ballerina\",123]");
+
+    // Structural types - Records, Maps
+    RecType0 & readonly rec = {name: "test"};
+    map<anydata> & readonly clonableRec = {name: "test"};
+    val = check clonableRec.ensureType(typeof rec);
+    test:assertTrue(val is RecType0);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == {name: "test"});
+    test:assertEquals((typeof val).toString(), "typedesc {\"name\":\"test\"}");
+
+    map<string> & readonly mapVal = {s: "test"};
+    map<anydata> & readonly clonableMap = {s: "test"};
+    val = check clonableMap.ensureType(typeof mapVal);
+    test:assertTrue(val is map<string>);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == {s: "test"});
+    test:assertEquals((typeof val).toString(), "typedesc {\"s\":\"test\"}");
+
+    // Structural types -tables 
+    table<map<string>> & readonly tableVal = table [{s: "test"}];
+    table<map<anydata>> & readonly clonableTable = table [{s: "test"}];
+    val = check clonableTable.ensureType(typeof tableVal);
+    test:assertTrue(val is table<map<string>>);
+    test:assertTrue(val.isReadOnly());
+    test:assertTrue(val == table [{s: "test"}]);
     test:assertEquals((typeof val).toString(), "typedesc [{\"s\":\"test\"}]");
 }

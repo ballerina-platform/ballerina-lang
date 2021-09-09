@@ -2152,7 +2152,8 @@ public class TypeChecker {
             case TypeTags.ANYDATA_TAG:
                 return checkIsLikeAnydataType(sourceValue, sourceType, unresolvedValues, allowNumericConversion);
             case TypeTags.FINITE_TYPE_TAG:
-                return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType);
+                return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType,
+                 unresolvedValues, allowNumericConversion);
             case TypeTags.XML_ELEMENT_TAG:
                 if (sourceTypeTag == TypeTags.XML_TAG) {
                     XmlValue xmlSource = (XmlValue) sourceValue;
@@ -2609,7 +2610,15 @@ public class TypeChecker {
         return true;
     }
 
-    private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType) {
+    private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType,
+                                                     List<TypeValuePair> unresolvedValues,
+                                                     boolean allowNumericConversion) {
+        Type firstValueType = getType(targetType.valueSpace.iterator().next());
+        if (targetType.valueSpace.size() == 1 && !isSimpleBasicType(firstValueType) &&
+                firstValueType.getTag() != TypeTags.NULL_TAG) {
+            return checkIsLikeOnValue(sourceValue, sourceType, firstValueType, unresolvedValues, allowNumericConversion);
+        }
+
         for (Object valueSpaceItem : targetType.valueSpace) {
             // TODO: 8/13/19 Maryam fix for conversion
             if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem)) {
@@ -2698,7 +2707,7 @@ public class TypeChecker {
         return sourceIdSet.containsAll(targetType.typeIdSet);
     }
 
-    private static boolean isSimpleBasicType(Type type) {
+    static boolean isSimpleBasicType(Type type) {
         return type.getTag() < TypeTags.NULL_TAG;
     }
 
