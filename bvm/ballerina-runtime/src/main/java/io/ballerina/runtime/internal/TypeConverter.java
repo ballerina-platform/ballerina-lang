@@ -311,10 +311,11 @@ public class TypeConverter {
                 break;
             case TypeTags.FINITE_TYPE_TAG:
                 BFiniteType finiteType = (BFiniteType) targetType;
-                Type firstValueType = getType(finiteType.valueSpace.iterator().next());
-                if (finiteType.valueSpace.size() == 1 && !isSimpleBasicType(firstValueType) &&
-                        firstValueType.getTag() != TypeTags.NULL_TAG) {
-                    return getConvertibleTypes(inputValue, firstValueType, unresolvedValues);
+                if (finiteType.valueSpace.size() == 1) {
+                    Type valueType = getType(finiteType.valueSpace.iterator().next());
+                    if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+                        return getConvertibleTypes(inputValue, valueType, unresolvedValues);
+                    }
                 }
                 for (Object valueSpaceItem : finiteType.valueSpace) {
                     Type inputValueType = TypeChecker.getType(inputValue);

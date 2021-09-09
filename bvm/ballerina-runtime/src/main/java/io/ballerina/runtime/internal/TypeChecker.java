@@ -2613,10 +2613,12 @@ public class TypeChecker {
     private static boolean checkFiniteTypeAssignable(Object sourceValue, Type sourceType, BFiniteType targetType,
                                                      List<TypeValuePair> unresolvedValues,
                                                      boolean allowNumericConversion) {
-        Type firstValueType = getType(targetType.valueSpace.iterator().next());
-        if (targetType.valueSpace.size() == 1 && !isSimpleBasicType(firstValueType) &&
-                firstValueType.getTag() != TypeTags.NULL_TAG) {
-            return checkIsLikeOnValue(sourceValue, sourceType, firstValueType, unresolvedValues, allowNumericConversion);
+        if (targetType.valueSpace.size() == 1) {
+            Type valueType = getType(targetType.valueSpace.iterator().next());
+            if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
+                return checkIsLikeOnValue(sourceValue, sourceType, valueType, unresolvedValues,
+                        allowNumericConversion);
+            }
         }
 
         for (Object valueSpaceItem : targetType.valueSpace) {
