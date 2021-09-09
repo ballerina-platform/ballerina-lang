@@ -84,7 +84,14 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.typeOf(node));
+        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
+                node.name().text());
+
+        if (symbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(symbol.get());
     }
 
     @Override
