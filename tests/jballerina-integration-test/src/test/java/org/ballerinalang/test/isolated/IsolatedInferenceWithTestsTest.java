@@ -46,22 +46,22 @@ public class IsolatedInferenceWithTestsTest extends BaseTest {
     }
 
     @Test(dataProvider = "pkgNames")
-    public void testIsolatedInferenceWithTests(String pkgName) throws BallerinaTestException {
-        testPkg(pkgName);
+    public void testIsolatedInferenceWithTests(String pkgName, int testCount) throws BallerinaTestException {
+        testPkg(pkgName, testCount);
     }
 
     @DataProvider
-    public Object[] pkgNames() {
-        return new Object[] {
-                "foo",
-                "bar",
-                "baz",
-                "qux"
+    public Object[][] pkgNames() {
+        return new Object[][] {
+                {"foo", 2},
+                {"bar", 2},
+                {"baz", 2},
+                {"qux", 12}
         };
     }
 
-    private void testPkg(String pkg) throws BallerinaTestException {
-        LogLeecher passedLeecher = new LogLeecher("2 passing");
+    private void testPkg(String pkg, int testCount) throws BallerinaTestException {
+        LogLeecher passedLeecher = new LogLeecher(testCount + " passing");
         LogLeecher failedLeecher = new LogLeecher("0 failing");
         LogLeecher jarGenerationLeecher = new LogLeecher("target/bin/" + pkg + ".jar");
         bMainInstance.runMain("build", new String[]{}, null, null,

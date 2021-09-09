@@ -19,3 +19,38 @@ int x = 1;
 function fn1() {
     any a = x;
 }
+
+class Foo {
+    private int i = 1;
+
+    function getI() returns int {
+        lock {
+            return self.i;
+        }
+    }
+}
+
+class Bar {
+    private int i = 1;
+
+    function getI() returns int => self.i;
+}
+
+int a = 1; // inferred isolated
+int b = 1; // not inferred isolated
+
+function fn3() {
+    lock {
+        a = 2;
+    }
+}
+
+function fn4() {
+    lock {
+        b = 2;
+    }
+}
+
+function fn5() {
+    b = 3;
+}
