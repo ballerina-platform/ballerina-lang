@@ -23,14 +23,14 @@ package io.ballerina.projects;
  * @since 2.0.0
  */
 public class CompilationOptions {
-    private Boolean offlineBuild;
-    private Boolean experimental;
-    private Boolean observabilityIncluded;
-    private Boolean dumpBir;
-    private String dumpBirFile;
-    private String cloud;
-    private Boolean listConflictedClasses;
-    private Boolean sticky;
+    Boolean offlineBuild;
+    Boolean experimental;
+    Boolean observabilityIncluded;
+    Boolean dumpBir;
+    String dumpBirFile;
+    String cloud;
+    Boolean listConflictedClasses;
+    Boolean sticky;
 
     public CompilationOptions(Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
@@ -84,29 +84,43 @@ public class CompilationOptions {
      * @return a new {@code CompilationOptions} instance that contains our options and their options
      */
     CompilationOptions acceptTheirs(CompilationOptions theirOptions) {
+        CompilationOptionsBuilder compilationOptionsBuilder = new CompilationOptionsBuilder();
         if (theirOptions.offlineBuild != null) {
-            this.offlineBuild = theirOptions.offlineBuild;
+            compilationOptionsBuilder.offline(theirOptions.offlineBuild);
+        } else {
+            compilationOptionsBuilder.offline(this.offlineBuild);
         }
         if (theirOptions.experimental != null) {
-            this.experimental = theirOptions.experimental;
+            compilationOptionsBuilder.experimental(theirOptions.experimental);
+        } else {
+            compilationOptionsBuilder.experimental(this.experimental);
         }
         if (theirOptions.observabilityIncluded != null) {
-            this.observabilityIncluded = theirOptions.observabilityIncluded;
+            compilationOptionsBuilder.observabilityIncluded(theirOptions.observabilityIncluded);
+        } else {
+            compilationOptionsBuilder.observabilityIncluded(this.observabilityIncluded);
         }
         if (theirOptions.dumpBir != null) {
-            this.dumpBir = theirOptions.dumpBir;
+            compilationOptionsBuilder.dumpBir(theirOptions.dumpBir);
+        } else {
+            compilationOptionsBuilder.dumpBir(this.dumpBir);
         }
         if (theirOptions.cloud != null) {
-            this.cloud = theirOptions.cloud;
+            compilationOptionsBuilder.cloud(theirOptions.cloud);
+        } else {
+            compilationOptionsBuilder.cloud(this.cloud);
         }
-        this.dumpBirFile = theirOptions.dumpBirFile;
         if (theirOptions.listConflictedClasses != null) {
-            this.listConflictedClasses = theirOptions.listConflictedClasses;
+            compilationOptionsBuilder.listConflictedClasses(theirOptions.listConflictedClasses);
+        } else {
+            compilationOptionsBuilder.listConflictedClasses(this.listConflictedClasses);
         }
         if (theirOptions.sticky != null) {
-            this.sticky = theirOptions.sticky;
+            compilationOptionsBuilder.sticky(theirOptions.sticky);
+        } else {
+            compilationOptionsBuilder.sticky(this.sticky);
         }
-        return this;
+        return compilationOptionsBuilder.build();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {

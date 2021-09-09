@@ -6714,6 +6714,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         });
         BLangExpression expr = new BLangWaitForAllExpr.BLangWaitLiteral(waitExpr.keyValuePairs, waitExpr.getBType());
+        expr.pos = waitExpr.pos;
         result = rewriteExpr(expr);
     }
 
@@ -10131,9 +10132,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     protected void addTransactionInternalModuleImport() {
-        PackageID packageID = new PackageID(Names.BALLERINA_INTERNAL_ORG, Lists.of(Names.TRANSACTION),
-                Names.TRANSACTION_INTERNAL_VERSION);
-        if (!env.enclPkg.packageID.equals(packageID)) {
+        if (!env.enclPkg.packageID.equals(PackageID.TRANSACTION_INTERNAL)) {
             BLangImportPackage importDcl = (BLangImportPackage) TreeBuilder.createImportPackageNode();
             List<BLangIdentifier> pkgNameComps = new ArrayList<>();
             pkgNameComps.add(ASTBuilderUtil.createIdentifier(env.enclPkg.pos, Names.TRANSACTION.value));

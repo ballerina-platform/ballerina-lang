@@ -300,6 +300,17 @@ public class ObserveUtils {
     }
 
     /**
+     * Stop observation after reporting an error.
+     *
+     * @param env        Ballerina environment
+     * @param errorValue the error value to be attached to the observer context
+     */
+    public static void stopObservationWithError(Environment env, ErrorValue errorValue) {
+        reportError(env, errorValue);
+        stopObservation(env);
+    }
+
+    /**
      * Report an error to an observer context.
      *
      * @param env        Ballerina environment

@@ -897,7 +897,7 @@ public class TypedescriptorTest {
                 {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
                         "symbolowner/testprojmodules:0.1.0"},
                 {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
-                        "ballerina/lang.annotations:1.0.0"},
+                        "ballerina/lang.annotations:0.0.0"},
                 {9, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType1",
                         "symbolowner/testprojmodules.module1:0.1.0"},
                 {11, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "StreamType2",

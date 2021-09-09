@@ -40,8 +40,9 @@ public class PackageDescriptor {
                               String repository) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
-        this.packageVersion = packageVersion;
         this.repository = repository;
+        this.packageVersion = ProjectUtils.isBuiltInPackage(packageOrg, packageName.value()) ?
+                PackageVersion.BUILTIN_PACKAGE_VERSION : packageVersion;
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName) {
@@ -75,11 +76,11 @@ public class PackageDescriptor {
     }
 
     public boolean isLangLibPackage() {
-        return ProjectUtils.isLangLibPackage(org(), packageName);
+        return ProjectUtils.isLangLibPackage(packageOrg, packageName);
     }
 
     public boolean isBuiltInPackage() {
-        return ProjectUtils.isBuiltInPackage(org(), packageName.value());
+        return ProjectUtils.isBuiltInPackage(packageOrg, packageName.value());
     }
 
     @Override

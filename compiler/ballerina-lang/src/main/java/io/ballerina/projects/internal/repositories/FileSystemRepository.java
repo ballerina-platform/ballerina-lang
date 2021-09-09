@@ -36,6 +36,7 @@ import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -173,7 +174,52 @@ public class FileSystemRepository extends AbstractPackageRepository {
         } catch (IOException e) {
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
+
+        versions.removeAll(getIncompatibleVer(versions, org, name));
         return pathToVersions(versions);
+    }
+
+    protected List<Path> getIncompatibleVer(List<Path> versions, PackageOrg org, PackageName name) {
+        List<Path> incompatibleVersions = new ArrayList<>();
+
+        if (!versions.isEmpty()) {
+            for (Path ver : versions) {
+                Path pkgJsonPath = getPackagePath(org.value(), name.value(),
+                        Optional.of(ver.getFileName()).get().toFile().getName()).resolve(ProjectConstants.PACKAGE_JSON);
+                if (Files.exists(pkgJsonPath)) {
+                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion();
+                    String packVer = RepoUtils.getBallerinaShortVersion();
+                    if (!isCompatible(packageVer, packVer)) {
+                        incompatibleVersions.add(ver);
+                    }
+                } else {
+                    incompatibleVersions.add(ver);
+                }
+            }
+        }
+
+        return incompatibleVersions;
+    }
+
+    private boolean isCompatible(String pkgBalVer, String distBalVer) {
+        if (!pkgBalVer.equals(distBalVer)) {
+            String pkgBalVerPrefix = pkgBalVer.substring(0, pkgBalVer.length() - 1);
+            String distBalVerPerfix = distBalVer.substring(0, distBalVer.length() - 1);
+
+            // If the prefixes are equal, we need to check the versions
+            if (pkgBalVerPrefix.equals(distBalVerPerfix)) {
+                String pkgBalVerValue = pkgBalVer.substring(pkgBalVer.length() - 1);
+                String distBalVerValue = distBalVer.substring(distBalVer.length() - 1);
+                // If package version is greater than distribution version
+                if (Integer.parseInt(pkgBalVerValue) > Integer.parseInt(distBalVerValue)) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override

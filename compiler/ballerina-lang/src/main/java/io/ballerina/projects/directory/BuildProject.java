@@ -198,8 +198,8 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         Path buildFilePath = this.sourceRoot.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
         // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
             // set both last build time and lat updated time as current timestamp
@@ -209,10 +209,10 @@ public class BuildProject extends Project {
         } else {
             // build file exists
             BuildJson buildJson = readBuildJson(buildFilePath);
+            // need to update Dependencies toml
+            writeDependencies();
             // check whether last updated time is expired
             if (shouldUpdate) {
-                // need to update Dependencies toml
-                writeDependencies();
                 // update build json file
                 writeBuildFile(buildFilePath);
             } else {
@@ -319,9 +319,7 @@ public class BuildProject extends Project {
             if (directDependencies.contains(transDependency)) {
                 continue;
             }
-            if (transDependency.packageInstance() != this.currentPackage()
-                    && !transDependency.packageInstance().descriptor().isBuiltInPackage()
-                    && !transDependency.isPlatformProvided()) {
+            if (transDependency.packageInstance() != this.currentPackage()) {
                 Package aPackage = transDependency.packageInstance();
                 Dependency dependency = new Dependency(aPackage.packageOrg().toString(),
                                                        aPackage.packageName().value(),

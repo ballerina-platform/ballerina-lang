@@ -22,7 +22,7 @@ import largePackage.objects as o;
 import largePackage.errors as e;
 import largePackage.enums as en;
 import largePackage.unions as u;
-
+import largePackage.constants as cnt;
 
 public function main() {
     c:Client|error myClient = checkpanic new();
@@ -38,4 +38,6 @@ public function main() {
     e:MyError1 myError = error("My Error");
     test:assertEquals(myError.message(), "My Error");
     test:assertEquals(u:v1.a, "hello");
+    test:assertEquals(cnt:MY_CONST1, 1);
+    test:assertEquals(cnt:MY_CONST1000, "Ballerina1000");
 }

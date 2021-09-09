@@ -69,7 +69,7 @@ public class TestBirAndJarCache {
             testCompCacheFactory = new TestCompilationCacheFactory(cacheDirPath);
             ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
             environmentBuilder.addCompilationCacheFactory(testCompCacheFactory);
-            project = BuildProject.load(environmentBuilder, projectPath);
+            project = TestUtils.loadBuildProject(environmentBuilder, projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }

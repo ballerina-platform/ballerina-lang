@@ -234,6 +234,46 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery.bir").toFile().exists());
     }
 
+    /**
+     * Test jar conflicts of platform libs.
+     *
+     * one-1.0.0.jar
+     * .
+     * ├── META-INF
+     * │   ├── MANIFEST.MF
+     * │   ├── maven
+     * │   │   └── test-sample
+     * │   │       └── one
+     * │   │           ├── pom.properties
+     * │   │           └── pom.xml
+     * │   └── versions
+     * │       └── 9
+     * │           └── module-info.class
+     * └── test
+     *     └── sample
+     *         ├── Sample2.class ---> conflicted class file
+     *         ├── Sample3.class ---> conflicted class file
+     *         └── Sample4.class ---> conflicted class file
+     *
+     * two-1.0.0.jar
+     *
+     * .
+     * ├── META-INF
+     * │   ├── MANIFEST.MF
+     * │   ├── maven
+     * │   │   └── test-sample
+     * │   │       └── two
+     * │   │           ├── pom.properties
+     * │   │           └── pom.xml
+     * │   └── versions
+     * │       └── 9
+     * │           └── module-info.class
+     * └── test
+     *     └── sample
+     *         ├── Sample2.class ---> conflicted class file
+     *         ├── Sample3.class ---> conflicted class file
+     *         └── Sample4.class ---> conflicted class file
+     */
     @Test(description = "Build a valid ballerina project")
     public void testBuildBalProjectWithJarConflicts() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithConflictedJars");

@@ -10,3 +10,11 @@ dependencies-toml-version = "2"
 org = "samjs"
 name = "package_k"
 version = "1.1.0-alpha"
+transitive = false
+modules = [
+	{org = "samjs", packageName = "package_k", moduleName = "package_k"},
+	{org = "samjs", packageName = "package_k", moduleName = "package_k.mod_k1"},
+	{org = "samjs", packageName = "package_k", moduleName = "package_k.mod_k2"}
+]
+
+

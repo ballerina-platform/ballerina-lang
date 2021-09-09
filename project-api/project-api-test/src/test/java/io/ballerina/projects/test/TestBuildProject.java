@@ -50,7 +50,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -100,7 +99,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -144,7 +143,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -187,7 +186,7 @@ public class TestBuildProject extends BaseTest {
         // 2) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("does not have read permissions"));
         }
@@ -215,7 +214,7 @@ public class TestBuildProject extends BaseTest {
         // 2) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -238,7 +237,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -261,7 +260,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -310,7 +309,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -343,7 +342,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -365,7 +364,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -395,21 +394,21 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("svc.bal");
         try {
-            BuildProject.load(projectPath);
+            TestUtils.loadBuildProject(projectPath);
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services");
         try {
-            BuildProject.load(projectPath);
+            TestUtils.loadBuildProject(projectPath);
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
         projectPath = RESOURCE_DIRECTORY.resolve("single_file");
         try {
-            BuildProject.load(projectPath);
+            TestUtils.loadBuildProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
@@ -421,7 +420,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("resources").resolve("invalidProject");
         try {
-            BuildProject.load(projectPath);
+            TestUtils.loadBuildProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("Provided path is already within a Ballerina package: " +
@@ -477,7 +476,7 @@ public class TestBuildProject extends BaseTest {
         BuildProject project = null;
         BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
         try {
-            project = BuildProject.load(projectPath, buildOptions);
+            project = TestUtils.loadBuildProject(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -513,13 +512,20 @@ public class TestBuildProject extends BaseTest {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
 
         // Load the project from document filepath
-        Project buildProject = ProjectLoader.loadProject(filePath);
+        Project buildProject = TestUtils.loadProject(filePath);
         DocumentId oldDocumentId = buildProject.documentId(filePath); // get the document ID
         Module oldModule = buildProject.currentPackage().module(oldDocumentId.moduleId());
         Document oldDocument = oldModule.document(oldDocumentId);
 
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+
         // Update the document
         Document updatedDoc = oldDocument.modify().withContent(dummyContent).apply();
+
+        compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+
 
         Assert.assertEquals(oldDocument.module().documentIds().size(), updatedDoc.module().documentIds().size());
         Assert.assertEquals(oldDocument.module().testDocumentIds().size(),
@@ -547,7 +553,7 @@ public class TestBuildProject extends BaseTest {
                 .resolve("main_tests.bal").toAbsolutePath();
 
         // Load the project from document filepath
-        Project buildProject = ProjectLoader.loadProject(filePath);
+        Project buildProject = TestUtils.loadProject(filePath);
         DocumentId oldDocumentId = buildProject.documentId(filePath); // get the document ID
         Module oldModule = buildProject.currentPackage().module(oldDocumentId.moduleId());
         Document oldDocument = oldModule.document(oldDocumentId);
@@ -580,7 +586,7 @@ public class TestBuildProject extends BaseTest {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
         String newFileContent = "import ballerina/io;\n";
 
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectPath);
+        BuildProject buildProject = (BuildProject) TestUtils.loadProject(projectPath);
 
         // get module to which the document should be added
         Module oldModule = buildProject.currentPackage().module(
@@ -619,7 +625,7 @@ public class TestBuildProject extends BaseTest {
                         .toAbsolutePath();
         String newFileContent = "import ballerina/io;\n";
 
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectPath);
+        BuildProject buildProject = (BuildProject) TestUtils.loadProject(projectPath);
 
         // get module to which the document should be added
         Module oldModule = buildProject.currentPackage().module(ModuleName.from(
@@ -654,7 +660,7 @@ public class TestBuildProject extends BaseTest {
     public void testRemoveDocument() {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("utils.bal").toAbsolutePath();
 
-        Project buildProject = ProjectLoader.loadProject(filePath);
+        Project buildProject = TestUtils.loadProject(filePath);
         DocumentId removeDocumentId = buildProject.documentId(filePath);
         Module oldModule = buildProject.currentPackage().module(removeDocumentId.moduleId());
 
@@ -682,7 +688,7 @@ public class TestBuildProject extends BaseTest {
                 RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("services")
                         .resolve(ProjectConstants.TEST_DIR_NAME).resolve("svc_tests.bal").toAbsolutePath();
 
-        Project buildProject = ProjectLoader.loadProject(filePath);
+        Project buildProject = TestUtils.loadProject(filePath);
         DocumentId removeDocumentId = buildProject.documentId(filePath);
         Module oldModule = buildProject.currentPackage().module(removeDocumentId.moduleId());
 
@@ -710,7 +716,7 @@ public class TestBuildProject extends BaseTest {
                 RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("newModule")
                         .toAbsolutePath();
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
+        BuildProject buildProject = (BuildProject) TestUtils.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
         PackageManifest pkgManifest = oldPackage.manifest();
 
@@ -752,7 +758,7 @@ public class TestBuildProject extends BaseTest {
                 RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("newModule")
                         .toAbsolutePath();
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(projectRoot);
+        BuildProject buildProject = (BuildProject) TestUtils.loadProject(projectRoot);
         Package oldPackage = buildProject.currentPackage();
         PackageManifest pkgManifest = oldPackage.manifest();
 
@@ -792,7 +798,7 @@ public class TestBuildProject extends BaseTest {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
 
         // Load the project from document filepath
-        Project buildProject = ProjectLoader.loadProject(projectPath);
+        Project buildProject = TestUtils.loadProject(projectPath);
         try {
             DocumentId oldDocumentId = buildProject.documentId(filePath); // get the document ID
             Assert.fail();
@@ -808,7 +814,7 @@ public class TestBuildProject extends BaseTest {
                         .resolve("db");
 
         try {
-            BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
+            BuildProject buildProject = (BuildProject) TestUtils.loadProject(filePath);
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("provided file path does not exist"));
         }
@@ -821,7 +827,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -866,7 +872,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -908,7 +914,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -965,7 +971,7 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath, new BuildOptionsBuilder().sticky(true).build());
+            project = TestUtils.loadBuildProject(projectPath, new BuildOptionsBuilder().sticky(true).build());
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1017,7 +1023,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1092,7 +1098,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1158,7 +1164,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1230,7 +1236,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1262,7 +1268,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1298,7 +1304,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1335,7 +1341,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1373,7 +1379,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1389,11 +1395,11 @@ public class TestBuildProject extends BaseTest {
                 .resolve("winery1.bal").toAbsolutePath();
 
         // Load the project from document filepath
-        Project buildProject = ProjectLoader.loadProject(filePath);
+        Project buildProject = TestUtils.loadProject(filePath);
         buildProject.documentId(filePath); // get the document ID
     }
 
-    @Test(description = "test passing compilation options to package compilation")
+    @Test(description = "test passing compilation options to package compilation", enabled = false)
     public void testPassCompilationOptionsToPackageCompilation() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -1401,7 +1407,7 @@ public class TestBuildProject extends BaseTest {
         BuildProject project = null;
         try {
             BuildOptions options = new BuildOptionsBuilder().experimental(true).build();
-            project = BuildProject.load(projectPath, options);
+            project = TestUtils.loadBuildProject(projectPath, options);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -1442,7 +1448,7 @@ public class TestBuildProject extends BaseTest {
         if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
             Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         }
-        // Set sticky false, to imitate the default behavior
+        // Set sticky false, to imitate the default build command behavior
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
         buildOptionsBuilder.sticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
@@ -1450,7 +1456,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath, buildOptions);
+            project = TestUtils.loadBuildProject(projectPath, buildOptions);
             project.save();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -1466,7 +1472,7 @@ public class TestBuildProject extends BaseTest {
         // 2) Build project again with build file
         BuildProject projectSecondBuild = null;
         try {
-            projectSecondBuild = BuildProject.load(projectPath, buildOptions);
+            projectSecondBuild = TestUtils.loadBuildProject(projectPath, buildOptions);
             projectSecondBuild.save();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -1483,7 +1489,7 @@ public class TestBuildProject extends BaseTest {
         ProjectUtils.writeBuildFile(buildFile, secondBuildJson);
         BuildProject projectThirdBuild = null;
         try {
-            projectThirdBuild = BuildProject.load(projectPath, buildOptions);
+            projectThirdBuild = TestUtils.loadBuildProject(projectPath, buildOptions);
             Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
             projectThirdBuild.save();
         } catch (Exception e) {
@@ -1506,7 +1512,7 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
             project.save();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
@@ -1523,7 +1529,7 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(buildFilePath);
         Assert.assertFalse(buildFilePath.toFile().exists());
         try {
-            project = BuildProject.load(projectPath);
+            project = TestUtils.loadBuildProject(projectPath);
             project.save();
         } catch (Exception e) {
             Assert.fail(e.getMessage());
