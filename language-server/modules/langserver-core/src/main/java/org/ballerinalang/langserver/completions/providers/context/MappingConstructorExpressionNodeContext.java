@@ -42,7 +42,6 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypePair;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
@@ -154,14 +153,13 @@ public class MappingConstructorExpressionNodeContext extends
     private List<Pair<TypeSymbol, TypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
                                                                   MappingConstructorExpressionNode node) {
         ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<ContextTypePair> resolvedType = node.apply(typeResolver);
+        Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
         if (resolvedType.isEmpty()) {
             return Collections.emptyList();
         }
-        TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get().getRawType());
+        TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get());
         if (rawType.typeKind() == TypeDescKind.RECORD) {
-            TypeSymbol broaderType = resolvedType.get().getBroaderType();
-            return Collections.singletonList(Pair.of(rawType, broaderType));
+            return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
         }
         if (rawType.typeKind() == TypeDescKind.UNION) {
             return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()

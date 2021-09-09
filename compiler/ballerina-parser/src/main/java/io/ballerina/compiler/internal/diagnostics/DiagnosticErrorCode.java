@@ -94,6 +94,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_SLASH_ASTERISK_TOKEN("BCE0059", "error.missing.slash.asterisk.token"),
     ERROR_MISSING_DOUBLE_GT_TOKEN("BCE0060", "error.missing.double.gt.token"),
     ERROR_MISSING_TRIPPLE_GT_TOKEN("BCE0061", "error.missing.tripple.gt.token"),
+    ERROR_MISSING_XML_CDATA_END_TOKEN("BCE0062", "error.missing.xml.cdata.end.token"),
 
     // Missing keywords
     ERROR_MISSING_PUBLIC_KEYWORD("BCE0200", "error.missing.public.keyword"),

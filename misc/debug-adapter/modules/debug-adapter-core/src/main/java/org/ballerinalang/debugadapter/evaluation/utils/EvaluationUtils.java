@@ -64,10 +64,10 @@ public class EvaluationUtils {
     public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
     public static final String B_RANGE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "range_operations";
     public static final String B_UTILS_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "utils";
+    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
 
     // Ballerina runtime helper classes
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
-    public static final String B_DEBUGGER_RUNTIME_CLASS = "org.ballerinalang.debugadapter.runtime.DebuggerRuntime";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
     public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
@@ -85,6 +85,8 @@ public class EvaluationUtils {
     public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
     public static final String B_VALUE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BValue[]";
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
+    public static final String B_SCHEDULER_CLASS = RUNTIME_HELPER_PREFIX + "internal.scheduling.Scheduler";
+    public static final String B_STRAND_CLASS = RUNTIME_HELPER_PREFIX + "internal.scheduling.Strand";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
 
@@ -142,6 +144,7 @@ public class EvaluationUtils {
     public static final String STRING_TO_XML_METHOD = "stringToXml";
     public static final String INVOKE_OBJECT_METHOD_ASYNC = "invokeObjectMethod";
     public static final String INVOKE_FUNCTION_ASYNC = "invokeFunction";
+    public static final String CLASSLOAD_AND_INVOKE_METHOD = "classloadAndInvokeFunction";
     public static final String CREATE_INT_RANGE_METHOD = "createIntRange";
     public static final String GET_REST_ARG_ARRAY_METHOD = "getRestArgArray";
     public static final String GET_XML_FILTER_RESULT_METHOD = "getXMLFilterResult";
@@ -159,6 +162,7 @@ public class EvaluationUtils {
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
+    public static final String MODULE_VERSION_SEPARATOR = "\\.";
 
     private EvaluationUtils() {
     }
@@ -279,16 +283,16 @@ public class EvaluationUtils {
             String typeName = value.type().name();
             List<Method> method;
             switch (typeName) {
-                case EvaluationUtils.JAVA_INT_CLASS:
+                case JAVA_INT_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(INT_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_LONG_CLASS:
+                case JAVA_LONG_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(LONG_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_FLOAT_CLASS:
+                case JAVA_FLOAT_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(FLOAT_VALUE_METHOD);
                     break;
-                case EvaluationUtils.JAVA_DOUBLE_CLASS:
+                case JAVA_DOUBLE_CLASS:
                     method = ((ObjectReference) value).referenceType().methodsByName(DOUBLE_VALUE_METHOD);
                     break;
                 default:
@@ -381,23 +385,6 @@ public class EvaluationUtils {
         methodArgs.add(targetType);
         method.setArgValues(methodArgs);
         return Boolean.parseBoolean(new BExpressionValue(context, method.invokeSafely()).getStringValue());
-    }
-
-    /**
-     * Creates a "BUnionType" instance by combining all member types.
-     *
-     * @param resolvedTypes member types
-     * @return a 'BUnionType' instance by combining all its member types
-     */
-    public static Value getUnionTypeFrom(SuspendedContext context, List<Value> resolvedTypes)
-            throws EvaluationException {
-        List<String> methodArgTypeNames = new ArrayList<>();
-        methodArgTypeNames.add(B_TYPE_ARRAY_CLASS);
-        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS, CREATE_UNION_TYPE_METHOD,
-                methodArgTypeNames);
-        List<Value> methodArgs = new ArrayList<>(resolvedTypes);
-        method.setArgValues(methodArgs);
-        return method.invokeSafely();
     }
 
     /**

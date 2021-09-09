@@ -30,7 +30,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
-import org.ballerinalang.langserver.completions.util.ContextTypePair;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -111,11 +110,11 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
                                                              AssignmentStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<ContextTypePair> type = node.apply(typeResolver);
+        Optional<TypeSymbol> type = node.apply(typeResolver);
         if (type.isEmpty()) {
             return completionItems;
         }
-        TypeSymbol rawType = CommonUtil.getRawType(type.get().getRawType());
+        TypeSymbol rawType = CommonUtil.getRawType(type.get());
         if (rawType.kind() == SymbolKind.CLASS) {
             completionItems.add(this.getImplicitNewCItemForClass((ClassSymbol) rawType, context));
         }
