@@ -40,7 +40,7 @@ public class BasicLiteralNodeContext extends BlockNodeContextProvider<BasicLiter
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, BasicLiteralNode node)
             throws LSCompletionException {
-        if (node.kind() == SyntaxKind.STRING_LITERAL) {
+        if (node.kind() == SyntaxKind.STRING_LITERAL || node.kind() == SyntaxKind.NUMERIC_LITERAL) {
             return Collections.emptyList();
         }
 

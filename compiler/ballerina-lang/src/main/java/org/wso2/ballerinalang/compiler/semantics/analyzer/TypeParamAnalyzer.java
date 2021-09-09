@@ -417,13 +417,10 @@ public class TypeParamAnalyzer {
                 }
                 return;
             case TypeTags.ERROR:
-                if (actualType.tag == TypeTags.ERROR) {
-                    findTypeParamInError(loc, (BErrorType) expType, (BErrorType) actualType, env, resolvedTypes,
-                                         result);
+                if (expType == symTable.errorType) {
+                    return;
                 }
-                if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
-                    findTypeParamInError(loc, (BErrorType) expType, symTable.errorType, env, resolvedTypes, result);
-                }
+                findTypeParamInError(loc, (BErrorType) expType, actualType, env, resolvedTypes, result);
                 return;
             case TypeTags.TYPEDESC:
                 if (actualType.tag == TypeTags.TYPEDESC) {
@@ -654,13 +651,21 @@ public class TypeParamAnalyzer {
         findTypeParam(loc, exp, act, env, resolvedTypes, result);
     }
 
-    private void findTypeParamInError(Location loc, BErrorType expType, BErrorType actualType,
+    private void findTypeParamInError(Location loc, BErrorType expType, BType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-
-        if (expType == symTable.errorType) {
-            return;
+        if (actualType.tag == TypeTags.ERROR) {
+            findTypeParam(loc, expType.detailType, ((BErrorType) actualType).detailType, env, resolvedTypes,
+                    result);
         }
-        findTypeParam(loc, expType.detailType, actualType.detailType, env, resolvedTypes, result);
+        if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
+            BUnionType errorUnion = (BUnionType) actualType;
+            LinkedHashSet<BType> errorDetailTypes = new LinkedHashSet<>();
+            for (BType member : errorUnion.getMemberTypes()) {
+                errorDetailTypes.add(((BErrorType) member).detailType);
+            }
+            BUnionType errorDetailUnionType = BUnionType.create(null, errorDetailTypes);
+            findTypeParam(loc, expType.detailType, errorDetailUnionType, env, resolvedTypes, result);
+        }
     }
 
     private BType getMatchingBoundType(BType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {

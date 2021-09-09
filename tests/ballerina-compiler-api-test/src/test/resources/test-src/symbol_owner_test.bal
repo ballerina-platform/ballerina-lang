@@ -14,13 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/testproject;
-import ballerina/lang.'int as ints;
+import ballerina/lang.value;
 
-function testAnonTypes(float value) returns int {
-    int abc = 10;
-    int sum = testproject:add(abc, 20);
-    return sum;
+public function test() {
+    value:JsonDecimal jsonDecimal = 23;
 }
-
-int x = testAnonTypes(testproject:PI);

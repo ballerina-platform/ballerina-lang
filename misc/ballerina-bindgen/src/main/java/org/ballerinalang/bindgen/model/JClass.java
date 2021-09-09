@@ -18,6 +18,7 @@
 package org.ballerinalang.bindgen.model;
 
 import org.ballerinalang.bindgen.utils.BindgenEnv;
+import org.ballerinalang.bindgen.utils.BindgenUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -177,7 +178,7 @@ public class JClass {
                 JField jFieldGetter = new JField(field, BFunction.BFunctionKind.FIELD_GET, env, this);
                 fieldList.add(jFieldGetter);
                 if (modulesFlag) {
-                    importedPackages.add(field.getType().getPackageName());
+                    BindgenUtils.addImportedPackage(field.getType(), importedPackages);
                 }
                 if (jFieldGetter.requireJavaArrays()) {
                     importJavaArraysModule = true;
