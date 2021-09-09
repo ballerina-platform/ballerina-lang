@@ -852,7 +852,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                                                                               env.enclInvokable));
         analyzeNode(body, env);
         boolean allBranchesTerminate = this.breakAsLastStatement || this.statementReturns;
-        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate);
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate);
 
         if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = prevTxMode;
@@ -872,7 +872,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                                                                                                   env.enclInvokable));
             analyzeNode(elseStmt, env);
-            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+            handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                     this.breakAsLastStatement || this.statementReturns);
             if ((prevCommitCount != commitCount) || prevRollbackCount != rollbackCount) {
                 commitRollbackAllowed = false;
@@ -916,7 +916,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                                                                                                   env.enclInvokable));
             analyzeNode(matchClause, env);
-            propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+            handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                     this.breakAsLastStatement || this.statementReturns);
             allClausesReturns &= this.statementReturns;
             allClausesBreak &= this.breakAsLastStatement;
@@ -2356,7 +2356,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount++;
         BLangBlockStmt body = foreach.body;
         analyzeNode(body, foreachEnv);
-        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                 this.breakAsLastStatement || this.statementReturns, true);
         this.loopCount--;
         this.continueAsLastStatement = prevContinueAsLastStatement;
@@ -2393,7 +2393,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount++;
         BLangBlockStmt body = whileNode.body;
         analyzeNode(body, whileEnv);
-        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                 this.breakAsLastStatement || this.statementReturns, true);
         this.loopCount--;
         this.continueAsLastStatement = prevContinueAsLastStatement;
@@ -4826,15 +4826,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void validateAssignmentToNarrowedVariable(Name name, Location location) {
         SymbolEnv loopEnv = this.loopEnvs.peek();
 
-        BSymbol foundSym = symResolver.lookupSymbolInGivenScope(env, name, SymTag.VARIABLE);
-        SymbolEnv enclEnv = env.enclEnv;
-
-        while (foundSym == symTable.notFoundSymbol && enclEnv != loopEnv) {
-            foundSym = symResolver.lookupSymbolInGivenScope(enclEnv, name, SymTag.VARIABLE);
-            enclEnv = enclEnv.enclEnv;
-        }
-
-        if (foundSym != symTable.notFoundSymbol) {
+        BSymbol foundSym = symResolver.lookupSymbolInMainSpace(loopEnv, name);
+        if (foundSym != symTable.notFoundSymbol && foundSym.tag == SymTag.VARIABLE &&
+                ((BVarSymbol) foundSym).originalSymbol == null) {
             return;
         }
 
@@ -4847,12 +4841,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates) {
-        propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(branchTerminates, false);
+    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates) {
+        handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(branchTerminates, false);
     }
 
-    private void propagatePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates,
-                                                                                     boolean isLoop) {
+    private void handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(boolean branchTerminates,
+                                                                                  boolean isLoop) {
         PotentiallyInvalidAssignmentInfo currentBranchInfo = this.potentiallyInvalidAssignmentInLoopsInfo.pop();
 
         if (branchTerminates) {
