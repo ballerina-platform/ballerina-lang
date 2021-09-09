@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
  * A custom output stream to consume messages sent from LS to the LS client side.
@@ -45,7 +46,7 @@ class EditorOutputStream extends ByteArrayOutputStream {
      */
     @Override
     public void flush() throws IOException {
-        String message = this.toString();
+        String message = this.toString(Charset.defaultCharset());
         reset();
         try {
             process(message);

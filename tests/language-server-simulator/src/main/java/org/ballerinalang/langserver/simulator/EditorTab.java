@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -59,7 +60,7 @@ public class EditorTab {
     private Position cursor;
 
     private final Random random = new Random();
-    private final PrintWriter writer = new PrintWriter(System.out);
+    private final PrintWriter writer = new PrintWriter(System.out, true, Charset.defaultCharset());
 
     public EditorTab(Path filePath, Endpoint endpoint, BallerinaLanguageServer languageServer) {
         this.filePath = filePath;
@@ -105,7 +106,6 @@ public class EditorTab {
             if (i % 10 == 0) {
                 float completionPercentage = ((float) i / (float) content.length()) * 100;
                 writer.printf("%.1f%%\r", completionPercentage);
-                writer.flush();
             }
 
             // Get completions in the background

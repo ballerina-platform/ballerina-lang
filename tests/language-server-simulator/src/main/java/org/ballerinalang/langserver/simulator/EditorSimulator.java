@@ -69,7 +69,9 @@ public class EditorSimulator {
         logger.info("Using project: {}", path.toString());
 
         List<Path> balFiles = Files.list(path)
-                .filter(p -> Files.isRegularFile(p) && p.getFileName().toString().endsWith(".bal"))
+                .filter(Files::isRegularFile)
+                .filter(p -> p.getFileName() != null)
+                .filter(p -> p.getFileName().toString().endsWith(".bal"))
                 .collect(Collectors.toList());
 
         if (balFiles.isEmpty()) {
@@ -83,7 +85,9 @@ public class EditorSimulator {
                     .flatMap(modPath -> {
                         try {
                             return Files.list(modPath)
-                                    .filter(p -> Files.isRegularFile(p) && p.getFileName().toString().endsWith(".bal"));
+                                    .filter(Files::isRegularFile)
+                                    .filter(p -> p.getFileName() != null)
+                                    .filter(p -> p.getFileName().toString().endsWith(".bal"));
                         } catch (IOException e) {
                             logger.error("Unable to read path: {}", modPath);
                             return Stream.empty();
@@ -122,7 +126,7 @@ public class EditorSimulator {
 
             try {
                 int sleepSecs = 1 + random.nextInt(5);
-                Thread.sleep(sleepSecs * 1000);
+                Thread.sleep(sleepSecs * 1000L);
             } catch (InterruptedException e) {
                 logger.warn("Interrupted simulation", e);
                 break;

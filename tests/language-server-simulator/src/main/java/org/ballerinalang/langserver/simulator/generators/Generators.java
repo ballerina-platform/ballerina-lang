@@ -24,7 +24,7 @@ import java.util.ServiceLoader;
  */
 public class Generators {
 
-    private static Generators instance;
+    private static final Generators instance = new Generators();
     private final Map<Type, CodeSnippetGenerator> generators;
 
     private Generators() {
@@ -40,11 +40,7 @@ public class Generators {
      * @return Generated code snippet.
      */
     public static String generate(Type type) {
-        if (instance == null) {
-            instance = new Generators();
-        }
-
-        if (instance.generators.containsKey(type)) {
+        if (getInstance().generators.containsKey(type)) {
             return instance.generators.get(type).generate();
         }
 
@@ -53,6 +49,10 @@ public class Generators {
 
     public static <T> T getGenerator(Type type) {
         return (T) instance.generators.get(type);
+    }
+
+    public static Generators getInstance() {
+        return instance;
     }
 
     /**
