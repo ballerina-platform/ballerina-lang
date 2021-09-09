@@ -746,7 +746,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.usage.of.check.in.object.field.initializer.with.init.method.return.type.mismatch"),
     INVALID_NUMBER_OF_PARAMETERS("BCE4013", "invalid.number.of.parameters"),
     INVALID_PARAMETER_TYPE("BCE4014", "invalid.parameter.type"),
-    NO_CLASS_DEF_FOUND("BCE4013", "no.class.def.found")
+    NO_CLASS_DEF_FOUND("BCE4015", "no.class.def.found")
     ;
 
     private String diagnosticId;
