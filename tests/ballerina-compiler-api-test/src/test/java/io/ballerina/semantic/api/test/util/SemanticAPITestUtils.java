@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,6 +66,19 @@ public class SemanticAPITestUtils {
         Package currentPackage = project.currentPackage();
         DocumentId id = currentPackage.getDefaultModule().testDocumentIds().iterator().next();
         return currentPackage.getDefaultModule().document(id);
+    }
+
+    public static Optional<Document> getDocument(Project project, String moduleNamePart, String documentPath) {
+        Package currentPackage = project.currentPackage();
+        Module module = currentPackage.module(ModuleName.from(currentPackage.packageName(), moduleNamePart));
+        Document document;
+        for (DocumentId docId : module.documentIds()) {
+            document = module.document(docId);
+            if (document.name().equals(documentPath)) {
+                return Optional.of(document);
+            }
+        }
+        return Optional.empty();
     }
 
     public static Module getModule(Project project, String moduleName) {

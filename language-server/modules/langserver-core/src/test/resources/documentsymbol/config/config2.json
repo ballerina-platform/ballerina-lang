@@ -1,0 +1,91 @@
+{
+  "source": {
+    "file": "project1/modules/types/types.bal"
+  },
+  "result": [
+    {
+      "right": {
+        "name": "init",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 25,
+            "character": 4
+          },
+          "end": {
+            "line": 30,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 25,
+            "character": 4
+          },
+          "end": {
+            "line": 30,
+            "character": 5
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "getCode",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 32,
+            "character": 4
+          },
+          "end": {
+            "line": 36,
+            "character": 5
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 32,
+            "character": 4
+          },
+          "end": {
+            "line": 36,
+            "character": 5
+          }
+        },
+        "children": []
+      }
+    },
+    {
+      "right": {
+        "name": "deprecatedFunction",
+        "kind": "Function",
+        "range": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 45,
+            "character": 1
+          }
+        },
+        "selectionRange": {
+          "start": {
+            "line": 39,
+            "character": 0
+          },
+          "end": {
+            "line": 45,
+            "character": 1
+          }
+        },
+        "tags": [
+          "Deprecated"
+        ],
+        "children": []
+      }
+    }
+  ]
+}

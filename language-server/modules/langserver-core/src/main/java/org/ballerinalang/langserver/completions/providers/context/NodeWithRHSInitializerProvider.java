@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -104,13 +105,13 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
         if (contextType.isEmpty()) {
             return completionItems;
         }
-        if (contextType.get().typeKind() == TypeDescKind.STREAM) {
-            LSCompletionItem implicitNewCompletionItem =
-                    this.getImplicitNewCItemForStreamType(contextType.get(), context);
+        TypeSymbol rawType = CommonUtil.getRawType(contextType.get());
+        if (rawType.typeKind() == TypeDescKind.STREAM) {
+            LSCompletionItem implicitNewCompletionItem = this.getImplicitNewCItemForStreamType(rawType, context);
             completionItems.add(implicitNewCompletionItem);
-        } else if (contextType.get().kind() == SymbolKind.CLASS) {
-            LSCompletionItem implicitNewCompletionItem
-                    = this.getImplicitNewCItemForClass((ClassSymbol) contextType.get(), context);
+        } else if (rawType.kind() == SymbolKind.CLASS) {
+            LSCompletionItem implicitNewCompletionItem =
+                    this.getImplicitNewCItemForClass((ClassSymbol) rawType, context);
             completionItems.add(implicitNewCompletionItem);
         }
 

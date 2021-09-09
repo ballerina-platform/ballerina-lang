@@ -17,7 +17,7 @@
     {
       "label": "name",
       "kind": "Field",
-      "detail": "(record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}).name",
+      "detail": "Employee.name",
       "sortText": "G",
       "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
@@ -25,15 +25,15 @@
     {
       "label": "salary",
       "kind": "Field",
-      "detail": "(record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}).salary",
+      "detail": "Employee.salary",
       "sortText": "G",
       "insertText": "salary: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |} Required Fields",
+      "label": "Fill Employee Required Fields",
       "kind": "Property",
-      "detail": "record {| readonly record {| string first; string last; anydata...; |} & readonly name; int salary; anydata...; |}",
+      "detail": "Employee",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "name: {first: \"\", last: \"\"},\nsalary: 0",

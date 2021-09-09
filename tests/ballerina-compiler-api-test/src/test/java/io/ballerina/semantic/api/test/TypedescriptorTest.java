@@ -710,8 +710,8 @@ public class TypedescriptorTest {
     @DataProvider(name = "ConstantPosProvider")
     public Object[][] getConstPos() {
         return new Object[][]{
-                {16, 6, "3.14"},
-                {210, 6, "()"},
+                {16, 6, "PI"},
+                {210, 6, "NIL"},
         };
     }
 
@@ -733,11 +733,14 @@ public class TypedescriptorTest {
 
     @Test
     public void testFunctionTypedesc() {
-        FunctionSymbol symbol = (FunctionSymbol) getSymbol(216, 13);
-        assertTrue(symbol.typeDescriptor().params().isEmpty());
-        assertTrue(symbol.typeDescriptor().restParam().isEmpty());
-        assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
-        assertEquals(symbol.typeDescriptor().signature(), "function");
+        VariableSymbol symbol = (VariableSymbol) getSymbol(216, 13);
+        assertEquals(symbol.typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+
+        FunctionTypeSymbol type = (FunctionTypeSymbol) symbol.typeDescriptor();
+        assertTrue(type.params().isEmpty());
+        assertTrue(type.restParam().isEmpty());
+        assertTrue(type.returnTypeDescriptor().isEmpty());
+        assertEquals(type.signature(), "function");
     }
 
     @Test

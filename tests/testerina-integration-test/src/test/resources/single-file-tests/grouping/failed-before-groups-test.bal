@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,31 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+// Verifies the test execution behavior when a @BeforeGroups function fails.
+// The expected behavior is that the tests belonging to that group will be skipped
+// including the @before, @after functions and @AfterGroups functions for that group.
+// Tests belonging to other groups will not be affected.
 
-# Test file to test the test execution behavior when a @AfterGroups function
-# fails. The expected behavior is that none other function should be exectuted
-# subsequently other than the @AfterSuite function.
+import ballerina/test;
 
 string a = "";
 
 @test:BeforeGroups { value : ["g1"] }
 function beforeGroupsFunc1() {
-    a += "2";
+    panic error("Failed before group for g1");
 }
 
 @test:BeforeGroups { value : ["g2"] }
 function beforeGroupsFunc2() {
-    a += "4";
+    a += "3";
+}
+
+@test:AfterGroups { value : ["g1"], alwaysRun: true }
+function afterGroupsFunc1() {
+    a += "6";
 }
 
 @test:AfterGroups { value : ["g1"] }
-function afterGroupsFunc1() {
-    int b = 2/0;
+function afterGroupsFunc2() {
+    a += "7";
 }
 
-@test:AfterGroups { value : ["g2"] }
-function afterGroupsFunc2() {
+@test:AfterGroups { value : ["g1", "g2"] }
+function afterGroupsFunc3() {
     a += "9";
 }
 
@@ -48,22 +54,34 @@ function testFunction() {
     a += "1";
 }
 
-@test:Config {groups: ["g1"]}
+@test:Config {
+    groups: ["g1"],
+    dependsOn: [testFunction]
+}
 function testFunction2() {
-    a += "3";
+    a += "2";
 }
 
-@test:Config {groups : ["g2"]}
+@test:Config {
+    groups : ["g2"],
+    dependsOn: [testFunction2]
+}
 function testFunction3() {
+    a += "4";
+}
+
+@test:Config {
+    groups : ["g1", "g2"],
+    dependsOn: [testFunction]
+}
+function testFunction4() {
     a += "5";
 }
 
-@test:Config {groups : ["g1", "g2"]}
-function testFunction4() {
-    a += "6";
+@test:Config {
+    groups : ["g2"],
+    dependsOn: [testFunction4]
 }
-
-@test:Config {groups : ["g2"]}
 function testFunction5() {
     a += "8";
 }
@@ -71,5 +89,5 @@ function testFunction5() {
 # After Suite Function
 @test:AfterSuite {}
 function afterSuiteFunc() {
-    test:assertEquals(a, "123456");
+    test:assertEquals(a, "135689");
 }

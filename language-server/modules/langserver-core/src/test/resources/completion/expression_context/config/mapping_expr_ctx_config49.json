@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 7,
+    "character": 16
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source49.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1f2",
+      "kind": "Field",
+      "detail": "RecordName.rec1f2",
+      "sortText": "G",
+      "insertText": "rec1f2: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1f1",
+      "kind": "Field",
+      "detail": "RecordName.rec1f1",
+      "sortText": "G",
+      "insertText": "rec1f1: {\n\trec2f1: ${1:0},\n\trec2f2: ${2:0}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill RecordName Required Fields",
+      "kind": "Property",
+      "detail": "RecordName",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "rec1f2: 0,\nrec1f1: {rec2f1: 0, rec2f2: 0}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

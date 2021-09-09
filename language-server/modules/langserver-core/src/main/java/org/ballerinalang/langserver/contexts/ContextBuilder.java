@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
@@ -37,6 +38,7 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CompletionCapabilities;
+import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelpCapabilities;
@@ -267,6 +269,25 @@ public class ContextBuilder {
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCursorPosition(position)
+                .build();
+    }
+
+    /**
+     * Build the document symbols context.
+     *
+     * @param params document symbol params.
+     * @param workspaceManager workspace manager instance.
+     * @param serverContext language server context.
+     * @param clientCapabilities client capabilities.
+     * @return {@link DocumentSymbolContext} generated document symbol context.
+     */
+    public static DocumentSymbolContext buildDocumentSymbolContext(DocumentSymbolParams params,
+                                                                   WorkspaceManager workspaceManager,
+                                                                   LanguageServerContext serverContext,
+                                                                   LSClientCapabilities clientCapabilities) {
+        return new DocumentSymbolContextImpl.DocumentSymbolContextBuilder(params, serverContext, clientCapabilities)
+                .withFileUri(params.getTextDocument().getUri())
+                .withWorkspaceManager(workspaceManager)
                 .build();
     }
 
