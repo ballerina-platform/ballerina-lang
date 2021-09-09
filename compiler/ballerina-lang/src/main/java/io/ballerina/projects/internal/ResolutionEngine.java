@@ -32,6 +32,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder.NodeStatus;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -284,8 +285,14 @@ public class ResolutionEngine {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
         } else {
+            // TODO Report a diagnostic
             // Blended Dep version is incompatible with the unresolved node.
-            throw new ProjectException("");
+            String depInfo = blendedDep.org() + "/" + blendedDep.name();
+            String sourceFile = blendedDep.origin() == BlendedManifest.DependencyOrigin.USER_SPECIFIED ?
+                    ProjectConstants.BALLERINA_TOML : ProjectConstants.DEPENDENCIES_TOML;
+            throw new ProjectException("Incompatible versions: " + depInfo + ". " +
+                    "Version specified in " + sourceFile + ": " + blendedDep.version() +
+                    " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version());
         }
     }
 
