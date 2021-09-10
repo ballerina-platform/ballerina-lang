@@ -112,12 +112,22 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BMapType typeInSymbol, BType boundType) {
         BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
+
+        if (boundConstraintType == typeInSymbol) {
+            return typeInSymbol;
+        }
+
         return new BMapType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
     @Override
     public BType visit(BXMLType typeInSymbol, BType boundType) {
         BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
+
+        if (boundConstraintType == typeInSymbol) {
+            return typeInSymbol;
+        }
+
         return new BXMLType(boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
@@ -129,6 +139,11 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BArrayType typeInSymbol, BType boundType) {
         BType boundElemType = resolve(typeInSymbol.eType, boundType);
+
+        if (boundElemType == typeInSymbol) {
+            return typeInSymbol;
+        }
+
         return new BArrayType(boundElemType, typeInSymbol.tsymbol, typeInSymbol.size, typeInSymbol.state,
                               typeInSymbol.flags);
     }
@@ -148,28 +163,47 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         List<BType> newTupleTypes = new ArrayList<>();
 
         List<BType> tupleTypes = typeInSymbol.tupleTypes;
+        boolean areAllSameType = true;
+
         for (BType type : tupleTypes) {
             BType newType = resolve(type, boundType);
+            areAllSameType &= newType == type;
             newTupleTypes.add(newType);
         }
 
         BType newRestType = typeInSymbol.restType != null ? resolve(typeInSymbol.restType, boundType) : null;
+
+        if (areAllSameType && newRestType == typeInSymbol.restType) {
+            return typeInSymbol;
+        }
+
         return new BTupleType(typeInSymbol.tsymbol, newTupleTypes, newRestType, typeInSymbol.flags,
                               typeInSymbol.isCyclic);
     }
 
     @Override
     public BType visit(BStreamType typeInSymbol, BType boundType) {
-        BType newConstraintType = resolve(typeInSymbol.constraint, boundType);
+        BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
         // TODO: The completion type igonred for now
-        return new BStreamType(typeInSymbol.tag, newConstraintType, typeInSymbol.completionType, typeInSymbol.tsymbol);
+
+        if (boundConstraintType == typeInSymbol) {
+            return typeInSymbol;
+        }
+
+        return new BStreamType(typeInSymbol.tag, boundConstraintType, typeInSymbol.completionType,
+                               typeInSymbol.tsymbol);
     }
 
     @Override
     public BType visit(BTableType typeInSymbol, BType boundType) {
-        BType newConstraintType = resolve(typeInSymbol.constraint, boundType);
+        BType boundConstraintType = resolve(typeInSymbol.constraint, boundType);
         // TODO: The key constraint type ignored for now
-        return new BTableType(typeInSymbol.tag, newConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
+
+        if (boundConstraintType == typeInSymbol) {
+            return typeInSymbol;
+        }
+
+        return new BTableType(typeInSymbol.tag, boundConstraintType, typeInSymbol.tsymbol, typeInSymbol.flags);
     }
 
     @Override
@@ -180,9 +214,16 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BUnionType typeInSymbol, BType boundType) {
         LinkedHashSet<BType> newMembers = new LinkedHashSet<>();
+        boolean areAllSameType = true;
+
         for (BType memberType : typeInSymbol.getOriginalMemberTypes()) {
             BType newType = resolve(memberType, boundType);
+            areAllSameType &= newType == memberType;
             newMembers.add(newType);
+        }
+
+        if (areAllSameType) {
+            return typeInSymbol;
         }
 
         return BUnionType.create(typeInSymbol.tsymbol, newMembers);
