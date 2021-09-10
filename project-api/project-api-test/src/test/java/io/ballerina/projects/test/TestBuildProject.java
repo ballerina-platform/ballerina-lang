@@ -1570,6 +1570,10 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
                 readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)));
+
+        // Clean Dependencies.toml and build file if already exists
+        Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
     }
 
     @AfterClass (alwaysRun = true)
