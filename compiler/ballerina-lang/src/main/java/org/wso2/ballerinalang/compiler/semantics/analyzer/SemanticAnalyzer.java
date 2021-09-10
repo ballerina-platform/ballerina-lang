@@ -931,7 +931,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (!types.isInherentlyImmutableType(lhsType)) {
                     // Configurable variables are implicitly readonly
                     lhsType = ImmutableTypeCloner.getImmutableIntersectionType(varNode.pos, types,
-                            (SelectivelyImmutableReferenceType) lhsType, env,
+                            (SelectivelyImmutableReferenceType) types.getConstraintFromReferenceType(lhsType), env,
                             symTable, anonModelHelper, names, new HashSet<>());
                     varNode.setBType(lhsType);
                     varNode.symbol.type = lhsType;

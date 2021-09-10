@@ -461,11 +461,11 @@ public class CompoundAssignmentTest {
                 186, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '^' not defined for '(int|string)' and 'SomeType'",
                 187, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and '12|A'",
+        BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for '(int|string)' and 'SomeType2'",
                 190, 5);
-        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and '12|A'",
+        BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for '(int|string)' and 'SomeType2'",
                 191, 5);
-        BAssertUtil.validateError(compileResult, i, "operator '^' not defined for '(int|string)' and '12|A'",
+        BAssertUtil.validateError(compileResult, i, "operator '^' not defined for '(int|string)' and 'SomeType2'",
                 192, 5);
     }
 

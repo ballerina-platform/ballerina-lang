@@ -462,7 +462,7 @@ public class JvmTypeGen {
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    loadType(mv, ((BTypeReferenceType) bType).constraint);
+                    loadType(mv, JvmCodeGenUtil.getConstraintFromReferenceType(bType));
                     return;
                 default:
                     return;

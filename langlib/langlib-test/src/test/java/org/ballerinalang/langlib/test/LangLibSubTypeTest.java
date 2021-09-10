@@ -126,10 +126,13 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_INT, 57, 24);
         BAssertUtil.validateError(result, err++, EXPECT_BYTE + FOUND_INT, 58, 14);
         // testTypeAlias
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 65, 16);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 67, 17);
-        BAssertUtil.validateError(result, err++, EXPECT_SIGNED_32 + FOUND_INT, 69, 17);
-        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + FOUND_SIGNED_32, 72, 24);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 65, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 67, 17);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'NewInt',"
+                + FOUND_INT, 69, 17);
+        BAssertUtil.validateError(result, err++, EXPECT_UNSIGNED_8 + " found 'NewInt'", 72, 24);
 
         // TODO : Fix this, Issue : #21542
 //        // Consts
@@ -234,16 +237,16 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 302, 22);
         BAssertUtil.validateError(result, err++, EXPECT_SIGNED_8 + FOUND_INT, 303, 22);
 
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned32', found '-1|2'", 312,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned32', found 'X'", 312,
                 24);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8[]', found 'X[]'", 315,
                 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8[]', found 'Y[]'",
                 318, 23);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found '-1|1|foo'", 321,
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Signed8', found 'Z'", 321,
                 21);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(string:Char|int:Signed8)', found " +
-                        "'-1|1|foo'", 322, 33);
+                        "'Z'", 322, 33);
         BAssertUtil.validateError(result, err++, "incompatible types: expected " +
                 "'(float|string:Char|int:Signed8)[]', found 'Z[]'", 325, 43);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(float|string|int:Unsigned8)[]', " +

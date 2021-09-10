@@ -284,6 +284,9 @@ public class JvmCastGen {
                         false);
                 mv.visitInsn(L2I);
                 break;
+            case TypeTags.TYPEREFDESC:
+                generateCheckCastBToJInt(mv, JvmCodeGenUtil.getConstraintFromReferenceType(sourceType));
+                break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java int'",
                         sourceType));
@@ -343,6 +346,9 @@ public class JvmCastGen {
                         false);
                 mv.visitInsn(D2F);
                 break;
+            case TypeTags.TYPEREFDESC:
+                generateCheckCastBToJFloat(mv, JvmCodeGenUtil.getConstraintFromReferenceType(sourceType));
+                break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java float'",
                         sourceType));
@@ -385,6 +391,9 @@ public class JvmCastGen {
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)Z", OBJECT),
                         false);
+                break;
+            case TypeTags.TYPEREFDESC:
+                generateCheckCastBToJBoolean(mv, JvmCodeGenUtil.getConstraintFromReferenceType(sourceType));
                 break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java boolean'",
@@ -777,7 +786,10 @@ public class JvmCastGen {
         }
     }
 
-    void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BIRVarToJVMIndexMap indexMap) {
+    void generateCheckCast(MethodVisitor mv, BType source, BType target, BIRVarToJVMIndexMap indexMap) {
+        BType sourceType = JvmCodeGenUtil.getConstraintFromReferenceType(source);
+        BType targetType = JvmCodeGenUtil.getConstraintFromReferenceType(target);
+
         if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
             generateXMLToAttributesMap(mv);
             return;
@@ -851,7 +863,8 @@ public class JvmCastGen {
                     generateCheckCastToFiniteType(mv, sourceType, (BFiniteType) targetType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    generateCheckCast(mv, sourceType, ((BTypeReferenceType) targetType).constraint, indexMap);
+                    generateCheckCast(mv, sourceType, JvmCodeGenUtil.getConstraintFromReferenceType(targetType),
+                            indexMap);
                     return;
                 default:
                     // do the ballerina checkcast
@@ -891,6 +904,9 @@ public class JvmCastGen {
             case TypeTags.FINITE:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
                         false);
+                break;
+            case TypeTags.TYPEREFDESC:
+                generateCheckCastToInt(mv, JvmCodeGenUtil.getConstraintFromReferenceType(sourceType));
                 break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'",
@@ -1185,6 +1201,9 @@ public class JvmCastGen {
                     mv.visitMethodInsn(INVOKESTATIC, STRING_VALUE, VALUE_OF_METHOD, String.format("(L%s;)L%s;", OBJECT,
                             STRING_VALUE),
                             false);
+                    break;
+                case TypeTags.TYPEREFDESC:
+                    generateCheckCastToString(mv,JvmCodeGenUtil.getConstraintFromReferenceType(sourceType), indexMap);
                     break;
                 default:
                     throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
@@ -1523,6 +1542,9 @@ public class JvmCastGen {
             case TypeTags.INTERSECTION:
             case TypeTags.READONLY:
                 mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+                break;
+            case TypeTags.TYPEREFDESC:
+                generateCastToString(mv, JvmCodeGenUtil.getConstraintFromReferenceType(sourceType));
                 break;
             default:
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",

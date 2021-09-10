@@ -279,14 +279,14 @@ public class SealedArrayTest {
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
-        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'S1|S2'",
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'FiniteOne'",
                 104, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space 'FiniteTwo'" +
                 " out of range", 105, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space '3|4|5'" +
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space 'FiniteTwo'" +
                 " out of range", 106, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
-                "'0|1|2|S1'", 107, 20);
+                "'FiniteThree'", 107, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
                         "'FiniteFour'", 108, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space " +

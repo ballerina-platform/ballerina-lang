@@ -696,7 +696,7 @@ public class JvmTerminatorGen {
         }
 
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
-        if (selfArg.type.tag == TypeTags.OBJECT) {
+        if (JvmCodeGenUtil.getConstraintFromReferenceType(selfArg.type).tag == TypeTags.OBJECT) {
             this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
                     packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
         } else {

@@ -151,8 +151,8 @@ public class ImmutableTypeCloner {
 
             if (!types.isInherentlyImmutableType(type)) {
                 BType immutableFieldType = typeField.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
-                        pos, types, (SelectivelyImmutableReferenceType) type, typeDefEnv, symbolTable,
-                        anonymousModelHelper, names, classDef.flagSet);
+                        pos, types, (SelectivelyImmutableReferenceType) types.getConstraintFromReferenceType(type),
+                        typeDefEnv, symbolTable, anonymousModelHelper, names, classDef.flagSet);
                 classField.setBType(typeField.type = immutableFieldType);
             }
 

@@ -368,8 +368,8 @@ public class Types {
         }
     }
 
-    boolean isBasicNumericType(BType type) {
-
+    boolean isBasicNumericType(BType bType) {
+        BType type = getConstraintFromReferenceType(bType);
         return type.tag < TypeTags.STRING || TypeTags.isIntegerTypeTag(type.tag);
     }
 
@@ -488,15 +488,16 @@ public class Types {
             return constMatchPatternExprType;
         }
         // This should handle specially
-        if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
+        if (getConstraintFromReferenceType(matchExprType).tag == TypeTags.BYTE &&
+                getConstraintFromReferenceType(constMatchPatternExprType).tag == TypeTags.INT) {
             return matchExprType;
         }
         if (isAssignable(constMatchPatternExprType, matchExprType)) {
             return constMatchPatternExprType;
         }
-        if (matchExprType.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
-                if (memberType.tag == TypeTags.FINITE) {
+        if (getConstraintFromReferenceType(matchExprType).tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) getConstraintFromReferenceType(matchExprType)).getMemberTypes()) {
+                if (getConstraintFromReferenceType(memberType).tag == TypeTags.FINITE) {
                     if (isAssignableToFiniteType(memberType, constPatternLiteral)) {
                         return memberType;
                     }
@@ -506,7 +507,7 @@ public class Types {
                     }
                 }
             }
-        } else if (matchExprType.tag == TypeTags.FINITE) {
+        } else if (getConstraintFromReferenceType(matchExprType).tag == TypeTags.FINITE) {
             if (isAssignableToFiniteType(matchExprType, constPatternLiteral)) {
                 return matchExprType;
             }
@@ -590,10 +591,8 @@ public class Types {
         return BUnionType.create(null, typeFirst, typeSecond);
     }
 
-    public boolean isSubTypeOfMapping(BType type) {
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            return isSubTypeOfMapping(getConstraintFromReferenceType(type));
-        }
+    public boolean isSubTypeOfMapping(BType bType) {
+        BType type = getConstraintFromReferenceType(bType);
         if (type.tag == TypeTags.INTERSECTION) {
             return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
         }
@@ -672,14 +671,9 @@ public class Types {
             return isAssignable(source, ((BIntersectionType) target).effectiveType, unresolvedTypes);
         }
 
-        if (sourceTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(getConstraintFromReferenceType(source),
-                    targetTag != TypeTags.TYPEREFDESC ? target :
-                            getConstraintFromReferenceType(target), unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(source, getConstraintFromReferenceType(target), unresolvedTypes);
+        if (sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
+            return isAssignable(getConstraintFromReferenceType(source), getConstraintFromReferenceType(target),
+                    unresolvedTypes);
         }
 
         if (sourceTag == TypeTags.PARAMETERIZED_TYPE) {
@@ -1794,84 +1788,10 @@ public class Types {
         }
 
         BType collectionType = bLangInputClause.collection.getBType();
-        BType varType;
-        switch (collectionType.tag) {
-            case TypeTags.STRING:
-                varType = symTable.stringType;
-                break;
-            case TypeTags.ARRAY:
-                BArrayType arrayType = (BArrayType) collectionType;
-                varType = arrayType.eType;
-                break;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) collectionType;
-                LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
-                if (tupleType.restType != null) {
-                    tupleTypes.add(tupleType.restType);
-                }
-                varType = tupleTypes.size() == 1 ?
-                        tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
-                break;
-            case TypeTags.MAP:
-                BMapType bMapType = (BMapType) collectionType;
-                varType = bMapType.constraint;
-
-                break;
-            case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) collectionType;
-                varType = inferRecordFieldType(recordType);
-                break;
-            case TypeTags.XML:
-                BXMLType xmlType = (BXMLType) collectionType;
-                varType = xmlType.constraint;
-                break;
-            case TypeTags.XML_TEXT:
-                varType = symTable.xmlTextType;
-                break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) collectionType;
-                varType = tableType.constraint;
-                break;
-            case TypeTags.STREAM:
-                BStreamType streamType = (BStreamType) collectionType;
-                if (streamType.constraint.tag == TypeTags.NONE) {
-                    varType = symTable.anydataType;
-                    break;
-                }
-                varType = streamType.constraint;
-                break;
-            case TypeTags.OBJECT:
-                // check for iterable objects
-                if (!isAssignable(bLangInputClause.collection.getBType(), symTable.iterableType)) {
-                    dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
-                               bLangInputClause.collection.getBType(), symTable.iterableType);
-                    bLangInputClause.varType = symTable.semanticError;
-                    bLangInputClause.resultType = symTable.semanticError;
-                    bLangInputClause.nillableResultType = symTable.semanticError;
-                    return;
-                }
-                BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
-                if (nextMethodReturnType != null) {
-                    bLangInputClause.resultType = getRecordType(nextMethodReturnType);
-                    bLangInputClause.nillableResultType = nextMethodReturnType;
-                    bLangInputClause.varType = ((BRecordType) bLangInputClause.resultType).fields.get("value").type;
-                    return;
-                }
-                // fallthrough
-            case TypeTags.SEMANTIC_ERROR:
-                bLangInputClause.varType = symTable.semanticError;
-                bLangInputClause.resultType = symTable.semanticError;
-                bLangInputClause.nillableResultType = symTable.semanticError;
-                return;
-            default:
-                bLangInputClause.varType = symTable.semanticError;
-                bLangInputClause.resultType = symTable.semanticError;
-                bLangInputClause.nillableResultType = symTable.semanticError;
-                dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
-                                 collectionType);
-                return;
+        BType varType = visitCollectionType(bLangInputClause, collectionType);
+        if (varType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
         }
-
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
         BUnionType nextMethodReturnType =
@@ -1879,6 +1799,76 @@ public class Types {
         bLangInputClause.varType = varType;
         bLangInputClause.resultType = getRecordType(nextMethodReturnType);
         bLangInputClause.nillableResultType = nextMethodReturnType;
+    }
+
+    private BType visitCollectionType(BLangInputClause bLangInputClause, BType collectionType) {
+        switch (collectionType.tag) {
+            case TypeTags.STRING:
+                return symTable.stringType;
+            case TypeTags.ARRAY:
+                BArrayType arrayType = (BArrayType) collectionType;
+                return arrayType.eType;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) collectionType;
+                LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(tupleType.tupleTypes);
+                if (tupleType.restType != null) {
+                    tupleTypes.add(tupleType.restType);
+                }
+                return tupleTypes.size() == 1 ?
+                        tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
+            case TypeTags.MAP:
+                BMapType bMapType = (BMapType) collectionType;
+                return bMapType.constraint;
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) collectionType;
+                return inferRecordFieldType(recordType);
+            case TypeTags.XML:
+                BXMLType xmlType = (BXMLType) collectionType;
+                return xmlType.constraint;
+            case TypeTags.XML_TEXT:
+                return symTable.xmlTextType;
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) collectionType;
+                return tableType.constraint;
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) collectionType;
+                if (streamType.constraint.tag == TypeTags.NONE) {
+                    return symTable.anydataType;
+                }
+                return streamType.constraint;
+            case TypeTags.OBJECT:
+                // check for iterable objects
+                if (!isAssignable(collectionType, symTable.iterableType)) {
+                    dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
+                            bLangInputClause.collection.getBType(), symTable.iterableType);
+                    bLangInputClause.varType = symTable.semanticError;
+                    bLangInputClause.resultType = symTable.semanticError;
+                    bLangInputClause.nillableResultType = symTable.semanticError;
+                    break;
+                }
+                BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
+                if (nextMethodReturnType != null) {
+                    bLangInputClause.resultType = getRecordType(nextMethodReturnType);
+                    bLangInputClause.nillableResultType = nextMethodReturnType;
+                    bLangInputClause.varType = ((BRecordType) bLangInputClause.resultType).fields.get("value").type;
+                    break;
+                }
+                // fallthrough
+            case TypeTags.SEMANTIC_ERROR:
+                bLangInputClause.varType = symTable.semanticError;
+                bLangInputClause.resultType = symTable.semanticError;
+                bLangInputClause.nillableResultType = symTable.semanticError;
+                break;
+            case TypeTags.TYPEREFDESC:
+                return visitCollectionType(bLangInputClause, getConstraintFromReferenceType(collectionType));
+            default:
+                bLangInputClause.varType = symTable.semanticError;
+                bLangInputClause.resultType = symTable.semanticError;
+                bLangInputClause.nillableResultType = symTable.semanticError;
+                dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.ITERABLE_NOT_SUPPORTED_COLLECTION,
+                        collectionType);
+        }
+        return symTable.semanticError;
     }
 
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
@@ -2207,10 +2197,12 @@ public class Types {
         return TypeTestResult.NOT_FOUND;
     }
 
-    public boolean isImplicitlyCastable(BType actualType, BType targetType) {
+    public boolean isImplicitlyCastable(BType actual, BType target) {
         /* The word Builtin refers for Compiler known types. */
 
-        BType newTargetType = getConstraintFromReferenceType(targetType);;
+        BType targetType = getConstraintFromReferenceType(target);
+        BType actualType = getConstraintFromReferenceType(actual);
+        BType newTargetType = targetType;
         int targetTypeTag = targetType.tag;
         if ((targetTypeTag == TypeTags.UNION || targetTypeTag == TypeTags.FINITE) && isValueType(actualType)) {
             newTargetType = symTable.anyType;   // TODO : Check for correctness.
@@ -2383,8 +2375,8 @@ public class Types {
         return actualType.getMemberTypes().stream().allMatch(t -> isAssignable(t, symTable.errorType));
     }
 
-    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType expType) {
-
+    public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType targetType) {
+        BType expType = getConstraintFromReferenceType(targetType);
         if (!isImplicitlyCastable(actualType, expType)) {
             return;
         }
@@ -2780,6 +2772,10 @@ public class Types {
         public Boolean visit(BType target, BType source) {
             int sourceTag = getConstraintFromReferenceType(source).tag;
             int targetTag = getConstraintFromReferenceType(target).tag;
+            if(sourceTag == TypeTags.INTERSECTION || targetTag == TypeTags.INTERSECTION) {
+                sourceTag = getEffectiveTypeForIntersection(getConstraintFromReferenceType(source)).tag;
+                targetTag = getEffectiveTypeForIntersection(getConstraintFromReferenceType(target)).tag;
+            }
             if (isSimpleBasicType(sourceTag) && isSimpleBasicType(targetTag)) {
                 return (source == target) || isIntOrStringType(sourceTag, targetTag);
             }
@@ -3787,6 +3783,8 @@ public class Types {
                     }
                 }
                 return true;
+            case TypeTags.TYPEREFDESC:
+                return validNumericTypeExists(getConstraintFromReferenceType(type));
             default:
                 return false;
         }
@@ -5117,7 +5115,7 @@ public class Types {
             }
         }
 
-        List<BType> memberTypes = new ArrayList<>();
+        List<BType> memberTypes = new LinkedList<>();
         ((BUnionType) type).getMemberTypes().forEach(memberType -> memberTypes.addAll(getAllTypes(memberType)));
         return memberTypes;
     }
@@ -5575,6 +5573,8 @@ public class Types {
                 return isValueSpaceOrdered;
             case TypeTags.TYPEREFDESC:
                 return isOrderedType(getConstraintFromReferenceType(type), hasCycle);
+            case TypeTags.INTERSECTION:
+                return isOrderedType(getEffectiveTypeForIntersection(type), hasCycle);
             default:
                 return isSimpleBasicType(type.tag);
         }
@@ -5631,10 +5631,12 @@ public class Types {
         }
     }
 
-    public boolean isNonNilSimpleBasicTypeOrString(BType type) {
+    public boolean isNonNilSimpleBasicTypeOrString(BType bType) {
+        BType type = getConstraintFromReferenceType(bType);
         if (type.tag == TypeTags.UNION) {
             Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-            for (BType memType : memberTypes) {
+            for (BType member : memberTypes) {
+                BType memType = getConstraintFromReferenceType(member);
                 if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
                     return false;
                 }
@@ -5644,7 +5646,8 @@ public class Types {
         return type.tag != TypeTags.NIL && isSimpleBasicType(type.tag);
     }
 
-    public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType type) {
+    public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType bType) {
+        BType type = getConstraintFromReferenceType(bType);
         if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return true;
         }
@@ -5741,6 +5744,9 @@ public class Types {
                 visitedTypeSet.add(arrayType.eType);
                 return arrayType.state != BArrayState.OPEN &&
                         isNeverTypeOrStructureTypeWithARequiredNeverMember(arrayType.eType, visitedTypeSet);
+            case TypeTags.TYPEREFDESC:
+                return isNeverTypeOrStructureTypeWithARequiredNeverMember(getConstraintFromReferenceType(type),
+                        visitedTypeSet);
             default:
                 return false;
         }
@@ -5864,7 +5870,8 @@ public class Types {
 
         }
 
-        private boolean isServiceObject(BType type) {
+        private boolean isServiceObject(BType bType) {
+            BType type = types.getConstraintFromReferenceType(bType);
             if (type.tag == TypeTags.UNION) {
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (!isServiceObject(memberType)) {

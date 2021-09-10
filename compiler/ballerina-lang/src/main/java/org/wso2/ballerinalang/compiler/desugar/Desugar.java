@@ -2918,10 +2918,10 @@ public class Desugar extends BLangNodeVisitor {
                     filteredDetail.symbol);
         }
 
-        BErrorType errorType = (BErrorType) parentErrorVarRef.getBType();
-        if (errorType.detailType.getKind() == TypeKind.RECORD) {
+        BErrorType errorType = (BErrorType) types.getConstraintFromReferenceType(parentErrorVarRef.getBType());
+        if (types.getConstraintFromReferenceType(errorType.detailType).getKind() == TypeKind.RECORD) {
             // Create empty record init attached func
-            BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) errorType.detailType.tsymbol;
+            BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) types.getConstraintFromReferenceType(errorType.detailType).tsymbol;
             tsymbol.initializerFunc = createRecordInitFunc();
             tsymbol.scope.define(tsymbol.initializerFunc.funcName, tsymbol.initializerFunc.symbol);
         }
@@ -7262,7 +7262,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
         Location pos = rawTemplateLiteral.pos;
-        BObjectType objType = (BObjectType) rawTemplateLiteral.getBType();
+        BObjectType objType = (BObjectType) types.getConstraintFromReferenceType(rawTemplateLiteral.getBType());
         BLangClassDefinition objClassDef =
                 desugarTemplateLiteralObjectTypedef(rawTemplateLiteral.strings, objType, pos);
         BObjectType classObjType = (BObjectType) objClassDef.getBType();
@@ -8553,7 +8553,7 @@ public class Desugar extends BLangNodeVisitor {
                 recordLiteral.setBType(paramType);
                 args.add(recordLiteral);
                 incRecordLiterals.add(recordLiteral);
-                if (((BRecordType) paramType).restFieldType != symTable.noType) {
+                if (((BRecordType) types.getConstraintFromReferenceType(paramType)).restFieldType != symTable.noType) {
                     incRecordParamAllowAdditionalFields = recordLiteral;
                 }
             } else if (varargRef == null) {
@@ -8605,7 +8605,8 @@ public class Desugar extends BLangNodeVisitor {
             boolean isAdditionalField = true;
             BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
             for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
-                LinkedHashMap<String, BField> fields = ((BRecordType) recordLiteral.getBType()).fields;
+                LinkedHashMap<String, BField> fields =
+                        ((BRecordType) types.getConstraintFromReferenceType(recordLiteral.getBType())).fields;
                 if (fields.containsKey(name) &&
                         types.getConstraintFromReferenceType(fields.get(name).type).tag != TypeTags.NEVER) {
                     isAdditionalField = false;
@@ -8936,7 +8937,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression binaryExpr;
         BType[] memberTypes;
         if (types.getConstraintFromReferenceType(patternType).tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) patternType;
+            BUnionType unionType = (BUnionType) types.getConstraintFromReferenceType(patternType);
             memberTypes = unionType.getMemberTypes().toArray(new BType[0]);
         } else {
             memberTypes = new BType[1];

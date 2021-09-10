@@ -2298,6 +2298,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             (BLangLiteral) ((BFiniteType) constSymbol.type).getValueSpace().iterator().next());
                 }
                 break;
+            case TypeTags.TYPEREFDESC:
+                return  isValidStaticMatchPattern(types.getConstraintFromReferenceType(matchType), literal);
         }
         return false;
     }
@@ -3103,7 +3105,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 analyzeExpr(spreadOpExpr);
 
-                BType spreadOpExprType = spreadOpExpr.getBType();
+                BType spreadOpExprType = types.getConstraintFromReferenceType(spreadOpExpr.getBType());
                 int spreadFieldTypeTag = spreadOpExprType.tag;
                 if (spreadFieldTypeTag == TypeTags.MAP) {
                     if (inclusiveTypeSpreadField != null) {
@@ -3207,7 +3209,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
-                                        recordLiteral.parent.getBType().getKind().typeName(), name);
+                                types.getConstraintFromReferenceType(recordLiteral.parent.getBType())
+                                        .getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
                         this.dlog.error(keyExpr.pos,
                                         DiagnosticErrorCode.POSSIBLE_DUPLICATE_OF_FIELD_SPECIFIED_VIA_SPREAD_OP,

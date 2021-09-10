@@ -274,11 +274,12 @@ public class MainMethodGen {
     private void createFunctionInfoArray(MethodVisitor mv, List<BIRNode.BIRFunctionParameter> params,
                                          List<String> defaultableNames) {
         int size = params.size();
-        if (!params.isEmpty() && params.get(size - 1).type instanceof RecordType) {
+        if (!params.isEmpty() &&
+                JvmCodeGenUtil.getConstraintFromReferenceType(params.get(size - 1).type) instanceof RecordType) {
             BIRNode.BIRFunctionParameter param = params.get(size - 1);
             createOption(mv, param, size - 1);
             size--;
-        } else if (params.size() >= 2 && params.get(size - 2).type instanceof RecordType) {
+        } else if (params.size() >= 2 && JvmCodeGenUtil.getConstraintFromReferenceType(params.get(size - 2).type) instanceof RecordType) {
             BIRNode.BIRFunctionParameter param = params.get(size - 2);
             createOption(mv, param, size - 2);
             size--;
@@ -290,7 +291,8 @@ public class MainMethodGen {
         int defaultableIndex = 0;
         int arrIndex = 0;
         for (BIRNode.BIRFunctionParameter birFunctionParameter : params) {
-            if (birFunctionParameter != null && birFunctionParameter.type instanceof RecordType) {
+            if (birFunctionParameter != null
+                    && JvmCodeGenUtil.getConstraintFromReferenceType(birFunctionParameter.type) instanceof RecordType) {
                 defaultableIndex++;
                 continue;
             }

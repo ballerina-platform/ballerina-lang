@@ -1545,9 +1545,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                     errored = true;
                 }
 
-                if (refSymbol.type != null && refSymbol.type.tag != TypeTags.TYPEDESC) {
+                if (refSymbol.type != null &&
+                        types.getConstraintFromReferenceType(refSymbol.type).tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
-                               tempSymbol.type);
+                            tempSymbol.type);
                     errored = true;
                 }
 
@@ -1618,7 +1619,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             if (param.name.value.equals(varSym.name.value)) {
                 if (param.expr == null || param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
-                    return new ParameterizedTypeInfo(((BTypedescType) varSym.type).constraint, i);
+                    return new ParameterizedTypeInfo(
+                            ((BTypedescType) types.getConstraintFromReferenceType(varSym.type)).constraint, i);
                 }
 
                 NodeKind defaultValueExprKind = param.expr.getKind();
@@ -1849,6 +1851,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.UNSIGNED8_INT:
                         case TypeTags.BYTE:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                        case TypeTags.TYPEREFDESC:
+                            return getBitwiseShiftOpsForTypeSets(opKind,
+                                    types.getConstraintFromReferenceType(lhsType), rhsType);
                         default:
                             return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                     }
@@ -1911,6 +1916,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.UNSIGNED16_INT:
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                        case TypeTags.TYPEREFDESC:
+                            return getBinaryBitwiseOpsForTypeSets(opKind,
+                                    types.getConstraintFromReferenceType(lhsType), rhsType);
                     }
                     switch (rhsType.tag) {
                         case TypeTags.UNSIGNED8_INT:
@@ -1918,6 +1926,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                         case TypeTags.UNSIGNED16_INT:
                         case TypeTags.UNSIGNED32_INT:
                             return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
+                        case TypeTags.TYPEREFDESC:
+                            return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
+                                    types.getConstraintFromReferenceType(rhsType));
                     }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_OR:

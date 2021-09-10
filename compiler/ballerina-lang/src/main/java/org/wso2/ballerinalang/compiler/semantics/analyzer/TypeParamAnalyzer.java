@@ -308,11 +308,16 @@ public class TypeParamAnalyzer {
             }
             return;
         }
+        visitType(loc, expType, actualType, env, resolvedTypes, result, checkContravariance);
+    }
+
+    private void visitType(Location loc, BType expType, BType actualType, SymbolEnv env,
+                      HashSet<BType> resolvedTypes, FindTypeParamResult result, boolean checkContravariance) {
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
             case TypeTags.XML:
-                if (!TypeTags.isXMLTypeTag(actualType.tag)) {
-                    if (actualType.tag == TypeTags.UNION) {
+                if (!TypeTags.isXMLTypeTag(types.getConstraintFromReferenceType(actualType).tag)) {
+                    if (types.getConstraintFromReferenceType(actualType).tag == TypeTags.UNION) {
                         dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
                     }
                     return;
@@ -335,8 +340,9 @@ public class TypeParamAnalyzer {
                                 resolvedTypes, result);
                         return;
                     default:
-                        return;
+                        break;
                 }
+                break;
             case TypeTags.ARRAY:
                 if (actualType.tag == TypeTags.ARRAY) {
                     findTypeParam(loc, ((BArrayType) expType).eType, ((BArrayType) actualType).eType, env,
@@ -350,7 +356,7 @@ public class TypeParamAnalyzer {
                     findTypeParamInUnion(loc, ((BArrayType) expType).eType, (BUnionType) actualType, env, resolvedTypes,
                                                  result);
                 }
-                return;
+                break;
             case TypeTags.MAP:
                 if (actualType.tag == TypeTags.MAP) {
                     findTypeParam(loc, ((BMapType) expType).constraint, ((BMapType) actualType).constraint, env,
@@ -364,59 +370,59 @@ public class TypeParamAnalyzer {
                     findTypeParamInUnion(loc, ((BMapType) expType).constraint, (BUnionType) actualType, env,
                                          resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.STREAM:
                 if (actualType.tag == TypeTags.STREAM) {
                     findTypeParamInStream(loc, ((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
-                                          result);
+                            result);
                 }
                 if (actualType.tag == TypeTags.UNION) {
                     findTypeParamInStreamForUnion(loc, ((BStreamType) expType), ((BUnionType) actualType), env,
                             resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.TABLE:
                 if (actualType.tag == TypeTags.TABLE) {
                     findTypeParamInTable(loc, ((BTableType) expType), ((BTableType) actualType), env, resolvedTypes,
                             result);
                 }
-                return;
+                break;
             case TypeTags.TUPLE:
                 if (actualType.tag == TypeTags.TUPLE) {
                     findTypeParamInTuple(loc, (BTupleType) expType, (BTupleType) actualType, env, resolvedTypes,
-                                         result);
+                            result);
                 }
                 if (actualType.tag == TypeTags.UNION) {
                     findTypeParamInUnion(loc, expType, (BUnionType) actualType, env, resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.RECORD:
                 if (actualType.tag == TypeTags.RECORD) {
                     findTypeParamInRecord(loc, (BRecordType) expType, (BRecordType) actualType, env, resolvedTypes,
-                                          result);
+                            result);
                 }
                 if (actualType.tag == TypeTags.UNION) {
                     findTypeParamInUnion(loc, expType, (BUnionType) actualType, env, resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.INVOKABLE:
                 if (actualType.tag == TypeTags.INVOKABLE) {
                     findTypeParamInInvokableType(loc, (BInvokableType) expType, (BInvokableType) actualType, env,
-                                                 resolvedTypes, result);
+                            resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.OBJECT:
                 if (actualType.tag == TypeTags.OBJECT) {
                     findTypeParamInObject(loc, (BObjectType) expType, (BObjectType) actualType, env, resolvedTypes,
                                           result);
                 }
-                return;
+                break;
             case TypeTags.UNION:
                 if (actualType.tag == TypeTags.UNION) {
                     findTypeParamInUnion(loc, (BUnionType) expType, (BUnionType) actualType, env, resolvedTypes,
-                                         result);
+                            result);
                 }
-                return;
+                break;
             case TypeTags.ERROR:
                 if (actualType.tag == TypeTags.ERROR) {
                     findTypeParamInError(loc, (BErrorType) expType, (BErrorType) actualType, env, resolvedTypes,
@@ -425,25 +431,27 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
                     findTypeParamInError(loc, (BErrorType) expType, symTable.errorType, env, resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.TYPEDESC:
                 if (actualType.tag == TypeTags.TYPEDESC) {
                     findTypeParam(loc, ((BTypedescType) expType).constraint, ((BTypedescType) actualType).constraint,
-                                  env, resolvedTypes, result);
+                            env, resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.INTERSECTION:
                 if (actualType.tag == TypeTags.INTERSECTION) {
                     findTypeParam(loc, ((BIntersectionType) expType).effectiveType,
                             ((BIntersectionType) actualType).effectiveType, env, resolvedTypes, result);
                 }
-                return;
+                break;
             case TypeTags.TYPEREFDESC:
-                if (actualType.tag == TypeTags.TYPEREFDESC) {
-                    findTypeParam(loc, types.getConstraintFromReferenceType(expType),
-                            types.getConstraintFromReferenceType(actualType), env, resolvedTypes, result);
-                }
-                return;
+                visitType(loc, types.getConstraintFromReferenceType(expType), actualType, env, resolvedTypes,
+                        result, checkContravariance);
+                break;
+        }
+        if (actualType.tag == TypeTags.TYPEREFDESC) {
+            visitType(loc, expType, types.getConstraintFromReferenceType(actualType), env, resolvedTypes,
+                    result, checkContravariance);
         }
     }
 
@@ -806,10 +814,10 @@ public class TypeParamAnalyzer {
             return symTable.semanticError;
         }
 
-        BIntersectionType boundIntersectionType =
-                ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                        (SelectivelyImmutableReferenceType) matchingBoundNonReadOnlyType, env, symTable,
-                        anonymousModelHelper, names, new HashSet<>());
+        BIntersectionType boundIntersectionType = ImmutableTypeCloner
+                .getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
+                        (SelectivelyImmutableReferenceType) types.getConstraintFromReferenceType(matchingBoundNonReadOnlyType),
+                        env, symTable, anonymousModelHelper, names, new HashSet<>());
 
         return boundIntersectionType.effectiveType;
     }

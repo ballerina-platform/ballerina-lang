@@ -160,7 +160,7 @@ public class QueryExprWithQueryConstructTypeTest {
                         "found '(table<Customer> key(id, name)|error)'",
                 71, 32);
         validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'table<Customer> key(id, name)', found '(table<Customer> key(id, name)|error)'",
+                        "'CustomerTable', found '(table<Customer> key(id, name)|error)'",
                 86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
                 107, 21);

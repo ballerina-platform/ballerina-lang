@@ -89,7 +89,7 @@ public class MainFunctionValidator extends BLangNodeVisitor {
     private void detectArrayRelatedErrors(List<BLangSimpleVariable> requiredParams) {
         boolean firstArrayFound = false;
         for (BLangSimpleVariable param : requiredParams) {
-            if (param.getBType().tag == TypeTags.ARRAY && !firstArrayFound) {
+            if (types.getConstraintFromReferenceType(param.getBType()).tag == TypeTags.ARRAY && !firstArrayFound) {
                 firstArrayFound = true;
             } else {
                 validateWithFoundArrayType(param);
@@ -136,7 +136,7 @@ public class MainFunctionValidator extends BLangNodeVisitor {
         if (foundArrayType == null) {
             return;
         }
-        if (param.getBType().tag == TypeTags.ARRAY) {
+        if (types.getConstraintFromReferenceType(param.getBType()).tag == TypeTags.ARRAY) {
             dLog.error(param.pos, DiagnosticErrorCode.SAME_ARRAY_TYPE_AS_MAIN_PARAMETER);
         } else if (param.expr != null) { // defaultable
             dLog.error(param.pos, DiagnosticErrorCode.VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM, param.name,
@@ -148,16 +148,16 @@ public class MainFunctionValidator extends BLangNodeVisitor {
     }
 
     private boolean foundUnion(BLangSimpleVariable param) {
-        return param.getBType().tag == TypeTags.UNION;
+        return types.getConstraintFromReferenceType(param.getBType()).tag == TypeTags.UNION;
     }
 
     private boolean isIncludedRecord(BLangSimpleVariable param) {
-        return param.getBType().tag == TypeTags.RECORD && param.getFlags().contains(Flag.INCLUDED);
+        return types.getConstraintFromReferenceType(param.getBType()).tag == TypeTags.RECORD && param.getFlags().contains(Flag.INCLUDED);
     }
 
     private void validateOptionParams(BLangSimpleVariable lastVar) {
         MainParameterVisitor mainParameterVisitor = new MainParameterVisitor(true);
-        BRecordType recordType = (BRecordType) lastVar.getBType();
+        BRecordType recordType = (BRecordType) types.getConstraintFromReferenceType(lastVar.getBType());
         recordType.getFields().forEach(
                 (name, field) -> {
                     if (!mainParameterVisitor.visit(field.type)) {

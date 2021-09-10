@@ -2199,7 +2199,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol.tag = SymTag.ENDPOINT;
         }
 
-        if (varSymbol.type.tag == TypeTags.FUTURE && ((BFutureType) varSymbol.type).workerDerivative) {
+        if (types.getConstraintFromReferenceType(varSymbol.type).tag == TypeTags.FUTURE
+                && ((BFutureType) types.getConstraintFromReferenceType(varSymbol.type)).workerDerivative) {
             Iterator<BLangLambdaFunction> lambdaFunctions = env.enclPkg.lambdaFunctions.iterator();
             while (lambdaFunctions.hasNext()) {
                 BLangLambdaFunction lambdaFunction = lambdaFunctions.next();
@@ -2213,10 +2214,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (varSymbol.type.tag == TypeTags.INVOKABLE) {
+        if (types.getConstraintFromReferenceType(varSymbol.type).tag == TypeTags.INVOKABLE) {
             BInvokableSymbol symbol = (BInvokableSymbol) varSymbol;
-            BTypeSymbol typeSymbol = symbol.type.tsymbol.kind == SymbolKind.TYPE_DEF ?
-                    symbol.type.tsymbol.type.tsymbol : symbol.type.tsymbol;
+            BTypeSymbol typeSymbol = types.getConstraintFromReferenceType(varSymbol.type).tsymbol;
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) typeSymbol;
             symbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             symbol.restParam = tsymbol.restParam;
@@ -3069,7 +3069,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (varType.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = ((BUnionType) varType);
-                List<BErrorType> possibleTypes = unionType.getMemberTypes().stream()
+                List<BErrorType> possibleTypes = types.getAllTypes(unionType).stream()
                         .filter(type -> TypeTags.ERROR == type.tag)
                         .map(BErrorType.class::cast)
                         .collect(Collectors.toList());
@@ -4344,11 +4344,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         BVarSymbol varSymbol;
         BType varType = types.getConstraintFromReferenceType(type);
         if (varType.tag == TypeTags.INVOKABLE) {
-            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
+            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, type,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             varSymbol.kind = SymbolKind.FUNCTION;
         } else {
-            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, varType, env.scope.owner, location,
+            varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, type, env.scope.owner, location,
                                        isInternal ? VIRTUAL : getOrigin(varName));
             if (varType.tsymbol != null && Symbols.isFlagOn(varType.tsymbol.flags, Flags.CLIENT)) {
                 varSymbol.tag = SymTag.ENDPOINT;

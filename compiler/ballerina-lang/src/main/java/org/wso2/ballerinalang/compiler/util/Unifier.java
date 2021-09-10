@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -540,7 +541,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         String paramVarName = originalType.paramSymbol.name.value;
 
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
-            BTypedescType paramSymbolTypedescType = (BTypedescType) originalType.paramSymbol.type;
+            BTypedescType paramSymbolTypedescType =
+                    (BTypedescType) getConstraintFromReferenceType(originalType.paramSymbol.type);
             BType paramSymbolType = paramSymbolTypedescType.constraint;
             if (expType != null) {
                 if (expType == symbolTable.noType) {
@@ -597,11 +599,19 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return type;
             }
 
-            type = ((BTypedescType) type).constraint;
+            type = ((BTypedescType) getConstraintFromReferenceType(type)).constraint;
         } else {
-            type = ((BTypedescType) originalType.paramSymbol.type).constraint;
+            type = ((BTypedescType) getConstraintFromReferenceType(originalType.paramSymbol.type)).constraint;
         }
         return type;
+    }
+
+    private BType getConstraintFromReferenceType(BType type) {
+        BType constraint = type;
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            constraint = ((BTypeReferenceType) type).constraint;
+        }
+        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
     }
 
     private BType getTypeAddingArgIfNotProvided(BParameterizedType originalType, BType expType) {
@@ -750,7 +760,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void populateParamMapFromRestArg(List<BVarSymbol> params, int currentParamIndex, BLangExpression restArg) {
-        BType type = restArg.getBType();
+        BType type = types.getConstraintFromReferenceType(restArg.getBType());
         int tag = type.tag;
         if (tag == TypeTags.RECORD) {
             populateParamMapFromRecordRestArg(params, currentParamIndex, (BRecordType) type);
