@@ -48,18 +48,4 @@ modules = [
 	{org = "samjs", packageName = "package_e", moduleName = "package_e"}
 ]
 
-[[package]]
-org = "samjs"
-name = "package_f"
-version = "0.1.0"
-transitive = false
-dependencies = [
-	{org = "samjs", name = "package_b"},
-	{org = "samjs", name = "package_d"},
-	{org = "samjs", name = "package_e"}
-]
-modules = [
-	{org = "samjs", packageName = "package_f", moduleName = "package_f"}
-]
-
 
