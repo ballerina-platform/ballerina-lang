@@ -69,9 +69,9 @@ import java.util.Set;
 /**
  * Syntax tree visitor implementation to capture all the "captured" variable references within a given Ballerina
  * expression.
- * Therefore all the variable references that are defined within the expressions(i.e internal variables) will be
- * ignored.
- * (e.g. declared variables in let expressions, binding patterns in query expressions)
+ * <p>
+ * All the variable references that are defined within the expressions (i.e internal variables)
+ * will be ignored. (e.g. declared variables in let expressions, binding patterns in query expressions).
  *
  * @since 2.0.0
  */
