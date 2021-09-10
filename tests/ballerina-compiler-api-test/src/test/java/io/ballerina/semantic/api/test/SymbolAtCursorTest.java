@@ -299,7 +299,7 @@ public class SymbolAtCursorTest {
                 {27, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {30, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
                 {33, 8, COMPILATION_ERROR, DiagnosticState.UNKNOWN_TYPE},
-                {35, 8, INT, DiagnosticState.VALID},
+                {35, 8, TYPE_REFERENCE, DiagnosticState.VALID},
         };
     }
 }

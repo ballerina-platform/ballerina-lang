@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -56,7 +57,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -115,6 +115,7 @@ public class TypesFactory {
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
     private final SymbolTable symbolTable;
+    private final Types types;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
@@ -122,6 +123,7 @@ public class TypesFactory {
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
+        this.types = Types.getInstance(context);
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -172,8 +174,8 @@ public class TypesFactory {
         ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
 
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
-                    typeRefFromIntersectType);
+            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID,
+                    types.getReferredType(bType), tSymbol, typeRefFromIntersectType);
         } else {
             if (tSymbol instanceof BTypeDefinitionSymbol) {
                 return createTypeDescriptor(bType, tSymbol.type.tsymbol, moduleID);
@@ -267,7 +269,7 @@ public class TypesFactory {
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
             case TYPEREFDESC:
-                return createTypeDescriptor(((BTypeReferenceType) bType).referredType, tSymbol, moduleID);
+                return createTypeDescriptor(types.getReferredType(bType), types.getReferredType(bType).tsymbol, moduleID);
             default:
                 if (bType.tag == SEMANTIC_ERROR) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);
