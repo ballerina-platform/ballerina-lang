@@ -25,6 +25,7 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
+import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -535,7 +536,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case RECORD_TYPE:
                 return resolveTypeDesc((BLangRecordTypeNode) td, semtypeEnv);
             case FUNCTION_TYPE:
-                return resolveTypeDesc((BLangFunctionTypeNode) td, semtypeEnv);
+                return resolveTypeDesc((BLangFunctionTypeNode) td, semtypeEnv, mod, depth, defn);
             case ERROR_TYPE:
                 return resolveTypeDesc((BLangErrorType) td, semtypeEnv);
             case UNION_TYPE_NODE:
@@ -651,8 +652,23 @@ public class SymbolEnter extends BLangNodeVisitor {
         throw new AssertionError("not implemented");
     }
 
-    private SemType resolveTypeDesc(BLangFunctionTypeNode td, Env semtypeEnv) {
-        throw new AssertionError("not implemented");
+    private SemType resolveTypeDesc(BLangFunctionTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                    BLangTypeDefinition typeDefinition) {
+        Definition defn = td.defn;
+        if (defn != null) {
+            return defn.getSemType(semtypeEnv);
+        }
+        FunctionDefinition d = new FunctionDefinition(semtypeEnv);
+        td.defn = d;
+
+        List<SemType> paramTypes = new ArrayList<>();
+        for (BLangVariable p : td.params) {
+            paramTypes.add(resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, p.typeNode));
+        }
+
+        SemType rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.returnTypeNode);
+        SemType args = SemTypes.tuple(semtypeEnv, paramTypes.toArray(new SemType[]{}));
+        return d.define(semtypeEnv, args, rest);
     }
 
     private SemType resolveTypeDesc(BLangErrorType td, Env semtypeEnv) {

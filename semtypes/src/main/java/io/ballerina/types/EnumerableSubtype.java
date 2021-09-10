@@ -69,11 +69,11 @@ public abstract class EnumerableSubtype {
             allowed = false;
         } else if (b1 && !b2) {
             enumerableListDiff(t1.values(), t2.values(), result);
-            allowed = false;
+            allowed = true;
         } else {
             // !b1 && b2
             enumerableListDiff(t2.values(), t1.values(), result);
-            allowed = false;
+            allowed = true;
         }
         return allowed;
     }

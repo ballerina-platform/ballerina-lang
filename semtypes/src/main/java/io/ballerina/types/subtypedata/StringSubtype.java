@@ -27,6 +27,7 @@ import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeCode;
 
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Represent StringSubtype.
@@ -99,5 +100,14 @@ public class StringSubtype extends EnumerableSubtype implements ProperSubtypeDat
     @Override
     public EnumerableType[] values() {
         return values;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner j = new StringJoiner(", ", "StringSubtype:" + (allowed ? "allowed[" : "disallowed["), "]");
+        for (EnumerableString value : values) {
+            j.add(value.value);
+        }
+        return j.toString();
     }
 }

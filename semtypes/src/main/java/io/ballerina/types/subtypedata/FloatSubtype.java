@@ -27,6 +27,7 @@ import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeCode;
 
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Represent FloatSubtype.
@@ -97,5 +98,14 @@ public class FloatSubtype extends EnumerableSubtype implements ProperSubtypeData
     @Override
     public EnumerableType[] values() {
         return values;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner j = new StringJoiner(", ", "FloatSubtype:" + (allowed ? "allowed[" : "disallowed["), "]");
+        for (EnumerableFloat value : values) {
+            j.add(String.valueOf(value.value));
+        }
+        return j.toString();
     }
 }

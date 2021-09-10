@@ -67,6 +67,8 @@ public class SemTypeTest {
     public void initialTest(String fileName) {
         List<String> subtypeRels = getSubtypeRels(fileName);
         List<String> expectedRels = extractSubtypeRelations(fileName);
+        // Commented code will get expected content for this test to pass.
+        // Useful for taking a diff.
         // String text = toText(subtypeRels);
         Assert.assertEquals(subtypeRels, expectedRels);
     }
@@ -97,10 +99,10 @@ public class SemTypeTest {
 
                 SemType t1 = typeMap.get(name1);
                 SemType t2 = typeMap.get(name2);
-                if (Core.isSubtype(typeCheckContext, t1, t2)) {
+                if (SemTypes.isSubtype(typeCheckContext, t1, t2)) {
                     subtypeRelations.add(TypeRel.rel(name1, name2));
                 }
-                if (Core.isSubtype(typeCheckContext, t2, t1)) {
+                if (SemTypes.isSubtype(typeCheckContext, t2, t1)) {
                     subtypeRelations.add(TypeRel.rel(name2, name1));
                 }
             }

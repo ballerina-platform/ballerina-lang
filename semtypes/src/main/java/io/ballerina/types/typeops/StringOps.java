@@ -46,8 +46,7 @@ public class StringOps implements UniformTypeOps {
     public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
         List<EnumerableString> values = new ArrayList<>();
         boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((StringSubtype) d1, (StringSubtype) d2, values);
-        EnumerableString[] valueArray = new EnumerableString[values.size()];
-        return StringSubtype.createStringSubtype(allowed, values.toArray(valueArray));
+        return StringSubtype.createStringSubtype(allowed, values.toArray(new EnumerableString[]{}));
     }
 
     @Override

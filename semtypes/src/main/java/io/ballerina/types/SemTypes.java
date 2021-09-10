@@ -17,6 +17,7 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.types.definition.ListDefinition;
 import io.ballerina.types.subtypedata.BooleanSubtype;
 import io.ballerina.types.subtypedata.FloatSubtype;
 import io.ballerina.types.subtypedata.IntSubtype;
@@ -53,5 +54,13 @@ public class SemTypes {
 
     public static SemType union(SemType t1, SemType t2) {
         return Core.union(t1, t2);
+    }
+
+    public static SemType tuple(Env env, SemType[] members) {
+        return ListDefinition.tuple(env, members);
+    }
+
+    public static boolean isSubtype(TypeCheckContext typeCheckContext, SemType t1, SemType t2) {
+        return Core.isSubtype(typeCheckContext, t1, t2);
     }
 }

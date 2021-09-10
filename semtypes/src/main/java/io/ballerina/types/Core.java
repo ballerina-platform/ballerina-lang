@@ -83,7 +83,7 @@ public class Core {
         } else {
             ComplexSemType complexT1 = (ComplexSemType) t1;
             all1 = complexT1.all;
-            some1 = complexT1.all;
+            some1 = complexT1.some;
             if (t2 instanceof UniformTypeBitSet) {
                 all2 = ((UniformTypeBitSet) t2);
                 some2 = UniformTypeBitSet.from(0);
