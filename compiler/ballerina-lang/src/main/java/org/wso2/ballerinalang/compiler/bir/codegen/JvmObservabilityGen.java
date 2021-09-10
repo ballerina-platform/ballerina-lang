@@ -540,6 +540,7 @@ class JvmObservabilityGen {
                 int newCurrentIndex = i + 2;
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, newCurrentIndex);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
+                resetLocalVarEndBBs(func, currentBB, newCurrentBB);
                 {   // Injecting the instrumentation points for invocations
                     BIROperand objectTypeOperand;
                     String action;
