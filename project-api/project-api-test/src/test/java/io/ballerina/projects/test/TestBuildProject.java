@@ -74,9 +74,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
+import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
@@ -1503,10 +1505,9 @@ public class TestBuildProject extends BaseTest {
     @Test(description = "test build package without dependencies")
     public void testPackageWithoutDependencies() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_wo_deps");
-        // Delete Dependencies.toml if already exists
-        if (projectPath.resolve(DEPENDENCIES_TOML).toFile().exists()) {
-            Files.delete(projectPath.resolve(DEPENDENCIES_TOML));
-        }
+        // Delete Dependencies.toml and build file if already exists
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
 
         // 1) Initialize the project instance
         BuildProject project = null;
@@ -1519,12 +1520,12 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(project.currentPackage().packageName().toString(), "project_wo_deps");
         // Dependencies.toml should not be created when there is no package dependencies
         // build file should be deleted, since if not we are not trying to update Dependencies.toml
+        // Since we are adding root package to the Dependencies.toml, it will be created anyway
         Path dependenciesTomlPath = project.sourceRoot().resolve(DEPENDENCIES_TOML);
         Path buildFilePath = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
-        Assert.assertFalse(dependenciesTomlPath.toFile().exists());
+        Assert.assertTrue(dependenciesTomlPath.toFile().exists());
 
-        // 2) Add an Dependencies.toml to the project load and save project again
-        Files.createFile(dependenciesTomlPath);
+        // 2) load and save project again
         Files.deleteIfExists(buildFilePath);
         Assert.assertFalse(buildFilePath.toFile().exists());
         try {
@@ -1540,6 +1541,35 @@ public class TestBuildProject extends BaseTest {
                 + "dependencies-toml-version = \"2\"";
         String actual = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
         Assert.assertTrue(actual.contains(expected));
+
+        // Clean Dependencies.toml and build file if already exists
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+    }
+
+    @Test(description = "tests Dependencies.toml creation and its content")
+    public void testDependenciesTomlCreationAndItsContent() throws IOException {
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_d");
+
+        // Delete build file and Dependencies.toml if exists
+        Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
+
+        BuildProject buildProject = BuildProject.load(projectDirPath);
+        buildProject.save();
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+
+        // Check Dependencies.toml
+        Assert.assertEquals(
+                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
+                readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)));
     }
 
     @AfterClass (alwaysRun = true)
