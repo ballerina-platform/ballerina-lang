@@ -160,7 +160,9 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, i++, "missing double quote", 3, 32);
         BAssertUtil.validateError(resultNeg, i++, "missing equal token", 3, 32);
         BAssertUtil.validateError(resultNeg, i++, "missing semicolon token", 4, 1);
-        BAssertUtil.validateError(resultNeg, i++, "undefined symbol 'global\\ v\\ ar'", 4, 12);
+        BAssertUtil.validateError(resultNeg, i++, "invalid escape sequence '\\\u0000'", 4, 9);
+        BAssertUtil.validateError(resultNeg, i++, "missing semicolon token", 5, 1);
+        BAssertUtil.validateError(resultNeg, i++, "undefined symbol 'global\\ v\\ ar'", 5, 12);
         Assert.assertEquals(resultNeg.getErrorCount(), i);
     }
 
