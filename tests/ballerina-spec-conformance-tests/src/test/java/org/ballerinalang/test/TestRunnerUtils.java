@@ -52,7 +52,7 @@ public class TestRunnerUtils {
     private static final String NEW_LINE_CHARACTER = "\n";
     private static final String BAL_EXTENSION = ".bal";
     public static final String RESOURCE_DIR = "src/test/resources/";
-    public static final String TEMP_DIR = "test-src/TempFiles/";
+    public static final String TEMP_DIR = "test-src/";
     private static final String IMPORT_BALLERINAI = "import ballerinai/io;";
     private static int fileCount = 0;
     private static int absLineNum;
@@ -175,11 +175,11 @@ public class TestRunnerUtils {
     }
 
     private static void checkLabelsDefined(String[] labels) {
-        for (String label : labels) {
-            if (!org.ballerinalang.test.Labels.LABELS.contains(label)) {
-                Assert.fail(String.format("Lable %s is not defined", label));
-            }
-        }
+//        for (String label : labels) {
+//            if (!org.ballerinalang.test.Labels.LABELS.contains(label)) {
+//                Assert.fail(String.format("Lable %s is not defined", label));
+//            }
+//        }
     }
 
     private static String isSkippedTestCase(Set<String> selectedLabels, String[] labels, String kind) {
@@ -209,19 +209,21 @@ public class TestRunnerUtils {
                                                           outputValues.get(i), diagnostic.message(), getResult(output));
             detailsOfTests = detailsOfTests + ReportGenerator.generateTestDetails(fileName, kind,
                                                                          String.valueOf(expLineNum), getResult(output));
+
+            Assert.assertEquals(actualLineNum, expLineNum, String.format("In %s, incorrect line number:", fileName));
         }
         return details;
     }
 
     public static void validateOutput(String fileName, List<String> outputValues, String[] results) {
         if (outputValues.size() != results.length) {
-            Assert.fail(String.format("In %s file, Expected %s but found %s", fileName, outputValues.toString(),
+            Assert.fail(String.format("In %s file, Expected %s but found %s", fileName, outputValues,
                         Arrays.toString(results)));
         }
         for (int i = 0; i < outputValues.size(); i++) {
             if (!results[i].equals(outputValues.get(i))) {
                 Assert.fail(String.format("In %s file, Expected %s vlaues but found %s values", fileName,
-                            outputValues.toString(), Arrays.toString(results)));
+                            outputValues, Arrays.toString(results)));
             }
         }
     }

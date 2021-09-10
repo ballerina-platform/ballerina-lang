@@ -21,14 +21,14 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
-//    implementation project(':ballerina-core')
-//    implementation project(':ballerina-io-internal')
+    implementation project(':ballerina-core')
+    implementation project(':ballerina-io-internal')
     implementation 'org.slf4j:slf4j-api'
     implementation 'org.testng:testng'
     testCompile 'org.slf4j:slf4j-jdk14'
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-//    distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
 
 description = 'JBallerina - Spec Conformance Test Module'
