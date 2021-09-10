@@ -263,7 +263,7 @@ public class BIRPackageSymbolEnter {
             if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) structureTypeSymbol.type;
                 for (BType ref : objectType.typeInclusions) {
-                    BType typeRef = types.getConstraintFromReferenceType(ref);
+                    BType typeRef = types.getReferredType(ref);
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
                         continue;
                     }
@@ -399,7 +399,7 @@ public class BIRPackageSymbolEnter {
         Scope scopeToDefine = this.env.pkgSymbol.scope;
 
         if (this.currentStructure != null) {
-            BType attachedType = types.getConstraintFromReferenceType(this.currentStructure.type);
+            BType attachedType = types.getReferredType(this.currentStructure.type);
 
             // Update the symbol
             invokableSymbol.owner = attachedType.tsymbol;
@@ -705,7 +705,7 @@ public class BIRPackageSymbolEnter {
                 }
                 return new BLangConstantValue(keyValuePairs, valueType);
             case TypeTags.TYPEREFDESC:
-                return readConstLiteralValue(types.getConstraintFromReferenceType(valueType), dataInStream);
+                return readConstLiteralValue(types.getReferredType(valueType), dataInStream);
             default:
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
@@ -913,7 +913,7 @@ public class BIRPackageSymbolEnter {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                populateParameterizedType(types.getConstraintFromReferenceType(type), paramsMap, invSymbol);
+                populateParameterizedType(types.getReferredType(type), paramsMap, invSymbol);
         }
     }
 
@@ -1149,7 +1149,7 @@ public class BIRPackageSymbolEnter {
                     typeReferenceType.flags |= flags;
                     addShapeCP(typeReferenceType, cpI);
                     compositeStack.push(typeReferenceType);
-                    typeReferenceType.constraint = readTypeFromCp();
+                    typeReferenceType.referredType = readTypeFromCp();
 
                     Object poppedRefType = compositeStack.pop();
                     assert poppedRefType == typeReferenceType;

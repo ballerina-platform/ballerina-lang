@@ -214,7 +214,7 @@ public class JvmCodeGenUtil {
                 case JTypeTags.JTYPE:
                     return InteropMethodGen.getJTypeSignature((JType) bType);
                 case TypeTags.TYPEREFDESC:
-                    return getFieldTypeSignature(((BTypeReferenceType) bType).constraint);
+                    return getFieldTypeSignature(((BTypeReferenceType) bType).referredType);
                 default:
                     throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
             }
@@ -380,7 +380,7 @@ public class JvmCodeGenUtil {
             case TypeTags.HANDLE:
                 return String.format("L%s;", HANDLE_VALUE);
             case TypeTags.TYPEREFDESC:
-                return getArgTypeSignature(((BTypeReferenceType) bType).constraint);
+                return getArgTypeSignature(((BTypeReferenceType) bType).referredType);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
                                                          String.format("%s", bType));
@@ -443,7 +443,7 @@ public class JvmCodeGenUtil {
             case TypeTags.HANDLE:
                 return String.format(")L%s;", HANDLE_VALUE);
             case TypeTags.TYPEREFDESC:
-                return generateReturnType(((BTypeReferenceType) bType).constraint);
+                return generateReturnType(((BTypeReferenceType) bType).referredType);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }
@@ -603,23 +603,23 @@ public class JvmCodeGenUtil {
             case TypeTags.NEVER:
                 return true;
             case TypeTags.TYPEREFDESC:
-                return isSimpleBasicType(((BTypeReferenceType) bType).constraint);
+                return isSimpleBasicType(((BTypeReferenceType) bType).referredType);
             default:
                 return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
         }
     }
 
-    public static BType getConstraintFromReferenceType(BType refType) {
+    public static BType getReferredType(BType refType) {
         BType constraint = refType;
         if (refType.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) refType).constraint;
+            constraint = ((BTypeReferenceType) refType).referredType;
         }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
+        return constraint.tag == TypeTags.TYPEREFDESC ? getReferredType(constraint) : constraint;
     }
 
     public static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv,
                                          JvmBStringConstantsGen stringConstantsGen) {
-        int typeTag = getConstraintFromReferenceType(bType).tag;
+        int typeTag = getReferredType(bType).tag;
         if (TypeTags.isIntegerTypeTag(typeTag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);

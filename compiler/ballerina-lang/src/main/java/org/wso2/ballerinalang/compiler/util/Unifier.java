@@ -609,7 +609,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private BType getConstraintFromReferenceType(BType type) {
         BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).constraint;
+            constraint = ((BTypeReferenceType) type).referredType;
         }
         return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
     }
@@ -760,7 +760,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void populateParamMapFromRestArg(List<BVarSymbol> params, int currentParamIndex, BLangExpression restArg) {
-        BType type = types.getConstraintFromReferenceType(restArg.getBType());
+        BType type = types.getReferredType(restArg.getBType());
         int tag = type.tag;
         if (tag == TypeTags.RECORD) {
             populateParamMapFromRecordRestArg(params, currentParamIndex, (BRecordType) type);

@@ -109,7 +109,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'float', found 'string:Char'", 157, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 158, 21);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
-        validateError(negativeResult, i++, "invalid operation: type 'StrOrInt' does not support member access", 169, 17);
+        validateError(negativeResult, i++, "invalid operation: type 'StrOrInt' does not support member access",
+                169, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'StrOrInt'", 170, 20);
         validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);

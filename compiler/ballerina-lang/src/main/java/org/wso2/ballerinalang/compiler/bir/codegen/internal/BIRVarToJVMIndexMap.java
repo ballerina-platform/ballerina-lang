@@ -63,7 +63,7 @@ public class BIRVarToJVMIndexMap {
 
     public int addIfNotExists(String varRefName, BType bType) {
         if (!(this.jvmLocalVarIndexMap.containsKey(varRefName))) {
-            this.add(varRefName, JvmCodeGenUtil.getConstraintFromReferenceType(bType));
+            this.add(varRefName, JvmCodeGenUtil.getReferredType(bType));
         }
         return get(varRefName);
     }

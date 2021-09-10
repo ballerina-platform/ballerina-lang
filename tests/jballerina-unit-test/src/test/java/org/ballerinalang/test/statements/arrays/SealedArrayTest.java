@@ -281,10 +281,10 @@ public class SealedArrayTest {
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found 'FiniteOne'",
                 104, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space 'FiniteTwo'" +
-                " out of range", 105, 20);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space 'FiniteTwo'" +
-                " out of range", 106, 23);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: " +
+                "value space 'FiniteTwo' out of range", 105, 20);
+        BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: " +
+                "value space 'FiniteTwo' out of range", 106, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +
                 "'FiniteThree'", 107, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int', found " +

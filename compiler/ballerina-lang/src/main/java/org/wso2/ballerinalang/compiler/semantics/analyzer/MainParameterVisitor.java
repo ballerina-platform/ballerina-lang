@@ -89,7 +89,7 @@ public class MainParameterVisitor {
             case TypeTags.BOOLEAN:
                 return option;
             case TypeTags.TYPEREFDESC:
-                return isOperandType(((BTypeReferenceType) type).constraint);
+                return isOperandType(((BTypeReferenceType) type).referredType);
             default:
                 return false;
         }

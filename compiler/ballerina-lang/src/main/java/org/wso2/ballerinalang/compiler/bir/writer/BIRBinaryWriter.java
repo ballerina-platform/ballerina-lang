@@ -512,7 +512,7 @@ public class BIRBinaryWriter {
     }
 
     private void writeAnnotAttachValue(ByteBuf annotBuf, BIRAnnotationValue annotValue) {
-        BType annotType = JvmCodeGenUtil.getConstraintFromReferenceType(annotValue.type);
+        BType annotType = JvmCodeGenUtil.getReferredType(annotValue.type);
         if (annotType.tag == TypeTags.ARRAY) {
             writeType(annotBuf, annotType);
             BIRAnnotationArrayValue annotArrayValue = (BIRAnnotationArrayValue) annotValue;

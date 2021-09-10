@@ -189,7 +189,7 @@ public class JvmDesugarPhase {
 
     static void rewriteRecordInits(List<BIRTypeDefinition> typeDefs) {
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType recordType = JvmCodeGenUtil.getConstraintFromReferenceType(typeDef.type);
+            BType recordType = JvmCodeGenUtil.getReferredType(typeDef.type);
             if (recordType.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -274,7 +274,7 @@ public class JvmDesugarPhase {
                                                                  encodedVsInitialIds));
 
             encodeFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds);
-            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(typeDefinition.type);
+            BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
@@ -364,7 +364,7 @@ public class JvmDesugarPhase {
                                                                   encodedVsInitialIds);
             typeDefinition.internalName = getInitialIdString(typeDefinition.internalName, names, encodedVsInitialIds);
             replaceEncodedFunctionIdentifiers(typeDefinition.attachedFuncs, names, encodedVsInitialIds);
-            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(typeDefinition.type);
+            BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;

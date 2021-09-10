@@ -2317,7 +2317,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType varArgType = types.getConstraintFromReferenceType(restArgsExpression.getBType());
+        BType varArgType = types.getReferredType(restArgsExpression.getBType());
         if (varArgType.tag == TypeTags.ARRAY) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
                                                            ((BArrayType) varArgType).eType, pos);
@@ -2895,7 +2895,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 return false;
             }
 
-            if (!invokedOnSelf && types.getConstraintFromReferenceType(invocation.getBType()).tag == TypeTags.NIL) {
+            if (!invokedOnSelf && types.getReferredType(invocation.getBType()).tag == TypeTags.NIL) {
                 return true;
             }
 
@@ -3997,7 +3997,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         @Override
         public void visit(BTypeReferenceType bTypeReferenceType) {
-            visitType(bTypeReferenceType.constraint);
+            visitType(bTypeReferenceType.referredType);
         }
 
         @Override

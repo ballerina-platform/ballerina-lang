@@ -375,7 +375,7 @@ public class MethodGen {
                 genJDefaultValue(mv, (JType) bType, index);
                 break;
             case TypeTags.TYPEREFDESC:
-                genDefaultValue(mv, ((BTypeReferenceType) bType).constraint, index);
+                genDefaultValue(mv, ((BTypeReferenceType) bType).referredType, index);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
@@ -548,7 +548,7 @@ public class MethodGen {
     private void generateFrameClassFieldLoad(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                              BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(localVar.type);
+            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
 
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
@@ -661,7 +661,7 @@ public class MethodGen {
                 break;
             case TypeTags.TYPEREFDESC:
                 generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index,
-                        ((BTypeReferenceType) bType).constraint);
+                        ((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
@@ -670,7 +670,7 @@ public class MethodGen {
 
     private void generateFrameClassJFieldLoad(BIRVariableDcl localVar, MethodVisitor mv,
                                               int index, String frameName) {
-        JType jType = (JType) JvmCodeGenUtil.getConstraintFromReferenceType(localVar.type);
+        JType jType = (JType) JvmCodeGenUtil.getReferredType(localVar.type);
 
         switch (jType.jTag) {
             case JTypeTags.JBYTE:
@@ -711,7 +711,7 @@ public class MethodGen {
     private void generateFrameClassFieldUpdate(List<BIRVariableDcl> localVars, MethodVisitor mv,
                                                BIRVarToJVMIndexMap indexMap, String frameName) {
         for (BIRVariableDcl localVar : localVars) {
-            BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(localVar.type);
+            BType bType = JvmCodeGenUtil.getReferredType(localVar.type);
 
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
@@ -824,7 +824,7 @@ public class MethodGen {
                 break;
             case TypeTags.TYPEREFDESC:
                 generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index,
-                        ((BTypeReferenceType) bType).constraint);
+                        ((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
@@ -1021,7 +1021,7 @@ public class MethodGen {
                 jvmType = InteropMethodGen.getJTypeSignature((JType) bType);
                 break;
             case TypeTags.TYPEREFDESC:
-                jvmType = getJVMTypeSign(((BTypeReferenceType) bType).constraint);
+                jvmType = getJVMTypeSign(((BTypeReferenceType) bType).referredType);
                 break;
             default:
                 throw new BLangCompilerException("JVM code generation is not supported for type " +

@@ -560,7 +560,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.defaultValueState = prevDefaultValueState;
 
             boolean isNeverReturn = types.isNeverTypeOrStructureTypeWithARequiredNeverMember
-                    (types.getConstraintFromReferenceType(funcNode.symbol.type.getReturnType()));
+                    (types.getReferredType(funcNode.symbol.type.getReturnType()));
             // If the return signature is nil-able, an implicit return will be added in Desugar.
             // Hence this only checks for non-nil-able return signatures and uncertain return in the body.
             if (!funcNode.symbol.type.getReturnType().isNullable() && !isNeverReturn && !this.statementReturns) {
@@ -1194,11 +1194,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (firstConstType != null && types.getConstraintFromReferenceType(firstConstType).tag == TypeTags.FINITE) {
+        if (firstConstType != null && types.getReferredType(firstConstType).tag == TypeTags.FINITE) {
             firstConstValue = getConstValueFromFiniteType(((BFiniteType) firstConstType));
         }
 
-        if (secondConstType != null && types.getConstraintFromReferenceType(secondConstType).tag == TypeTags.FINITE) {
+        if (secondConstType != null && types.getReferredType(secondConstType).tag == TypeTags.FINITE) {
             secondConstValue = getConstValueFromFiniteType(((BFiniteType) secondConstType));
         }
 
@@ -1935,9 +1935,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkLiteralSimilarity(precedingPattern, rhsExpr);
         }
 
-        switch (types.getConstraintFromReferenceType(precedingPattern.getBType()).tag) {
+        switch (types.getReferredType(precedingPattern.getBType()).tag) {
             case TypeTags.MAP:
-                if (types.getConstraintFromReferenceType(pattern.getBType()).tag == TypeTags.MAP) {
+                if (types.getReferredType(pattern.getBType()).tag == TypeTags.MAP) {
                     BLangRecordLiteral precedingRecordLiteral = (BLangRecordLiteral) precedingPattern;
                     Map<String, BLangExpression> recordLiteral = ((BLangRecordLiteral) pattern).fields
                             .stream()
@@ -1964,7 +1964,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 return false;
             case TypeTags.TUPLE:
-                if (types.getConstraintFromReferenceType(pattern.getBType()).tag == TypeTags.TUPLE) {
+                if (types.getReferredType(pattern.getBType()).tag == TypeTags.TUPLE) {
                     BLangListConstructorExpr precedingTupleLiteral = (BLangListConstructorExpr) precedingPattern;
                     BLangListConstructorExpr tupleLiteral = (BLangListConstructorExpr) pattern;
                     if (precedingTupleLiteral.exprs.size() != tupleLiteral.exprs.size()) {
@@ -2001,14 +2001,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return (precedingPatternSym.value.equals(literal.value));
                 }
 
-                if (types.isValueType(types.getConstraintFromReferenceType(pattern.getBType()))) {
+                if (types.isValueType(types.getReferredType(pattern.getBType()))) {
                     // preceding pattern is a literal.
                     BLangLiteral precedingLiteral = precedingPattern.getKind() == NodeKind.GROUP_EXPR ?
                             (BLangLiteral) ((BLangGroupExpr) precedingPattern).expression :
                             (BLangLiteral) precedingPattern;
 
                     if (pattern.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        if (types.getConstraintFromReferenceType(pattern.getBType()).tag != TypeTags.NONE) {
+                        if (types.getReferredType(pattern.getBType()).tag != TypeTags.NONE) {
                             // pattern is a constant reference.
                             BConstantSymbol patternSym = (BConstantSymbol) ((BLangSimpleVarRef) pattern).symbol;
                             return patternSym.value.equals(precedingLiteral.value);
@@ -2025,7 +2025,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return false;
             case TypeTags.ANY:
                 // preceding pattern is '_'. Hence will match all patterns except error that follow.
-                if (types.getConstraintFromReferenceType(pattern.getBType()).tag == TypeTags.ERROR) {
+                if (types.getReferredType(pattern.getBType()).tag == TypeTags.ERROR) {
                     return false;
                 }
                 return true;
@@ -2072,7 +2072,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean checkStructuredPatternSimilarity(BLangVariable precedingVar,
                                                      BLangVariable var,
                                                      boolean errorTypeInMatchExpr) {
-        if (types.getConstraintFromReferenceType(precedingVar.getBType()).tag == TypeTags.SEMANTIC_ERROR ||
+        if (types.getReferredType(precedingVar.getBType()).tag == TypeTags.SEMANTIC_ERROR ||
                 var.getBType().tag == TypeTags.SEMANTIC_ERROR) {
             return false;
         }
@@ -2204,7 +2204,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @return true if the pattern is valid, else false.
      */
     private boolean isValidStaticMatchPattern(BType matchType, BLangExpression literal) {
-        if (types.getConstraintFromReferenceType(literal.getBType()).tag == TypeTags.NONE) {
+        if (types.getReferredType(literal.getBType()).tag == TypeTags.NONE) {
             return true; // When matching '_'
         }
 
@@ -2212,7 +2212,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        if (TypeTags.ANY == types.getConstraintFromReferenceType(literal.getBType()).tag) {
+        if (TypeTags.ANY == types.getReferredType(literal.getBType()).tag) {
             return true;
         }
 
@@ -2299,7 +2299,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                return  isValidStaticMatchPattern(types.getConstraintFromReferenceType(matchType), literal);
+                return  isValidStaticMatchPattern(types.getReferredType(matchType), literal);
         }
         return false;
     }
@@ -2857,8 +2857,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             return false;
         }
-        return types.getConstraintFromReferenceType(type).tag == TypeTags.FUTURE
-                && ((BFutureType) types.getConstraintFromReferenceType(type)).workerDerivative;
+        return types.getReferredType(type).tag == TypeTags.FUTURE
+                && ((BFutureType) types.getReferredType(type)).workerDerivative;
     }
 
 
@@ -3105,7 +3105,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 analyzeExpr(spreadOpExpr);
 
-                BType spreadOpExprType = types.getConstraintFromReferenceType(spreadOpExpr.getBType());
+                BType spreadOpExprType = types.getReferredType(spreadOpExpr.getBType());
                 int spreadFieldTypeTag = spreadOpExprType.tag;
                 if (spreadFieldTypeTag == TypeTags.MAP) {
                     if (inclusiveTypeSpreadField != null) {
@@ -3209,7 +3209,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     Object name = ((BLangLiteral) keyExpr).value;
                     if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
-                                types.getConstraintFromReferenceType(recordLiteral.parent.getBType())
+                                types.getReferredType(recordLiteral.parent.getBType())
                                         .getKind().typeName(), name);
                     } else if (inclusiveTypeSpreadField != null && !neverTypedKeys.contains(name)) {
                         this.dlog.error(keyExpr.pos,
@@ -3945,7 +3945,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangFromClause fromClause = (BLangFromClause) clause;
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
-                    if (TypeTags.STREAM == types.getConstraintFromReferenceType(collection.getBType()).tag) {
+                    if (TypeTags.STREAM == types.getReferredType(collection.getBType()).tag) {
                         this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
@@ -3963,7 +3963,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangFromClause fromClause = (BLangFromClause) clause;
                 BLangExpression collection = (BLangExpression) fromClause.getCollection();
                 if (fromCount > 1) {
-                    if (TypeTags.STREAM == types.getConstraintFromReferenceType(collection.getBType()).tag) {
+                    if (TypeTags.STREAM == types.getReferredType(collection.getBType()).tag) {
                         this.dlog.error(collection.pos, DiagnosticErrorCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
@@ -4545,7 +4545,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         int tag = bType.tag;
         if (tag == TypeTags.TYPEREFDESC) {
-            return getErrorTypes(((BTypeReferenceType) bType).constraint);
+            return getErrorTypes(((BTypeReferenceType) bType).referredType);
         }
         if (tag == TypeTags.ERROR) {
             errorType = bType;

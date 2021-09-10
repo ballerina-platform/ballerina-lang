@@ -109,24 +109,26 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "unknown type 'PQ'", 128, 10);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'T'", 137, 12);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'U'", 137, 14);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'BooleanTypeWithType', found 'boolean'",
-                154, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'BooleanTypeWithType', " +
+                "found 'boolean'", 154, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'BooleanTypeWithoutType', " +
                 "found 'boolean'", 163, 32);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithType', found 'int'", 174, 25);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithoutType', found 'int'", 183, 28);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ByteTypeWithType', found 'int'",
-                194, 26);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithType', found 'float'",
-                205, 27);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithoutType', found 'float'",
-                214, 30);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'DecimalTypeWithType', found 'float'",
-                225, 29);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithType', " +
+                "found 'int'", 174, 25);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'IntTypeWithoutType', " +
+                "found 'int'", 183, 28);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'ByteTypeWithType', " +
+                "found 'int'", 194, 26);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithType', " +
+                "found 'float'", 205, 27);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'FloatTypeWithoutType', " +
+                "found 'float'", 214, 30);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'DecimalTypeWithType', " +
+                "found 'float'", 225, 29);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'StringTypeWithType', found" +
                 " 'string'", 236, 28);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'StringTypeWithoutType', found " +
-                "'string'", 245, 31);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'StringTypeWithoutType', " +
+                "found 'string'", 245, 31);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'int', found '()'",
                 251, 24);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 255, 33);

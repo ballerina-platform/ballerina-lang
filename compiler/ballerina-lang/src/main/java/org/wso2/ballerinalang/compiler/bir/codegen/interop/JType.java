@@ -168,7 +168,7 @@ public class JType extends BType {
             case TypeTags.FLOAT_TAG:
                 return jFloat;
             case TypeTags.TYPEREFDESC:
-                return getPrimitiveJTypeForBType(((BTypeReferenceType) type).constraint);
+                return getPrimitiveJTypeForBType(((BTypeReferenceType) type).referredType);
             default:
                 return new JType(JREF);
         }

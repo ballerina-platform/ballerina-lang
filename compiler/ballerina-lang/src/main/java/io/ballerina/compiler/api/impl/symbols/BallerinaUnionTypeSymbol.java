@@ -201,7 +201,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private List<BType> getAllTypes(BType type) {
         if (type.tag != TypeTags.UNION) {
             if (type.tag == TypeTags.TYPEREFDESC) {
-                return getAllTypes(((BTypeReferenceType) type).constraint);
+                return getAllTypes(((BTypeReferenceType) type).referredType);
             } else {
                 return Lists.of(type);
             }

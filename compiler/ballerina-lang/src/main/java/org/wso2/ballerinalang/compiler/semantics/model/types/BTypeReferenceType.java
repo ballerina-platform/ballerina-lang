@@ -29,12 +29,12 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEREFDESC;
  */
 public class BTypeReferenceType extends BType implements ReferenceType {
 
-    public BType constraint;
+    public BType referredType;
     public final String definitionName;
 
-    public BTypeReferenceType(BType constraint, BTypeSymbol tsymbol, long flags) {
+    public BTypeReferenceType(BType referredType, BTypeSymbol tsymbol, long flags) {
         super(TYPEREFDESC, tsymbol, flags);
-        this.constraint = constraint;
+        this.referredType = referredType;
         this.definitionName = tsymbol != null ? tsymbol.getName().getValue() : null;
     }
 
@@ -45,7 +45,7 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     @Override
     public String toString() {
-        return definitionName.equals(constraint.name.getValue()) ? constraint.toString() : tsymbol.toString();
+        return definitionName.equals(referredType.name.getValue()) ? referredType.toString() : tsymbol.toString();
     }
 
     @Override
@@ -60,6 +60,6 @@ public class BTypeReferenceType extends BType implements ReferenceType {
 
     @Override
     public boolean isNullable() {
-        return this.constraint.isNullable();
+        return this.referredType.isNullable();
     }
 }

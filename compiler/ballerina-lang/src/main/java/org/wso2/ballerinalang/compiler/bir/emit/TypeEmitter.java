@@ -432,7 +432,7 @@ class TypeEmitter {
 
     /////////////////////// Emitting type reference ///////////////////////////
     static String emitTypeRef(BType type, int tabs) {
-        BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(type);
+        BType bType = JvmCodeGenUtil.getReferredType(type);
         String tName = getTypeName(bType);
         if (!("".equals(tName))) {
             return tName;

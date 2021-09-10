@@ -572,7 +572,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // resolved by the time we reach here. It is achieved by ordering the typeDefs
         // according to the precedence.
         for (BLangType typeRef : classDefinition.typeRefs) {
-            BType type = types.getConstraintFromReferenceType(typeRef.getBType());
+            BType type = types.getReferredType(typeRef.getBType());
 
             if (type == null || type == symTable.semanticError) {
                 return;
@@ -618,7 +618,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangSimpleVariable> referencedFields = new ArrayList<>();
 
         for (BLangType typeRef : classDefinition.typeRefs) {
-            BType referredType = types.getConstraintFromReferenceType(symResolver.resolveTypeNode(typeRef, typeDefEnv));
+            BType referredType = types.getReferredType(symResolver.resolveTypeNode(typeRef, typeDefEnv));
             if (referredType == symTable.semanticError) {
                 continue;
             }
@@ -665,7 +665,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             if (tag == TypeTags.OBJECT) {
                 BObjectType objectType;
-                referredType = types.getConstraintFromReferenceType(referredType);
+                referredType = types.getReferredType(referredType);
 
                 if (referredType.tag == TypeTags.INTERSECTION) {
                     effectiveIncludedType = objectType = (BObjectType) ((BIntersectionType) referredType).effectiveType;
@@ -1205,7 +1205,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
             BType bType = symResolver.resolveTypeNode(type, env);
-            if (types.getConstraintFromReferenceType(bType).tag == TypeTags.ERROR) {
+            if (types.getReferredType(bType).tag == TypeTags.ERROR) {
                 errorTypes.add(bType);
             }
         }
@@ -1538,7 +1538,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             populateAllReadyDefinedErrorIntersection(definedType, typeDefinition, env);
         }
 
-        BType referenceConstraintType = types.getConstraintFromReferenceType(definedType);
+        BType referenceConstraintType = types.getReferredType(definedType);
         boolean isIntersectionType = types.referenceTypeMatchesTag(referenceConstraintType, TypeTags.INTERSECTION);
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
@@ -1681,9 +1681,9 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangType constituentType : typeNode.constituentTypeNodes) {
             BType resolvedTypeNode = symResolver.resolveTypeNode(constituentType, env);
-            BType type = types.getConstraintFromReferenceType(resolvedTypeNode);
+            BType type = types.getReferredType(resolvedTypeNode);
 
-            if (types.getConstraintFromReferenceType(type).getKind() == TypeKind.ERROR) {
+            if (types.getReferredType(type).getKind() == TypeKind.ERROR) {
                 if (constituentType.flagSet.contains(Flag.DISTINCT)) {
                     numberOfDistinctConstituentTypes++;
                     typeIdSet.addSecondarySet(((BErrorType) type).typeIdSet.getAll());
@@ -1747,7 +1747,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private boolean isErrorIntersection(BType definedType) {
-        BType type = types.getConstraintFromReferenceType(definedType);
+        BType type = types.getReferredType(definedType);
 
         if (type.tag == TypeTags.INTERSECTION) {
             BIntersectionType intersectionType = (BIntersectionType) type;
@@ -2199,8 +2199,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol.tag = SymTag.ENDPOINT;
         }
 
-        if (types.getConstraintFromReferenceType(varSymbol.type).tag == TypeTags.FUTURE
-                && ((BFutureType) types.getConstraintFromReferenceType(varSymbol.type)).workerDerivative) {
+        if (types.getReferredType(varSymbol.type).tag == TypeTags.FUTURE
+                && ((BFutureType) types.getReferredType(varSymbol.type)).workerDerivative) {
             Iterator<BLangLambdaFunction> lambdaFunctions = env.enclPkg.lambdaFunctions.iterator();
             while (lambdaFunctions.hasNext()) {
                 BLangLambdaFunction lambdaFunction = lambdaFunctions.next();
@@ -2214,9 +2214,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        if (types.getConstraintFromReferenceType(varSymbol.type).tag == TypeTags.INVOKABLE) {
+        if (types.getReferredType(varSymbol.type).tag == TypeTags.INVOKABLE) {
             BInvokableSymbol symbol = (BInvokableSymbol) varSymbol;
-            BTypeSymbol typeSymbol = types.getConstraintFromReferenceType(varSymbol.type).tsymbol;
+            BTypeSymbol typeSymbol = types.getReferredType(varSymbol.type).tsymbol;
             BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) typeSymbol;
             symbol.params = tsymbol.params == null ? null : new ArrayList<>(tsymbol.params);
             symbol.restParam = tsymbol.restParam;
@@ -2516,7 +2516,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
-        BType recordType = types.getConstraintFromReferenceType(recordVar.getBType());
+        BType recordType = types.getReferredType(recordVar.getBType());
         BRecordType recordVarType;
         /*
           This switch block will resolve the record type of the record variable.
@@ -3064,7 +3064,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean validateErrorVariable(BLangErrorVariable errorVariable, SymbolEnv env) {
-        BType varType = types.getConstraintFromReferenceType(errorVariable.getBType());
+        BType varType = types.getReferredType(errorVariable.getBType());
         BErrorType errorType;
         switch (varType.tag) {
             case TypeTags.UNION:
@@ -3119,7 +3119,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return validateErrorMessageMatchPatternSyntax(errorVariable, env);
         }
 
-        BType detailType = types.getConstraintFromReferenceType(errorType.detailType);
+        BType detailType = types.getReferredType(errorType.detailType);
         if (detailType.getKind() == TypeKind.RECORD || detailType.getKind() == TypeKind.MAP) {
             return validateErrorVariable(errorVariable, errorType, env);
         } else if (detailType.getKind() == TypeKind.UNION) {
@@ -3190,7 +3190,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     BRecordType getDetailAsARecordType(BErrorType errorType) {
-        BType detailType = types.getConstraintFromReferenceType(errorType.detailType);
+        BType detailType = types.getReferredType(errorType.detailType);
         if (detailType.getKind() == TypeKind.RECORD) {
             return (BRecordType) detailType;
         }
@@ -3485,13 +3485,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 return isCloneableTypeTypeSkippingObjectType(recordRestType);
             case TypeTags.ARRAY:
-                BType elementType = types.getConstraintFromReferenceType(((BArrayType) type).eType);
+                BType elementType = types.getReferredType(((BArrayType) type).eType);
                 if ((elementType.tag == TypeTags.MAP) || (elementType.tag == TypeTags.RECORD)) {
                     return isValidAnnotationType(elementType);
                 }
                 return false;
             case TypeTags.TYPEREFDESC:
-                return isValidAnnotationType(((BTypeReferenceType) type).constraint);
+                return isValidAnnotationType(((BTypeReferenceType) type).referredType);
         }
 
         return types.isAssignable(type, symTable.trueType);
@@ -3554,10 +3554,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return isCloneableTypeSkippingObjectTypeHelper(((BArrayType) type).getElementType(),
                         unresolvedTypes);
             case TypeTags.TYPEREFDESC:
-                if (!isCloneableTypeSkippingObjectTypeHelper(((BTypeReferenceType) type).constraint, unresolvedTypes)) {
-                    return false;
-                }
-                return true;
+                return isCloneableTypeSkippingObjectTypeHelper(types.getReferredType(type), unresolvedTypes);
         }
 
         return types.isAssignable(type, symTable.cloneableType);
@@ -3641,15 +3638,15 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
-                BType typeDefType = types.getConstraintFromReferenceType(typeDef.symbol.type);
+                BType typeDefType = types.getReferredType(typeDef.symbol.type);
                 ((BErrorType) typeDefType).detailType = getDetailType(typeDefEnv, errorTypeNode);
             } else if (typeNode.getBType() != null && typeNode.getBType().tag == TypeTags.ERROR) {
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BType detailType = ((BErrorType) typeNode.getBType()).detailType;
                 if (detailType == symTable.noType) {
                     BType resolvedType = symResolver.resolveTypeNode(typeNode, typeDefEnv);
-                    BErrorType type = (BErrorType) types.getConstraintFromReferenceType(resolvedType);
-                    ((BErrorType) types.getConstraintFromReferenceType(typeDef.symbol.type))
+                    BErrorType type = (BErrorType) types.getReferredType(resolvedType);
+                    ((BErrorType) types.getReferredType(typeDef.symbol.type))
                             .detailType = type.detailType;
                 }
             }
@@ -3752,7 +3749,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // analyze restFieldType for open records
         for (BLangType typeRef : recordTypeNode.typeRefs) {
-            BType refType = types.getConstraintFromReferenceType(typeRef.getBType());
+            BType refType = types.getReferredType(typeRef.getBType());
             if (refType.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -3857,7 +3854,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (typeRef.getBType().tsymbol == null) {
                     continue;
                 }
-                BTypeSymbol objectSymbol = types.getConstraintFromReferenceType(typeRef.getBType()).tsymbol;
+                BTypeSymbol objectSymbol = types.getReferredType(typeRef.getBType()).tsymbol;
                 if (objectSymbol.kind != SymbolKind.OBJECT) {
                     continue;
                 }
@@ -3879,7 +3876,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangType typeNode = typeDefNode.typeNode;
             NodeKind kind = typeNode.getKind();
             if (kind == NodeKind.INTERSECTION_TYPE_NODE) {
-                BType currentType = types.getConstraintFromReferenceType(typeNode.getBType());
+                BType currentType = types.getReferredType(typeNode.getBType());
 
                 if (currentType.tag != TypeTags.INTERSECTION) {
                     continue;
@@ -3894,12 +3891,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 boolean hasNonReadOnlyElement = false;
                 for (BType constituentType : intersectionType.getConstituentTypes()) {
-                    if (types.getConstraintFromReferenceType(constituentType) == symTable.readonlyType) {
+                    if (types.getReferredType(constituentType) == symTable.readonlyType) {
                         continue;
                     }
                     // If constituent type is error, we have already validated error intersections.
                     if (!types.isSelectivelyImmutableType(constituentType, true)
-                            && types.getConstraintFromReferenceType(constituentType).tag != TypeTags.ERROR) {
+                            && types.getReferredType(constituentType).tag != TypeTags.ERROR) {
 
                         hasNonReadOnlyElement = true;
                         break;
@@ -4188,7 +4185,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
-                BType varNodeType = types.getConstraintFromReferenceType(varNode.getBType());
+                BType varNodeType = types.getReferredType(varNode.getBType());
                 if (varNodeType.getKind() == TypeKind.RECORD) {
                     symbol.flags |= Flags.INCLUDED;
                     LinkedHashMap<String, BField> fields = ((BRecordType) varNodeType).fields;
@@ -4342,7 +4339,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public BVarSymbol createVarSymbol(long flags, BType type, Name varName, SymbolEnv env,
                                       Location location, boolean isInternal) {
         BVarSymbol varSymbol;
-        BType varType = types.getConstraintFromReferenceType(type);
+        BType varType = types.getReferredType(type);
         if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, type,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
@@ -4606,7 +4603,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         structureTypeNode.includedFields = structureTypeNode.typeRefs.stream().flatMap(typeRef -> {
             BType referredType = symResolver.resolveTypeNode(typeRef, typeDefEnv);
-            referredType = types.getConstraintFromReferenceType(referredType);
+            referredType = types.getReferredType(referredType);
             if (referredType == symTable.semanticError) {
                 return Stream.empty();
             }

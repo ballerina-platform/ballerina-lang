@@ -470,7 +470,7 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
-                    return isValidParamBType(jType, ((BTypeReferenceType) bType).constraint, isLastParam,
+                    return isValidParamBType(jType, ((BTypeReferenceType) bType).referredType, isLastParam,
                             restParamExist);
                 default:
                     return false;
@@ -630,7 +630,7 @@ class JMethodResolver {
                 case TypeTags.TABLE:
                     return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEREFDESC:
-                    return isValidReturnBType(jType, ((BTypeReferenceType) bType).constraint,
+                    return isValidReturnBType(jType, ((BTypeReferenceType) bType).referredType,
                             jMethodRequest, visitedSet);
                 default:
                     return false;

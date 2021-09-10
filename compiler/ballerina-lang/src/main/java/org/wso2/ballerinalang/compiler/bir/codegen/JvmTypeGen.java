@@ -191,7 +191,7 @@ public class JvmTypeGen {
     private BType getConstrainedTypeFromRefType(BType type) {
         BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).constraint;
+            constraint = ((BTypeReferenceType) type).referredType;
         }
         return constraint.tag == TypeTags.TYPEREFDESC ? getConstrainedTypeFromRefType(constraint) : constraint;
     }
@@ -462,7 +462,7 @@ public class JvmTypeGen {
                     loadParameterizedType(mv, (BParameterizedType) bType);
                     return;
                 case TypeTags.TYPEREFDESC:
-                    loadType(mv, JvmCodeGenUtil.getConstraintFromReferenceType(bType));
+                    loadType(mv, JvmCodeGenUtil.getReferredType(bType));
                     return;
                 default:
                     return;
@@ -530,7 +530,7 @@ public class JvmTypeGen {
                 case TypeTags.UNION:
                     return UNION_TYPE;
                 case TypeTags.TYPEREFDESC:
-                    return loadTypeClass(((BTypeReferenceType) bType).constraint);
+                    return loadTypeClass(((BTypeReferenceType) bType).referredType);
                 default:
                     return TYPE;
             }
@@ -781,7 +781,7 @@ public class JvmTypeGen {
                 mv.visitInsn(((BTupleType) valueType).isCyclic ? ICONST_1 : ICONST_0);
                 break;
             case TypeTags.TYPEREFDESC:
-                loadCyclicFlag(mv, ((BTypeReferenceType) valueType).constraint);
+                loadCyclicFlag(mv, ((BTypeReferenceType) valueType).referredType);
                 break;
         }
     }
@@ -1118,7 +1118,7 @@ public class JvmTypeGen {
             case TypeTags.INVOKABLE:
                 return String.format("L%s;", FUNCTION_POINTER);
             case TypeTags.TYPEREFDESC:
-                return getTypeDesc(((BTypeReferenceType) bType).constraint);
+                return getTypeDesc(((BTypeReferenceType) bType).referredType);
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE + bType);
         }

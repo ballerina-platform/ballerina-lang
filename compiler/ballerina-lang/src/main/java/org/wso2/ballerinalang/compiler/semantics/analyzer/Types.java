@@ -300,7 +300,7 @@ public class Types {
                 visited.put(type, true);
                 return true;
             case TypeTags.TYPEREFDESC:
-                return isLaxType(getConstraintFromReferenceType(type), visited);
+                return isLaxType(getReferredType(type), visited);
             }
         visited.put(type, false);
         return false;
@@ -362,14 +362,14 @@ public class Types {
             case TypeTags.CHAR_STRING:
                 return true;
             case TypeTags.TYPEREFDESC:
-                return isValueType(getConstraintFromReferenceType(type));
+                return isValueType(getReferredType(type));
             default:
                 return false;
         }
     }
 
     boolean isBasicNumericType(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         return type.tag < TypeTags.STRING || TypeTags.isIntegerTypeTag(type.tag);
     }
 
@@ -378,16 +378,16 @@ public class Types {
     }
 
     public boolean containsErrorType(BType type) {
-        if (getConstraintFromReferenceType(type).tag == TypeTags.UNION) {
-            return ((BUnionType) getConstraintFromReferenceType(type)).getMemberTypes().stream()
+        if (getReferredType(type).tag == TypeTags.UNION) {
+            return ((BUnionType) getReferredType(type)).getMemberTypes().stream()
                     .anyMatch(this::containsErrorType);
         }
 
-        if (getConstraintFromReferenceType(type).tag == TypeTags.READONLY) {
+        if (getReferredType(type).tag == TypeTags.READONLY) {
             return true;
         }
 
-        return getConstraintFromReferenceType(type).tag == TypeTags.ERROR;
+        return getReferredType(type).tag == TypeTags.ERROR;
     }
 
     public boolean isSubTypeOfList(BType type) {
@@ -488,16 +488,16 @@ public class Types {
             return constMatchPatternExprType;
         }
         // This should handle specially
-        if (getConstraintFromReferenceType(matchExprType).tag == TypeTags.BYTE &&
-                getConstraintFromReferenceType(constMatchPatternExprType).tag == TypeTags.INT) {
+        if (getReferredType(matchExprType).tag == TypeTags.BYTE &&
+                getReferredType(constMatchPatternExprType).tag == TypeTags.INT) {
             return matchExprType;
         }
         if (isAssignable(constMatchPatternExprType, matchExprType)) {
             return constMatchPatternExprType;
         }
-        if (getConstraintFromReferenceType(matchExprType).tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) getConstraintFromReferenceType(matchExprType)).getMemberTypes()) {
-                if (getConstraintFromReferenceType(memberType).tag == TypeTags.FINITE) {
+        if (getReferredType(matchExprType).tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) getReferredType(matchExprType)).getMemberTypes()) {
+                if (getReferredType(memberType).tag == TypeTags.FINITE) {
                     if (isAssignableToFiniteType(memberType, constPatternLiteral)) {
                         return memberType;
                     }
@@ -507,7 +507,7 @@ public class Types {
                     }
                 }
             }
-        } else if (getConstraintFromReferenceType(matchExprType).tag == TypeTags.FINITE) {
+        } else if (getReferredType(matchExprType).tag == TypeTags.FINITE) {
             if (isAssignableToFiniteType(matchExprType, constPatternLiteral)) {
                 return matchExprType;
             }
@@ -592,7 +592,7 @@ public class Types {
     }
 
     public boolean isSubTypeOfMapping(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (type.tag == TypeTags.INTERSECTION) {
             return isSubTypeOfMapping(((BIntersectionType) type).effectiveType);
         }
@@ -603,7 +603,7 @@ public class Types {
     }
 
     public boolean isSubTypeOfBaseType(BType bType, int baseTypeTag) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (type.tag != TypeTags.UNION) {
             return type.tag == baseTypeTag || (baseTypeTag == TypeTags.TUPLE && type.tag == TypeTags.ARRAY)
                     || (baseTypeTag == TypeTags.ARRAY && type.tag == TypeTags.TUPLE);
@@ -672,7 +672,7 @@ public class Types {
         }
 
         if (sourceTag == TypeTags.TYPEREFDESC || targetTag == TypeTags.TYPEREFDESC) {
-            return isAssignable(getConstraintFromReferenceType(source), getConstraintFromReferenceType(target),
+            return isAssignable(getReferredType(source), getReferredType(target),
                     unresolvedTypes);
         }
 
@@ -965,7 +965,7 @@ public class Types {
             case TypeTags.INTERSECTION:
                 return getTableConstraintField(((BIntersectionType) constraintType).effectiveType, fieldName);
             case TypeTags.TYPEREFDESC:
-                return getTableConstraintField(((BTypeReferenceType) constraintType).constraint, fieldName);
+                return getTableConstraintField(((BTypeReferenceType) constraintType).referredType, fieldName);
         }
 
         return null;
@@ -1011,8 +1011,8 @@ public class Types {
     }
 
     private boolean isXMLTypeAssignable(BType sourceT, BType targetT, Set<TypePair> unresolvedTypes) {
-        BType sourceType = getConstraintFromReferenceType(sourceT);
-        BType targetType = getConstraintFromReferenceType(targetT);
+        BType sourceType = getReferredType(sourceT);
+        BType targetType = getReferredType(targetT);
         int sourceTag = sourceType.tag;
         int targetTag = targetType.tag;
 
@@ -1273,7 +1273,7 @@ public class Types {
             case TypeTags.XML:
                 return ((BXMLType) type).constraint.tag == TypeTags.NEVER;
             case TypeTags.TYPEREFDESC:
-                return isInherentlyImmutableType(((BTypeReferenceType) type).constraint);
+                return isInherentlyImmutableType(((BTypeReferenceType) type).referredType);
         }
         return false;
     }
@@ -1282,12 +1282,12 @@ public class Types {
         return type.tag == tag;
     }
 
-    public BType getConstraintFromReferenceType(BType type) {
+    public BType getReferredType(BType type) {
         BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = ((BTypeReferenceType) type).constraint;
+            constraint = ((BTypeReferenceType) type).referredType;
         }
-        return constraint.tag == TypeTags.TYPEREFDESC ? getConstraintFromReferenceType(constraint) : constraint;
+        return constraint.tag == TypeTags.TYPEREFDESC ? getReferredType(constraint) : constraint;
     }
 
     boolean isSelectivelyImmutableType(BType type) {
@@ -1308,7 +1308,7 @@ public class Types {
 
     private boolean isSelectivelyImmutableType(BType input, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
                                                boolean forceCheck) {
-        BType type = getConstraintFromReferenceType(input);
+        BType type = getReferredType(input);
 
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
@@ -1401,7 +1401,7 @@ public class Types {
                 return isSelectivelyImmutableType(((BIntersectionType) type).effectiveType, unresolvedTypes,
                                                   forceCheck);
             case TypeTags.TYPEREFDESC:
-                return isSelectivelyImmutableType(((BTypeReferenceType) type).constraint, unresolvedTypes,
+                return isSelectivelyImmutableType(((BTypeReferenceType) type).referredType, unresolvedTypes,
                         forceCheck);
 
         }
@@ -1638,7 +1638,7 @@ public class Types {
     }
 
     public void setForeachTypedBindingPatternType(BLangForeach foreachNode) {
-        BType collectionType = getConstraintFromReferenceType(foreachNode.collection.getBType());
+        BType collectionType = getReferredType(foreachNode.collection.getBType());
         BType varType;
         switch (collectionType.tag) {
             case TypeTags.STRING:
@@ -1667,7 +1667,7 @@ public class Types {
                 varType = inferRecordFieldType(recordType);
                 break;
             case TypeTags.XML:
-                BType constraint = getConstraintFromReferenceType(((BXMLType) collectionType).constraint);
+                BType constraint = getReferredType(((BXMLType) collectionType).constraint);
                 while (constraint.tag == TypeTags.XML) {
                     collectionType = constraint;
                     constraint = ((BXMLType) collectionType).constraint;
@@ -1773,7 +1773,7 @@ public class Types {
 
         BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
                 names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
-        BObjectType objectType = (BObjectType) getConstraintFromReferenceType(iteratorSymbol.retType);
+        BObjectType objectType = (BObjectType) getReferredType(iteratorSymbol.retType);
         BUnionType nextMethodReturnType =
                 (BUnionType) getResultTypeOfNextInvocation(objectType);
         foreachNode.varType = varType;
@@ -1860,7 +1860,7 @@ public class Types {
                 bLangInputClause.nillableResultType = symTable.semanticError;
                 break;
             case TypeTags.TYPEREFDESC:
-                return visitCollectionType(bLangInputClause, getConstraintFromReferenceType(collectionType));
+                return visitCollectionType(bLangInputClause, getReferredType(collectionType));
             default:
                 bLangInputClause.varType = symTable.semanticError;
                 bLangInputClause.resultType = symTable.semanticError;
@@ -1894,7 +1894,7 @@ public class Types {
 
     public BUnionType getVarTypeFromIteratorFuncReturnType(BType type) {
         BObjectTypeSymbol objectTypeSymbol;
-        BType returnType = getConstraintFromReferenceType(type);
+        BType returnType = getReferredType(type);
         if (returnType.tag != TypeTags.OBJECT) {
             return null;
         }
@@ -2038,7 +2038,7 @@ public class Types {
 
     public BType getTypeWithEffectiveIntersectionTypes(BType type) {
 
-        type = getConstraintFromReferenceType(type);
+        type = getReferredType(type);
         if (type.tag == TypeTags.INTERSECTION) {
             type = ((BIntersectionType) type).effectiveType;
         }
@@ -2077,8 +2077,8 @@ public class Types {
 
     TypeTestResult isBuiltInTypeWidenPossible(BType actualType, BType targetType) {
 
-        int targetTag = getConstraintFromReferenceType(targetType).tag;
-        int actualTag = getConstraintFromReferenceType(actualType).tag;
+        int targetTag = getReferredType(targetType).tag;
+        int actualTag = getReferredType(actualType).tag;
 
         if (actualTag < TypeTags.JSON && targetTag < TypeTags.JSON) {
             // Fail Fast for value types.
@@ -2150,7 +2150,7 @@ public class Types {
     }
 
     private TypeTestResult checkBuiltInIntSubtypeWidenPossible(BType actualType, BType targetType) {
-        int actualTag = getConstraintFromReferenceType(actualType).tag;
+        int actualTag = getReferredType(actualType).tag;
         switch (targetType.tag) {
             case TypeTags.INT:
                 if (actualTag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(actualTag)) {
@@ -2192,7 +2192,7 @@ public class Types {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                return checkBuiltInIntSubtypeWidenPossible(actualType, getConstraintFromReferenceType(targetType));
+                return checkBuiltInIntSubtypeWidenPossible(actualType, getReferredType(targetType));
         }
         return TypeTestResult.NOT_FOUND;
     }
@@ -2200,8 +2200,8 @@ public class Types {
     public boolean isImplicitlyCastable(BType actual, BType target) {
         /* The word Builtin refers for Compiler known types. */
 
-        BType targetType = getConstraintFromReferenceType(target);
-        BType actualType = getConstraintFromReferenceType(actual);
+        BType targetType = getReferredType(target);
+        BType actualType = getReferredType(actual);
         BType newTargetType = targetType;
         int targetTypeTag = targetType.tag;
         if ((targetTypeTag == TypeTags.UNION || targetTypeTag == TypeTags.FINITE) && isValueType(actualType)) {
@@ -2234,8 +2234,8 @@ public class Types {
     }
 
     public boolean isTypeCastable(BLangExpression expr, BType source, BType target, SymbolEnv env) {
-        BType sourceType = getConstraintFromReferenceType(source);
-        BType targetType = getConstraintFromReferenceType(target);
+        BType sourceType = getReferredType(source);
+        BType targetType = getReferredType(target);
         if (sourceType.tag == TypeTags.SEMANTIC_ERROR || targetType.tag == TypeTags.SEMANTIC_ERROR ||
                 sourceType == targetType) {
             return true;
@@ -2376,7 +2376,7 @@ public class Types {
     }
 
     public void setImplicitCastExpr(BLangExpression expr, BType actualType, BType targetType) {
-        BType expType = getConstraintFromReferenceType(targetType);
+        BType expType = getReferredType(targetType);
         if (!isImplicitlyCastable(actualType, expType)) {
             return;
         }
@@ -2417,7 +2417,7 @@ public class Types {
     }
 
     public boolean checkListenerCompatibility(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (type.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) type;
             for (BType memberType : unionType.getMemberTypes()) {
@@ -2443,7 +2443,7 @@ public class Types {
     public boolean isValidErrorDetailType(BType detailType) {
         switch (detailType.tag) {
             case TypeTags.TYPEREFDESC:
-                return isValidErrorDetailType(((BTypeReferenceType) detailType).constraint);
+                return isValidErrorDetailType(((BTypeReferenceType) detailType).referredType);
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 return isAssignable(detailType, symTable.detailType);
@@ -2471,8 +2471,8 @@ public class Types {
 
         @Override
         public Boolean visit(BType target, BType source) {
-            BType t = getConstraintFromReferenceType(target);
-            BType s = getConstraintFromReferenceType(source);
+            BType t = getReferredType(target);
+            BType s = getReferredType(source);
             if (t == s) {
                 return true;
             }
@@ -2770,21 +2770,21 @@ public class Types {
 
         @Override
         public Boolean visit(BType target, BType source) {
-            int sourceTag = getConstraintFromReferenceType(source).tag;
-            int targetTag = getConstraintFromReferenceType(target).tag;
-            if(sourceTag == TypeTags.INTERSECTION || targetTag == TypeTags.INTERSECTION) {
-                sourceTag = getEffectiveTypeForIntersection(getConstraintFromReferenceType(source)).tag;
-                targetTag = getEffectiveTypeForIntersection(getConstraintFromReferenceType(target)).tag;
+            int sourceTag = getReferredType(source).tag;
+            int targetTag = getReferredType(target).tag;
+            if (sourceTag == TypeTags.INTERSECTION || targetTag == TypeTags.INTERSECTION) {
+                sourceTag = getEffectiveTypeForIntersection(getReferredType(source)).tag;
+                targetTag = getEffectiveTypeForIntersection(getReferredType(target)).tag;
             }
             if (isSimpleBasicType(sourceTag) && isSimpleBasicType(targetTag)) {
                 return (source == target) || isIntOrStringType(sourceTag, targetTag);
             }
             if (sourceTag == TypeTags.FINITE) {
-                return checkValueSpaceHasSameType(((BFiniteType) getConstraintFromReferenceType(source)),
-                        getConstraintFromReferenceType(target));
+                return checkValueSpaceHasSameType(((BFiniteType) getReferredType(source)),
+                        getReferredType(target));
             }
-            return isSameOrderedType(getConstraintFromReferenceType(target),
-                    getConstraintFromReferenceType(source), this.unresolvedTypes);
+            return isSameOrderedType(getReferredType(target),
+                    getReferredType(source), this.unresolvedTypes);
         }
 
         @Override
@@ -2993,7 +2993,7 @@ public class Types {
     private boolean checkUnionHasSameType(LinkedHashSet<BType> memberTypes, BType baseType) {
         boolean isSameType = false;
         for (BType type : memberTypes) {
-            type = getConstraintFromReferenceType(type);
+            type = getReferredType(type);
             if (type.tag == TypeTags.FINITE) {
                 for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
                     isSameType = isSameOrderedType(expr.getBType(), baseType);
@@ -3014,7 +3014,7 @@ public class Types {
     }
 
     private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType type) {
-        BType baseType = getConstraintFromReferenceType(type);
+        BType baseType = getReferredType(type);
         if (baseType.tag == TypeTags.FINITE) {
             BType baseExprType = finiteType.getValueSpace().iterator().next().getBType();
             return checkValueSpaceHasSameType(((BFiniteType) baseType), baseExprType);
@@ -3349,7 +3349,7 @@ public class Types {
                     memTypes.addAll(getEffectiveMemberTypes((BUnionType) memberType));
                     break;
                 case TypeTags.TYPEREFDESC:
-                    BType constraint = ((BTypeReferenceType) memberType).constraint;
+                    BType constraint = ((BTypeReferenceType) memberType).referredType;
                     if (constraint.tag == TypeTags.UNION) {
                         memTypes.addAll(getEffectiveMemberTypes((BUnionType) constraint));
                         continue;
@@ -3365,7 +3365,7 @@ public class Types {
     }
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
-        BType expType = getConstraintFromReferenceType(targetType);
+        BType expType = getReferredType(targetType);
         if (expType.tag == TypeTags.FINITE) {
             return finiteType.getValueSpace().stream()
                     .allMatch(expression -> isAssignableToFiniteType(expType, (BLangLiteral) expression));
@@ -3376,14 +3376,14 @@ public class Types {
             return finiteType.getValueSpace().stream()
                     .allMatch(valueExpr -> unionMemberTypes.stream()
                             .anyMatch(targetMemType ->
-                                    getConstraintFromReferenceType(targetMemType).tag == TypeTags.FINITE ?
-                                            isAssignableToFiniteType(getConstraintFromReferenceType(targetMemType),
+                                    getReferredType(targetMemType).tag == TypeTags.FINITE ?
+                                            isAssignableToFiniteType(getReferredType(targetMemType),
                                                     (BLangLiteral) valueExpr) :
                                             isAssignable(valueExpr.getBType(),
-                                                    getConstraintFromReferenceType(targetMemType), unresolvedTypes) ||
+                                                    getReferredType(targetMemType), unresolvedTypes) ||
                                                     isLiteralCompatibleWithBuiltinTypeWithSubTypes(
                                                             (BLangLiteral) valueExpr,
-                                                            getConstraintFromReferenceType(targetMemType))));
+                                                            getReferredType(targetMemType))));
         }
 
         for (BLangExpression expression : finiteType.getValueSpace()) {
@@ -3396,7 +3396,7 @@ public class Types {
     }
 
     boolean isAssignableToFiniteType(BType type, BLangLiteral literalExpr) {
-        type = getConstraintFromReferenceType(type);
+        type = getReferredType(type);
         if (type.tag != TypeTags.FINITE) {
             return false;
         }
@@ -3748,7 +3748,7 @@ public class Types {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
-                BType firstTypeInUnion = getConstraintFromReferenceType(memberTypes.iterator().next());
+                BType firstTypeInUnion = getReferredType(memberTypes.iterator().next());
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
@@ -3764,7 +3764,7 @@ public class Types {
                     }
                 } else {
                     for (BType memType : memberTypes) {
-                        memType = getConstraintFromReferenceType(memType);
+                        memType = getReferredType(memType);
                         if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
                             return false;
                         }
@@ -3784,7 +3784,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.TYPEREFDESC:
-                return validNumericTypeExists(getConstraintFromReferenceType(type));
+                return validNumericTypeExists(getReferredType(type));
             default:
                 return false;
         }
@@ -3803,7 +3803,7 @@ public class Types {
     }
 
     boolean validIntegerTypeExists(BType input) {
-        BType type = getConstraintFromReferenceType(input);
+        BType type = getReferredType(input);
         if (TypeTags.isIntegerTypeTag(type.tag)) {
             return true;
         }
@@ -3813,7 +3813,7 @@ public class Types {
             case TypeTags.UNION:
                 LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
                 for (BType memberType : memberTypes) {
-                    memberType = getConstraintFromReferenceType(memberType);
+                    memberType = getReferredType(memberType);
                     if (!validIntegerTypeExists(memberType)) {
                         return false;
                     }
@@ -3833,7 +3833,7 @@ public class Types {
     }
 
     boolean validStringOrXmlTypeExists(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (TypeTags.isStringTypeTag(type.tag)) {
             return true;
         }
@@ -3844,12 +3844,12 @@ public class Types {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
-                BType firstTypeInUnion = getConstraintFromReferenceType(memberTypes.iterator().next());
+                BType firstTypeInUnion = getReferredType(memberTypes.iterator().next());
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
                     for (BType memType : memberTypes) {
-                        memType = getConstraintFromReferenceType(memType);
+                        memType = getReferredType(memType);
                         if (memType.tag == TypeTags.FINITE) {
                             if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                                 return false;
@@ -3861,7 +3861,7 @@ public class Types {
                     }
                 } else {
                     for (BType memType : memberTypes) {
-                       memType = getConstraintFromReferenceType(memType);
+                       memType = getReferredType(memType);
                         if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
                             return false;
                         }
@@ -3918,7 +3918,7 @@ public class Types {
                 }
                 return true;
             case TypeTags.TYPEREFDESC:
-                return checkTypeContainString(getConstraintFromReferenceType(type));
+                return checkTypeContainString(getReferredType(type));
             default:
                 return false;
         }
@@ -3991,7 +3991,7 @@ public class Types {
                 memberTypes.add(bType);
                 break;
             case TypeTags.TYPEREFDESC:
-                return expandAndGetMemberTypesRecursiveHelper(getConstraintFromReferenceType(bType), visited);
+                return expandAndGetMemberTypesRecursiveHelper(getReferredType(bType), visited);
             default:
                 memberTypes.add(bType);
         }
@@ -4286,7 +4286,7 @@ public class Types {
             case TypeTags.READONLY:
                 return getRemainingType((BReadonlyType) originalType, typeToRemove);
             case TypeTags.TYPEREFDESC:
-                return getRemainingType(((BTypeReferenceType) originalType).constraint, typeToRemove);
+                return getRemainingType(((BTypeReferenceType) originalType).referredType, typeToRemove);
             default:
                 return originalType;
         }
@@ -4473,7 +4473,7 @@ public class Types {
     }
 
     private BType getEffectiveTypeForIntersection(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (type.tag != TypeTags.INTERSECTION) {
             return type;
         }
@@ -5109,7 +5109,7 @@ public class Types {
     public List<BType> getAllTypes(BType type) {
         if (type.tag != TypeTags.UNION) {
             if (type.tag == TypeTags.TYPEREFDESC) {
-                return getAllTypes(((BTypeReferenceType) type).constraint);
+                return getAllTypes(((BTypeReferenceType) type).referredType);
             } else {
                 return Lists.of(type);
             }
@@ -5145,7 +5145,7 @@ public class Types {
                 BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
                 return isAllowedConstantType(finiteValue.getBType());
             case TypeTags.TYPEREFDESC:
-                return isAllowedConstantType(((BTypeReferenceType) type).constraint);
+                return isAllowedConstantType(((BTypeReferenceType) type).referredType);
             default:
                 return false;
         }
@@ -5281,7 +5281,7 @@ public class Types {
                 }
                 return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             case TypeTags.TYPEREFDESC:
-                return hasFillerValue(getConstraintFromReferenceType(type));
+                return hasFillerValue(getReferredType(type));
             default:
                 // filler value is 0
                 if (TypeTags.isIntegerTypeTag(type.tag)) {
@@ -5524,9 +5524,9 @@ public class Types {
                 }
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 boolean allMembersOrdered = false;
-                BType firstTypeInUnion = getConstraintFromReferenceType(memberTypes.iterator().next());
+                BType firstTypeInUnion = getReferredType(memberTypes.iterator().next());
                 for (BType memType : memberTypes) {
-                    memType = getConstraintFromReferenceType(memType);
+                    memType = getReferredType(memType);
                     if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE) {
                         Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                         BType baseExprType = valSpace.iterator().next().getBType();
@@ -5572,7 +5572,7 @@ public class Types {
                 }
                 return isValueSpaceOrdered;
             case TypeTags.TYPEREFDESC:
-                return isOrderedType(getConstraintFromReferenceType(type), hasCycle);
+                return isOrderedType(getReferredType(type), hasCycle);
             case TypeTags.INTERSECTION:
                 return isOrderedType(getEffectiveTypeForIntersection(type), hasCycle);
             default:
@@ -5587,11 +5587,11 @@ public class Types {
     }
 
     public boolean isUnionOfSimpleBasicTypes(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (type.tag == TypeTags.UNION) {
             Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
             for (BType memType : memberTypes) {
-                memType = getConstraintFromReferenceType(memType);
+                memType = getReferredType(memType);
                 if (!isSimpleBasicType(memType.tag)) {
                     return false;
                 }
@@ -5624,7 +5624,7 @@ public class Types {
                 LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
                 return findCompatibleType(memberTypes.iterator().next());
             case TypeTags.TYPEREFDESC:
-                return findCompatibleType(((BTypeReferenceType) type).constraint);
+                return findCompatibleType(((BTypeReferenceType) type).referredType);
             default:
                 Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
                 return findCompatibleType(valueSpace.iterator().next().getBType());
@@ -5632,11 +5632,11 @@ public class Types {
     }
 
     public boolean isNonNilSimpleBasicTypeOrString(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (type.tag == TypeTags.UNION) {
             Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
             for (BType member : memberTypes) {
-                BType memType = getConstraintFromReferenceType(member);
+                BType memType = getReferredType(member);
                 if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
                     return false;
                 }
@@ -5647,7 +5647,7 @@ public class Types {
     }
 
     public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType bType) {
-        BType type = getConstraintFromReferenceType(bType);
+        BType type = getReferredType(bType);
         if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return true;
         }
@@ -5679,7 +5679,7 @@ public class Types {
     }
 
     BType getTypeWithoutNil(BType type) {
-        BType constraint = getConstraintFromReferenceType(type);
+        BType constraint = getReferredType(type);
         if (constraint.tag != TypeTags.UNION) {
             return constraint;
         }
@@ -5745,7 +5745,7 @@ public class Types {
                 return arrayType.state != BArrayState.OPEN &&
                         isNeverTypeOrStructureTypeWithARequiredNeverMember(arrayType.eType, visitedTypeSet);
             case TypeTags.TYPEREFDESC:
-                return isNeverTypeOrStructureTypeWithARequiredNeverMember(getConstraintFromReferenceType(type),
+                return isNeverTypeOrStructureTypeWithARequiredNeverMember(getReferredType(type),
                         visitedTypeSet);
             default:
                 return false;
@@ -5871,7 +5871,7 @@ public class Types {
         }
 
         private boolean isServiceObject(BType bType) {
-            BType type = types.getConstraintFromReferenceType(bType);
+            BType type = types.getReferredType(bType);
             if (type.tag == TypeTags.UNION) {
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (!isServiceObject(memberType)) {

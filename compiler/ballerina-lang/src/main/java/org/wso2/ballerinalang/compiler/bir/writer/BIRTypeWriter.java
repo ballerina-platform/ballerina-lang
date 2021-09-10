@@ -228,7 +228,7 @@ public class BIRTypeWriter implements TypeVisitor {
         writePackageIndex(tsymbol);
 
         buff.writeInt(addStringCPEntry(typeReferenceType.definitionName));
-        writeTypeCpIndex(typeReferenceType.constraint);
+        writeTypeCpIndex(typeReferenceType.referredType);
     }
 
     @Override

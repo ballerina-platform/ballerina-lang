@@ -126,7 +126,7 @@ public class ServiceDesugar {
         final Location pos = variable.pos;
 
         // Find correct symbol.
-        BTypeSymbol listenerTypeSymbol = types.getConstraintFromReferenceType(
+        BTypeSymbol listenerTypeSymbol = types.getReferredType(
                 getListenerType(variable.getBType())).tsymbol;
         final Name functionName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(listenerTypeSymbol.name.value, method));
@@ -234,7 +234,7 @@ public class ServiceDesugar {
     }
 
     private BType getListenerTypeWithoutError(BType type) {
-        if (types.getConstraintFromReferenceType(type).tag == TypeTags.UNION) {
+        if (types.getReferredType(type).tag == TypeTags.UNION) {
             LinkedHashSet<BType> members = new LinkedHashSet<>();
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                 if (types.isAssignable(memberType, symTable.errorType)) {
@@ -248,8 +248,8 @@ public class ServiceDesugar {
     }
 
     private BType getListenerType(BType type) {
-        if (types.getConstraintFromReferenceType(type).tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) types.getConstraintFromReferenceType(type)).getMemberTypes()) {
+        if (types.getReferredType(type).tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) types.getReferredType(type)).getMemberTypes()) {
                 if (types.checkListenerCompatibility(memberType)) {
                     return memberType;
                 }

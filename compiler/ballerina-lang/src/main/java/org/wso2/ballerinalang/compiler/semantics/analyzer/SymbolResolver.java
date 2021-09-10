@@ -516,14 +516,14 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.env = prevEnv;
         this.diagCode = preDiagCode;
 
-        if (types.getConstraintFromReferenceType(this.resultType) != symTable.noType) {
+        if (types.getReferredType(this.resultType) != symTable.noType) {
             // If the typeNode.nullable is true then convert the resultType to a union type
             // if it is not already a union type, JSON type, or any type
-            if (typeNode.nullable && types.getConstraintFromReferenceType(this.resultType).tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) types.getConstraintFromReferenceType(this.resultType);
+            if (typeNode.nullable && types.getReferredType(this.resultType).tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) types.getReferredType(this.resultType);
                 unionType.add(symTable.nilType);
-            } else if (typeNode.nullable && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.JSON
-                    && types.getConstraintFromReferenceType(this.resultType).tag != TypeTags.ANY) {
+            } else if (typeNode.nullable && types.getReferredType(this.resultType).tag != TypeTags.JSON
+                    && types.getReferredType(this.resultType).tag != TypeTags.ANY) {
                 this.resultType = BUnionType.create(null, this.resultType, symTable.nilType);
             }
         }
@@ -542,7 +542,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private boolean isDistinctAllowedOnType(BType type) {
         if (type.tag == TypeTags.TYPEREFDESC) {
-            return isDistinctAllowedOnType(types.getConstraintFromReferenceType(type));
+            return isDistinctAllowedOnType(types.getReferredType(type));
         }
         if (type.tag == TypeTags.INTERSECTION) {
             for (BType constituentType : ((BIntersectionType) type).getConstituentTypes()) {
@@ -729,7 +729,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                             format("Union type '%s' does not have member types", type.toString()));
                 }
 
-                BType member = types.getConstraintFromReferenceType(itr.next());
+                BType member = types.getReferredType(itr.next());
 
                 if (types.isSubTypeOfBaseType(type, member.tag)) {
                     bSymbol = lookupLangLibMethod(member, name);
@@ -738,7 +738,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                bSymbol = lookupLangLibMethod(types.getConstraintFromReferenceType(type), name);
+                bSymbol = lookupLangLibMethod(types.getReferredType(type), name);
                 break;
             case TypeTags.FINITE:
                 if (types.isAssignable(type, symTable.intType)) {
@@ -1061,7 +1061,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.intRangeType = (BObjectType) types
-                    .getConstraintFromReferenceType(((BInvokableType) entry.symbol.type).retType);
+                    .getReferredType(((BInvokableType) entry.symbol.type).retType);
             symTable.defineIntRangeOperations();
             return;
         }
@@ -1334,7 +1334,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             tableType.keyPos = tableKeySpecifier.pos;
         }
 
-        if (types.getConstraintFromReferenceType(constraintType).tag == TypeTags.MAP &&
+        if (types.getReferredType(constraintType).tag == TypeTags.MAP &&
                 (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
                 !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(tableType.keyPos,
@@ -1483,7 +1483,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     private void validateXMLConstraintType(BType type, Location pos) {
-        BType constraintType = types.getConstraintFromReferenceType(type);
+        BType constraintType = types.getReferredType(type);
         int constrainedTag = constraintType.tag;
 
         if (constrainedTag == TypeTags.UNION) {
@@ -1498,7 +1498,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, Location pos) {
         for (BType memberType : constraintUnionType.getMemberTypes()) {
-            memberType = types.getConstraintFromReferenceType(memberType);
+            memberType = types.getReferredType(memberType);
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
@@ -1546,7 +1546,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 }
 
                 if (refSymbol.type != null &&
-                        types.getConstraintFromReferenceType(refSymbol.type).tag != TypeTags.TYPEDESC) {
+                        types.getReferredType(refSymbol.type).tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                             tempSymbol.type);
                     errored = true;
@@ -1620,7 +1620,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (param.name.value.equals(varSym.name.value)) {
                 if (param.expr == null || param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
                     return new ParameterizedTypeInfo(
-                            ((BTypedescType) types.getConstraintFromReferenceType(varSym.type)).constraint, i);
+                            ((BTypedescType) types.getReferredType(varSym.type)).constraint, i);
                 }
 
                 NodeKind defaultValueExprKind = param.expr.getKind();
@@ -1853,7 +1853,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
                         case TypeTags.TYPEREFDESC:
                             return getBitwiseShiftOpsForTypeSets(opKind,
-                                    types.getConstraintFromReferenceType(lhsType), rhsType);
+                                    types.getReferredType(lhsType), rhsType);
                         default:
                             return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                     }
@@ -1918,7 +1918,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                             return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
                         case TypeTags.TYPEREFDESC:
                             return getBinaryBitwiseOpsForTypeSets(opKind,
-                                    types.getConstraintFromReferenceType(lhsType), rhsType);
+                                    types.getReferredType(lhsType), rhsType);
                     }
                     switch (rhsType.tag) {
                         case TypeTags.UNSIGNED8_INT:
@@ -1928,7 +1928,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                             return createBinaryOperator(opKind, lhsType, rhsType, rhsType);
                         case TypeTags.TYPEREFDESC:
                             return getBinaryBitwiseOpsForTypeSets(opKind, lhsType,
-                                    types.getConstraintFromReferenceType(rhsType));
+                                    types.getReferredType(rhsType));
                     }
                     return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
                 case BITWISE_OR:
@@ -2029,7 +2029,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (types.size() == opType.paramTypes.size()) {
                 boolean match = true;
                 for (int i = 0; i < types.size(); i++) {
-                    BType t = this.types.getConstraintFromReferenceType(types.get(i));
+                    BType t = this.types.getReferredType(types.get(i));
                     if (t.tag != opType.paramTypes.get(i).tag) {
                         match = false;
                     }
@@ -2107,7 +2107,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
 
-        typeOne = types.getConstraintFromReferenceType(typeOne);
+        typeOne = types.getReferredType(typeOne);
 
         if (typeOne == symTable.noType) {
             return symTable.noType;
@@ -2118,7 +2118,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
 
-        typeTwo = types.getConstraintFromReferenceType(typeTwo);
+        typeTwo = types.getReferredType(typeTwo);
 
         if (typeTwo == symTable.noType) {
             return symTable.noType;

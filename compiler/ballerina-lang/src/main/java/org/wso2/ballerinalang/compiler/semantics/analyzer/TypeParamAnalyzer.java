@@ -316,8 +316,8 @@ public class TypeParamAnalyzer {
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
             case TypeTags.XML:
-                if (!TypeTags.isXMLTypeTag(types.getConstraintFromReferenceType(actualType).tag)) {
-                    if (types.getConstraintFromReferenceType(actualType).tag == TypeTags.UNION) {
+                if (!TypeTags.isXMLTypeTag(types.getReferredType(actualType).tag)) {
+                    if (types.getReferredType(actualType).tag == TypeTags.UNION) {
                         dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
                     }
                     return;
@@ -445,12 +445,12 @@ public class TypeParamAnalyzer {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                visitType(loc, types.getConstraintFromReferenceType(expType), actualType, env, resolvedTypes,
+                visitType(loc, types.getReferredType(expType), actualType, env, resolvedTypes,
                         result, checkContravariance);
                 break;
         }
         if (actualType.tag == TypeTags.TYPEREFDESC) {
-            visitType(loc, expType, types.getConstraintFromReferenceType(actualType), env, resolvedTypes,
+            visitType(loc, expType, types.getReferredType(actualType), env, resolvedTypes,
                     result, checkContravariance);
         }
     }
@@ -683,10 +683,10 @@ public class TypeParamAnalyzer {
         if (isTypeParam(expType)) {
             for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
                 if (typeParamEntry.typeParam.tag == TypeTags.TYPEREFDESC && expType.tag != TypeTags.TYPEREFDESC) {
-                    typeParamEntry.typeParam = types.getConstraintFromReferenceType(typeParamEntry.typeParam);
+                    typeParamEntry.typeParam = types.getReferredType(typeParamEntry.typeParam);
                 }
                 if (typeParamEntry.typeParam == expType ||
-                        typeParamEntry.typeParam == types.getConstraintFromReferenceType(expType)) {
+                        typeParamEntry.typeParam == types.getReferredType(expType)) {
                     return typeParamEntry.boundType;
                 }
             }
@@ -702,14 +702,14 @@ public class TypeParamAnalyzer {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) expType).eType;
                 BType matchingBoundElementType = getMatchingBoundType(elementType, env, resolvedTypes);
-                if (matchingBoundElementType == types.getConstraintFromReferenceType(elementType)) {
+                if (matchingBoundElementType == types.getReferredType(elementType)) {
                     return expType;
                 }
                 return new BArrayType(matchingBoundElementType);
             case TypeTags.MAP:
                 BType constraint = ((BMapType) expType).constraint;
                 BType matchingBoundMapConstraintType = getMatchingBoundType(constraint, env, resolvedTypes);
-                if (matchingBoundMapConstraintType == types.getConstraintFromReferenceType(constraint)) {
+                if (matchingBoundMapConstraintType == types.getReferredType(constraint)) {
                     return expType;
                 }
                 return new BMapType(TypeTags.MAP, matchingBoundMapConstraintType, symTable.mapType.tsymbol);
@@ -724,8 +724,8 @@ public class TypeParamAnalyzer {
                     completionType = symTable.nilType;
                 }
 
-                if (types.getConstraintFromReferenceType(expStreamConstraint) == constraintType
-                        && types.getConstraintFromReferenceType(expStreamCompletionType) == completionType) {
+                if (types.getReferredType(expStreamConstraint) == constraintType
+                        && types.getReferredType(expStreamCompletionType) == completionType) {
                     return expStreamType;
                 }
 
@@ -734,14 +734,14 @@ public class TypeParamAnalyzer {
                 BTableType expTableType = (BTableType) expType;
                 BType expTableConstraint = expTableType.constraint;
                 BType tableConstraint = getMatchingBoundType(expTableConstraint, env, resolvedTypes);
-                boolean differentTypes = types.getConstraintFromReferenceType(expTableConstraint) != tableConstraint;
+                boolean differentTypes = types.getReferredType(expTableConstraint) != tableConstraint;
 
                 BType expTableKeyTypeConstraint = expTableType.keyTypeConstraint;
                 BType keyTypeConstraint = null;
                 if (expTableKeyTypeConstraint != null) {
                     keyTypeConstraint = getMatchingBoundType(expTableKeyTypeConstraint, env, resolvedTypes);
                     differentTypes = differentTypes ||
-                            types.getConstraintFromReferenceType(expTableKeyTypeConstraint) != keyTypeConstraint;
+                            types.getReferredType(expTableKeyTypeConstraint) != keyTypeConstraint;
                 }
 
                 if (!differentTypes) {
@@ -776,7 +776,7 @@ public class TypeParamAnalyzer {
             case TypeTags.INTERSECTION:
                 return getMatchingReadonlyIntersectionBoundType((BIntersectionType) expType, env, resolvedTypes);
             case TypeTags.TYPEREFDESC:
-                return getMatchingBoundType(((BTypeReferenceType) expType).constraint, env, resolvedTypes);
+                return getMatchingBoundType(((BTypeReferenceType) expType).referredType, env, resolvedTypes);
             default:
                 return expType;
         }
@@ -814,9 +814,9 @@ public class TypeParamAnalyzer {
             return symTable.semanticError;
         }
 
-        BIntersectionType boundIntersectionType = ImmutableTypeCloner
-                .getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                        (SelectivelyImmutableReferenceType) types.getConstraintFromReferenceType(matchingBoundNonReadOnlyType),
+        BIntersectionType boundIntersectionType =
+                ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
+                        (SelectivelyImmutableReferenceType) types.getReferredType(matchingBoundNonReadOnlyType),
                         env, symTable, anonymousModelHelper, names, new HashSet<>());
 
         return boundIntersectionType.effectiveType;

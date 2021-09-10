@@ -204,7 +204,7 @@ public class JvmTerminatorGen {
     }
 
     private void loadDefaultValue(MethodVisitor mv, BType type) {
-        BType bType = JvmCodeGenUtil.getConstraintFromReferenceType(type);
+        BType bType = JvmCodeGenUtil.getReferredType(type);
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             return;
@@ -403,7 +403,7 @@ public class JvmTerminatorGen {
 
         boolean errorIncluded = false;
         for (BType member : bType.getMemberTypes()) {
-            member = JvmCodeGenUtil.getConstraintFromReferenceType(member);
+            member = JvmCodeGenUtil.getReferredType(member);
             if (member.tag == TypeTags.ERROR) {
                 errorIncluded = true;
                 break;
@@ -696,7 +696,7 @@ public class JvmTerminatorGen {
         }
 
         BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
-        if (JvmCodeGenUtil.getConstraintFromReferenceType(selfArg.type).tag == TypeTags.OBJECT) {
+        if (JvmCodeGenUtil.getReferredType(selfArg.type).tag == TypeTags.OBJECT) {
             this.genVirtualCall(callIns, JvmCodeGenUtil.isBallerinaBuiltinModule(
                     packageID.orgName.getValue(), packageID.name.getValue()), localVarOffset);
         } else {
@@ -1371,7 +1371,7 @@ public class JvmTerminatorGen {
                 this.mv.visitInsn(ARETURN);
                 break;
             case TypeTags.TYPEREFDESC:
-                generateReturnTermFromType(returnVarRefIndex, ((BTypeReferenceType) bType).constraint, func);
+                generateReturnTermFromType(returnVarRefIndex, ((BTypeReferenceType) bType).referredType, func);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +

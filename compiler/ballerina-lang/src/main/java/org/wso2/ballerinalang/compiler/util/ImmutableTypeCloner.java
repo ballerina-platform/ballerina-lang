@@ -151,7 +151,7 @@ public class ImmutableTypeCloner {
 
             if (!types.isInherentlyImmutableType(type)) {
                 BType immutableFieldType = typeField.symbol.type = ImmutableTypeCloner.getImmutableIntersectionType(
-                        pos, types, (SelectivelyImmutableReferenceType) types.getConstraintFromReferenceType(type),
+                        pos, types, (SelectivelyImmutableReferenceType) types.getReferredType(type),
                         typeDefEnv, symbolTable, anonymousModelHelper, names, classDef.flagSet);
                 classField.setBType(typeField.type = immutableFieldType);
             }
@@ -174,7 +174,7 @@ public class ImmutableTypeCloner {
             return symTable.semanticError;
         }
 
-        BType selectivelyImmutableRefType = types.getConstraintFromReferenceType(type);
+        BType selectivelyImmutableRefType = types.getReferredType(type);
         return getImmutableIntersectionType(pos, types,
                 (SelectivelyImmutableReferenceType) selectivelyImmutableRefType, env, pkgId,
                                             owner, symTable, anonymousModelHelper, names, new HashSet<>(),
