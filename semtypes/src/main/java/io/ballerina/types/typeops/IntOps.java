@@ -41,7 +41,7 @@ public class IntOps implements UniformTypeOps {
     @Override
     public SubtypeData union(SubtypeData d1, SubtypeData d2) {
         IntSubtype v1 = (IntSubtype) d1;
-        IntSubtype v2 = (IntSubtype) d1;
+        IntSubtype v2 = (IntSubtype) d2;
         Range[] v = rangeListUnion(v1.ranges, v2.ranges);
         if (v.length == 1 && v[0].min == MIN_VALUE && v[0].max == MAX_VALUE) {
             return AllOrNothingSubtype.createAll();
@@ -52,7 +52,7 @@ public class IntOps implements UniformTypeOps {
     @Override
     public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
         IntSubtype v1 = (IntSubtype) d1;
-        IntSubtype v2 = (IntSubtype) d1;
+        IntSubtype v2 = (IntSubtype) d2;
         Range[] v = rangeListIntersect(v1.ranges, v2.ranges);
         if (v.length == 0) {
             return AllOrNothingSubtype.createNothing();
