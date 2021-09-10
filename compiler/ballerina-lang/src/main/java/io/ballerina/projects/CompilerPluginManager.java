@@ -54,9 +54,9 @@ class CompilerPluginManager {
                 packageResolution.packageContext().project().currentPackage(), PackageDependencyScope.DEFAULT);
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = packageResolution.dependencyGraph();
         List<Package> directDependencies = getDirectDependencies(rootPkgNode, dependencyGraph);
-        List<CompilerPluginInfo> compilerPlugins = new ArrayList<>(
-                loadInBuiltCompilerPlugins(rootPkgNode.packageInstance()));
-        compilerPlugins.addAll(loadEngagedCompilerPlugins(directDependencies));
+        List<CompilerPluginInfo> compilerPlugins = loadEngagedCompilerPlugins(directDependencies);
+        List<CompilerPluginInfo> inBuiltCompilerPlugins = loadInBuiltCompilerPlugins(rootPkgNode.packageInstance());
+        compilerPlugins.addAll(inBuiltCompilerPlugins);
         List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins);
         return new CompilerPluginManager(compilation, compilerPluginContexts);
     }
