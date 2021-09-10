@@ -482,9 +482,6 @@ public class MethodGen {
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
-            Label bbScopeEndLabel = labelGen.getLabel(funcName + bb.id.value + "endScope");
-            mv.visitLabel(bbScopeEndLabel);
-
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
             BIRBasicBlock thenBB = terminator.thenBB;
@@ -911,7 +908,7 @@ public class MethodGen {
                     startLabel = labelGen.getLabel(funcName + SCOPE_PREFIX + localVar.insScope.id);
                 }
                 if (localVar.endBB != null) {
-                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "endScope");
+                    endLabel = labelGen.getLabel(funcName + localVar.endBB.id.value + "beforeTerm");
                 }
             }
             String metaVarName = localVar.metaVarName;

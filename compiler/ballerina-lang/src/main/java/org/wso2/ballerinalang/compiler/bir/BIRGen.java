@@ -1645,18 +1645,14 @@ public class BIRGen extends BLangNodeVisitor {
         astWhileStmt.body.accept(this);
         this.env.unlockVars.pop();
         if (this.env.enclBB.terminator == null) {
-            if (astWhileStmt.body.pos != null) {
-                Location newLocation = new BLangDiagnosticLocation(
-                        astWhileStmt.body.pos.lineRange().filePath(),
-                        astWhileStmt.body.pos.lineRange().endLine().line(),
-                        astWhileStmt.body.pos.lineRange().endLine().line(),
-                        astWhileStmt.body.pos.lineRange().endLine().offset(),
-                        astWhileStmt.body.pos.lineRange().endLine().offset(), 0, 0
-                );
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, whileExprBB, this.currentScope);
-            } else {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, whileExprBB, this.currentScope);
-            }
+            Location newLocation = new BLangDiagnosticLocation(
+                    astWhileStmt.body.pos.lineRange().filePath(),
+                    astWhileStmt.body.pos.lineRange().endLine().line(),
+                    astWhileStmt.body.pos.lineRange().endLine().line(),
+                    astWhileStmt.body.pos.lineRange().endLine().offset(),
+                    astWhileStmt.body.pos.lineRange().endLine().offset(), 0, 0
+            );
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, whileExprBB, this.currentScope);
         }
 
         this.env.enclBasicBlocks.add(whileEndBB);
