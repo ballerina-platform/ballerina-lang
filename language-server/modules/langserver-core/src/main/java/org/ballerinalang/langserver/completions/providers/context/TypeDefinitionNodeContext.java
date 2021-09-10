@@ -72,7 +72,6 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
              * Currently the qualifier can be isolated/transactional.
              */
             completionItems.addAll(getCompletionItemsOnQualifiers(node.typeDescriptor(), context));
-            return completionItems;
         } else {
             completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.addAll(this.getTypeQualifierItems(context));

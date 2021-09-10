@@ -61,7 +61,6 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
             */
             completionItems.addAll(getCompletionItemsOnQualifiers(node, context));
             this.sort(context, node, completionItems);
-
             return completionItems;
         } else if (this.onVariableNameContext(context, node)) {
             return Collections.emptyList();

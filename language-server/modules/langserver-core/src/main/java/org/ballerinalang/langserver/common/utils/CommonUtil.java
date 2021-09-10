@@ -1462,21 +1462,18 @@ public class CommonUtil {
      * Provided a node, returns the list of possible qualifiers of that node.
      *
      * @param node node.
-     * @return {@link List<Token>} qualifiers list.s
+     * @return {@link List<Token>} qualifiers list.
      */
     public static List<Token> getQualifiersOfNode(Node node) {
-        List<Token> qualifiers;
+        List<Token> qualifiers = new ArrayList<>();
         switch (node.kind()) {
             case FUNCTION_TYPE_DESC:
-                qualifiers = ((FunctionTypeDescriptorNode) node).qualifierList()
-                        .stream().collect(Collectors.toList());
+                ((FunctionTypeDescriptorNode) node).qualifierList().forEach(qualifiers::add);
                 break;
             case MODULE_VAR_DECL:
-                qualifiers = ((ModuleVariableDeclarationNode) node).qualifiers()
-                        .stream().collect(Collectors.toList());
+                ((ModuleVariableDeclarationNode) node).qualifiers().forEach(qualifiers::add);
                 break;
             default:
-                qualifiers = new ArrayList<>();
         }
         if (qualifiers.isEmpty()) {
             qualifiers.addAll(node.leadingInvalidTokens());

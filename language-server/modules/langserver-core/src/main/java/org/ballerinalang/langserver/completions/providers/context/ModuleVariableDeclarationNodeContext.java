@@ -48,6 +48,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ModuleVariableDeclarationNodeContext extends
         NodeWithRHSInitializerProvider<ModuleVariableDeclarationNode> {
+
     public ModuleVariableDeclarationNodeContext() {
         super(ModuleVariableDeclarationNode.class);
     }
@@ -62,8 +63,6 @@ public class ModuleVariableDeclarationNodeContext extends
             completionItems.addAll(this.initializerContextCompletions(ctx, node.typedBindingPattern().typeDescriptor(),
                     node.initializer().get()));
             resolvedContext = ResolvedContext.INITIALIZER;
-            this.sort(ctx, node, completionItems, resolvedContext);
-            return completionItems;
         } else if (tDescNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && ModulePartNodeContextUtil.onServiceTypeDescContext(((SimpleNameReferenceNode) tDescNode).name(),
                 ctx)) {
@@ -83,13 +82,9 @@ public class ModuleVariableDeclarationNodeContext extends
             completionItems.addAll(this.getModuleCompletionItems(ctx));
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
-            this.sort(ctx, node, completionItems, resolvedContext);
-            return completionItems;
         } else if (withinServiceOnKeywordContext(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
             resolvedContext = ResolvedContext.SERVICE_TYPEDESC;
-            this.sort(ctx, node, completionItems, resolvedContext);
-            return completionItems;
         } else if (onSuggestionsAfterQualifiers(ctx, node) &&
                 !QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
             /*
@@ -100,18 +95,23 @@ public class ModuleVariableDeclarationNodeContext extends
                 currently the qualifier can be isolated/transactional/client.
             */
             List<Token> qualifiers = CommonUtil.getQualifiersOfNode(node);
-            Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+            if (qualifiers.isEmpty()) {
+                return completionItems;
+            }
             completionItems.addAll(getCompletionItemsOnQualifiers(node, ctx));
+            Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
             if (lastQualifier.kind() == SyntaxKind.SERVICE_KEYWORD ||
                     lastQualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
                 completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_CLASS.get()));
                 completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_CLASS.get()));
             }
-            this.sort(ctx, node, completionItems);
-            return completionItems;
+            resolvedContext = ResolvedContext.ON_QUALIFIER;
+        } else {
+            // Type descriptor completions are suggested via the ModulePartNodeContext.
+            return CompletionUtil.route(ctx, node.parent());
         }
-        // Type descriptor completions are suggested via the ModulePartNodeContext.
-        return CompletionUtil.route(ctx, node.parent());
+        this.sort(ctx, node, completionItems, resolvedContext);
+        return completionItems;
     }
 
     @Override
@@ -122,6 +122,11 @@ public class ModuleVariableDeclarationNodeContext extends
             // Calls the NodeWithRHSInitializerProvider's sorting logic to 
             // make it consistent throughout the implementation
             super.sort(context, node, completionItems);
+            return;
+        }
+
+        if (resolvedContext == ResolvedContext.ON_QUALIFIER) {
+            SortingUtil.toDefaultSorting(context, completionItems);
             return;
         }
 
@@ -165,6 +170,7 @@ public class ModuleVariableDeclarationNodeContext extends
 
     enum ResolvedContext {
         INITIALIZER,
-        SERVICE_TYPEDESC
+        SERVICE_TYPEDESC,
+        ON_QUALIFIER
     }
 }

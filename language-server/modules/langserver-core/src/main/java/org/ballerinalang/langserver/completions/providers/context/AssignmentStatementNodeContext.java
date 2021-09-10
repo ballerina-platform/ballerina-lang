@@ -75,10 +75,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             (1) TypeName c = <qualifier(s)> <cursor>
             Currently qualifier can be isolated, transactional, client, service.
              */
-
             completionItems.addAll(getCompletionItemsOnQualifiers(node.expression(), context));
-            this.sort(context, node, completionItems);
-            return completionItems;
         } else {
             /*
             Captures the following cases
@@ -90,7 +87,6 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             completionItems.addAll(this.getNewExprCompletionItems(context, node));
         }
         this.sort(context, node, completionItems);
-
         return completionItems;
     }
 
