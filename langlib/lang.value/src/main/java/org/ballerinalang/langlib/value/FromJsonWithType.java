@@ -98,15 +98,20 @@ public class FromJsonWithType {
         unresolvedValues.add(typeValuePair);
 
         List<String> errors = new ArrayList<>();
-        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType, new ArrayList<>(),
-                errors);
+        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType,
+                null, new ArrayList<>(), errors);
         if (convertibleTypes.isEmpty()) {
             if (errors.isEmpty()) {
                 throw createConversionError(value, targetType);
             } else {
                 StringBuilder errorMsg = new StringBuilder();
+                byte errorCount = 0;
                 for (String error : errors) {
                     errorMsg.append("\n\t\t").append(error);
+                    errorCount++;
+                    if (errorCount == 100) {
+                        break;
+                    }
                 }
                 throw createConversionError(value, targetType, errorMsg.toString());
             }

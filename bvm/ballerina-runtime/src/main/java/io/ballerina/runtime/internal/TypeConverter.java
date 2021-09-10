@@ -255,12 +255,12 @@ public class TypeConverter {
     }
 
     // TODO: return only the first matching type
-    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, boolean isFromJson,
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                 List<String> errors) {
-        return getConvertibleTypes(inputValue, targetType, isFromJson, new ArrayList<>(), errors);
+        return getConvertibleTypes(inputValue, targetType, varName, isFromJson, new ArrayList<>(), errors);
     }
 
-    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, boolean isFromJson,
+    public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                   List<TypeValuePair> unresolvedValues, List<String> errors) {
         Set<Type> convertibleTypes = new LinkedHashSet<>();
 
@@ -272,8 +272,8 @@ public class TypeConverter {
                     if (TypeChecker.getType(inputValue) == memType) {
                         return Set.of(memType);
                     }
-                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, isFromJson, unresolvedValues,
-                            errors));
+                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName, isFromJson,
+                            unresolvedValues, errors));
                 }
                 break;
             case TypeTags.ARRAY_TAG:
@@ -287,8 +287,8 @@ public class TypeConverter {
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, isFromJson, unresolvedValues,
-                        errors)) {
+                if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, varName, isFromJson,
+                        unresolvedValues, errors)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -310,8 +310,8 @@ public class TypeConverter {
                 break;
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
-                convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, isFromJson, unresolvedValues,
-                        errors));
+                convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, varName, isFromJson,
+                        unresolvedValues, errors));
                 break;
             case TypeTags.FINITE_TYPE_TAG:
                 BFiniteType finiteType = (BFiniteType) targetType;
@@ -334,18 +334,20 @@ public class TypeConverter {
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
                     convertibleTypes.add(targetType);
+                } else if (varName != null) {
+                    errors.add("variable '" + varName + "' should be of type '" + targetType + "'");
                 }
         }
         return convertibleTypes;
     }
 
-    public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType,
+    public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors) {
 
         int targetTypeTag = targetType.getTag();
 
-        List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType, true,
-                unresolvedValues, errors));
+        List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType, varName,
+                true, unresolvedValues, errors));
 
         if (convertibleTypes.size() == 0) {
             switch (targetTypeTag) {
@@ -360,14 +362,15 @@ public class TypeConverter {
                     break;
                 case TypeTags.INTERSECTION_TAG:
                     return getConvertibleTypesFromJson(value, ((BIntersectionType) targetType).getEffectiveType(),
-                                                       unresolvedValues, errors);
+                            varName, unresolvedValues, errors);
             }
         }
         return convertibleTypes;
     }
 
-    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, boolean isFromJson,
-                                                     List<TypeValuePair> unresolvedValues, List<String> errors) {
+    private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, String varName,
+                                                     boolean isFromJson, List<TypeValuePair> unresolvedValues,
+                                                     List<String> errors) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
@@ -382,6 +385,7 @@ public class TypeConverter {
 
         Map<String, Type> targetFieldTypes = new HashMap<>();
         Type restFieldType = targetType.restFieldType;
+        boolean returnVal = true;
 
         for (Map.Entry<String, Field> field : targetType.getFields().entrySet()) {
             targetFieldTypes.put(field.getKey(), field.getValue().getFieldType());
@@ -390,65 +394,73 @@ public class TypeConverter {
         MapValueImpl sourceMapValueImpl = (MapValueImpl) sourceValue;
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
+            String fieldNameLong;
+            if (varName == null) {
+                fieldNameLong = fieldName;
+            } else {
+                fieldNameLong = varName + "." + fieldName;
+            }
 
             if (sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
                 continue;
             }
             Field targetField = targetType.getFields().get(fieldName);
             if (SymbolFlags.isFlagOn(targetField.getFlags(), SymbolFlags.REQUIRED)) {
-                errors.add("missing required field '" + fieldName + "' of type '" +
-                        targetField.getFieldType().toString() + "' in record '" + targetType.getQualifiedName() + "'");
-                return false;
+                errors.add("missing required field '" + fieldNameLong + "' of type '" +
+                        targetField.getFieldType().toString() + "' in record '" + targetType + "'");
+                returnVal = false;
             }
         }
 
         for (Object object : sourceMapValueImpl.entrySet()) {
             Map.Entry valueEntry = (Map.Entry) object;
             String fieldName = valueEntry.getKey().toString();
+            String fieldNameLong;
+            if (varName == null) {
+                fieldNameLong = fieldName;
+            } else {
+                fieldNameLong = varName + "." + fieldName;
+            }
 
             if (isFromJson) {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypesFromJson(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            unresolvedValues, errors).size() != 1) {
-                        errors.add("field '" + fieldName + "' in record '" + targetType.getQualifiedName() +
-                                "' should be of type '" + targetFieldTypes.get(fieldName) + "'");
-                        return false;
+                            fieldNameLong, unresolvedValues, errors).size() != 1) {
+                        returnVal = false;
                     }
                 } else if (!targetType.sealed) {
-                    if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType,
+                    if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType, fieldNameLong,
                             unresolvedValues, errors).size() != 1) {
                         errors.add("value of field '" + valueEntry.getKey() + "' adding to the record '" +
-                                targetType.getQualifiedName() + "' should be of type '" + restFieldType + "'");
-                        return false;
+                                targetType + "' should be of type '" + restFieldType + "'");
+                        returnVal = false;
                     }
                 } else {
-                    errors.add("field '" + fieldName + "' cannot be added to the closed record '" +
-                            targetType.getQualifiedName() + "'");
-                    return false;
+                    errors.add("field '" + fieldNameLong + "' cannot be added to the closed record '" +
+                            targetType + "'");
+                    returnVal = false;
                 }
             } else {
                 if (targetFieldTypes.containsKey(fieldName)) {
-                    if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                    if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName), fieldNameLong,
                             false, unresolvedValues, errors).size() != 1) {
-                        errors.add("field '" + fieldName + "' in record '" + targetType.getQualifiedName() +
-                                "' should be of type '" + targetFieldTypes.get(fieldName) + "'");
-                        return false;
+                        returnVal = false;
                     }
                 } else if (!targetType.sealed) {
-                    if (getConvertibleTypes(valueEntry.getValue(), restFieldType, false, unresolvedValues,
-                            errors).size() != 1) {
+                    if (getConvertibleTypes(valueEntry.getValue(), restFieldType, fieldNameLong, false,
+                            unresolvedValues, errors).size() != 1) {
                         errors.add("value of field '" + valueEntry.getKey() + "' adding to the record '" +
-                                targetType.getQualifiedName() + "' should be of type '" + restFieldType + "'");
-                        return false;
+                                targetType + "' should be of type '" + restFieldType + "'");
+                        returnVal = false;
                     }
                 } else {
-                    errors.add("field '" + fieldName + "' cannot be added to the closed record '" +
-                            targetType.getQualifiedName() + "'");
-                    return false;
+                    errors.add("field '" + fieldNameLong + "' cannot be added to the closed record '" +
+                            targetType + "'");
+                    returnVal = false;
                 }
             }
         }
-        return true;
+        return returnVal;
     }
 
     private static boolean isConvertibleToTableType(Type tableConstrainedType) {
@@ -468,8 +480,8 @@ public class TypeConverter {
             return false;
         }
         for (Object mapEntry : ((MapValueImpl) sourceValue).values()) {
-            if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), false, unresolvedValues,
-                    new ArrayList<>()).size() != 1) {
+            if (getConvertibleTypes(mapEntry, targetType.getConstrainedType(), null, false,
+                    unresolvedValues, new ArrayList<>()).size() != 1) {
                 return false;
             }
         }
@@ -530,8 +542,8 @@ public class TypeConverter {
 
     private static boolean isConvertibleToArrayInstance(Object sourceElement, Type targetType,
                                                         List<TypeValuePair> unresolvedValues) {
-        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, false, unresolvedValues,
-                new ArrayList<>());
+        Set<Type> convertibleTypes = getConvertibleTypes(sourceElement, targetType, null, false,
+                unresolvedValues, new ArrayList<>());
         if (convertibleTypes.isEmpty() || !isConvertible(convertibleTypes, sourceElement)) {
             return false;
         }
