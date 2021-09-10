@@ -18,8 +18,6 @@
 
 package io.ballerina.projects.internal.model;
 
-import io.ballerina.projects.PackageManifest;
-
 import java.util.List;
 
 /**
@@ -44,9 +42,11 @@ public class PackageJson {
     private String implementation_vendor;
     private String spec;                     // 2020R1
 
-    // Dependencies
-    private List<PackageManifest.Dependency> dependencies; //?
+    // Platform dependencies
     private List<PlatformLibrary> platformDependencies; //?
+
+    // Local repo dependencies
+    private List<LocalDependency> localDependencies; //?
 
     // Templating support
     private boolean template; //?
@@ -154,14 +154,6 @@ public class PackageJson {
         this.spec = spec;
     }
 
-    public List<PackageManifest.Dependency> getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(List<PackageManifest.Dependency> dependencies) {
-        this.dependencies = dependencies;
-    }
-
     public List<PlatformLibrary> getPlatformDependencies() {
         return platformDependencies;
     }
@@ -184,5 +176,13 @@ public class PackageJson {
 
     public void setTemplateVersion(String template_version) {
         this.template_version = template_version;
+    }
+
+    public List<LocalDependency> getLocalDependencies() {
+        return localDependencies;
+    }
+
+    public void setLocalDependencies(List<LocalDependency> localDependencies) {
+        this.localDependencies = localDependencies;
     }
 }

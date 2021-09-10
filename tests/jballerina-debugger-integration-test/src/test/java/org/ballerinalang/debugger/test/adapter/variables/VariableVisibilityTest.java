@@ -65,7 +65,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         Assert.assertEquals(localVariables.size(), 0);
 
         // global variable visibility test at the beginning of the main() method (should be 14).
-        Assert.assertEquals(globalVariables.size(), 16);
+        Assert.assertEquals(globalVariables.size(), 14);
     }
 
     @Test(description = "Variable visibility test in the middle of the main() method for a new variable")
@@ -169,18 +169,18 @@ public class VariableVisibilityTest extends BaseTestCase {
         globalVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
 
         // global variable visibility test outside main() method.
-        Assert.assertEquals(globalVariables.size(), 16);
+        Assert.assertEquals(globalVariables.size(), 14);
 
         // global variable visibility at the last line of the main() method.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         globalVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), VariableScope.GLOBAL);
-        Assert.assertEquals(globalVariables.size(), 16);
+        Assert.assertEquals(globalVariables.size(), 14);
 
         // global constants
         debugTestRunner.assertVariable(globalVariables, "nameWithoutType", "\"Ballerina\"", "string");
         debugTestRunner.assertVariable(globalVariables, "nameWithType", "\"Ballerina\"", "string");
-        debugTestRunner.assertVariable(globalVariables, "nameMap", "map<string> (size = 1)", "map");
+        debugTestRunner.assertVariable(globalVariables, "nameMap", "map (size = 1)", "map");
         debugTestRunner.assertVariable(globalVariables, "nilWithoutType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "nilWithType", "()", "nil");
         debugTestRunner.assertVariable(globalVariables, "RED", "\"RED\"", "string");
@@ -191,7 +191,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(globalVariables, "decimalValue", "100.0", "decimal");
         debugTestRunner.assertVariable(globalVariables, "byteValue", "2", "int");
         debugTestRunner.assertVariable(globalVariables, "floatValue", "2.0", "float");
-        debugTestRunner.assertVariable(globalVariables, "jsonValue", "map<json> (size = 2)", "json");
+        debugTestRunner.assertVariable(globalVariables, "jsonValue", "json (size = 2)", "json");
         debugTestRunner.assertVariable(globalVariables, " /:@[`{~π_IL", "\"IL with global var\"", "string");
         debugTestRunner.assertVariable(globalVariables, "port", "9090", "int");
     }
@@ -231,7 +231,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "tupleVar", "tuple[int,string] (size = 2)", "tuple");
 
         // map variable visibility test
-        debugTestRunner.assertVariable(localVariables, "mapVar", "map<string> (size = 4)", "map");
+        debugTestRunner.assertVariable(localVariables, "mapVar", "map (size = 4)", "map");
 
         // record variable visibility test (Student record)
         debugTestRunner.assertVariable(localVariables, "recordVar", " /:@[`{~π_123_ƮέŞŢ_Student", "record");
@@ -274,7 +274,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(localVariables, "byteVar", "128", "int");
 
         // json variable visibility test
-        debugTestRunner.assertVariable(localVariables, "jsonVar", "map<json> (size = 3)", "json");
+        debugTestRunner.assertVariable(localVariables, "jsonVar", "json (size = 3)", "json");
 
         // table with key variable visibility test
         debugTestRunner.assertVariable(localVariables, "tableWithKeyVar", "table<Employee> (entries = 3)", "table");
@@ -290,7 +290,7 @@ public class VariableVisibilityTest extends BaseTestCase {
                 "string");
         debugTestRunner.assertVariable(localVariables, "üňĩćőđę_var", "\"IL with unicode characters in var\"",
                 "string");
-        debugTestRunner.assertVariable(localVariables, "ĠĿŐΒȂɭ_ /:@[`{~π_json", "map<json> (size = 0)", "json");
+        debugTestRunner.assertVariable(localVariables, "ĠĿŐΒȂɭ_ /:@[`{~π_json", "json (size = 0)", "json");
 
         // service variable visibility test
         debugTestRunner.assertVariable(localVariables, "serviceVar", "service", "service");
@@ -369,8 +369,7 @@ public class VariableVisibilityTest extends BaseTestCase {
 
         // error child variable visibility test
         Map<String, Variable> errorChildVariables = debugTestRunner.fetchChildVariables(localVariables.get("errorVar"));
-        debugTestRunner.assertVariable(errorChildVariables, "details", "map<(ballerina/lang.value:1:Cloneable " +
-                "(size = 1)", "map");
+        debugTestRunner.assertVariable(errorChildVariables, "details", "map (size = 1)", "map");
         debugTestRunner.assertVariable(errorChildVariables, "message", "\"SimpleErrorType\"", "string");
 
         // error details child variable visibility test

@@ -1,4 +1,11 @@
-[package]
+[[dependency]]
 org = "waruna"
-name = "myPackage2"
-version = "1.1.0"
+name = "http"
+version = "1.1.2"
+repository = "local"
+
+[[dependency]]
+org = "waruna"
+name = "websub"
+version = "1.0.1"
+repository = "local"

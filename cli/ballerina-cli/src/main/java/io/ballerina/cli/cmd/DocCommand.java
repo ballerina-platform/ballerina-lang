@@ -32,10 +32,7 @@ import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -45,13 +42,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL;
-import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
-import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 
 /**
  * This class represents the "bal doc" command.
@@ -176,17 +166,6 @@ public class DocCommand implements BLauncherCmd {
         this.projectPath = this.projectPath.normalize();
         this.outputPath = this.outputLoc != null ? Paths.get(this.outputLoc).toAbsolutePath() : null;
 
-        // create compiler context
-        CompilerContext compilerContext = project.projectEnvironmentContext().getService(CompilerContext.class);
-        CompilerOptions options = CompilerOptions.getInstance(compilerContext);
-        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
-        options.put(OFFLINE, Boolean.toString(this.offline));
-        options.put(LOCK_ENABLED, "true");
-        options.put(SKIP_TESTS, "true");
-        options.put(TEST_ENABLED, "false");
-        options.put(EXPERIMENTAL, Boolean.toString(this.experimentalFlag));
-        options.put(PRESERVE_WHITESPACE, "true");
-
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
@@ -225,7 +204,6 @@ public class DocCommand implements BLauncherCmd {
                 .codeCoverage(false)
                 .experimental(experimentalFlag)
                 .offline(offline)
-                .skipTests(true)
                 .testReport(false)
                 .observabilityIncluded(false)
                 .build();

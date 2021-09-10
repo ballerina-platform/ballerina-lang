@@ -120,7 +120,7 @@ function func1(string a, int b) returns function (int,function (int, int) r)  {
 
 }
 
-function exprBodyScope(string myStr) returns string => myStr
+function exprBodyScope(string myStr) returns string => myStr;
 
 enum Keyword {
   nil,
@@ -151,4 +151,16 @@ function testOnFail() returns boolean {
     on fail ParseError err {
         return false;
     }
+}
+
+function foo() returns string {
+    return "abc";
+}
+
+function test(string name, int age) {
+    Person p = {
+        name: name,
+        age,
+        [foo()]: "FOO"
+    };
 }

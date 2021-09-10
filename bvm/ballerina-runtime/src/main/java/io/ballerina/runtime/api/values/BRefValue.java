@@ -94,4 +94,6 @@ public interface BRefValue extends BValue {
             throw new BallerinaException("error occurred while serializing data", e);
         }
     }
+
+    BTypedesc getTypedesc();
 }

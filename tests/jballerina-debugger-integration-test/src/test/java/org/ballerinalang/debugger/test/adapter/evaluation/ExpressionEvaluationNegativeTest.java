@@ -23,6 +23,14 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.CUSTOM_ERROR;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_CLASS;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.UNSUPPORTED_EXPRESSION;
+
 /**
  * Test implementation for debug expression evaluation negative scenarios.
  */
@@ -70,23 +78,36 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Test
     public void newConstructorEvaluationTest() throws BallerinaTestException {
         // Implicit new expressions
-        debugTestRunner.assertEvaluationError(context, "new", String.format(EvaluationExceptionKind
-                .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
-                "the equivalent explicit expression by specifying the class descriptor (i.e. 'new T()') instead."));
-        debugTestRunner.assertEvaluationError(context, "new()", String.format(EvaluationExceptionKind
-                .CUSTOM_ERROR.getString(), "Implicit new expressions are not supported by the evaluator. Try using " +
-                "the equivalent explicit expression by specifying the class descriptor (i.e. 'new T()') instead."));
+        debugTestRunner.assertEvaluationError(context, "new", String.format(CUSTOM_ERROR.getString(),
+                "Implicit new expressions are not supported by the evaluator. Try using the equivalent explicit " +
+                        "expression by specifying the class descriptor (i.e. 'new T()') instead."));
+        debugTestRunner.assertEvaluationError(context, "new()", String.format(CUSTOM_ERROR.getString(),
+                "Implicit new expressions are not supported by the evaluator. Try using the equivalent explicit " +
+                        "expression by specifying the class descriptor (i.e. 'new T()') instead."));
 
         // New expressions with invalid number of args
-        debugTestRunner.assertEvaluationError(context, "new Location()", String.format(EvaluationExceptionKind
-                .CUSTOM_ERROR.getString(), "missing required parameter 'city'."));
+        debugTestRunner.assertEvaluationError(context, "new Location()", String.format(CUSTOM_ERROR.getString(),
+                "missing required parameter 'city'."));
 
+        // Accessing non-public classes
+        debugTestRunner.assertEvaluationError(context, "new other:Location(\"New York\",\"USA\")",
+                String.format(NON_PUBLIC_OR_UNDEFINED_CLASS.getString(), "Location", "other"));
+
+        // Using undefined import
+        debugTestRunner.assertEvaluationError(context, "new foo:Location(\"New York\",\"USA\")",
+                String.format(IMPORT_RESOLVING_ERROR.getString(), "foo"));
     }
 
     @Override
     @Test
     public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertEvaluationError(context, "other:constant", String.format(CUSTOM_ERROR.getString(),
+                "undefined/non-public constant 'constant' in module 'other'"));
+        debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(CUSTOM_ERROR.getString(),
+                "undefined/non-public constant 'MAX' in module 'int'"));
+        debugTestRunner.assertEvaluationError(context, "foo:constant", String.format(IMPORT_RESOLVING_ERROR.getString(),
+                "foo"));
     }
 
     @Override
@@ -121,13 +142,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Test
     public void memberAccessEvaluationTest() throws BallerinaTestException {
         // strings
-        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
-                "string index out of range: index=-1, size=5");
-        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[100]", EvaluationExceptionKind.PREFIX +
-                "string index out of range: index=100, size=5");
-        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[\"undefined\"]",
-                EvaluationExceptionKind.PREFIX + "expected key type 'int'; found 'string' in " +
-                        "'stringVar[\"undefined\"]'");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[100]", "{ballerina/lang.string}IndexOutOfRange");
+        debugTestRunner.assertEvaluationError(context, STRING_VAR + "[\"undefined\"]", EvaluationExceptionKind.PREFIX +
+                "expected key type 'int'; found 'string' in 'stringVar[\"undefined\"]'");
         // lists
         debugTestRunner.assertEvaluationError(context, ARRAY_VAR + "[-1]", EvaluationExceptionKind.PREFIX +
                 "array index out of range: index=-1, size=4");
@@ -185,6 +202,14 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, "printDetails(\"Hi\", 20, ...stringArrayVar, 20);",
                 EvaluationExceptionKind.PREFIX + "Syntax errors found: " + System.lineSeparator() +
                         "rest arg followed by another arg");
+
+        // qualified functions (i.e. imported modules)
+        debugTestRunner.assertEvaluationError(context, "other:addition(2,6)",
+                String.format(NON_PUBLIC_OR_UNDEFINED_FUNCTION.getString(), "addition", "other"));
+        debugTestRunner.assertEvaluationError(context, "other:foo(-6)",
+                String.format(NON_PUBLIC_OR_UNDEFINED_FUNCTION.getString(), "foo", "other"));
+        debugTestRunner.assertEvaluationError(context, "foo:addition(2,6)", String.format(IMPORT_RESOLVING_ERROR
+                .getString(), "foo"));
     }
 
     @Override
@@ -237,6 +262,10 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "{ballerina}TypeCastError");
         debugTestRunner.assertEvaluationError(context, String.format("<boolean|string>%s", ANY_VAR),
                 "{ballerina}TypeCastError");
+
+        // qualified literals (i.e. imported modules)
+        debugTestRunner.assertEvaluationError(context, "<other:Location> location",
+                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other:Location"));
     }
 
     @Override
@@ -256,6 +285,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
                 "operator '~' not defined for 'string'");
         debugTestRunner.assertEvaluationError(context, String.format("!%s", STRING_VAR),
                 "operator '!' not defined for 'string'");
+        // with qualified literals (i.e. imported modules)
+        debugTestRunner.assertEvaluationError(context, "-other:constant", EvaluationExceptionKind.PREFIX +
+                "undefined/non-public constant 'constant' in module 'other'");
     }
 
     @Override
@@ -316,8 +348,13 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Test
     public void typeTestEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertEvaluationError(context, String.format("%s is NotDefinedClass", OBJECT_VAR),
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "failed to resolve type 'NotDefinedClass'."));
+                String.format(CUSTOM_ERROR.getString(), "Failed to resolve type: 'NotDefinedClass'"));
+
+        // qualified literals (i.e. imported modules)
+        debugTestRunner.assertEvaluationError(context, "location is other:Location",
+                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other:Location"));
+        debugTestRunner.assertEvaluationError(context, "location is foo:Place",
+                String.format(IMPORT_RESOLVING_ERROR.getString(), "foo"));
     }
 
     @Override
@@ -372,16 +409,69 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void queryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // undefined variable
+        debugTestRunner.assertEvaluationError(context, "from var student in undefinedList" +
+                "        where student.score >= 2.0" +
+                "        let string degreeName = \"Bachelor of Medicine\", " +
+                "        int expectedGradYear = calGraduationYear(student.intakeYear)" +
+                "        order by student.firstName descending" +
+                "        limit 2" +
+                "        select {" +
+                "            name: student.firstName + \" \" + student.lastName," +
+                "            degree: degreeName," +
+                "            expectedGradYear: expectedGradYear" +
+                "        };", String.format(EvaluationExceptionKind
+                .VARIABLE_NOT_FOUND.getString(), "undefinedList"));
+
+        debugTestRunner.assertEvaluationError(context, "from var student in undefinedList" +
+                "        where student.score >= 2.0" +
+                "        let string degreeName = \"Bachelor of Medicine\", " +
+                "        int expectedGradYear = calGraduationYear(student.intakeYear)" +
+                "        order by student.firstName descending" +
+                "        limit 2" +
+                "        select {" +
+                "            name: student.firstName + \" \" + student.lastName," +
+                "            degree: degreeName," +
+                "            expectedGradYear: expectedGradYear" +
+                "        };", String.format(EvaluationExceptionKind
+                .VARIABLE_NOT_FOUND.getString(), "undefinedList"));
+
+        // Query table without providing the contextual type
+        debugTestRunner.assertEvaluationError(context, "table key(id, name) from var customer in customerList" +
+                        "         select {" +
+                        "             id: customer.id," +
+                        "             name: customer.name," +
+                        "             noOfItems: customer.noOfItems" +
+                        "         }" +
+                        "         on conflict onConflictError;"
+                , "Failed to evaluate." + System.lineSeparator() +
+                        "Reason: compilation error(s) found while creating executables for the query evaluation: " +
+                        System.lineSeparator() +
+                        "field name 'id' used in key specifier is not found in table constraint type 'map'" +
+                        System.lineSeparator() +
+                        "field name 'name' used in key specifier is not found in table constraint type 'map'");
+
+        // on conflict clauses usages with non-table returns
+        debugTestRunner.assertEvaluationError(context, "from var customer in conflictedCustomerList" +
+                        "         select {" +
+                        "             id: customer.id," +
+                        "             name: customer.name," +
+                        "             noOfItems: customer.noOfItems" +
+                        "         }" +
+                        "         on conflict onConflictError;",
+                "Failed to evaluate." + System.lineSeparator() +
+                        "Reason: compilation error(s) found while creating executables for the query evaluation: " +
+                        System.lineSeparator() +
+                        "on conflict can only be used with queries which produce tables with key specifiers");
     }
 
     @Override
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
-        debugTestRunner.assertEvaluationError(context, "stringVar.<items>", String.format(EvaluationExceptionKind
-                .CUSTOM_ERROR.getString(), "filter expressions are not supported on type 'string'"));
-        debugTestRunner.assertEvaluationError(context, "intVar/<items>", String.format(EvaluationExceptionKind
-                .CUSTOM_ERROR.getString(), "step expressions are not supported on type 'int'"));
+        debugTestRunner.assertEvaluationError(context, "stringVar.<items>", String.format(CUSTOM_ERROR.getString(),
+                "filter expressions are not supported on type 'string'"));
+        debugTestRunner.assertEvaluationError(context, "intVar/<items>", String.format(CUSTOM_ERROR.getString(),
+                "step expressions are not supported on type 'int'"));
     }
 
     @Test
@@ -391,55 +481,47 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
 
         // Ballerina documentation lines
         debugTestRunner.assertEvaluationError(context, "# This is a documentation line",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Documentation is not allowed."));
+                String.format(CUSTOM_ERROR.getString(), "Documentation is not allowed."));
 
         // Line comments
         debugTestRunner.assertEvaluationError(context, "// This is a comment",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Empty expressions cannot be " +
+                String.format(CUSTOM_ERROR.getString(), "Empty expressions cannot be " +
                         "evaluated."));
     }
 
     @Test
     public void unsupportedInputEvaluationTest() throws BallerinaTestException {
         // import statements
-        debugTestRunner.assertEvaluationError(context, "import ballerina/http;",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Import declaration evaluation is not" +
-                        " supported."));
-        debugTestRunner.assertEvaluationError(context, "import ballerina/log",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Import declaration evaluation is not" +
-                        " supported."));
+        debugTestRunner.assertEvaluationError(context, "import ballerina/http;", String.format(CUSTOM_ERROR.getString(),
+                "Import declaration evaluation is not supported."));
+        debugTestRunner.assertEvaluationError(context, "import ballerina/log", String.format(CUSTOM_ERROR.getString(),
+                "Import declaration evaluation is not supported."));
 
         // Top-level definitions
-        debugTestRunner.assertEvaluationError(context, "function foo() {}",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Top-level declaration evaluation is" +
-                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "function foo() {}", String.format(CUSTOM_ERROR.getString(),
+                "Top-level declaration evaluation is not supported."));
         debugTestRunner.assertEvaluationError(context, "class Person { int name = \"John\"; }",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Top-level declaration evaluation is" +
-                        " not supported."));
+                String.format(CUSTOM_ERROR.getString(), "Top-level declaration evaluation is not supported."));
 
         // statement(s)
-        debugTestRunner.assertEvaluationError(context, "int a = 1; int b = 5;",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
-                        " not supported."));
+        debugTestRunner.assertEvaluationError(context, "int a = 1; int b = 5;", String.format(CUSTOM_ERROR.getString(),
+                "Statement evaluation is not supported."));
         debugTestRunner.assertEvaluationError(context, "if(true) { boolean isTrue = true; }",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
-                        " not supported."));
-        debugTestRunner.assertEvaluationError(context, "int a = 1;",
-                String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Statement evaluation is" +
-                        " not supported."));
+                String.format(CUSTOM_ERROR.getString(), "Statement evaluation is not supported."));
+        debugTestRunner.assertEvaluationError(context, "int a = 1;", String.format(CUSTOM_ERROR.getString(),
+                "Statement evaluation is not supported."));
 
         // unsupported expressions
         debugTestRunner.assertEvaluationError(context, "function(int a) returns int {return a;};",
-                String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
-                        "'function(int a) returns int {return a;}' - EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION"));
+                String.format(UNSUPPORTED_EXPRESSION.getString(), "'function(int a) returns int {return a;}' - " +
+                        "EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION"));
     }
 
     @Override
     @Test
     public void remoteCallActionEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertEvaluationError(context, String.format("%s->undefinedFunction()", CLIENT_OBJECT_VAR),
-                String.format(EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND.getString(), "undefinedFunction",
-                        "Student"));
+                String.format(REMOTE_METHOD_NOT_FOUND.getString(), "undefinedFunction", "Child"));
     }
 
     @AfterClass(alwaysRun = true)

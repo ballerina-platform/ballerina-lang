@@ -18,7 +18,6 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.environment.PackageResolver;
-import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -180,15 +179,15 @@ public class Bootstrap {
     }
 
     private BPackageSymbol loadLangLibFromBala(PackageID langLib, CompilerContext compilerContext) {
-        ResolutionRequest packageLoadRequest = toPackageLoadRequest(langLib);
-        loadLangLibFromBala(packageLoadRequest);
+        PackageDescriptor packageDescriptor = toPackageLoadRequest(langLib);
+        loadLangLibFromBala(packageDescriptor);
 
         return getSymbolFromCache(compilerContext, langLib);
     }
 
-    private void loadLangLibFromBala(ResolutionRequest packageLoadRequest) {
+    private void loadLangLibFromBala(PackageDescriptor packageDescriptor) {
         List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
-                Collections.singletonList(packageLoadRequest));
+                Collections.singletonList(packageDescriptor), true);
         resolutionResponses.forEach(pkgLoadResp -> {
             Package pkg = pkgLoadResp.resolvedPackage();
             PackageCompilation compilation = pkg.getCompilation();
@@ -199,12 +198,11 @@ public class Bootstrap {
         });
     }
 
-    private ResolutionRequest toPackageLoadRequest(PackageID packageID) {
+    private PackageDescriptor toPackageLoadRequest(PackageID packageID) {
         PackageOrg pkgOrg = PackageOrg.from(packageID.orgName.getValue());
         PackageName pkgName = PackageName.from(packageID.name.getValue());
         PackageVersion pkgVersion = PackageVersion.from(packageID.getPackageVersion().toString());
-        PackageDescriptor packageDescriptor = PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
-        return ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT, false);
+        return PackageDescriptor.from(pkgOrg, pkgName, pkgVersion);
     }
 
     private BPackageSymbol getSymbolFromCache(CompilerContext context, PackageID packageID) {

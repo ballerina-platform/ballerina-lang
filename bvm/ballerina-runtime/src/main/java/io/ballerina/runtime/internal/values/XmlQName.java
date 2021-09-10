@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXmlQName;
 
 import java.util.Map;
@@ -41,6 +42,7 @@ public final class XmlQName implements RefValue, BXmlQName {
     private String localName;
     private String uri;
     private String prefix;
+    private final BTypedesc typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_XML_ATTRIBUTES);
 
     /**
      * Create attribute map with an XML.
@@ -130,6 +132,11 @@ public final class XmlQName implements RefValue, BXmlQName {
         }
 
         return new XmlQName(localName, uri, prefix);
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     /**

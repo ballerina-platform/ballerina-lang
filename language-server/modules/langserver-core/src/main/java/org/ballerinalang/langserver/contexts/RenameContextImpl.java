@@ -45,8 +45,9 @@ public class RenameContextImpl extends ReferencesContextImpl implements RenameCo
         super(operation, fileUri, wsManager, cursorPos, serverContext);
         this.clientCapabilities = clientCapabilities;
         this.params = params;
-        this.honorsChangeAnnotations = clientCapabilities.getTextDocCapabilities().getRename() != null &&
-                clientCapabilities.getTextDocCapabilities().getRename().getHonorsChangeAnnotations();
+        this.honorsChangeAnnotations = clientCapabilities.getTextDocCapabilities().getRename() != null
+                && Boolean.TRUE.equals(clientCapabilities.getTextDocCapabilities().getRename()
+                .getHonorsChangeAnnotations());
     }
 
     /**

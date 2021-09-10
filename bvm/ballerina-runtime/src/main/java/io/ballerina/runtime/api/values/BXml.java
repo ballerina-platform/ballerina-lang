@@ -16,6 +16,7 @@
 
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 
 import java.util.List;
@@ -281,4 +282,11 @@ public interface BXml extends BRefValue, BCollection {
      * @return underlying implementation type.
      */
     Object value();
+
+    /**
+     * Returns the iterator next return type.
+     *
+     * @return iterator next return type.
+     */
+    Type getIteratorNextReturnType();
 }

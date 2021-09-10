@@ -170,7 +170,7 @@ BarObj barObj1 = new (true, 56);
 var [[g1, [g2, ...g3], ...g4], ...g5] = t2;
 
 function testModuleLevelTupleRest2() {
-    assertEquality("typedesc string", (typeof g1).toString());
+    assertEquality("typedesc Ballerina", (typeof g1).toString());
     assertEquality("typedesc error", (typeof g2).toString());
     assertEquality("typedesc [map<string>,int,(FooObj|BarObj)...]", (typeof g3).toString());
     assertEquality("typedesc [Bar,(byte|float)...]", (typeof g4).toString());
@@ -200,8 +200,8 @@ int[5] t3 = [10, 20, 30, 40, 50];
 var [h1, h2, ...h3] = t3;
 
 function testModuleLevelTupleRest3() {
-    assertEquality("typedesc int", (typeof h1).toString());
-    assertEquality("typedesc int", (typeof h2).toString());
+    assertEquality("typedesc 10", (typeof h1).toString());
+    assertEquality("typedesc 20", (typeof h2).toString());
     assertEquality("typedesc [int,int,int]", (typeof h3).toString());
     assertEquality(10, h1);
     assertEquality(20, h2);
@@ -216,7 +216,7 @@ function testModuleLevelTupleRest3() {
             [false, true, true], "Ballerina", "Hello"];
 
 function testModuleLevelTupleRest4() {
-    assertEquality("typedesc string", (typeof i1).toString());
+    assertEquality("typedesc Ballerina", (typeof i1).toString());
     assertEquality("typedesc [FooObj,Bar...]", (typeof i2).toString());
     assertEquality("typedesc [int,float...]", (typeof i3).toString());
     assertEquality("typedesc [boolean[3],string...]", (typeof i4).toString());

@@ -1,0 +1,10 @@
+[package]
+org = "test_org"
+name = "test_project"
+version= "0.1.0"
+
+[build-options]
+observabilityIncluded = true
+
+[[platform.java11.dependency]]
+path = "./javalibs/App.jar"

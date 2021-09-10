@@ -142,7 +142,7 @@ public class JarResolver {
         List<JarLibrary> allJarFileForTestExec = new ArrayList<>(getJarFilePathsRequiredForExecution());
 
         // 2) Replace given modules thin jar with it's test-thin jar
-        if (!rootPackageContext.manifest().org().anonymous()) {
+        if (!rootPackageContext.packageManifest().org().anonymous()) {
             PackageId rootPackageId = rootPackageContext.packageId();
 
             // Add the test-thin jar of the specified module

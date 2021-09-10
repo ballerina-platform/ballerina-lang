@@ -17,16 +17,24 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.ResolutionRequest;
+import io.ballerina.projects.internal.BalaFiles;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -36,10 +44,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,7 +74,7 @@ import java.util.stream.Stream;
  *
  * @since 2.0.0
  */
-public class FileSystemRepository implements PackageRepository {
+public class FileSystemRepository extends AbstractPackageRepository {
     Path bala;
     private final Path cacheDir;
     private final Environment environment;
@@ -90,16 +100,9 @@ public class FileSystemRepository implements PackageRepository {
         String version = resolutionRequest.version().isPresent() ?
                 resolutionRequest.version().get().toString() : "0.0.0";
 
-        //First we will check for a bala that match any platform
-        Path balaPath = this.bala.resolve(
-                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
+        Path balaPath = getPackagePath(orgName, packageName, version);
         if (!Files.exists(balaPath)) {
-            //If bala for any platform not exist check for specific platform
-            balaPath = this.bala.resolve(
-                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code()));
-            if (!Files.exists(balaPath)) {
-                return Optional.empty();
-            }
+            return Optional.empty();
         }
 
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
@@ -112,21 +115,8 @@ public class FileSystemRepository implements PackageRepository {
     @Override
     public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        String packageName = resolutionRequest.packageName().value();
-        String orgName = resolutionRequest.orgName().value();
-        List<Path> versions = new ArrayList<>();
-        try {
-            Path balaPackagePath = bala.resolve(orgName).resolve(packageName);
-            if (Files.exists(balaPackagePath)) {
-                try (Stream<Path> collect = Files.list(balaPackagePath)) {
-                    versions.addAll(collect.collect(Collectors.toList()));
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
-        }
-
-        return pathToVersions(versions);
+        return getPackageVersions(resolutionRequest.orgName(), resolutionRequest.packageName(),
+                resolutionRequest.version().orElse(null));
     }
 
     /**
@@ -174,7 +164,116 @@ public class FileSystemRepository implements PackageRepository {
         return packagesMap;
     }
 
-    private List<PackageVersion> pathToVersions(List<Path> versions) {
+    @Override
+    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
+        for (ImportModuleRequest importModuleRequest : importModuleRequests) {
+            ImportModuleResponse importModuleLoadResponse = getImportModuleLoadResponse(importModuleRequest);
+            importModuleResponseList.add(importModuleLoadResponse);
+        }
+        return importModuleResponseList;
+    }
+
+    private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
+        // Check if the imported module is available in a possible package locked in the Dependencies.toml
+        for (PackageDescriptor possiblePackage : importModuleRequest.possiblePackages()) {
+            List<PackageVersion> packageVersions = getCompatiblePackageVersions(
+                    possiblePackage, PackageLockingMode.SOFT);
+            ImportModuleResponse importModuleResponse = getImportModuleResponse(
+                    importModuleRequest, possiblePackage.name(), packageVersions);
+            if (importModuleResponse != null) {
+                return importModuleResponse;
+            }
+        }
+
+        // If the module is not found in the possible packages locked in the Dependencies.toml
+        // we continue looking for the module in the remaining possible packages.
+        List<PackageName> existing = importModuleRequest.possiblePackages().stream().map(PackageDescriptor::name)
+                .collect(Collectors.toList());
+        List<PackageName> remainingPackageNames = ProjectUtils.getPossiblePackageNames(
+                importModuleRequest.packageOrg(), importModuleRequest.moduleName()).stream()
+                .filter(o -> !existing.contains(o)).collect(Collectors.toList());
+
+        for (PackageName possiblePackageName : remainingPackageNames) {
+            List<PackageVersion> packageVersions = getPackageVersions(importModuleRequest.packageOrg(),
+                    possiblePackageName, null);
+
+            ImportModuleResponse importModuleResponse = getImportModuleResponse(
+                    importModuleRequest, possiblePackageName, packageVersions);
+            if (importModuleResponse != null) {
+                return importModuleResponse;
+            }
+        }
+        return new ImportModuleResponse(importModuleRequest);
+    }
+
+    private ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest,
+                                                         PackageName packageName,
+                                                         List<PackageVersion> packageVersions) {
+        Comparator<PackageVersion> comparator = (v1, v2) -> {
+
+            PackageVersion latest = getLatest(v1, v2);
+            if (v1 == latest) {
+                return -1;
+            }
+            return 1;
+        };
+        packageVersions.sort(comparator);
+
+        for (PackageVersion packageVersion : packageVersions) {
+            Path balaPath = getPackagePath(importModuleRequest.packageOrg().toString(),
+                    packageName.toString(), packageVersion.toString());
+            BalaFiles.DependencyGraphResult packageDependencyGraph =
+                    BalaFiles.createPackageDependencyGraph(balaPath);
+            Set<ModuleDescriptor> moduleDescriptors = packageDependencyGraph.moduleDependencies().keySet();
+            for (ModuleDescriptor moduleDescriptor : moduleDescriptors) {
+                if (importModuleRequest.moduleName().equals(moduleDescriptor.name().toString())) {
+                    PackageDescriptor packageDescriptor = PackageDescriptor
+                            .from(importModuleRequest.packageOrg(), packageName, packageVersion);
+                    return new ImportModuleResponse(packageDescriptor, importModuleRequest);
+                }
+            }
+        }
+        return null;
+    }
+
+    protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
+        List<Path> versions = new ArrayList<>();
+        try {
+            Path balaPackagePath = bala.resolve(org.value()).resolve(name.value());
+            if (Files.exists(balaPackagePath)) {
+                try (Stream<Path> collect = Files.list(balaPackagePath)) {
+                    versions.addAll(collect.collect(Collectors.toList()));
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
+        }
+        return pathToVersions(versions);
+    }
+
+    @Override
+    protected DependencyGraph<PackageDescriptor> getDependencyGraph(PackageOrg org,
+                                                                    PackageName name,
+                                                                    PackageVersion version) {
+        Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
+        BalaFiles.DependencyGraphResult dependencyGraphResult = BalaFiles.createPackageDependencyGraph(balaPath);
+        return dependencyGraphResult.packageDependencyGraph();
+    }
+
+    protected Path getPackagePath(String org, String name, String version) {
+        //First we will check for a bala that match any platform
+        Path balaPath = this.bala.resolve(
+                ProjectUtils.getRelativeBalaPath(org, name, version, null));
+        if (!Files.exists(balaPath)) {
+            // If bala for any platform not exist check for specific platform
+            balaPath = this.bala.resolve(
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+        }
+        return balaPath;
+    }
+
+    protected List<PackageVersion> pathToVersions(List<Path> versions) {
         List<PackageVersion> availableVersions = new ArrayList<>();
         versions.stream().map(path -> Optional.ofNullable(path)
                 .map(Path::getFileName)

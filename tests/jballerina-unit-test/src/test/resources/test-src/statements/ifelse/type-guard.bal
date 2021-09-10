@@ -301,7 +301,7 @@ function testUpdatingGuardedVar_2() returns string {
     } else {
         if (value is string) {
             value = value + " - updated once";
-            value = getUpdatedString(value);
+            value = getUpdatedString(<string> value);
         } else {
             return "an int or float";
         }
@@ -492,19 +492,6 @@ public function testUpdatingTypeNarrowedVar_1() returns string {
         string z = x;
         return "outer string: " + z;
     }
-}
-
-public function testUpdatingTypeNarrowedVar_2(int|string|boolean a) returns string {
-    int|string|boolean x = a;
-    if (x is int) {
-        if (x > 5) {
-            x = -1;
-        }
-        int z = x;
-        return "int: " + z.toString();
-    }
-
-    return "not an int";
 }
 
 public function testUpdatingTypeNarrowedVar_3() returns string {
@@ -1618,6 +1605,34 @@ function testIntersectionOfBuiltInSubTypeWithFiniteType() {
     if e is Kinds {
         Colour e2 = e;
         assertEquality("r", e2);
+    }
+}
+
+type Quux record {|
+    int i;
+    boolean b?;
+|};
+
+type Corge record {|
+    byte i;
+    boolean|string b?;
+|};
+
+type Grault record {|
+    byte i = 101;
+    boolean b?;
+|};
+
+function testTypeDefinitionForNewTypeCreatedInTypeGuard() {
+    Grault rec = {};
+    Quux f = rec;
+    assertEquality(true, f is Corge);
+    if f is Corge {
+        var x = [f];
+        x[0] = {i: 1};
+        any v = x[0];
+        assertEquality(true, v is Grault);
+        assertEquality(false, v is record {| byte i = 101; boolean s; |});
     }
 }
 

@@ -1,9 +1,0 @@
-[dependency]
-org = "wso2"
-name = "twitter"
-version = "2.3.4"
-
-[dependency]
-org = "wso2"
-name = "github"
-version = "1.2.3"

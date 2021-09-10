@@ -18,6 +18,7 @@
 package io.ballerina.projects.environment;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 
 /**
  * {@code ResolutionResponse} is used to return a response to a given {@code PackageLoadRequest}.
@@ -28,20 +29,29 @@ public class ResolutionResponse {
     private final Package resolvedPackage;
     private final ResolutionRequest packageLoadRequest;
     private final ResolutionStatus status;
+    private final PackageDescriptor requestedPkgDesc;
 
     // TODO We can use this call to send diagnostics if any
     private ResolutionResponse(ResolutionStatus resolutionStatus,
                                Package resolvedPackage,
-                               ResolutionRequest packageLoadRequest) {
+                               ResolutionRequest packageLoadRequest,
+                               PackageDescriptor packageDescriptor) {
         this.resolvedPackage = resolvedPackage;
         this.packageLoadRequest = packageLoadRequest;
         this.status = resolutionStatus;
+        this.requestedPkgDesc = packageDescriptor;
     }
 
     public static ResolutionResponse from(ResolutionStatus resolutionStatus,
                                           Package resolvedPackage,
                                           ResolutionRequest packageLoadRequest) {
-        return new ResolutionResponse(resolutionStatus, resolvedPackage, packageLoadRequest);
+        return new ResolutionResponse(resolutionStatus, resolvedPackage, packageLoadRequest, null);
+    }
+
+    public static ResolutionResponse from(ResolutionStatus resolutionStatus,
+                                          Package resolvedPackage,
+                                          PackageDescriptor requestedPkgDesc) {
+        return new ResolutionResponse(resolutionStatus, resolvedPackage, null, requestedPkgDesc);
     }
 
     public ResolutionStatus resolutionStatus() {
@@ -54,6 +64,10 @@ public class ResolutionResponse {
 
     public ResolutionRequest packageLoadRequest() {
         return packageLoadRequest;
+    }
+
+    public PackageDescriptor responseDescriptor() {
+        return requestedPkgDesc;
     }
 
     /**

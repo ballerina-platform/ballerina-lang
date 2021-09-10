@@ -18,7 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -31,6 +31,7 @@ import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
@@ -40,8 +41,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_UTILS_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_XML_VALUE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.GET_STRING_AT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
 /**
@@ -57,7 +61,7 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
 
     private static final String FIELD_CHILDREN = "children";
 
-    public MemberAccessExpressionEvaluator(SuspendedContext context, IndexedExpressionNode indexedExpressionNode,
+    public MemberAccessExpressionEvaluator(EvaluationContext context, IndexedExpressionNode indexedExpressionNode,
                                            Evaluator containerEvaluator, List<Evaluator> keyEvaluators) {
         super(context);
         this.syntaxNode = indexedExpressionNode;
@@ -94,14 +98,17 @@ public class MemberAccessExpressionEvaluator extends Evaluator {
                                 syntaxNode.toSourceCode()));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
-                    int strLength = containerVar.getDapVariable().getValue().length();
-                    // Validates for IndexOutOfRange errors.
-                    if (index < 0 || index >= strLength) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.INDEX_OUT_OF_RANGE_ERROR
-                                .getString(), containerVar.getBType().getString(), index, strLength));
-                    }
-                    String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
-                    return VMUtils.make(context, substring);
+                    List<String> argTypeNames = new ArrayList<>();
+                    argTypeNames.add(B_STRING_CLASS);
+                    argTypeNames.add(JVMValueType.LONG.getString());
+                    RuntimeStaticMethod getCodePointMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS,
+                            GET_STRING_AT_METHOD, argTypeNames);
+
+                    List<Value> argValues = new ArrayList<>();
+                    argValues.add(containerResult.getJdiValue());
+                    argValues.add(VMUtils.make(context, index).getJdiValue());
+                    getCodePointMethod.setArgValues(argValues);
+                    return new BExpressionValue(context, getCodePointMethod.invokeSafely());
                 }
                 // Index access of lists
                 // If it is list, and index is < 0 or ≥ the length of the list, then the evaluation completes abruptly

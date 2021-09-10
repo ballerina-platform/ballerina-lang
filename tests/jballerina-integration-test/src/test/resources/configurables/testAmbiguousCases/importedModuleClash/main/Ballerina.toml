@@ -3,5 +3,11 @@ org = "testOrg"
 name = "main"
 version = "0.1.0"
 
+[[dependency]]
+org = "testOrg"
+name = "test"
+version = "0.1.0"
+repository = "local"
+
 [build-options]
 observabilityIncluded = true

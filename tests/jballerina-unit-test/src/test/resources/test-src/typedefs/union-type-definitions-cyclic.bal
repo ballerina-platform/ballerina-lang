@@ -257,7 +257,7 @@ function testIndirectRecursion() {
     if(test3[1] is XIntersection4) {
        test2[0]= ["listRef", 1];
     }
-    assert(test2[0].toString(), "listRef 1");
+    assert(test2[0].toString(), "[\"listRef\",1]");
 
     Defs test4 = {
        listDefs: [[["&"]]],

@@ -5,7 +5,25 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "dependency": {
+    "ballerina": {
+      "type": "object",
+      "properties": {
+        "dependencies-toml-version": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_.]*$",
+          "message": {
+            "pattern": "invalid 'toml-version' under [ballerina]: 'toml-version' should be a string"
+          }
+        }
+      },
+      "required": [
+        "dependencies-toml-version"
+      ],
+      "message": {
+        "required": "'${property}' under [ballerina] is missing"
+      }
+    },
+    "package": {
       "type": "array",
       "items": {
         "type": "object",
@@ -14,31 +32,101 @@
           "org": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9_]*$",
-            "message" : {
-              "pattern" : "invalid 'org' under [[dependency]]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+            "message": {
+              "pattern": "invalid 'org' under [[package]]: 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
             }
           },
           "name": {
             "type": "string",
             "pattern": "^[a-zA-Z0-9_.]*$",
-            "message" : {
-              "pattern" : "invalid 'name' under [[dependency]]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+            "message": {
+              "pattern": "invalid 'name' under [[package]]: 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
             }
           },
           "version": {
             "type": "string",
             "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
             "message": {
-              "pattern": "invalid 'version' under [[dependency]]: 'version' should be compatible with semver"
+              "pattern": "invalid 'version' under [[package]]: 'version' should be compatible with semver"
             }
+          },
+          "scope": {
+            "type": "string"
+          },
+          "transitive": {
+            "type": "boolean"
           },
           "repository": {
             "type": "string"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "org": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_]*$",
+                  "message": {
+                    "pattern": "invalid 'org' under 'dependencies': 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+                  }
+                },
+                "name": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_.]*$",
+                  "message": {
+                    "pattern": "invalid 'name' under 'dependencies': 'name' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+                  }
+                }
+              }
+            }
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "org": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_]*$",
+                  "message": {
+                    "pattern": "invalid 'org' under 'modules': 'org' can only contain alphanumerics, underscores and the maximum length is 256 characters"
+                  }
+                },
+                "packageName": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_.]*$",
+                  "message": {
+                    "pattern": "invalid 'packageName' under 'modules': 'packageName' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+                  }
+                },
+                "version": {
+                  "type": "string",
+                  "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                  "message": {
+                    "pattern": "invalid 'version' under [[package]]: 'version' should be compatible with semver"
+                  }
+                },
+                "moduleName": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_.]*$",
+                  "message": {
+                    "pattern": "invalid 'moduleName' under 'modules': 'moduleName' can only contain alphanumerics, underscores and periods and the maximum length is 256 characters"
+                  }
+                }
+              }
+            }
           }
         },
-        "required": ["org", "name", "version"],
+        "required": [
+          "org",
+          "name",
+          "version"
+        ],
         "message": {
-          "required": "'${property}' under [[dependency]] is missing"
+          "required": "'${property}' under [[package]] is missing"
         }
       }
     }

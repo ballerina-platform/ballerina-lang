@@ -26,7 +26,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,24 +51,13 @@ public class BallerinaTomlTests {
     @Test
     public void testValidBallerinaToml() throws IOException {
 
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
-                                                             BAL_TOML_REPO.resolve("dependencies-valid.toml"));
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
 
         PackageDescriptor descriptor = packageManifest.descriptor();
         Assert.assertEquals(descriptor.name().value(), "winery");
         Assert.assertEquals(descriptor.org().value(), "foo");
         Assert.assertEquals(descriptor.version().value().toString(), "0.1.0");
-
-        List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
-        Assert.assertEquals(dependencies.size(), 2);
-        for (PackageManifest.Dependency dependency : dependencies) {
-            Assert.assertEquals(dependency.org().value(), "wso2");
-            Assert.assertTrue(dependency.name().value().equals("twitter")
-                                      || dependency.name().value().equals("github"));
-            Assert.assertTrue(dependency.version().value().toString().equals("2.3.4")
-                                      || dependency.version().value().toString().equals("1.2.3"));
-        }
 
         PackageManifest.Platform platform = packageManifest.platform("java11");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
@@ -88,6 +76,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(packageManifest.authors(), Arrays.asList("jo", "pramodya"));
         Assert.assertEquals(packageManifest.keywords(), Arrays.asList("toml", "ballerina"));
         Assert.assertEquals(packageManifest.repository(), "https://github.com/ballerina-platform/ballerina-lang");
+        Assert.assertEquals(packageManifest.ballerinaVersion(), "slbeta2");
 
 //        Assert.assertTrue(ballerinaToml.buildOptions().observabilityIncluded());
 //        Assert.assertTrue(ballerinaToml.buildOptions().offlineBuild());
@@ -259,31 +248,12 @@ public class BallerinaTomlTests {
         Assert.assertEquals(diagnostics.errors().size(), 0);
     }
 
-    @Test
-    public void testEmptyDependenciesToml() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
-                                                             BAL_TOML_REPO.resolve("dependencies-empty.toml"));
-        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
-
-        List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
-        Assert.assertEquals(dependencies.size(), 0);
-    }
-
-    @Test
-    public void testInvalidDependenciesToml() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
-                                                             BAL_TOML_REPO.resolve("dependencies-non-array.toml"));
-        Assert.assertTrue(packageManifest.diagnostics().hasErrors());
-        Assert.assertEquals(packageManifest.diagnostics().errors().iterator().next().message(),
-                            "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
-    }
-
     @Test(dataProvider = "semverVersions", dataProviderClass = SemverDataProvider.class)
     public void testSemverVersions(String version) throws IOException {
         String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
         String replacedContent = tomlContent.replace("1.0.0", version);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
-        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, BAL_TOML_REPO).packageManifest();
         Assert.assertFalse(manifest.diagnostics().hasErrors());
     }
 
@@ -292,7 +262,7 @@ public class BallerinaTomlTests {
         String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
         String replacedContent = tomlContent.replace("1.0.0", version);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
-        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, BAL_TOML_REPO).packageManifest();
         Assert.assertTrue(manifest.diagnostics().hasErrors());
         Assert.assertEquals(manifest.diagnostics().errors().iterator().next().message(),
                             "invalid 'version' under [package]: 'version' should be compatible with semver");
@@ -325,22 +295,29 @@ public class BallerinaTomlTests {
         Assert.assertEquals(firstContact.get("phone"), "0123456789");
     }
 
+    @Test
+    public void testLocalDependencies() throws IOException {
+        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("local-dependencies.toml"));
+        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
+        Assert.assertEquals(dependencies.size(), 2);
+
+        PackageManifest.Dependency firstLocalDep = dependencies.get(0);
+        Assert.assertEquals(firstLocalDep.org().value(), "abc");
+        Assert.assertEquals(firstLocalDep.name().value(), "test");
+        Assert.assertEquals(firstLocalDep.version().value().toString(), "1.0.0");
+        Assert.assertEquals(firstLocalDep.repository(), "local");
+
+        PackageManifest.Dependency secLocalDep = dependencies.get(1);
+        Assert.assertEquals(secLocalDep.org().value(), "xyz");
+        Assert.assertEquals(secLocalDep.name().value(), "sample");
+        Assert.assertEquals(secLocalDep.version().value().toString(), "2.0.0");
+        Assert.assertEquals(secLocalDep.repository(), "local");
+    }
+
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null, null, tomlPath.getParent()).packageManifest();
-    }
-
-    private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
-        String ballerinaTomlContent = Files.readString(ballerinaTomlPath, Charset.defaultCharset());
-        Path absLibPath = Paths.get(System.getProperty("user.dir")).resolve("src/test/resources/dummy-jars/toml4j.txt");
-        ballerinaTomlContent = ballerinaTomlContent.replace("<ABS_LIB_PATH>", absLibPath.toString());
-        String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
-
-        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);
-        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, dependenciesTomlContent);
-
-        return ManifestBuilder.from(ballerinaToml, dependenciesToml, null, ballerinaTomlPath.getParent())
-                .packageManifest();
+        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
     }
 }

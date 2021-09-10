@@ -230,7 +230,7 @@ function testArrayToBalString() {
 function testTupleToBalString() {
     [string, int, decimal, float] tupleVal = ["TOM", 10, 90.12, (0.0/0.0)];
 
-    assert(tupleVal.toBalString(), "\"TOM\" 10 90.12d float:NaN");
+    assert(tupleVal.toBalString(), "[\"TOM\",10,90.12d,float:NaN]");
 }
 
 function testJsonToBalString() {

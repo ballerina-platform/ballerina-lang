@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
@@ -59,6 +60,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
+import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
@@ -92,6 +95,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private boolean nextKeySupported;
 
     private final Map<String, Object> nativeData = new HashMap<>();
+    private BTypedesc typedesc;
 
     public TableValueImpl(TableType type) {
         this.type = type;
@@ -107,6 +111,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         } else {
             this.valueHolder = new ValueHolder();
         }
+        this.typedesc = getTypedescValue(type, this);
     }
 
     public TableValueImpl(TableType type, ArrayValue data, ArrayValue fieldNames) {
@@ -116,6 +121,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         addData(data);
+        if (type.isReadOnly()) {
+            this.typedesc = createSingletonTypedesc(this);
+        }
     }
 
     private void addData(ArrayValue data) {
@@ -177,6 +185,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                                                StringUtils.fromString(e.getDetail()));
             }
         }
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        return typedesc;
     }
 
     @Override
@@ -320,6 +333,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
+        this.typedesc = createSingletonTypedesc(this);
     }
 
     public String stringValue(BLink parent) {
@@ -345,7 +359,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             sj.add(StringUtils.getStringValue(struct.getValue(),
                                               new CycleUtils.Node(this, parent)));
         }
-        return "[" + sj.toString() + "]";
+        return "[" + sj + "]";
     }
 
     private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, V>> itr, BLink parent) {
@@ -362,7 +376,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             sj.add(StringUtils.getExpressionStringValue(struct.getValue(),
                                                         new CycleUtils.Node(this, parent)));
         }
-        return "table key(" + keyJoiner.toString() + ") [" + sj.toString() + "]";
+        return "table key(" + keyJoiner + ") [" + sj + "]";
     }
 
     private Type getTableConstraintField(Type constraintType, String fieldName) {
@@ -525,7 +539,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             if (!hash.equals(actualHash)) {
                 throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("The key '" +
-                        key + "' not found in value " + data.toString()));
+                        key + "' not found in value " + data));
             }
 
             return putData(key, data, entry, hash);

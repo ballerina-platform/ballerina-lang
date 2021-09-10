@@ -56,3 +56,9 @@ function testFunctionWithNeverOrNeverEqualReturnType() {
 function blowUp1() returns int|never {
     panic error("Error!");
 }
+
+function testAnyFunction() {
+    var v = <object {function a;}> object {
+                function a = 1;
+    };
+}

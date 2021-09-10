@@ -501,32 +501,31 @@
                                   "hasDiagnostics": true,
                                   "diagnostics": [
                                     "ERROR_MISSING_IDENTIFIER"
+                                  ],
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "hasDiagnostics": true,
+                                        "children": [
+                                          {
+                                            "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                            "hasDiagnostics": true,
+                                            "diagnostics": [
+                                              "ERROR_INVALID_TOKEN"
+                                            ],
+                                            "value": "10"
+                                          }
+                                        ]
+                                      }
+                                    }
                                   ]
                                 }
                               ]
                             },
                             {
                               "kind": "COMMA_TOKEN",
-                              "hasDiagnostics": true,
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "INVALID_NODE_MINUTIAE",
-                                  "invalidNode": {
-                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                    "hasDiagnostics": true,
-                                    "children": [
-                                      {
-                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                        "hasDiagnostics": true,
-                                        "diagnostics": [
-                                          "ERROR_INVALID_TOKEN"
-                                        ],
-                                        "value": "10"
-                                      }
-                                    ]
-                                  }
-                                }
-                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",

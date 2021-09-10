@@ -7,7 +7,7 @@ public type BaseConnector object {
 public class Connector {
     *BaseConnector;
     public function pushText1(string text) returns error? {
-        return error ("");
+        return;
     }
 }
 

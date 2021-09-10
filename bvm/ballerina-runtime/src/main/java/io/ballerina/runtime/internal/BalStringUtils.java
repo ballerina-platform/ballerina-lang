@@ -30,13 +30,11 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BTableType;
-import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TableValueImpl;
-import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
@@ -212,25 +210,6 @@ public class BalStringUtils {
             tableType =  (BTableType) TypeCreator.createTableType(mapType, keys, false);
         }
         return new TableValueImpl<>(tableType, data, keyFieldNames);
-    }
-
-    /**
-     * Create a tuple from string literal.
-     *
-     * @param exprValue Ballerina expression syntax of the tuple
-     * @return tuple value
-     */
-    public static Object parseTupleExpressionStringValue(String exprValue, BLink parent) {
-        String[] stringElements = exprValue.split(" ");
-        Object[] elements = new Object[stringElements.length];
-        List<Type> typeList = new ArrayList<>();
-        for (int i = 0; i < stringElements.length; i++) {
-            Object value = StringUtils.parseExpressionStringValue(stringElements[i], parent);
-            elements[i] = value;
-            Type type = TypeChecker.getType(value);
-            typeList.add(type);
-        }
-        return new TupleValueImpl(elements, new BTupleType(typeList));
     }
 
     /**

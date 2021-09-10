@@ -17,17 +17,18 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,24 +38,51 @@ import java.util.List;
 public class DependenciesTomlTests {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
-    private static final Path BAL_TOML_REPO = RESOURCE_DIRECTORY.resolve("ballerina-toml");
     private static final Path DEPENDENCIES_TOML_REPO = RESOURCE_DIRECTORY.resolve("dependencies-toml");
+    static final PrintStream OUT = System.out;
+
 
     @Test
     public void testValidDependenciesToml() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
-                                                             BAL_TOML_REPO.resolve("dependencies-valid.toml"));
-        Assert.assertFalse(packageManifest.diagnostics().hasErrors());
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-valid.toml"));
 
-        List<PackageManifest.Dependency> dependencies = packageManifest.dependencies();
+        depsManifest.diagnostics().errors().forEach(OUT::println);
+        Assert.assertFalse(depsManifest.diagnostics().hasErrors());
+
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
+        Assert.assertEquals(depsManifest.dependenciesTomlVersion(), "2");
         Assert.assertEquals(dependencies.size(), 2);
-        for (PackageManifest.Dependency dependency : dependencies) {
-            Assert.assertEquals(dependency.org().value(), "wso2");
-            Assert.assertTrue(dependency.name().value().equals("twitter")
-                                      || dependency.name().value().equals("github"));
-            Assert.assertTrue(dependency.version().value().toString().equals("2.3.4")
-                                      || dependency.version().value().toString().equals("1.2.3"));
-        }
+
+        DependencyManifest.Package twitter = dependencies.get(0);
+        Assert.assertEquals(twitter.org().value(), "wso2");
+        Assert.assertEquals(twitter.name().value(), "twitter");
+        Assert.assertEquals(twitter.version().toString(), "2.3.4");
+        Assert.assertFalse(twitter.isTransitive());
+        List<DependencyManifest.Dependency> twitterTransDependencies = new ArrayList<>(twitter.dependencies());
+        Assert.assertEquals(twitterTransDependencies.size(), 5);
+
+        DependencyManifest.Dependency twitterFirstTransDependency = twitterTransDependencies.get(0);
+        Assert.assertEquals(twitterFirstTransDependency.org().value(), "ballerina");
+        Assert.assertEquals(twitterFirstTransDependency.name().value(), "jballerina.java");
+        DependencyManifest.Dependency twitterLastTransDependency = twitterTransDependencies.get(4);
+        Assert.assertEquals(twitterLastTransDependency.org().value(), "ballerina");
+        Assert.assertEquals(twitterLastTransDependency.name().value(), "time");
+
+        List<DependencyManifest.Module> twitterModules = twitter.modules();
+        Assert.assertEquals(twitterModules.size(), 1);
+        Assert.assertEquals(twitterModules.get(0).org(), "wso2");
+        Assert.assertEquals(twitterModules.get(0).packageName(), "twitter");
+        Assert.assertEquals(twitterModules.get(0).moduleName(), "twitter");
+
+        DependencyManifest.Package github = dependencies.get(1);
+        Assert.assertEquals(github.org().value(), "wso2");
+        Assert.assertEquals(github.name().value(), "github");
+        Assert.assertEquals(github.version().toString(), "1.2.3");
+        Assert.assertEquals(github.scope(), "testOnly");
+        Assert.assertTrue(github.isTransitive());
+        Assert.assertEquals(github.dependencies().size(), 1);
+        Assert.assertEquals(github.modules().size(), 0);
     }
 
     /**
@@ -66,16 +94,17 @@ public class DependenciesTomlTests {
      */
     @Test
     public void testInvalidDependenciesTomlWithoutOrg() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
-                                                             DEPENDENCIES_TOML_REPO.resolve("dependency-wo-org.toml"));
-        DiagnosticResult diagnostics = packageManifest.diagnostics();
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependency-wo-org.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().size(), 2);
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "'org' under [[dependency]] is missing");
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(0:0,2:17)");
-        Assert.assertEquals(iterator.next().message(), "'org' under [[dependency]] is missing");
+        Assert.assertEquals(firstDiagnostic.message(), "'org' under [[package]] is missing");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(8:0,10:17)");
+        Assert.assertEquals(iterator.next().message(), "'org' under [[package]] is missing");
     }
 
     /**
@@ -88,14 +117,15 @@ public class DependenciesTomlTests {
      */
     @Test
     public void testInvalidDependenciesTomlWithoutOrgValue() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
-                                                    DEPENDENCIES_TOML_REPO.resolve("dependency-wo-org-value.toml"));
-        DiagnosticResult diagnostics = packageManifest.diagnostics();
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependency-wo-org-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().size(), 1);
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(2:0,2:0)");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(10:0,10:0)");
         Assert.assertEquals(firstDiagnostic.message(), "missing value");
     }
 
@@ -109,33 +139,109 @@ public class DependenciesTomlTests {
      */
     @Test
     public void testDependenciesTomlWithInvalidOrgNameVersion() throws IOException {
-        PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
-                                                     DEPENDENCIES_TOML_REPO.resolve("invalid-org-name-value.toml"));
-        DiagnosticResult diagnostics = packageManifest.diagnostics();
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("invalid-org-name-value.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
         Assert.assertTrue(diagnostics.hasErrors());
         Assert.assertEquals(diagnostics.errors().size(), 3);
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [[dependency]]: "
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [[package]]: "
                 + "'org' can only contain alphanumerics, underscores and the maximum length is 256 characters");
-        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:6,1:13)");
-        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: 'name' can only contain "
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(9:6,9:13)");
+        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[package]]: 'name' can only contain "
                 + "alphanumerics, underscores and periods and the maximum length is 256 characters");
-        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [[dependency]]: "
+        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [[package]]: "
                 + "'version' should be compatible with semver");
     }
 
-    private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
-        String ballerinaTomlContent = Files.readString(ballerinaTomlPath, Charset.defaultCharset());
-        Path absLibPath = Paths.get(System.getProperty("user.dir")).resolve("src/test/resources/dummy-jars/toml4j.txt");
-        ballerinaTomlContent = ballerinaTomlContent.replace("<ABS_LIB_PATH>", absLibPath.toString());
+    @Test
+    public void testEmptyDependenciesToml() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-empty.toml"));
+        depsManifest.diagnostics().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(depsManifest.diagnostics().hasErrors());
+        // No warnings should be added
+        Assert.assertEquals(depsManifest.diagnostics().diagnostics().size(), 0);
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
+        Assert.assertEquals(dependencies.size(), 0);
+    }
+
+    @Test
+    public void testDependenciesTomlOnlyHasComments() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("only-comments.toml"));
+        depsManifest.diagnostics().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(depsManifest.diagnostics().hasErrors());
+        // No warnings should be added
+        Assert.assertEquals(depsManifest.diagnostics().diagnostics().size(), 0);
+        List<DependencyManifest.Package> dependencies = new ArrayList<>(depsManifest.packages());
+        Assert.assertEquals(dependencies.size(), 0);
+    }
+
+    @Test
+    public void testInvalidDependenciesToml() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-non-array.toml"));
+        depsManifest.diagnostics().errors().forEach(OUT::println);
+        Assert.assertTrue(depsManifest.diagnostics().hasErrors());
+        Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
+                            "incompatible type for key 'package': expected 'ARRAY', found 'OBJECT'");
+    }
+
+    @Test
+    public void testDependenciesTomlWithoutDepsTomlVersion() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("without-deps-toml-version.toml"));
+        depsManifest.diagnostics().diagnostics().forEach(OUT::println);
+        // old dependency version warning
+        Assert.assertTrue(depsManifest.diagnostics().hasWarnings());
+        Assert.assertEquals(depsManifest.diagnostics().warnings().iterator().next().message(),
+                            "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
+        // [[package]] not supported in the old dependencies toml spec
+        Assert.assertTrue(depsManifest.diagnostics().hasErrors());
+        Assert.assertEquals(depsManifest.diagnostics().errors().iterator().next().message(),
+                            "key 'package' not supported in schema 'Dependencies Toml Spec'");
+    }
+
+    @Test
+    public void testValidOldVersionDependenciesToml() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("old-dependencies-valid.toml"));
+        depsManifest.diagnostics().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(depsManifest.diagnostics().hasErrors());
+        Assert.assertEquals(depsManifest.diagnostics().warnings().size(), 1);
+        Assert.assertEquals(depsManifest.diagnostics().warnings().iterator().next().message(),
+                            "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
+
+    }
+
+    @Test
+    public void testValidOldVersionDependenciesTomlHasLocalPackages() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("old-dependencies-with-local-packages.toml"));
+        depsManifest.diagnostics().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(depsManifest.diagnostics().hasErrors());
+        Assert.assertEquals(depsManifest.diagnostics().warnings().size(), 3);
+
+        Iterator<Diagnostic> iterator = depsManifest.diagnostics().warnings().iterator();
+        Assert.assertEquals(iterator.next().message(),
+                            "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
+        String localDepsWarning = "Detected local dependency declarations in Dependencies.toml file. "
+                + "Add them to Ballerina.toml using following syntax:\n"
+                + "[[dependency]]\n"
+                + "org = \"wso2\"\n"
+                + "name = \"locally\"\n"
+                + "version = \"1.2.3\"\n"
+                + "repository = \"local\"\n";
+        Assert.assertEquals(iterator.next().message(), localDepsWarning);
+
+    }
+
+    private DependencyManifest getDependencyManifest(Path dependenciesTomlPath) throws IOException {
         String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
-
-        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);
         TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, dependenciesTomlContent);
-
-        return ManifestBuilder
-                .from(ballerinaToml, dependenciesToml, null, ballerinaTomlPath.getParent())
-                .packageManifest();
+        return DependencyManifestBuilder.from(dependenciesToml).dependencyManifest();
     }
 }

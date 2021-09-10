@@ -96,6 +96,7 @@ public class XMLParser extends AbstractParser {
      * <li>XML CharData</li>
      * <li>XML Comment</li>
      * <li>XML PI</li>
+     * <li>XML CDATA</li>
      * <li>Interpolated expression</li>
      * </ul>
      * 
@@ -112,6 +113,8 @@ public class XMLParser extends AbstractParser {
                 return parseXMLPI();
             case INTERPOLATION_START_TOKEN:
                 return parseInterpolation();
+            case XML_CDATA_START_TOKEN:
+                return parseXMLCdataSection();
             default:
                 return parseXMLText();
         }
@@ -341,6 +344,9 @@ public class XMLParser extends AbstractParser {
             case GT_TOKEN:
             case LT_TOKEN:
             case SLASH_TOKEN:
+            case XML_COMMENT_START_TOKEN:
+            case XML_PI_START_TOKEN:
+            case XML_CDATA_START_TOKEN:
                 return true;
             default:
                 return false;
@@ -537,6 +543,62 @@ public class XMLParser extends AbstractParser {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Parse XML CDATA Section.
+     * <p>
+     * <code>
+     * CDSect := CDStart CData CDEnd
+     * <br/>
+     * CDStart := `<![CDATA[`
+     * <br/>
+     * CData := (Char* - (Char* `]]>` Char*))
+     * <br/>
+     * CDEnd := `]]>`
+     * </code>
+     *
+     * @return XML comment node
+     */
+    private STNode parseXMLCdataSection() {
+        STNode cdataStart = consume();
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfXMLCdata(nextToken.kind)) {
+            STNode contentItem = parseXMLCharacterSet();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+
+        STNode content = STNodeFactory.createNodeList(items);
+        STNode cdataEnd = parseXMLCdataEnd();
+        return STNodeFactory.createXMLCDATANode(cdataStart, content, cdataEnd);
+    }
+
+    private boolean isEndOfXMLCdata(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+            case XML_CDATA_END_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Parse XML CDATA end.
+     *
+     * @return XML CDATA end
+     */
+    private STNode parseXMLCdataEnd() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_CDATA_END_TOKEN) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.XML_CDATA_END);
+            return parseXMLCdataEnd();
         }
     }
 

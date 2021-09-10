@@ -48,8 +48,6 @@ import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
@@ -64,6 +62,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
+import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
 import static io.ballerina.projects.util.ProjectUtils.guessOrgName;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -75,8 +75,7 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 public class ManifestBuilder {
 
     private TomlDocument ballerinaToml;
-    private Optional<TomlDocument> dependenciesToml;
-    private Optional<TomlDocument> compilerPluginToml;
+    private TomlDocument compilerPluginToml;
     private DiagnosticResult diagnostics;
     private List<Diagnostic> diagnosticList;
     private PackageManifest packageManifest;
@@ -91,21 +90,23 @@ public class ManifestBuilder {
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
     private static final String PLATFORM = "platform";
+    private static final String SCOPE = "scope";
 
-    private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
-            Path projectPath) {
+    private ManifestBuilder(TomlDocument ballerinaToml,
+                            TomlDocument compilerPluginToml,
+                            Path projectPath) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
-        this.dependenciesToml = Optional.ofNullable(dependenciesToml);
-        this.compilerPluginToml = Optional.ofNullable(compilerPluginToml);
+        this.compilerPluginToml = compilerPluginToml;
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
     }
 
-    public static ManifestBuilder from(TomlDocument ballerinaToml, TomlDocument dependenciesToml,
-            TomlDocument compilerPluginToml, Path projectPath) {
-        return new ManifestBuilder(ballerinaToml, dependenciesToml, compilerPluginToml, projectPath);
+    public static ManifestBuilder from(TomlDocument ballerinaToml,
+                                       TomlDocument compilerPluginToml,
+                                       Path projectPath) {
+        return new ManifestBuilder(ballerinaToml, compilerPluginToml, projectPath);
     }
 
     public DiagnosticResult diagnostics() {
@@ -115,7 +116,6 @@ public class ManifestBuilder {
 
         // Add toml syntax diagnostics
         this.diagnosticList.addAll(ballerinaToml.toml().diagnostics());
-        dependenciesToml.ifPresent(tomlDocument -> this.diagnosticList.addAll(tomlDocument.toml().diagnostics()));
         diagnostics = new DefaultDiagnosticResult(this.diagnosticList);
         return diagnostics;
     }
@@ -158,6 +158,7 @@ public class ManifestBuilder {
         List<String> keywords = Collections.emptyList();
         List<String> exported = Collections.emptyList();
         String repository = "";
+        String ballerinaVersion = "";
 
         if (!tomlAstNode.entries().isEmpty()) {
             TomlTableNode pkgNode = (TomlTableNode) tomlAstNode.entries().get(PACKAGE);
@@ -166,7 +167,8 @@ public class ManifestBuilder {
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
-                repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
+                repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
+                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
             }
         }
 
@@ -182,24 +184,21 @@ public class ManifestBuilder {
             }
         }
 
-        // Process dependencies
-        var dependencies = getDependencies();
-
         // Process platforms
         TopLevelNode platformNode = tomlAstNode.entries().get(PLATFORM);
         Map<String, PackageManifest.Platform> platforms = getPlatforms(platformNode);
 
+        // Process local repo dependencies
+        List<PackageManifest.Dependency> localRepoDependencies = getLocalRepoDependencies();
+
         // Compiler plugin descriptor
-        Optional<CompilerPluginDescriptor> pluginDescriptor;
-        if (this.compilerPluginToml.isPresent()) {
-            pluginDescriptor = Optional.of(CompilerPluginDescriptor.from(this.compilerPluginToml.get()));
-        } else {
-            pluginDescriptor = Optional.empty();
+        CompilerPluginDescriptor pluginDescriptor = null;
+        if (this.compilerPluginToml != null) {
+            pluginDescriptor = CompilerPluginDescriptor.from(this.compilerPluginToml);
         }
 
-        return PackageManifest
-                .from(packageDescriptor, pluginDescriptor, dependencies, platforms, otherEntries, diagnostics(),
-                      license, authors, keywords, exported, repository);
+        return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
+                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -225,9 +224,9 @@ public class ManifestBuilder {
             return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
         }
 
-        org = getStringValueFromPackageNode(pkgNode, "org", defaultOrg.value());
-        name = getStringValueFromPackageNode(pkgNode, "name", defaultName.value());
-        version = getStringValueFromPackageNode(pkgNode, VERSION, defaultVersion.value().toString());
+        org = getStringValueFromTomlTableNode(pkgNode, "org", defaultOrg.value());
+        name = getStringValueFromTomlTableNode(pkgNode, "name", defaultName.value());
+        version = getStringValueFromTomlTableNode(pkgNode, VERSION, defaultVersion.value().toString());
 
         // check org is valid identifier
         boolean isValidOrg = ProjectUtils.validateOrgName(org);
@@ -254,68 +253,6 @@ public class ManifestBuilder {
     private BuildOptions parseBuildOptions() {
         TomlTableNode tomlTableNode = ballerinaToml.toml().rootNode();
         return setBuildOptions(tomlTableNode);
-    }
-
-    private List<PackageManifest.Dependency> getDependencies() {
-        if (dependenciesToml.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        TomlValidator dependenciesTomlValidator;
-        try {
-            dependenciesTomlValidator = new TomlValidator(
-                    Schema.from(FileUtils.readFileAsString("dependencies-toml-schema.json")));
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read the Dependencies.toml validator schema file.");
-        }
-        // Validate dependencies toml using dependencies toml schema
-        dependenciesTomlValidator.validate(dependenciesToml.get().toml());
-
-        List<PackageManifest.Dependency> dependencies = new ArrayList<>();
-        TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
-
-        if (tomlTableNode.entries().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        TopLevelNode dependencyEntries = tomlTableNode.entries().get("dependency");
-        if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
-            return Collections.emptyList();
-        }
-
-        if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
-            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
-
-            for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
-                String name = getStringValueFromDependencyNode(dependencyNode, "name");
-                String org = getStringValueFromDependencyNode(dependencyNode, "org");
-                String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
-
-                // If name, org or version, one of the value is null, ignore dependency
-                if (name == null || org == null || version == null) {
-                    continue;
-                }
-
-                PackageName depName = PackageName.from(name);
-                PackageOrg depOrg = PackageOrg.from(org);
-                PackageVersion depVersion;
-                try {
-                    depVersion = PackageVersion.from(version);
-                } catch (ProjectException e) {
-                    // Ignore exception and dependency
-                    // Diagnostic will be added by toml schema validator for the semver version error
-                    continue;
-                }
-
-                if (dependencyNode.entries().containsKey("repository")) {
-                    String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
-                    dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
-                    continue;
-                }
-                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion));
-            }
-        }
-        return dependencies;
     }
 
     private Map<String, PackageManifest.Platform> getPlatforms(TopLevelNode platformNode) {
@@ -369,7 +306,7 @@ public class ManifestBuilder {
                                             getStringValueFromPlatformEntry(platformEntryTable, "artifactId"));
                                     platformEntryMap.put(VERSION,
                                             getStringValueFromPlatformEntry(platformEntryTable, VERSION));
-                                    platformEntryMap.put("scope",
+                                    platformEntryMap.put(SCOPE,
                                             getStringValueFromPlatformEntry(platformEntryTable, "scope"));
                                     platformEntry.add(platformEntryMap);
                                 }
@@ -384,6 +321,44 @@ public class ManifestBuilder {
         }
 
         return platforms;
+    }
+
+    private List<PackageManifest.Dependency> getLocalRepoDependencies() {
+        TomlTableNode rootNode = ballerinaToml.toml().rootNode();
+        if (rootNode.entries().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        TopLevelNode dependencyEntries = rootNode.entries().get("dependency");
+        if (dependencyEntries == null || dependencyEntries.kind() == TomlType.NONE) {
+            return Collections.emptyList();
+        }
+
+        List<PackageManifest.Dependency> dependencies = new ArrayList<>();
+        if (dependencyEntries.kind() == TomlType.TABLE_ARRAY) {
+            TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
+
+            for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
+                String name = getStringValueFromDependencyNode(dependencyNode, "name");
+                String org = getStringValueFromDependencyNode(dependencyNode, "org");
+                String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
+                String repository = getStringValueFromDependencyNode(dependencyNode, REPOSITORY);
+
+                PackageName depName = PackageName.from(name);
+                PackageOrg depOrg = PackageOrg.from(org);
+                PackageVersion depVersion;
+                try {
+                    depVersion = PackageVersion.from(version);
+                } catch (ProjectException e) {
+                    // Ignore exception and dependency
+                    // Diagnostic will be added by toml schema validator for the semver version error
+                    continue;
+                }
+
+                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
+            }
+        }
+        return dependencies;
     }
 
     private void reportInvalidPathDiagnostic(TomlTableNode tomlTableNode, String path) {
@@ -404,24 +379,27 @@ public class ManifestBuilder {
 
         BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
 
-        boolean skipTests = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.SKIP_TESTS.toString());
-        boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
-        boolean experimental =
+        Boolean skipTests =
+                getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.SKIP_TESTS.toString());
+        Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
+        Boolean experimental =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
-        boolean observabilityIncluded =
+        Boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
-        boolean testReport =
+        Boolean testReport =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.TEST_REPORT.toString());
-        boolean codeCoverage =
+        Boolean codeCoverage =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.CODE_COVERAGE.toString());
         final TopLevelNode topLevelNode = tableNode.entries().get(CompilerOptionName.CLOUD.toString());
-        boolean dumpBuildTime =
+        Boolean dumpBuildTime =
                 getBooleanFromBuildOptionsTableNode(tableNode, BuildOptions.OptionName.DUMP_BUILD_TIME.toString());
+        Boolean sticky =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.STICKY.toString());
         String cloud = "";
         if (topLevelNode != null) {
             cloud = getStringFromTomlTableNode(topLevelNode);
         }
-        boolean listConflictedClasses =
+        Boolean listConflictedClasses =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
         return buildOptionsBuilder
@@ -434,13 +412,14 @@ public class ManifestBuilder {
                 .cloud(cloud)
                 .listConflictedClasses(listConflictedClasses)
                 .dumpBuildTime(dumpBuildTime)
+                .sticky(sticky)
                 .build();
     }
 
-    private boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
+    private Boolean getBooleanFromBuildOptionsTableNode(TomlTableNode tableNode, String key) {
         TopLevelNode topLevelNode = tableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-            return false;
+            return null;
         }
 
         if (topLevelNode.kind() == TomlType.KEY_VALUE) {
@@ -451,11 +430,11 @@ public class ManifestBuilder {
                 return tomlBooleanValueNode.getValue();
             }
         }
-        return false;
+        return null;
     }
 
-    private String getStringValueFromPackageNode(TomlTableNode pkgNode, String key, String defaultValue) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+    private String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key, String defaultValue) {
+        TopLevelNode topLevelNode = tomlTableNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
             // return default value
             return defaultValue;
@@ -488,14 +467,6 @@ public class ManifestBuilder {
         return elements;
     }
 
-    private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
-        TopLevelNode topLevelNode = pkgNode.entries().get(key);
-        if (topLevelNode == null) {
-            return null;
-        }
-        return getStringFromTomlTableNode(topLevelNode);
-    }
-
     private String getStringValueFromPlatformEntry(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
         if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
@@ -504,27 +475,11 @@ public class ManifestBuilder {
         return getStringFromTomlTableNode(topLevelNode);
     }
 
-    private String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
-        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
-            TomlValueNode value = keyValueNode.value();
-            if (value.kind() == TomlType.STRING) {
-                TomlStringValueNode stringValueNode = (TomlStringValueNode) value;
-                return stringValueNode.getValue();
-            }
+    private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
+        TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null) {
+            return null;
         }
-        return null;
-    }
-
-    private String convertDiagnosticToString(Diagnostic diagnostic) {
-        LineRange lineRange = diagnostic.location().lineRange();
-
-        LineRange oneBasedLineRange = LineRange.from(
-                lineRange.filePath(),
-                LinePosition.from(lineRange.startLine().line(), lineRange.startLine().offset() + 1),
-                LinePosition.from(lineRange.endLine().line(), lineRange.endLine().offset() + 1));
-
-        return diagnostic.diagnosticInfo().severity().toString() + " [" +
-                oneBasedLineRange.filePath() + ":" + oneBasedLineRange + "] " + diagnostic.message();
+        return getStringFromTomlTableNode(topLevelNode);
     }
 }

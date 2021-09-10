@@ -1605,17 +1605,7 @@
                                   "hasDiagnostics": true,
                                   "diagnostics": [
                                     "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "EXPRESSION_FUNCTION_BODY",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
-                                  "hasDiagnostics": true,
+                                  ],
                                   "leadingMinutiae": [
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
@@ -1637,7 +1627,15 @@
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
                                     }
-                                  ],
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "EXPRESSION_FUNCTION_BODY",
+                              "children": [
+                                {
+                                  "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",

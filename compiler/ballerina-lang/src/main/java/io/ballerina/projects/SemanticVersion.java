@@ -136,7 +136,7 @@ public class SemanticVersion {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 
-        if (this.isInitialVersion()) {
+        if (this.isInitialVersion() && (this.minor() != other.minor())) {
             return VersionCompatibilityResult.INCOMPATIBLE;
         }
 

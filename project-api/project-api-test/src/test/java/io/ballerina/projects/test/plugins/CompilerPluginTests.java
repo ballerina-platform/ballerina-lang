@@ -21,6 +21,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BAssertUtil;
@@ -134,7 +135,7 @@ public class CompilerPluginTests {
     }
 
     @Test
-    public void testInBuiltCompilerPlugin() throws IOException {
+    public void testInBuiltCompilerPluginBuildProject() throws IOException {
         Package currentPackage = loadPackage("package_test_inbuilt_plugin");
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
@@ -144,6 +145,24 @@ public class CompilerPluginTests {
         Assert.assertEquals(diagnosticResult.warningCount(), 1);
 
         Path logFilePath = Paths.get("build/logs/diagnostics.log");
+        Assert.assertTrue(Files.exists(logFilePath));
+        String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
+        Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
+        Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
+    }
+
+    @Test
+    public void testInBuiltCompilerPluginSingleFile() throws IOException {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_test_inbuilt_plugin/single-file/main.bal");
+        Package currentPackage = SingleFileProject.load(projectDirPath).currentPackage();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
+                "Unexpected number of compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        Assert.assertEquals(diagnosticResult.warningCount(), 1);
+
+        Path logFilePath = Paths.get("build/logs/single-file/diagnostics.log");
         Assert.assertTrue(Files.exists(logFilePath));
         String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
         Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));

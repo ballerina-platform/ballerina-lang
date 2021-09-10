@@ -19,22 +19,30 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageMetadataResponse;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import io.ballerina.projects.internal.ImportModuleRequest;
+import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Default Package resolver for Ballerina project.
@@ -42,215 +50,190 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class DefaultPackageResolver implements PackageResolver {
-    private final PackageRepository ballerinaDistRepo;
-    private final PackageRepository ballerinaCentralRepo;
+    private final PackageRepository distributionRepo;
+    private final PackageRepository centralRepo;
+    private final PackageRepository localRepo;
     private final WritablePackageCache packageCache;
-    private final Map<String, PackageRepository> customRepositories;
 
-    public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
-                                  PackageRepository ballerinaCentralRepo,
+    public DefaultPackageResolver(PackageRepository distributionRepo,
+                                  PackageRepository centralRepo,
+                                  PackageRepository localRepo,
                                   PackageCache packageCache) {
-        this.ballerinaDistRepo = ballerinaDistRepo;
-        this.ballerinaCentralRepo = ballerinaCentralRepo;
+        this.distributionRepo = distributionRepo;
+        this.centralRepo = centralRepo;
+        this.localRepo = localRepo;
         this.packageCache = (WritablePackageCache) packageCache;
-        this.customRepositories = Collections.emptyMap();
-    }
-
-    public DefaultPackageResolver(PackageRepository ballerinaDistRepo,
-                                  PackageRepository ballerinaCentralRepo,
-                                  PackageCache packageCache, Map<String, PackageRepository> customRepositories) {
-        this.ballerinaDistRepo = ballerinaDistRepo;
-        this.ballerinaCentralRepo = ballerinaCentralRepo;
-        this.packageCache = (WritablePackageCache) packageCache;
-        this.customRepositories = customRepositories;
     }
 
     @Override
-    public List<ResolutionResponse> resolvePackages(List<ResolutionRequest> packageLoadRequests,
+    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
+        // TODO Update this logic to lookup packages in the local repo.
+
+        // We will only receive hierarchical imports in importModuleRequests
+        List<ImportModuleResponse> responseListInDist = distributionRepo.resolvePackageNames(importModuleRequests);
+        List<ImportModuleResponse> responseListInCentral =
+                centralRepo.resolvePackageNames(importModuleRequests);
+
+        List<ImportModuleResponse> responseList = new ArrayList<>(
+                Stream.of(responseListInDist, responseListInCentral).flatMap(List::stream).collect(Collectors.toMap(
+                        ImportModuleResponse::importModuleRequest, Function.identity(),
+                        (ImportModuleResponse x, ImportModuleResponse y) -> {
+                            if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                                return x;
+                            }
+                            if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                                return y;
+                            }
+                            if (!x.packageDescriptor().name().equals(y.packageDescriptor().name())) {
+                                ResolutionRequest resolutionRequest = ResolutionRequest
+                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT, true);
+                                List<PackageVersion> packageVersions =
+                                        distributionRepo.getPackageVersions(resolutionRequest);
+                                // If module exists in both repos, then we check if a newer version of
+                                // y (package in central) in dist repo.
+                                // If yes, we assume that the latest version of y does not contain the
+                                // module. Hence, return x.
+                                // Else, there is no newer package of y in dist. We assume that there exist a newer
+                                // version of x in central which does not have this module. Hence, return y.
+                                if (packageVersions.isEmpty()) {
+                                    return y;
+                                }
+                            }
+                            return x;
+                        })).values());
+        return responseList;
+    }
+
+    @Override
+    public List<PackageMetadataResponse> resolvePackageMetadata(List<ResolutionRequest> resolutionRequests) {
+        List<ResolutionRequest> localRepoPkgLoadRequest = new ArrayList<>();
+        for (ResolutionRequest pkgLoadRequest : resolutionRequests) {
+            Optional<String> repository = pkgLoadRequest.packageDescriptor().repository();
+            if (repository.isPresent() && repository.get().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                localRepoPkgLoadRequest.add(pkgLoadRequest);
+            }
+        }
+
+        List<PackageMetadataResponse> responseFrmLocalRepo;
+        if (!localRepoPkgLoadRequest.isEmpty()) {
+            responseFrmLocalRepo = localRepo.resolvePackageMetadata(localRepoPkgLoadRequest);
+        } else {
+            responseFrmLocalRepo = Collections.emptyList();
+        }
+
+        // TODO Send ballerina* org names to dist repo
+        List<PackageMetadataResponse> latestVersionsInDist = distributionRepo
+                .resolvePackageMetadata(resolutionRequests);
+
+
+        // Send non built in packages to central
+        List<ResolutionRequest> centralLoadRequests = resolutionRequests.stream()
+                .filter(r -> !ProjectUtils.isBuiltInPackage(r.orgName(), r.packageName().value()))
+                .collect(Collectors.toList());
+        List<PackageMetadataResponse> latestVersionsInCentral = centralRepo
+                .resolvePackageMetadata(centralLoadRequests);
+
+        // TODO Local package should get priority over the same version in central or dist repo
+        // TODO Unit test following merge
+        List<PackageMetadataResponse> responseDescriptors = new ArrayList<>(
+                Stream.of(latestVersionsInDist, latestVersionsInCentral, responseFrmLocalRepo)
+                        .flatMap(List::stream).collect(Collectors.toMap(
+                        PackageMetadataResponse::packageLoadRequest, Function.identity(),
+                        (PackageMetadataResponse x, PackageMetadataResponse y) -> {
+                            if (y.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                                return x;
+                            }
+                            if (x.resolutionStatus().equals(ResolutionStatus.UNRESOLVED)) {
+                                return y;
+                            }
+                            if (x.resolvedDescriptor().version().compareTo(
+                                    y.resolvedDescriptor().version()).equals(
+                                    SemanticVersion.VersionCompatibilityResult.LESS_THAN)) {
+                                return y;
+                            }
+                            return x;
+                        })).values());
+
+        return responseDescriptors;
+    }
+
+    @Override
+    public List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors,
+                                                    boolean offline,
                                                     Project currentProject) {
-        if (packageLoadRequests.isEmpty()) {
+        if (packageDescriptors.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<ResolutionResponse> resolutionResponses = new ArrayList<>();
         Package currentPkg = currentProject != null ? currentProject.currentPackage() : null;
-        for (ResolutionRequest resolutionRequest : packageLoadRequests) {
+        for (PackageDescriptor packageDescriptor : packageDescriptors) {
             Package resolvedPackage = null;
             // Check whether the requested package is same as the current package
-            if (currentPkg != null && resolutionRequest.packageDescriptor().equals(currentPkg.descriptor())) {
+            if (currentPkg != null && packageDescriptor.equals(currentPkg.descriptor())) {
                 resolvedPackage = currentPkg;
             }
 
             // If not try to load the package from the cache
             if (resolvedPackage == null) {
-                resolvedPackage = loadFromCache(resolutionRequest);
+                resolvedPackage = loadFromCache(packageDescriptor);
             }
 
             // If not try to resolve from dist and central repositories
             if (resolvedPackage == null) {
-                resolvedPackage = resolveFromRepository(resolutionRequest);
+                resolvedPackage = resolveFromRepository(packageDescriptor, offline);
             }
 
-            ResolutionStatus resolutionStatus;
+            ResolutionResponse.ResolutionStatus resolutionStatus;
             if (resolvedPackage == null) {
-                resolutionStatus = ResolutionStatus.UNRESOLVED;
+                resolutionStatus = ResolutionResponse.ResolutionStatus.UNRESOLVED;
             } else {
-                resolutionStatus = ResolutionStatus.RESOLVED;
+                resolutionStatus = ResolutionResponse.ResolutionStatus.RESOLVED;
                 packageCache.cache(resolvedPackage);
             }
-            resolutionResponses.add(ResolutionResponse.from(resolutionStatus, resolvedPackage, resolutionRequest));
+            resolutionResponses.add(ResolutionResponse.from(resolutionStatus, resolvedPackage, packageDescriptor));
         }
 
         return resolutionResponses;
     }
 
     @Override
-    public List<ResolutionResponse> resolvePackages(List<ResolutionRequest> resolutionRequests) {
-        return resolvePackages(resolutionRequests, null);
+    public List<ResolutionResponse> resolvePackages(List<PackageDescriptor> packageDescriptors, boolean offline) {
+        return resolvePackages(packageDescriptors, false, null);
     }
 
-    private Package loadFromCache(ResolutionRequest resolutionRequest) {
-        if (resolutionRequest.version().isEmpty()) {
-            // We are skipping the cache look up if the version is empty. This is the get the latest version.
-            return null;
-        }
-
-        Optional<Package> resolvedPackage = packageCache.getPackage(resolutionRequest.orgName(),
-                resolutionRequest.packageName(), resolutionRequest.version().get());
+    private Package loadFromCache(PackageDescriptor packageDescriptor) {
+        Optional<Package> resolvedPackage = packageCache.getPackage(packageDescriptor.org(),
+                packageDescriptor.name(), packageDescriptor.version());
         return resolvedPackage.orElse(null);
     }
 
-    private Package resolveFromRepository(ResolutionRequest resolutionRequest) {
+    private Package resolveFromRepository(PackageDescriptor requestedPkgDesc, boolean offline) {
         Optional<Package> resolvedPackage;
-        PackageDescriptor requestedPkgDesc = resolutionRequest.packageDescriptor();
+
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(
+                requestedPkgDesc, PackageDependencyScope.DEFAULT, offline);
+
         if (requestedPkgDesc.isLangLibPackage()) {
-            return resolveLangLibPackage(resolutionRequest);
+            return distributionRepo.getPackage(resolutionRequest).orElse(null);
         }
 
-        // if version is not empty
-        //   Try custom repo, if specified and return null if not found
-        //   Try local repos
-        //       1) dist
-        //       2) central --> if the version is not in local, then make a remote call
-        if (requestedPkgDesc.version() != null) {
-            if (resolutionRequest.repositoryName().isPresent()) {
-                if (!customRepositories.containsKey(resolutionRequest.repositoryName().get())) {
-                    return null;
-                }
-                resolvedPackage = customRepositories.get(resolutionRequest.repositoryName().get())
-                        .getPackage(resolutionRequest);
-                if (resolvedPackage.isEmpty()) {
-                    return null;
-                }
-            } else {
-                resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
-                if (resolvedPackage.isEmpty()) {
-                    resolvedPackage = ballerinaCentralRepo.getPackage(resolutionRequest);
-                }
-            }
-            return resolvedPackage.orElse(null);
-        }
-
-        PackageVersion latestVersion;
-        PackageRepository pkgRepoThatContainsLatestVersion;
-
-        // Resolve from custom local repository if specified, and return null
-        // We don't look up the dist and central repos if package is not found
-        if (resolutionRequest.repositoryName().isPresent()) {
-            pkgRepoThatContainsLatestVersion = customRepositories.get(resolutionRequest.repositoryName().get());
-            List<PackageVersion> versionsInCustomRepo = pkgRepoThatContainsLatestVersion
-                    .getPackageVersions(resolutionRequest);
-            if (versionsInCustomRepo.isEmpty()) {
+        Optional<String> repositoryOptional = requestedPkgDesc.repository();
+        if (repositoryOptional.isPresent()) {
+            String repository = repositoryOptional.get();
+            if (!ProjectConstants.LOCAL_REPOSITORY_NAME.equals(repository)) {
                 return null;
             }
-            latestVersion = findLatest(versionsInCustomRepo);
-        } else {
-            // Version is not present in the ResolutionRequest
-            //   call both repos to get the latest version
-            //   get the latest version from the correct repo
-            List<PackageVersion> versionsInDistRepo = ballerinaDistRepo.getPackageVersions(resolutionRequest);
-            List<PackageVersion> versionsInCentralRepo = ballerinaCentralRepo.getPackageVersions(resolutionRequest);
-            if (versionsInDistRepo.isEmpty() && versionsInCentralRepo.isEmpty()) {
+            resolvedPackage = localRepo.getPackage(resolutionRequest);
+            if (resolvedPackage.isEmpty()) {
                 return null;
             }
-
-            PackageVersion latestVersionInDistRepo = findLatest(versionsInDistRepo);
-            PackageVersion latestVersionInCentralRepo = findLatest(versionsInCentralRepo);
-            if (latestVersionInDistRepo == null) {
-                latestVersion = latestVersionInCentralRepo;
-                pkgRepoThatContainsLatestVersion = ballerinaCentralRepo;
-            } else if (latestVersionInCentralRepo == null) {
-                latestVersion = latestVersionInDistRepo;
-                pkgRepoThatContainsLatestVersion = ballerinaDistRepo;
-            } else {
-                latestVersion = getLatest(latestVersionInDistRepo, latestVersionInCentralRepo);
-                pkgRepoThatContainsLatestVersion = latestVersion.equals(latestVersionInDistRepo) ?
-                        ballerinaDistRepo : ballerinaCentralRepo;
-            }
-        }
-
-        // Load the latest version
-        ResolutionRequest newResolutionReq = ResolutionRequest.from(
-                PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
-                        latestVersion), resolutionRequest.scope(), resolutionRequest.offline());
-
-        // Check if the package is already in cache to avoid
-        // duplicating package instances in the WritablePackageCache.
-        Optional<Package> packageOptional = Optional.ofNullable(loadFromCache(newResolutionReq));
-        if (packageOptional.isEmpty()) {
-            packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
-        }
-        return packageOptional.orElse(null);
-    }
-
-    private Package resolveLangLibPackage(ResolutionRequest resolutionRequest) {
-        Optional<Package> resolvedPackage;
-
-        if (resolutionRequest.version().isPresent()) {
-            resolvedPackage = ballerinaDistRepo.getPackage(resolutionRequest);
         } else {
-            List<PackageVersion> versionList = ballerinaDistRepo.getPackageVersions(resolutionRequest);
-            if (versionList.isEmpty()) {
-                resolvedPackage = Optional.empty();
-            } else {
-                ResolutionRequest newResolutionReq = ResolutionRequest.from(
-                        PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
-                                versionList.get(0)), resolutionRequest.scope(), resolutionRequest.offline());
-                resolvedPackage = Optional.ofNullable(loadFromCache(newResolutionReq));
-                if (resolvedPackage.isEmpty()) {
-                    resolvedPackage = ballerinaDistRepo.getPackage(newResolutionReq);
-                }
+            resolvedPackage = distributionRepo.getPackage(resolutionRequest);
+            if (resolvedPackage.isEmpty()) {
+                resolvedPackage = centralRepo.getPackage(resolutionRequest);
             }
         }
-
         return resolvedPackage.orElse(null);
-    }
-
-    private PackageVersion findLatest(List<PackageVersion> packageVersions) {
-        if (packageVersions.isEmpty()) {
-            return null;
-        }
-
-        PackageVersion latestVersion = packageVersions.get(0);
-        for (PackageVersion pkgVersion : packageVersions) {
-            latestVersion = getLatest(latestVersion, pkgVersion);
-        }
-        return latestVersion;
-    }
-
-    private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
-        SemanticVersion semVer1 = v1.value();
-        SemanticVersion semVer2 = v2.value();
-        boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
-        boolean isV2PreReleaseVersion = semVer2.isPreReleaseVersion();
-        if (isV1PreReleaseVersion ^ isV2PreReleaseVersion) {
-            // Only one version is a pre-release version
-            // Return the version which is not a pre-release version
-            return isV1PreReleaseVersion ? v2 : v1;
-        } else {
-            // Both versions are pre-release versions or both are not pre-release versions
-            // Find the the latest version
-            return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
-        }
     }
 }

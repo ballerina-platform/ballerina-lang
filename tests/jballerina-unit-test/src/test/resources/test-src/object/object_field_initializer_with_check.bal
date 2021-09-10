@@ -43,8 +43,8 @@ function testCheckInObjectFieldInitializer1() {
     int callStackLength = callStack.length();
     assertEquality({"callableName": "testCheckInObjectFieldInitializer1",
                     "fileName": "object_field_initializer_with_check.bal", "lineNumber": 34},
-                    callStack[3]);
-    assertEquality(58, callStack[1].lineNumber);
+                    callStack[2]);
+    assertEquality(51, callStack[1].lineNumber);
 }
 
 function f2() returns MyError|object { function a; int b; int c; } {
@@ -85,7 +85,7 @@ function testCheckInObjectFieldInitializer2() {
     assertEquality("'string' value 'invalid' cannot be converted to 'int'", <string> checkpanic e.detail()["message"]);
     error:CallStackElement[] callStack = e.stackTrace().callStack;
     int callStackLength = callStack.length();
-    assertEquality(95, callStack[callStackLength - 2].lineNumber);
+    assertEquality(128, callStack[callStackLength - 2].lineNumber);
 }
 
 class Bar {

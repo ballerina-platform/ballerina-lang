@@ -11,6 +11,13 @@
       "detail": "Table Array",
       "sortText": "C",
       "insertText": "[[platform.java11.dependency]]"
+    },
+    {
+      "label": "dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[dependency]]"
     }
   ]
 }

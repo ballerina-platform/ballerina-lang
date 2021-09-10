@@ -191,12 +191,10 @@ public class ProjectFiles {
         // Todo figure out how to pass the build options without a performance hit
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
                 packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
-        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
-                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
         TomlDocument pluginToml = TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML,
                 packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
         ManifestBuilder manifestBuilder = ManifestBuilder
-                .from(ballerinaToml, dependenciesToml, pluginToml, projectDirPath);
+                .from(ballerinaToml, pluginToml, projectDirPath);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();

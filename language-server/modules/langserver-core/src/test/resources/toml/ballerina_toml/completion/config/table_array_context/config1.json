@@ -50,6 +50,13 @@
       "sortText": "A",
       "insertText": "version=\"${1:}\"",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "dependency",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[dependency]]"
     }
   ]
 }
