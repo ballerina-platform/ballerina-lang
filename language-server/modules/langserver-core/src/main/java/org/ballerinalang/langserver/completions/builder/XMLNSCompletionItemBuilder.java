@@ -21,8 +21,6 @@ import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
-import java.util.Locale;
-
 /**
  * Completion item builder for the {@link XMLNamespaceSymbol}.
  *
