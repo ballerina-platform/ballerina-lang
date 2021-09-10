@@ -63,7 +63,7 @@ public class IntOps implements UniformTypeOps {
     @Override
     public SubtypeData diff(SubtypeData d1, SubtypeData d2) {
         IntSubtype v1 = (IntSubtype) d1;
-        IntSubtype v2 = (IntSubtype) d1;
+        IntSubtype v2 = (IntSubtype) d2;
         Range[] v = rangeListIntersect(v1.ranges, rangeListComplement(v2.ranges));
         if (v.length == 0) {
             return AllOrNothingSubtype.createNothing();
@@ -206,7 +206,6 @@ public class IntOps implements UniformTypeOps {
         if (max < MAX_VALUE) {
             result.add(new Range(max + 1, MAX_VALUE));
         }
-        Range[] rangeList = new Range[result.size()];
-        return result.toArray(rangeList);
+        return result.toArray(new Range[]{});
     }
 }

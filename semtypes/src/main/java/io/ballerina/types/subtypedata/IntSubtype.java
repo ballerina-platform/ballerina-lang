@@ -25,6 +25,7 @@ import io.ballerina.types.UniformTypeCode;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * Represent IntSubtype.
@@ -144,5 +145,21 @@ public class IntSubtype implements ProperSubtypeData {
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner j = new StringJoiner(", ", "Int:Range[", "]");
+        for (Range r : ranges) {
+            j.add(minusIndi(r.min) + "-" + minusIndi(r.max));
+        }
+        return j.toString();
+    }
+
+    private String minusIndi(long i) {
+        if (i < 0) {
+            return "(" + i + ")";
+        }
+        return String.valueOf(i);
     }
 }

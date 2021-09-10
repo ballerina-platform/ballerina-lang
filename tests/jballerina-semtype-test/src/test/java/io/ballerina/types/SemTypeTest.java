@@ -17,18 +17,21 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.ValueComparisonUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -44,10 +47,20 @@ public class SemTypeTest {
 
     @DataProvider(name = "fileNameProvider")
     public Object[] fileNameProvider() {
-        return new Object[]{
-                "test-src/simple-type/type-test.bal",
-                "test-src/simple-type/list-type-test.bal"
-        };
+        File dataDir = resolvePath("test-src/data").toFile();
+        List<String> testFiles = Arrays.stream(dataDir.listFiles())
+                .map(File::getAbsolutePath)
+                .filter(name -> name.endsWith(".bal"))
+                .collect(Collectors.toList());
+
+        // todo: have a pipleline step to exclude files
+
+        int i = 0;
+        testFiles.add(i++, "test-src/simple-type/type-test.bal");
+        testFiles.add(i++, "test-src/simple-type/list-type-test.bal");
+
+         return testFiles.toArray(new String[0]);
+        //return new Object[]{};
     }
 
     @Test(dataProvider = "fileNameProvider")
@@ -72,7 +85,10 @@ public class SemTypeTest {
         Map<String, SemType> typeMap = bLangPackage.semtypeEnv.geTypeNameSemTypeMap();
 
         List<TypeRel> subtypeRelations = new ArrayList<>();
-        List<String> typeNameList = typeMap.keySet().stream().sorted().collect(Collectors.toList());
+        List<String> typeNameList = typeMap.keySet().stream()
+                .filter(n -> !n.startsWith("$anon"))
+                .sorted(SemTypeTest::ballerinaStringCompare)
+                .collect(Collectors.toList());
         int size = typeNameList.size();
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
@@ -89,14 +105,20 @@ public class SemTypeTest {
                 }
             }
         }
-        subtypeRelations.sort(Comparator.comparing(rel -> rel.subType + rel.superType));
 
-        return subtypeRelations.stream().map(TypeRel::toString).collect(Collectors.toList());
+        return subtypeRelations.stream()
+                .map(TypeRel::toString)
+                .sorted(SemTypeTest::ballerinaStringCompare)
+                .collect(Collectors.toList());
+    }
+
+    private static int ballerinaStringCompare(String o1, String o2) {
+        return ValueComparisonUtils.compareValues(StringUtils.fromString(o1), StringUtils.fromString(o2), "");
     }
 
     List<String> extractSubtypeRelations(String fileName) {
         try {
-            Path path = Paths.get("src/test/resources").resolve(fileName);
+            Path path = resolvePath(fileName);
             Stream<String> lines = Files.lines(Path.of(path.toString()));
             return lines.filter(s -> s.startsWith("// ") && s.contains("<:"))
                     .map(s -> s.substring(3).strip())
@@ -106,6 +128,10 @@ public class SemTypeTest {
             Assert.fail(e.toString());
         }
         return null;
+    }
+
+    private Path resolvePath(String fileName) {
+        return Paths.get("src/test/resources").resolve(fileName);
     }
 
     public static class TypeRel {

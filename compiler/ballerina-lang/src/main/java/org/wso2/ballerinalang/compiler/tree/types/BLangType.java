@@ -17,7 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree.types;
 
-import io.ballerina.types.definition.ListDefinition;
+import io.ballerina.types.Definition;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -35,7 +35,7 @@ public abstract class BLangType extends BLangNode implements TypeNode {
     public boolean nullable;
     public boolean grouped;
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
-    public ListDefinition defn;
+    public Definition defn;
 
     @Override
     public boolean isNullable() {
