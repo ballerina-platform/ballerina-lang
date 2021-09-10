@@ -22,3 +22,10 @@ function testLiterals() {
     string s = "foo";
     byte[] b64 = base64 `aGVsbG8=`;
 }
+
+function testTemplateExprs() {
+    int i = 10;
+    string s = string `foo ${i}`;
+    xml x = xml `<age>${i}</age>`;
+    'object:RawTemplate rt = `bar ${i}`;
+}

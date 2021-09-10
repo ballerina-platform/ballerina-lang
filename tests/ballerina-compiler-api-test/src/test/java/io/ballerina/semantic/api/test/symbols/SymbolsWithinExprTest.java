@@ -20,6 +20,9 @@ package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
@@ -32,6 +35,7 @@ import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -49,7 +53,7 @@ public class SymbolsWithinExprTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test
+    @Test(dataProvider = "LiteralPosProvider")
     public void testLiterals(int line, int col) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isEmpty());
@@ -64,6 +68,34 @@ public class SymbolsWithinExprTest {
                 {20, 14},
                 {21, 15},
                 {22, 17},
+        };
+    }
+
+    @Test(dataProvider = "TemplateExprPosProvider")
+    public void testTemplateExprs(int line, int col, boolean symbolPresent) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        assertEquals(symbol.isPresent(), symbolPresent);
+
+        if (!symbolPresent) {
+            return;
+        }
+
+        assertEquals(symbol.get().kind(), SymbolKind.VARIABLE);
+        assertEquals(symbol.get().getName().get(), "i");
+        assertEquals(((VariableSymbol) symbol.get()).typeDescriptor().typeKind(), TypeDescKind.INT);
+    }
+
+    @DataProvider(name = "TemplateExprPosProvider")
+    public Object[][] getTemplateExprPos() {
+        return new Object[][]{
+                {27, 14, false},
+                {27, 25, false},
+                {27, 29, true},
+                {28, 12, false},
+                {28, 20, false},
+                {28, 24, true},
+                {29, 35, false},
+                {29, 36, true},
         };
     }
 }
