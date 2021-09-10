@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
+import io.ballerina.compiler.syntax.tree.LetExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.NilLiteralNode;
@@ -63,6 +64,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.ConditionalEx
 import org.ballerinalang.debugadapter.evaluation.engine.expression.ErrorConstructorExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.FieldAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.LetExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.NewExpressionEvaluator;
@@ -129,12 +131,12 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> XML navigation expression
  * <li> Checking expression
  * <li> Query expression
+ * <li> Let expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
  * <li> Anonymous function expression
- * <li> Let expression
  * </ul>
  *
  * @since 2.0.0
@@ -433,6 +435,12 @@ public class EvaluatorBuilder extends NodeVisitor {
         result = new QueryExpressionEvaluator(context, queryExpressionNode);
     }
 
+    @Override
+    public void visit(LetExpressionNode letExpressionNode) {
+        visitSyntaxNode(letExpressionNode);
+        result = new LetExpressionEvaluator(context, letExpressionNode);
+    }
+
     public void visit(RemoteMethodCallActionNode methodCallActionNode) {
         visitSyntaxNode(methodCallActionNode);
         try {
@@ -614,7 +622,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addLetExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.LET_EXPRESSION);
     }
 
     private void addTypeCastExpressionSyntax() {
