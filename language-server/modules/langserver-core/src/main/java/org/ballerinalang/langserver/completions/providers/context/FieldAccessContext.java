@@ -78,7 +78,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
          */
         if (!QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
             List<Symbol> symbolList = resolver.getVisibleEntries(expr);
-            //Add typegurad and foreach snippets.
+            //Add typeguard and foreach snippets.
             if (expr.parent().kind() == SyntaxKind.FIELD_ACCESS) {
                 if (typeSymbol.isPresent()) {
                     FieldAccessExpressionNode fieldAccessExpr = (FieldAccessExpressionNode) expr.parent();
