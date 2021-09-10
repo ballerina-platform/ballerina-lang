@@ -1421,6 +1421,8 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.TAB:
+                    reader.advance();
+                    reportInvalidEscapeSequence((char) 0);
                     break;
                 case 'u':
                     // NumericEscape
