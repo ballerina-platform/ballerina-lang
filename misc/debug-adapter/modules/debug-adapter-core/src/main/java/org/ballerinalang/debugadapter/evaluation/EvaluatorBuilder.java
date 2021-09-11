@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -65,6 +66,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessE
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.NewExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.QueryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.RangeExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.SimpleNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.StringTemplateEvaluator;
@@ -124,13 +126,13 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
  * <li> Annotation access expression
  * <li> XML navigation expression
  * <li> Checking expression
+ * <li> Query expression
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
  * <li> Anonymous function expression
  * <li> Let expression
- * <li> Query expression
  * </ul>
  *
  * @since 2.0.0
@@ -327,6 +329,13 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(TypeCastExpressionNode typeCastExpressionNode) {
         visitSyntaxNode(typeCastExpressionNode);
         typeCastExpressionNode.expression().accept(this);
+
+        // Since the query expression evaluator is capable of handling its type casts itself, no need to create a
+        // separate type cast evaluator in this context.
+        if (typeCastExpressionNode.expression().kind() == SyntaxKind.QUERY_EXPRESSION) {
+            return;
+        }
+
         Evaluator subExprEvaluator = result;
         result = new TypeCastExpressionEvaluator(context, typeCastExpressionNode, subExprEvaluator);
     }
@@ -416,6 +425,12 @@ public class EvaluatorBuilder extends NodeVisitor {
     public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
         visitSyntaxNode(implicitNewExpressionNode);
         result = new NewExpressionEvaluator(context, implicitNewExpressionNode, null);
+    }
+
+    @Override
+    public void visit(QueryExpressionNode queryExpressionNode) {
+        visitSyntaxNode(queryExpressionNode);
+        result = new QueryExpressionEvaluator(context, queryExpressionNode);
     }
 
     public void visit(RemoteMethodCallActionNode methodCallActionNode) {
@@ -670,7 +685,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     private void addQueryExpressionSyntax() {
-        // Todo
+        supportedSyntax.add(SyntaxKind.QUERY_EXPRESSION);
     }
 
     private void addXmlNavigationExpressionSyntax() {

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.parser;
+package io.ballerina.compiler.internal.parser;
 
 /**
  * Parser rule contexts that represent each point in the grammar.

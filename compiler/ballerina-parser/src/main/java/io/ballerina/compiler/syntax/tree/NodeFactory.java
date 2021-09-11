@@ -3135,17 +3135,5 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(typeParamNode));
         return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
     }
-
-    public static BalPartNode createBalPartNode(
-            NodeList<Node> constructs,
-            Token eofToken) {
-        Objects.requireNonNull(constructs, "constructs must not be null");
-        Objects.requireNonNull(eofToken, "eofToken must not be null");
-
-        STNode stBalPartNode = STNodeFactory.createBalPartNode(
-                constructs.underlyingListNode().internalNode(),
-                eofToken.internalNode());
-        return stBalPartNode.createUnlinkedFacade();
-    }
 }
 

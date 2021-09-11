@@ -256,11 +256,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
+
+        this.importedPackages = new ArrayList<>();
+        this.unknownTypeRefs = new HashSet<>();
         this.intersectionTypes = new ArrayList<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
                 options.get(CompilerOptionName.PROJECT_API_INITIATED_COMPILATION));
+    }
+
+    private void cleanup() {
+        unknownTypeRefs.clear();
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -319,6 +326,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineConstructs(pkgNode, pkgEnv);
         pkgNode.getTestablePkgs().forEach(testablePackage -> defineTestablePackage(testablePackage, pkgEnv));
         pkgNode.completedPhases.add(CompilerPhase.DEFINE);
+
+        // cleanup to avoid caching on compile context
+        cleanup();
 
         // After we have visited a package node, we need to remove it from the imports list.
         importedPackages.remove(pkgNode.packageID);
@@ -1316,7 +1326,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TABLE_TYPE:
             case ERROR_TYPE:
             case FUNCTION_TYPE:
-            case STREAM_TYPE:    
+            case STREAM_TYPE:
                 return true;
             default:
                 return false;
@@ -1521,12 +1531,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDefSymbol.markdownDocumentation
                 = getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
 
+        boolean isLabel = true;
         if (definedType.tsymbol.name == Names.EMPTY) {
+            isLabel = false;
             definedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.originalName = names.fromIdNode(typeDefinition.name);
             definedType.tsymbol.flags |= typeDefSymbol.flags;
             definedType.tsymbol.pos = typeDefSymbol.pos;
             definedType.tsymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
+            definedType.tsymbol.pkgID = env.enclPkg.packageID;
+            if (definedType.tsymbol instanceof BErrorTypeSymbol) {
+                definedType.tsymbol.owner = env.scope.owner;
+            }
         }
         if (typeDefinition.flagSet.contains(Flag.ENUM)) {
             typeDefSymbol = definedType.tsymbol;
@@ -1539,7 +1555,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BType referenceConstraintType = types.getReferredType(definedType);
-        boolean isIntersectionType = types.referenceTypeMatchesTag(referenceConstraintType, TypeTags.INTERSECTION);
+        boolean isIntersectionType = types.referenceTypeMatchesTag(referenceConstraintType, TypeTags.INTERSECTION)
+                && !isLabel;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;

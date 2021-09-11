@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
+import io.ballerina.compiler.internal.parser.ParserRuleContext;
 import io.ballerina.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerina.compiler.internal.parser.tree.STInvalidNodeMinutiae;
 import io.ballerina.compiler.internal.parser.tree.STMinutiae;
@@ -31,7 +32,6 @@ import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
-import io.ballerina.compiler.parser.ParserRuleContext;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -100,7 +100,7 @@ public class ParserTestUtils {
 
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
-        STNode syntaxTree = parser.parseInternal(context);
+        STNode syntaxTree = parser.parse(context);
 
         // Read the assertion file
         JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));

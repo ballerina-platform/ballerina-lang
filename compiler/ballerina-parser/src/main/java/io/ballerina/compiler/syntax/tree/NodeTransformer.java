@@ -820,10 +820,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
-    public T transform(BalPartNode balPartNode) {
-        return transformSyntaxNode(balPartNode);
-    }
-
     // Tokens
 
     public T transform(Token token) {

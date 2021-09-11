@@ -809,10 +809,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
-    public void visit(STBalPartNode balPartNode) {
-        visitSyntaxNode(balPartNode);
-    }
-
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

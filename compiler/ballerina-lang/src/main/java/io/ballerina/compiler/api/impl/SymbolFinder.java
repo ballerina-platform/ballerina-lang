@@ -1252,6 +1252,11 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        // Special case handling for singleton types.
+        if (finiteTypeNode.valueSpace.size() == 1 && this.symbolAtCursor == null) {
+            this.symbolAtCursor = finiteTypeNode.getBType().tsymbol;
+        }
+
         lookupNodes(finiteTypeNode.valueSpace);
     }
 
@@ -1264,6 +1269,10 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangErrorType errorType) {
         lookupNode(errorType.detailType);
+
+        if (symbolAtCursor == null) {
+            this.symbolAtCursor = errorType.getBType().tsymbol;
+        }
     }
 
     @Override

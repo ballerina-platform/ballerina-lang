@@ -3219,18 +3219,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 typeParamNode);
     }
 
-    @Override
-    public BalPartNode transform(
-            BalPartNode balPartNode) {
-        NodeList<Node> constructs =
-                modifyNodeList(balPartNode.constructs());
-        Token eofToken =
-                modifyToken(balPartNode.eofToken());
-        return balPartNode.modify(
-                constructs,
-                eofToken);
-    }
-
     // Tokens
 
     @Override

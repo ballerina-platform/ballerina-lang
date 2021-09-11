@@ -17,14 +17,13 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.NodeListUtils;
-import io.ballerina.compiler.parser.ParserRuleContext;
-import io.ballerina.compiler.parser.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 
@@ -82,7 +81,7 @@ public abstract class AbstractParser {
         if (this.insertedToken != null) {
             STToken nextToken = this.insertedToken;
             this.insertedToken = null;
-            return nextToken;
+            return consumeWithInvalidNodes(nextToken);
         }
 
         if (invalidNodeInfoStack.isEmpty()) {
@@ -95,6 +94,10 @@ public abstract class AbstractParser {
     private STToken consumeWithInvalidNodes() {
         // TODO can we improve this logic by cloning only once with all the invalid tokens?
         STToken token = this.tokenReader.read();
+        return consumeWithInvalidNodes(token);
+    }
+
+    private STToken consumeWithInvalidNodes(STToken token) {
         while (!invalidNodeInfoStack.isEmpty()) {
             InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
             token = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(token, invalidNodeInfo.node,
