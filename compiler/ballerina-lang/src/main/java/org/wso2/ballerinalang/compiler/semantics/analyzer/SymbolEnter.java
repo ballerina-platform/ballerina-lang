@@ -25,8 +25,10 @@ import io.ballerina.types.Env;
 import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
+import io.ballerina.types.definition.Field;
 import io.ballerina.types.definition.FunctionDefinition;
 import io.ballerina.types.definition.ListDefinition;
+import io.ballerina.types.definition.MappingDefinition;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -528,13 +530,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             case VALUE_TYPE:
                 return resolveTypeDesc((BLangValueType) td, semtypeEnv);
             case CONSTRAINED_TYPE: // map<?> and typedesc<?>
-                return resolveTypeDesc((BLangConstrainedType) td, semtypeEnv);
+                return resolveTypeDesc((BLangConstrainedType) td, semtypeEnv, mod, depth, defn);
             case ARRAY_TYPE:
                 return resolveTypeDesc(((BLangArrayType) td), semtypeEnv, mod, depth, defn);
             case TUPLE_TYPE_NODE:
                 return resolveTypeDesc((BLangTupleTypeNode) td, semtypeEnv, mod, depth, defn);
             case RECORD_TYPE:
-                return resolveTypeDesc((BLangRecordTypeNode) td, semtypeEnv);
+                return resolveTypeDesc((BLangRecordTypeNode) td, semtypeEnv, mod, depth, defn);
             case FUNCTION_TYPE:
                 return resolveTypeDesc((BLangFunctionTypeNode) td, semtypeEnv, mod, depth, defn);
             case ERROR_TYPE:
@@ -644,12 +646,55 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private SemType resolveTypeDesc(BLangConstrainedType td, Env semtypeEnv) {
-        throw new AssertionError("not implemented");
+    private SemType resolveTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod,
+                                    int depth, BLangTypeDefinition defn) {
+        TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
+        switch (typeKind) {
+            case MAP:
+                return resolveMapTypeDesc(td, semtypeEnv, mod, depth, defn);
+            case TYPEDESC:
+            default:
+                throw new AssertionError("Unhandled type-kind: " + typeKind);
+        }
     }
 
-    private SemType resolveTypeDesc(BLangRecordTypeNode td, Env semtypeEnv) {
-        throw new AssertionError("not implemented");
+    private SemType resolveMapTypeDesc(BLangConstrainedType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                       BLangTypeDefinition typeDefinition) {
+        if (td.defn != null) {
+            return td.defn.getSemType(semtypeEnv);
+        }
+
+        MappingDefinition d = new MappingDefinition();
+        td.defn = d;
+
+        SemType rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.constraint);
+
+        return d.define(semtypeEnv, Collections.emptyList(), rest);
+    }
+
+    private SemType resolveTypeDesc(BLangRecordTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth, BLangTypeDefinition typeDefinition) {
+        if (td.defn != null) {
+            return td.defn.getSemType(semtypeEnv);
+        }
+
+        MappingDefinition d = new MappingDefinition();
+        td.defn = d;
+
+        List<Field> fields = new ArrayList<>();
+        for (BLangSimpleVariable field : td.fields) {
+            String name = field.name.value;
+            SemType t  = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, field.typeNode);
+            fields.add(Field.from(name, t));
+        }
+
+        SemType rest;
+        if (!td.isSealed() && td.getRestFieldType() == null) {
+            throw new AssertionError("Open record not supported yet");
+        } else {
+            rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.restFieldType);
+        }
+
+        return d.define(semtypeEnv, fields, rest == null ? PredefinedType.NEVER : rest);
     }
 
     private SemType resolveTypeDesc(BLangFunctionTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,

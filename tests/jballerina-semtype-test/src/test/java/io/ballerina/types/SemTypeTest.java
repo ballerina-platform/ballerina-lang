@@ -58,6 +58,7 @@ public class SemTypeTest {
         int i = 0;
         testFiles.add(i++, "test-src/simple-type/type-test.bal");
         testFiles.add(i++, "test-src/simple-type/list-type-test.bal");
+        testFiles.add(i++, "test-src/simple-type/map-type-test.bal");
 
          return testFiles.toArray(new String[0]);
         //return new Object[]{};
@@ -83,6 +84,8 @@ public class SemTypeTest {
 
     private List<String> getSubtypeRels(String sourceFilePath) {
         BLangPackage bLangPackage = BCompileUtil.compileSemType(sourceFilePath);
+        ensureNoErrors(bLangPackage);
+
         TypeCheckContext typeCheckContext = TypeCheckContext.from(bLangPackage.semtypeEnv);
         Map<String, SemType> typeMap = bLangPackage.semtypeEnv.geTypeNameSemTypeMap();
 
@@ -112,6 +115,14 @@ public class SemTypeTest {
                 .map(TypeRel::toString)
                 .sorted(SemTypeTest::ballerinaStringCompare)
                 .collect(Collectors.toList());
+    }
+
+    private void ensureNoErrors(BLangPackage bLangPackage) {
+        if (!bLangPackage.getDiagnostics().isEmpty()) {
+            Assert.fail(bLangPackage.getDiagnostics().stream()
+                    .map(d -> d.toString())
+                    .reduce("", (a, b) -> a + "\n" + b));
+        }
     }
 
     private static int ballerinaStringCompare(String o1, String o2) {
