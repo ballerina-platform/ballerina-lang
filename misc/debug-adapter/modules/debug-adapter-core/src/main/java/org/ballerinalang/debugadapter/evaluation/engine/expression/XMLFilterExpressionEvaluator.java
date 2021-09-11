@@ -30,6 +30,8 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_XML_CLASS;
@@ -61,8 +63,8 @@ public class XMLFilterExpressionEvaluator extends Evaluator {
             // the xml filter expression is xml<xml:Element>.
             BExpressionValue subExprResult = subExprEvaluator.evaluate();
             if (subExprResult.getType() != BVariableType.XML) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "filter expressions are not supported on type '" + subExprResult.getType().getString() + "'"));
+                throw createEvaluationException("filter expressions are not supported on type '" +
+                        subExprResult.getType().getString() + "'");
             }
 
             List<String> argTypeNames = new ArrayList<>();
@@ -79,8 +81,7 @@ public class XMLFilterExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 

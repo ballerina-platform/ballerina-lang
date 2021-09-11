@@ -39,6 +39,8 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.VARIABLE_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
@@ -64,7 +66,7 @@ public class VariableUtils {
             bExpressionValue = searchGlobalVariables(context, name);
         }
         if (bExpressionValue.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(), name));
+            throw createEvaluationException(VARIABLE_NOT_FOUND, name);
         }
         return bExpressionValue.get().getJdiValue();
     }

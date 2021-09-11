@@ -56,6 +56,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -129,8 +130,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw createEvaluationException("error occurred while generating executables to invoke the " +
-                    "expression:" + syntaxNode.toSourceCode());
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         } finally {
             this.dispose();
         }

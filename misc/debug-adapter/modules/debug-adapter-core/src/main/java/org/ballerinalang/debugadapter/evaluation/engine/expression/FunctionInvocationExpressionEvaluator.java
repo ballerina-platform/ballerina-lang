@@ -29,7 +29,6 @@ import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
@@ -45,6 +44,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
@@ -88,8 +88,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 

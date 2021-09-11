@@ -22,7 +22,6 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
@@ -31,6 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.STRAND_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 
 /**
@@ -109,13 +111,11 @@ public abstract class JvmMethod {
         try {
             Value strand = context.getFrame().getValue(context.getFrame().visibleVariableByName(STRAND_VAR_NAME));
             if (strand == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
-                        methodRef.name()));
+                throw createEvaluationException(STRAND_NOT_FOUND, methodRef.name());
             }
             return strand;
         } catch (JdiProxyException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
-                    methodRef));
+            throw createEvaluationException(STRAND_NOT_FOUND, methodRef);
         }
     }
 
@@ -128,7 +128,6 @@ public abstract class JvmMethod {
         if (potentialBError.isPresent()) {
             return potentialBError.get();
         }
-        throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                methodRef.name()));
+        throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
     }
 }
