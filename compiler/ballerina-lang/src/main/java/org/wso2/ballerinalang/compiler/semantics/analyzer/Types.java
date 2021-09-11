@@ -3169,6 +3169,10 @@ public class Types {
                              continue;
                          }
                     }
+                    if (sMember.tag == TypeTags.JSON && isAssignable(sUnion, targetUnion, unresolvedTypes)) {
+                        sourceIterator.remove();
+                        continue;
+                    }
                 }
                 // readonly can match to a union similar to any|error
                 if (sMember.tag == TypeTags.READONLY) {

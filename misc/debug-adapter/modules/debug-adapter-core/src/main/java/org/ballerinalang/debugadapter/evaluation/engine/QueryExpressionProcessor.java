@@ -331,7 +331,7 @@ public class QueryExpressionProcessor {
         List<String> capturedVarNames = new ArrayList<>(new QueryReferenceFinder(syntaxNode).getCapturedVariables());
         List<String> capturedTypes = new ArrayList<>();
         for (String name : capturedVarNames) {
-            Value jdiValue = VariableUtils.getVariableValue(context, name);
+            Value jdiValue = VariableUtils.fetchVariableValue(context, name);
             BVariable bVar = VariableFactory.getVariable(context, jdiValue);
             capturedTypes.add(getTypeNameString(bVar));
             externalVariableValues.add(jdiValue);
