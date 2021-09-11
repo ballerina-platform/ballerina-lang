@@ -94,11 +94,11 @@
     {
       "label": "reduce(function () func, stream:Type1 initial)",
       "kind": "Function",
-      "detail": "stream:Type1|stream:ErrorType",
+      "detail": "stream:Type1|ErrorType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `stream:Type1` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `stream:Type1|stream:ErrorType`   \n- result of combining the members of parameter `stm` using function `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.4.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `stream:Type1` initial: initial value for the first argument of combining function `func`  \n  \n**Return** `stream:Type1|ErrorType`   \n- result of combining the members of parameter `stm` using function `func`  \n  \n"
         }
       },
       "sortText": "D",

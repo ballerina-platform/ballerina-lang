@@ -679,7 +679,8 @@ public class TypeParamAnalyzer {
         if (actualType.tag == TypeTags.UNION && types.isSubTypeOfBaseType(actualType, TypeTags.ERROR)) {
             BUnionType errorUnion = (BUnionType) actualType;
             LinkedHashSet<BType> errorDetailTypes = new LinkedHashSet<>();
-            for (BType member : errorUnion.getMemberTypes()) {
+            for (BType errorType : errorUnion.getMemberTypes()) {
+                BType member = types.getReferredType(errorType);
                 errorDetailTypes.add(((BErrorType) member).detailType);
             }
             BUnionType errorDetailUnionType = BUnionType.create(null, errorDetailTypes);
