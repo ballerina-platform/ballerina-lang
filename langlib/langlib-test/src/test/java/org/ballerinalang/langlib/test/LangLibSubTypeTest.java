@@ -270,7 +270,7 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 39, 28);
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 43, 19);
         BAssertUtil.validateError(result, err++, EXPECT_CHAR + FOUND_STRING, 48, 13);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char', found 'ab|b'", 56, 21);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char', found 'X'", 56, 21);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'X[]'", 59,
                 23);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'string:Char[]', found 'Y[]'", 62,
