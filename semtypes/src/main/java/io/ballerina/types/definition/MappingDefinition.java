@@ -105,7 +105,7 @@ public class MappingDefinition implements Definition {
             rwBdd = BddCommonOps.bddAtom(rw);
         }
         SemType s = ComplexSemType.createComplexSemType(0,
-        UniformSubtype.from(UniformTypeCode.UT_MAPPING_RO, roBdd),
+                UniformSubtype.from(UniformTypeCode.UT_MAPPING_RO, roBdd),
                 UniformSubtype.from(UniformTypeCode.UT_MAPPING_RW, rwBdd));
         this.semType = s;
         return s;

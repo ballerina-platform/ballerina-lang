@@ -540,7 +540,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case FUNCTION_TYPE:
                 return resolveTypeDesc((BLangFunctionTypeNode) td, semtypeEnv, mod, depth, defn);
             case ERROR_TYPE:
-                return resolveTypeDesc((BLangErrorType) td, semtypeEnv);
+                return resolveTypeDesc((BLangErrorType) td, semtypeEnv, mod, depth, defn);
             case UNION_TYPE_NODE:
                 return resolveTypeDesc((BLangUnionTypeNode) td, semtypeEnv, mod, depth, defn);
             case INTERSECTION_TYPE_NODE:
@@ -716,8 +716,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         return d.define(semtypeEnv, args, rest);
     }
 
-    private SemType resolveTypeDesc(BLangErrorType td, Env semtypeEnv) {
-        throw new AssertionError("not implemented");
+    private SemType resolveTypeDesc(BLangErrorType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                    BLangTypeDefinition defn) {
+        if (td.detailType == null) {
+            return PredefinedType.ERROR;
+        }
+
+        SemType detail = resolveTypeDesc(semtypeEnv, mod, defn, depth, td.detailType);
+        return SemTypes.errorDetail(detail);
     }
 
     private SemType resolveTypeDesc(BLangUnionTypeNode td, Env semtypeEnv,

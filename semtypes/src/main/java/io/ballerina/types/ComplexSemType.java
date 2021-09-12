@@ -52,7 +52,7 @@ public class ComplexSemType implements SemType {
         for (UniformSubtype uniformSubtype : subtypeList) {
             dataList.add(uniformSubtype.subtypeData);
             int c = uniformSubtype.uniformTypeCode.code;
-            some |= 1L << c;
+            some |= 1 << c;
         }
         return new ComplexSemType(
                 UniformTypeBitSet.from(allBitset),

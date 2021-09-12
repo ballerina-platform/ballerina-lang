@@ -116,11 +116,8 @@ public class PredefinedType {
         if ((ut.bitset & ERROR.bitset) != 0) {
             sb.add("error");
         }
-        if ((ut.bitset & LIST_RW.bitset) != 0) {
-            sb.add("list_rw");
-        }
-        if ((ut.bitset & UniformTypeCode.UT_LIST_RO.code) != 0) {
-            sb.add("list_ro");
+        if ((ut.bitset & LIST.bitset) != 0) {
+            sb.add("list");
         }
         if ((ut.bitset & FUNCTION.bitset) != 0) {
             sb.add("function");
@@ -130,6 +127,15 @@ public class PredefinedType {
         }
         if ((ut.bitset & HANDLE.bitset) != 0) {
             sb.add("handle");
+        }
+        if ((ut.bitset & UniformTypeCode.UT_READONLY) != 0) {
+            sb.add("readonly");
+        }
+        if ((ut.bitset & MAPPING.bitset) != 0) {
+            sb.add("map");
+        }
+        if ((ut.bitset & XML.bitset) != 0) {
+            sb.add("xml");
         }
 
         return sb.toString();

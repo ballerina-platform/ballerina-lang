@@ -63,4 +63,8 @@ public class SemTypes {
     public static boolean isSubtype(TypeCheckContext typeCheckContext, SemType t1, SemType t2) {
         return Core.isSubtype(typeCheckContext, t1, t2);
     }
+
+    public static SemType errorDetail(SemType detail) {
+        return Error.errorDetail(detail);
+    }
 }

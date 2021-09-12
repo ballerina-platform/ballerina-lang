@@ -70,4 +70,9 @@ public class BddAllOrNothing implements Bdd {
     public int hashCode() {
         return 0xa11084 + (isAll ? 1 : 0);
     }
+
+    @Override
+    public String toString() {
+        return Boolean.toString(isAll);
+    }
 }
