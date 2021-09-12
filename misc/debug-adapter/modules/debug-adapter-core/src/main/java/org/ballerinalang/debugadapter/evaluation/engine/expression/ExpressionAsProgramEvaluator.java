@@ -17,6 +17,8 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -51,12 +53,16 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -64,6 +70,8 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JA
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getAsJString;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_ORG;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_TOML_FILE_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
@@ -79,8 +87,9 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  */
 public class ExpressionAsProgramEvaluator extends Evaluator {
 
-    protected final ExpressionNode syntaxNode;
     private Path tempProjectDir;
+
+    protected final ExpressionNode syntaxNode;
     private final List<String> externalVariableNames = new ArrayList<>();
     private final List<Value> externalVariableValues = new ArrayList<>();
 
@@ -93,7 +102,8 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
 
     // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
     // return non-public types.
-    private static final String EVALUATION_SNIPPET_TEMPLATE = "%s function %s(%s) returns any|error { return %s; }";
+    private static final String EVALUATION_SNIPPET_TEMPLATE = "%s %s function %s(%s) returns any|error { return %s; }";
+    private static final String EVALUATION_IMPORT_TEMPLATE = "import %s/%s as %s;";
 
     public ExpressionAsProgramEvaluator(EvaluationContext evaluationContext, ExpressionNode syntaxNode) {
         super(evaluationContext);
@@ -142,15 +152,21 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
      * @return Ballerina program snippet
      */
     private String generateEvaluationSnippet() throws EvaluationException {
+        // Generates import declarations snippet
+        String importDeclarations = generateImportDeclarations();
         // Generates top level declarations snippet
-        String declarations = generateModuleLevelDeclarations();
+        String moduleDeclarations = generateModuleLevelDeclarations();
 
         // Generates function signature (parameter definitions) for the snippet function template.
         processSnippetFunctionParameters();
         StringJoiner parameters = new StringJoiner(",");
         externalVariableNames.forEach(parameters::add);
 
-        return String.format(EVALUATION_SNIPPET_TEMPLATE, declarations, EVALUATION_FUNCTION_NAME, parameters,
+        return String.format(EVALUATION_SNIPPET_TEMPLATE,
+                importDeclarations,
+                moduleDeclarations,
+                EVALUATION_FUNCTION_NAME,
+                parameters,
                 syntaxNode.toSourceCode().trim());
     }
 
@@ -269,9 +285,36 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
         }
     }
 
+    private String generateImportDeclarations() {
+        StringBuilder importBuilder = new StringBuilder(System.lineSeparator());
+        for (Map.Entry<String, ModuleSymbol> importEntry : resolvedImports.entrySet()) {
+            importBuilder.append(constructImportStatement(importEntry));
+        }
+
+        return importBuilder.append(System.lineSeparator()).toString();
+    }
+
+    private String constructImportStatement(Map.Entry<String, ModuleSymbol> importEntry) {
+        String orgName = importEntry.getValue().id().orgName();
+        String moduleName = getModuleName(importEntry.getValue().id());
+        decodeIdentifier(importEntry.getValue().id().moduleName());
+        String alias = importEntry.getKey();
+        return String.format(EVALUATION_IMPORT_TEMPLATE, orgName, moduleName, alias);
+    }
+
+    private String getModuleName(ModuleID moduleId) {
+        if (moduleId.orgName().equals(LANG_LIB_ORG) && moduleId.moduleName().startsWith(LANG_LIB_PACKAGE_PREFIX)) {
+            // Need to inject the quoted identifier prefix for lang-lib module imports.
+            String[] moduleNameParts = moduleId.moduleName().split("\\.");
+            moduleNameParts = Arrays.copyOfRange(moduleNameParts, 1, moduleNameParts.length);
+            return LANG_LIB_PACKAGE_PREFIX + QUOTED_IDENTIFIER_PREFIX + String.join(".", moduleNameParts);
+        } else {
+            return moduleId.moduleName();
+        }
+    }
+
     private String generateModuleLevelDeclarations() {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
