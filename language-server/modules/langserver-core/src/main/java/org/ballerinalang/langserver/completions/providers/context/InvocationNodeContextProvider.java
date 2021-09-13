@@ -8,6 +8,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -15,6 +16,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -45,20 +47,33 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> parameterSymbol = context.getContextType();
+
+        if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION
+                || node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION)
+                && !CommonUtil.withinArgumentContext(context, node)) {
+            /*
+                Covers the following.
+                MyClass obj = new My<cursor>
+                MyClass obj = ne<cursor>
+             */
+            super.sort(context, node, completionItems);
+            return;
+        }
+        ContextTypeResolver resolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> parameterSymbol = node.apply(resolver);
         if (parameterSymbol.isEmpty()) {
             super.sort(context, node, completionItems);
             return;
         }
-        TypeSymbol symbol = parameterSymbol.get();
         for (LSCompletionItem completionItem : completionItems) {
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
                 String sortText = SortingUtil.genSortText(1) +
                         SortingUtil.genSortText(SortingUtil.toRank(completionItem));
                 completionItem.getCompletionItem().setSortText(sortText);
+            } else {
+                completionItem.getCompletionItem()
+                        .setSortText(SortingUtil.genSortTextByAssignability(completionItem, parameterSymbol.get()));
             }
-            completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
         }
     }
 
@@ -69,7 +84,6 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         if (!CommonUtil.isValidNamedArgContext(context, argumentNodeList)) {
             return completionItems;
         }
-
         FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
         Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
         if (params.isEmpty()) {

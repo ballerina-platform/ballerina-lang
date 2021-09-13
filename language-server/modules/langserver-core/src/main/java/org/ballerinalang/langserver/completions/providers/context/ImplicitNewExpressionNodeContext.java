@@ -80,7 +80,6 @@ public class ImplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             completionItems.addAll(this.getModuleCompletionItems(context));
         }
         this.sort(context, node, completionItems);
-
         return completionItems;
     }
 

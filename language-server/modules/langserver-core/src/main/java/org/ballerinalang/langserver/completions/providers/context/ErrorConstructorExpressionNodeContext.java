@@ -36,7 +36,9 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -54,7 +56,7 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ErrorConstructorExpressionNodeContext extends
-        InvocationNodeContextProvider<ErrorConstructorExpressionNode> {
+        AbstractCompletionProvider<ErrorConstructorExpressionNode> {
 
     public ErrorConstructorExpressionNodeContext() {
         super(ErrorConstructorExpressionNode.class);
@@ -83,7 +85,6 @@ public class ErrorConstructorExpressionNodeContext extends
             completionItems.addAll(this.getErrorTypeRefCompletions(context));
         }
         this.sort(context, node, completionItems);
-
         return completionItems;
     }
 
@@ -129,6 +130,21 @@ public class ErrorConstructorExpressionNodeContext extends
         completionItems.addAll(this.getModuleCompletionItems(ctx));
 
         return completionItems;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, ErrorConstructorExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+        for (LSCompletionItem completionItem : completionItems) {
+            String sortText;
+            if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
+                sortText = SortingUtil.genSortText(1) +
+                        SortingUtil.genSortText(SortingUtil.toRank(completionItem));
+            } else {
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(completionItem));
+            }
+            completionItem.getCompletionItem().setSortText(sortText);
+        }
     }
 
     private boolean withinArgs(BallerinaCompletionContext context, ErrorConstructorExpressionNode node) {

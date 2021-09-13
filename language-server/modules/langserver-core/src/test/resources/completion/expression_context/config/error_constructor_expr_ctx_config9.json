@@ -544,7 +544,7 @@
       "label": "stack = ...",
       "kind": "Snippet",
       "detail": "stack = \"\"",
-      "sortText": "R",
+      "sortText": "AR",
       "filterText": "stack",
       "insertText": "stack = ${1:\"\"}",
       "insertTextFormat": "Snippet"

@@ -575,7 +575,7 @@
       "label": "arg2 = ...",
       "kind": "Snippet",
       "detail": "arg2 = \"\"",
-      "sortText": "R",
+      "sortText": "AR",
       "filterText": "arg2",
       "insertText": "arg2 = ${1:\"\"}",
       "insertTextFormat": "Snippet"

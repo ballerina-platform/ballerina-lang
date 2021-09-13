@@ -324,7 +324,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (filteredSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
 
@@ -347,19 +347,68 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (!CommonUtil.isInFunctionCallParameterContext(context, node)
+        if (!CommonUtil.withinArgumentContext(context, node)
                 || !(funcSymbol.get() instanceof FunctionSymbol)) {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
         Optional<ParameterSymbol> paramSymbol =
                 CommonUtil.resolveFunctionParameterSymbol(
-                        ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node);
-
+                        ((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context, node.arguments());
         if (paramSymbol.isEmpty()) {
             return Optional.empty();
         }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
 
+    @Override
+    public Optional<TypeSymbol> transform(ImplicitNewExpressionNode implicitNewExpressionNode) {
+
+        Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.type(implicitNewExpressionNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        if (classSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.withinArgumentContext(context, implicitNewExpressionNode)
+                || !(classSymbol.get() instanceof ClassSymbol)) {
+            return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        Optional<ParenthesizedArgList> args = implicitNewExpressionNode.parenthesizedArgList();
+        if (args.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
+                        context, args.get().arguments());
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        return SymbolUtil.getTypeDescriptor(paramSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(ExplicitNewExpressionNode explicitNewExpressionNode) {
+        Optional<TypeSymbol> classSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.type(explicitNewExpressionNode))
+                .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        if (classSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        if (!CommonUtil.withinArgumentContext(context, explicitNewExpressionNode)
+                || !(classSymbol.get() instanceof ClassSymbol)) {
+            return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        ParenthesizedArgList args = explicitNewExpressionNode.parenthesizedArgList();
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
+        Optional<ParameterSymbol> paramSymbol =
+                CommonUtil.resolveFunctionParameterSymbol(methodSymbol.get().typeDescriptor(),
+                        context, args.arguments());
+        if (paramSymbol.isEmpty()) {
+            return Optional.empty();
+        }
         return SymbolUtil.getTypeDescriptor(paramSymbol.get());
     }
 
@@ -639,7 +688,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
         ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
-        
+
         return Optional.of(typeDescriptor);
     }
 
