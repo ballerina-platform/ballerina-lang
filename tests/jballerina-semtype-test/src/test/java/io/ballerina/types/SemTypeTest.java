@@ -56,7 +56,6 @@ public class SemTypeTest {
         ignore(testFiles, "int-singleton.bal");
         ignore(testFiles, "float-singleton.bal");
         ignore(testFiles, "float-singleton2.bal");
-        ignore(testFiles, "error1.bal");
         ignore(testFiles, "error2.bal");
         ignore(testFiles, "readonly2.bal");
         ignore(testFiles, "function.bal");
@@ -69,7 +68,7 @@ public class SemTypeTest {
                 "test-src/simple-type/map-type-test.bal");
 
         return testFiles.toArray(new String[0]);
-       // return new Object[]{"test-src/data/error1.bal"};
+        //return new Object[]{"test-src/data/error1.bal"};
     }
 
     private void include(List<String> testFiles, String... fileNames) {
