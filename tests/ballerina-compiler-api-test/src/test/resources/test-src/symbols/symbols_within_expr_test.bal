@@ -29,3 +29,42 @@ function testTemplateExprs() {
     xml x = xml `<age>${i}</age>`;
     'object:RawTemplate rt = `bar ${i}`;
 }
+
+function testStructuralConstructors() {
+    anydata[] arr1 = [hundred, PI];
+    arr1 = [];
+    var tup = [greet, PI, 10];
+
+    map<anydata> m1 = {a: 10, "b": PI};
+    FooRec rec1 = {x: hundred, "y": greet, [greet]: "Another " + greet, "pi": PI};
+    string y = "foo";
+    rec1 = {x: 10, y, ...m1};
+
+    table<Person> key(id) tbl1 = table key(id) [
+        {id: 1001, name: "John Doe"}
+    ];
+
+    var m2 = {id: 1002, name: "Jane Doe"};
+
+    var tbl2 = table key(id) [
+        {id: 1001, name: "John Doe"}
+        {id: 1002, name: "Jane Doe"}
+        //{...m}
+    ];
+}
+
+// utils
+
+const PI = 3.14;
+int hundred = 100;
+string greet = "Hello World!";
+
+type FooRec record {
+    int x;
+    string y;
+};
+
+type Person record {|
+    readonly int id;
+    string name;
+|};
