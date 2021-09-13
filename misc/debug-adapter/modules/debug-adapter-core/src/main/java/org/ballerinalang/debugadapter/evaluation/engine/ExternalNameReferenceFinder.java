@@ -297,7 +297,6 @@ public class ExternalNameReferenceFinder extends NodeVisitor {
     }
 
     public void visit(FieldBindingPatternFullNode fieldBindingPatternFullNode) {
-        visitSyntaxNode(fieldBindingPatternFullNode);
     }
 
     public void visit(FieldBindingPatternVarnameNode fieldBindingPatternVarnameNode) {
@@ -305,7 +304,7 @@ public class ExternalNameReferenceFinder extends NodeVisitor {
     }
 
     public void visit(RestBindingPatternNode restBindingPatternNode) {
-        visitSyntaxNode(restBindingPatternNode);
+        internalVariables.add(restBindingPatternNode.variableName().name().text().trim());
     }
 
     public void visit(ErrorBindingPatternNode errorBindingPatternNode) {
