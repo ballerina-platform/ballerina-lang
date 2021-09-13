@@ -70,7 +70,8 @@ public class PackageConfigCreator {
         ManifestBuilder manifestBuilder = ManifestBuilder
                 .from(ballerinaToml, pluginToml, projectDirPath);
         PackageManifest packageManifest = manifestBuilder.packageManifest();
-        DependencyManifestBuilder dependencyManifestBuilder = DependencyManifestBuilder.from(dependenciesToml);
+        DependencyManifestBuilder dependencyManifestBuilder =
+                DependencyManifestBuilder.from(dependenciesToml, packageManifest.descriptor());
         DependencyManifest dependencyManifest = dependencyManifestBuilder.dependencyManifest();
 
         return createPackageConfig(packageData, packageManifest, dependencyManifest);
