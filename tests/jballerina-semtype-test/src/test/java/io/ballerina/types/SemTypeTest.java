@@ -53,15 +53,42 @@ public class SemTypeTest {
                 .filter(name -> name.endsWith(".bal"))
                 .collect(Collectors.toList());
 
-        // todo: have a pipleline step to exclude files
+        ignore(testFiles, "int-singleton.bal");
+        ignore(testFiles, "float-singleton.bal");
+        ignore(testFiles, "float-singleton2.bal");
+        ignore(testFiles, "error1.bal");
+        ignore(testFiles, "error2.bal");
+        ignore(testFiles, "readonly2.bal");
+        ignore(testFiles, "function.bal");
+        ignore(testFiles, "contextual.bal");
+        ignore(testFiles, "hard.bal");
 
-        int i = 0;
-        testFiles.add(i++, "test-src/simple-type/type-test.bal");
-        testFiles.add(i++, "test-src/simple-type/list-type-test.bal");
-        testFiles.add(i++, "test-src/simple-type/map-type-test.bal");
+        include(testFiles,
+                "test-src/simple-type/type-test.bal",
+                "test-src/simple-type/list-type-test.bal",
+                "test-src/simple-type/map-type-test.bal");
 
-         return testFiles.toArray(new String[0]);
-        //return new Object[]{};
+        return testFiles.toArray(new String[0]);
+       // return new Object[]{"test-src/data/error1.bal"};
+    }
+
+    private void include(List<String> testFiles, String... fileNames) {
+        for (int i = 0; i < fileNames.length; i++) {
+            testFiles.add(i, fileNames[i]);
+        }
+    }
+
+    private void ignore(List<String> testFiles, String fileName) {
+        int index = -1;
+        for (int i = 0; i < testFiles.size(); i++) {
+            if (testFiles.get(i).endsWith(fileName)) {
+                index = i;
+                break;
+            }
+        }
+        if (index != -1) {
+            testFiles.remove(index);
+        }
     }
 
     @Test(dataProvider = "fileNameProvider")

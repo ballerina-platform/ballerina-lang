@@ -599,6 +599,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (td.typeKind) {
             case NEVER:
                 return PredefinedType.NEVER;
+            case XML:
+                return PredefinedType.XML;
             default:
                 throw new AssertionError("Unknown type kind: " + td.typeKind);
         }
@@ -672,7 +674,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return d.define(semtypeEnv, Collections.emptyList(), rest);
     }
 
-    private SemType resolveTypeDesc(BLangRecordTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth, BLangTypeDefinition typeDefinition) {
+    private SemType resolveTypeDesc(BLangRecordTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
+                                    BLangTypeDefinition typeDefinition) {
         if (td.defn != null) {
             return td.defn.getSemType(semtypeEnv);
         }
