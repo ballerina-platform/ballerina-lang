@@ -34,7 +34,7 @@ import java.nio.file.Path;
 /**
  * Test performance of openDocument in completions feature in language server.
  */
-public class OpenDocumentPerformanceTest extends CompletionPerformanceTest {
+public class OpenDocumentPerformanceTest {
 
     private Endpoint serviceEndpoint;
     private final Path testRoot = FileUtils.RES_DIR.resolve("performance");
@@ -79,5 +79,13 @@ public class OpenDocumentPerformanceTest extends CompletionPerformanceTest {
     @Override
     public String getTestResourceDir() {
         return "performance_completion";
+    }
+
+    public String getConfigJsonPath(String configFilePath) {
+        return "performance" + File.separator + "config" + File.separator + getResourceDir() + File.separator
+                + configFilePath;
+    }
+    public String getResourceDir() {
+        return "performance_open_document";
     }
 }

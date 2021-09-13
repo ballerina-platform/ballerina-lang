@@ -49,7 +49,7 @@ import java.util.List;
  */
 public abstract class CompletionTest {
 
-    private Endpoint serviceEndpoint;
+    public Endpoint serviceEndpoint;
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
@@ -69,11 +69,9 @@ public abstract class CompletionTest {
         String configJsonPath = "completion" + File.separator + configPath
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
-        String response = getResponse(configJsonObject);
+        String response = initializeSources(configJsonObject);
         JsonObject json = parser.parse(response).getAsJsonObject();
-        Type collectionType = new TypeToken<List<CompletionItem>>() {
-        }.getType();
+        Type collectionType = new TypeToken<List<CompletionItem>>() { }.getType();
         JsonArray resultList = json.getAsJsonObject("result").getAsJsonArray("left");
         List<CompletionItem> responseItemList = gson.fromJson(resultList, collectionType);
         List<CompletionItem> expectedList = getExpectedList(configJsonObject);
@@ -86,21 +84,22 @@ public abstract class CompletionTest {
         }
     }
 
-    String getResponse(JsonObject configJsonObject) throws IOException {
+    private String initializeSources(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
-        String responseString;
         Position position = new Position();
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
         JsonElement triggerCharElement = configJsonObject.get("triggerCharacter");
         String triggerChar = triggerCharElement == null ? "" : triggerCharElement.getAsString();
+        return getResponse(sourcePath, position, triggerChar);
+    }
 
+    public String getResponse(Path sourcePath, Position position, String triggerChar) throws IOException {
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
+        String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
                 this.serviceEndpoint, triggerChar);
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-
         return responseString;
     }
 
