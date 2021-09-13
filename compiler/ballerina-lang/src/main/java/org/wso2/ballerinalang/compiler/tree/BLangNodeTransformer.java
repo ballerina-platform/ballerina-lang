@@ -17,6 +17,18 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -149,6 +161,56 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangXMLNS.BLangPackageXMLNS node, T props) {
+        return transformNode(node, props);
+    }
+
+    // Binding-patterns
+
+    public R transform(BLangCaptureBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorCauseBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorFieldBindingPatterns node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorMessageBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangFieldBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangListBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMappingBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangNamedArgBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangRestBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangSimpleBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangWildCardBindingPattern node, T props) {
         return transformNode(node, props);
     }
 

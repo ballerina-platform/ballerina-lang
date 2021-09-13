@@ -17,6 +17,18 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -149,6 +161,56 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangXMLNS.BLangPackageXMLNS node, T props) {
+        analyzeNode(node, props);
+    }
+
+    // Binding-patterns
+
+    public void visit(BLangCaptureBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorCauseBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorFieldBindingPatterns node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorMessageBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangFieldBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangListBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMappingBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangNamedArgBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRestBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWildCardBindingPattern node, T props) {
         analyzeNode(node, props);
     }
 
