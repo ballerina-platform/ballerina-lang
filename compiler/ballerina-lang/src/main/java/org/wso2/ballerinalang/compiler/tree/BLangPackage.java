@@ -18,9 +18,9 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import io.ballerina.projects.internal.ModuleContextDataHolder;
-import io.ballerina.types.Env;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.types.Env;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
