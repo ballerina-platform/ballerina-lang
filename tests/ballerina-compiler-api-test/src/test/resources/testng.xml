@@ -119,6 +119,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.TypeDefSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.TypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.VarDeclSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.XMLNamespaceDeclSymbolTest" />
         </classes>
     </test>
 </suite>
