@@ -59,6 +59,16 @@ public class BLangIdentifier extends BLangNode implements IdentifierNode {
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.IDENTIFIER;
     }

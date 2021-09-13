@@ -101,6 +101,10 @@ public abstract class BLangNode implements Node {
 
     public abstract void accept(BLangNodeVisitor visitor);
 
+    public abstract <T> void accept(BLangNodeAnalyzer<T> analyzer, T props);
+
+    public abstract <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props);
+
     @Override
     public Set<Whitespace> getWS() {
         return ws;

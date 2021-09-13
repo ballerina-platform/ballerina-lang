@@ -58,6 +58,16 @@ public class BLangBlockFunctionBody extends BLangFunctionBody implements BlockFu
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.BLOCK_FUNCTION_BODY;
     }
