@@ -124,6 +124,7 @@ public class SubtypePairIterator implements Iterator<SubtypePair> {
                 }
             } else if (this.i2 >= this.t2.size()) {
                 UniformSubtype t = this.get1();
+                this.i1 += 1;
                 UniformTypeCode code = t.uniformTypeCode;
                 SubtypeData data1 = t.subtypeData;
                 if (include(code)) {

@@ -579,40 +579,10 @@
     {
       "label": "addFunction",
       "kind": "Variable",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
-        }
-      },
+      "detail": "function (int num1, int num2) returns int",
       "sortText": "AB",
-      "filterText": "addFunction",
       "insertText": "addFunction",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "addFunction(int num1, int num2)",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Return** `int`   \n  \n"
-        }
-      },
-      "sortText": "E",
-      "filterText": "addFunction",
-      "insertText": "addFunction(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "StrandData",

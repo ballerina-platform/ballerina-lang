@@ -25,13 +25,25 @@
             <Class name="io.ballerina.semtype.Core"/>
             <Class name="io.ballerina.semtype.EnumerableType"/>
             <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+            <Class name="io.ballerina.semtype.Env"/>
             <Class name="io.ballerina.semtype.subtypedata.BooleanSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.IntSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.FloatSubtype"/>
             <Class name="io.ballerina.semtype.subtypedata.StringSubtype"/>
+            <Class name="io.ballerina.semtype.typeops.BddCommonOps"/>
+            <Class name="io.ballerina.semtype.typeops.CommonOps"/>
+            <Class name="io.ballerina.semtype.typeops.ErrorOps"/>
             <Class name="io.ballerina.semtype.typeops.FloatOps"/>
+            <Class name="io.ballerina.semtype.typeops.IntOps"/>
             <Class name="io.ballerina.semtype.typeops.FunctionOps"/>
+            <Class name="io.ballerina.semtype.typeops.MappingCommonOps"/>
+            <Class name="io.ballerina.semtype.typeops.MappingRoOps"/>
+            <Class name="io.ballerina.semtype.typeops.ListTypeRoOps"/>
+            <Class name="io.ballerina.semtype.typeops.StringOps"/>
+            <Class name="io.ballerina.semtype.typeops.ListTypeRoOps"/>
+            <Class name="io.ballerina.semtype.typeops.BooleanOps"/>
             <Class name="io.ballerina.semtype.TypeCheckContext"/>
+            <Class name="io.ballerina.semtype.Common"/>
         </Or>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
@@ -47,6 +59,7 @@
         <Or>
             <Class name="io.ballerina.semtype.Env"/>
             <Class name="io.ballerina.semtype.ListAtomicType"/>
+            <Class name="io.ballerina.semtype.MappingAtomicType"/>
             <Class name="io.ballerina.semtype.RecAtom"/>
             <Class name="io.ballerina.semtype.TypeAtom"/>
             <Class name="io.ballerina.semtype.TypeCheckContext"/>
@@ -59,10 +72,12 @@
             <Class name="io.ballerina.semtype.typeops.SubtypePair"/>
             <Class name="io.ballerina.semtype.definition.Field"/>
             <Class name="io.ballerina.semtype.Value"/>
+            <Class name="io.ballerina.semtype.TypeAtom"/>
         </Or>
         <Or>
             <Bug pattern="URF_UNREAD_FIELD"/>
             <Bug pattern="UUF_UNUSED_FIELD"/>
+            <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
         </Or>
     </Match>
     <Match>
@@ -74,6 +89,7 @@
     <Match>
         <Or>
             <Class name="io.ballerina.semtype.EnumerableSubtype"/>
+            <Class name="io.ballerina.semtype.Core"/>
         </Or>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
@@ -87,6 +103,7 @@
     <Match>
         <Or>
             <Class name="io.ballerina.semtype.BddMemo"/>
+            <Class name="io.ballerina.semtype.typeops.FieldPairs"/>
         </Or>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>

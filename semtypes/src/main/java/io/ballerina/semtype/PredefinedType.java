@@ -69,11 +69,15 @@ public class PredefinedType {
                     | (1 << UniformTypeCode.UT_DECIMAL.code));
     public static final SemType BYTE = IntSubtype.intWidthUnsigned(8);
 
+    // Union of complete uniform types
+    // bits is bit vecor indexed by UniformTypeCode
+    // I would like to make the arg int:Unsigned32
+    // but are language/impl bugs that make this not work well
     static UniformTypeBitSet uniformTypeUnion(int bitset) {
         return UniformTypeBitSet.from(bitset);
     }
 
-    private static UniformTypeBitSet uniformType(UniformTypeCode code) {
+    public static UniformTypeBitSet uniformType(UniformTypeCode code) {
         return UniformTypeBitSet.from(1 << code.code);
     }
 

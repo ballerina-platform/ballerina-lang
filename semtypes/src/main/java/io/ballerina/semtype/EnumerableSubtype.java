@@ -26,31 +26,31 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class EnumerableSubtype {
+public abstract class EnumerableSubtype {
     static final int LT = -1;
     static final int EQ = 0;
     static final int GT = 1;
 
-    boolean allowed;
-    List<? extends EnumerableType> values;
+    public abstract boolean allowed();
+    public abstract EnumerableType[] values();
 
     public static boolean enumerableSubtypeUnion(EnumerableSubtype t1, EnumerableSubtype t2,
                                                  List<? extends EnumerableType> result) {
-        boolean b1 = t1.allowed;
-        boolean b2 = t2.allowed;
+        boolean b1 = t1.allowed();
+        boolean b2 = t2.allowed();
         boolean allowed;
         if (b1 && b2) {
-            enumerableListUnion(t1.values, t2.values, result);
+            enumerableListUnion(t1.values(), t2.values(), result);
             allowed = true;
         } else if (!b1 && !b2) {
-            enumerableListIntersect(t1.values, t2.values, result);
+            enumerableListIntersect(t1.values(), t2.values(), result);
             allowed = false;
         } else if (b1 && !b2) {
-            enumerableListDiff(t2.values, t1.values, result);
+            enumerableListDiff(t2.values(), t1.values(), result);
             allowed = false;
         } else {
             // !b1 && b2
-            enumerableListDiff(t1.values, t2.values, result);
+            enumerableListDiff(t1.values(), t2.values(), result);
             allowed = false;
         }
         return allowed;
@@ -58,47 +58,47 @@ public class EnumerableSubtype {
 
     public static boolean enumerableSubtypeIntersect(EnumerableSubtype t1, EnumerableSubtype t2,
                                                      List<? extends EnumerableType> result) {
-        boolean b1 = t1.allowed;
-        boolean b2 = t2.allowed;
+        boolean b1 = t1.allowed();
+        boolean b2 = t2.allowed();
         boolean allowed;
         if (b1 && b2) {
-            enumerableListIntersect(t1.values, t2.values, result);
+            enumerableListIntersect(t1.values(), t2.values(), result);
             allowed = true;
         } else if (!b1 && !b2) {
-            enumerableListUnion(t1.values, t2.values, result);
+            enumerableListUnion(t1.values(), t2.values(), result);
             allowed = false;
         } else if (b1 && !b2) {
-            enumerableListDiff(t1.values, t2.values, result);
+            enumerableListDiff(t1.values(), t2.values(), result);
             allowed = false;
         } else {
             // !b1 && b2
-            enumerableListDiff(t2.values, t1.values, result);
+            enumerableListDiff(t2.values(), t1.values(), result);
             allowed = false;
         }
         return allowed;
     }
 
-    public static void enumerableListUnion(List<? extends EnumerableType> v1, List<? extends EnumerableType> v2,
+    public static void enumerableListUnion(EnumerableType[] v1, EnumerableType[] v2,
                                            List<? extends EnumerableType> resulte) {
         List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
-        int len1 = v1.size();
-        int len2 = v2.size();
+        int len1 = v1.length;
+        int len2 = v2.length;
 
         while (true) {
             if (i1 >= len1) {
                 if (i2 >= len2) {
                     break;
                 }
-                result.add(v2.get(i2));
+                result.add(v2[i2]);
                 i2 += 1;
             } else if (i2 >= len2) {
-                result.add(v1.get(i1));
+                result.add(v1[i1]);
                 i1 += 1;
             } else {
-                EnumerableType s1 = v1.get(i1);
-                EnumerableType s2 = v2.get(i2);
+                EnumerableType s1 = v1[i1];
+                EnumerableType s2 = v2[i2];
                 switch (compareEnumerable(s1, s2)) {
                     case EQ:
                         result.add(s1);
@@ -118,20 +118,20 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListIntersect(List<? extends EnumerableType> v1, List<? extends EnumerableType> v2,
+    public static void enumerableListIntersect(EnumerableType[] v1, EnumerableType[] v2,
                                                List<? extends EnumerableType> resulte) {
         List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
-        int len1 = v1.size();
-        int len2 = v2.size();
+        int len1 = v1.length;
+        int len2 = v2.length;
 
         while (true) {
             if (i1 >= len1 || i2 >= len2) {
                 break;
             } else {
-                EnumerableType s1 = v1.get(i1);
-                EnumerableType s2 = v2.get(i2);
+                EnumerableType s1 = v1[i1];
+                EnumerableType s2 = v2[i2];
                 switch (compareEnumerable(s1, s2)) {
                     case EQ:
                         result.add(s1);
@@ -149,24 +149,24 @@ public class EnumerableSubtype {
         }
     }
 
-    public static void enumerableListDiff(List<? extends EnumerableType> v1, List<? extends EnumerableType> v2,
+    public static void enumerableListDiff(EnumerableType[] v1, EnumerableType[] v2,
                                           List<? extends EnumerableType> resulte) {
         List<EnumerableType> result = (List<EnumerableType>) resulte;
         int i1 = 0;
         int i2 = 0;
-        int len1 = v1.size();
-        int len2 = v2.size();
+        int len1 = v1.length;
+        int len2 = v2.length;
 
         while (true) {
             if (i1 >= len1) {
                 break;
             }
             if (i2 >= len2) {
-                result.add(v1.get(i1));
+                result.add(v1[i1]);
                 i1 += 1;
             } else {
-                EnumerableType s1 = v1.get(i1);
-                EnumerableType s2 = v2.get(i2);
+                EnumerableType s1 = v1[i1];
+                EnumerableType s2 = v2[i2];
                 switch (compareEnumerable(s1, s2)) {
                     case EQ:
                         i1 += 1;
@@ -188,7 +188,7 @@ public class EnumerableSubtype {
         if (v1 instanceof EnumerableString) {
             String s2 = ((EnumerableString) v2).value;
             String s1 = ((EnumerableString) v1).value;
-            return Objects.equals(s1, s2) ? EQ : s1.length() < s2.length() ? LT : GT;
+            return Objects.equals(s1, s2) ? EQ : (Common.codePointCompare(s1, s2) ? LT : GT);
         } else {
             double f1 = ((EnumerableFloat) v2).value;
             double f2 = ((EnumerableFloat) v2).value;

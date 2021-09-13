@@ -17,6 +17,8 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Bdd;
+import io.ballerina.semtype.Common;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
@@ -26,9 +28,9 @@ import io.ballerina.semtype.UniformTypeOps;
  *
  * @since 2.0.0
  */
-public class ListTypeRoOps  extends CommonOps implements UniformTypeOps {
+public class ListTypeRoOps extends CommonOps implements UniformTypeOps {
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+        return ListCommonOps.listSubtypeIsEmpty(tc, Common.bddFixReadOnly((Bdd) t));
     }
 }

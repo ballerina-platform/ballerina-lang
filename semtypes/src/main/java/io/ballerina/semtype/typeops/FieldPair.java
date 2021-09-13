@@ -15,14 +15,27 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.subtypedata;
+package io.ballerina.semtype.typeops;
 
-import io.ballerina.semtype.Bdd;
+import io.ballerina.semtype.SemType;
 
 /**
- * Represent boolean subtype of Bdd type.
+ * Represent the FieldPair record.
  *
  * @since 2.0.0
  */
-public class AllOrNothingBdd implements Bdd {
+public class FieldPair {
+    public final String  name;
+    public final SemType type1;
+    public final SemType type2;
+
+    public FieldPair(String name, SemType type1, SemType type2) {
+        this.name = name;
+        this.type1 = type1;
+        this.type2 = type2;
+    }
+
+    public static FieldPair create(String name, SemType type1, SemType type2) {
+        return new FieldPair(name, type1, type2);
+    }
 }

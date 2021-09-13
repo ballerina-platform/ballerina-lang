@@ -15,19 +15,27 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.typeops;
+package io.ballerina.semtype.definition;
 
-import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.TypeCheckContext;
+import io.ballerina.semtype.SemType;
+
+import java.util.List;
 
 /**
- * Mapping read/write specific methods operate on SubtypeData.
+ * Holds the [string[], SemType[]] return type.
  *
  * @since 2.0.0
  */
-public class MappingRWOps extends MappingCommonOps {
-    @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+public class SplitField {
+    public final List<String> names;
+    public final List<SemType> types;
+
+    private SplitField(List<String> strings, List<SemType> semTypes) {
+        this.names = strings;
+        this.types = semTypes;
+    }
+
+    public static SplitField from(List<String> strings, List<SemType> semTypes) {
+        return new SplitField(strings, semTypes);
     }
 }

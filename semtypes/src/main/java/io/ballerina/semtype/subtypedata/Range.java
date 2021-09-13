@@ -15,20 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.semtype.typeops;
-
-import io.ballerina.semtype.SubtypeData;
-import io.ballerina.semtype.TypeCheckContext;
-import io.ballerina.semtype.UniformTypeOps;
+package io.ballerina.semtype.subtypedata;
 
 /**
- * List read/write specific methods operate on SubtypeData.
+ * Int Range node.
  *
  * @since 2.0.0
  */
-public class ListTypeRWOps extends CommonOps implements UniformTypeOps {
-    @Override
-    public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+public class Range {
+    public final long min;
+    public final long max;
+
+    public Range(long min, long max) {
+        this.min = min;
+        this.max = max;
     }
 }

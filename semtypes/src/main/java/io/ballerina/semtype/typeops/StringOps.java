@@ -17,9 +17,16 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Common;
+import io.ballerina.semtype.EnumerableString;
+import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
+import io.ballerina.semtype.subtypedata.StringSubtype;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Uniform subtype ops for string type.
@@ -28,27 +35,34 @@ import io.ballerina.semtype.UniformTypeOps;
  */
 public class StringOps implements UniformTypeOps {
     @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData union(SubtypeData d1, SubtypeData d2) {
+        List<EnumerableString> values = new ArrayList<>();
+        boolean allowed = EnumerableSubtype.enumerableSubtypeUnion((StringSubtype) d1, (StringSubtype) d2, values);
+        EnumerableString[] valueArray = new EnumerableString[values.size()];
+        return StringSubtype.createStringSubtype(allowed, values.toArray(valueArray));
     }
 
     @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
+        List<EnumerableString> values = new ArrayList<>();
+        boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((StringSubtype) d1, (StringSubtype) d2, values);
+        EnumerableString[] valueArray = new EnumerableString[values.size()];
+        return StringSubtype.createStringSubtype(allowed, values.toArray(valueArray));
     }
 
     @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData diff(SubtypeData d1, SubtypeData d2) {
+        return intersect(d1, complement(d2));
     }
 
     @Override
-    public SubtypeData complement(SubtypeData t) {
-        throw new AssertionError();
+    public SubtypeData complement(SubtypeData d) {
+        StringSubtype s = (StringSubtype) d;
+        return StringSubtype.createStringSubtype(!s.allowed, (EnumerableString[]) s.values);
     }
 
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+        return Common.notIsEmpty(tc, t);
     }
 }

@@ -23,7 +23,7 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class EnumerableString implements EnumerableType {
-    final String value;
+    public final String value;
 
     private EnumerableString(String value) {
         this.value = value;

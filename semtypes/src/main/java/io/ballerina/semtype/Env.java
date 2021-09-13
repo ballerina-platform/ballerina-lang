@@ -19,6 +19,7 @@ package io.ballerina.semtype;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Env node.
@@ -27,9 +28,9 @@ import java.util.HashMap;
  */
 public class Env {
     private final HashMap<AtomicType, TypeAtom> atomTable;
-    private final ArrayList<ListAtomicType> recListAtoms;
-    private final ArrayList<MappingAtomicType> recMappingAtoms;
-    private final ArrayList<FunctionAtomicType> recFunctionAtoms;
+    private final List<ListAtomicType> recListAtoms;
+    private final List<MappingAtomicType> recMappingAtoms;
+    private final List<FunctionAtomicType> recFunctionAtoms;
 
     public Env() {
         this.atomTable = new HashMap<>();
@@ -38,22 +39,106 @@ public class Env {
         this.recListAtoms.add(ListAtomicType.LIST_SUBTYPE_RO);
 
         this.recMappingAtoms = new ArrayList<>();
-        // todo: add MAPPING_SUBTYPE_RO
+        this.recMappingAtoms.add(MappingAtomicType.MAPPING_SUBTYPE_RO);
+
         this.recFunctionAtoms = new ArrayList<>();
     }
 
-    public synchronized RecAtom recFunctionAtom() {
-        int result = this.recFunctionAtoms.size();
-        // represents adding () in nballerina
-        this.recFunctionAtoms.add(null);
-        return new RecAtom(result);
+    public RecAtom recFunctionAtom() {
+        synchronized (this.recFunctionAtoms) {
+            int result = this.recFunctionAtoms.size();
+            // represents adding () in nballerina
+            this.recFunctionAtoms.add(null);
+            return new RecAtom(result);
+        }
     }
 
-    public synchronized void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
-        this.recFunctionAtoms.set(ra.index, atomicType);
+    public void setRecFunctionAtomType(RecAtom ra, FunctionAtomicType atomicType) {
+        synchronized (this.recFunctionAtoms) {
+            this.recFunctionAtoms.set(ra.index, atomicType);
+        }
     }
 
-    public synchronized FunctionAtomicType getRecFunctionAtomType(RecAtom ra) {
-        return this.recFunctionAtoms.get(ra.index);
+    public FunctionAtomicType getRecFunctionAtomType(RecAtom ra) {
+        synchronized (this.recFunctionAtoms) {
+            return this.recFunctionAtoms.get(ra.index);
+        }
+    }
+
+    public TypeAtom listAtom(ListAtomicType atomicType) {
+        return this.typeAtom(atomicType);
+    }
+
+    public TypeAtom mappingAtom(MappingAtomicType atomicType) {
+        return this.typeAtom(atomicType);
+    }
+
+    private TypeAtom typeAtom(AtomicType atomicType) {
+        synchronized (this.atomTable) {
+            TypeAtom ta = this.atomTable.get(atomicType);
+            if (ta != null) {
+                return ta;
+            } else {
+                TypeAtom result = TypeAtom.createTypeAtom(this.atomTable.size(), atomicType);
+                this.atomTable.put(result.atomicType, result);
+                return result;
+            }
+        }
+    }
+
+    public ListAtomicType listAtomType(Atom atom) {
+        if (atom instanceof RecAtom) {
+            return getRecListAtomType((RecAtom) atom);
+        } else {
+            return (ListAtomicType) ((TypeAtom) atom).atomicType;
+        }
+    }
+
+    public MappingAtomicType mappingAtomType(Atom atom) {
+        if (atom instanceof RecAtom) {
+            return getRecMappingAtomType((RecAtom) atom);
+        } else {
+            return (MappingAtomicType) ((TypeAtom) atom).atomicType;
+        }
+    }
+
+    public RecAtom recListAtom() {
+        synchronized (this.recListAtoms) {
+            int result = this.recListAtoms.size();
+            this.recListAtoms.add(null);
+            return RecAtom.createRecAtom(result);
+        }
+    }
+
+    public RecAtom recMappingAtom() {
+        synchronized (this.recMappingAtoms) {
+            int result = this.recMappingAtoms.size();
+            this.recMappingAtoms.add(null);
+            return RecAtom.createRecAtom(result);
+        }
+    }
+
+    public void setRecListAtomType(RecAtom ra, ListAtomicType atomicType) {
+        synchronized (this.recListAtoms) {
+            this.recListAtoms.set(ra.index, atomicType);
+        }
+    }
+
+    public void setRecMappingAtomType(RecAtom ra, MappingAtomicType atomicType) {
+        synchronized (this.recListAtoms) {
+            this.recMappingAtoms.set(ra.index, atomicType);
+        }
+    }
+
+    public ListAtomicType getRecListAtomType(RecAtom ra) {
+        synchronized (this.recListAtoms) {
+            return (ListAtomicType) this.recListAtoms.get(ra.index);
+        }
+    }
+
+    public MappingAtomicType getRecMappingAtomType(RecAtom ra) {
+        synchronized (this.recMappingAtoms) {
+            return (MappingAtomicType) this.recMappingAtoms.get(ra.index);
+        }
     }
 }

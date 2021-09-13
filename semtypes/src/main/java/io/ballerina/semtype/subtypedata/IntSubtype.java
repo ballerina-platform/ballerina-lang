@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class IntSubtype implements ProperSubtypeData {
 
-    private final Range[] ranges;
+    public final Range[] ranges;
 
     public IntSubtype(Range[] ranges) {
         this.ranges = Arrays.copyOf(ranges, ranges.length);
@@ -94,7 +94,7 @@ public class IntSubtype implements ProperSubtypeData {
     }
 
     // Widen to UnsignedN
-    public SubtypeData intSubtypeWidenUnsigned(SubtypeData d) {
+    public static SubtypeData intSubtypeWidenUnsigned(SubtypeData d) {
         if (d instanceof AllOrNothingSubtype) {
             return d;
         }
@@ -105,10 +105,10 @@ public class IntSubtype implements ProperSubtypeData {
         }
 
         Range r = v.ranges[v.ranges.length - 1];
-        int i = 8;
-        while (i <= 32) {
+        long i = 8L;
+        while (i <= 32L) {
             if (r.max < (1L << i)) {
-                IntSubtype w = createSingleRangeSubtype(0L, i);
+                IntSubtype w = createSingleRangeSubtype(0L, (1L << i) - 1);
                 return w;
             }
             i = i * 2;
@@ -116,7 +116,7 @@ public class IntSubtype implements ProperSubtypeData {
         return AllOrNothingSubtype.createAll();
     }
 
-    public Optional<Long> intSubtypeSingleValue(SubtypeData d) {
+    public static Optional<Long> intSubtypeSingleValue(SubtypeData d) {
         if (d instanceof AllOrNothingSubtype) {
             return Optional.empty();
         }
@@ -144,18 +144,5 @@ public class IntSubtype implements ProperSubtypeData {
             }
         }
         return false;
-    }
-
-    /**
-     * Int Range node.
-     */
-    static class Range {
-        final long min;
-        final long max;
-
-        public Range(long min, long max) {
-            this.min = min;
-            this.max = max;
-        }
     }
 }

@@ -20,25 +20,61 @@ package io.ballerina.semtype.subtypedata;
 import io.ballerina.semtype.Atom;
 import io.ballerina.semtype.Bdd;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Bdd node.
  *
  * @since 2.0.0
  */
 public class BddNode implements Bdd {
-    public Atom atom;
-    public Bdd left;
-    public Bdd middle;
-    public Bdd right;
+    public final Atom atom;
+    public final Bdd left;
+    public final Bdd middle;
+    public final Bdd right;
 
-    public BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
+    private static final AtomicInteger bddCount = new AtomicInteger();
+
+    private BddNode(Atom atom, Bdd left, Bdd middle, Bdd right) {
         this.atom = atom;
         this.left = left;
         this.middle = middle;
         this.right = right;
+        bddCount.incrementAndGet();
     }
 
-    public static synchronized BddNode bddAtom(Atom atom) {
-        return new BddNode(atom, new BddBoolean(true), new BddBoolean(false), new BddBoolean(false));
+    public static BddNode create(Atom atom, Bdd left, Bdd middle, Bdd right) {
+        return new BddNode(atom, left, middle, right);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj instanceof BddNode) {
+            BddNode that = (BddNode) obj;
+            return Objects.equals(this.atom, that.atom)
+                    && Objects.equals(this.left, that.left)
+                    && Objects.equals(this.middle, that.middle)
+                    && Objects.equals(this.right, that.right);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = atom.hashCode();
+        result = 31 * result + left.hashCode();
+        result = 31 * result + middle.hashCode();
+        result = 31 * result + right.hashCode();
+        return result;
+    }
+
+    public int bddGetCount() {
+        return bddCount.get();
     }
 }

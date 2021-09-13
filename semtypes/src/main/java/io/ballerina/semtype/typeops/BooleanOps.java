@@ -17,9 +17,12 @@
  */
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Common;
 import io.ballerina.semtype.SubtypeData;
 import io.ballerina.semtype.TypeCheckContext;
 import io.ballerina.semtype.UniformTypeOps;
+import io.ballerina.semtype.subtypedata.AllOrNothingSubtype;
+import io.ballerina.semtype.subtypedata.BooleanSubtype;
 
 /**
  * Uniform type ops for boolean type.
@@ -28,27 +31,35 @@ import io.ballerina.semtype.UniformTypeOps;
  */
 public class BooleanOps implements UniformTypeOps {
     @Override
-    public SubtypeData union(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData union(SubtypeData d1, SubtypeData d2) {
+        BooleanSubtype v1 = (BooleanSubtype) d1;
+        BooleanSubtype v2 = (BooleanSubtype) d2;
+        return v1.value == v2.value ? v1 : AllOrNothingSubtype.createAll();
     }
 
     @Override
-    public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData intersect(SubtypeData d1, SubtypeData d2) {
+        BooleanSubtype v1 = (BooleanSubtype) d1;
+        BooleanSubtype v2 = (BooleanSubtype) d2;
+        return v1.value == v2.value ? v1 : AllOrNothingSubtype.createNothing();
     }
 
     @Override
-    public SubtypeData diff(SubtypeData t1, SubtypeData t2) {
-        throw new AssertionError();
+    public SubtypeData diff(SubtypeData d1, SubtypeData d2) {
+        BooleanSubtype v1 = (BooleanSubtype) d1;
+        BooleanSubtype v2 = (BooleanSubtype) d2;
+        return v1.value == v2.value ? AllOrNothingSubtype.createNothing() : v1;
     }
 
     @Override
-    public SubtypeData complement(SubtypeData t) {
-        throw new AssertionError();
+    public SubtypeData complement(SubtypeData d) {
+        BooleanSubtype v = (BooleanSubtype) d;
+        BooleanSubtype t = BooleanSubtype.from(!v.value);
+        return t;
     }
 
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw new AssertionError();
+        return Common.notIsEmpty(tc, t);
     }
 }

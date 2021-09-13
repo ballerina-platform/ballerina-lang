@@ -23,4 +23,21 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class MappingAtomicType implements AtomicType {
+    // sorted
+    public final String[] names;
+    public final SemType[] types;
+    public final SemType rest;
+
+    public static final MappingAtomicType MAPPING_SUBTYPE_RO =
+            new MappingAtomicType(new String[]{}, new SemType[]{}, PredefinedType.READONLY);
+
+    private MappingAtomicType(String[] names, SemType[] types, SemType rest) {
+        this.names = names;
+        this.types = types;
+        this.rest = rest;
+    }
+
+    public static MappingAtomicType from(String[] names, SemType[] types, SemType rest) {
+        return new MappingAtomicType(names, types, rest);
+    }
 }

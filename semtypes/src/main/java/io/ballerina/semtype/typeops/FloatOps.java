@@ -1,5 +1,6 @@
 package io.ballerina.semtype.typeops;
 
+import io.ballerina.semtype.Common;
 import io.ballerina.semtype.EnumerableFloat;
 import io.ballerina.semtype.EnumerableSubtype;
 import io.ballerina.semtype.SubtypeData;
@@ -19,14 +20,16 @@ public class FloatOps extends CommonOps implements UniformTypeOps {
     public SubtypeData union(SubtypeData t1, SubtypeData t2) {
         ArrayList<EnumerableFloat> values = new ArrayList<>();
         boolean allowed = EnumerableSubtype.enumerableSubtypeUnion((FloatSubtype) t1, (FloatSubtype) t2, values);
-        return FloatSubtype.createFloatSubtype(allowed, values);
+        EnumerableFloat[] valueArray = new EnumerableFloat[values.size()];
+        return FloatSubtype.createFloatSubtype(allowed, values.toArray(valueArray));
     }
 
     @Override
     public SubtypeData intersect(SubtypeData t1, SubtypeData t2) {
         ArrayList<EnumerableFloat> values = new ArrayList<>();
         boolean allowed = EnumerableSubtype.enumerableSubtypeIntersect((FloatSubtype) t1, (FloatSubtype) t1, values);
-        return FloatSubtype.createFloatSubtype(allowed, values);
+        EnumerableFloat[] valueArray = new EnumerableFloat[values.size()];
+        return FloatSubtype.createFloatSubtype(allowed, values.toArray(valueArray));
     }
 
     @Override
@@ -37,11 +40,11 @@ public class FloatOps extends CommonOps implements UniformTypeOps {
     @Override
     public SubtypeData complement(SubtypeData t) {
         FloatSubtype s = (FloatSubtype) t;
-        return FloatSubtype.createFloatSubtype(!s.allowed, s.values);
+        return FloatSubtype.createFloatSubtype(!s.allowed, (EnumerableFloat[]) s.values);
     }
 
     @Override
     public boolean isEmpty(TypeCheckContext tc, SubtypeData t) {
-        throw  new IllegalStateException();
+        return Common.notIsEmpty(tc, t);
     }
 }

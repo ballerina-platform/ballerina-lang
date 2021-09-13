@@ -131,7 +131,7 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
             this.enclosingNode = BallerinaContextUtils.getEnclosingModuleMember(syntaxTree.get(),
                     this.getCursorPositionInTree()).orElse(null);
         }
-        
+
         return Optional.ofNullable(this.enclosingNode);
     }
 }

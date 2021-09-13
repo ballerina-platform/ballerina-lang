@@ -23,7 +23,7 @@ package io.ballerina.semtype;
  * @since 2.0.0
  */
 public class EnumerableFloat implements EnumerableType {
-    final double value;
+    public final double value;
 
     private EnumerableFloat(double value) {
         this.value = value;

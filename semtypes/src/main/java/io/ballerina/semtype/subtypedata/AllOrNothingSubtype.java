@@ -28,16 +28,19 @@ import io.ballerina.semtype.SubtypeData;
 public class AllOrNothingSubtype implements SubtypeData {
     private final boolean isAll;
 
+    private static final AllOrNothingSubtype all = new AllOrNothingSubtype(true);
+    private static final AllOrNothingSubtype nothing = new AllOrNothingSubtype(false);
+
     AllOrNothingSubtype(boolean isAll) {
         this.isAll = isAll;
     }
 
     public static AllOrNothingSubtype createAll() {
-        return new AllOrNothingSubtype(true);
+        return all;
     }
 
     public static AllOrNothingSubtype createNothing() {
-        return new AllOrNothingSubtype(false);
+        return nothing;
     }
 
     public boolean isAllSubtype() {

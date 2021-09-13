@@ -722,7 +722,79 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void queryExpressionEvaluationTest() throws BallerinaTestException {
-        // Todo
+
+        // String from query evaluation
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "    where student.score >= 2.0" +
+                        "    select student.firstName + \" \" + student.lastName",
+                "string[2]", "array");
+
+        // Query expression evaluation with multiple clauses
+        debugTestRunner.assertExpression(context, "from var student in studentList" +
+                        "    where student.score >= 2.0" +
+                        "    let string degreeName = \"Bachelor of Medicine\", " +
+                        "    int expectedGradYear = calGraduationYear(student.intakeYear)" +
+                        "    order by student.firstName descending" +
+                        "    limit 2" +
+                        "    select {" +
+                        "        name: student.firstName + \" \" + student.lastName," +
+                        "        degree: degreeName," +
+                        "        expectedGradYear: expectedGradYear" +
+                        "    };",
+                "map[2]", "array");
+
+        // Query stream evaluation
+        debugTestRunner.assertExpression(context, "stream from var student in studentList" +
+                        "    where student.score >= 2.0" +
+                        "    let string degreeName = \"Bachelor of Medicine\", " +
+                        "    int graduationYear = calGraduationYear(student.intakeYear)" +
+                        "    order by student.firstName descending" +
+                        "    limit 2" +
+                        "    select {" +
+                        "        name: student.firstName + \" \" + student.lastName," +
+                        "                degree: degreeName," +
+                        "                graduationYear: graduationYear" +
+                        "    };",
+                "stream<map>", "stream");
+
+        // Query join expression evaluation
+        debugTestRunner.assertExpression(context, "from var student in gradStudentList" +
+                        "    join var department in departmentList" +
+                        "    on student.deptId equals department.deptId" +
+                        "    limit 3" +
+                        "    select { " +
+                        "        name: student.firstName + \" \" + student.lastName, " +
+                        "        deptName: department.deptName, " +
+                        "        degree: \"Bachelor of Science\", " +
+                        "        intakeYear: student.intakeYear " +
+                        "    }",
+                "map[3]", "array");
+
+        // Table query with contextually expected type (type cast).
+        debugTestRunner.assertExpression(context,
+                "<CustomerTable|error> table key(id, name) from var customer in customerList" +
+                        "     select {" +
+                        "         id: customer.id," +
+                        "         name: customer.name," +
+                        "         noOfItems: customer.noOfItems" +
+                        "     }" +
+                        "     on conflict onConflictError;",
+                "table<Customer> (entries = 3)", "table");
+
+        // Table query with conflicts.
+        debugTestRunner.assertExpression(context,
+                "<CustomerTable|error> table key(id, name) from var customer in conflictedCustomerList" +
+                        "     select {" +
+                        "         id: customer.id," +
+                        "         name: customer.name," +
+                        "         noOfItems: customer.noOfItems" +
+                        "     }" +
+                        "     on conflict onConflictError;",
+                "Key Conflict", "error");
+
+        // Nested from clauses
+        debugTestRunner.assertExpression(context, "from var i in from var j in [1, 2, 3] select j select i",
+                "int[3]", "array");
     }
 
     @Override
