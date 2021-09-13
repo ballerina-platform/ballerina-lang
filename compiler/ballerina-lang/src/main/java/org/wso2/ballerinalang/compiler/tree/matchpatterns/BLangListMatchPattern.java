@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.matchpatterns.ListMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.RestMatchPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -59,6 +61,16 @@ public class BLangListMatchPattern extends BLangMatchPattern implements ListMatc
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
     }
 
     @Override
