@@ -21,7 +21,7 @@ package io.ballerina.shell.snippet.types;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.shell.snippet.SnippetSubKind;
-import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.QuotedImport;
 
 import java.util.List;
@@ -44,11 +44,11 @@ public class ImportDeclarationSnippet extends AbstractSnippet<ImportDeclarationN
      *
      * @return Alias of this import.
      */
-    public QuotedIdentifier getPrefix() {
+    public Identifier getPrefix() {
         String importPrefix = rootNode.prefix().isPresent()
                 ? rootNode.prefix().get().prefix().text()
                 : rootNode.moduleName().get(rootNode.moduleName().size() - 1).text();
-        return new QuotedIdentifier(importPrefix);
+        return new Identifier(importPrefix);
     }
 
     /**
@@ -58,8 +58,7 @@ public class ImportDeclarationSnippet extends AbstractSnippet<ImportDeclarationN
      * @return Imported module expression.
      */
     public QuotedImport getImportedModule() {
-        List<String> moduleNames = rootNode.moduleName().stream()
-                .map(IdentifierToken::text)
+        List<String> moduleNames = rootNode.moduleName().stream().map(IdentifierToken::text)
                 .collect(Collectors.toList());
         if (rootNode.orgName().isPresent()) {
             String orgName = rootNode.orgName().get().orgName().text();

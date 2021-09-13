@@ -114,11 +114,11 @@
     {
       "label": "cloneReadOnly()",
       "kind": "Function",
-      "detail": "CloneableType & readonly",
+      "detail": "value:CloneableType & readonly",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",
@@ -212,11 +212,11 @@
     {
       "label": "clone()",
       "kind": "Function",
-      "detail": "CloneableType",
+      "detail": "value:CloneableType",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `CloneableType`   \n- clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "D",

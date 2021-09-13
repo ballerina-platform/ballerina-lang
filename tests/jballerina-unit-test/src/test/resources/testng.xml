@@ -74,6 +74,7 @@
             <!--            <package name="org.ballerinalang.test.loc.*"/>-->
             <package name="org.ballerinalang.test.lock.*"/>
             <package name="org.ballerinalang.test.main.function.*"/>
+            <package name="org.ballerinalang.test.narrowing.*"/>
             <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.object.*" />
