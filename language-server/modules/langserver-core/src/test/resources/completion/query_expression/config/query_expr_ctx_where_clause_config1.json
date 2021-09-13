@@ -427,14 +427,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customerTable",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "customerTable",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "customerList",
       "kind": "Variable",
       "detail": "Customer[]",

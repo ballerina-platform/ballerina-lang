@@ -33,7 +33,7 @@ import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.projects.Package;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -75,7 +75,7 @@ public class MethodCallExpressionEvaluator extends Evaluator {
     protected static final String QUALIFIED_TYPE_SIGNATURE_PREFIX = "L";
     protected static final String JNI_SIGNATURE_SEPARATOR = "/";
 
-    public MethodCallExpressionEvaluator(SuspendedContext context, ExpressionNode methodCallExpressionNode,
+    public MethodCallExpressionEvaluator(EvaluationContext context, ExpressionNode methodCallExpressionNode,
                                          Evaluator expression, List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = methodCallExpressionNode;
