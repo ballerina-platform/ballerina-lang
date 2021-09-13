@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Implementation of {@link PrepareRenameContext}.
@@ -33,8 +34,9 @@ public class PrepareRenameContextImpl extends ReferencesContextImpl implements P
                              String fileUri,
                              WorkspaceManager wsManager,
                              Position cursorPos,
-                             LanguageServerContext serverContext) {
-        super(operation, fileUri, wsManager, cursorPos, serverContext);
+                             LanguageServerContext serverContext,
+                             CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, cursorPos, serverContext, cancelChecker);
     }
 
     /**
@@ -53,7 +55,8 @@ public class PrepareRenameContextImpl extends ReferencesContextImpl implements P
                     this.fileUri,
                     this.wsManager,
                     this.position,
-                    this.serverContext);
+                    this.serverContext,
+                    this.cancelChecker);
         }
 
         @Override

@@ -60,6 +60,7 @@ public class DefinitionUtil {
      */
     public static List<Location> getDefinition(BallerinaDefinitionContext context, Position position) {
         fillTokenInfoAtCursor(context);
+        context.checkCancelled();
         Optional<Document> srcFile = context.currentDocument();
         Optional<SemanticModel> semanticModel = context.currentSemanticModel();
 
@@ -69,7 +70,7 @@ public class DefinitionUtil {
 
         LinePosition linePosition = LinePosition.from(position.getLine(), position.getCharacter());
         Optional<Symbol> symbol = semanticModel.get().symbol(srcFile.get(), linePosition);
-
+        context.checkCancelled();
         if (symbol.isEmpty()) {
             return Collections.emptyList();
         }
@@ -100,7 +101,7 @@ public class DefinitionUtil {
         if (CommonUtil.isLangLib(orgName, moduleName)) {
             filepath = getFilePathForLanglib(orgName, moduleName, project.get(), symbol);
         } else {
-            filepath = getFilePathForDependency(orgName, moduleName, project.get(), symbol);
+            filepath = getFilePathForDependency(orgName, moduleName, project.get(), symbol, context);
         }
 
         if (filepath.isEmpty() || symbol.getLocation().isEmpty()) {
@@ -119,7 +120,8 @@ public class DefinitionUtil {
     }
 
     private static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
-                                                           Project project, Symbol symbol) {
+                                                           Project project, Symbol symbol,
+                                                           BallerinaDefinitionContext context) {
         if (symbol.getLocation().isEmpty()) {
             return Optional.empty();
         }
@@ -143,6 +145,8 @@ public class DefinitionUtil {
                         }
                     }
                 }
+                // Check for the cancellation after each of the module visit 
+                context.checkCancelled();
             }
         }
 
