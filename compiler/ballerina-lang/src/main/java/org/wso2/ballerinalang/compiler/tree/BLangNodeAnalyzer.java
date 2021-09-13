@@ -127,6 +127,36 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -752,6 +782,140 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangWildCardMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    // Statements
+
+    public void visit(BLangAssignment node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangBlockStmt node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangBreak node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangCompoundAssignment node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangContinue node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangDo node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorDestructure node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorVariableDef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangExpressionStmt node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangFail node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangForeach node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangForkJoin node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIf node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangLock node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatch node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatchStatement node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangPanic node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordDestructure node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordVariableDef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRetry node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRetryTransaction node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangReturn node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRollback node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleVariableDef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTransaction node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTupleDestructure node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTupleVariableDef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWhile node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWorkerSend node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLNSStatement node, T props) {
         analyzeNode(node, props);
     }
 
