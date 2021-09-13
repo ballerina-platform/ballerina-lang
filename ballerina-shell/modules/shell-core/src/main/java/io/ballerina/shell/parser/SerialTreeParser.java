@@ -49,7 +49,8 @@ import java.util.Set;
  * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
-    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init");
+    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init", "__java_recall",
+            "__java_memorize", "__recall_any", "__recall_any_error", "__memorize", "__stmts", "__run");
     private static final String COMMAND_PREFIX = "/";
     private final List<TreeParserTrial> nodeParserTrials;
 
@@ -120,11 +121,6 @@ public class SerialTreeParser extends TrialTreeParser {
             if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
                 addWarnDiagnostic("Found '" + functionName + "' function in the declarations.\n" +
                         "Discarded '" + functionName + "' function without loading.");
-                return false;
-            }
-            if (functionName.startsWith("__")) {
-                addWarnDiagnostic("Functions starting with '__' are reserved in REPL.\n" +
-                        "Discarded '" + functionName + "' without loading.");
                 return false;
             }
         }
