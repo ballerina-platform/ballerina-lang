@@ -70,6 +70,7 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JA
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getAsJString;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_ORG;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
@@ -134,7 +135,6 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             // adds all the captured variable values as rest arguments.
             argList.addAll(externalVariableValues);
             classLoadAndInvokeMethod.setArgValues(argList);
-            classLoadAndInvokeMethod.invokeSafely();
             Value expressionResult = classLoadAndInvokeMethod.invokeSafely();
             return new BExpressionValue(context, expressionResult);
         } catch (EvaluationException e) {
@@ -342,7 +342,7 @@ public class ExpressionAsProgramEvaluator extends Evaluator {
             Value jdiValue = VariableUtils.fetchVariableValue(context, name);
             BVariable bVar = VariableFactory.getVariable(context, jdiValue);
             capturedTypes.add(getTypeNameString(bVar));
-            externalVariableValues.add(jdiValue);
+            externalVariableValues.add(getValueAsObject(context, jdiValue));
         }
 
         for (int index = 0; index < capturedVarNames.size(); index++) {
