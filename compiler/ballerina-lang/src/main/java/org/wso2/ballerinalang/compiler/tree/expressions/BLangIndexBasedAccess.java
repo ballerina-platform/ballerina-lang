@@ -21,6 +21,8 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 
@@ -57,6 +59,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.INDEX_BASED_ACCESS_EXPR;
     }
@@ -75,6 +87,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
     }
 
@@ -101,6 +123,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
     }
 
     /**
@@ -117,6 +149,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
     }
 
@@ -135,6 +177,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
     }
 
     /**
@@ -151,6 +203,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
     }
 
@@ -180,6 +242,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
     }
 
     /**
@@ -208,6 +280,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
     }
 
     /**
@@ -226,6 +308,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
     }
 }

@@ -25,6 +25,8 @@ import org.ballerinalang.model.tree.expressions.TypeConversionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -70,6 +72,16 @@ public class BLangTypeConversionExpr extends BLangExpression implements TypeConv
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
     }
 
     @Override

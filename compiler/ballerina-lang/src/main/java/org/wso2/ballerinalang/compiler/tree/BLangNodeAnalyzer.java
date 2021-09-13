@@ -42,6 +42,78 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -57,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+
 
 /**
  * TODO: Fix me.
@@ -278,6 +351,340 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangWhereClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    // Expressions
+
+    public void visit(BLangAnnotAccessExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangArrowFunction node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangBinaryExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangCheckedExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangCheckPanickedExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangCommitExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangConstant node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangConstRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangDynamicArgExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangElvisExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorConstructorExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangFieldBasedAccess node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangGroupExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIgnoreExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIndexBasedAccess node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangInferredTypedescDefaultNode node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIntRangeExpression node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangInvocation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangInvocation.BFunctionPointerInvocation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangInvocation.BLangAttachedFunctionInvocation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangInvocation.BLangActionInvocation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIsAssignableExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangIsLikeExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangLambdaFunction node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangLetExpression node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangListConstructorExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMarkDownDeprecatedParametersDocumentation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMarkDownDeprecationDocumentation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMarkdownDocumentationLine node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMarkdownParameterDocumentation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMarkdownReturnParameterDocumentation node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatchExpression node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatchExpression.BLangMatchExprPatternClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatchGuard node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangNamedArgsExpression node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangObjectConstructorExpression node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangQueryAction node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangQueryExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRawTemplateLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordLiteral.BLangRecordKey node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordLiteral.BLangStructLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordLiteral.BLangMapLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRecordVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRestArgsExpression node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangServiceConstructorExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangStatementExpression node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangStringTemplateLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTableConstructorExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTableMultiKeyExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTernaryExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTransactionalExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTrapExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTupleVarRef node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTypeConversionExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTypedescExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTypeInit node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangTypeTestExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangUnaryExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWaitExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWaitForAllExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWaitForAllExpr.BLangWaitKeyValue node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWorkerFlushExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWorkerReceive node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWorkerSyncSendExpr node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLAttribute node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLAttributeAccess node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLCommentLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLElementAccess node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLElementFilter node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLElementLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLNavigationAccess node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLProcInsLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLQName node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLQuotedString node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLSequenceLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangXMLTextLiteral node, T props) {
         analyzeNode(node, props);
     }
 
