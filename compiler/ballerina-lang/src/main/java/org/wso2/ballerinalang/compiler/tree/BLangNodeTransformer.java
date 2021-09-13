@@ -127,6 +127,36 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -750,6 +780,140 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangWildCardMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    // Statements
+
+    public R transform(BLangAssignment node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangBlockStmt node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangBreak node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangCompoundAssignment node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangContinue node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangDo node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorDestructure node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorVariableDef node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangExpressionStmt node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangFail node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangForeach node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangForkJoin node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangIf node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangLock node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMatch node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMatch.BLangMatchTypedBindingPatternClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMatch.BLangMatchStaticBindingPatternClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMatch.BLangMatchStructuredBindingPatternClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMatchStatement node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangPanic node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangRecordDestructure node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangRecordVariableDef node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangRetry node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangRetryTransaction node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangReturn node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangRollback node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangSimpleVariableDef node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangTransaction node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangTupleDestructure node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangTupleVariableDef node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangWhile node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangWorkerSend node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangXMLNSStatement node, T props) {
         return transformNode(node, props);
     }
 
