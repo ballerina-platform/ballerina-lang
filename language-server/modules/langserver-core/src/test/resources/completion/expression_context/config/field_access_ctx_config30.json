@@ -23,7 +23,7 @@
           "value": "**Package:** _lstest/projectls.lsmod1:0.1.0_  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "D",
+      "sortText": "E",
       "filterText": "getName",
       "insertText": "getName()",
       "insertTextFormat": "Snippet"

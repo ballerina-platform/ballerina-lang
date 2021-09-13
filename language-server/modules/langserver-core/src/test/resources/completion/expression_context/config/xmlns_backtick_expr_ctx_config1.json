@@ -7,9 +7,12 @@
   "items": [
     {
       "label": "ns0",
-      "kind": "Unit",
-      "detail": "http://ballerina.com/aa",
-      "sortText": "R",
+      "kind": "Variable",
+      "detail": "xmlns",
+      "documentation": {
+        "left": "http://ballerina.com/aa"
+      },
+      "sortText": "B",
       "insertText": "ns0",
       "insertTextFormat": "Snippet"
     }
