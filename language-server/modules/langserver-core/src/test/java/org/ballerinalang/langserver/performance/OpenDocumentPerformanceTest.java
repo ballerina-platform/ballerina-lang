@@ -73,7 +73,7 @@ public class OpenDocumentPerformanceTest {
     @DataProvider(name = "performance-data-provider")
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"performance_completion.json"},
+                {"performance_open_document.json"},
         };
 
     @Override
