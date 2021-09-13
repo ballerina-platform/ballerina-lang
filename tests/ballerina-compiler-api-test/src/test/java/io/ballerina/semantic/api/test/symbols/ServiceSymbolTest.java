@@ -48,7 +48,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 /**
- * Test cases for record type symbols.
+ * Test cases for service declaration symbols.
  *
  * @since 2.0.0
  */

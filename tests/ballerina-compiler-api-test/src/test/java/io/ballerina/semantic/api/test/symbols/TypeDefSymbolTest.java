@@ -20,26 +20,22 @@ package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Qualifier;
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.Optional;
-
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for record type symbols.
@@ -61,7 +57,9 @@ public class TypeDefSymbolTest {
 
     @Test(dataProvider = "TypeDefPosProvider")
     public void testTypeDef(int line, int offset, String name, TypeDescKind typeKind) {
-        TypeDefinitionSymbol symbol = (TypeDefinitionSymbol) assertBasicsAndGetSymbol(line, offset, name);
+        TypeDefinitionSymbol symbol = (TypeDefinitionSymbol) assertBasicsAndGetSymbol(model, srcFile,
+                                                                                      line, offset, name,
+                                                                                      SymbolKind.TYPE_DEFINITION);
 
         TypeSymbol typeSymbol = symbol.typeDescriptor();
         assertEquals(typeSymbol.typeKind(), typeKind);
@@ -118,14 +116,5 @@ public class TypeDefSymbolTest {
                 {86, 16, "byteType", TypeDescKind.BYTE},
                 {88, 16, "otherType", TypeDescKind.BYTE},
         };
-    }
-
-    // private utils
-    private Symbol assertBasicsAndGetSymbol(int line, int col, String name) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-        assertTrue(symbol.isPresent());
-        assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
-        assertEquals(symbol.get().getName().get(), name);
-        return symbol.get();
     }
 }
