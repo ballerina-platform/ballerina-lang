@@ -114,6 +114,19 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -683,6 +696,60 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangXMLTextLiteral node, T props) {
+        return transformNode(node, props);
+    }
+
+    // Match patterns
+
+    public R transform(BLangConstPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorCauseMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorFieldMatchPatterns node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangErrorMessageMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangFieldMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangListMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMappingMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangNamedArgMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangRestMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangSimpleMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangVarBindingPatternMatchPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangWildCardMatchPattern node, T props) {
         return transformNode(node, props);
     }
 

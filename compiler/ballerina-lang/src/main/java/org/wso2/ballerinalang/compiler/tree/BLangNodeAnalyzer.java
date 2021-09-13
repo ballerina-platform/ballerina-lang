@@ -114,6 +114,19 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMessageMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangNamedArgMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -685,6 +698,60 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangXMLTextLiteral node, T props) {
+        analyzeNode(node, props);
+    }
+
+    // Match patterns
+
+    public void visit(BLangConstPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorCauseMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorFieldMatchPatterns node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangErrorMessageMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangFieldMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangListMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMappingMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangNamedArgMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangRestMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSimpleMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangVarBindingPatternMatchPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWildCardMatchPattern node, T props) {
         analyzeNode(node, props);
     }
 
