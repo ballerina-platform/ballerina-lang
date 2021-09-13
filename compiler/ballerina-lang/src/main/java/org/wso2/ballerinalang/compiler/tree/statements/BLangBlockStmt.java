@@ -39,6 +39,8 @@ public class BLangBlockStmt extends BLangStatement implements BlockStatementNode
 
     public FailureBreakMode failureBreakMode = FailureBreakMode.NOT_BREAKABLE;
 
+    public boolean isLetExprStmt = false;
+
     /**
      * We need to keep a reference to the block statements scope here.
      * This is the only place where we have a link from the node to a scope

@@ -41,11 +41,8 @@ public class PackageDescriptor {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.repository = repository;
-        if (isBuiltInPackage()) {
-            this.packageVersion = PackageVersion.from("0.0.0");
-        } else {
-            this.packageVersion = packageVersion;
-        }
+        this.packageVersion = ProjectUtils.isBuiltInPackage(packageOrg, packageName.value()) ?
+                PackageVersion.BUILTIN_PACKAGE_VERSION : packageVersion;
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName) {
@@ -79,11 +76,11 @@ public class PackageDescriptor {
     }
 
     public boolean isLangLibPackage() {
-        return ProjectUtils.isLangLibPackage(org(), packageName);
+        return ProjectUtils.isLangLibPackage(packageOrg, packageName);
     }
 
     public boolean isBuiltInPackage() {
-        return ProjectUtils.isBuiltInPackage(org(), packageName.value());
+        return ProjectUtils.isBuiltInPackage(packageOrg, packageName.value());
     }
 
     @Override

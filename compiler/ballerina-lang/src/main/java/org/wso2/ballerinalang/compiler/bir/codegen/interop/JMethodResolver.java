@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.NO_CLASS_DEF_FOUND;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.OVERLOADED_METHODS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_BOOLEAN_OBJ_TNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.J_DOUBLE_OBJ_TNAME;
@@ -783,10 +785,26 @@ class JMethodResolver {
 
     private List<Executable> getExecutables(Class<?> clazz, String methodName, JMethodKind kind) {
 
-        return kind == JMethodKind.CONSTRUCTOR ? Arrays.asList(clazz.getConstructors()) :
-                Arrays.stream(clazz.getMethods())
+        return kind == JMethodKind.CONSTRUCTOR ? Arrays.asList(getConstructors(clazz)) :
+                Arrays.stream(getMethods(clazz))
                         .filter(method -> method.getName().equals(methodName))
                         .collect(Collectors.toList());
+    }
+
+    private Method[] getMethods(Class<?> clazz) {
+        try {
+            return clazz.getMethods();
+        } catch (NoClassDefFoundError e) {
+            throw new JInteropException(NO_CLASS_DEF_FOUND, "Class definition '" + e.getMessage() + "' not found");
+        }
+    }
+
+    private Constructor<?>[] getConstructors(Class<?> clazz) {
+        try {
+            return clazz.getConstructors();
+        } catch (NoClassDefFoundError e) {
+            throw new JInteropException(NO_CLASS_DEF_FOUND, "Class definition '" + e.getMessage() + "' not found");
+        }
     }
 
     private boolean noConstraintsSpecified(ParamTypeConstraint[] constraints) {

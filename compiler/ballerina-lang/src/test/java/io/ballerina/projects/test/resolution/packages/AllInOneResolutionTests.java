@@ -36,7 +36,10 @@ public class AllInOneResolutionTests extends AbstractPackageResolutionTest {
                 {"suite-all_in_one", "case-0001", true},
                 {"suite-all_in_one", "case-0001", false},
                 {"suite-all_in_one", "case-0002", true},
-                {"suite-all_in_one", "case-0002", false}
+                {"suite-all_in_one", "case-0002", false},
+                {"suite-all_in_one", "case-0003", true},
+                {"suite-all_in_one", "case-0003", false},
+                {"suite-all_in_one", "case-0004", true},
         };
     }
 }

@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
@@ -49,7 +48,6 @@ public class ModuleResolver {
     private final PackageDescriptor rootPkgDesc;
     private final Collection<ModuleName> moduleNames;
     private final BlendedManifest blendedManifest;
-    private final DependencyManifest dependencyManifest;
     private final PackageResolver packageResolver;
     private final ResolutionOptions resolutionOptions;
 
@@ -61,7 +59,6 @@ public class ModuleResolver {
         this.rootPkgDesc = rootPkgDesc;
         this.moduleNames = moduleNames;
         this.blendedManifest = blendedManifest;
-        this.dependencyManifest = blendedManifest.dependencyManifest();
         this.packageResolver = packageResolver;
         this.resolutionOptions = resolutionOptions;
     }
@@ -178,7 +175,7 @@ public class ModuleResolver {
         Optional<DirectPackageDependency> pkgDepOptional = pkgContainer.get(pkgOrg, pkgName);
         if (pkgDepOptional.isEmpty()) {
             DirectPackageDependencyKind dependencyKind;
-            if (dependencyManifest.dependency(pkgDesc.org(), pkgDesc.name()).isEmpty()) {
+            if (blendedManifest.lockedDependency(pkgDesc.org(), pkgDesc.name()).isEmpty()) {
                 // If the Dependencies.toml does not contain the package, it is a new one.
                 dependencyKind = DirectPackageDependencyKind.NEW;
             } else {
