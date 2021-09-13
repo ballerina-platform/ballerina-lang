@@ -22,11 +22,11 @@
     "expr": "11"
   },
   {
-    "description": "Define function with no return.",
+    "description": "Define function with double underscore.",
     "code": "function __add(int a, int b) returns int { return a + b; }"
   },
   {
-    "description": "Get return value.",
+    "description": "Get return value for function name starts with double underscore.",
     "code": "__add(2, 3);",
     "expr": "5"
   },
