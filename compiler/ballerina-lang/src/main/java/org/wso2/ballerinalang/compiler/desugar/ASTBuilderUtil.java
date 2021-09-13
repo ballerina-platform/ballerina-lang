@@ -44,6 +44,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -189,6 +191,15 @@ public class ASTBuilderUtil {
         BLangType bLangType = new BLangType() {
             @Override
             public void accept(BLangNodeVisitor visitor) {
+            }
+
+            @Override
+            public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            }
+
+            @Override
+            public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+                return null;
             }
 
             @Override
