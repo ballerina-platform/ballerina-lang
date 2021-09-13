@@ -29,6 +29,19 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -211,6 +224,60 @@ public abstract class BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangWildCardBindingPattern node, T props) {
+        analyzeNode(node, props);
+    }
+
+    // Clauses
+
+    public void visit(BLangDoClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangFromClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangJoinClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangLetClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangLimitClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangMatchClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangOnClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangOnConflictClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangOnFailClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangOrderByClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangOrderKey node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangSelectClause node, T props) {
+        analyzeNode(node, props);
+    }
+
+    public void visit(BLangWhereClause node, T props) {
         analyzeNode(node, props);
     }
 

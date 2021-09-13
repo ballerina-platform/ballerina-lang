@@ -29,6 +29,19 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -211,6 +224,60 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangWildCardBindingPattern node, T props) {
+        return transformNode(node, props);
+    }
+
+    // Clauses
+
+    public R transform(BLangDoClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangFromClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangJoinClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangLetClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangLimitClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangMatchClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangOnClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangOnConflictClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangOnFailClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangOrderByClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangOrderKey node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangSelectClause node, T props) {
+        return transformNode(node, props);
+    }
+
+    public R transform(BLangWhereClause node, T props) {
         return transformNode(node, props);
     }
 
