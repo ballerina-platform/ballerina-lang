@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completion;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,6 +30,8 @@ import java.nio.file.Path;
 
 /**
  * Test performance of completions feature in language server.
+ *
+ *  * @since 2.0.0
  */
 public class CompletionPerformanceTest extends CompletionTest {
 
@@ -49,7 +50,7 @@ public class CompletionPerformanceTest extends CompletionTest {
         long end = System.currentTimeMillis();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
         long actualResponseTime = end - start;
-        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold"))/2;
+        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold")) / 2;
         Assert.assertTrue(actualResponseTime < expectedResponseTime,
                 String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
         return responseString;

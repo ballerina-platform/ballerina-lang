@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Test performance of openDocument in completions feature in language server.
+ * Test performance to open Document in language server.
+ *
+ * @since 2.0.0
  */
 public class OpenDocumentPerformanceTest {
 

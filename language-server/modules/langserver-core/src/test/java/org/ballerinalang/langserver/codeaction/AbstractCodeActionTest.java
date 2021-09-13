@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -45,11 +44,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.util.TestUtil.evaluateCodeActionTest;
 
 /**
  * Test Cases for CodeActions.

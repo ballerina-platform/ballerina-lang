@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Test Cases for CodeActions.
+ * Test performance of code action feature in language server.
  *
  * @since 2.0.0
  */
@@ -50,7 +50,7 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
         String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
         long end = System.currentTimeMillis();
         long actualResponseTime = end - start;
-        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold"))/2;
+        int expectedResponseTime = Integer.parseInt(System.getProperty("responseTimeThreshold")) / 2;
         Assert.assertTrue(actualResponseTime < expectedResponseTime,
                 String.format("Expected response time = %d, received %d.", expectedResponseTime, actualResponseTime));
         return res;
