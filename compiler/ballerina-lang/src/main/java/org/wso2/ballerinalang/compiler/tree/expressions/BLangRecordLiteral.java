@@ -26,6 +26,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -70,6 +72,16 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
     }
 
     @Override
@@ -122,6 +134,16 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
 
         @Override
@@ -180,6 +202,16 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         }
 
         @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
+
+        @Override
         public String toString() {
             return "..." + expr;
         }
@@ -219,6 +251,16 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         }
 
         @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
+
+        @Override
         public String toString() {
             return expr.toString();
         }
@@ -244,6 +286,16 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
     }
 
     /**
@@ -262,6 +314,16 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
     }
 
