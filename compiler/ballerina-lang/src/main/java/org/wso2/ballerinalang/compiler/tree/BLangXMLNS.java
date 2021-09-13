@@ -49,6 +49,16 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
+    }
+
+    @Override
     public void setNamespaceURI(ExpressionNode namespaceURI) {
         this.namespaceURI = (BLangExpression) namespaceURI;
     }
@@ -67,7 +77,7 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
     public String toString() {
         return "BLangXMLNS: " + prefix + "[" +  namespaceURI + "]";
     }
-    
+
     /**
      * @since 0.94
      */
@@ -77,8 +87,18 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
         }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
+        }
     }
-    
+
     /**
      * @since 0.94
      */
@@ -87,6 +107,16 @@ public class BLangXMLNS extends BLangNode implements XMLNSDeclarationNode {
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+            return transformer.transform(this, props);
         }
     }
 }

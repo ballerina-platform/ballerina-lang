@@ -112,6 +112,16 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
+    }
+
+    @Override
     public String toString() {
         return "BLangTypeDefinition: " + this.name;
     }

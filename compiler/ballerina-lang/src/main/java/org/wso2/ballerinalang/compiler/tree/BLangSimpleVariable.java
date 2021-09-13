@@ -54,6 +54,16 @@ public class BLangSimpleVariable extends BLangVariable implements SimpleVariable
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R accept(BLangNodeTransformer<T, R> transformer, T props) {
+        return transformer.transform(this, props);
+    }
+
+    @Override
     public void setName(IdentifierNode name) {
         this.name = (BLangIdentifier) name;
     }
