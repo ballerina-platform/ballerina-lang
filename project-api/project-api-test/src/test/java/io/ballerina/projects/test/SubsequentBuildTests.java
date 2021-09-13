@@ -27,6 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,10 +45,11 @@ import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
  *
  * @since 2.0.0
  */
-public class SubsequentBuildTests extends BaseTest {
+public class SubsequentBuildTests {
 
     private static final Path RESOURCE_DIRECTORY =
             Paths.get("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
+    private static final PrintStream OUT = System.out;
     private Path packagePath;
 
     @BeforeClass
@@ -57,18 +59,20 @@ public class SubsequentBuildTests extends BaseTest {
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         // Delete Dependencies.toml file if exists
         Files.deleteIfExists(packagePath.resolve(DEPENDENCIES_TOML));
-        // compile and cache package_d
+
+        // package_f --> package_d
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_d");
     }
 
     @Test
     public void testBuildPackage() throws IOException {
-        // package_f --> package_d
-        // package_d --> package_b --> package_c
-        // package_d --> package_e
-
         // Build the project
-        BuildProject buildProject = BuildProject.load(packagePath);
+        BuildProject buildProject = TestUtils.loadBuildProject(packagePath);
         buildProject.save();
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -95,7 +99,7 @@ public class SubsequentBuildTests extends BaseTest {
                 + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
         Files.write(RESOURCE_DIRECTORY.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_c"));
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
 
         // Build the project
         BuildProject buildProject = BuildProject.load(packagePath);
