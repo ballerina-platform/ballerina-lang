@@ -45,9 +45,9 @@ function testNestedWhileStmtWithFail() returns string {
     string result = "";
     error err = error("Custom Error");
     int i = 0;
-    while (i == 0) {
+    while isEqual(i, 0) {
         i += 1;
-        while (i == 1) {
+        while isEqual(i, 1) {
             i += 1;
             while (i == 2) {
                 i += 1;
@@ -70,6 +70,8 @@ function testNestedWhileStmtWithFail() returns string {
     }
     return result;
 }
+
+function isEqual(int i, int j) returns boolean => i == j;
 
 function testWhileStmtLoopEndingWithFail(int x) returns string {
     int a = 0;

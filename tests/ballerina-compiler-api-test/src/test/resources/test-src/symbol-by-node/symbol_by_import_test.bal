@@ -17,6 +17,10 @@
 import testorg/testproject;
 import ballerina/lang.'int as ints;
 
-function testAnonTypes() {
-    int sum = testproject:add(10, 20);
+function testAnonTypes(float value) returns int {
+    int abc = 10;
+    int sum = testproject:add(abc, 20);
+    return sum;
 }
+
+int x = testAnonTypes(testproject:PI);

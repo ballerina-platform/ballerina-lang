@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
@@ -52,7 +53,7 @@ import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
 import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.action.RemoteMethodCallActionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.AnnotationAccessExpressionEvaluator;
@@ -66,6 +67,7 @@ import org.ballerinalang.debugadapter.evaluation.engine.expression.MemberAccessE
 import org.ballerinalang.debugadapter.evaluation.engine.expression.MethodCallExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.NewExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.OptionalFieldAccessExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.expression.QualifiedNameReferenceEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.QueryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.RangeExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.expression.SimpleNameReferenceEvaluator;
@@ -142,11 +144,11 @@ public class EvaluatorBuilder extends NodeVisitor {
     private final Set<SyntaxKind> supportedSyntax = new HashSet<>();
     private final Set<SyntaxKind> capturedSyntax = new HashSet<>();
     private final List<Node> unsupportedNodes = new ArrayList<>();
-    private final SuspendedContext context;
+    private final EvaluationContext context;
     private Evaluator result = null;
     private EvaluationException builderException = null;
 
-    public EvaluatorBuilder(SuspendedContext context) {
+    public EvaluatorBuilder(EvaluationContext context) {
         this.context = context;
         prepareForEvaluation();
     }
@@ -159,8 +161,6 @@ public class EvaluatorBuilder extends NodeVisitor {
      */
     public Evaluator build(ExpressionNode parsedExpr) throws EvaluationException {
         clearState();
-        // Uses `ExpressionIdentifierModifier` to modify and encode all the identifiers within the expression.
-        parsedExpr = (ExpressionNode) parsedExpr.apply(new IdentifierModifier());
         parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
@@ -447,6 +447,12 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        visitSyntaxNode(qualifiedNameReferenceNode);
+        result = new QualifiedNameReferenceEvaluator(context, qualifiedNameReferenceNode);
+    }
+
+    @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
         visitSyntaxNode(simpleNameReferenceNode);
         result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
@@ -556,7 +562,7 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     private void addVariableReferenceExpressionSyntax() {
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
-        // Todo - Add qualified identifier support
+        supportedSyntax.add(SyntaxKind.QUALIFIED_NAME_REFERENCE);
         // Todo - Xml qualified name
     }
 

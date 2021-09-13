@@ -684,7 +684,7 @@ public class TestUtil {
             throws IOException, WorkspaceDocumentException {
         List<Diagnostic> diagnostics = new ArrayList<>();
 
-        DocumentServiceContext context = ContextBuilder.buildBaseContext(sourcePath.toUri().toString(),
+        DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(sourcePath.toUri().toString(),
                 workspaceManager,
                 LSContextOperation.TXT_DID_OPEN,
                 serverContext);
