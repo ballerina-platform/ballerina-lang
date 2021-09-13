@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVaria
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -1389,22 +1390,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        if (((varNode.symbol.owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE)
-                && (varNode.symbol.owner.tag & SymTag.LET) != SymTag.LET
-                && (varNode.symbol.owner.tag & SymTag.FUNCTION_TYPE) != SymTag.FUNCTION_TYPE
-                && (varNode.symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE) {
-            varNode.expr = null;
-            result = varNode;
-            return;
-        }
-
         if (varNode.typeNode != null && varNode.typeNode.getKind() != null) {
             varNode.typeNode = rewrite(varNode.typeNode, env);
         }
 
         BLangExpression bLangExpression;
         if (Symbols.isFlagOn(varNode.symbol.flags, Flags.DEFAULTABLE_PARAM)) {
-            String closureName = generateName(varNode.symbol.name.value);
+            String closureName = generateName(env.node, varNode.symbol.name.value);
             bLangExpression = createClosureForDefaultValue(closureName, varNode.name.value, varNode,
                     (BInvokableTypeSymbol) env.node.getBType().tsymbol, env, varNode.symbol.owner);
         } else {
@@ -6060,13 +6052,40 @@ public class Desugar extends BLangNodeVisitor {
         return functionSymbol;
     }
 
-    private String generateName(String name) {
-        if (env.node.getKind() == NodeKind.FUNCTION) {
-            return ((BLangFunction) env.node).symbol.name.value + UNDERSCORE + name;
-        } else if (env.node.getKind() == NodeKind.RESOURCE_FUNC) {
-            return ((BLangResourceFunction) env.node).symbol.name.value + UNDERSCORE + name;
+    private String generateName(BLangNode node, String name) {
+        if (node.getKind() == NodeKind.FUNCTION) {
+            return ((BLangFunction) node).symbol.name.value + UNDERSCORE + name;
+        } else if (node.getKind() == NodeKind.RESOURCE_FUNC) {
+            return ((BLangResourceFunction) node).symbol.name.value + UNDERSCORE + name;
+        } else if (node.parent == null) {
+            return generateName(env.enclInvokable, name);
         } else {
-            return ((BLangFunctionTypeNode) env.node).symbol.name.value  + UNDERSCORE + name;
+            return generateName(name, env.node.parent);
+        }
+    }
+
+    private String generateName(String name, BLangNode parent) {
+        if (parent == null) {
+            return name;
+        }
+        switch (parent.getKind()) {
+            case CLASS_DEFN:
+                name = ((BLangClassDefinition) parent).name.getValue() + UNDERSCORE + name;
+                return generateName(name, parent.parent);
+            case FUNCTION:
+                name = ((BLangFunction) parent).symbol.name.value + UNDERSCORE + name;
+                return generateName(name, parent.parent);
+            case VARIABLE:
+                name = ((BLangSimpleVariable) parent).name.getValue() + UNDERSCORE + name;
+                return generateName(name, parent.parent);
+            case TYPE_DEFINITION:
+                name = ((BLangTypeDefinition) parent).name.getValue() + UNDERSCORE + name;
+                return generateName(name, parent.parent);
+            case SERVICE:
+                name = ((BLangService) parent).name.getValue() + UNDERSCORE + name;
+                return generateName(name, parent.parent);
+            default:
+                return generateName(name, parent.parent);
         }
     }
 
