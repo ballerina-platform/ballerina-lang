@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -34,8 +35,8 @@ public class Editor {
 
     private static final Logger logger = LoggerFactory.getLogger(Editor.class);
 
-    private BallerinaLanguageServer languageServer;
-    private Endpoint endpoint;
+    private final BallerinaLanguageServer languageServer;
+    private final Endpoint endpoint;
 
     private final List<EditorTab> tabs = new ArrayList<>();
     private EditorTab activeTab;
@@ -75,22 +76,28 @@ public class Editor {
     }
 
     public void closeFile(Path filePath) {
-        tabs.removeIf(tab -> {
+        Iterator<EditorTab> iterator = tabs.iterator();
+        while (iterator.hasNext()) {
+            EditorTab tab = iterator.next();
             if (filePath.equals(tab.filePath())) {
-                tab.close();
-                return true;
+                if (activeTab != null && activeTab.equals(tab)) {
+                    activeTab = null;
+                }
+                iterator.remove();
             }
-            return false;
-        });
+        }
     }
 
     public void closeTab(EditorTab tab) {
         tabs.remove(tab);
+        if (activeTab != null && activeTab.equals(tab)) {
+            activeTab = null;
+        }
     }
 
     public void close() {
         this.languageServer.shutdown();
-        tabs.forEach(tab -> tab.close());
+        tabs.forEach(EditorTab::close);
     }
 
     public EditorTab activeTab() {

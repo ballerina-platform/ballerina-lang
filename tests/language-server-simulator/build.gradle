@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 plugins {
-    id 'de.undercouch.download' version '4.1.1'
+    id 'de.undercouch.download' version '4.1.2'
 }
 
 apply from: "$rootDir/gradle/javaProjectWithExtBala.gradle"
@@ -58,28 +58,9 @@ dependencies {
     implementation 'org.slf4j:slf4j-jdk14'
 
     testCompile 'org.testng:testng'
-
-    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
 }
 
-description = 'Ballerina - Language Server Integration Tests'
-
-
-task copyCompilerPluginJars(type: Copy) {
-    from configurations.compilerPluginJar
-    into "$buildDir/compiler-plugin-jars"
-}
-
-test {
-    dependsOn copyCompilerPluginJars
-    dependsOn loadDistributionCache
-    systemProperty "ballerina.home", "$buildDir/"
-    systemProperty "experimental", "true"
-    systemProperty "ballerina.version", project.version
-    useTestNG() {
-        suites 'src/test/resources/testng.xml'
-    }
-}
+description = 'Ballerina - Language Server Simulator'
 
 task downloadBalTestProject(type: Download) {
     // Download nBallerina latest tag
@@ -112,7 +93,6 @@ task runLSSimulator(type: JavaExec) {
     dependsOn unpackBalTestProject
     dependsOn loadDistributionCache
     systemProperty "ballerina.home", "$buildDir/"
-    systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
     systemProperty "ls.simulation.duration", "60"
     systemProperty "ls.simulation.src", "${extractedBalSrcDir}"

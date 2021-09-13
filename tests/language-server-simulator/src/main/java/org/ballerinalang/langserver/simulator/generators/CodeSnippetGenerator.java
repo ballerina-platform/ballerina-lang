@@ -20,6 +20,8 @@ import java.util.Random;
 
 /**
  * Abstract implementation of code snippet generator for the LS simulator.
+ *
+ * @since 2.0.0
  */
 public abstract class CodeSnippetGenerator {
 

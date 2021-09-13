@@ -47,6 +47,8 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents a tab in the {@link Editor}. Simulates the behavior of cursor and current text in the document.
+ *
+ * @since 2.0.0
  */
 public class EditorTab {
 
@@ -114,7 +116,7 @@ public class EditorTab {
                 CompletableFuture.runAsync(this::codeActions);
             }
 
-            if (!isDocumentInSync()) {
+            if (isDocumentNotInSync()) {
                 missCount++;
             }
 
@@ -129,7 +131,7 @@ public class EditorTab {
                 filePath, content.substring(0, Math.min(20, content.length())));
         logger.info("Typed {} characters with {} out of sync scenarios", content.length(), missCount);
 
-        while (!isDocumentInSync()) {
+        while (isDocumentNotInSync()) {
             logger.info("Document out of sync. Waiting 30 seconds and syncing...");
             try {
                 Thread.sleep(30 * 1000);
@@ -143,17 +145,17 @@ public class EditorTab {
     /**
      * Check if the document in this instance is similar to that is in the language server.
      *
-     * @return
+     * @return True if the document content is not equal to that in workspace manager
      */
-    private boolean isDocumentInSync() {
+    private boolean isDocumentNotInSync() {
         Optional<Document> document = languageServer.getWorkspaceManager().document(filePath);
         if (document.isPresent()) {
-            return document.get().textDocument().toString().equals(textDocument.toString());
+            return !document.get().textDocument().toString().equals(textDocument.toString());
         } else {
             logger.warn("Document not found in workspace manager: {}", filePath);
         }
 
-        return false;
+        return true;
     }
 
     /**

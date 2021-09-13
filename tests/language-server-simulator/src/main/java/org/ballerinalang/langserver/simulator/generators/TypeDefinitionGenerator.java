@@ -24,6 +24,8 @@ import java.util.Set;
 
 /**
  * Type definition code snippet generator.
+ *
+ * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.simulator.generators.CodeSnippetGenerator")
 public class TypeDefinitionGenerator extends CodeSnippetGenerator {

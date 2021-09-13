@@ -19,6 +19,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 
 /**
  * Service code snippet generator.
+ *
+ * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.simulator.generators.CodeSnippetGenerator")
 public class ServiceGenerator extends CodeSnippetGenerator {

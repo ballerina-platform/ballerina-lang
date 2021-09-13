@@ -21,6 +21,8 @@ import java.util.ServiceLoader;
 
 /**
  * Factory to access {@link CodeSnippetGenerator}s.
+ *
+ * @since 2.0.0
  */
 public class Generators {
 

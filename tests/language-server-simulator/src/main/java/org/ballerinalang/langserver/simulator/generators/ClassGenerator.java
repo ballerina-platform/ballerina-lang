@@ -22,6 +22,8 @@ import java.util.stream.IntStream;
 
 /**
  * Class code snippet generator.
+ *
+ * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.simulator.generators.CodeSnippetGenerator")
 public class ClassGenerator extends CodeSnippetGenerator {
