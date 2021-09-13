@@ -64,8 +64,7 @@ public class ExpressionValidator extends StatementValidator {
                     errors.add(diagnostic.message());
                 }
             });
-            failIf(errors.length() > 0, String.format(EvaluationExceptionKind.SYNTAX_ERROR.getReason(),
-                    errors.toString()));
+            failIf(errors.length() > 0, String.format(EvaluationExceptionKind.SYNTAX_ERROR.getReason(), errors));
         }
     }
 

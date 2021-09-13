@@ -15,6 +15,7 @@
           "value": ""
         }
       },
+      "sortText": "B",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -28,6 +29,7 @@
           "value": ""
         }
       },
+      "sortText": "B",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -41,6 +43,7 @@
           "value": ""
         }
       },
+      "sortText": "H",
       "insertText": "ENUM1_FIELD1",
       "insertTextFormat": "Snippet"
     },
@@ -48,6 +51,7 @@
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "M",
       "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
@@ -55,6 +59,7 @@
       "label": "TestRecord2",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "M",
       "insertText": "TestRecord2",
       "insertTextFormat": "Snippet"
     },
@@ -62,6 +67,7 @@
       "label": "TestMap2",
       "kind": "TypeParameter",
       "detail": "Map",
+      "sortText": "N",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
@@ -69,6 +75,7 @@
       "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
+      "sortText": "N",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
@@ -76,6 +83,7 @@
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
+      "sortText": "K",
       "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
@@ -83,6 +91,7 @@
       "label": "ErrorOne",
       "kind": "Event",
       "detail": "Error",
+      "sortText": "L",
       "insertText": "ErrorOne",
       "insertTextFormat": "Snippet"
     },
@@ -90,6 +99,7 @@
       "label": "ErrorTwo",
       "kind": "Event",
       "detail": "Error",
+      "sortText": "L",
       "insertText": "ErrorTwo",
       "insertTextFormat": "Snippet"
     },
@@ -100,6 +110,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
       },
+      "sortText": "I",
       "insertText": "ResponseMessage",
       "insertTextFormat": "Snippet"
     },
@@ -110,6 +121,7 @@
       "documentation": {
         "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
       },
+      "sortText": "I",
       "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
@@ -117,6 +129,7 @@
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
+      "sortText": "M",
       "insertText": "AnnotationType",
       "insertTextFormat": "Snippet"
     },
@@ -124,6 +137,7 @@
       "label": "TestEnum1",
       "kind": "Enum",
       "detail": "enum",
+      "sortText": "I",
       "insertText": "TestEnum1",
       "insertTextFormat": "Snippet"
     },
@@ -131,6 +145,7 @@
       "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
+      "sortText": "K",
       "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
@@ -138,6 +153,7 @@
       "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
+      "sortText": "K",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
@@ -148,6 +164,7 @@
       "documentation": {
         "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
       },
+      "sortText": "K",
       "insertText": "Client",
       "insertTextFormat": "Snippet"
     },
@@ -158,6 +175,7 @@
       "documentation": {
         "left": "Represents a response.\n"
       },
+      "sortText": "K",
       "insertText": "Response",
       "insertTextFormat": "Snippet"
     }
