@@ -22,6 +22,15 @@
     "expr": "11"
   },
   {
+    "description": "Define function with no return.",
+    "code": "function __add(int a, int b) returns int { return a + b; }"
+  },
+  {
+    "description": "Get return value.",
+    "code": "__add(2, 3);",
+    "expr": "5"
+  },
+  {
     "description": "Ignore return value.",
     "code": "_ = printAndReturnValue(\"World\");",
     "stdout": "Hello World\n"
