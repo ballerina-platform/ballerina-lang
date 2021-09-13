@@ -1096,9 +1096,19 @@ public class BIRGen extends BLangNodeVisitor {
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
+        if (astBlockStmt.isLetExprStmt) {
+            breakBBForLetExprVariables(astBlockStmt.pos);
+        }
         this.env.enclInnerOnFailEndBB = currentWithinOnFailEndBB;
         this.env.enclOnFailEndBB = currentOnFailEndBB;
         this.currentBlock = prevBlock;
+    }
+
+    private void breakBBForLetExprVariables(Location pos) {
+        BIRBasicBlock letExprEndBB = new BIRBasicBlock(this.env.nextBBId(names));
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, letExprEndBB, this.currentScope);
+        this.env.enclBasicBlocks.add(letExprEndBB);
+        this.env.enclBB = letExprEndBB;
     }
 
     @Override
@@ -1579,7 +1589,7 @@ public class BIRGen extends BLangNodeVisitor {
                             astIfStmt.elseStmt.pos.lineRange().endLine().line(),
                             astIfStmt.elseStmt.pos.lineRange().endLine().line(),
                             astIfStmt.elseStmt.pos.lineRange().endLine().offset(),
-                            astIfStmt.elseStmt.pos.lineRange().endLine().offset());
+                            astIfStmt.elseStmt.pos.lineRange().endLine().offset(), 0, 0);
                     this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, nextBB, this.currentScope);
                 } else {
                     this.env.enclBB.terminator = new BIRTerminator.GOTO(null, nextBB, this.currentScope);
@@ -1635,7 +1645,14 @@ public class BIRGen extends BLangNodeVisitor {
         astWhileStmt.body.accept(this);
         this.env.unlockVars.pop();
         if (this.env.enclBB.terminator == null) {
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, whileExprBB, this.currentScope);
+            Location newLocation = new BLangDiagnosticLocation(
+                    astWhileStmt.body.pos.lineRange().filePath(),
+                    astWhileStmt.body.pos.lineRange().endLine().line(),
+                    astWhileStmt.body.pos.lineRange().endLine().line(),
+                    astWhileStmt.body.pos.lineRange().endLine().offset(),
+                    astWhileStmt.body.pos.lineRange().endLine().offset(), 0, 0
+            );
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(newLocation, whileExprBB, this.currentScope);
         }
 
         this.env.enclBasicBlocks.add(whileEndBB);
