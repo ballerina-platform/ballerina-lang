@@ -174,6 +174,11 @@ public class SemTypeTest {
         return Paths.get("src/test/resources").resolve(fileName);
     }
 
+    /**
+     * Represent subtype relationship.
+     *
+     * @since 3.0.0
+     */
     public static class TypeRel {
         public final String superType;
         public final String subType;
