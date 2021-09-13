@@ -62,6 +62,19 @@ dependencies {
 
 description = 'Ballerina - Language Server Simulator'
 
+// Skip this module from coverage
+jacocoTestReport {
+    reports {
+        xml.enabled true // coveralls plugin depends on xml format report
+        html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: '**')
+        }))
+    }
+}
+
 task downloadBalTestProject(type: Download) {
     // Download nBallerina latest tag
     src "https://github.com/ballerina-platform/nballerina/archive/refs/tags/subset06.zip"
