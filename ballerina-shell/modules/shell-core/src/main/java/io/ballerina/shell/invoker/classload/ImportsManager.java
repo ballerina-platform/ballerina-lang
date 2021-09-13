@@ -139,6 +139,9 @@ public class ImportsManager {
         if (quotedImport == null) {
             return null;
         }
+        if (quotedImport.getDefaultPrefix().equals(prefix)) {
+            return String.format("import %s;", quotedImport);
+        }
         return String.format("import %s as %s;", quotedImport, prefix);
     }
 
