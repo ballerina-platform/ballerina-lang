@@ -289,7 +289,7 @@ public class Core {
             if (data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isAllSubtype()) {
                 int c = code.code;
                 all = UniformTypeBitSet.from(all.bitset | (1 << c));
-            } else if (!(data instanceof AllOrNothingSubtype)) {
+            } else if (!(data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isNothingSubtype())) {
                 subtypes.add(UniformSubtype.from(code, data));
             }
         }
@@ -313,6 +313,7 @@ public class Core {
         } else {
             ComplexSemType ct = (ComplexSemType) t;
             if (ct.all.bitset != 0) {
+                // includes all of, one or more uniform types
                 return false;
             }
             for (var st : unpackComplexSemType(ct)) {

@@ -17,6 +17,10 @@
  */
 package io.ballerina.types;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represent bit field that indicate which uniform type a semType belongs to.
  * Regular types are divided longo mutable part and immutable part and these parts are called an uniform type.
@@ -74,5 +78,25 @@ public class UniformTypeCode {
     public static UniformTypeCode from(int code) {
         // todo: Add validation
         return new UniformTypeCode(code);
+    }
+
+    // Only used for .toString() method to aid debugging.
+    private static Map<Integer, String> fieldNames = new HashMap<>();
+    static {
+        for (Field field : UniformTypeCode.class.getDeclaredFields()) {
+            if (field.getType() == UniformTypeCode.class) {
+                try {
+                    UniformTypeCode o = (UniformTypeCode) field.get(null);
+                    fieldNames.put(o.code, field.getName());
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException();
+                }
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return fieldNames.get(this.code);
     }
 }
