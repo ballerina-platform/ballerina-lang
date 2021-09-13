@@ -429,6 +429,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(xMLComment);
     }
 
+    public void visit(STXMLCDATANode xMLCDATANode) {
+        visitSyntaxNode(xMLCDATANode);
+    }
+
     public void visit(STXMLProcessingInstruction xMLProcessingInstruction) {
         visitSyntaxNode(xMLProcessingInstruction);
     }

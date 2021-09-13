@@ -162,6 +162,7 @@ public class EvaluationUtils {
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
+    public static final String MODULE_VERSION_SEPARATOR = "\\.";
 
     private EvaluationUtils() {
     }
@@ -384,23 +385,6 @@ public class EvaluationUtils {
         methodArgs.add(targetType);
         method.setArgValues(methodArgs);
         return Boolean.parseBoolean(new BExpressionValue(context, method.invokeSafely()).getStringValue());
-    }
-
-    /**
-     * Creates a "BUnionType" instance by combining all member types.
-     *
-     * @param resolvedTypes member types
-     * @return a 'BUnionType' instance by combining all its member types
-     */
-    public static Value getUnionTypeFrom(SuspendedContext context, List<Value> resolvedTypes)
-            throws EvaluationException {
-        List<String> methodArgTypeNames = new ArrayList<>();
-        methodArgTypeNames.add(B_TYPE_ARRAY_CLASS);
-        RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CREATOR_CLASS, CREATE_UNION_TYPE_METHOD,
-                methodArgTypeNames);
-        List<Value> methodArgs = new ArrayList<>(resolvedTypes);
-        method.setArgValues(methodArgs);
-        return method.invokeSafely();
     }
 
     /**

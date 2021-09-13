@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CompletionCapabilities;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 /**
  * Language server context implementation.
@@ -43,6 +44,18 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
                           Position cursorPosition,
                           LanguageServerContext serverContext) {
         super(operation, fileUri, wsManager, serverContext);
+        this.capabilities = capabilities;
+        this.cursorPosition = cursorPosition;
+    }
+
+    CompletionContextImpl(LSOperation operation,
+                          String fileUri,
+                          WorkspaceManager wsManager,
+                          CompletionCapabilities capabilities,
+                          Position cursorPosition,
+                          LanguageServerContext serverContext,
+                          CancelChecker cancelChecker) {
+        super(operation, fileUri, wsManager, serverContext, cancelChecker);
         this.capabilities = capabilities;
         this.cursorPosition = cursorPosition;
     }

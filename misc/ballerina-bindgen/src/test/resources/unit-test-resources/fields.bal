@@ -58,6 +58,14 @@ distinct class FieldsTestResource {
         org_ballerinalang_bindgen_FieldsTestResource_notifyAll(self.jObj);
     }
 
+    # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.FieldsTestResource`.
+    #
+    # + return - The `string[]` value returning from the Java mapping.
+    function returnStringArray() returns string[]|error {
+        handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_returnStringArray(self.jObj);
+        return <string[]>check jarrays:fromHandle(externalObj, "string");
+    }
+
     # The function that maps to the `testMethod` method of `org.ballerinalang.bindgen.FieldsTestResource`.
     #
     # + arg0 - The `int` value required to map with the Java method parameter.
@@ -1053,6 +1061,12 @@ function org_ballerinalang_bindgen_FieldsTestResource_notify(handle receiver) = 
 
 function org_ballerinalang_bindgen_FieldsTestResource_notifyAll(handle receiver) = @java:Method {
     name: "notifyAll",
+    'class: "org.ballerinalang.bindgen.FieldsTestResource",
+    paramTypes: []
+} external;
+
+function org_ballerinalang_bindgen_FieldsTestResource_returnStringArray(handle receiver) returns handle = @java:Method {
+    name: "returnStringArray",
     'class: "org.ballerinalang.bindgen.FieldsTestResource",
     paramTypes: []
 } external;

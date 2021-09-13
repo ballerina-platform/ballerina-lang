@@ -82,6 +82,14 @@ public class JSONTest {
         Assert.assertEquals(returns[0].stringValue(), "hello");
     }
 
+    @Test
+    public void testJsonAssignabilityToUnion() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAssignabilityToUnion");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.INT_TAG);
+        Assert.assertEquals(returns[0].stringValue(), "1");
+    }
+
     @Test(description = "Get JSON boolean from a string")
     public void testParseBoolean() {
         BValue[] args = {new BString("true")};
