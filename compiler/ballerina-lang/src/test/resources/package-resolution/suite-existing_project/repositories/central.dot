@@ -1,4 +1,17 @@
 digraph central {
+    subgraph "ballerina/protobuf:0.6.0" {
+    }
+    subgraph "ballerina/protobuf:0.7.0" {
+    }
+    subgraph "ballerina/protobuf.types.timestamp:1.0.0" {
+    }
+
+    subgraph "ballerina/protobuf:1.6.0" {
+    }
+    subgraph "ballerina/protobuf:1.7.0" {
+        "ballerina/protobuf:1.7.0" [other_modules = "protobuf.types.duration"]
+    }
+
     subgraph "ballerina/io:1.1.0" {
     }
     subgraph "ballerina/io:1.0.2" {
