@@ -8,7 +8,9 @@ type Hello2 int;
 
 public type Hello1 transactional  //<cursor>
 
-public function hello() {
+public 
+
+function hello() {
 
 }
 

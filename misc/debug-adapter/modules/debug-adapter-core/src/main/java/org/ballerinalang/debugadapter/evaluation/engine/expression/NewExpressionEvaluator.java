@@ -17,15 +17,19 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
@@ -38,10 +42,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.CLASS_NOT_FOUND;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_OBJECT_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getAsJString;
 
 /**
  * Evaluator implementation for implicit/explicit new expressions.
@@ -54,7 +66,7 @@ public class NewExpressionEvaluator extends Evaluator {
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
     private static final String OBJECT_INIT_METHOD_NAME = "init";
 
-    public NewExpressionEvaluator(SuspendedContext context, ExpressionNode newExpressionNode, List<Map.Entry<String,
+    public NewExpressionEvaluator(EvaluationContext context, ExpressionNode newExpressionNode, List<Map.Entry<String,
             Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = newExpressionNode;
@@ -74,38 +86,57 @@ public class NewExpressionEvaluator extends Evaluator {
             // expected type as the class-descriptor. An implicit-new-expr consisting of just new is equivalent to
             // new(). It is an error if the applicable contextually expected type is not a class or stream type.
             if (syntaxNode instanceof ImplicitNewExpressionNode) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "Implicit new expressions are not supported by the evaluator. Try using the equivalent " +
-                                "explicit expression by specifying the class descriptor (i.e. 'new T()') instead."));
+                throw createEvaluationException("Implicit new expressions are not supported by the evaluator. " +
+                        "Try using the equivalent explicit expression by specifying the class descriptor " +
+                        "(i.e. 'new T()') instead.");
             }
 
-            String className = ((ExplicitNewExpressionNode) syntaxNode).typeDescriptor().toSourceCode();
-            // Need to decode the class name, since the Ballerina semantic model is based on decoded identifier names.
-            className = IdentifierModifier.decodeIdentifier(className);
-            Value value = invokeObjectInitMethod(className);
+            Value value = invokeObjectInitMethod(((ExplicitNewExpressionNode) syntaxNode).typeDescriptor());
             return new BExpressionValue(context, value);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 
-    private Value invokeObjectInitMethod(String className) throws EvaluationException {
-        ClassDefinitionResolver classDefResolver = new ClassDefinitionResolver(context);
-        Optional<ClassSymbol> classDef = classDefResolver.findBalClassDefWithinModule(className);
+    private Value invokeObjectInitMethod(TypeDescriptorNode classType) throws EvaluationException {
 
-        if (classDef.isEmpty()) {
-            // Todo - support object initialization for classes defined in dependency modules.
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CLASS_NOT_FOUND.getString(),
-                    className));
+        String className;
+        Optional<String> modulePrefix;
+        if (classType.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            modulePrefix = Optional.of(((QualifiedNameReferenceNode) classType).modulePrefix().text().trim());
+            className = ((QualifiedNameReferenceNode) classType).identifier().text().trim();
+        } else {
+            className = classType.toSourceCode().trim();
+            modulePrefix = Optional.empty();
+        }
+        // Need to decode the class name, since the Ballerina semantic model is based on decoded identifier names.
+        className = IdentifierModifier.decodeIdentifier(className);
+        ClassDefinitionResolver classDefResolver = new ClassDefinitionResolver(context);
+
+        Optional<ClassSymbol> classSymbol;
+        if (modulePrefix.isPresent()) {
+            ModuleSymbol importedModule = resolvedImports.get(modulePrefix.get());
+            classSymbol = classDefResolver.findBalClassDefWithinModule(importedModule, className);
+        } else {
+            classSymbol = classDefResolver.findBalClassDefWithinModule(className);
         }
 
-        Optional<MethodSymbol> initMethodRef = classDef.get().initMethod();
+        if (classSymbol.isEmpty()) {
+            if (modulePrefix.isPresent()) {
+                throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_CLASS, className, modulePrefix.get());
+            } else {
+                throw createEvaluationException(CLASS_NOT_FOUND, classType.toSourceCode().trim());
+            }
+        } else if (!isPublicSymbol(classSymbol.get())) {
+            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, classType.toSourceCode().trim());
+        }
+
+        ModuleID moduleId = classSymbol.get().getModule().get().id();
+        Optional<MethodSymbol> initMethodRef = classSymbol.get().initMethod();
         if (initMethodRef.isEmpty() && !argEvaluators.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "too many arguments in call to '" + OBJECT_INIT_METHOD_NAME + "'."));
+            throw createEvaluationException("too many arguments in call to '" + OBJECT_INIT_METHOD_NAME + "'.");
         }
 
         List<String> argTypeNames = new ArrayList<>();
@@ -119,16 +150,15 @@ public class NewExpressionEvaluator extends Evaluator {
 
         // Validates user provided args against the `init` method signature.
         if (initMethodRef.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    "failed to resolve the '" + OBJECT_INIT_METHOD_NAME + "' method definition of '" + className +
-                            "'."));
+            throw createEvaluationException(String.format("failed to resolve the '%s' method definition of '%s'.",
+                    OBJECT_INIT_METHOD_NAME, className));
         }
 
         List<Value> argValues = new ArrayList<>();
-        argValues.add(EvaluationUtils.getAsJString(context, context.getPackageOrg().orElse("")));
-        argValues.add(EvaluationUtils.getAsJString(context, context.getPackageName().orElse("")));
-        argValues.add(EvaluationUtils.getAsJString(context, context.getPackageMajorVersion().orElse("")));
-        argValues.add(EvaluationUtils.getAsJString(context, className));
+        argValues.add(getAsJString(context, moduleId.orgName()));
+        argValues.add(getAsJString(context, moduleId.moduleName()));
+        argValues.add(getAsJString(context, moduleId.version().split(MODULE_VERSION_SEPARATOR)[0]));
+        argValues.add(getAsJString(context, className));
 
         SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, OBJECT_INIT_METHOD_NAME,
                 createObjectMethod.getJDIMethodRef(), initMethodRef.get());

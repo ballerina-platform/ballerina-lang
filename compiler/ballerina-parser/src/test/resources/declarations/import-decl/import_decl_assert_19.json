@@ -36,11 +36,7 @@
           "hasDiagnostics": true,
           "diagnostics": [
             "ERROR_MISSING_AS_KEYWORD"
-          ]
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "bar",
+          ],
           "leadingMinutiae": [
             {
               "kind": "INVALID_NODE_MINUTIAE",
@@ -105,6 +101,10 @@
               "value": " "
             }
           ]
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "bar"
         }
       ]
     },

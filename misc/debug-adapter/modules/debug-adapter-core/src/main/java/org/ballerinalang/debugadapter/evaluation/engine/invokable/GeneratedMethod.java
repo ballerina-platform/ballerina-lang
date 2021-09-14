@@ -20,10 +20,12 @@ import com.sun.jdi.Method;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
 
 /**
  * JVM generated method representation of a ballerina function.
@@ -39,8 +41,7 @@ public abstract class GeneratedMethod extends JvmMethod {
     @Override
     protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
         if (argValues == null) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                    methodRef.name()));
+            throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
         }
 
         List<Value> argValueList = new ArrayList<>();

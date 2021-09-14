@@ -20,23 +20,24 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.engine.BallerinaTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.NodeBasedTypeResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_RESOLVING_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CHECK_CAST_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getUnionTypeFrom;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
@@ -49,7 +50,7 @@ public class TypeCastExpressionEvaluator extends Evaluator {
     private final TypeCastExpressionNode syntaxNode;
     private final Evaluator exprEvaluator;
 
-    public TypeCastExpressionEvaluator(SuspendedContext context, TypeCastExpressionNode typeCastExpressionNode,
+    public TypeCastExpressionEvaluator(EvaluationContext context, TypeCastExpressionNode typeCastExpressionNode,
                                        Evaluator exprEvaluator) {
         super(context);
         this.syntaxNode = typeCastExpressionNode;
@@ -71,25 +72,24 @@ public class TypeCastExpressionEvaluator extends Evaluator {
 
             // Todo - should process annotations?
             if (!annotations.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Type " +
-                        "casting with annotations is not supported by the evaluator."));
+                throw createEvaluationException("Type casting with annotations is not supported by the evaluator.");
             }
-            List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, syntaxNode.typeCastParam().type().get());
+            NodeBasedTypeResolver bTypeResolver = new NodeBasedTypeResolver(evaluationContext);
+            List<Value> resolvedTypes = bTypeResolver.resolve(syntaxNode.typeCastParam().type().get());
             if (resolvedTypes.isEmpty()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_RESOLVING_ERROR.getString(),
-                        syntaxNode.typeCastParam().type().get().toSourceCode()));
+                throw createEvaluationException(TYPE_RESOLVING_ERROR, syntaxNode.typeCastParam().type().get()
+                        .toSourceCode());
             }
 
             // If the type descriptor is resolved into multiple types, creates a "BUnionType" instance by combining
             // its member types.
-            Value bTypeDescriptor = resolvedTypes.size() > 1 ? getUnionTypeFrom(context, resolvedTypes) :
+            Value bTypeDescriptor = resolvedTypes.size() > 1 ? bTypeResolver.getUnionTypeFrom(resolvedTypes) :
                     resolvedTypes.get(0);
             return checkCast(valueAsObject, bTypeDescriptor);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 

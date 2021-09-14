@@ -18,10 +18,9 @@ package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
@@ -31,6 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.ADDITIONAL_ARG_IN_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.MISSING_MESSAGE_IN_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.REST_ARG_IN_ERROR;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_ERROR_VALUE_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
@@ -51,7 +55,7 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
     private final ErrorConstructorExpressionNode syntaxNode;
     private final List<Map.Entry<String, Evaluator>> argEvaluators;
 
-    public ErrorConstructorExpressionEvaluator(SuspendedContext context, ErrorConstructorExpressionNode expressionNode,
+    public ErrorConstructorExpressionEvaluator(EvaluationContext context, ErrorConstructorExpressionNode expressionNode,
                                                List<Map.Entry<String, Evaluator>> argEvaluators) {
         super(context);
         this.syntaxNode = expressionNode;
@@ -66,9 +70,8 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
             // The first positional-arg is of type string and specifies the error message;
             // the second positional-arg, if present, is of type error?, with a default of nil, and specifies the cause.
             if (syntaxNode.typeReference().isPresent()) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "Error constructor expressions with type references (e.g. '" + syntaxNode.typeReference().get()
-                                .toSourceCode() + "') are not supported by the evaluator. "));
+                throw createEvaluationException("Error constructor expressions with type references (e.g. '" +
+                        syntaxNode.typeReference().get().toSourceCode() + "') are not supported by the evaluator.");
             }
 
             List<String> argTypeNames = new ArrayList<>();
@@ -80,13 +83,13 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
 
             List<Value> argValues = new ArrayList<>();
             if (argEvaluators.isEmpty()) {
-                throw new EvaluationException(EvaluationExceptionKind.MISSING_MESSAGE_IN_ERROR.getString());
+                throw createEvaluationException(MISSING_MESSAGE_IN_ERROR);
             }
             for (int i = 0; i < argEvaluators.size(); i++) {
                 if (i == 0) {
                     // Process error message.
                     if (!argEvaluators.get(i).getKey().isEmpty()) {
-                        throw new EvaluationException(EvaluationExceptionKind.MISSING_MESSAGE_IN_ERROR.getString());
+                        throw createEvaluationException(MISSING_MESSAGE_IN_ERROR.getString());
                     }
                     Value messageValue = argEvaluators.get(i).getValue().evaluate().getJdiValue();
                     messageValue = EvaluationUtils.getValueAsObject(context, messageValue);
@@ -97,7 +100,7 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
                 } else if (i == 1) {
                     // Process error cause (optional).
                     if (argEvaluators.get(i).getKey().equals(REST_ARG_IDENTIFIER)) {
-                        throw new EvaluationException(EvaluationExceptionKind.REST_ARG_IN_ERROR.getString());
+                        throw createEvaluationException(REST_ARG_IN_ERROR);
                     } else if (!argEvaluators.get(i).getKey().isEmpty()) {
                         argValues.add(null);
                     } else {
@@ -108,9 +111,9 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
                 } else {
                     // Process error details (optional).
                     if (argEvaluators.get(i).getKey().isEmpty()) {
-                        throw new EvaluationException(EvaluationExceptionKind.ADDITIONAL_ARG_IN_ERROR.getString());
+                        throw createEvaluationException(ADDITIONAL_ARG_IN_ERROR);
                     } else if (argEvaluators.get(i).getKey().equals(REST_ARG_IDENTIFIER)) {
-                        throw new EvaluationException(EvaluationExceptionKind.REST_ARG_IN_ERROR.getString());
+                        throw createEvaluationException(REST_ARG_IN_ERROR.getString());
                     }
                     argValues.add(VMUtils.make(context, argEvaluators.get(i).getKey()).getJdiValue());
                     Value detailValue = argEvaluators.get(i).getValue().evaluate().getJdiValue();
@@ -125,16 +128,14 @@ public class ErrorConstructorExpressionEvaluator extends Evaluator {
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 
     private void validateForErrors(Value returnValue) throws EvaluationException {
         if (returnValue.type().name().equals(JAVA_STRING_CLASS)) {
             String errorMessage = removeRedundantQuotes(getVariable(context, returnValue).computeValue());
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                    errorMessage));
+            throw createEvaluationException(errorMessage);
         }
     }
 }

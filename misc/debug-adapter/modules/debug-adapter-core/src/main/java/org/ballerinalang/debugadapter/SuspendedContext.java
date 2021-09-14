@@ -19,13 +19,13 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
@@ -38,6 +38,8 @@ import java.util.Optional;
 import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.STRAND_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
@@ -56,6 +58,7 @@ public class SuspendedContext {
     private Path breakPointSourcePath;
     private String fileName;
     private int lineNumber;
+    private Module module;
     private Document document;
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
@@ -167,6 +170,28 @@ public class SuspendedContext {
         return debugCompiler;
     }
 
+    public SemanticModel getSemanticInfo() {
+        return getDebugCompiler().getSemanticInfo();
+    }
+
+    /**
+     * Returns the JDI value of the strand instance that is being used, by visiting visible variables of the given
+     * debug context.
+     *
+     * @return JDI value of the strand instance that is being used
+     */
+    public Value getCurrentStrand() throws EvaluationException {
+        try {
+            Value strand = getFrame().getValue(getFrame().visibleVariableByName(STRAND_VAR_NAME));
+            if (strand == null) {
+                throw createEvaluationException(STRAND_NOT_FOUND);
+            }
+            return strand;
+        } catch (JdiProxyException e) {
+            throw createEvaluationException(STRAND_NOT_FOUND);
+        }
+    }
+
     public Optional<String> getFileName() {
         if (fileName == null) {
             Optional<Path> breakPointPath = getBreakPointSourcePath();
@@ -189,6 +214,13 @@ public class SuspendedContext {
         return lineNumber;
     }
 
+    public Module getModule() {
+        if (module == null) {
+            loadModule();
+        }
+        return module;
+    }
+
     public Document getDocument() {
         if (document == null) {
             loadDocument();
@@ -196,22 +228,13 @@ public class SuspendedContext {
         return document;
     }
 
-    /**
-     * Returns the JDI value of the strand instance that is being used, by visiting visible variables of the given
-     * debug context.
-     *
-     * @return JDI value of the strand instance that is being used
-     */
-    public Value getCurrentStrand() throws EvaluationException {
-        try {
-            Value strand = getFrame().getValue(getFrame().visibleVariableByName(STRAND_VAR_NAME));
-            if (strand == null) {
-                throw new EvaluationException(EvaluationExceptionKind.STRAND_NOT_FOUND.getString());
-            }
-            return strand;
-        } catch (JdiProxyException e) {
-            throw new EvaluationException(EvaluationExceptionKind.STRAND_NOT_FOUND.getString());
+    private void loadModule() {
+        Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+        if (breakPointSourcePath.isEmpty()) {
+            return;
         }
+        DocumentId documentId = project.documentId(breakPointSourcePath.get());
+        module = project.currentPackage().module(documentId.moduleId());
     }
 
     private void loadDocument() {
@@ -220,7 +243,7 @@ public class SuspendedContext {
             return;
         }
         DocumentId documentId = project.documentId(breakPointSourcePath.get());
-        Module module = project.currentPackage().module(documentId.moduleId());
+        module = project.currentPackage().module(documentId.moduleId());
         document = module.document(documentId);
     }
 }

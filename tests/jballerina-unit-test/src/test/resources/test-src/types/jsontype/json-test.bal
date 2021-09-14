@@ -38,6 +38,15 @@ public function testCloseRecordToMapJsonAssigment() returns [map<json>, map<json
     return [pm, m];
 }
 
+type MyJson ()|boolean|int|float|decimal|string|json[]|map<json>;
+
+public function testAssignabilityToUnion() returns (MyJson | xml) {
+    MyJson|xml a = 1;
+    json|xml b = a;
+    MyJson|xml c = b;
+    return c;
+}
+
 // all member types including rest type is json compatible
 type Person record {|
     string name = "";

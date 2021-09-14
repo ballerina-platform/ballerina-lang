@@ -91,6 +91,16 @@ public class GlobalVariableRefAnalyzer {
         this.globalVariablesDependsOn = new HashMap<>();
     }
 
+    private void resetAnalyzer() {
+        this.dependencyNodes.clear();
+        this.cycles.clear();
+        this.nodeInfoStack.clear();
+        this.dependencyOrder.clear();
+        this.curNodeId = 0;
+        this.globalVariablesDependsOn = new HashMap<>();
+        this.cyclicErrorFound = false;
+    }
+
     /**
      * Populate the InvokableSymbols with the dependent global variables.
      * @param globalNodeDependsOn symbol dependency relationship.
@@ -286,16 +296,6 @@ public class GlobalVariableRefAnalyzer {
             return symbolsProvidersOrdered;
         }
         return new ArrayList<>();
-    }
-
-    private void resetAnalyzer() {
-        this.dependencyNodes.clear();
-        this.cycles.clear();
-        this.nodeInfoStack.clear();
-        this.dependencyOrder.clear();
-        this.curNodeId = 0;
-        this.globalVariablesDependsOn = new HashMap<>();
-        this.cyclicErrorFound = false;
     }
 
     private void pruneDependencyRelations() {

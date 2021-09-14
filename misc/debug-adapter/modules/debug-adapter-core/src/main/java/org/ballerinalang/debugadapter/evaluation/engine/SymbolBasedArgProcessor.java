@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
@@ -35,6 +34,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_MISMATCH;
+import static org.ballerinalang.debugadapter.evaluation.engine.NameBasedTypeResolver.ARRAY_TYPE_SUFFIX;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.checkIsType;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
@@ -88,13 +90,11 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
             ArgType argType = getArgType(arg);
             if (argType == ArgType.POSITIONAL) {
                 if (namedArgsFound) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "positional args are not allowed after named args."));
+                    throw createEvaluationException("positional args are not allowed after named args.");
                 }
 
                 if (remainingParams.isEmpty() && !restArgsFound) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "too many arguments in call to '" + functionName + "'."));
+                    throw createEvaluationException("too many arguments in call to '" + functionName + "'.");
                 }
 
                 BExpressionValue argValue = arg.getValue().evaluate();
@@ -113,8 +113,7 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
                         }
                     }
                     if (restParamName == null) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                                "undefined rest parameter."));
+                        throw createEvaluationException("undefined rest parameter.");
                     }
 
                     if (!restArgsFound) {
@@ -123,9 +122,8 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
                     }
                     Value elementType = getElementType(context, restArrayType);
                     if (!checkIsType(context, jdiArgValue, elementType)) {
-                        throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                                restParamTypeName.replaceAll(BallerinaTypeResolver.ARRAY_TYPE_SUFFIX, ""),
-                                argValue.getType().getString(), restParamName));
+                        throw createEvaluationException(TYPE_MISMATCH, restParamTypeName.replaceAll(ARRAY_TYPE_SUFFIX,
+                                ""), argValue.getType().getString(), restParamName);
                     }
                     restValues.add(jdiArgValue);
                     remainingParams.remove(restParamName);
@@ -137,14 +135,12 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
                 }
             } else if (argType == ArgType.NAMED) {
                 if (restArgsFound) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "named args are not allowed after rest args."));
+                    throw createEvaluationException("named args are not allowed after rest args.");
                 }
 
                 String argName = arg.getKey();
                 if (!remainingParams.containsKey(argName)) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "undefined defaultable parameter '" + argName + "'."));
+                    throw createEvaluationException("undefined defaultable parameter '" + argName + "'.");
                 }
                 namedArgsFound = true;
                 Value argValue = arg.getValue().evaluate().getJdiValue();
@@ -156,8 +152,7 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
                 paramIndex++;
             } else if (argType == ArgType.REST) {
                 if (namedArgsFound) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "rest args are not allowed after named args."));
+                    throw createEvaluationException("rest args are not allowed after named args.");
                 }
 
                 for (Map.Entry<String, ParameterSymbol> entry : remainingParams.entrySet()) {
@@ -169,8 +164,7 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
                     }
                 }
                 if (restParamName == null) {
-                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "undefined rest parameter."));
+                    throw createEvaluationException("undefined rest parameter.");
                 }
 
                 restArgsFound = true;
@@ -185,8 +179,7 @@ public class SymbolBasedArgProcessor extends InvocationArgProcessor {
             String paramName = entry.getKey();
             ParameterKind parameterType = entry.getValue().paramKind();
             if (parameterType == ParameterKind.REQUIRED) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "missing required parameter '" + paramName + "'."));
+                throw createEvaluationException("missing required parameter '" + paramName + "'.");
             } else if (parameterType == ParameterKind.DEFAULTABLE) {
                 argValues.put(paramName + DEFAULTABLE_PARAM_SUFFIX, VMUtils.make(context, 0).getJdiValue());
             } else if (parameterType == ParameterKind.REST) {

@@ -31,10 +31,10 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.tools.text.TextRange;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.DebugExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
@@ -46,6 +46,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.engine.NodeBasedArgProcessor.getParameterName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
@@ -55,7 +58,6 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.RE
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.SELF_VAR_NAME;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getUnionTypeFrom;
 
 /**
  * Validates and processes invocation arguments of ballerina functions and object methods.
@@ -123,8 +125,7 @@ public abstract class InvocationArgProcessor {
 
             return EvaluationUtils.getAsObjects(context, argValueList);
         } catch (AbsentInformationException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString(),
-                    jdiMethodReference.name()));
+            throw createEvaluationException(FUNCTION_EXECUTION_ERROR, jdiMethodReference.name());
         }
     }
 
@@ -147,8 +148,7 @@ public abstract class InvocationArgProcessor {
         ReferenceType arrayTypeRef = ((ObjectReference) arrayType).referenceType();
         List<Method> methods = arrayTypeRef.methodsByName(GET_ELEMENT_TYPE_METHOD);
         if (methods == null || methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
-                    GET_ELEMENT_TYPE_METHOD, "ArrayType"));
+            throw createEvaluationException(OBJECT_METHOD_NOT_FOUND, GET_ELEMENT_TYPE_METHOD, "ArrayType");
         }
         RuntimeInstanceMethod method = new RuntimeInstanceMethod(context, arrayType, methods.get(0));
         method.setArgValues(new ArrayList<>());
@@ -167,8 +167,9 @@ public abstract class InvocationArgProcessor {
     }
 
     protected static Value resolveType(SuspendedContext context, String arrayTypeName) throws EvaluationException {
-        List<Value> resolvedTypes = BallerinaTypeResolver.resolve(context, arrayTypeName);
-        return resolvedTypes.size() > 1 ? getUnionTypeFrom(context, resolvedTypes) : resolvedTypes.get(0);
+        NameBasedTypeResolver bTypeResolver = new NameBasedTypeResolver(new EvaluationContext(context));
+        List<Value> resolvedTypes = bTypeResolver.resolve(arrayTypeName);
+        return resolvedTypes.size() > 1 ? bTypeResolver.getUnionTypeFrom(resolvedTypes) : resolvedTypes.get(0);
     }
 
     private FunctionSignatureNode getSyntaxTreeNodeFrom(String argName, FunctionSymbol definitionSymbol)
@@ -178,9 +179,8 @@ public abstract class InvocationArgProcessor {
             NonTerminalNode node = ((ModulePartNode) context.getDocument().syntaxTree().rootNode()).findNode(textRange);
             return ((FunctionDefinitionNode) node).functionSignature();
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "failed to " +
-                    "evaluate the default value expression of the parameter '" + argName + "' in function '" +
-                    functionName + "'."));
+            throw createEvaluationException(String.format("failed to evaluate the default value expression of the " +
+                    "parameter '%s' in function '%s'.", argName, functionName));
         }
     }
 
@@ -205,7 +205,9 @@ public abstract class InvocationArgProcessor {
                 .findFirst();
 
         Node expression = ((DefaultableParameterNode) paramNode.get()).expression();
-        return new ExpressionEvaluator(context).evaluate(expression.toSourceCode());
+        DebugExpressionEvaluator defaultValueEvaluator = new DebugExpressionEvaluator(new EvaluationContext(context));
+        defaultValueEvaluator.setExpression(expression.toSourceCode());
+        return defaultValueEvaluator.evaluate().getJdiValue();
     }
 
     /**
