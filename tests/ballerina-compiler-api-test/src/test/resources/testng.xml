@@ -21,7 +21,6 @@
 <suite name="ballerina-semantic-api-test-suite">
     <test name="semantic-api-test" parallel="false">
         <classes>
-            <class name="io.ballerina.semantic.api.test.AnnotationsTest" />
             <class name="io.ballerina.semantic.api.test.BindingPatternTest" />
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />
             <class name="io.ballerina.semantic.api.test.DocumentationTest" />
@@ -104,6 +103,7 @@
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
 
             <!--Symbols-->
+            <class name="io.ballerina.semantic.api.test.symbols.AnnotationSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ClassSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ConstDeclSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.EnumDeclSymbolTest" />

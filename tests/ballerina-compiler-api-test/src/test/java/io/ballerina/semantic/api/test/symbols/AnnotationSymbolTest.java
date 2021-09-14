@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.semantic.api.test;
+package io.ballerina.semantic.api.test.symbols;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Annotatable;
@@ -59,14 +59,14 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 2.0.0
  */
-public class AnnotationsTest {
+public class AnnotationSymbolTest {
 
     private SemanticModel model;
     private Document srcFile;
 
     @BeforeClass
     public void setup() {
-        Project project = BCompileUtil.loadProject("test-src/annotations_test.bal");
+        Project project = BCompileUtil.loadProject("test-src/symbols/annotation_symbol_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
     }
