@@ -53,6 +53,19 @@ function testStructuralConstructors() {
     ];
 }
 
+function testNewExpr() {
+    string name = "John Doe";
+    PersonClz p = new(name);
+    p = new PersonClz(name);
+
+    _StreamImplementor si = object {
+        public isolated function next() returns record {|Foo value;|}? {
+            return ();
+        }
+    };
+    var st = new stream<FooRec>(si);
+}
+
 // utils
 
 const PI = 3.14;
@@ -68,3 +81,15 @@ type Person record {|
     readonly int id;
     string name;
 |};
+
+class PersonClz {
+    string name;
+
+    function init(string name) {
+        self.name = name;
+    }
+}
+
+type _StreamImplementor object {
+    public isolated function next() returns record {|FooRec value;|}?;
+};

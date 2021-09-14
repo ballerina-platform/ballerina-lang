@@ -35,6 +35,7 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -151,6 +152,40 @@ public class SymbolsWithinExprTest {
                 {48, 25, null, null},
                 {49, 19, RECORD_FIELD, "name"},
 //                {50, 12, VARIABLE, "m"}, TODO: https://github.com/ballerina-platform/ballerina-lang/issues/32707
+        };
+    }
+
+    @Test(dataProvider = "NewExprPosProvider")
+    public void testNewExprs(int line, int col, SymbolKind expKind, String expName) {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+
+        if (expKind == null) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        assertEquals(symbol.get().kind(), expKind);
+
+        if (expName == null) {
+            assertTrue(symbol.get().getName().isEmpty());
+            return;
+        }
+        
+        assertEquals(symbol.get().getName().get(), expName);
+    }
+
+    @DataProvider
+    public static Object[][] NewExprPosProvider() {
+        return new Object[][]{
+                {57, 18, null, null},
+                {57, 22, VARIABLE, "name"},
+                {58, 8, null, null},
+                {58, 12, TYPE, "PersonClz"},
+                {58, 22, VARIABLE, "name"},
+                {65, 13, null, null},
+                {65, 17, TYPE, null},
+                {65, 24, TYPE, "FooRec"},
+                {65, 32, VARIABLE, "si"},
         };
     }
 }
