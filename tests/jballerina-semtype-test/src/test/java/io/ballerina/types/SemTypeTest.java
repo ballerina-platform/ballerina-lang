@@ -66,8 +66,8 @@ public class SemTypeTest {
                 "test-src/simple-type/list-type-test.bal",
                 "test-src/simple-type/map-type-test.bal");
 
-        return testFiles.toArray(new String[0]);
-        //return new Object[]{"test-src/data/float-singleton.bal"};
+        //return testFiles.toArray(new String[0]);
+        return new Object[]{"test-src/data/error2.bal"};
     }
 
     private void include(List<String> testFiles, String... fileNames) {

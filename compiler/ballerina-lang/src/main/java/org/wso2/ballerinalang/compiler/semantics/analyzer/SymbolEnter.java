@@ -795,12 +795,26 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SemType resolveTypeDesc(BLangArrayType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
                                     BLangTypeDefinition moduleDefn) {
+        Definition defn = td.defn;
+        if (defn != null) {
+            return defn.getSemType(semtypeEnv);
+        }
+
+        ListDefinition d = new ListDefinition();
+        td.defn = d;
         SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
-        return createListSemType(td, semtypeEnv, Collections.emptyList(), elementType);
+        return d.define(semtypeEnv, Collections.emptyList(), elementType);
     }
 
     private SemType resolveTypeDesc(BLangTupleTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
                                     BLangTypeDefinition moduleDefn) {
+        Definition defn = td.defn;
+        if (defn != null) {
+            return defn.getSemType(semtypeEnv);
+        }
+
+        ListDefinition d = new ListDefinition();
+        td.defn = d;
         List<SemType> members = new ArrayList<>();
         for (BLangType memberTypeNode : td.memberTypeNodes) {
             members.add(resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, memberTypeNode));
@@ -810,16 +824,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             restType = PredefinedType.NEVER;
         }
 
-        return createListSemType(td, semtypeEnv, members, restType);
-    }
-
-    private static SemType createListSemType(BLangType td, Env semtypeEnv, List<SemType> members, SemType restType) {
-        Definition defn = td.defn;
-        if (defn != null) {
-            return defn.getSemType(semtypeEnv);
-        }
-        ListDefinition d = new ListDefinition();
-        td.defn = d;
         return d.define(semtypeEnv, members, restType);
     }
 
