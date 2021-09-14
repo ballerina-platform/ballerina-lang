@@ -361,7 +361,12 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (types.getReferredType(expType).tag == TypeTags.INTERSECTION) {
-            expType = ((BIntersectionType) types.getReferredType(expType)).effectiveType;
+            if (expType.tag == TypeTags.TYPEREFDESC) {
+                BType effectiveType = ((BIntersectionType) types.getReferredType(expType)).effectiveType;
+                expType = new BTypeReferenceType(effectiveType, effectiveType.tsymbol, effectiveType.flags);
+            } else {
+                expType = ((BIntersectionType) types.getReferredType(expType)).effectiveType;
+            }
         }
 
         SymbolEnv prevEnv = this.env;
@@ -376,7 +381,12 @@ public class TypeChecker extends BLangNodeVisitor {
         expr.accept(this);
 
         if (types.getReferredType(resultType).tag == TypeTags.INTERSECTION) {
-            resultType = ((BIntersectionType) types.getReferredType(resultType)).effectiveType;
+            if (resultType.tag == TypeTags.TYPEREFDESC) {
+                BType effectiveType = ((BIntersectionType) types.getReferredType(resultType)).effectiveType;
+                resultType = new BTypeReferenceType(effectiveType, effectiveType.tsymbol, effectiveType.flags);
+            } else {
+                resultType = ((BIntersectionType) types.getReferredType(resultType)).effectiveType;
+            }
         }
 
         expr.setTypeCheckedType(resultType);
@@ -2774,6 +2784,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.TYPEREFDESC:
                 visitInvocation(iExpr, types.getReferredType(varRefType));
+                break;
+            case TypeTags.INTERSECTION:
+                visitInvocation(iExpr, ((BIntersectionType)varRefType).effectiveType);
                 break;
             case TypeTags.SEMANTIC_ERROR:
                 break;

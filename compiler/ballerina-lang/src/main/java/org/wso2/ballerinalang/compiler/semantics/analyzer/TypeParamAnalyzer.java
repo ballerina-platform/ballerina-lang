@@ -449,6 +449,10 @@ public class TypeParamAnalyzer {
                         result, checkContravariance);
                 break;
         }
+        if (actualType.tag == TypeTags.INTERSECTION) {
+            visitType(loc, expType, ((BIntersectionType)actualType).effectiveType, env, resolvedTypes,
+                    result, checkContravariance);
+        }
         if (actualType.tag == TypeTags.TYPEREFDESC) {
             visitType(loc, expType, types.getReferredType(actualType), env, resolvedTypes,
                     result, checkContravariance);
