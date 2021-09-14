@@ -204,6 +204,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 /**
  * @since 0.94
+ * @deprecated since 2.0.0. Use {@link BLangNodeAnalyzer} or {@link BLangNodeTransformer}.
  */
 public abstract class BLangNodeVisitor {
 
