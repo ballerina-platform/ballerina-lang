@@ -94,10 +94,10 @@ public class TableUtils {
                 }
                 return result;
             } else {
-                return (long) 31 * TypeChecker.getType(obj).getTag() + obj.toString().hashCode();
+                return (long) obj.hashCode();
             }
         } else {
-            return (long) 31 * TypeChecker.getType(obj).getTag() + obj.toString().hashCode();
+            return (long) obj.hashCode();
         }
     }
 
