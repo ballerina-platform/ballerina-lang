@@ -1306,8 +1306,6 @@ public class QueryDesugar extends BLangNodeVisitor {
             lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
         }
         lambda.function.accept(this);
-        lambda.function = desugar.rewrite(lambda.function, env);
-        env.enclPkg.lambdaFunctions.add(lambda);
     }
 
     @Override
