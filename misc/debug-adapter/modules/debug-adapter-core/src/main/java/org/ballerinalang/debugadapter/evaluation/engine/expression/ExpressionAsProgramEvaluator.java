@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.evaluation.engine;
+package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import com.sun.jdi.Value;
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
@@ -33,8 +35,13 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.ExternalNameReferenceFinder;
+import org.ballerinalang.debugadapter.evaluation.engine.ModuleLevelDefinitionFinder;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -45,98 +52,122 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.QUOTED_IDENTIFIER_PREFIX;
+import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.decodeIdentifier;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DEBUGGER_RUNTIME_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CLASSLOAD_AND_INVOKE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_OBJECT_ARRAY_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.MODULE_VERSION_SEPARATOR;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getAsJString;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_ORG;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_TOML_FILE_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
- * Ballerina query expression processor implementation.
+ * A base evaluator implementation which provides a more generic evaluation approach to be used for some complex
+ * Ballerina expressions (queries, let expressions, etc.).
+ * <p>
+ * This evaluator transforms the user expression into a standalone ballerina program, which returns the
+ * the user expression result as the program output and can be executed in the same debuggee JVM.
  *
  * @since 2.0.0
  */
-public class QueryExpressionProcessor {
+public class ExpressionAsProgramEvaluator extends Evaluator {
 
-    private final SuspendedContext context;
-    private final QueryExpressionNode syntaxNode;
-    private final List<String> externalVariableNames = new ArrayList<>();
-    private final List<Value> externalVariableValues = new ArrayList<>();
     private Path tempProjectDir;
 
-    private static final String TEMP_DIR_PREFIX = "query-executable-dir-";
+    protected final ExpressionNode syntaxNode;
+    private final List<String> externalVariableNames = new ArrayList<>();
+    private final List<Value> externalVariableValues = new ArrayList<>();
+
+    private static final String TEMP_DIR_PREFIX = "evaluation-executable-dir-";
     private static final String MAIN_FILE_PREFIX = "main-";
     private static final String TEMP_PACKAGE_ORG = "jballerina_debugger";
-    private static final String TEMP_PACKAGE_NAME = "query_executor";
+    private static final String TEMP_PACKAGE_NAME = "evaluation_executor";
     private static final String TEMP_PACKAGE_VERSION = "1.0.0";
-    public static final String QUERY_FUNCTION_NAME = "__getQueryResult";
+    public static final String EVALUATION_FUNCTION_NAME = "__getEvaluationResult";
 
     // Note: the function definition snippet cannot be public, since compiler does not allow public functions to
     // return non-public types.
-    private static final String QUERY_SNIPPET_TEMPLATE = "%s function %s(%s) returns any|error { return %s; }";
+    private static final String EVALUATION_SNIPPET_TEMPLATE = "%s %s function %s(%s) returns any|error { return %s; }";
+    private static final String EVALUATION_IMPORT_TEMPLATE = "import %s/%s as %s;";
 
-    public QueryExpressionProcessor(SuspendedContext context, QueryExpressionNode syntaxNode) {
-        this.context = context;
+    public ExpressionAsProgramEvaluator(EvaluationContext evaluationContext, ExpressionNode syntaxNode) {
+        super(evaluationContext);
         this.syntaxNode = syntaxNode;
     }
 
-    public List<Value> getExternalVariableValues() {
-        return externalVariableValues;
-    }
-
-    /**
-     * Generates Ballerina executable jar files for the code snippet, which encloses the query expression to be
-     * evaluated.
-     *
-     * @return Path to the generated executable file and the name of the main class.
-     */
-    public Map.Entry<Path, String> generateExecutables() throws EvaluationException {
+    @Override
+    public BExpressionValue evaluate() throws EvaluationException {
         try {
-            String querySnippet = generateQuerySnippet();
-            BuildProject project = createProject(querySnippet);
+            String evaluationSnippet = generateEvaluationSnippet();
+            BuildProject project = createProject(evaluationSnippet);
             Path executablePath = createExecutables(project);
             String mainClassName = constructMainClassName(project);
-            return new AbstractMap.SimpleEntry<>(executablePath, mainClassName);
+
+            List<String> argTypes = new ArrayList<>();
+            argTypes.add(JAVA_STRING_CLASS);
+            argTypes.add(JAVA_STRING_CLASS);
+            argTypes.add(JAVA_STRING_CLASS);
+            argTypes.add(JAVA_OBJECT_ARRAY_CLASS);
+            RuntimeStaticMethod classLoadAndInvokeMethod = getRuntimeMethod(context, B_DEBUGGER_RUNTIME_CLASS,
+                    CLASSLOAD_AND_INVOKE_METHOD, argTypes);
+
+            List<Value> argList = new ArrayList<>();
+            argList.add(getAsJString(context, executablePath.toAbsolutePath().toString()));
+            argList.add(getAsJString(context, mainClassName));
+            argList.add(getAsJString(context, EVALUATION_FUNCTION_NAME));
+
+            // adds all the captured variable values as rest arguments.
+            argList.addAll(externalVariableValues);
+            classLoadAndInvokeMethod.setArgValues(argList);
+            Value expressionResult = classLoadAndInvokeMethod.invokeSafely();
+            return new BExpressionValue(context, expressionResult);
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw createEvaluationException("error occurred while generating executables to invoke the query " +
-                    "expression");
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
+        } finally {
+            this.dispose();
         }
     }
 
     /**
-     * Generates the Ballerina program code snippet, which can output the result of the given query expression.
+     * Generates a valid Ballerina program code snippet, which can output the result of the given expression.
      *
      * @return Ballerina program snippet
      */
-    private String generateQuerySnippet() throws EvaluationException {
+    private String generateEvaluationSnippet() throws EvaluationException {
+        // Generates import declarations snippet
+        String importDeclarations = generateImportDeclarations();
         // Generates top level declarations snippet
-        String declarations = generateModuleLevelDeclarations();
+        String moduleDeclarations = generateModuleLevelDeclarations();
 
-        // Generates function signature (parameter definitions) for the query function template.
+        // Generates function signature (parameter definitions) for the snippet function template.
         processSnippetFunctionParameters();
         StringJoiner parameters = new StringJoiner(",");
         externalVariableNames.forEach(parameters::add);
 
-        // Constructs the query expression string to be injected.
-        String queryExpression;
-        if (syntaxNode.parent() != null && syntaxNode.parent().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
-            // Since Ballerina query expression return type might depend on the contextual type, we need to inject
-            // any existing type castings o top of the query expressions (expression will results in semantic errors
-            // otherwise.)
-            queryExpression = syntaxNode.parent().toSourceCode();
-        } else {
-            queryExpression = syntaxNode.toSourceCode();
-        }
-
-        return String.format(QUERY_SNIPPET_TEMPLATE, declarations, QUERY_FUNCTION_NAME, parameters, queryExpression);
+        return String.format(EVALUATION_SNIPPET_TEMPLATE,
+                importDeclarations,
+                moduleDeclarations,
+                EVALUATION_FUNCTION_NAME,
+                parameters,
+                syntaxNode.toSourceCode().trim());
     }
 
     /**
@@ -175,7 +206,7 @@ public class QueryExpressionProcessor {
             buildProject = (BuildProject) newBallerinaToml.packageInstance().project();
             return buildProject;
         } catch (Exception e) {
-            throw createEvaluationException("Error occurred while creating a temporary evaluation project at: " +
+            throw createEvaluationException("error occurred while creating a temporary evaluation project at: " +
                     this.tempProjectDir + ", due to: " + e.getMessage());
         }
     }
@@ -191,7 +222,7 @@ public class QueryExpressionProcessor {
         try {
             target = new Target(project.sourceRoot());
         } catch (IOException | ProjectException e) {
-            throw createEvaluationException("failed to resolve target path while evaluating query expression: "
+            throw createEvaluationException("failed to resolve target path while evaluating expression: "
                     + e.getMessage());
         }
 
@@ -199,26 +230,17 @@ public class QueryExpressionProcessor {
         try {
             executablePath = target.getExecutablePath(project.currentPackage()).toAbsolutePath().normalize();
         } catch (IOException e) {
-            throw createEvaluationException("failed to create executable while evaluating query expression: "
+            throw createEvaluationException("failed to create executables while evaluating expression: "
                     + e.getMessage());
         }
 
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
-            if (pkgCompilation.diagnosticResult().hasErrors()) {
-                StringJoiner errors = new StringJoiner(System.lineSeparator());
-                errors.add("compilation error(s) found while creating executables for the query evaluation: ");
-                pkgCompilation.diagnosticResult().errors().forEach(error -> {
-                    if (error.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                        errors.add(error.message());
-                    }
-                });
-                throw createEvaluationException(errors.toString());
-            }
+            validateForCompilationErrors(pkgCompilation);
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
         } catch (ProjectException e) {
-            throw createEvaluationException("failed to create executable while evaluating query expression: "
+            throw createEvaluationException("failed to create executables while evaluating expression: "
                     + e.getMessage());
         }
         return executablePath;
@@ -232,7 +254,7 @@ public class QueryExpressionProcessor {
         classNameJoiner.add(TEMP_PACKAGE_ORG);
         classNameJoiner.add(TEMP_PACKAGE_NAME);
         // Generated class name will only contain the major version.
-        classNameJoiner.add(TEMP_PACKAGE_VERSION.split("\\.")[0]);
+        classNameJoiner.add(TEMP_PACKAGE_VERSION.split(MODULE_VERSION_SEPARATOR)[0]);
         classNameJoiner.add(getFileNameWithoutExtension(document.name()));
 
         return classNameJoiner.toString();
@@ -263,9 +285,36 @@ public class QueryExpressionProcessor {
         }
     }
 
+    private String generateImportDeclarations() {
+        StringBuilder importBuilder = new StringBuilder(System.lineSeparator());
+        for (Map.Entry<String, ModuleSymbol> importEntry : resolvedImports.entrySet()) {
+            importBuilder.append(constructImportStatement(importEntry));
+        }
+
+        return importBuilder.append(System.lineSeparator()).toString();
+    }
+
+    private String constructImportStatement(Map.Entry<String, ModuleSymbol> importEntry) {
+        String orgName = importEntry.getValue().id().orgName();
+        String moduleName = getModuleName(importEntry.getValue().id());
+        decodeIdentifier(importEntry.getValue().id().moduleName());
+        String alias = importEntry.getKey();
+        return String.format(EVALUATION_IMPORT_TEMPLATE, orgName, moduleName, alias);
+    }
+
+    private String getModuleName(ModuleID moduleId) {
+        if (moduleId.orgName().equals(LANG_LIB_ORG) && moduleId.moduleName().startsWith(LANG_LIB_PACKAGE_PREFIX)) {
+            // Need to inject the quoted identifier prefix for lang-lib module imports.
+            String[] moduleNameParts = moduleId.moduleName().split("\\.");
+            moduleNameParts = Arrays.copyOfRange(moduleNameParts, 1, moduleNameParts.length);
+            return LANG_LIB_PACKAGE_PREFIX + QUOTED_IDENTIFIER_PREFIX + String.join(".", moduleNameParts);
+        } else {
+            return moduleId.moduleName();
+        }
+    }
+
     private String generateModuleLevelDeclarations() {
         ModuleLevelDefinitionFinder moduleDefinitionFinder = new ModuleLevelDefinitionFinder(context);
-        moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.IMPORT_DECLARATION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.FUNCTION_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.TYPE_DEFINITION);
         moduleDefinitionFinder.addInclusiveFilter(SyntaxKind.MODULE_VAR_DECL);
@@ -280,7 +329,38 @@ public class QueryExpressionProcessor {
         return declarationList.stream()
                 .map(Node::toSourceCode)
                 .reduce((s, s2) -> s + System.lineSeparator() + s2)
+                .map(s -> s + System.lineSeparator())
                 .orElse("");
+    }
+
+    private void processSnippetFunctionParameters() throws EvaluationException {
+        // Retrieves all the external (local + global) variables which are being used in the user expression.
+        List<String> capturedVarNames = new ArrayList<>(new ExternalNameReferenceFinder(syntaxNode)
+                .getCapturedVariables());
+        List<String> capturedTypes = new ArrayList<>();
+        for (String name : capturedVarNames) {
+            Value jdiValue = VariableUtils.fetchVariableValue(context, name);
+            BVariable bVar = VariableFactory.getVariable(context, jdiValue);
+            capturedTypes.add(getTypeNameString(bVar));
+            externalVariableValues.add(getValueAsObject(context, jdiValue));
+        }
+
+        for (int index = 0; index < capturedVarNames.size(); index++) {
+            externalVariableNames.add(capturedTypes.get(index) + " " + capturedVarNames.get(index));
+        }
+    }
+
+    private void validateForCompilationErrors(PackageCompilation packageCompilation) throws EvaluationException {
+        if (packageCompilation.diagnosticResult().hasErrors()) {
+            StringJoiner errors = new StringJoiner(System.lineSeparator());
+            errors.add("compilation error(s) found while creating executables for evaluation: ");
+            packageCompilation.diagnosticResult().errors().forEach(error -> {
+                if (error.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                    errors.add(error.message());
+                }
+            });
+            throw createEvaluationException(errors.toString());
+        }
     }
 
     /**
@@ -326,22 +406,6 @@ public class QueryExpressionProcessor {
         }
     }
 
-    private void processSnippetFunctionParameters() throws EvaluationException {
-        // Retrieves all the external (local + global) variables which are being used in the query expression.
-        List<String> capturedVarNames = new ArrayList<>(new QueryReferenceFinder(syntaxNode).getCapturedVariables());
-        List<String> capturedTypes = new ArrayList<>();
-        for (String name : capturedVarNames) {
-            Value jdiValue = VariableUtils.getVariableValue(context, name);
-            BVariable bVar = VariableFactory.getVariable(context, jdiValue);
-            capturedTypes.add(getTypeNameString(bVar));
-            externalVariableValues.add(jdiValue);
-        }
-
-        for (int index = 0; index < capturedVarNames.size(); index++) {
-            externalVariableNames.add(capturedTypes.get(index) + " " + capturedVarNames.get(index));
-        }
-    }
-
     /**
      * Delete the given directory along with all files and sub directories.
      *
@@ -367,7 +431,7 @@ public class QueryExpressionProcessor {
         }
     }
 
-    public void dispose() {
+    private void dispose() {
         // Todo - anything else to be disposed?
         deleteDirectory(this.tempProjectDir);
     }

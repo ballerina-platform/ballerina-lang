@@ -17,12 +17,15 @@
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
-import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+
+import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.INTERNAL_ERROR;
+import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.TYPE_MISMATCH;
 
 /**
  * Evaluator implementation for conditional expressions.
@@ -36,11 +39,11 @@ public class ConditionalExpressionEvaluator extends Evaluator {
     private final Evaluator middleEvaluator;
     private final Evaluator endEvaluator;
 
-    public ConditionalExpressionEvaluator(SuspendedContext context, ConditionalExpressionNode conditionalExpressionNode,
+    public ConditionalExpressionEvaluator(EvaluationContext context, ConditionalExpressionNode expressionNode,
                                           Evaluator lhsExprEvaluator, Evaluator middleExprEvaluator,
                                           Evaluator endExprEvaluator) {
         super(context);
-        this.syntaxNode = conditionalExpressionNode;
+        this.syntaxNode = expressionNode;
         this.lhsEvaluator = lhsExprEvaluator;
         this.middleEvaluator = middleExprEvaluator;
         this.endEvaluator = endExprEvaluator;
@@ -51,17 +54,15 @@ public class ConditionalExpressionEvaluator extends Evaluator {
         try {
             BExpressionValue lhsResult = lhsEvaluator.evaluate();
             if (lhsResult.getType() != BVariableType.BOOLEAN) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.TYPE_MISMATCH.getString(),
-                        BVariableType.BOOLEAN.getString(), lhsResult.getType().getString(),
-                        syntaxNode.lhsExpression().toSourceCode().trim()));
+                throw createEvaluationException(TYPE_MISMATCH, BVariableType.BOOLEAN.getString(),
+                        lhsResult.getType().getString(), syntaxNode.lhsExpression().toSourceCode().trim());
             }
             return Boolean.parseBoolean(lhsResult.getStringValue()) ? middleEvaluator.evaluate() :
                     endEvaluator.evaluate();
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.INTERNAL_ERROR.getString(),
-                    syntaxNode.toSourceCode().trim()));
+            throw createEvaluationException(INTERNAL_ERROR, syntaxNode.toSourceCode().trim());
         }
     }
 }

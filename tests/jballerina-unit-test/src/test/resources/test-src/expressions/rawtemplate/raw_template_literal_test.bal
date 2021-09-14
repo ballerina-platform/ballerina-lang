@@ -209,7 +209,7 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $rawTemplate$RawTemplate$_12", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$_14", td.toString());
 }
 
 function testUseWithAny() {
@@ -217,7 +217,7 @@ function testUseWithAny() {
     any rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $rawTemplate$RawTemplate$_13", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$_15", td.toString());
 }
 
 public type Template3 object {

@@ -61,7 +61,7 @@ public class PackageUtils {
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String MODULE_DIR_NAME = "modules";
 
-    private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
+    private static final String FILE_SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
      * Retrieves the absolute path of the breakpoint location using JDI breakpoint hit information.
@@ -156,7 +156,7 @@ public class PackageUtils {
 
     public static String getFileNameFrom(Path filePath) {
         try {
-            String[] split = filePath.toString().split(SEPARATOR_REGEX);
+            String[] split = filePath.toString().split(FILE_SEPARATOR_REGEX);
             String fileName = split[split.length - 1];
             if (fileName.endsWith(BAL_FILE_EXT)) {
                 return fileName.replace(BAL_FILE_EXT, "");
@@ -216,7 +216,7 @@ public class PackageUtils {
             classNameJoiner.add(document.module().packageInstance().packageOrg().value())
                     .add(encodeModuleName(document.module().moduleName().toString()))
                     .add(String.valueOf(packageMajorVersion))
-                    .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
+                    .add(document.name().replace(BAL_FILE_EXT, "").replace(FILE_SEPARATOR_REGEX, ".").replace("/", "."));
 
             return Optional.ofNullable(classNameJoiner.toString());
         } catch (Exception e) {

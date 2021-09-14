@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -75,3 +75,72 @@ type PersonType Person1;
 function testTypeAliasForClass() {
     PersonType pt = new PersonType("John", "Doe");
 }
+
+type Rec record {|
+    int id;
+    int count;
+|};
+
+type FooObject object {
+    any x;
+};
+
+class FooClass {
+    any x = 2;
+
+    function hello() returns string {
+        return "hello";
+    }
+
+    *FooObject;
+}
+
+# Class for compiler API test
+@classForTest
+class TestClass {
+
+    # Name field
+    @v1
+    public string testName;
+
+    # X field
+    @v2
+    final any x = "x";
+
+    # Foo field
+    @v1
+    private Rec foo;
+
+    # Constructor
+    @v2
+    function init(string testName, int id) {
+        self.testName = testName;
+        self.foo = {id: id, count: 0};
+    }
+
+    # Get name
+    # + return - Computed name
+    @v1
+    public function getName() returns string {
+        return self.testName + "/" + self.foo.id.toString();
+    }
+
+    # Get X
+    # + return - 'x' value
+    @v1
+    public isolated function getX() returns any => self.x;
+
+    # Hello
+    @v2
+    function hello() returns string {
+        return "";
+    }
+
+    *FooClass;
+}
+
+const annotation classForTest on source class;
+
+const annotation v1 on source field, function ;
+
+const annotation v2 on field, function;

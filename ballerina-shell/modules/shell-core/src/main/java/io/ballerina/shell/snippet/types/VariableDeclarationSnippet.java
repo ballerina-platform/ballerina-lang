@@ -26,7 +26,7 @@ import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.shell.snippet.SnippetSubKind;
-import io.ballerina.shell.utils.QuotedIdentifier;
+import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.StringUtils;
 
 import java.util.HashSet;
@@ -43,7 +43,7 @@ import static io.ballerina.compiler.syntax.tree.SyntaxKind.VAR_TYPE_DESC;
  */
 public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDeclarationNode>
         implements TopLevelDeclarationSnippet {
-    private Set<QuotedIdentifier> names;
+    private Set<Identifier> names;
 
     public VariableDeclarationSnippet(ModuleVariableDeclarationNode rootNode) {
         super(SnippetSubKind.VARIABLE_DECLARATION, rootNode);
@@ -65,7 +65,7 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
     /**
      * Variable names that are defined in this snippet.
      */
-    public Set<QuotedIdentifier> names() {
+    public Set<Identifier> names() {
         if (names != null) {
             return names;
         }
@@ -82,9 +82,9 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
      * @since 2.0.0
      */
     private static class VariableNameFinder extends NodeVisitor {
-        private final Set<QuotedIdentifier> foundVariableIdentifiers;
+        private final Set<Identifier> foundVariableIdentifiers;
 
-        public VariableNameFinder(Set<QuotedIdentifier> foundVariableIdentifiers) {
+        public VariableNameFinder(Set<Identifier> foundVariableIdentifiers) {
             this.foundVariableIdentifiers = foundVariableIdentifiers;
         }
 
@@ -105,7 +105,7 @@ public class VariableDeclarationSnippet extends AbstractSnippet<ModuleVariableDe
 
         private void addIdentifier(Token token) {
             String unescapedIdentifier = StringUtils.unescapeUnicodeCodepoints(token.text());
-            foundVariableIdentifiers.add(new QuotedIdentifier(unescapedIdentifier));
+            foundVariableIdentifiers.add(new Identifier(unescapedIdentifier));
         }
     }
 

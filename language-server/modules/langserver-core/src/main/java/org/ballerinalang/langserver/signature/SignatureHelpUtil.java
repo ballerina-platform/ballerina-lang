@@ -99,6 +99,8 @@ public class SignatureHelpUtil {
     public static SignatureHelp getSignatureHelp(SignatureContext context) {
         fillTokenInfoAtCursor(context);
         Optional<NonTerminalNode> sNode = context.getNodeAtCursor();
+        // Check for the cancellation after time consuming operation 
+        context.checkCancelled();
 
         if (sNode.isEmpty()) {
             return null; //empty signatureHelp;

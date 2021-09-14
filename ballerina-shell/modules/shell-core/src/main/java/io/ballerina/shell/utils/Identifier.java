@@ -21,16 +21,16 @@ package io.ballerina.shell.utils;
 import java.util.Objects;
 
 /**
- * A string name that is quoted.
+ * A string name.
  * Supports hashing.
  *
  * @since 2.0.0
  */
-public class QuotedIdentifier {
+public class Identifier {
     private static final int ASCII_VALUE = 128;
     private final String name;
 
-    public QuotedIdentifier(String name) {
+    public Identifier(String name) {
         Objects.requireNonNull(name);
         StringBuilder convertedName = new StringBuilder();
         for (char character : name.toCharArray()) {
@@ -41,7 +41,7 @@ public class QuotedIdentifier {
                 convertedName.append(character);
             }
         }
-        this.name = StringUtils.quoted(convertedName.toString());
+        this.name = convertedName.toString();
     }
 
     @Override
@@ -52,7 +52,7 @@ public class QuotedIdentifier {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        QuotedIdentifier that = (QuotedIdentifier) o;
+        Identifier that = (Identifier) o;
         return name.equals(that.name);
     }
 
