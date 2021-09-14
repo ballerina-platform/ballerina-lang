@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -106,8 +105,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static java.lang.System.out;
-
 /**
  * Common utils that are reused within test suits.
  */
@@ -156,8 +153,6 @@ public class TestUtil {
     private static final String SEMANTIC_TOKENS_FULL = "textDocument/semanticTokens/full";
 
     private static final Gson GSON = new Gson();
-
-    private static final JsonParser parser = new JsonParser();
 
     private TestUtil() {
     }
@@ -522,6 +517,10 @@ public class TestUtil {
      * @return {@link Endpoint}     Service Endpoint
      */
     public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer) {
+        return initializeLanguageSever(languageServer, OutputStream.nullOutputStream());
+    }
+
+    public static Endpoint initializeLanguageSever(BallerinaLanguageServer languageServer, OutputStream out) {
         InputStream in = new ByteArrayInputStream(new byte[1024]);
         Launcher<ExtendedLanguageClient> launcher = Launcher.createLauncher(languageServer,
                 ExtendedLanguageClient.class, in, out);
