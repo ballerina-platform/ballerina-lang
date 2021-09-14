@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.eclipse.lsp4j.CompletionParams;
+import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +57,20 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
                 context.getCapabilities(),
                 context.getCursorPosition(),
                 serverContext);
+        this.completionParams = completionParams;
+    }
+
+    public BallerinaCompletionContextImpl(CompletionContext context,
+                                          LanguageServerContext serverContext,
+                                          CompletionParams completionParams,
+                                          CancelChecker cancelChecker) {
+        super(context.operation(),
+                context.fileUri(),
+                context.workspace(),
+                context.getCapabilities(),
+                context.getCursorPosition(),
+                serverContext,
+                cancelChecker);
         this.completionParams = completionParams;
     }
 
@@ -131,7 +146,7 @@ public class BallerinaCompletionContextImpl extends CompletionContextImpl implem
             this.enclosingNode = BallerinaContextUtils.getEnclosingModuleMember(syntaxTree.get(),
                     this.getCursorPositionInTree()).orElse(null);
         }
-        
+
         return Optional.ofNullable(this.enclosingNode);
     }
 }

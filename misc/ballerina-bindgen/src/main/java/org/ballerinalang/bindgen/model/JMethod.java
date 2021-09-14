@@ -18,6 +18,7 @@
 package org.ballerinalang.bindgen.model;
 
 import org.ballerinalang.bindgen.utils.BindgenEnv;
+import org.ballerinalang.bindgen.utils.BindgenUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -103,7 +104,7 @@ public class JMethod extends BFunction {
                         .isAssignableFrom(exceptionType)) {
                     JError jError = new JError(exceptionType);
                     setThrowable(jError);
-                    importedPackages.add(exceptionType.getPackageName());
+                    BindgenUtils.addImportedPackage(exceptionType, importedPackages);
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
                     if (env.getModulesFlag()) {
@@ -149,15 +150,7 @@ public class JMethod extends BFunction {
 
     private void setReturnTypeAttributes(Class returnTypeClass) {
         hasReturn = true;
-        if (!returnTypeClass.isPrimitive()) {
-            if (returnTypeClass.isArray()) {
-                if (!returnTypeClass.getComponentType().isPrimitive()) {
-                    importedPackages.add(returnTypeClass.getComponentType().getPackageName());
-                }
-            } else {
-                importedPackages.add(returnTypeClass.getPackageName());
-            }
-        }
+        BindgenUtils.addImportedPackage(returnTypeClass, importedPackages);
 
         returnTypeJava = getJavaType(returnTypeClass);
         setExternalReturnType(getBallerinaHandleType(returnTypeClass));
@@ -218,7 +211,7 @@ public class JMethod extends BFunction {
 
     private void setParameters(Parameter[] paramArr) {
         for (Parameter param : paramArr) {
-            importedPackages.add(param.getType().getPackageName());
+            BindgenUtils.addImportedPackage(param.getType(), importedPackages);
             paramTypes.append(getAlias(param.getType(), env.getAliases()).toLowerCase(Locale.ENGLISH));
             JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);

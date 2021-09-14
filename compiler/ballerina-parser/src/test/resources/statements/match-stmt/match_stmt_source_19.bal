@@ -1,7 +1,7 @@
 function foo() {
     match v {
-        ;
-        }
+;
+                }
     }
 
 type Person record {
