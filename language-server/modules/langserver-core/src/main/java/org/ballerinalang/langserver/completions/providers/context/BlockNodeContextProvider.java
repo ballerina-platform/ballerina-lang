@@ -309,7 +309,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 continue;
             }
 
-            int rank = SortingUtil.toRank(lsCItem, 1);
+            int rank = SortingUtil.toRank(context, lsCItem, 1);
             lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
         }
     }

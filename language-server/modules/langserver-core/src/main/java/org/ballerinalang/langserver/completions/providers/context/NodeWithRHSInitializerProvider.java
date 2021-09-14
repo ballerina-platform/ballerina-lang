@@ -58,9 +58,9 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
             String sortText;
             if (contextType.isEmpty()) {
                 // Safety check. In general, should not reach this point
-                sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             } else {
-                sortText = SortingUtil.genSortTextByAssignability(lsCItem, contextType.get());
+                sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
             }
 
             lsCItem.getCompletionItem().setSortText(sortText);
