@@ -107,7 +107,7 @@ public class VarDeclSymbolTest {
                 {26, 13, "s3", TypeDescKind.STRING, "String 3", "varDecl",
                         List.of(Qualifier.FINAL)},
 //                {30, 10, "s4", TypeDescKind.STRING, "String 4", "varDecl",
-//                        List.of(Qualifier.FINAL)},      // Annotation in not working
+//                        List.of(Qualifier.FINAL)},      // TODO: Uncomment after fixing #32709
                 {34, 13, "s5", TypeDescKind.ANY, "String 5", "varDecl",
                         List.of(Qualifier.ISOLATED)},
                 {38, 13, "i1", TypeDescKind.INT, "Int 1", "varDecl",
